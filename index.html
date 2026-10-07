@@ -202,6 +202,13 @@
   .mar-card{ margin-bottom:16px; font-size:16px; padding:20px 22px; } .mar-card .tbl{ font-size:16px; } .mar-card .tbl th{ font-size:14.5px; } .mar-card .tbl td, .mar-card .tbl th{ padding:12px 10px; } .mar-card .tbl td{ font-size:16px; } .mar-card .tbl td b{ font-size:17px; } .mar-card .school-chip{ font-size:14.5px; padding:3px 12px; } .mar-head h3{ font-size:24px; } .mar-card .mar-head .muted{ font-size:15.5px; margin-top:4px; } .mar-card .lk-url{ font-size:13.5px; margin-top:4px; }
   #view-groups.mar-only [data-gmode], #view-groups.mar-only #gNewBtn, #view-groups.mar-only #locFilter, #view-groups.mar-only #gFill{ display:none; } #view-groups.mar-only .gseg[aria-label="תצוגה"]{ display:none; } .mar-head{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-start; }
   .mar-head h3{ margin:0; color:var(--accent); font-family:var(--font-display); } .mar-head .muted{ font-size:13px; }
+  .mar-info{ display:flex; flex-direction:column; gap:10px; min-width:0; flex:1; }
+  .mar-facts{ display:flex; flex-wrap:wrap; gap:8px 16px; align-items:center; font-size:17px; font-weight:700; color:var(--ink); }
+  .mar-facts .school-chip{ font-size:16px; padding:4px 14px; } .mar-price{ color:var(--ink-soft); font-weight:600; } .mar-price b{ color:var(--accent); font-size:19px; }
+  .mar-link{ background:var(--muted); border:1px solid var(--border); border-radius:12px; padding:12px 14px; width:min(380px, 100%); display:flex; flex-direction:column; gap:8px; }
+  .mar-link-h{ font-size:13px; font-weight:800; color:var(--ink-soft); }
+  .mar-link-row{ display:flex; gap:8px; align-items:center; } .mar-url{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; background:var(--paper); border:1px solid var(--border); border-radius:8px; padding:7px 10px; color:var(--ink-soft); text-align:left; }
+  .mar-link-more{ font-size:13px; } .mar-link-more a{ color:var(--accent); font-weight:700; }
   .mar-btns{ display:flex; gap:6px; flex-wrap:wrap; } .mar-btns .btn{ font-size:14px; padding:7px 13px; } .mar-tbl tr[data-id]{ cursor:pointer; } .mar-tbl tr[data-id]:hover td{ background:var(--muted); }
   .mar-dates{ display:flex; flex-direction:column; gap:6px; } .mar-dates .d, .mar-dates .dh{ display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr) auto; gap:6px; align-items:center; } .mar-dates .dh{ font-size:12px; color:var(--ink-soft); font-weight:700; } .mar-dates .d .btn{ height:40px; } .closed-tag{ color:var(--full); font-weight:700; }
   .full-tag{ color:var(--full); font-weight:800; }
@@ -2161,11 +2168,14 @@ function renderMarathons(){
   box.innerHTML = (kind === "all" ? "<h2 class='rep-h'>מרתונים</h2>" : "") + (ms.length ? ms.map(m => {
     const gs = G.sessions.filter(x => x.kind === "מרתון" && x.marathon_id === m.id).sort((a, b) => String((a.meeting_dates || [])[0]).localeCompare(String((b.meeting_dates || [])[0])) || String(a.start_time).localeCompare(String(b.start_time)));
     const u = m.code ? lkMarCode(m.code) : "";
-    return `<div class="card mar-card"><div class="mar-head"><div><h3>${esc(m.name)}${m.is_open ? "" : " <span class='closed-tag'>(סגור להרשמה)</span>"}</h3>
-        <div class="muted">${esc([m.school, m.city].filter(Boolean).join(" · "))} · ${Number(m.price_repeat) === Number(m.price_first) ? "מחיר " + Number(m.price_first) + " ₪" : "מרתון ראשון " + Number(m.price_first) + " ₪ · חוזר " + Number(m.price_repeat) + " ₪"}</div>
-        ${u ? `<div class="lk-url" dir="ltr">${esc(u)}</div>` : ""}</div>
-      <div class="mar-btns">${u ? lkBtns(u, "הרשמה ל" + m.name + (m.school ? " - " + m.school : "") + ": ") : ""}
-        <button type="button" class="btn small" data-medit="${m.id}">✎ עריכת מרתון</button><button type="button" class="btn small primary" data-mgroup="${m.id}">+ קבוצה</button></div></div>
+    const one = Number(m.price_repeat) === Number(m.price_first);
+    return `<div class="card mar-card"><div class="mar-head">
+      <div class="mar-info"><h3>${esc(m.name)}${m.is_open ? "" : " <span class='closed-tag'>(סגור להרשמה)</span>"}</h3>
+        <div class="mar-facts">${m.school ? `<span>${scChip(m.school)}</span>` : ""}<span>${esc(m.city || "")}</span>
+          ${one ? `<span class="mar-price"><b>${Number(m.price_first)} ₪</b></span>` : `<span class="mar-price">מרתון ראשון <b>${Number(m.price_first)} ₪</b></span><span class="mar-price">כבר השתתף/ה <b>${Number(m.price_repeat)} ₪</b></span>`}</div>
+        <div class="mar-btns"><button type="button" class="btn small" data-medit="${m.id}">✎ עריכת מרתון</button><button type="button" class="btn small primary" data-mgroup="${m.id}">+ קבוצה</button></div></div>
+      ${u ? `<div class="mar-link"><div class="mar-link-h">קישור להרשמה</div><div class="mar-link-row"><span class="mar-url" dir="ltr" title="${esc(u)}">${esc(u)}</span><button type="button" class="btn small primary" data-copy="${esc(u)}">העתקה</button></div>
+        <div class="mar-link-more"><a target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent("הרשמה ל" + m.name + (m.school ? " - " + m.school : "") + ": " + u)}">שליחה בוואטסאפ</a> · <a target="_blank" rel="noopener" href="${esc(lkPreview(u))}">תצוגה מקדימה</a></div></div>` : ""}</div>
       ${gs.length ? `<table class="tbl mar-tbl" style="margin-top:10px;"><thead><tr><th>קבוצה</th><th>מפגשים (תאריך ושעות)</th><th>מקום</th><th>מתרגל/ת</th><th>נרשמים</th></tr></thead><tbody>${gs.map(g => {
         const n = g.assigned_count || 0, full = g.capacity && n >= g.capacity;
         return `<tr data-id="${g.session_id}"><td><b>${esc(g.time_label)}</b>${g.is_open === false ? " <span class='closed-tag'>סגורה</span>" : ""}</td><td>${marMeetings(g).map(m => `<div>${meetTxt(m)}</div>`).join("")}</td>
@@ -3264,6 +3274,7 @@ const lkDefaultBase = () => /^https?:/.test(location.protocol) ? location.href.r
 const lkBase = () => { let b = ($("lkBase").value || "").trim() || lkDefaultBase(); if (!b.endsWith("/")) b += "/"; return b; };
 const lkFix = (u) => decodeURIComponent(u).replace(/"/g, "%22");
 const lkReg = (city, track) => lkFix(lkBase() + "register.html?" + new URLSearchParams(Object.assign({ city }, track ? { track } : {})).toString());
+const lkShib = (city) => lkFix(lkBase() + "shibutz.html?" + new URLSearchParams({ city }).toString());
 const lkMar = (city, school) => lkFix(lkBase() + "marathon.html?" + new URLSearchParams({ city, school }).toString());
 const lkPreview = (u) => u.replace(lkBase(), "").replace(".html?", ".html?preview=1&");
 const lkBtns = (u, msg) => `<span class="lk-btns"><button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="לא נשמר ולא עובר לתשלום">תצוגה מקדימה</a></span>`;
@@ -3294,7 +3305,9 @@ async function renderSched(){
   const regRows = [{ t: "כל המסלולים (ההורה בוחר/ת)", v: "" }].concat(LK.tracks);
   const sea = SCH.season, fmt = (d) => d ? new Date(d + "T00:00").toLocaleDateString("he-IL", { day: "numeric", month: "numeric", year: "numeric" }) : "";
   $("scMain").innerHTML = `<h2 class="sc-city-h">${esc(city)}</h2>
-    <div class="card"><h3 class="rep-h" style="margin-top:0;">קישורי הרשמה לתרגולים · ${esc(city)} <span class="muted" style="font-weight:400; font-size:13px;">העיר נעולה בקישור. בית הספר נבחר בטופס.</span></h3>
+    <div class="card"><h3 class="rep-h" style="margin-top:0;">טופס שיבוץ · ${esc(city)} <span class="muted" style="font-weight:400; font-size:13px;">שולחים להורים בתחילת השנה. העיר נעולה בקישור. כל בקשה נשמרת כאן למטה, ובנוסף נפתח וואטסאפ.</span></h3>
+      <table class="tbl lk-tbl"><tbody>${(() => { const u = lkShib(city); return `<tr><td><b>בחירת מועדים מועדפים</b>${sea ? `<div class="muted" style="font-size:12.5px;">פתוח לבקשות ${fmt(sea.opens_on)} - ${fmt(sea.closes_on)}</div>` : ""}<div class="lk-url" dir="ltr">${esc(u)}</div></td><td class="lk-act">${lkBtns(u, "טופס השיבוץ של תלם - " + city + ": ")}</td></tr>`; })()}</tbody></table></div>
+    <div class="card" style="margin-top:12px;"><h3 class="rep-h" style="margin-top:0;">קישורי הרשמה לתרגולים · ${esc(city)} <span class="muted" style="font-weight:400; font-size:13px;">העיר נעולה בקישור. בית הספר נבחר בטופס.</span></h3>
       <table class="tbl lk-tbl"><tbody>${regRows.map(x => { const u = lkReg(city, x.v);
         return `<tr><td>${x.c ? `<span class="trk" style="background:${x.c}"></span>` : ""}<b>${esc(x.t)}</b><div class="lk-url" dir="ltr">${esc(u)}</div></td><td class="lk-act">${lkBtns(u, "טופס ההרשמה לתלם - " + city + ": ")}</td></tr>`; }).join("")}</tbody></table>
       <div class="muted" style="margin-top:6px; font-size:13px;">קישורי המרתונים נמצאים בכרטיס של כל מרתון במסך "קבוצות ומרתונים".</div></div>
@@ -3327,7 +3340,7 @@ function renderSchedTbl(){
       : `<ul class="sc-slots">${slots.map(x => `<li class="${x.session_id && mine.has(x.session_id) ? "on" : ""}">${x.priority}. ${esc(x.day)}' ${esc(x.time_label)} · ${esc(x.location)}${x.closed ? " (נסגר)" : ""}${x.session_id && mine.has(x.session_id) ? " ✓" : ""}</li>`).join("") || "<li class='muted'>—</li>"}</ul>`;
     return `<tr><td><b>${lead ? `<a class="name-link" data-lead="${lead.id}">${esc(r.student_first || "")} ${esc(r.student_last || "")}</a>` : esc((r.student_first || "") + " " + (r.student_last || ""))}</b>
         ${r.student_id ? "" : `<div><span class="closed-tag" style="font-size:12px;">לא נמצא/ה בתלמידים</span></div>`}</td>
-      <td>${scChip(r.school || "")} ${esc(r.grade ? r.grade + "'" + (r.class_num || "") : "")}</td>
+      <td>${scChip(r.school || "")} ${esc(r.grade ? String(r.grade).replace(/['׳]$/, "") + "'" + (r.class_num || "") : "")}</td>
       <td>${esc((r.parent_first || "") + " " + (r.parent_last || ""))}<div class="muted" dir="ltr" style="text-align:right">${esc(r.phone || "")}</div></td>
       <td>${want}</td>
       <td class="num">${mine.size || "<span class='muted'>—</span>"}</td>
