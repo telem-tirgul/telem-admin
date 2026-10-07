@@ -198,10 +198,10 @@
   /* groups board */
   .controls{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:0 0 14px; }
   .g-filters{ flex-basis:100%; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
-  .mar-card{ margin-bottom:14px; } .mar-head{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-start; }
+  .mar-card{ margin-bottom:14px; font-size:15px; } .mar-card .tbl{ font-size:15px; } .mar-card .tbl th{ font-size:13.5px; } .mar-head h3{ font-size:20px; } .mar-card .mar-head .muted{ font-size:14.5px; } .mar-card .lk-url{ font-size:13px; } .mar-head{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:flex-start; }
   .mar-head h3{ margin:0; color:var(--accent); font-family:var(--font-display); } .mar-head .muted{ font-size:13px; }
   .mar-btns{ display:flex; gap:6px; flex-wrap:wrap; } .mar-tbl tr[data-id]{ cursor:pointer; } .mar-tbl tr[data-id]:hover td{ background:var(--muted); }
-  .mar-dates{ display:flex; flex-direction:column; gap:6px; } .mar-dates .d{ display:flex; gap:6px; } .closed-tag{ color:var(--full); font-weight:700; }
+  .mar-dates{ display:flex; flex-direction:column; gap:6px; } .mar-dates .d{ display:flex; gap:6px; align-items:center; } .mar-dates .d input[type=date]{ flex:1.4; } .mar-dates .d input[type=time]{ flex:1; } .closed-tag{ color:var(--full); font-weight:700; }
   .full-tag{ color:var(--full); font-weight:800; }
   .tabs{ display:flex; gap:4px; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:4px; }
   .tab{ border:none; background:transparent; font-weight:700; font-size:14px; color:var(--ink-soft); padding:7px 14px; border-radius:9px; cursor:pointer; }
@@ -852,8 +852,8 @@
       <div class="ws-vimg"><img id="wsVImg" alt=""></div>
       <div class="ws-send" id="wsSend" hidden>
         <div class="ws-send-h"><b>שליחה בוואטסאפ ישירות לילד/ה</b><button type="button" class="ws-x" id="wsSendClose" aria-label="סגירה">✕</button></div>
-        <div class="ws-send-tools"><select id="wsSendWhen" aria-label="אילו קבוצות"><option value="now">קבוצות שמתקיימות עכשיו</option><option value="today">כל הקבוצות של היום</option></select>
-          <input id="wsSendQ" type="search" placeholder="חיפוש שם..." aria-label="חיפוש שם"></div>
+        <div class="ws-send-tools"><select id="wsSendWhen" aria-label="אילו קבוצות"><option value="now">קבוצות שמתקיימות עכשיו</option><option value="today">כל הקבוצות של היום</option><option value="all">כל הילדים (חיפוש)</option></select>
+          <input id="wsSendQ" type="search" placeholder="חיפוש שם או טלפון..." aria-label="חיפוש שם או טלפון"></div>
         <div class="muted" style="font-size:12.5px;">נשלח קישור לדף (תקף 7 ימים). הילד/ה רואה רק את הדף הזה, בלי מספרי פרקים.</div>
         <ul class="ws-send-list" id="wsSendList"></ul>
       </div>
@@ -1313,8 +1313,15 @@ function pastBadge(st){
 }
 // מתי הקבוצה נפגשת: יום קבוע (שוטף) או תאריכי מפגשים (מרתון)
 const fmtDM = (iso) => iso ? iso.slice(8, 10) + "." + iso.slice(5, 7) : "";
+const DAY_OF = (iso) => ["א","ב","ג","ד","ה","ו","ש"][new Date(iso + "T12:00:00Z").getUTCDay()];
+// מפגשי מרתון: [{date,start,end}] (קובץ 37). לפני 37 - לפי התאריכים ושעת הקבוצה.
+function marMeetings(se){
+  if (se && Array.isArray(se.meetings) && se.meetings.length) return se.meetings.slice().sort((a, b) => String(a.date).localeCompare(b.date));
+  return (se && se.meeting_dates || []).map(d => ({ date: d, start: String(se.start_time || "").slice(0, 5), end: String(se.end_time || "").slice(0, 5) }));
+}
+const meetTxt = (m) => `יום ${DAY_NAMES[DAY_OF(m.date)] || ""} ${fmtDM(m.date)} · ${rng(String(m.start || "").slice(0, 5), String(m.end || "").slice(0, 5))}`;
 function sessWhen(se){
-  if (se && se.kind === "מרתון") return "מרתון · " + (se.meeting_dates || []).map(fmtDM).join(", ");
+  if (se && se.kind === "מרתון") return "מרתון · " + marMeetings(se).map(m => fmtDM(m.date) + " " + String(m.start || "").slice(0, 5)).join(", ");
   return "יום " + (DAY_NAMES[se && se.day] || "");
 }
 // מרתון: תגית ליד השם למי שנרשם/ה למרתון
@@ -2003,7 +2010,7 @@ function openPanel(id){
   const kids = G.roster.filter(k => k.session_id === id).sort((a, b) => (a.last_name || "").localeCompare(b.last_name || "", "he"));
   const mOf = se.kind === "מרתון" ? (G.marathons || []).find(m => m.id === se.marathon_id) : null;
   $("panelTitle").textContent = mOf ? `${mOf.name} · ${se.time_label}` : `${se.location} · יום ${DAY_NAMES[se.day]}`;
-  $("panelSub").textContent = `${mOf ? sessWhen(se) + " · " + rng((se.start_time || "").slice(0, 5), (se.end_time || "").slice(0, 5)) + " · " + se.location : se.time_label} · ${se.city}${se.room ? " · חדר " + se.room : ""} · ${kids.length} ילדים` + (G.ins && G.ins[id] ? ` · מתרגל/ת: ${G.ins[id].join(", ")}` : "");
+  $("panelSub").textContent = `${mOf ? marMeetings(se).map(meetTxt).join(" | ").replace(/<[^>]+>/g, "") + " · " + se.location : se.time_label} · ${se.city}${se.room ? " · חדר " + se.room : ""} · ${kids.length} ילדים` + (G.ins && G.ins[id] ? ` · מתרגל/ת: ${G.ins[id].join(", ")}` : "");
   const start = (se.start_time || "").slice(0, 5);
   $("roster").innerHTML = kids.length ? kids.map(k => {
     const arr = (k.arrival_time || "").slice(0, 5);
@@ -2137,10 +2144,10 @@ function renderMarathons(){
         ${u ? `<div class="lk-url" dir="ltr">${esc(u)}</div>` : ""}</div>
       <div class="mar-btns">${u ? lkBtns(u, "הרשמה ל" + m.name + (m.school ? " - " + m.school : "") + ": ") : ""}
         <button type="button" class="btn small" data-medit="${m.id}">✎ עריכת מרתון</button><button type="button" class="btn small primary" data-mgroup="${m.id}">+ קבוצה</button></div></div>
-      ${gs.length ? `<table class="tbl mar-tbl" style="margin-top:10px;"><thead><tr><th>קבוצה</th><th>מפגשים</th><th>שעות</th><th>מקום</th><th>מתרגל/ת</th><th>נרשמים</th></tr></thead><tbody>${gs.map(g => {
+      ${gs.length ? `<table class="tbl mar-tbl" style="margin-top:10px;"><thead><tr><th>קבוצה</th><th>מפגשים (תאריך ושעות)</th><th>מקום</th><th>מתרגל/ת</th><th>נרשמים</th></tr></thead><tbody>${gs.map(g => {
         const n = g.assigned_count || 0, full = g.capacity && n >= g.capacity;
-        return `<tr data-id="${g.session_id}"><td><b>${esc(g.time_label)}</b>${g.is_open === false ? " <span class='closed-tag'>סגורה</span>" : ""}</td><td>${esc((g.meeting_dates || []).map(fmtDM).join(", "))}</td>
-          <td>${rng(hm(g.start_time), hm(g.end_time))}</td><td>${scChip(g.location)}${g.room ? ` <span class="muted"><bdi>${esc(g.room)}</bdi></span>` : ""}</td>
+        return `<tr data-id="${g.session_id}"><td><b>${esc(g.time_label)}</b>${g.is_open === false ? " <span class='closed-tag'>סגורה</span>" : ""}</td><td>${marMeetings(g).map(m => `<div>${meetTxt(m)}</div>`).join("")}</td>
+          <td>${scChip(g.location)}${g.room ? ` <span class="muted"><bdi>${esc(g.room)}</bdi></span>` : ""}</td>
           <td>${G.ins && G.ins[g.session_id] ? esc(G.ins[g.session_id].join(", ")) : "<span class='muted'>—</span>"}</td>
           <td class="num">${n}${g.capacity ? " / " + g.capacity : ""}${full ? " <span class='full-tag'>מלאה</span>" : ""}</td></tr>`; }).join("")}</tbody></table>`
         : "<div class='muted' style='margin-top:8px;'>עוד אין קבוצות במרתון הזה. לוחצים \"+ קבוצה\".</div>"}</div>`;
@@ -2189,6 +2196,7 @@ function openMarathonEditor(m){
     } catch(e) { g("err").textContent = "השמירה נכשלה: " + e.message; g("save").disabled = false; }
   };
 }
+const meetRow = (m) => `<div class="d"><input type="date" data-md value="${esc(m.date || "")}" aria-label="תאריך"><input type="time" data-ms value="${esc(String(m.start || "").slice(0, 5))}" aria-label="שעת התחלה"><input type="time" data-me value="${esc(String(m.end || "").slice(0, 5))}" aria-label="שעת סיום"><button type="button" class="btn small" data-rmdate>הסרה</button></div>`;
 async function openMarGroupEditor(m, se){
   const box = $("gEdit"); box.hidden = false; box.innerHTML = "<div class='muted full'>טוען...</div>";
   if (!m) { box.innerHTML = "<div class='err full'>המרתון לא נמצא.</div>"; return; }
@@ -2199,16 +2207,14 @@ async function openMarGroupEditor(m, se){
   const locs = (G.locs || []).filter(x => x.city === m.city && !x.name.includes("/")).sort((a, b) => a.name.localeCompare(b.name, "he"));
   const curLoc = se ? locs.find(x => x.name === se.location) : locs.find(x => x.name === m.school);
   const nOther = G.sessions.filter(x => x.marathon_id === m.id).length;
-  const dates = se ? (se.meeting_dates || []) : ["", ""];
+  const meets = se ? marMeetings(se) : [{ date: "", start: "", end: "" }, { date: "", start: "", end: "" }];
   const kids = se ? (se.assigned_count || 0) : 0;
   box.innerHTML = `
     <div class="full lg-edit-h">${se ? "עריכת קבוצת מרתון" : "קבוצה חדשה · " + esc(m.name)}</div>
     <div><label class="lbl">שם הקבוצה</label><input data-g="label" value="${esc(se ? se.time_label : "קבוצה " + "אבגדהוזחטי".charAt(nOther) + "'")}"></div>
     <div><label class="lbl">מקום</label><select data-g="loc"><option value="">בחירה...</option>${locs.map(x => `<option value="${x.id}" ${curLoc && curLoc.id === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
-    <div class="full"><label class="lbl">תאריכי המפגשים</label><div class="mar-dates" data-g="dates">${dates.map(d => `<div class="d"><input type="date" value="${esc(d)}"><button type="button" class="btn small" data-rmdate>הסרה</button></div>`).join("")}</div>
-      <button type="button" class="btn small" data-g="adddate" style="margin-top:6px;">+ תאריך</button></div>
-    <div><label class="lbl">שעת התחלה</label><input type="time" data-g="start" value="${se ? hm(se.start_time) : ""}"></div>
-    <div><label class="lbl">שעת סיום</label><input type="time" data-g="end" value="${se ? hm(se.end_time) : ""}"></div>
+    <div class="full"><label class="lbl">המפגשים - תאריך, שעת התחלה ושעת סיום לכל מפגש</label><div class="mar-dates" data-g="dates">${meets.map(m => meetRow(m)).join("")}</div>
+      <button type="button" class="btn small" data-g="adddate" style="margin-top:6px;">+ מפגש</button></div>
     <div><label class="lbl">כיתה</label><input data-g="room" value="${esc(se && se.room || "")}"></div>
     <div><label class="lbl">מקסימום נרשמים</label><input type="number" min="1" data-g="cap" value="${se && se.capacity != null ? se.capacity : 15}"></div>
     <label class="chk full"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
@@ -2218,17 +2224,25 @@ async function openMarGroupEditor(m, se){
       ${se ? `<button type="button" class="btn small danger" data-g="del" ${kids ? `disabled title="אי אפשר למחוק קבוצה שיש בה נרשמים"` : ""}>מחיקת קבוצה</button>` : ""}
       <button type="button" class="btn small" data-g="cancel">ביטול</button></div>`;
   const g = (k) => box.querySelector(`[data-g="${k}"]`);
-  const wireDates = () => box.querySelectorAll("[data-rmdate]").forEach(b => b.onclick = () => { b.closest(".d").remove(); });
+  const wireDates = () => box.querySelectorAll(".mar-dates .d").forEach(row => {
+    row.querySelector("[data-rmdate]").onclick = () => row.remove();
+    const st = row.querySelector("[data-ms]"), en = row.querySelector("[data-me]");
+    st.onchange = () => { if (st.value && !en.value) en.value = addMin(st.value, 90); };
+  });
   wireDates();
-  g("adddate").onclick = () => { g("dates").insertAdjacentHTML("beforeend", `<div class="d"><input type="date"><button type="button" class="btn small" data-rmdate>הסרה</button></div>`); wireDates(); };
-  g("start").onchange = () => { if (g("start").value && !g("end").value) g("end").value = addMin(g("start").value, 90); };
+  g("adddate").onclick = () => { const last = [...g("dates").querySelectorAll(".d")].pop();
+    g("dates").insertAdjacentHTML("beforeend", meetRow({ date: "", start: last ? last.querySelector("[data-ms]").value : "", end: last ? last.querySelector("[data-me]").value : "" })); wireDates(); };
   g("cancel").onclick = () => { if (se) openPanel(se.session_id); else closePanel(); };
   g("save").onclick = async () => {
-    const ds = [...g("dates").querySelectorAll("input")].map(i => i.value).filter(Boolean).sort();
-    const locId = Number(g("loc").value), st = g("start").value, en = g("end").value, label = g("label").value.trim();
-    if (!label || !locId || !st || !en || !ds.length) { g("err").textContent = "צריך שם קבוצה, מקום, לפחות תאריך אחד, שעת התחלה ושעת סיום."; return; }
-    if (en <= st) { g("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
-    const body = { kind: "מרתון", marathon_id: m.id, meeting_dates: [...new Set(ds)], day: null, location_id: locId, start_time: st, end_time: en, time_label: label,
+    const ms = [...g("dates").querySelectorAll(".d")].map(r => ({ date: r.querySelector("[data-md]").value, start: r.querySelector("[data-ms]").value, end: r.querySelector("[data-me]").value }))
+      .filter(x => x.date || x.start || x.end).sort((a, b) => a.date.localeCompare(b.date));
+    const locId = Number(g("loc").value), label = g("label").value.trim();
+    if (!label || !locId || !ms.length) { g("err").textContent = "צריך שם קבוצה, מקום ולפחות מפגש אחד."; return; }
+    if (ms.some(x => !x.date || !x.start || !x.end)) { g("err").textContent = "בכל מפגש צריך תאריך, שעת התחלה ושעת סיום."; return; }
+    if (ms.some(x => x.end <= x.start)) { g("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
+    if (new Set(ms.map(x => x.date)).size !== ms.length) { g("err").textContent = "יש שני מפגשים באותו תאריך."; return; }
+    const st = ms[0].start, en = ms[0].end;
+    const body = { kind: "מרתון", marathon_id: m.id, meeting_dates: ms.map(x => x.date), meetings: ms, day: null, location_id: locId, start_time: st, end_time: en, time_label: label,
       room: nn(g("room").value), capacity: g("cap").value === "" ? null : Number(g("cap").value), is_open: g("open").checked };
     g("save").disabled = true;
     try {
@@ -2239,7 +2253,7 @@ async function openMarGroupEditor(m, se){
       for (const id of want.filter(x => !curIns.includes(x))) await insert("session_instructors", { session_id: sid, staff_id: id });
       for (const id of curIns.filter(x => !want.includes(x))) await del("session_instructors", "session_id=eq." + sid + "&staff_id=eq." + id);
       LG_SESSIONS = null; toast(se ? "הקבוצה עודכנה" : "הקבוצה נוספה"); closePanel(); await loadGroups();
-    } catch(e) { g("err").textContent = "השמירה נכשלה: " + e.message; g("save").disabled = false; }
+    } catch(e) { g("err").textContent = /meetings/.test(e.message) ? "צריך להריץ קודם את קובץ 37." : "השמירה נכשלה: " + e.message; g("save").disabled = false; }
   };
   if (g("del")) g("del").onclick = async () => {
     if (!window.confirm(`למחוק את ${se.time_label} של ${m.name}?`)) return;
@@ -2883,6 +2897,7 @@ function wsSendRender(){
   const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Jerusalem" })), nowM = now.getHours() * 60 + now.getMinutes();
   const mins = (t) => { const [h, m] = String(t || "0:0").split(":").map(Number); return h * 60 + (m || 0); };
   const when = $("wsSendWhen").value, q = $("wsSendQ").value.trim();
+  if (when === "all") { wsSendRenderAll(q); return; }
   let gs = (WSS.groups || []).slice().sort((a, b) => String(a.start_time).localeCompare(String(b.start_time)) || a.city.localeCompare(b.city));
   if (when === "now") gs = gs.filter(g => mins(g.start_time) - 30 <= nowM && nowM <= mins(g.end_time || g.start_time) + 30);
   const r = WS.list[WS.idx], hm = (t) => String(t || "").slice(0, 5);
@@ -2896,13 +2911,32 @@ function wsSendRender(){
   }).join("");
   $("wsSendList").innerHTML = html || `<li class="muted">${when === "now" ? "אין עכשיו קבוצות עם ילדים. אפשר לבחור \"כל הקבוצות של היום\"." : "אין היום קבוצות עם ילדים."}</li>`;
 }
+// כל הילדים במערכת - חיפוש לפי שם או טלפון (עד 50 תוצאות)
+function wsSendRenderAll(q){
+  const r = WS.list[WS.idx];
+  if (q.length < 2) { $("wsSendList").innerHTML = "<li class='muted'>כותבים שם (לפחות 2 אותיות) או טלפון בשדה החיפוש.</li>"; return; }
+  const qd = digits(q), seen = new Set(), res = [];
+  for (const l of L.leads) {
+    const st = l.student; if (!st || seen.has(st.id)) continue;
+    const name = (st.first_name || "") + " " + (st.last_name || "");
+    if (!(name.includes(q) || (qd.length >= 3 && digits(st.phone || "").includes(qd)))) continue;
+    seen.add(st.id); res.push({ st, l }); if (res.length >= 50) break;
+  }
+  WSS.extra = {}; res.forEach(x => { WSS.extra[x.st.id] = x.st; });
+  $("wsSendList").innerHTML = res.length ? res.map(({ st, l }) => { const key = r.id + "|" + st.id;
+    return `<li><span>${esc(st.first_name)} ${esc(st.last_name || "")}<small>${esc([st.grade && "כיתה " + st.grade, schoolOf(st).name, leadCity(l), statusName(l.status_id)].filter(Boolean).join(" · "))}</small></span>
+      ${WSS.sent[key] ? `<span class="sent">✓ נשלח</span>` : ""}${st.phone ? `<button type="button" class="btn small primary" data-send="${st.id}">וואטסאפ</button>` : `<span class="muted" style="font-size:12px;">אין טלפון לילד/ה</span>`}</li>`; }).join("")
+    : "<li class='muted'>לא נמצא ילד/ה בשם הזה.</li>";
+}
 $("wsSendBtn").addEventListener("click", () => { if ($("wsSend").hidden) wsSendOpen(); else $("wsSend").hidden = true; });
 $("wsSendClose").addEventListener("click", () => { $("wsSend").hidden = true; });
 $("wsSendWhen").addEventListener("change", wsSendRender);
 $("wsSendQ").addEventListener("input", wsSendRender);
 $("wsSendList").addEventListener("click", async (e) => {
   const b = e.target.closest("[data-send]"); if (!b) return;
-  const r = WS.list[WS.idx], k = WSS.kids.find(x => x.student && String(x.student.id) === b.dataset.send); if (!r || !k) return;
+  const r = WS.list[WS.idx];
+  const k = (WSS.kids || []).find(x => x.student && String(x.student.id) === b.dataset.send) || (WSS.extra && WSS.extra[b.dataset.send] ? { student: WSS.extra[b.dataset.send] } : null);
+  if (!r || !k) return;
   const win = window.open("about:blank", "_blank");   // נפתח מיד (חוסם חלונות קופצים לא חוסם), והכתובת מתעדכנת אחרי יצירת הקישור
   b.disabled = true;
   try {

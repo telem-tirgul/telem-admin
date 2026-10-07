@@ -213,6 +213,15 @@
   .price-option.selected{ border-color:var(--accent); background:rgba(90,18,22,.04); }
   .price-option .opt-title{ font-weight:700; font-size:14.5px; color:var(--ink); }
   .price-option .opt-price{ font-weight:800; color:var(--accent); }
+  .mar-info{ border-radius:10px; padding:16px 18px; margin:0 0 22px; background:var(--paper); border:1px solid var(--border); border-inline-start:5px solid var(--accent);
+    color:var(--ink); font-size:15px; line-height:1.75; box-shadow:0 1px 3px rgba(0,0,0,0.08); }
+  .mar-info-title{ font-family:'Heebo',sans-serif; font-weight:800; font-size:18px; color:var(--accent); margin-bottom:6px; }
+  .mar-info-label{ font-weight:800; color:var(--accent); margin:10px 0 2px; }
+  .mar-info-list{ margin:0; padding-inline-start:20px; } .mar-info-list b{ font-weight:800; }
+  #groupOptions .price-option{ padding:14px 16px; }
+  #groupOptions .opt-title{ font-size:16px; } #groupOptions .opt-title b{ font-size:17px; color:var(--accent); }
+  #groupOptions .opt-title .sep{ display:none; } #groupOptions .opt-title .mt{ display:block; font-weight:700; margin-top:3px; }
+  #groupOptions .opt-title .mt.loc{ font-weight:600; color:var(--ink-soft); font-size:14.5px; }
   .price-option .opt-seats{ font-size:13px; color:var(--ink-soft); font-weight:600; }
   .price-option.full{ opacity:.55; cursor:not-allowed; } .price-option.full .opt-seats{ color:#B3241F; font-weight:800; }
   .mar-notice{ background:#FBEBD2; border:1.5px solid var(--gold-deep); border-radius:10px; padding:12px 14px; color:var(--accent); font-weight:700; margin-bottom:16px; text-align:center; }
@@ -265,6 +274,8 @@
     font-size:14px;
   }
   .amount-row strong{ font-size:18px; color:var(--accent); }
+  .amount-row.main{ background:rgba(90,18,22,.06); border:1.5px solid var(--accent); padding:14px 16px; }
+  .amount-row.main span{ font-weight:800; font-size:16px; color:var(--accent); } .amount-row.main strong{ font-size:24px; font-weight:900; }
   .amount-breakdown{
     font-size:12px;
     color:var(--ink-soft);
@@ -333,13 +344,32 @@
   <div class="subtitle">טופס הרשמה למרתון מתמטיקה<span id="subtitleLocation"></span></div>
 
   <div class="intro">
-    <div>המרתון כולל ארבעה שיעורי לימוד ותרגול אקדמיים, בשני מפגשים של שעה וחצי. מלאו את פרטי התלמיד/ה וההורה כדי להשלים את ההרשמה. בסיום מילוי הטופס תועברו לעמוד תשלום מאובטח של חברת הסליקה.</div>
+    <div>בוחרים קבוצה, ממלאים את פרטי התלמיד/ה וההורה, ובסיום עוברים לעמוד תשלום מאובטח של חברת הסליקה.</div>
     <div class="lock-line">🔒 פרטי האשראי לא נשמרים ולא עוברים באתר הזה בשום שלב - הזנתם מתבצעת בעמוד מאובטח ונפרד של חברת הסליקה.</div>
   </div>
 
   <div class="top-error" id="topError" style="display:none;">יש לתקן את השדות המסומנים לפני שממשיכים.</div>
 
   <form id="marathonForm" novalidate>
+
+    <div class="mar-info" id="marInfo">
+      <div class="mar-info-title" id="marInfoTitle">מרתון מתמטיקה</div>
+      <div>ארבעה שיעורי לימוד ותרגול אקדמיים, בשני מפגשים של שעה וחצי.</div>
+      <div class="mar-info-label">מחיר (תשלום חד-פעמי):</div>
+      <ul class="mar-info-list">
+        <li><b id="marPriceFirst">295 ₪</b> - מרתון ראשון בשנת הלימודים</li>
+        <li><b id="marPriceRepeat">236 ₪</b> - למי שכבר השתתף/ה במרתון השנה</li>
+      </ul>
+    </div>
+
+    <fieldset id="groupFieldset">
+      <legend>בחירת קבוצה - ימים ושעות</legend>
+      <div class="field" id="field-group">
+        <div class="field-title" hidden>קבוצה</div>
+        <div class="price-options" id="groupOptions"><div class="hint">טוען את הקבוצות…</div></div>
+        <div class="error-msg" id="groupError">יש לבחור קבוצה</div>
+      </div>
+    </fieldset>
 
     <fieldset>
       <legend>פרטי התלמיד/ה וההורה</legend>
@@ -433,15 +463,6 @@
       </div>
     </fieldset>
 
-    <fieldset id="groupFieldset">
-      <legend>בחירת קבוצה</legend>
-      <div class="field" id="field-group">
-        <div class="field-title" hidden>קבוצה</div>
-        <div class="price-options" id="groupOptions"><div class="hint">טוען את הקבוצות…</div></div>
-        <div class="error-msg" id="groupError">יש לבחור קבוצה</div>
-      </div>
-    </fieldset>
-
     <div class="terms-box" id="termsBox">
       <h4>תנאים כלליים</h4>
       <p>על התלמיד/ה להגיע למרתון עם כל הציוד הלימודי הנדרש (ספר + מחברת הלימוד, כלי כתיבה וכו'). במהלך המפגש ניתן לצאת מהכיתה לצורך שירותים, שתייה והתרעננות בתחומי בית הספר בלבד.</p>
@@ -452,7 +473,6 @@
       <h4>תנאי ביטול</h4>
       <p>ניתן לבטל את ההשתתפות במרתון עד 24 שעות לפני תחילתו, מכל סיבה שהיא. לאחר מכן לא תינתן אפשרות לביטול ההשתתפות.</p>
       <p>כל פנייה לביטול תיעשה בכתב ו/או באמצעות טופס ביטול השתתפות, ובקבלת אישור מהנהלת 'תלם - המרכז לשיעורי תרגול'.</p>
-      <p>מועד המפגשים - כמפורט באתר <span style="direction:ltr; unicode-bidi:embed;">www.telem-tr.co.il</span>.</p>
     </div>
     <label class="consent" id="field-terms-consent">
       <input type="checkbox" id="f-terms-consent" required>
@@ -460,7 +480,7 @@
     </label>
     <div class="error-msg" id="termsConsentError"></div>
 
-    <div class="amount-row">
+    <div class="amount-row main">
       <span>סכום לתשלום מיידי</span>
       <strong id="amountDisplay"></strong>
     </div>
@@ -596,21 +616,39 @@
   }
   var fmtD = function(iso){ return iso ? iso.slice(8, 10) + "." + iso.slice(5, 7) : ""; };
   var hm = function(t){ return String(t || "").slice(0, 5); };
+  var DAYS_HE = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"];
+  function meetingsOf(g){
+    if (g.meetings && g.meetings.length) return g.meetings.slice().sort(function(a, b){ return String(a.date).localeCompare(String(b.date)); });
+    return (g.dates || []).map(function(d){ return { date: d, start: hm(g.start_time), end: hm(g.end_time) }; });
+  }
+  function meetingText(m){
+    var dow = DAYS_HE[new Date(m.date + "T12:00:00Z").getUTCDay()];
+    var dm = Number(m.date.slice(8, 10)) + "." + Number(m.date.slice(5, 7));
+    return "יום " + dow + ", " + dm + " · ⁦" + hm(m.start) + "–" + hm(m.end) + "⁩";
+  }
   function renderGroups(){
     var box = document.getElementById("groupOptions"), gs = (MARATHON && MARATHON.groups) || [];
+    box.innerHTML = "";
     if (!gs.length) { box.innerHTML = '<div class="hint">אין כרגע קבוצות פתוחות להרשמה.</div>'; return; }
-    box.innerHTML = gs.map(function(g){
+    gs.forEach(function(g){
       var full = g.seats_left != null && g.seats_left <= 0;
+      var lab = document.createElement("label"); lab.className = "price-option" + (full ? " full" : "");
+      var inp = document.createElement("input"); inp.type = "radio"; inp.name = "group"; inp.value = g.session_id; inp.disabled = full;
+      var wrap = document.createElement("div"), title = document.createElement("div"); title.className = "opt-title";
+      var b = document.createElement("b"); b.textContent = g.label; title.appendChild(b);
+      var add = function(text, cls){ var sp = document.createElement("span"); sp.className = "sep"; sp.textContent = " · "; title.appendChild(sp);
+        var t = document.createElement("span"); t.className = "mt" + (cls ? " " + cls : ""); t.textContent = text; title.appendChild(t); };
+      meetingsOf(g).forEach(function(m){ add(meetingText(m)); });
+      if (g.location) add("בבית הספר " + g.location, "loc");
+      wrap.appendChild(title);
       var seats = full ? "הקבוצה מלאה" : (g.seats_left != null && g.seats_left <= 5 ? "נשארו " + g.seats_left + " מקומות" : "");
-      var title = g.label + " · " + (g.dates || []).map(fmtD).join(", ") + " · " + hm(g.start_time) + "–" + hm(g.end_time) + (g.location ? " · " + g.location : "");
-      return '<label class="price-option' + (full ? " full" : "") + '"><input type="radio" name="group" value="' + g.session_id + '"' + (full ? " disabled" : "") + '>' +
-        '<div><div class="opt-title"></div>' + (seats ? '<div class="opt-seats">' + seats + '</div>' : "") + '</div></label>';
-    }).join("");
-    // הטקסטים נכנסים כטקסט (לא כ-HTML)
-    box.querySelectorAll(".opt-title").forEach(function(el, i){ var g = gs[i]; el.textContent = g.label + " · " + (g.dates || []).map(fmtD).join(", ") + " · \u2066" + hm(g.start_time) + "–" + hm(g.end_time) + "\u2069" + (g.location ? " · " + g.location : ""); });
-    box.querySelectorAll("input[name=group]").forEach(function(r){ r.addEventListener("change", function(){
-      box.querySelectorAll(".price-option").forEach(function(l){ l.classList.toggle("selected", l.querySelector("input").checked); });
-      setInvalid("field-group", false); }); });
+      if (seats) { var sd = document.createElement("div"); sd.className = "opt-seats"; sd.textContent = seats; wrap.appendChild(sd); }
+      lab.appendChild(inp); lab.appendChild(wrap); box.appendChild(lab);
+      inp.addEventListener("change", function(){
+        box.querySelectorAll(".price-option").forEach(function(l){ l.classList.toggle("selected", l.querySelector("input").checked); });
+        setInvalid("field-group", false);
+      });
+    });
   }
   function loadMarathon(){
     var s = CONFIG.supabase, headers = { "Content-Type": "application/json", "apikey": s.anonKey };
@@ -625,6 +663,9 @@
         CONFIG.priceFirstTime = Number(MARATHON.price_first); CONFIG.priceReturning = Number(MARATHON.price_repeat);
         document.querySelector("#opt-first .opt-price").textContent = CONFIG.priceFirstTime.toFixed(0) + " ₪";
         document.querySelector("#opt-returning .opt-price").textContent = CONFIG.priceReturning.toFixed(0) + " ₪";
+        document.getElementById("marPriceFirst").textContent = CONFIG.priceFirstTime.toFixed(0) + " ₪";
+        document.getElementById("marPriceRepeat").textContent = CONFIG.priceReturning.toFixed(0) + " ₪";
+        document.getElementById("marInfoTitle").textContent = (MARATHON.name || "מרתון מתמטיקה") + (MARATHON.school ? " · " + MARATHON.school + (MARATHON.city ? ", " + MARATHON.city : "") : "");
         if (MARATHON.name && MARATHON.name !== "מרתון מתמטיקה") document.querySelector(".subtitle").firstChild.textContent = "טופס הרשמה ל" + MARATHON.name;
         updateAmountDisplay(); renderGroups();
       });
