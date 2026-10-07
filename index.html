@@ -528,13 +528,6 @@
   .ws-pg{ all:unset; cursor:pointer; background:var(--card, #fff); border:1px solid var(--border); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
   .ws-pg .th{ aspect-ratio:210/297; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px; } .ws-pg img{ width:100%; display:block; }
   .ws-pg .cap{ padding:6px 8px 8px; font-size:13px; line-height:1.3; display:flex; gap:6px; } .ws-pg .cap b{ color:var(--accent); }
-  .ws-send{ position:absolute; inset-inline-end:12px; top:56px; bottom:76px; width:min(380px, calc(100% - 24px)); background:var(--paper); color:var(--ink); border-radius:14px; padding:12px; display:flex; flex-direction:column; gap:8px; box-shadow:0 8px 30px rgba(0,0,0,.4); z-index:2; }
-  .ws-send-h{ display:flex; justify-content:space-between; align-items:center; } .ws-send-h .ws-x{ color:var(--ink); }
-  .ws-send-tools{ display:flex; gap:6px; } .ws-send-tools select{ flex:1; } .ws-send-tools input{ flex:1; min-width:0; }
-  .ws-send-list{ list-style:none; margin:0; padding:0; overflow:auto; flex:1; }
-  .ws-send-list h4{ margin:10px 0 4px; font-size:13px; color:var(--accent); }
-  .ws-send-list li{ display:flex; justify-content:space-between; align-items:center; gap:8px; padding:6px 2px; border-bottom:1px solid var(--border); font-size:14px; }
-  .ws-send-list li small{ color:var(--ink-soft); display:block; font-size:12px; } .ws-send-list .sent{ color:var(--ok); font-weight:700; font-size:12px; }
   .ws-viewer{ position:fixed; inset:0; z-index:200; background:rgba(18,14,20,.95); display:flex; flex-direction:column; }
   .ws-vtop{ display:flex; align-items:center; gap:10px; padding:10px 14px; color:#fff; } .ws-vt{ flex:1; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .ws-x, .ws-nav{ background:rgba(255,255,255,.15); color:#fff; border:0; border-radius:12px; width:46px; height:44px; font-size:20px; cursor:pointer; } .ws-nav:disabled{ opacity:.3; }
@@ -593,8 +586,8 @@
     <nav class="nav" aria-label="תפריט">
       <button type="button" data-view="home">בית</button>
       <button type="button" data-view="leads">תלמידים</button>
-      <button type="button" data-view="groups" data-admin>קבוצות ונוכחות</button>
-      <button type="button" data-view="att" data-inst>נוכחות</button>
+      <button type="button" data-view="groups" data-admin>קבוצות ומרתונים</button>
+      <button type="button" data-view="att">נוכחות</button>
       <button type="button" data-view="ws">מאגר דפים</button>
       <button type="button" data-view="reports">דוחות</button>
       <button type="button" data-view="settings">⚙ הגדרות</button>
@@ -747,7 +740,6 @@
     <!-- ===== נוכחות ===== -->
     <section id="view-att" hidden>
       <div id="attList">
-        <div class="gseg subnav" role="group" aria-label="קבוצות ונוכחות" data-admin><button type="button" data-gv="groups">לוח קבוצות</button><button type="button" data-gv="att">נוכחות לפי יום</button></div>
         <div class="page-head"><h1>נוכחות</h1></div>
         <div id="attMark">
         <div class="att-date card">
@@ -826,7 +818,6 @@
       <div class="page-head"><h1>קישורי הרשמה</h1>
         <div class="tabs" role="tablist" id="lkCities"></div></div>
       <div class="card"><h3 class="rep-h" style="margin-top:0;">הרשמה לתרגולים <span class="muted" style="font-weight:400; font-size:13px;">העיר נקבעת לפי הקישור ואי אפשר לשנות אותה. בית הספר נבחר בטופס.</span></h3><div id="lkReg"></div></div>
-      <div class="card" style="margin-top:12px;"><h3 class="rep-h" style="margin-top:0;">מרתונים <span class="muted" style="font-weight:400; font-size:13px;">קישור לכל מרתון. יוצרים ועורכים מרתונים במסך "קבוצות ונוכחות".</span></h3><div id="lkMar"></div></div>
       <details style="margin-top:12px;"><summary class="muted">כתובת האתר</summary><input id="lkBase" dir="ltr" style="margin-top:6px;"></details>
     </section>
 
@@ -850,18 +841,10 @@
     <div class="ws-viewer" id="wsViewer" hidden>
       <div class="ws-vtop"><button type="button" class="ws-x" id="wsClose" aria-label="סגירה">✕</button><div class="ws-vt" id="wsVTitle"></div></div>
       <div class="ws-vimg"><img id="wsVImg" alt=""></div>
-      <div class="ws-send" id="wsSend" hidden>
-        <div class="ws-send-h"><b>שליחה בוואטסאפ ישירות לילד/ה</b><button type="button" class="ws-x" id="wsSendClose" aria-label="סגירה">✕</button></div>
-        <div class="ws-send-tools"><select id="wsSendWhen" aria-label="אילו קבוצות"><option value="now">קבוצות שמתקיימות עכשיו</option><option value="today">כל הקבוצות של היום</option><option value="all">כל הילדים (חיפוש)</option></select>
-          <input id="wsSendQ" type="search" placeholder="חיפוש שם או טלפון..." aria-label="חיפוש שם או טלפון"></div>
-        <div class="muted" style="font-size:12.5px;">נשלח קישור לדף (תקף 7 ימים). הילד/ה רואה רק את הדף הזה, בלי מספרי פרקים.</div>
-        <ul class="ws-send-list" id="wsSendList"></ul>
-      </div>
       <div class="ws-vbot">
         <button type="button" class="ws-nav" id="wsPrev" aria-label="הדף הקודם">→</button>
         <button type="button" class="btn ws-copy" id="wsCopy">העתקה</button>
         <a class="btn ws-sec" id="wsDl" download>הורדה</a>
-        <button type="button" class="btn ws-sec" id="wsSendBtn" data-admin>שליחה לילד/ה</button>
         <button type="button" class="ws-nav" id="wsNext" aria-label="הדף הבא">←</button>
       </div>
     </div>
@@ -972,8 +955,7 @@
 
     <!-- ===== לוח קבוצות ===== -->
     <section id="view-groups" hidden>
-      <div class="gseg subnav" role="group" aria-label="קבוצות ונוכחות" data-admin><button type="button" data-gv="groups">לוח קבוצות</button><button type="button" data-gv="att">נוכחות לפי יום</button></div>
-      <div class="page-head"><h1>קבוצות</h1>
+      <div class="page-head"><h1>קבוצות ומרתונים</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
           <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-gmode="board">לוח</button><button type="button" data-gmode="table">טבלה</button></div>
           <button class="btn small primary" type="button" id="gNewBtn">+ קבוצה חדשה</button>
@@ -983,7 +965,7 @@
       <div class="controls">
         <div class="tabs" role="tablist" id="cityTabs"></div>
         <div class="g-filters">
-          <select id="gKind" style="width:auto;" aria-label="סוג קבוצה"><option value="שוטף">תרגולים שוטפים</option><option value="מרתון">מרתונים</option><option value="all">כל הסוגים</option></select>
+          <select id="gKind" style="width:auto;" aria-label="סוג קבוצה"><option value="all">קבוצות ומרתונים</option><option value="שוטף">רק תרגולים שוטפים</option><option value="מרתון">רק מרתונים</option></select>
           <select id="locFilter" style="width:auto;" aria-label="סינון לפי מוקד"><option value="">כל המוקדים</option></select>
           <select id="gFill" style="width:auto;" aria-label="אילו קבוצות להציג"><option value="full">קבוצות עם ילדים</option><option value="empty">רק קבוצות ריקות</option><option value="all">כל הקבוצות</option></select>
         </div>
@@ -1212,7 +1194,7 @@ function go(view){
   if (!inst && view === "myschools") view = "schools";
   if (SETTINGS_VIEWS.includes(view)) store(key, view);
   if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
-  const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); if (!inst) navOf.att = "groups";
+  const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings");
   ["home","leads","lead","groups","att","staff","schools","reports","links","history","backup","ws","me","myschools"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view)));
@@ -1253,7 +1235,7 @@ window.addEventListener("popstate", (e) => {
 });
 document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => { if (b.dataset.view === "leads") { go("leads"); renderLeads(); } else go(b.dataset.view); }));
 document.querySelectorAll("[data-gv]").forEach(b => b.addEventListener("click", () => go(b.dataset.gv)));
-document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", () => { go("leads"); renderLeads(); }));
+document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", leadBack));
 
 // ======================================================================
 // נתונים
@@ -1584,7 +1566,18 @@ function fillLeadSelects(l){
   fillSelect($("sEng"), L.levels.map(x => ({v:x, t:x})), "בחר");
   fillSelect($("sMath"), L.levels.map(x => ({v:x, t:x})), "בחר");
 }
+// מאיפה נכנסו לכרטיס התלמיד (היסטוריה, דוחות, קבוצות...) - "חזרה" מחזירה לשם ולאותו מקום בדף
+let LEAD_FROM = "leads", LEAD_FROM_Y = 0;
+function leadBack(){
+  const v = LEAD_FROM, y = LEAD_FROM_Y;
+  if (v === "leads") { go("leads"); renderLeads(); } else go(v);
+  setTimeout(() => window.scrollTo(0, y), 0);
+}
 function openLead(id){
+  if (currentView !== "lead" && !NAV_POP) { LEAD_FROM = ["home", "leads"].includes(currentView) ? "leads" : currentView; LEAD_FROM_Y = window.scrollY; }
+  { const to = { leads: "לרשימה", history: "להיסטוריה", reports: "לדוחות", groups: "לקבוצות", att: "לנוכחות" }[LEAD_FROM] || "";
+    document.querySelectorAll("[data-back]").forEach(b => b.textContent = "חזרה " + to);
+    document.querySelectorAll("[data-and-back]").forEach(b => b.textContent = "שמירה וחזרה " + to); }
   const l = id ? L.leads.find(x => x.id === id) : null;
   editing = l;
   fillLeadSelects(l);
@@ -1861,7 +1854,7 @@ $("leadForm").addEventListener("submit", async (e) => {
     }
     await loadLeads();
     toast("נשמר");
-    if (andBack) { go("leads"); renderLeads(); } else openLead(leadId);
+    if (andBack) leadBack(); else openLead(leadId);
   } catch(e2) {
     err.textContent = e2.code === "23505" ? "יש כבר ליד לתלמיד/ה הזה/ו." : "השמירה נכשלה: " + e2.message;
   }
@@ -1906,8 +1899,8 @@ function renderTabs(){
   $("cityTabs").querySelectorAll(".tab").forEach(b => b.onclick = () => { G.city = b.dataset.city; store("telem_groups_city", G.city); renderTabs(); renderLocFilter(); renderGrid(); });
 }
 const kindOk = (x) => { const k = $("gKind").value; return k === "all" || (x.kind || "שוטף") === k; };
-$("gKind").value = store("telem_groups_kind") || "שוטף";
-$("gKind").addEventListener("change", () => { store("telem_groups_kind", $("gKind").value); renderTabs(); renderLocFilter(); renderGrid(); });
+$("gKind").value = store("telem_groups_kind2") || "all";
+$("gKind").addEventListener("change", () => { store("telem_groups_kind2", $("gKind").value); renderTabs(); renderLocFilter(); renderGrid(); });
 function renderLocFilter(){
   const locs = [...new Set(G.sessions.filter(x => x.city === G.city && kindOk(x)).map(x => x.location))].sort();
   $("locFilter").innerHTML = "<option value=''>כל המוקדים</option>" + locs.map(l => `<option>${esc(l)}</option>`).join("");
@@ -2191,7 +2184,7 @@ function openMarathonEditor(m){
     try {
       if (m) await patch("marathons", "id=eq." + m.id, body); else await insert("marathons", Object.assign({ school_year: CONFIG.schoolYear }, body));
       toast(m ? "המרתון עודכן" : "המרתון נוסף - עכשיו מוסיפים לו קבוצות"); closePanel();
-      G.city = body.city; store("telem_groups_city", G.city); if ($("gKind").value === "שוטף") { $("gKind").value = "מרתון"; store("telem_groups_kind", "מרתון"); }
+      G.city = body.city; store("telem_groups_city", G.city); if ($("gKind").value === "שוטף") { $("gKind").value = "מרתון"; store("telem_groups_kind2", "מרתון"); }
       await loadGroups();
     } catch(e) { g("err").textContent = "השמירה נכשלה: " + e.message; g("save").disabled = false; }
   };
@@ -2752,7 +2745,8 @@ function renderHome(){
     ["settings", "⚙", "הגדרות", "בתי הספר שלי, צלצולים, והפרטים שלי"]
   ] : [
     ["leads", "👥", "תלמידים", "לידים, כרטיסי תלמיד ושיבוצים"],
-    ["groups", "🗓", "קבוצות ונוכחות", "לוח הקבוצות, מרתונים וסימון נוכחות"],
+    ["groups", "🗓", "קבוצות ומרתונים", "לוח הקבוצות והמרתונים, קישורי הרשמה למרתון"],
+    ["att", "✔", "נוכחות", "סימון נוכחות לפי יום ודוח לכל קבוצה"],
     ["ws", "📄", "מאגר דפים", "דפי תרגול להעתקה ושליחה בוואטסאפ"],
     ["reports", "📊", "דוחות", "נרשמים, נוכחות, לידים ושעות מתרגלים"],
     ["settings", "⚙", "הגדרות", "בתי ספר, צוות, קישורי הרשמה, היסטוריה, גיבוי"]
@@ -2878,80 +2872,7 @@ async function wsOpen(i){
   $("wsVImg").src = url; $("wsCopy").disabled = false;
   $("wsDl").href = url; $("wsDl").setAttribute("download", (r.topic_name || "דף") + " - " + (r.title || r.page_no) + ".png");
 }
-function wsClose(){ $("wsViewer").hidden = true; $("wsSend").hidden = true; document.body.style.overflow = ""; }
-// ---------- שליחת דף בוואטסאפ ישירות לילד/ה (מנהלים בלבד) ----------
-// ברירת מחדל: הילדים בקבוצות שמתקיימות עכשיו בכל הערים. נשלח קישור (7 ימים) לדף צפייה בלי מספרי פרקים.
-const WSS = { groups: null, kids: null, sent: {} };
-const waPhone = (p) => { const d = digits(p || ""); return d.startsWith("0") ? "972" + d.slice(1) : d; };
-async function wsSendOpen(){
-  $("wsSend").hidden = false; $("wsSendList").innerHTML = "<li class='muted'>טוען...</li>";
-  try {
-    const today = todayIL();
-    WSS.groups = await rpc("attendance_groups", { p_date: today, p_city: null });
-    const ids = WSS.groups.map(g => g.session_id);
-    WSS.kids = ids.length ? await get("assignments", "select=session_id,student:students(id,first_name,last_name,phone,grade,school)&status=eq." + encodeURIComponent("משובץ") + "&session_id=in.(" + ids.join(",") + ")") : [];
-    wsSendRender();
-  } catch(e) { $("wsSendList").innerHTML = "<li class='err'>לא ניתן לטעון את הקבוצות.</li>"; }
-}
-function wsSendRender(){
-  const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Jerusalem" })), nowM = now.getHours() * 60 + now.getMinutes();
-  const mins = (t) => { const [h, m] = String(t || "0:0").split(":").map(Number); return h * 60 + (m || 0); };
-  const when = $("wsSendWhen").value, q = $("wsSendQ").value.trim();
-  if (when === "all") { wsSendRenderAll(q); return; }
-  let gs = (WSS.groups || []).slice().sort((a, b) => String(a.start_time).localeCompare(String(b.start_time)) || a.city.localeCompare(b.city));
-  if (when === "now") gs = gs.filter(g => mins(g.start_time) - 30 <= nowM && nowM <= mins(g.end_time || g.start_time) + 30);
-  const r = WS.list[WS.idx], hm = (t) => String(t || "").slice(0, 5);
-  const html = gs.map(g => {
-    const kids = WSS.kids.filter(k => k.session_id === g.session_id && k.student && (!q || (k.student.first_name + " " + (k.student.last_name || "")).includes(q)))
-      .sort((a, b) => a.student.first_name.localeCompare(b.student.first_name, "he"));
-    if (!kids.length) return "";
-    return `<h4>${esc(g.city)} · ${esc(g.location)} · ${rng(hm(g.start_time), hm(g.end_time))}</h4>` + kids.map(k => { const st = k.student, key = r.id + "|" + st.id;
-      return `<li><span>${esc(st.first_name)} ${esc(st.last_name || "")}<small>${esc([st.grade && "כיתה " + st.grade, st.school].filter(Boolean).join(" · "))}</small></span>
-        ${WSS.sent[key] ? `<span class="sent">✓ נשלח</span>` : ""}${st.phone ? `<button type="button" class="btn small primary" data-send="${st.id}">וואטסאפ</button>` : `<span class="muted" style="font-size:12px;">אין טלפון לילד/ה</span>`}</li>`; }).join("");
-  }).join("");
-  $("wsSendList").innerHTML = html || `<li class="muted">${when === "now" ? "אין עכשיו קבוצות עם ילדים. אפשר לבחור \"כל הקבוצות של היום\"." : "אין היום קבוצות עם ילדים."}</li>`;
-}
-// כל הילדים במערכת - חיפוש לפי שם או טלפון (עד 50 תוצאות)
-function wsSendRenderAll(q){
-  const r = WS.list[WS.idx];
-  if (q.length < 2) { $("wsSendList").innerHTML = "<li class='muted'>כותבים שם (לפחות 2 אותיות) או טלפון בשדה החיפוש.</li>"; return; }
-  const qd = digits(q), seen = new Set(), res = [];
-  for (const l of L.leads) {
-    const st = l.student; if (!st || seen.has(st.id)) continue;
-    const name = (st.first_name || "") + " " + (st.last_name || "");
-    if (!(name.includes(q) || (qd.length >= 3 && digits(st.phone || "").includes(qd)))) continue;
-    seen.add(st.id); res.push({ st, l }); if (res.length >= 50) break;
-  }
-  WSS.extra = {}; res.forEach(x => { WSS.extra[x.st.id] = x.st; });
-  $("wsSendList").innerHTML = res.length ? res.map(({ st, l }) => { const key = r.id + "|" + st.id;
-    return `<li><span>${esc(st.first_name)} ${esc(st.last_name || "")}<small>${esc([st.grade && "כיתה " + st.grade, schoolOf(st).name, leadCity(l), statusName(l.status_id)].filter(Boolean).join(" · "))}</small></span>
-      ${WSS.sent[key] ? `<span class="sent">✓ נשלח</span>` : ""}${st.phone ? `<button type="button" class="btn small primary" data-send="${st.id}">וואטסאפ</button>` : `<span class="muted" style="font-size:12px;">אין טלפון לילד/ה</span>`}</li>`; }).join("")
-    : "<li class='muted'>לא נמצא ילד/ה בשם הזה.</li>";
-}
-$("wsSendBtn").addEventListener("click", () => { if ($("wsSend").hidden) wsSendOpen(); else $("wsSend").hidden = true; });
-$("wsSendClose").addEventListener("click", () => { $("wsSend").hidden = true; });
-$("wsSendWhen").addEventListener("change", wsSendRender);
-$("wsSendQ").addEventListener("input", wsSendRender);
-$("wsSendList").addEventListener("click", async (e) => {
-  const b = e.target.closest("[data-send]"); if (!b) return;
-  const r = WS.list[WS.idx];
-  const k = (WSS.kids || []).find(x => x.student && String(x.student.id) === b.dataset.send) || (WSS.extra && WSS.extra[b.dataset.send] ? { student: WSS.extra[b.dataset.send] } : null);
-  if (!r || !k) return;
-  const win = window.open("about:blank", "_blank");   // נפתח מיד (חוסם חלונות קופצים לא חוסם), והכתובת מתעדכנת אחרי יצירת הקישור
-  b.disabled = true;
-  try {
-    const DAYS7 = 7 * 24 * 3600, res = await api("POST", "/storage/v1/object/sign/worksheets/" + r.storage_path.split("/").map(encodeURIComponent).join("/"), { expiresIn: DAYS7 });
-    const img = CONFIG.supabaseUrl + "/storage/v1" + (res.signedURL || res.signedUrl);
-    const exp = new Date(Date.now() + DAYS7 * 1000), expTxt = exp.toLocaleDateString("he-IL", { timeZone: "Asia/Jerusalem", day: "numeric", month: "numeric" });
-    const title = r.type === "answers" ? "פתרונות - " + (r.topic_name || "") : (r.title || "דף תרגול");
-    const page = lkDefaultBase() + "p.html#" + new URLSearchParams({ u: img, t: title, g: r.grade ? "כיתה " + r.grade + "'" : "", e: expTxt }).toString();
-    const msg = `היי ${k.student.first_name}, הנה דף התרגול מתלם:\n${title}\n${page}\nבהצלחה! (הקישור פתוח עד ${expTxt})`;
-    const wa = "https://wa.me/" + waPhone(k.student.phone) + "?text=" + encodeURIComponent(msg);
-    if (win) win.location.href = wa; else window.open(wa, "_blank");
-    insert("worksheet_sends", { worksheet_id: r.id, student_id: k.student.id, expires_at: exp.toISOString() }).catch(() => {});
-    WSS.sent[r.id + "|" + k.student.id] = true; wsSendRender();
-  } catch(err) { if (win) win.close(); b.disabled = false; toast("לא ניתן ליצור קישור לדף"); }
-});
+function wsClose(){ $("wsViewer").hidden = true; document.body.style.overflow = ""; }
 
 $("wsClose").addEventListener("click", wsClose);
 $("wsPrev").addEventListener("click", () => wsOpen(WS.idx - 1));
@@ -3325,14 +3246,6 @@ function renderLinks(){
   const regRows = [{ t: "כל המסלולים (ההורה בוחר/ת)", v: "" }].concat(LK.tracks);
   $("lkReg").innerHTML = `<table class="tbl lk-tbl"><tbody>${regRows.map(x => { const u = lkReg(city, x.v);
     return `<tr><td>${x.c ? `<span class="trk" style="background:${x.c}"></span>` : ""}<b>${esc(x.t)}</b><div class="lk-url" dir="ltr">${esc(u)}</div></td><td class="lk-act">${lkBtns(u, "טופס ההרשמה לתלם: ")}</td></tr>`; }).join("")}</tbody></table>`;
-  $("lkMar").innerHTML = "<div class='muted'>טוען...</div>";
-  get("marathons", "select=*&order=id.desc").then(ms => {
-    ms = ms.filter(m => m.city === city && m.code);
-    $("lkMar").innerHTML = ms.length ? `<table class="tbl lk-tbl"><tbody>${ms.map(m => { const u = lkMarCode(m.code);
-      return `<tr><td><b>${esc(m.name)}</b> ${scChip(m.school || "")}${m.is_open ? "" : " <span class='closed-tag'>סגור להרשמה</span>"}<div class="lk-url" dir="ltr">${esc(u)}</div></td><td class="lk-act">${lkBtns(u, "הרשמה ל" + m.name + " של תלם - " + (m.school || "") + ": ")}</td></tr>`; }).join("")}</tbody></table>`
-      : "<div class='muted'>אין מרתונים בעיר הזאת. יוצרים מרתון במסך \"קבוצות ונוכחות\" ← \"+ מרתון חדש\".</div>";
-    document.querySelectorAll("#lkMar [data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
-  }).catch(() => { $("lkMar").innerHTML = "<div class='err'>צריך להריץ את קובץ 36.</div>"; });
   document.querySelectorAll("#view-links [data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
 }
 async function copyText(t){ try { await navigator.clipboard.writeText(t); toast("הקישור הועתק"); } catch(e) { prompt("להעתקה:", t); } }
