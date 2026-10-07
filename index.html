@@ -517,6 +517,23 @@
   .ws-copy{ background:#25d366 !important; color:#0b2b17 !important; font-weight:800; font-size:17px; min-width:9em; border:0; }
   .ws-sec{ background:rgba(255,255,255,.15) !important; color:#fff !important; border:0; text-decoration:none; }
   .ws-warn{ background:var(--muted); border-radius:10px; padding:8px 12px; font-size:13.5px; margin-bottom:12px; }
+  /* מסך הבית, הפרטים שלי, בתי הספר שלי */
+  body:not(.instructor) [data-inst]{ display:none !important; }
+  .brand[role=button]{ cursor:pointer; }
+  .home-tiles{ display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:14px; }
+  .home-tile{ all:unset; cursor:pointer; background:var(--card, #fff); border:1px solid var(--border); border-radius:14px; padding:18px 18px 16px; display:flex; flex-direction:column; gap:6px; box-shadow:0 1px 3px rgba(0,0,0,.06); }
+  .home-tile:hover{ border-color:var(--accent); } .home-tile:focus-visible{ outline:3px solid var(--accent); outline-offset:2px; }
+  .home-tile .ic{ font-size:28px; line-height:1; } .home-tile b{ font-size:18px; color:var(--accent); } .home-tile span{ font-size:13px; color:var(--ink-soft, #777); line-height:1.5; }
+  .me-card{ max-width:520px; } .me-dl{ display:grid; grid-template-columns:90px 1fr; gap:8px 12px; margin:0 0 14px; } .me-dl dt{ color:var(--ink-soft, #777); } .me-dl dd{ margin:0; font-weight:700; }
+  .ms-school{ margin-bottom:16px; } .ms-school h2{ margin:0 0 10px; font-size:20px; display:flex; gap:8px; align-items:center; }
+  .ms-kids{ list-style:none; margin:6px 0 0; padding:0; font-size:13.5px; } .ms-kids li{ padding:4px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:8px; }
+  .ms-grp{ border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:10px; } .ms-grp h4{ margin:0; font-size:15px; }
+  /* מצב עריכה ברשימת התלמידים ובקבוצות */
+  #leadsTbl.locked select.status, #leadsTbl.locked .switch, #leadsTbl.locked .star{ pointer-events:none; }
+  #leadsTbl.locked select.status{ appearance:none; -webkit-appearance:none; background-image:none !important; }
+  #view-lead.ro #lgAddBtn, #view-lead.ro [data-chg]{ display:none !important; }
+  #roster:not(.editing) [data-move]{ display:none; }
+  .list-edit-on{ background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
 </style>
 </head>
 <body>
@@ -531,6 +548,7 @@
       <div><label class="lbl" for="lgPass">סיסמה</label><input id="lgPass" name="password" type="password" autocomplete="current-password" required></div>
       <label style="display:flex; gap:6px; align-items:center; font-size:13px;"><input type="checkbox" id="lgRemember" checked> לזכור את האימייל במחשב הזה</label>
       <button class="btn primary" id="lgBtn" type="submit">כניסה</button>
+      <button class="btn small ghost" id="lgForgot" type="button" style="align-self:flex-start;">שכחתי סיסמה</button>
       <div class="msg" id="lgMsg"></div>
     </form>
   </div>
@@ -538,8 +556,9 @@
 
 <div id="appView" class="app" hidden>
   <aside class="side">
-    <div class="brand">תלם - המרכז לשיעורי תרגול<small>מערכת ניהול ואדמיניסטרציה</small></div>
+    <div class="brand" id="brandHome" role="button" tabindex="0" title="למסך הבית">תלם - המרכז לשיעורי תרגול<small>מערכת ניהול ואדמיניסטרציה</small></div>
     <nav class="nav" aria-label="תפריט">
+      <button type="button" data-view="home">בית</button>
       <button type="button" data-view="leads">תלמידים</button>
       <button type="button" data-view="groups">קבוצות</button>
       <button type="button" data-view="att">נוכחות</button>
@@ -548,7 +567,6 @@
       <button type="button" data-view="settings">⚙ הגדרות</button>
     </nav>
     <div class="who"><span id="whoEmail"></span>
-      <button class="btn small ghost" id="pwBtn" type="button">שינוי סיסמה</button>
       <button class="btn small ghost" id="logoutBtn" type="button">יציאה</button>
     </div>
   </aside>
@@ -582,6 +600,7 @@
       <div class="toolbar">
         <div class="muted" id="countLine"></div>
         <div style="display:flex; gap:8px;">
+          <button class="btn small" type="button" id="listEditBtn" title="שינוי סטטוס, פעיל וכוכב ישירות ברשימה">✎ עריכה ברשימה</button>
           <button class="btn small" type="button" id="exportBtn">הורדה לאקסל</button>
           <button class="btn small" type="button" id="reloadBtn">רענון</button>
         </div>
@@ -750,7 +769,7 @@
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
     <section id="view-backup" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="schools">בתי ספר</button><button type="button" data-sv="staff">צוות ומתרגלים</button><button type="button" data-sv="links">קישורי הרשמה</button><button type="button" data-sv="backup">גיבוי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="links" data-admin>קישורי הרשמה</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>גיבוי</h1></div>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
@@ -770,7 +789,7 @@
 
     <!-- ===== קישורי הרשמה (בהגדרות) ===== -->
     <section id="view-links" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="schools">בתי ספר</button><button type="button" data-sv="staff">צוות ומתרגלים</button><button type="button" data-sv="links">קישורי הרשמה</button><button type="button" data-sv="backup">גיבוי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="links" data-admin>קישורי הרשמה</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>קישורי הרשמה</h1>
         <div class="tabs" role="tablist" id="lkCities"></div></div>
       <div class="card"><h3 class="rep-h" style="margin-top:0;">הרשמה לתרגולים <span class="muted" style="font-weight:400; font-size:13px;">העיר נקבעת לפי הקישור ואי אפשר לשנות אותה. בית הספר נבחר בטופס.</span></h3><div id="lkReg"></div></div>
@@ -806,6 +825,29 @@
       </div>
     </div>
 
+    <!-- ===== מסך הבית ===== -->
+    <section id="view-home" hidden>
+      <div class="page-head"><h1 id="homeHello">שלום</h1></div>
+      <div class="home-tiles" id="homeTiles"></div>
+    </section>
+
+    <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
+    <section id="view-me" hidden>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="links" data-admin>קישורי הרשמה</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="page-head"><h1>הפרטים שלי</h1></div>
+      <div class="card me-card">
+        <dl class="me-dl"><dt>שם</dt><dd id="meName"></dd><dt>אימייל</dt><dd id="meEmail" dir="ltr"></dd><dt>תפקיד</dt><dd id="meRole"></dd></dl>
+        <button class="btn" type="button" id="mePwBtn">שינוי סיסמה</button>
+      </div>
+    </section>
+
+    <!-- ===== בתי הספר שלי (מתרגלים) ===== -->
+    <section id="view-myschools" hidden>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="links" data-admin>קישורי הרשמה</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="page-head"><h1>בתי הספר שלי</h1></div>
+      <div id="msBody"></div>
+    </section>
+
     <!-- ===== דוחות (מנהלים בלבד) ===== -->
     <section id="view-reports" hidden>
       <div class="page-head"><h1>דוחות</h1>
@@ -827,7 +869,7 @@
 
     <!-- ===== בתי ספר (מידע, מנהלים בלבד) ===== -->
     <section id="view-schools" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="schools">בתי ספר</button><button type="button" data-sv="staff">צוות ומתרגלים</button><button type="button" data-sv="links">קישורי הרשמה</button><button type="button" data-sv="backup">גיבוי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="links" data-admin>קישורי הרשמה</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>בתי ספר</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn small" type="button" id="scEdit">עריכה</button>
@@ -845,17 +887,18 @@
 
     <!-- ===== צוות ומתרגלים ===== -->
     <section id="view-staff" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="schools">בתי ספר</button><button type="button" data-sv="staff">צוות ומתרגלים</button><button type="button" data-sv="links">קישורי הרשמה</button><button type="button" data-sv="backup">גיבוי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="links" data-admin>קישורי הרשמה</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>צוות ומתרגלים</h1></div>
       <div class="card" style="margin-bottom:14px;">
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
-          להוספת משתמש: <b>1.</b> ב-Supabase: Authentication &gt; Users &gt; Add user &gt; Create new user - אימייל וסיסמה, לסמן Auto Confirm User.
-          <b>2.</b> כאן: האימייל, השם והתפקיד. מתרגל/ת רואה רק את מסך הנוכחות של הקבוצות שלו/ה.
+          <b>משתמש חדש:</b> אימייל, שם ותפקיד. אפשר לכתוב סיסמה ראשונית ולמסור אותה, או להשאיר ריק - ואז נשלחת הזמנה במייל לבחירת סיסמה.
+          <b>משתמש קיים:</b> אותו טופס מעדכן שם ותפקיד. מתרגל/ת רואה רק נוכחות, מאגר דפים ובתי הספר שלו/ה.
         </div>
         <form id="stForm" class="st-form">
           <div><label class="lbl" for="stEmail">אימייל</label><input id="stEmail" type="email" required dir="ltr"></div>
           <div><label class="lbl" for="stName">שם</label><input id="stName" type="text" required></div>
           <div><label class="lbl" for="stRole">תפקיד</label><select id="stRole"><option value="instructor">מתרגל/ת</option><option value="admin">מנהל/ת (גישה מלאה)</option></select></div>
+          <div><label class="lbl" for="stPass">סיסמה ראשונית (רק למשתמש חדש)</label><input id="stPass" type="text" dir="ltr" autocomplete="off" placeholder="ריק = הזמנה במייל"></div>
           <div><button class="btn primary" type="submit">הוספה / עדכון</button></div>
         </form>
         <div class="err" id="stErr"></div>
@@ -1032,15 +1075,14 @@ setInterval(() => {
   if (idle >= idleMs()) logout("יצאת מהמערכת אוטומטית אחרי " + CONFIG.idleMinutes + " דקות ללא פעילות.");
   else if (idle >= idleMs() - 60000) $("idleWarn").hidden = false;
 }, 10000);
-$("pwBtn").addEventListener("click", async () => {
-  openPasswordBox();
-});
-function openPasswordBox(){
+// "שינוי סיסמה" נמצא ב"הגדרות ← הפרטים שלי"
+function openPasswordBox(opts){
+  opts = opts || {};
   const box = document.createElement("div");
   box.className = "panel-bg"; box.style.display = "flex"; box.style.alignItems = "center"; box.style.justifyContent = "center";
   box.innerHTML = `<form class="card" style="width:min(360px,92%); display:flex; flex-direction:column; gap:10px;">
-    <h3 style="color:var(--accent);">שינוי סיסמה</h3>
-    <div><label class="lbl" for="np1">סיסמה חדשה (לפחות 8 תווים)</label><input id="np1" type="password" autocomplete="new-password" minlength="8" required></div>
+    <h3 style="color:var(--accent);">${opts.title || "שינוי סיסמה"}</h3>${opts.note ? `<div class="muted" style="font-size:13px;">${opts.note}</div>` : ""}
+    <div><label class="lbl" for="np1">סיסמה חדשה (לפחות 10 תווים)</label><input id="np1" type="password" autocomplete="new-password" minlength="10" required></div>
     <div><label class="lbl" for="np2">שוב, לאימות</label><input id="np2" type="password" autocomplete="new-password" required></div>
     <div class="msg" id="npMsg"></div>
     <div style="display:flex; gap:8px;"><button class="btn primary" type="submit">שמירה</button><button class="btn" type="button" data-x>ביטול</button></div></form>`;
@@ -1049,7 +1091,7 @@ function openPasswordBox(){
   box.querySelector("form").onsubmit = async (e) => {
     e.preventDefault();
     const a = box.querySelector("#np1").value, b = box.querySelector("#np2").value, m = box.querySelector("#npMsg");
-    if (a.length < 8) { m.textContent = "הסיסמה צריכה להיות לפחות 8 תווים."; return; }
+    if (a.length < 10) { m.textContent = "הסיסמה צריכה להיות לפחות 10 תווים."; return; }
     if (a !== b) { m.textContent = "שתי הסיסמאות לא זהות."; return; }
     try { await api("PUT", "/auth/v1/user", { password: a }); box.remove(); toast("הסיסמה עודכנה"); }
     catch(err) { m.textContent = "הסיסמה לא עודכנה: " + err.message; }
@@ -1057,20 +1099,67 @@ function openPasswordBox(){
   box.querySelector("#np1").focus();
 }
 
+// ---------- שכחתי סיסמה: Supabase שולח מייל עם קישור (מ-telem.tirgul@gmail.com) ----------
+$("lgForgot").addEventListener("click", async () => {
+  const email = $("lgEmail").value.trim(), m = $("lgMsg");
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { m.textContent = "כותבים קודם את האימייל בשדה למעלה, ואז \"שכחתי סיסמה\"."; $("lgEmail").focus(); return; }
+  $("lgForgot").disabled = true;
+  try {
+    await fetch(CONFIG.supabaseUrl + "/auth/v1/recover", { method: "POST", headers: baseHeaders(), body: JSON.stringify({ email }) });
+    m.textContent = "אם האימייל רשום במערכת, נשלח אליו קישור לבחירת סיסמה חדשה. כדאי לבדוק גם בספאם.";
+  } catch(e) { m.textContent = "לא ניתן לשלוח כרגע. אפשר לנסות שוב בעוד כמה דקות."; }
+  setTimeout(() => { $("lgForgot").disabled = false; }, 30000);
+});
+// ---------- קישור מהמייל (איפוס סיסמה / הזמנת משתמש חדש): נכנסים ומבקשים לבחור סיסמה ----------
+let PENDING_PW = null;
+(function handleAuthLink(){
+  if (!location.hash || location.hash.length < 2) return;
+  const h = new URLSearchParams(location.hash.slice(1));
+  const clean = () => { try { history.replaceState(null, "", location.pathname + location.search); } catch(e) {} };
+  if (h.get("error") || h.get("error_code")) {
+    clean();
+    setTimeout(() => { $("lgMsg").textContent = "הקישור מהמייל פג תוקף או שכבר השתמשו בו. אפשר לבקש קישור חדש: כותבים את האימייל ולוחצים \"שכחתי סיסמה\"."; }, 0);
+    return;
+  }
+  const at = h.get("access_token"), type = h.get("type");
+  if (!at || !["recovery", "invite", "signup", "magiclink"].includes(type)) return;
+  saveAuth({ access_token: at, refresh_token: h.get("refresh_token") || "",
+             expires_at: Number(h.get("expires_at")) || (Math.floor(Date.now() / 1000) + Number(h.get("expires_in") || 3600)), email: "" });
+  store("telem_crm_last_activity", String(Date.now()));
+  PENDING_PW = type;
+  clean();
+})();
+async function afterAuthLink(){
+  if (!PENDING_PW) return;
+  const type = PENDING_PW; PENDING_PW = null;
+  try { const u = await api("GET", "/auth/v1/user"); if (u && u.email) { auth.email = u.email; saveAuth(auth); } } catch(e) {}
+  openPasswordBox(type === "recovery"
+    ? { title: "בחירת סיסמה חדשה", note: "נכנסת דרך הקישור מהמייל. בוחרים סיסמה חדשה (לפחות 10 תווים)." }
+    : { title: "ברוכים הבאים! בחירת סיסמה", note: "זו הכניסה הראשונה שלך. בוחרים סיסמה (לפחות 10 תווים) - איתה נכנסים מעכשיו." });
+}
+
 let currentView = "leads";
+const SETTINGS_VIEWS = ["schools","staff","links","backup","me","myschools"];
 function go(view){
   currentView = view;
-  if (ME.role === "instructor" && view !== "ws") view = "att";
-  if (view === "settings") view = store("telem_settings_view") || "schools";
-  if (view === "schools" || view === "staff" || view === "links" || view === "backup") store("telem_settings_view", view);
-  const navOf = { lead: "leads", schools: "settings", staff: "settings", links: "settings", backup: "settings" };
-  ["leads","lead","groups","att","staff","schools","reports","links","backup","ws"].forEach(v => { $("view-" + v).hidden = v !== view; });
+  const inst = ME.role === "instructor", key = inst ? "telem_settings_view_i" : "telem_settings_view";
+  if (inst && !["att","ws","home","settings","me","myschools"].includes(view)) view = "home";
+  if (view === "settings") view = store(key) || (inst ? "myschools" : "schools");
+  if (inst && SETTINGS_VIEWS.includes(view) && view !== "me" && view !== "myschools") view = "myschools";
+  if (!inst && view === "myschools") view = "schools";
+  if (SETTINGS_VIEWS.includes(view)) store(key, view);
+  if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
+  const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings");
+  ["home","leads","lead","groups","att","staff","schools","reports","links","backup","ws","me","myschools"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view)));
   if (view === "reports") loadReports();
   if (view === "links") renderLinks();
   if (view === "backup") showBackupInfo();
   if (view === "ws") loadWs();
+  if (view === "home") renderHome();
+  if (view === "me") renderMe();
+  if (view === "myschools") loadMySchools();
   if (view === "groups") loadGroups();
   if (view === "att") { showAttList(); loadAttGroups(); }
   if (view === "staff") loadStaff();
@@ -1243,7 +1332,7 @@ function renderLeads(){
       <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
       <td class="c-act"><button type="button" class="switch ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}"></button></td>
       <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
-      <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff; border-color:transparent;"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select></td>
+      <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${LIST_EDIT ? "" : " disabled"}${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff; border-color:transparent;"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select></td>
       <td class="c-src">${esc(sourceName(l.source_id))}</td>
       <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" title="הערות">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
       <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${pastBadge(s)}</td>
@@ -1257,6 +1346,7 @@ function renderLeads(){
       <td class="num c-upd">${esc(fmtDate(lastUpdate(l)))}</td>
     </tr>`;
   }).join("");
+  $("leadsTbl").classList.toggle("locked", !LIST_EDIT);
   $("leadsTbl").innerHTML = head + "<tbody>" + (rows || `<tr><td colspan="14" class="empty-state">אין לידים שמתאימים לסינון.</td></tr>`) + "</tbody>";
   $("leadsTbl").querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
     if (F.sort === th.dataset.sort) F.dir *= -1; else { F.sort = th.dataset.sort; F.dir = th.dataset.sort === "updated" ? -1 : 1; }
@@ -1267,8 +1357,17 @@ $("prevPage").addEventListener("click", () => { F.page--; renderLeads(); });
 $("nextPage").addEventListener("click", () => { F.page++; renderLeads(); });
 $("reloadBtn").addEventListener("click", async () => { await loadLeads(); renderLeads(); });
 
+// מצב עריכה ברשימה: עד שלוחצים "✎ עריכה ברשימה" אי אפשר לשנות סטטוס / פעיל / כוכב (מונע שינויים בטעות)
+let LIST_EDIT = false;
+function setListEdit(on){
+  LIST_EDIT = !!on; $("listEditBtn").classList.toggle("list-edit-on", LIST_EDIT);
+  $("listEditBtn").textContent = LIST_EDIT ? "✓ סיום עריכה" : "✎ עריכה ברשימה";
+  if (currentView === "leads") renderLeads();
+}
+$("listEditBtn").addEventListener("click", () => setListEdit(!LIST_EDIT));
 $("leadsTbl").addEventListener("click", async (e) => {
   const el = e.target.closest("[data-act]"); if (!el) return;
+  if (!LIST_EDIT && (el.dataset.act === "active" || el.dataset.act === "star")) { toast("כדי לשנות ישירות ברשימה - \"✎ עריכה ברשימה\" למעלה"); return; }
   const tr = el.closest("tr"), l = L.leads.find(x => String(x.id) === tr.dataset.id); if (!l) return;
   const act = el.dataset.act;
   if (act === "open") { openLead(l.id); return; }
@@ -1282,6 +1381,7 @@ $("leadsTbl").addEventListener("click", async (e) => {
 });
 $("leadsTbl").addEventListener("change", async (e) => {
   if (e.target.dataset.act !== "status") return;
+  if (!LIST_EDIT) { renderLeads(); return; }
   const tr = e.target.closest("tr"), l = L.leads.find(x => String(x.id) === tr.dataset.id);
   const v = e.target.value ? Number(e.target.value) : null;
   try { await patch("leads", "id=eq." + l.id, { status_id: v }); l.status_id = v; l.updated_at = new Date().toISOString();
@@ -1593,7 +1693,7 @@ document.querySelectorAll("#leadForm [type=submit]").forEach(b => b.addEventList
 // כרטיס תלמיד: נפתח לקריאה בלבד, עריכה רק אחרי לחיצה על "עריכה"
 function setLeadEdit(on){
   const card = document.querySelector("#leadForm .lead-main");
-  card.classList.toggle("editing", on); $("leadForm").classList.toggle("ro", !on);
+  card.classList.toggle("editing", on); $("leadForm").classList.toggle("ro", !on); $("view-lead").classList.toggle("ro", !on);
   card.querySelectorAll("input, select, textarea, button.switch, button.star, #clearRemind").forEach(el => { if (!el.closest("#siblings")) el.disabled = !on; });
   $("leadEditBtn").hidden = on; $("leadActions").hidden = !on; $("editBanner").hidden = !on;
   $("lfRemind").style.visibility = (!on && !$("lfRemind").value) ? "hidden" : "";
@@ -1783,7 +1883,7 @@ function renderGrid(){
 }
 function openPanel(id){
   const se = G.sessions.find(x => x.session_id === id); if (!se) return;
-  G.panel = id; $("gEdit").hidden = true; $("gEdit").innerHTML = ""; $("gEditBtn").hidden = false; $("roster").hidden = false;
+  G.panel = id; $("gEdit").hidden = true; $("gEdit").innerHTML = ""; $("gEditBtn").hidden = false; $("roster").hidden = false; $("roster").classList.remove("editing");
   const kids = G.roster.filter(k => k.session_id === id).sort((a, b) => (a.last_name || "").localeCompare(b.last_name || "", "he"));
   $("panelTitle").textContent = `${se.location} · יום ${DAY_NAMES[se.day]}`;
   $("panelSub").textContent = `${se.time_label} · ${se.city}${se.room ? " · חדר " + se.room : ""} · ${kids.length} ילדים` + (G.ins && G.ins[id] ? ` · מתרגל/ת: ${G.ins[id].join(", ")}` : "");
@@ -1860,7 +1960,7 @@ async function openGroupEditor(se, preset){
     catch(e) { g("err").textContent = /foreign key|23503/i.test(e.message + " " + (e.code || "")) ? "יש לקבוצה נוכחות שמורה ולכן אי אפשר למחוק אותה. אפשר לסמן אותה כסגורה להרשמה." : "המחיקה נכשלה: " + e.message; }
   };
 }
-$("gEditBtn").addEventListener("click", () => { const se = G.sessions.find(x => x.session_id === G.panel); if (se) { $("gEditBtn").hidden = true; openGroupEditor(se); } });
+$("gEditBtn").addEventListener("click", () => { const se = G.sessions.find(x => x.session_id === G.panel); if (se) { $("gEditBtn").hidden = true; $("roster").classList.add("editing"); openGroupEditor(se); } });
 function newGroup(preset){
   G.panel = null; $("panelTitle").textContent = "קבוצה חדשה"; $("panelSub").textContent = (preset && [preset.location, preset.city].filter(Boolean).join(" · ")) || G.city || "";
   $("gEditBtn").hidden = true; $("roster").hidden = true; $("roster").innerHTML = "";
@@ -2092,14 +2192,36 @@ function renderStaff(){
     catch(e) { toast(/notes or leads/.test(e.message) ? "אי אפשר להסיר: יש לו/ה הערות או לידים. אפשר לשנות תפקיד למתרגל/ת." : "ההסרה נכשלה: " + e.message); }
   });
 }
+// משתמש קיים - מעדכנים שם/תפקיד. משתמש חדש - נוצר בשרת (פונקציה create-staff-user, רק מנהלים):
+// עם סיסמה ראשונית, או בלי סיסמה ואז נשלחת הזמנה במייל.
+async function createStaffUser(body){
+  const t = await token();
+  const res = await fetch(CONFIG.supabaseUrl + "/functions/v1/create-staff-user", { method: "POST",
+    headers: Object.assign(baseHeaders(), { "Authorization": "Bearer " + t }), body: JSON.stringify(body) });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok || !j.ok) { const err = new Error(j.error || ("HTTP " + res.status)); err.status = res.status; throw err; }
+  return j;
+}
 $("stForm").addEventListener("submit", async (e) => {
   e.preventDefault(); $("stErr").textContent = "";
+  const email = $("stEmail").value.trim(), full_name = $("stName").value.trim(), role = $("stRole").value, password = $("stPass").value.trim();
   try {
-    await rpc("upsert_staff_user", { p_email: $("stEmail").value.trim(), p_full_name: $("stName").value.trim(), p_role: $("stRole").value });
+    await rpc("upsert_staff_user", { p_email: email, p_full_name: full_name, p_role: role });
     toast("נשמר"); $("stForm").reset(); loadStaff();
   } catch(e2) {
-    $("stErr").textContent = /user not found/.test(e2.message) ? "לא נמצא משתמש עם האימייל הזה. קודם יוצרים אותו ב-Supabase (Authentication > Users > Add user)."
-      : /own role/.test(e2.message) ? "אי אפשר לשנות את התפקיד של עצמך." : "השמירה נכשלה: " + e2.message;
+    if (/user not found/.test(e2.message)) {
+      if (password && password.length < 10) { $("stErr").textContent = "סיסמה ראשונית צריכה להיות לפחות 10 תווים (או להשאיר ריק ולשלוח הזמנה במייל)."; return; }
+      try {
+        await createStaffUser({ email, full_name, role, password: password || null });
+        toast(password ? "המשתמש נוצר - אפשר למסור לו/ה את הסיסמה הראשונית" : "המשתמש נוצר ונשלחה אליו/ה הזמנה במייל");
+        $("stForm").reset(); loadStaff();
+      } catch(e3) {
+        $("stErr").textContent = (e3.status === 404 || /Failed to fetch/.test(e3.message)) ? "עוד לא הוקמה הפונקציה create-staff-user ב-Supabase. בינתיים: Authentication > Users > Add user, ואז שוב כאן."
+          : /already/i.test(e3.message) ? "כבר יש משתמש עם האימייל הזה." : "יצירת המשתמש נכשלה: " + e3.message;
+      }
+      return;
+    }
+    $("stErr").textContent = /own role/.test(e2.message) ? "אי אפשר לשנות את התפקיד של עצמך." : "השמירה נכשלה: " + e2.message;
   }
 });
 function openAssign(id){
@@ -2180,13 +2302,12 @@ function renderSchools(){
     $("scBody").innerHTML = `
       <div class="sc-head"><h2>${esc(x.name)}</h2><span class="muted">${esc(x.city)}</span>${x.phone ? `<span>טלפון בית הספר: ${tel(x.phone)}</span>` : ""}</div>
       <div class="sc-grid">
-        <div class="card"><h3>הקבוצות שלנו כאן</h3>${groupsHtml}<button type="button" class="btn small" id="scNewGroup" style="margin-top:8px;">+ קבוצה חדשה ב${esc(x.name)}</button><h3 style="margin-top:12px;">כיתות</h3>${txt(x.rooms)}</div>
+        <div class="card"><h3>הקבוצות שלנו כאן</h3>${groupsHtml}<h3 style="margin-top:12px;">כיתות</h3>${txt(x.rooms)}</div>
         <div class="card"><h3>לוח צלצולים</h3>${bells.length ? `<table class="sc-tbl"><tbody>${bells.map(b => `<tr class="${/שיעור/.test(b.label) ? "" : "brk"}"><td>${esc(b.label)}</td><td dir="ltr" style="text-align:right">${esc(b.start)}–${esc(b.end)}</td></tr>`).join("")}</tbody></table>` : "<span class='muted'>אין</span>"}</div>
         <div class="card"><h3>אנשי קשר</h3>${contacts.length ? `<table class="sc-tbl"><tbody>${contacts.map(c => `<tr><td class="muted">${esc(c.role)}</td><td><b>${esc(c.name || "")}</b></td><td>${tel(c.phone)}</td></tr>`).join("")}</tbody></table>` : "<span class='muted'>אין</span>"}</div>
       </div>
       <div class="meta-line">עודכן: ${esc(fmtDate(x.updated_at))}</div>`;
     $("scBody").querySelectorAll(".sc-groups tr[data-sid]").forEach(tr => tr.onclick = () => openGroupOnBoard(Number(tr.dataset.sid), x.city));
-    $("scNewGroup").onclick = () => newGroup({ city: x.city, location: x.name });
     return;
   }
   const row = (cls, cells) => `<tr class="${cls}">${cells}<td><button type="button" class="btn small" data-rm>✕</button></td></tr>`;
@@ -2324,6 +2445,58 @@ async function runBackup(full){
 }
 $("bkXlsx").addEventListener("click", () => runBackup(false));
 $("bkJson").addEventListener("click", () => runBackup(true));
+
+// ======================================================================
+// מסך הבית - תפריט כפתורים (במקום לנחות ישר ברשימת התלמידים)
+// ======================================================================
+function renderHome(){
+  const inst = ME.role === "instructor";
+  const first = String(ME.full_name || "").trim().split(/\s+/)[0];
+  $("homeHello").textContent = first ? "שלום " + first : "שלום";
+  const tiles = inst ? [
+    ["att", "✔", "נוכחות", "סימון נוכחות בקבוצות שלי"],
+    ["ws", "📄", "מאגר דפים", "דפי תרגול להעתקה ושליחה בוואטסאפ"],
+    ["settings", "⚙", "הגדרות", "בתי הספר שלי, צלצולים, והפרטים שלי"]
+  ] : [
+    ["leads", "👥", "תלמידים", "לידים, כרטיסי תלמיד ושיבוצים"],
+    ["groups", "🗓", "קבוצות", "לוח הקבוצות לפי עיר ובית ספר"],
+    ["att", "✔", "נוכחות", "סימון נוכחות לפי יום וקבוצה"],
+    ["ws", "📄", "מאגר דפים", "דפי תרגול להעתקה ושליחה בוואטסאפ"],
+    ["reports", "📊", "דוחות", "נרשמים, נוכחות, לידים ושנים קודמות"],
+    ["settings", "⚙", "הגדרות", "בתי ספר, צוות, קישורי הרשמה, גיבוי"]
+  ];
+  $("homeTiles").innerHTML = tiles.map(([v, ic, t, d]) => `<button type="button" class="home-tile" data-go="${v}"><span class="ic" aria-hidden="true">${ic}</span><b>${esc(t)}</b><span>${esc(d)}</span></button>`).join("");
+  $("homeTiles").querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const v = b.dataset.go; go(v); if (v === "leads") renderLeads(); });
+}
+$("brandHome").addEventListener("click", () => go("home"));
+$("brandHome").addEventListener("keydown", (e) => { if (e.key === "Enter") go("home"); });
+// ---------- הפרטים שלי ----------
+function renderMe(){
+  $("meName").textContent = ME.full_name || "—";
+  $("meEmail").textContent = (auth && auth.email) || "—";
+  $("meRole").textContent = ME.role === "instructor" ? "מתרגל/ת" : "מנהל/ת";
+}
+$("mePwBtn").addEventListener("click", openPasswordBox);
+// ---------- בתי הספר שלי (מתרגלים): רק בתי הספר והקבוצות שלהם, בלי אנשי קשר ובלי טלפונים ----------
+async function loadMySchools(){
+  $("msBody").innerHTML = "<div class='muted'>טוען...</div>";
+  let data;
+  try { data = await rpc("my_schools", { p_year: CONFIG.schoolYear }); }
+  catch(e) { $("msBody").innerHTML = `<div class="card err">${e.status === 404 || e.code === "PGRST202" ? "צריך להריץ את קובץ 34." : "לא ניתן לטעון."}</div>`; return; }
+  const hm = (t) => String(t || "").slice(0, 5);
+  if (!data || !data.length) { $("msBody").innerHTML = "<div class='card muted'>עוד לא שויכו אליך קבוצות.</div>"; return; }
+  $("msBody").innerHTML = data.map(sc => {
+    const site = sc.site || {}, bells = site.bells || [];
+    return `<div class="ms-school"><h2>${scChip(sc.location)} <span class="muted" style="font-size:14px; font-weight:400;">${esc(sc.city)}</span></h2>
+      <div class="sc-grid">
+        <div class="card"><h3>הקבוצות שלי</h3>${(sc.groups || []).map(g => `<div class="ms-grp"><h4>יום ${esc(DAY_NAMES[g.day] || g.day)} · ${rng(hm(g.start_time), hm(g.end_time))}${g.room ? ` · חדר <bdi>${esc(g.room)}</bdi>` : ""}</h4>
+          <ul class="ms-kids">${(g.kids || []).map(k => `<li><span>${esc(k.first_name)} ${esc(k.last_name || "")}</span><span class="muted">${esc([k.grade ? "כיתה " + classLabel(k.grade, k.class_num) : "", k.subject, k.arrival_time && hm(k.arrival_time) !== hm(g.start_time) ? "שעה אישית " + hm(k.arrival_time) : ""].filter(Boolean).join(" · "))}</span></li>`).join("") || "<li class='muted'>אין ילדים</li>"}</ul></div>`).join("")}</div>
+        <div class="card"><h3>לוח צלצולים</h3>${bells.length ? `<table class="sc-tbl"><tbody>${bells.map(b => `<tr class="${/שיעור/.test(b.label) ? "" : "brk"}"><td>${esc(b.label)}</td><td dir="ltr" style="text-align:right">${esc(b.start)}–${esc(b.end)}</td></tr>`).join("")}</tbody></table>` : "<span class='muted'>עוד לא הוזן</span>"}
+          <h3 style="margin-top:12px;">כיתות</h3>${site.rooms ? `<div class="sc-text">${esc(site.rooms)}</div>` : "<span class='muted'>-</span>"}
+          ${site.instructions ? `<h3 style="margin-top:12px;">הנחיות</h3><div class="sc-text">${esc(site.instructions)}</div>` : ""}</div>
+      </div></div>`;
+  }).join("");
+}
 
 // ======================================================================
 // מאגר דפי תרגול (מנהלים ומתרגלים). התמונות ב-Storage (פרטי), מוצגות בקישורים זמניים.
@@ -2696,7 +2869,7 @@ function renderAttReport(){
     <div class="ar-group-h">${scChip(g.location)} יום ${DAY_NAMES[g.day]} ${rng(hm(g.start_time), hm(g.end_time))} <span class="muted" style="font-weight:400;">${dates.length} שיעורים מסומנים</span></div>
     <div class="tbl-wrap"><table class="tbl ar-tbl"><thead><tr><th>תלמיד/ה</th>${dates.map(d => `<th class="d">${d2(d)}</th>`).join("")}<th>נוכחות</th></tr></thead><tbody>
       ${rows.map(r => { const p = r.cells.filter(c => c === "p").length, n = r.cells.filter(c => c !== "n").length;
-        return `<tr><td>${esc(r.name)}${r.guest ? " <span class='muted'>(אורח/ת)</span>" : ""}</td>${r.cells.map(c => `<td class="${c}">${c === "p" ? "✓" : c === "a" ? "✗" : "·"}</td>`).join("")}<td class="num">${n ? pct(p, n) + "%" : "—"}</td></tr>`; }).join("") || `<tr><td colspan="${dates.length + 2}" class="empty-state">אין ילדים</td></tr>`}
+        return `<tr><td>${esc(r.name)}${r.guest ? " <span class='muted'>(נוסף/ה לשיעור)</span>" : ""}</td>${r.cells.map(c => `<td class="${c}">${c === "p" ? "✓" : c === "a" ? "✗" : "·"}</td>`).join("")}<td class="num">${n ? pct(p, n) + "%" : "—"}</td></tr>`; }).join("") || `<tr><td colspan="${dates.length + 2}" class="empty-state">אין ילדים</td></tr>`}
     </tbody></table></div>`).join("") || "<div class='muted'>אין נתונים.</div>";
 }
 $("arCsv").addEventListener("click", () => {
@@ -2754,12 +2927,12 @@ async function boot(){
   catch(e) { ME = { role: "admin" }; }   // לפני הרצת קובץ 16
   if (!ME.role) { $("leadsTbl").innerHTML = "<tr><td class='empty-state'>המשתמש לא מוגדר בצוות. צריך להוסיף אותו במסך 'צוות ומתרגלים'.</td></tr>"; go("leads"); return; }
   document.body.classList.toggle("instructor", ME.role === "instructor");
-  document.querySelectorAll(".nav button").forEach(b => { b.hidden = ME.role === "instructor" && b.dataset.view !== "att" && b.dataset.view !== "ws"; });
+  document.querySelectorAll(".nav button").forEach(b => { b.hidden = ME.role === "instructor" && !["home","att","ws","settings"].includes(b.dataset.view); });
   if (ME.full_name) $("whoEmail").textContent = ME.full_name;
-  if (ME.role === "instructor") { go("att"); return; }
+  if (ME.role === "instructor") { go("home"); afterAuthLink(); return; }
   try { await loadLists(); await loadLeads(); }
   catch(e) { $("leadsTbl").innerHTML = "<tr><td class='empty-state'>לא ניתן לטעון נתונים. ייתכן שהמשתמש לא מוגדר כאיש צוות, או שעוד לא הורץ קובץ 5.</td></tr>"; go("leads"); return; }
-  setupFilters(); go("leads"); renderLeads();
+  setupFilters(); go("home"); afterAuthLink();
 }
 $("lfStatus").addEventListener("change", e => paintStatus(e.target, Number(e.target.value)));
 boot();
