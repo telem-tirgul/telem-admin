@@ -344,7 +344,7 @@
   <div class="subtitle">טופס הרשמה למרתון מתמטיקה<span id="subtitleLocation"></span></div>
 
   <div class="intro">
-    <div>בוחרים קבוצה, ממלאים את פרטי התלמיד/ה וההורה, ובסיום עוברים לעמוד תשלום מאובטח של חברת הסליקה.</div>
+    <div>בוחרים קבוצה, ממלאים את פרטי התלמיד/ה וההורה, ובסיום עוברים לעמוד תשלום מאובטח.</div>
     <div class="lock-line">🔒 פרטי האשראי לא נשמרים ולא עוברים באתר הזה בשום שלב - הזנתם מתבצעת בעמוד מאובטח ונפרד של חברת הסליקה.</div>
   </div>
 
@@ -440,7 +440,7 @@
       </div>
     </fieldset>
 
-    <fieldset>
+    <fieldset id="fsFirstTime">
       <legend>האם זהו המרתון הראשון שלך/ה השנה?</legend>
       <div class="field" id="field-first-time">
         <div class="price-options">
@@ -665,6 +665,12 @@
         document.querySelector("#opt-returning .opt-price").textContent = CONFIG.priceReturning.toFixed(0) + " ₪";
         document.getElementById("marPriceFirst").textContent = CONFIG.priceFirstTime.toFixed(0) + " ₪";
         document.getElementById("marPriceRepeat").textContent = CONFIG.priceReturning.toFixed(0) + " ₪";
+        // מחיר אחד למרתון: לא שואלים אם זה המרתון הראשון, ומציגים מחיר אחד
+        if (CONFIG.priceFirstTime === CONFIG.priceReturning) {
+          document.getElementById("fsFirstTime").hidden = true; firstTimeYesEl.checked = true;
+          document.getElementById("marPriceRepeat").parentNode.hidden = true;
+          document.getElementById("marPriceFirst").parentNode.innerHTML = '<b id="marPriceFirst">' + CONFIG.priceFirstTime.toFixed(0) + ' ₪</b>';
+        }
         document.getElementById("marInfoTitle").textContent = (MARATHON.name || "מרתון מתמטיקה") + (MARATHON.school ? " · " + MARATHON.school + (MARATHON.city ? ", " + MARATHON.city : "") : "");
         if (MARATHON.name && MARATHON.name !== "מרתון מתמטיקה") document.querySelector(".subtitle").firstChild.textContent = "טופס הרשמה ל" + MARATHON.name;
         updateAmountDisplay(); renderGroups();
