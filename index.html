@@ -1105,7 +1105,7 @@ $("lgForgot").addEventListener("click", async () => {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { m.textContent = "כותבים קודם את האימייל בשדה למעלה, ואז \"שכחתי סיסמה\"."; $("lgEmail").focus(); return; }
   $("lgForgot").disabled = true;
   try {
-    await fetch(CONFIG.supabaseUrl + "/auth/v1/recover", { method: "POST", headers: baseHeaders(), body: JSON.stringify({ email }) });
+    await fetch(CONFIG.supabaseUrl + "/auth/v1/recover?redirect_to=" + encodeURIComponent(location.origin + location.pathname), { method: "POST", headers: baseHeaders(), body: JSON.stringify({ email }) });
     m.textContent = "אם האימייל רשום במערכת, נשלח אליו קישור לבחירת סיסמה חדשה. כדאי לבדוק גם בספאם.";
   } catch(e) { m.textContent = "לא ניתן לשלוח כרגע. אפשר לנסות שוב בעוד כמה דקות."; }
   setTimeout(() => { $("lgForgot").disabled = false; }, 30000);
