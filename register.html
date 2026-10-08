@@ -246,6 +246,7 @@
   .amount-row-recur{ margin-bottom:20px; }
   .amount-row-recur strong{ font-size:18px; }
 
+  .pay-phone{ background:#FBF5E8; border:1.5px solid #E2C98F; border-radius:10px; padding:10px 12px; margin-bottom:10px; }
   .consent{
     display:flex;
     align-items:flex-start;
@@ -548,9 +549,13 @@
       <strong id="recurAmountDisplay"></strong>
     </div>
 
+    <label class="consent pay-phone" id="field-payphone">
+      <input type="checkbox" id="f-payphone">
+      <span><b>לשלם טלפונית</b> - לא עוברים לעמוד התשלום. ניצור איתכם קשר להסדרת התשלום בכרטיס אשראי.<span id="payPhoneOnly" hidden><br><b>בשלב זה התשלום הוא טלפוני בלבד.</b></span></span>
+    </label>
     <label class="consent" id="field-consent">
       <input type="checkbox" id="f-consent" required>
-      <span>אני מאשר/ת שהפרטים נכונים, מסכים/ה להמשך לעמוד התשלום המאובטח של חברת הסליקה, ומאשר/ת בזאת חיוב מיידי של הסכום החד-פעמי בכרטיס האשראי, וכן הקמת הוראת קבע לחיוב חודשי אוטומטי באותו כרטיס בסכום ובמועדים המפורטים למעלה, עד ליוני (כולל).</span>
+      <span id="consentText" data-card="אני מאשר/ת שהפרטים נכונים, מסכים/ה להמשך לעמוד התשלום המאובטח, ומאשר/ת בזאת חיוב מיידי של הסכום החד-פעמי בכרטיס האשראי, וכן הקמת הוראת קבע לחיוב חודשי אוטומטי באותו כרטיס בסכום ובמועדים המפורטים למעלה, עד ליוני (כולל)." data-phone="אני מאשר/ת שהפרטים נכונים, ושתלם תיצור איתי קשר בטלפון לתשלום בכרטיס אשראי של הסכום החד-פעמי ושל התשלום החודשי בסכום ובמועדים המפורטים למעלה, עד ליוני (כולל).">אני מאשר/ת שהפרטים נכונים, מסכים/ה להמשך לעמוד התשלום המאובטח, ומאשר/ת בזאת חיוב מיידי של הסכום החד-פעמי בכרטיס האשראי, וכן הקמת הוראת קבע לחיוב חודשי אוטומטי באותו כרטיס בסכום ובמועדים המפורטים למעלה, עד ליוני (כולל).</span>
     </label>
     <div class="error-msg" id="consentError"></div>
 
@@ -784,8 +789,21 @@
   if (CONFIG.showSiteLink) document.getElementById("siteBackLink").hidden = false;
   // תצוגה מקדימה: ?preview=1 בקישור, או אוטומטית כל עוד אין מסוף טרנזילה אמיתי
   const NO_TERMINAL = !CONFIG.tranzila || !CONFIG.tranzila.terminalName || /^YOUR_/.test(CONFIG.tranzila.terminalName);
-  const PREVIEW = /[?&]preview=1(&|$)/.test(location.search) || NO_TERMINAL;
-  if (PREVIEW) { const pb = document.createElement("div"); pb.className = "preview-banner"; pb.textContent = NO_TERMINAL ? "תצוגה מקדימה - הטופס עדיין לא מחובר לתשלום, שום דבר לא נשמר" : "תצוגה מקדימה - שום דבר לא נשמר ולא עובר לתשלום"; document.body.insertBefore(pb, document.body.firstChild); }
+  const EXPLICIT_PREVIEW = /[?&]preview=1(&|$)/.test(location.search);
+  const PREVIEW = EXPLICIT_PREVIEW || NO_TERMINAL;
+  // תשלום טלפוני: נשמר גם כשהאשראי באתר עוד לא מחובר (רק לא בתצוגה מקדימה מהמערכת)
+  const payPhoneEl = document.getElementById("f-payphone");
+  const isPhonePay = () => payPhoneEl.checked;
+  const isPreviewNow = () => EXPLICIT_PREVIEW || (NO_TERMINAL && !isPhonePay());
+  const SUBMIT_TXT = () => isPhonePay() ? "שליחת ההרשמה" : "המשך לתשלום מאובטח";
+  function paintPayPhone(){
+    const c = document.getElementById("consentText"); c.textContent = isPhonePay() ? c.dataset.phone : c.dataset.card;
+    if (!submitBtn.disabled || submitBtn.textContent === "המשך לתשלום מאובטח" || submitBtn.textContent === "שליחת ההרשמה") submitBtn.textContent = SUBMIT_TXT();
+  }
+  if (NO_TERMINAL && !EXPLICIT_PREVIEW) { payPhoneEl.checked = true; payPhoneEl.disabled = true; document.getElementById("payPhoneOnly").hidden = false; }
+  payPhoneEl.addEventListener("change", paintPayPhone);
+  if (EXPLICIT_PREVIEW) { const pb = document.createElement("div"); pb.className = "preview-banner"; pb.textContent = "תצוגה מקדימה - שום דבר לא נשמר ולא עובר לתשלום"; document.body.insertBefore(pb, document.body.firstChild); }
+  paintPayPhone();
 
   // ----------------------------------------------------------------
   // חתימה באצבע / בעכבר
@@ -1538,7 +1556,7 @@
     if (!valid) return;
 
     submitBtn.disabled = true;
-    submitBtn.textContent = "מעביר לתשלום…";
+    submitBtn.textContent = isPhonePay() ? "שולח…" : "מעביר לתשלום…";
 
     topError.textContent = "יש לתקן את השדות המסומנים לפני שממשיכים.";
 
@@ -1546,10 +1564,10 @@
     // הסכומים לתשלום מגיעים מהשרת (לפי טבלת המסלולים ב-DB), כך שמה
     // שנגבה תמיד תואם למה שנרשם.
     const signature = signatureImage();
-    if (!signature) { document.getElementById("sigError").textContent = "יש לחתום כדי להמשיך."; topError.style.display = "block"; submitBtn.disabled = false; submitBtn.textContent = "המשך לתשלום מאובטח"; return; }
+    if (!signature) { document.getElementById("sigError").textContent = "יש לחתום כדי להמשיך."; topError.style.display = "block"; submitBtn.disabled = false; submitBtn.textContent = SUBMIT_TXT(); return; }
     submitBtn.textContent = "מכין את הטופס החתום…";
     makeSignedPdf("טופס הרשמה לתרגולים השוטפים" + (cityEl.value ? " - " + cityEl.value : ""), (parentFirst + " " + parentLast).trim()).then(function(signedPdf){
-    if (PREVIEW) {
+    if (isPreviewNow()) {
       if (signedPdf) { const dl = document.createElement("a"); dl.href = signedPdf; dl.download = "טופס-חתום-תצוגה-מקדימה.pdf"; document.body.appendChild(dl); dl.click(); }
       try { sessionStorage.setItem("reg_summary", JSON.stringify({ name: studentFirst + " " + studentLast, track: (subjectEl.selectedOptions[0] ? subjectEl.selectedOptions[0].textContent.trim() : "").replace("מתמטיקה או אנגלית", (subjectChoice && track !== "double") ? subjectChoice : "מתמטיקה או אנגלית"), amount: null })); } catch (err) {}
       setTimeout(function(){ location.href = new URL("thank-you.html?preview=1", location.href).href; }, 600); return;
@@ -1564,6 +1582,7 @@
       filled_by: "הורה",
       terms_accepted: termsConsent,
       details_confirmed: consent,
+      pay_by_phone: isPhonePay(),
       student: {
         first_name: studentFirst, last_name: studentLast,
         school: school, grade: grade, class_num: classNum,
@@ -1588,7 +1607,7 @@
         };
       }
       const contactName = (parentFirst + " " + parentLast).trim();
-      if (CONFIG.provider === "none") { location.href = new URL("thank-you.html?pending=1", location.href).href; return; }
+      if (CONFIG.provider === "none" || isPhonePay()) { location.href = new URL("thank-you.html?pending=1" + (isPhonePay() ? "&phone=1" : ""), location.href).href; return; }
       if (CONFIG.provider === "rivhit") { goToRivhit(); return; }
       goToTranzila({
         contactName: contactName, phone: phone, email: email,
@@ -1638,7 +1657,7 @@
     topError.style.display = "block";
     topError.scrollIntoView({ behavior: "smooth", block: "center" });
     submitBtn.disabled = false;
-    submitBtn.textContent = "המשך לתשלום מאובטח";
+    submitBtn.textContent = SUBMIT_TXT();
   }
 
   // מעבר לדף הסליקה המאובטח של טרנזילה. שולחים POST (מומלץ ע"י
