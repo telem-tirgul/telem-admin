@@ -1183,7 +1183,7 @@
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
           <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-gmode="board">לוח</button><button type="button" data-gmode="table">טבלה</button></div>
           <button class="btn small primary" type="button" id="gNewBtn">+ קבוצה חדשה</button>
-          <button class="btn small primary" type="button" id="mNewBtn" hidden>+ מרתון חדש</button>
+          <button class="btn small primary" type="button" id="mNewBtn">+ מרתון חדש</button>
           <button class="btn small" type="button" id="groupsReload">רענון</button>
         </div></div>
       <div class="controls">
@@ -2606,7 +2606,8 @@ function marStats(){
 // פס המרתונים של העיר (מעל הלוח): לחיצה פותחת את המרתון בחלון הצד - כמו קבוצה
 function renderMarathons(){
   const box = $("gMar");
-  if (G.kind === "שוטף") { box.hidden = true; box.innerHTML = ""; return; }
+  // בלוח (לוח שנה) המרתונים מופיעים דרך הקבוצות שלהם בתאריכים - בלי רשימה מתחת
+  if (G.kind === "שוטף" || G.mode !== "table") { box.hidden = true; box.innerHTML = ""; return; }
   box.hidden = false;
   if (!G.hasKind) { box.innerHTML = "<div class='card err'>כדי לנהל מרתונים צריך להריץ את קובץ 36.</div>"; return; }
   const ms = (G.marathons || []).filter(m => G.cities.includes(m.city || G.city));
@@ -2663,21 +2664,57 @@ function openMarathonEditor(m, inPanel){
     <div><label class="lbl">מחיר מוזל למי שכבר השתתף/ה השנה (₪) <span class="muted" style="font-weight:400">- לא חובה</span></label><input type="number" min="0" data-m="p2" value="${m && Number(m.price_repeat) !== Number(m.price_first) ? Number(m.price_repeat) : ""}"></div>
     <label class="chk full"><input type="checkbox" data-m="open" ${!m || m.is_open ? "checked" : ""}> פתוח להרשמה</label>
     <div class="full"><label class="lbl">הערות (פנימי)</label><input data-m="notes" value="${esc(m && m.notes || "")}"></div>
+    ${m ? "" : `<div class="full lg-edit-h" style="margin-top:6px;">הקבוצה הראשונה <span class="muted" style="font-weight:400; font-size:13px;">- חובה. עוד קבוצות מוסיפים אחר כך מחלון המרתון.</span></div>
+    <div><label class="lbl">שם הקבוצה</label><input data-m="glabel" value="קבוצה א'"></div>
+    <div><label class="lbl">מקסימום נרשמים</label><input type="number" min="1" data-m="gcap" value="15"></div>
+    <div class="full"><label class="lbl">המפגשים</label><div class="mar-dates" data-m="dates"><div class="dh"><span>תאריך</span><span>שעת התחלה</span><span>שעת סיום</span><span></span></div>${[{}, {}].map(x => meetRow(x)).join("")}</div>
+      <button type="button" class="btn small" data-m="adddate" style="margin-top:6px;">+ מפגש</button></div>
+    <div><label class="lbl">כיתה</label><input data-m="groom"></div>`}
     <div class="err full" data-m="err"></div>
     <div class="full lg-btns"><button type="button" class="btn small primary" data-m="save">שמירה</button><button type="button" class="btn small" data-m="cancel">ביטול</button></div>`;
   const g = (k) => box.querySelector(`[data-m="${k}"]`);
   g("city").onchange = () => { g("school").innerHTML = schoolOpts(g("city").value, ""); };
   const fromReg = currentView === "reg";
+  if (!m) {
+    const wireDates = () => box.querySelectorAll('[data-m="dates"] .d').forEach(row => {
+      row.querySelector("[data-rmdate]").onclick = () => row.remove();
+      const st = row.querySelector("[data-ms]"), en = row.querySelector("[data-me]");
+      st.onchange = () => { if (st.value && !en.value) en.value = addMin(st.value, 90); };
+    });
+    wireDates();
+    g("adddate").onclick = () => { const last = [...g("dates").querySelectorAll(".d")].pop();
+      g("dates").insertAdjacentHTML("beforeend", meetRow({ date: "", start: last ? last.querySelector("[data-ms]").value : "", end: last ? last.querySelector("[data-me]").value : "" })); wireDates(); };
+  }
   g("cancel").onclick = () => { if (m && !fromReg) { box.hidden = true; box.innerHTML = ""; openMarathonPanel(m); } else closePanel(); };
   g("save").onclick = async () => {
     const body = { name: g("name").value.trim(), city: g("city").value, school: g("school").value || null,
       price_first: Number(g("p1").value), price_repeat: Number(g("p2").value || g("p1").value), is_open: g("open").checked, notes: nn(g("notes").value) };
     // מחיר אחד = זה מחיר המרתון (נשמר גם כמחיר המוזל, ובטופס לא שואלים אם השתתף כבר)
     if (!body.name || !body.school || !(body.price_first > 0) || !(body.price_repeat > 0)) { g("err").textContent = "צריך שם, בית ספר ומחיר."; return; }
+    // מרתון חדש: חייב קבוצה ראשונה עם תאריכים ושעות
+    let grp = null;
+    if (!m) {
+      const ms = [...g("dates").querySelectorAll(".d")].map(r => ({ date: r.querySelector("[data-md]").value, start: r.querySelector("[data-ms]").value, end: r.querySelector("[data-me]").value }))
+        .filter(x => x.date || x.start || x.end).sort((a, b) => a.date.localeCompare(b.date));
+      if (!ms.length) { g("err").textContent = "צריך לפחות מפגש אחד עם תאריך ושעות."; return; }
+      if (ms.some(x => !x.date || !x.start || !x.end)) { g("err").textContent = "בכל מפגש צריך תאריך, שעת התחלה ושעת סיום."; return; }
+      if (ms.some(x => x.end <= x.start)) { g("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
+      if (new Set(ms.map(x => x.date)).size !== ms.length) { g("err").textContent = "יש שני מפגשים באותו תאריך."; return; }
+      if (!G.locs) { try { G.locs = await get("locations", "select=id,city,name,color_class"); } catch(e) { G.locs = []; } }
+      const loc = G.locs.find(x => x.city === body.city && x.name === body.school);
+      if (!loc) { g("err").textContent = "לבית הספר הזה עוד אין מקום במערכת. מוסיפים אותו כקבוצה רגילה קודם, או בוחרים בית ספר אחר."; return; }
+      grp = { kind: "מרתון", meeting_dates: ms.map(x => x.date), meetings: ms, day: null, location_id: loc.id, start_time: ms[0].start, end_time: ms[0].end,
+        time_label: g("glabel").value.trim() || "קבוצה א'", room: nn(g("groom").value), capacity: g("gcap").value === "" ? null : Number(g("gcap").value), is_open: true, city: body.city, school_year: CONFIG.schoolYear };
+    }
     g("save").disabled = true;
     try {
-      if (m) await patch("marathons", "id=eq." + m.id, body); else await insert("marathons", Object.assign({ school_year: CONFIG.schoolYear }, body));
-      toast(m ? "המרתון עודכן" : "המרתון נוסף - את הקבוצות שלו מוסיפים במסך הקבוצות"); closePanel();
+      if (m) await patch("marathons", "id=eq." + m.id, body);
+      else {
+        const nm = (await insert("marathons", Object.assign({ school_year: CONFIG.schoolYear }, body)))[0];
+        try { await insert("sessions", Object.assign({ marathon_id: nm.id }, grp)); }
+        catch(e2) { await del("marathons", "id=eq." + nm.id).catch(() => {}); throw e2; }   // בלי קבוצה - לא נשאר מרתון
+      }
+      toast(m ? "המרתון עודכן" : "המרתון נוסף עם הקבוצה הראשונה"); closePanel(); RG.mar = null;
       if (fromReg) { RG.mar = null; G.marathons = null; renderReg(); return; }
       G.city = body.city; store("telem_groups_city", G.city); if (G.kind === "שוטף") { G.kind = "all"; store("telem_groups_kind3", "all"); paintKind(); }
       await loadGroups();
@@ -2746,6 +2783,7 @@ async function openMarGroupEditor(m, se){
     } catch(e) { g("err").textContent = /meetings/.test(e.message) ? "צריך להריץ קודם את קובץ 37." : "השמירה נכשלה: " + e.message; g("save").disabled = false; }
   };
   if (g("del")) g("del").onclick = async () => {
+    if (G.sessions.filter(x => x.marathon_id === m.id).length <= 1) { g("err").textContent = "זו הקבוצה היחידה של המרתון. למרתון חייבת להיות לפחות קבוצה אחת - כדי לוותר עליו מוחקים את המרתון (בהרשמה ושיבוץ)."; return; }
     if (!window.confirm(`למחוק את ${se.time_label} של ${m.name}?`)) return;
     try { await del("sessions", "id=eq." + se.session_id); LG_SESSIONS = null; toast("הקבוצה נמחקה"); closePanel(); await loadGroups(); }
     catch(e) { g("err").textContent = /foreign key|23503/i.test(e.message + " " + (e.code || "")) ? "יש לקבוצה נוכחות שמורה ולכן אי אפשר למחוק אותה. אפשר לסמן אותה כסגורה להרשמה." : "המחיקה נכשלה: " + e.message; }
@@ -4138,10 +4176,14 @@ async function renderRegMarathons(city){
   const list = RG.mar.filter(m => m.city === city);
   box.innerHTML = `<div class="rg-sec-h"><h3>הרשמה למרתונים</h3><button type="button" class="btn small primary" id="rgMarNew">+ מרתון חדש</button></div>
     ${list.length ? list.map(m => { const u = m.code ? lkMarCode(m.code) : "", n = RG.marN[m.id] || 0, one = Number(m.price_repeat) === Number(m.price_first) || !m.price_repeat;
-      return lkRow(`${m.school ? scChip(m.school) + " " : ""}${esc(m.name)} <small class="nw">${one ? Number(m.price_first) + " ₪" : Number(m.price_first) + " ₪ · חוזר " + Number(m.price_repeat) + " ₪"} · ${n ? n + " קבוצות" : "אין קבוצות"}${m.is_open ? "" : " · סגור"}</small>`,
-        u, "הרשמה ל" + m.name + (m.school ? " · " + m.school : "") + ": ", `<button type="button" class="btn small" data-rmedit="${m.id}" title="עריכת המרתון">✎</button>`); }).join("")
+      return lkRow(`${m.school ? scChip(m.school) + " " : ""}${esc(m.name)} <small class="nw">${one ? Number(m.price_first) + " ₪" : Number(m.price_first) + " ₪ · חוזר " + Number(m.price_repeat) + " ₪"} · ${n ? n + " קבוצות" : `<b style="color:var(--full)">⚠ אין קבוצות</b>`}${m.is_open ? "" : " · סגור"}</small>`,
+        u, "הרשמה ל" + m.name + (m.school ? " · " + m.school : "") + ": ", `${n ? "" : `<button type="button" class="btn small danger" data-rmdel="${m.id}" title="מרתון בלי קבוצות - למחוק">מחיקה</button>`}<button type="button" class="btn small" data-rmedit="${m.id}" title="עריכת המרתון">✎</button>`); }).join("")
       : `<div class="muted">אין מרתונים בעיר הזאת.</div>`}`;
   box.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
+  box.querySelectorAll("[data-rmdel]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmdel));
+    if (!window.confirm(`למחוק את "${m.name}"${m.school ? " · " + m.school : ""}? אין לו קבוצות.`)) return;
+    try { await del("marathons", "id=eq." + m.id); toast("המרתון נמחק"); RG.mar = null; G.marathons = null; renderReg(); }
+    catch(e) { toast(/foreign key|23503/i.test(e.message + " " + (e.code || "")) ? "יש למרתון הזה נרשמים - אי אפשר למחוק. אפשר לסגור אותו להרשמה." : "המחיקה נכשלה: " + e.message); } });
   box.querySelectorAll("[data-rmedit]").forEach(b => b.onclick = () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmedit)); panelFor("עריכת מרתון", m.name); openMarathonEditor(m, true); });
   $("rgMarNew").onclick = () => { panelFor("מרתון חדש", city); const prev = G.city; G.city = city; openMarathonEditor(null); G.city = prev; };
 }
