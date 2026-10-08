@@ -1245,8 +1245,12 @@
 
   // האם היום (רגע מילוי הטופס) הוא בטווח "הרשמה מוקדמת" - קובע איזה
   // משני המחירים (early/regular) ייכנס לחיוב החודשי החוזר.
+  function earlyCutoff(){
+    var t = CONFIG.trackPricing[cityEl.value];
+    return (t && t.earlyUntil) || CONFIG.earlyRegistrationCutoff;
+  }
   function isEarlyRegistration(){
-    return new Date() < new Date(CONFIG.earlyRegistrationCutoff + "T23:59:59");
+    return new Date() < new Date(earlyCutoff() + "T23:59:59");
   }
 
   // ---------------------------------------------------------------
@@ -1389,8 +1393,8 @@
     trackInfoPrices.innerHTML =
       "<div class=\"track-info-label\">תשלום חודשי:</div>" +
       "<ul class=\"track-info-list\">" +
-        "<li><b>" + prices.early + " ₪</b> להרשמה מוקדמת (עד 8.10.26)</li>" +
-        "<li><b>" + prices.regular + " ₪</b> להרשמה רגילה (מ-8.10.26 ואילך)</li>" +
+        "<li><b>" + prices.early + " ₪</b> להרשמה מוקדמת (עד " + shortDate(earlyCutoff()) + ")</li>" +
+        "<li><b>" + prices.regular + " ₪</b> להרשמה רגילה (מ-" + shortDate(earlyCutoff()) + " ואילך)</li>" +
       "</ul>";
 
     // תשלומים חד-פעמיים שנגבים בהרשמה: בעיר שאין בה חומרי תרגול (ראש
@@ -1448,6 +1452,18 @@
   updateRecurDisplay();
   updateTrackInfo();
   updateTermsBox();
+
+  // מחירים מהמערכת (נערכים במערכת הניהול). אם אין חיבור - נשארים המחירים שכתובים למעלה.
+  function shortDate(iso){ var p = String(iso || "").split("-"); return p.length === 3 ? Number(p[2]) + "." + Number(p[1]) + "." + p[0].slice(2) : ""; }
+  callSupabase("reg_prices_public", null).then(function(all){
+    if (!all || typeof all !== "object") return;
+    Object.keys(all).forEach(function(c){
+      var x = all[c];
+      if (!x || !x.single || x.single.early == null || x.registrationFee == null) return;
+      CONFIG.trackPricing[c] = Object.assign({}, CONFIG.trackPricing[c] || {}, x);
+    });
+    updateAmountDisplay(); updateRecurDisplay(); updateTrackInfo(); updateTermsBox();
+  }).catch(function(){});
   updateSubjectChoiceVisibility();
   updateLevelFieldsVisibility();
   renderSchoolOptions();

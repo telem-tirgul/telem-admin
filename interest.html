@@ -482,6 +482,12 @@ function renderTracks(){
   $("introText").textContent = tracks.length ? "מלאו את הפרטים ונחזור אליכם עם כל המידע ולהשלמת ההרשמה." : "השאירו פרטים ונחזור אליכם עם כל המידע על התרגולים בעיר ובבית הספר שלכם.";
 }
 renderTracks();
+// מחירים מהמערכת (נערכים במערכת הניהול). אם אין חיבור - נשארים המחירים שכתובים למעלה.
+callSupabase("reg_prices_public", null).then(function(all){
+  if (!all || typeof all !== "object") return;
+  Object.keys(all).forEach(function(c){ const x = all[c]; if (!x || !x.single || x.single.early == null) return; CONFIG.trackPricing[c] = Object.assign({}, CONFIG.trackPricing[c] || {}, x); });
+  renderTracks();
+}).catch(function(){});
 const digits = (v) => String(v || "").replace(/\D/g, "");
   function callSupabase(fnName, payload){
     const s = CONFIG.supabase;
