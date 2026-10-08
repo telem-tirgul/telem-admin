@@ -269,6 +269,7 @@
   .st-sessions label:hover{ background:var(--muted); }
   .role-badge{ font-size:12px; font-weight:700; padding:2px 8px; border-radius:999px; background:var(--muted); }
   .role-badge.admin{ background:var(--accent); color:#fff; }
+  .role-badge.display{ background:transparent; border:1px dashed var(--border); color:var(--ink-soft); font-weight:600; }
   /* שיבוץ בכרטיס ליד */
   .side-h{ font-size:17px; color:var(--accent); margin:20px 0 8px; }
   .lg-card{ border:1.5px solid var(--border); border-inline-start:4px solid var(--accent); border-radius:10px; padding:10px 12px; margin-bottom:8px; background:var(--paper); }
@@ -616,7 +617,7 @@
   .ws-kind{ margin-bottom:10px; } .ws-how{ font-size:12.5px; margin-bottom:14px; }
   .ws-albums{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; }
   .ws-album{ all:unset; cursor:pointer; display:flex; flex-direction:column; background:var(--card, #fff); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
-  .ws-album .cv{ aspect-ratio:210/150; overflow:hidden; background:#fff; border-bottom:1px solid var(--border); } .ws-album .cv img{ width:100%; display:block; }
+  .ws-album .cv{ aspect-ratio:210/150; overflow:hidden; background:#fff; border-bottom:1px solid var(--border); } .ws-album .cv img{ width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
   .ws-album .mt{ padding:8px 10px 10px; display:flex; flex-direction:column; gap:2px; }
   .ws-album .no{ color:var(--accent); font-size:12px; font-weight:700; } .ws-album .nm{ font-weight:700; line-height:1.25; } .ws-album .ch{ font-size:12.5px; color:var(--ink-soft, #777); }
   .ws-bar{ position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; background:var(--bg); padding:8px 0; margin-bottom:8px; border-bottom:1px solid var(--border); }
@@ -627,7 +628,7 @@
   .ws-gh{ font-weight:700; margin:16px 0 8px; display:flex; gap:8px; align-items:baseline; } .ws-gh small{ color:var(--accent); font-weight:700; }
   .ws-pages{ display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; }
   .ws-pg{ all:unset; cursor:pointer; background:var(--card, #fff); border:1px solid var(--border); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
-  .ws-pg .th{ aspect-ratio:210/297; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px; } .ws-pg img{ width:100%; display:block; }
+  .ws-pg .th{ aspect-ratio:210/297; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px; } .ws-pg img{ width:100%; height:100%; object-fit:contain; display:block; }
   .ws-pg .cap{ padding:6px 8px 8px; font-size:13px; line-height:1.3; display:flex; gap:6px; } .ws-pg .cap b{ color:var(--accent); }
   .ws-viewer{ position:fixed; inset:0; z-index:200; background:rgba(18,14,20,.95); display:flex; flex-direction:column; }
   .ws-vtop{ display:flex; align-items:center; gap:10px; padding:10px 14px; color:#fff; } .ws-vt{ flex:1; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -1075,13 +1076,14 @@
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
           <b>משתמש חדש:</b> אימייל, שם ותפקיד. אפשר לכתוב סיסמה ראשונית ולמסור אותה, או להשאיר ריק - ואז נשלחת הזמנה במייל לבחירת סיסמה.
           <b>משתמש קיים:</b> אותו טופס מעדכן שם ותפקיד. מתרגל/ת רואה רק נוכחות, מאגר דפים ובתי הספר שלו/ה.
+          <b>לתצוגה בלבד:</b> רק שם, בלי אימייל ובלי סיסמה. לא יכול/ה להתחבר - רק מופיע/ה בקבוצות. "הפוך למשתמש" נותן גישה בהמשך, והקבוצות נשמרות.
         </div>
         <form id="stForm" class="st-form">
-          <div><label class="lbl" for="stEmail">אימייל</label><input id="stEmail" type="email" required dir="ltr"></div>
+          <div class="st-login"><label class="lbl" for="stEmail">אימייל</label><input id="stEmail" type="email" required dir="ltr"></div>
           <div><label class="lbl" for="stName">שם</label><input id="stName" type="text" required></div>
-          <div><label class="lbl" for="stRole">תפקיד</label><select id="stRole"><option value="instructor">מתרגל/ת</option><option value="admin">מנהל/ת (גישה מלאה)</option></select></div>
-          <div><label class="lbl" for="stPass">סיסמה ראשונית (רק למשתמש חדש)</label><input id="stPass" type="text" dir="ltr" autocomplete="off" placeholder="ריק = הזמנה במייל"></div>
-          <div><button class="btn primary" type="submit">הוספה / עדכון</button></div>
+          <div><label class="lbl" for="stRole">תפקיד</label><select id="stRole"><option value="instructor">מתרגל/ת</option><option value="admin">מנהל/ת (גישה מלאה)</option><option value="display">לתצוגה בלבד (בלי גישה)</option></select></div>
+          <div class="st-login"><label class="lbl" for="stPass">סיסמה ראשונית (רק למשתמש חדש)</label><input id="stPass" type="text" dir="ltr" autocomplete="off" placeholder="ריק = הזמנה במייל"></div>
+          <div><button class="btn primary" type="submit">הוספה / עדכון</button> <button class="btn" type="button" id="stCancel" hidden>ביטול</button></div>
         </form>
         <div class="err" id="stErr"></div>
       </div>
@@ -1407,7 +1409,7 @@ async function loadLists(){
     get("schools", "select=id,city,name&order=city,name"),
     get("study_levels", "select=name&order=sort_order").catch(() => [])
   ]);
-  L.statuses = st; L.sources = so; L.staffAll = sf; L.staff = sf.filter(x => x.role !== "instructor"); L.schools = sc; L.levels = lv.map(x => x.name);
+  L.statuses = st; L.sources = so; L.staffAll = sf; L.staff = sf.filter(x => x.role !== "instructor" && x.role !== "display"); L.schools = sc; L.levels = lv.map(x => x.name);
 }
 async function loadLeads(){
   $("countLine").textContent = "טוען...";
@@ -2932,15 +2934,16 @@ async function loadStaff(){
 }
 function renderStaff(){
   $("stTbl").innerHTML = "<thead><tr><th>שם</th><th>אימייל</th><th>תפקיד</th><th>קבוצות</th><th></th></tr></thead><tbody>" +
-    S.users.map(u => `<tr class="st-row"><td><b>${esc(u.full_name)}</b></td><td dir="ltr" style="text-align:right">${esc(u.email)}</td>
-      <td><span class="role-badge ${u.role}">${u.role === "admin" ? "מנהל/ת" : "מתרגל/ת"}</span></td>
+    S.users.map(u => `<tr class="st-row"><td><b>${esc(u.full_name)}</b></td><td dir="ltr" style="text-align:right">${u.email ? esc(u.email) : `<span class="muted">—</span>`}</td>
+      <td><span class="role-badge ${u.role}">${u.role === "admin" ? "מנהל/ת" : u.role === "display" ? "לתצוגה בלבד" : "מתרגל/ת"}</span></td>
       <td>${S.links.filter(l => l.staff_id === u.id).length || "-"}</td>
       <td style="white-space:nowrap"><button class="btn small" type="button" data-asg="${u.id}">שיוך קבוצות</button>
         <button class="btn small" type="button" data-edit="${u.id}">עריכה</button>
+        ${u.role === "display" ? `<button class="btn small" type="button" data-up="${u.id}">הפוך למשתמש</button>` : ""}
         ${u.email === auth.email ? "" : `<button class="btn small" type="button" data-rm="${u.id}">הסרה</button>`}</td></tr>`).join("") + "</tbody>";
   $("stTbl").querySelectorAll("[data-asg]").forEach(b => b.onclick = () => openAssign(b.dataset.asg));
-  $("stTbl").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => { const u = S.users.find(x => x.id === b.dataset.edit);
-    $("stEmail").value = u.email; $("stName").value = u.full_name; $("stRole").value = u.role; $("stName").focus(); });
+  $("stTbl").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => stFill(S.users.find(x => x.id === b.dataset.edit), false));
+  $("stTbl").querySelectorAll("[data-up]").forEach(b => b.onclick = () => stFill(S.users.find(x => x.id === b.dataset.up), true));
   $("stTbl").querySelectorAll("[data-rm]").forEach(b => b.onclick = async () => {
     const u = S.users.find(x => x.id === b.dataset.rm);
     if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "בטוח? להסיר"; return; }
@@ -2958,19 +2961,47 @@ async function createStaffUser(body){
   if (!res.ok || !j.ok) { const err = new Error(j.error || ("HTTP " + res.status)); err.status = res.status; throw err; }
   return j;
 }
+// עריכה / "הפוך למשתמש" של מתרגל/ת לתצוגה. S.disp = המזהה של שורת התצוגה שעורכים.
+function stFill(u, upgrade){
+  if (!u) return;
+  S.disp = u.role === "display" ? u.id : null;
+  $("stEmail").value = u.email || ""; $("stName").value = u.full_name; $("stPass").value = "";
+  $("stRole").value = upgrade ? "instructor" : u.role;
+  // משתמש עם התחברות לא הופך ל"לתצוגה בלבד"
+  $("stRole").querySelector('option[value="display"]').disabled = u.role !== "display";
+  stRoleUi(); $("stCancel").hidden = false;
+  (upgrade ? $("stEmail") : $("stName")).focus();
+}
+function stReset(){ S.disp = null; $("stForm").reset(); $("stRole").querySelector('option[value="display"]').disabled = false; $("stCancel").hidden = true; stRoleUi(); }
+function stRoleUi(){
+  const d = $("stRole").value === "display";
+  document.querySelectorAll("#stForm .st-login").forEach(x => x.hidden = d);
+  $("stEmail").required = !d;
+}
+$("stRole").addEventListener("change", stRoleUi);
+$("stCancel").addEventListener("click", stReset);
+async function stAfterSave(email){
+  if (S.disp) { try { await rpc("merge_display_staff", { p_display_id: S.disp, p_email: email }); } catch(e) {} }
+  stReset(); loadStaff();
+}
 $("stForm").addEventListener("submit", async (e) => {
   e.preventDefault(); $("stErr").textContent = "";
   const email = $("stEmail").value.trim(), full_name = $("stName").value.trim(), role = $("stRole").value, password = $("stPass").value.trim();
+  if (role === "display") {
+    try { await rpc("save_display_staff", { p_id: S.disp || null, p_full_name: full_name }); toast("נשמר"); stReset(); loadStaff(); }
+    catch(e2) { $("stErr").textContent = /name exists/.test(e2.message) ? "כבר יש איש צוות בשם הזה." : /404|Could not find/.test(e2.message + e2.status) ? "צריך להריץ את קובץ 42." : "השמירה נכשלה: " + e2.message; }
+    return;
+  }
   try {
     await rpc("upsert_staff_user", { p_email: email, p_full_name: full_name, p_role: role });
-    toast("נשמר"); $("stForm").reset(); loadStaff();
+    toast("נשמר"); await stAfterSave(email);
   } catch(e2) {
     if (/user not found/.test(e2.message)) {
       if (password && password.length < 10) { $("stErr").textContent = "סיסמה ראשונית צריכה להיות לפחות 10 תווים (או להשאיר ריק ולשלוח הזמנה במייל)."; return; }
       try {
         await createStaffUser({ email, full_name, role, password: password || null });
         toast(password ? "המשתמש נוצר - אפשר למסור לו/ה את הסיסמה הראשונית" : "המשתמש נוצר ונשלחה אליו/ה הזמנה במייל");
-        $("stForm").reset(); loadStaff();
+        await stAfterSave(email);
       } catch(e3) {
         $("stErr").textContent = (e3.status === 404 || /Failed to fetch/.test(e3.message)) ? "עוד לא הוקמה הפונקציה create-staff-user ב-Supabase. בינתיים: Authentication > Users > Add user, ואז שוב כאן."
           : /already/i.test(e3.message) ? "כבר יש משתמש עם האימייל הזה." : "יצירת המשתמש נכשלה: " + e3.message;
@@ -3282,7 +3313,10 @@ async function wsSign(paths){
   }
   return (p) => WS.urls[p] ? WS.urls[p].url : "";
 }
-const wsBooks = () => { const m = new Map(); (WS.rows || []).forEach(r => { if (!m.has(r.book)) m.set(r.book, r.book_label); }); return [...m.entries()]; };
+// סדר הספרים: לפי כיתה (7A, 8A, 8B...), אחר כך מתמטיקה – כללי, ובסוף אנגלית
+const wsBookRank = (b) => /^\d/.test(b) ? 0 : b === "GEN" ? 1 : b === "ENG" ? 3 : 2;
+const wsBooks = () => { const m = new Map(); (WS.rows || []).forEach(r => { if (!m.has(r.book)) m.set(r.book, r.book_label); });
+  return [...m.entries()].sort((a, b) => wsBookRank(a[0]) - wsBookRank(b[0]) || a[0].localeCompare(b[0])); };
 function wsTopics(){
   const m = new Map();
   WS.rows.filter(r => r.book === WS.book && r.kind === WS.kind).forEach(r => {
@@ -3313,19 +3347,22 @@ async function renderWs(){
     return;
   }
   const t = wsTopics().find(x => x.no === WS.topic);
+  if (t && !t.answers.length) WS.tab = "page";
   if (!t) { WS.topic = null; renderWs(); return; }
   const list = WS.tab === "page" ? t.pages : t.answers;
   WS.list = list;
   const sign = await wsSign(list.filter(r => r.uploaded).map(r => r.storage_path)).catch(() => () => "");
   let html = `<div class="ws-bar"><button type="button" class="btn small" id="wsBack">→ כל הנושאים</button><h2>${esc(t.name)}</h2></div>
-    <div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים (${t.pages.length})</button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות (${t.answers.length})</button></div>
+    ${t.answers.length ? `<div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים (${t.pages.length})</button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות (${t.answers.length})</button></div>` : ""}
     ${WS.tab === "answers" ? `<div class="ws-warn">פתרונות - לשימוש הצוות. לשלוח לתלמיד רק אם החלטתם.</div>` : ""}`;
   const card = (r, i) => `<button type="button" class="ws-pg" data-i="${i}"><div class="th">${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}</div>
     <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}</span></div></button>`;
   if (WS.tab === "page" && WS.kind === "topic") {
     let cur = null, buf = [];
     list.forEach((r, i) => { const k = (r.chapter || "") + "|" + (r.sub || "");
-      if (k !== cur) { if (buf.length) html += `<div class="ws-pages">${buf.join("")}</div>`; buf = []; cur = k; html += `<div class="ws-gh">${esc(r.sub || "")}<small>פרק ${esc(r.chapter || "")}</small></div>`; }
+      if (k !== cur) { if (buf.length) html += `<div class="ws-pages">${buf.join("")}</div>`; buf = []; cur = k;
+        // כותרת רק כשיש תת-נושא או פרק (בספרים בלי חלוקה - בלי כותרת)
+        if (r.sub || r.chapter) html += `<div class="ws-gh">${esc(r.sub || "")}${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</div>`; }
       buf.push(card(r, i)); });
     if (buf.length) html += `<div class="ws-pages">${buf.join("")}</div>`;
   } else html += `<div class="ws-pages">${list.map(card).join("")}</div>`;
@@ -3346,7 +3383,7 @@ async function wsOpen(i){
   const sign = await wsSign([r.storage_path]); const url = sign(r.storage_path);
   if (WS.idx !== i) return;
   $("wsVImg").src = url; $("wsCopy").disabled = false;
-  $("wsDl").href = url; $("wsDl").setAttribute("download", (r.topic_name || "דף") + " - " + (r.title || r.page_no) + ".png");
+  $("wsDl").href = url; $("wsDl").setAttribute("download", (r.topic_name || "דף") + " - " + (r.title || r.page_no) + "." + ((r.storage_path.match(/\.(\w+)$/) || [, "png"])[1]));
 }
 function wsClose(){ $("wsViewer").hidden = true; document.body.style.overflow = ""; }
 
