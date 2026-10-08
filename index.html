@@ -858,7 +858,7 @@
         <div style="display:flex; gap:8px; flex-wrap:wrap;"><button class="btn small" type="button" id="wsImportBtn" data-admin>ייבוא דפים מהמחשב</button></div></div>
       <div class="card" id="wsImport" hidden data-admin>
         <h3 class="rep-h" style="margin-top:0;">ייבוא דפים מהמחשב</h3>
-        <p class="muted" style="font-size:13.5px; margin:0 0 8px;">בוחרים את התיקייה שבה נמצאות התיקיות <b>דפי_עבודה_כיתה_ז</b> ו-<b>דפי_עבודה_כיתה_ח</b> (אצלך: Downloads\Old), או כל אחת מהן בנפרד. המערכת מעלה רק דפים שמופיעים ברשימה. אפשר להריץ שוב - דף שכבר עלה פשוט מתעדכן.</p>
+        <p class="muted" style="font-size:13.5px; margin:0 0 8px;">בוחרים במחשב את התיקייה הראשית של דפי התרגול. המערכת מוצאת לבד את הדפים שברשימה, מעלה אותם ומחליפה דפים קיימים בגרסה החדשה. אפשר להריץ שוב בכל פעם שהדפים מתעדכנים.</p>
         <input type="file" id="wsFolder" webkitdirectory directory multiple>
         <div id="wsImportMsg" class="bk-list" style="margin-top:8px;"></div>
       </div>
@@ -2939,8 +2939,10 @@ $("wsFolder").addEventListener("change", async (e) => {
   if (!WS.rows) return;
   const rel = (f) => (f.webkitRelativePath || f.name).replace(/\\/g, "/");
   const jobs = [];
-  WS.rows.forEach(r => { const src = (r.source_path || "").normalize("NFC"); const f = files.find(x => rel(x).normalize("NFC").endsWith(src)); if (f) jobs.push({ r, f }); });
-  if (!jobs.length) { msg.textContent = `לא נמצאו דפים מהרשימה בתיקייה שנבחרה (${files.length} תמונות). צריך לבחור את התיקייה שמכילה את "דפי_עבודה_כיתה_ז" / "דפי_עבודה_כיתה_ח".`; return; }
+  WS.rows.forEach(r => { const src = (r.source_path || "").normalize("NFC"); if (!src) return;
+    // אם אותו דף נמצא בכמה מקומות בתיקייה - לוקחים את הקובץ החדש ביותר
+    const f = files.filter(x => rel(x).normalize("NFC").endsWith(src)).sort((a, b) => b.lastModified - a.lastModified)[0]; if (f) jobs.push({ r, f }); });
+  if (!jobs.length) { msg.textContent = `לא נמצאו דפים מהרשימה בתיקייה שנבחרה (${files.length} תמונות). צריך לבחור את התיקייה הראשית של דפי התרגול.`; return; }
   $("wsFolder").disabled = true;
   let done = 0, failed = 0, okIds = [];
   const flush = async () => { if (!okIds.length) return; const ids = okIds.splice(0); await patch("worksheets", "id=in.(" + ids.join(",") + ")", { uploaded: true }); ids.forEach(id => { const r = WS.rows.find(x => x.id === id); if (r) r.uploaded = true; }); };
