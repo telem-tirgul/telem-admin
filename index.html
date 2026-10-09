@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.10">
+<meta name="app-version" content="5.11">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -547,11 +547,32 @@
   .g-table .closed{ color:var(--full); font-weight:700; }
   .roster{ list-style:none; margin:0; padding:6px 12px 24px; overflow-y:auto; }
   .roster li{ padding:10px 6px; border-bottom:1px solid var(--border); }
+  #panelSub span{ display:block; } #panelSub .ps-ins{ font-size:12.5px; }
+  .sc-line{ display:flex; justify-content:space-between; align-items:center; gap:8px; } .sc-line b.h{ margin:0; } .sc-more{ margin-top:4px; }
+  /* פיצול: כמו רשימת הקבוצה, ולכל ילד/ה כפתורי תת-קבוצה */
+  .sp-top{ display:flex; justify-content:space-between; align-items:center; gap:8px; } .sp-btns{ display:flex; gap:6px; }
+  .sp-when{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; } .sp-when input[type=date]{ width:auto; }
+  .sp-count{ display:flex; gap:8px; flex-wrap:wrap; } .sp-cnt{ background:var(--muted); border-radius:999px; padding:2px 10px; font-size:13px; }
+  .sp-list{ margin:0; padding:0; list-style:none; } .sp-list li{ border-bottom:1px solid var(--border); } .sp-list li.ro-k{ padding:8px 4px; } .sp-list li.ro-sec{ border-bottom:0; }
+  .sp-list .row-top{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .sp-when label{ white-space:nowrap; }
+  .sp-seg{ display:inline-flex; border:1px solid var(--border); border-radius:999px; overflow:hidden; flex:none; }
+  .sp-seg button{ font:inherit; font-size:13px; font-weight:700; border:0; background:var(--paper); color:var(--ink-soft); padding:5px 12px; cursor:pointer; min-width:40px; }
+  .sp-seg button + button{ border-inline-start:1px solid var(--border); }
+  .sp-seg button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
+  .sp-det summary{ cursor:pointer; font-weight:700; font-size:13.5px; color:var(--ink-soft); padding:4px 0; }
+  .sp-ed .sp-row{ grid-template-columns:70px minmax(0,1fr) 90px 34px !important; } .sp-hd{ font-size:12px; font-weight:700; color:var(--ink-soft); }
+  @media (max-width:760px){
+    .panel header{ flex-direction:column; align-items:stretch; padding:12px 14px; gap:8px; }
+    .panel header h3{ font-size:17px; } #panelSub{ font-size:13px; }
+    .panel header > div:last-child{ justify-content:flex-start; }
+    .roster li.sc-box{ padding:8px 10px; } .sc-more{ display:none; }
+  }
   /* חלון הקבוצה - כמו דף הנוכחות: כותרת לכל מקצוע, עיגול שכבה+כיתה, בית הספר בצבע */
-  .roster li.ro-sec{ display:flex; align-items:center; gap:8px; background:var(--muted); font-weight:800; padding:6px 10px; border-radius:8px; margin-top:8px; border-bottom:0; }
-  .roster li.ro-sec span:last-child{ color:var(--ink-soft); font-size:13px; }
-  .roster li.ro-k{ display:flex; gap:10px; align-items:flex-start; } .ro-main{ flex:1; min-width:0; }
-  .roster li.ro-k .gbadge{ margin-top:2px; } .ro-track{ color:var(--accent); }
+  .roster li.ro-sec, .sp-list li.ro-sec{ display:flex; align-items:center; gap:8px; background:var(--muted); font-weight:800; padding:6px 10px; border-radius:8px; margin-top:8px; border-bottom:0; }
+  .roster li.ro-sec span:last-child, .sp-list li.ro-sec span:last-child{ color:var(--ink-soft); font-size:13px; }
+  .roster li.ro-k, .sp-list li.ro-k{ display:flex; gap:10px; align-items:flex-start; } .ro-main{ flex:1; min-width:0; }
+  .ro-k .gbadge{ margin-top:2px; } .ro-track{ color:var(--accent); }
   .roster .row-top{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
   .roster .nm{ font-weight:700; }
   .roster .meta{ font-size:12.5px; color:var(--ink-soft); }
@@ -2669,7 +2690,9 @@ function openPanel(id){
   const kids = G.roster.filter(k => k.session_id === id).sort(attSort);
   const mOf = se.kind === "מרתון" ? (G.marathons || []).find(m => m.id === se.marathon_id) : null;
   $("panelTitle").textContent = mOf ? `${mOf.name} · ${se.time_label}` : `${se.location} · יום ${DAY_NAMES[se.day]}`;
-  $("panelSub").textContent = `${mOf ? marMeetings(se).map(meetTxt).join(" | ").replace(/<[^>]+>/g, "") + " · " + se.location : se.time_label} · ${se.city}${se.room ? " · חדר " + se.room : ""} · ${kids.length} ילדים${(G.prop || []).some(k => k.session_id === id) ? " · " + (G.prop || []).filter(k => k.session_id === id).length + " מוצעים" : ""}` + (G.ins && G.ins[id] ? ` · מתרגל/ת: ${G.ins[id].join(", ")}` : "");
+  const nProp = (G.prop || []).filter(k => k.session_id === id).length;
+  $("panelSub").innerHTML = `<span>${esc(mOf ? marMeetings(se).map(meetTxt).join(" | ").replace(/<[^>]+>/g, "") + " · " + se.location : se.time_label)} · ${esc(se.city)} · <b>${kids.length} ילדים</b>${nProp ? " · " + nProp + " מוצעים" : ""}</span>`
+    + (G.ins && G.ins[id] ? `<span class="ps-ins">מתרגלים: ${esc(G.ins[id].join(", "))}</span>` : "");
   const start = (se.start_time || "").slice(0, 5);
   // הערות אוטומטיות מהייבוא ("קובץ נרשמים 8.10") לא מוצגות
   const realNote = (n) => n && !/^קובץ נרשמים/.test(String(n).trim());
@@ -3024,13 +3047,13 @@ async function openMarGroupEditor(m, se){
 async function loadPanelSchool(se){
   if (!SC.list.length) { try { SC.list = await get("site_info", "select=*&order=city,name"); } catch(e) { return; } }
   if (G.panel !== se.session_id) return;
-  const x = SC.list.find(s => s.city === se.city && s.name === se.location); if (!x) return;
+  const x = SC.list.find(s => s.city === se.city && s.name === se.location);
+  if (!x) { if (se.room) $("roster").insertAdjacentHTML("afterbegin", `<li class="sc-box"><b class="h">📍 ${esc(se.room)}</b></li>`); return; }
   const tel = (p) => p ? String(p).split(/[\n,]|\s+(?=0)/).map(t => t.trim()).filter(Boolean).map(t => `<a href="tel:${digits(t)}" dir="ltr">${esc(t)}</a>`).join(", ") : "";
   const contacts = (x.contacts || []).filter(c => c.name || c.phone);
-  const html = `<li class="sc-box"><b class="h">🏫 ${esc(x.name)}${se.room || x.rooms ? ` · 📍 ${esc(se.room || x.rooms)}` : ""}</b>
-    ${x.phone ? `<div>טלפון בית הספר: ${tel(x.phone)}</div>` : ""}
-    ${contacts.length ? `<div class="c">${contacts.slice(0, 4).map(c => `<span>${esc(c.role || "")}: <b>${esc(c.name || "")}</b> ${tel(c.phone)}</span>`).join(" · ")}</div>` : ""}
-    <div style="margin-top:4px;"><a href="#" data-scfull="${x.id}">כל הפרטים (צלצולים, אנשי קשר) ←</a></div></li>`;
+  const html = `<li class="sc-box"><div class="sc-line"><b class="h">🏫 ${esc(x.name)}${se.room || x.rooms ? ` · 📍 ${esc(se.room || x.rooms)}` : ""}</b><a href="#" data-scfull="${x.id}">פרטים ←</a></div>
+    ${x.phone ? `<div class="sc-more">טלפון בית הספר: ${tel(x.phone)}</div>` : ""}
+    ${contacts.length ? `<div class="c sc-more">${contacts.slice(0, 4).map(c => `<span>${esc(c.role || "")}: <b>${esc(c.name || "")}</b> ${tel(c.phone)}</span>`).join(" · ")}</div>` : ""}</li>`;
   $("roster").insertAdjacentHTML("afterbegin", html);
   const a = $("roster").querySelector("[data-scfull]");
   if (a) a.onclick = (e) => { e.preventDefault(); closePanel(); SC.cur = x.id; store("telem_school", SC.cur); go("schools"); };
@@ -3053,9 +3076,9 @@ async function loadPanelSplits(se){
   G.splits = sp || [];
   const t = todayIL(), cur = (sp || []).filter(s => !s.date_to || s.date_to >= t);
   const sets = {}; cur.forEach(s => (sets[spSetKey(s)] = sets[spSetKey(s)] || []).push(s));
-  const html = `<li class="sp-panel"><div class="row-top"><b>תת-קבוצות</b>${sp === null ? "" : `<button type="button" class="btn small" id="spNew">✂ פיצול לתת-קבוצות</button>`}</div>
+  const html = `<li class="sp-panel"><div class="row-top"><span><b>תת-קבוצות</b>${sp !== null && !Object.keys(sets).length ? ` <span class="muted">· הקבוצה לא מפוצלת</span>` : ""}</span>${sp === null ? "" : `<button type="button" class="btn small" id="spNew">✂ פיצול</button>`}</div>
     ${sp === null ? "<div class='meta'>צריך להריץ את קובץ 40.</div>" : Object.keys(sets).length ? Object.values(sets).map(g => `<div class="meta" style="margin-top:4px;"><b>${esc(spWhen(g[0]))}:</b> ${g.map(s => `${esc(s.name)} - ${s.members.length} ילדים${s.room ? ", " + esc(s.room) : ""}${s.staff ? ", " + esc(s.staff.full_name) : ""}`).join(" · ")}
-      <button type="button" class="btn small" data-spedit="${esc(spSetKey(g[0]))}">עריכה</button> <button type="button" class="btn small" data-spend="${esc(spSetKey(g[0]))}">${g[0].date_from > t ? "מחיקה" : "סיום הפיצול"}</button></div>`).join("") : "<div class='meta'>הקבוצה לא מפוצלת.</div>"}</li>`;
+      <button type="button" class="btn small" data-spedit="${esc(spSetKey(g[0]))}">עריכה</button> <button type="button" class="btn small" data-spend="${esc(spSetKey(g[0]))}">${g[0].date_from > t ? "מחיקה" : "סיום הפיצול"}</button></div>`).join("") : ""}</li>`;
   $("roster").insertAdjacentHTML("afterbegin", html);
   // ילד/ה בתת-קבוצה היום - תגית ליד השם
   const today = cur.filter(s => s.date_from <= t);
@@ -3076,41 +3099,55 @@ async function openSplitEditor(se, set){
   try { STAFF_ALL = await get("staff", "select=id,full_name,role&order=full_name"); } catch(e) { STAFF_ALL = STAFF_ALL || []; }
   $("roster").hidden = true; $("gEditBtn").hidden = true;
   const box = $("gEdit"); box.hidden = false;
-  const kids = G.roster.filter(k => k.session_id === se.session_id).sort((a, b) => (a.last_name || "").localeCompare(b.last_name || "", "he"));
+  // אותו סידור כמו ברשימת הקבוצה: לפי מקצוע (עם כותרת), שכבה, כיתה ושם
+  const kids = G.roster.filter(k => k.session_id === se.session_id).sort(attSort);
   const first = set ? set[0] : null;
   let subs = set ? set.map(s => ({ name: s.name, room: s.room || "", staff: s.staff_id || "", members: s.members.map(m => m.student_id) }))
                  : [{ name: "א'", room: se.room || "", staff: "", members: [] }, { name: "ב'", room: "", staff: "", members: [] }];
   const memberOf = {}; subs.forEach((s, i) => s.members.forEach(id => memberOf[id] = i));
-  if (!set) kids.forEach((k, i) => memberOf[k.student_id] = i < Math.ceil(kids.length / 2) ? 0 : 1);
+  // פיצול חדש: חלוקה ראשונית לפי מקצוע (כל מקצוע ברובו באותה תת-קבוצה) - משנים בלחיצה
+  if (!set) { const half = Math.ceil(kids.length / 2); kids.forEach((k, i) => memberOf[k.student_id] = i < half ? 0 : 1); }
   const once = first ? first.date_to === first.date_from : true;
+  const subName = (i) => (subs[i] && subs[i].name.trim()) || "תת-קבוצה " + (i + 1);
   const paint = () => {
-    box.innerHTML = `<div class="full lg-edit-h">${set ? "עריכת פיצול" : "פיצול לתת-קבוצות"}</div>
-      <div class="full"><label class="lbl">מתי</label>
-        <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
-          <label class="chk"><input type="radio" name="spDur" value="once" ${once ? "checked" : ""}> רק בתאריך</label>
-          <label class="chk"><input type="radio" name="spDur" value="on" ${once ? "" : "checked"}> מתאריך והלאה</label>
-          <input type="date" id="spDate" value="${esc(first ? first.date_from : nextMeeting(se))}" style="width:auto;"></div></div>
-      <div class="full sp-ed"><div class="sp-row" style="font-size:12px; font-weight:700; color:var(--ink-soft);"><span>שם</span><span>חדר</span><span>מתרגל/ת</span><span></span></div>
-        ${subs.map((s, i) => `<div class="sp-row" data-sub="${i}"><input data-f="name" value="${esc(s.name)}"><input data-f="room" value="${esc(s.room)}" placeholder="חדר"><select data-f="staff"><option value="">—</option>${STAFF_ALL.map(x => `<option value="${x.id}" ${x.id === s.staff ? "selected" : ""}>${esc(x.full_name)}</option>`).join("")}</select>${subs.length > 2 ? `<button type="button" class="btn small" data-rmsub="${i}">הסרה</button>` : "<span></span>"}</div>`).join("")}
-        <button type="button" class="btn small" id="spAddSub">+ תת-קבוצה</button>
-        <div class="sp-kids">${kids.map(k => `<div class="k"><span>${esc(k.first_name)} ${esc(k.last_name || "")} <span class="muted">${esc(k.grade || "")}</span></span><select data-kid="${k.student_id}">${subs.map((s, i) => `<option value="${i}" ${memberOf[k.student_id] === i ? "selected" : ""}>${esc(s.name || "תת-קבוצה " + (i + 1))}</option>`).join("")}</select></div>`).join("") || "<span class='muted'>אין ילדים בקבוצה.</span>"}</div></div>
+    let prevGrp = null;
+    const rows = kids.map(k => {
+      const grp = subjGrp(k.subject), head = grp !== prevGrp ? (prevGrp = grp, `<li class="ro-sec">${grp < 3 ? subjChip(SUBJ_GRP_T[grp]) : "<b>בלי מקצוע</b>"} <span>${kids.filter(x => subjGrp(x.subject) === grp).length}</span></li>`) : "";
+      return head + `<li class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>
+        <span class="sp-seg" role="group" aria-label="תת-קבוצה">${subs.map((s, i) => `<button type="button" data-kid="${k.student_id}" data-to="${i}" aria-pressed="${(memberOf[k.student_id] || 0) === i}">${esc(subName(i))}</button>`).join("")}</span></div>
+        <div class="meta">${k.school ? `<span class="sch-mini ${scCls(k.school)}">${esc(k.school)}</span>` : ""}</div></div></li>`; }).join("");
+    box.innerHTML = `<div class="full sp-top"><div class="lg-edit-h">${set ? "עריכת פיצול" : "פיצול לתת-קבוצות"}</div>
+        <div class="sp-btns"><button type="button" class="btn small primary" data-spsave>שמירה</button><button type="button" class="btn small" data-spcancel>ביטול</button></div></div>
+      <div class="full sp-when">
+        <label class="chk"><input type="radio" name="spDur" value="once" ${once ? "checked" : ""}> רק בתאריך</label>
+        <label class="chk"><input type="radio" name="spDur" value="on" ${once ? "" : "checked"}> מתאריך והלאה</label>
+        <input type="date" id="spDate" value="${esc(first ? first.date_from : nextMeeting(se))}"></div>
+      <div class="full sp-count" id="spCount"></div>
+      <ul class="full sp-list">${rows}</ul>
+      <details class="full sp-det" ${set ? "" : "open"}><summary>מתרגלים וחדרים לתת-הקבוצות</summary>
+        <div class="sp-ed"><div class="sp-row sp-hd"><span>שם</span><span>מתרגל/ת</span><span>חדר <small>(לא חובה)</small></span><span></span></div>
+        ${subs.map((s, i) => `<div class="sp-row" data-sub="${i}"><input data-f="name" value="${esc(s.name)}"><select data-f="staff"><option value="">—</option>${STAFF_ALL.map(x => `<option value="${x.id}" ${x.id === s.staff ? "selected" : ""}>${esc(x.full_name)}</option>`).join("")}</select><input data-f="room" value="${esc(s.room)}" placeholder="חדר"><span>${subs.length > 2 ? `<button type="button" class="btn small" data-rmsub="${i}" title="הסרת תת-הקבוצה">✕</button>` : ""}</span></div>`).join("")}
+        <button type="button" class="btn small" id="spAddSub">+ תת-קבוצה</button></div></details>
       <div class="muted full" style="font-size:12.5px;">כל מתרגל/ת רואה בנוכחות רק את הילדים של תת-הקבוצה שלו/ה. הנוכחות נשמרת על הקבוצה - הדוחות לא משתנים.</div>
       <div class="err full" id="spErr"></div>
-      <div class="full lg-btns"><button type="button" class="btn small primary" id="spSave">שמירה</button><button type="button" class="btn small" id="spCancel">ביטול</button></div>`;
-    const read = () => { box.querySelectorAll("[data-sub]").forEach(r => { const s = subs[Number(r.dataset.sub)]; s.name = r.querySelector("[data-f=name]").value; s.room = r.querySelector("[data-f=room]").value; s.staff = r.querySelector("[data-f=staff]").value; });
-      box.querySelectorAll("[data-kid]").forEach(x => memberOf[Number(x.dataset.kid)] = Number(x.value)); };
+      <div class="full lg-btns"><button type="button" class="btn small primary" data-spsave>שמירה</button><button type="button" class="btn small" data-spcancel>ביטול</button></div>`;
+    const count = () => { $("spCount").innerHTML = subs.map((s, i) => `<span class="sp-cnt">${esc(subName(i))}: <b>${kids.filter(k => (memberOf[k.student_id] || 0) === i).length}</b></span>`).join(""); };
+    count();
+    const read = () => box.querySelectorAll("[data-sub]").forEach(r => { const s = subs[Number(r.dataset.sub)]; s.name = r.querySelector("[data-f=name]").value; s.room = r.querySelector("[data-f=room]").value; s.staff = r.querySelector("[data-f=staff]").value; });
+    box.querySelectorAll("[data-kid]").forEach(b => b.onclick = () => { memberOf[Number(b.dataset.kid)] = Number(b.dataset.to);
+      b.parentNode.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); count(); });
     $("spAddSub").onclick = () => { read(); subs.push({ name: "אבגדהו".charAt(subs.length) + "'", room: "", staff: "", members: [] }); paint(); };
     box.querySelectorAll("[data-rmsub]").forEach(b => b.onclick = () => { read(); const i = Number(b.dataset.rmsub); subs.splice(i, 1); Object.keys(memberOf).forEach(k => { if (memberOf[k] === i) memberOf[k] = 0; else if (memberOf[k] > i) memberOf[k]--; }); paint(); });
-    box.querySelectorAll("[data-f=name]").forEach(x => x.oninput = () => { read(); box.querySelectorAll("[data-kid] option").forEach(o => { o.textContent = subs[Number(o.value)].name || "תת-קבוצה " + (Number(o.value) + 1); }); });
-    $("spCancel").onclick = () => { box.hidden = true; box.innerHTML = ""; openPanel(se.session_id); };
-    $("spSave").onclick = async () => {
+    box.querySelectorAll("[data-f=name]").forEach(x => x.oninput = () => { read(); box.querySelectorAll("[data-to]").forEach(o => { o.textContent = subName(Number(o.dataset.to)); }); count(); });
+    box.querySelectorAll("[data-spcancel]").forEach(b => b.onclick = () => { box.hidden = true; box.innerHTML = ""; openPanel(se.session_id); });
+    box.querySelectorAll("[data-spsave]").forEach(btn => btn.onclick = async () => {
       read();
-      const d = $("spDate").value, dur = box.querySelector("[name=spDur]:checked").value;
-      if (!d) { $("spErr").textContent = "צריך לבחור תאריך."; return; }
-      if (subs.some(s => !s.name.trim())) { $("spErr").textContent = "לכל תת-קבוצה צריך שם."; return; }
-      if (new Set(subs.map(s => s.name.trim())).size !== subs.length) { $("spErr").textContent = "יש שתי תת-קבוצות עם אותו שם."; return; }
-      if (subs.some((s, i) => !kids.some(k => memberOf[k.student_id] === i))) { $("spErr").textContent = "יש תת-קבוצה בלי ילדים."; return; }
-      $("spSave").disabled = true;
+      const d = $("spDate").value, dur = box.querySelector("[name=spDur]:checked").value, err = (t) => { $("spErr").textContent = t; $("spErr").scrollIntoView({ block: "nearest" }); };
+      if (!d) { err("צריך לבחור תאריך."); return; }
+      if (subs.some(s => !s.name.trim())) { err("לכל תת-קבוצה צריך שם."); return; }
+      if (new Set(subs.map(s => s.name.trim())).size !== subs.length) { err("יש שתי תת-קבוצות עם אותו שם."); return; }
+      if (subs.some((s, i) => !kids.some(k => (memberOf[k.student_id] || 0) === i))) { err("יש תת-קבוצה בלי ילדים."); return; }
+      box.querySelectorAll("[data-spsave]").forEach(x => x.disabled = true);
       try {
         if (set) await del("session_splits", "id=in.(" + set.map(s => s.id).join(",") + ")");
         const rows = await insert("session_splits", subs.map((s, i) => ({ session_id: se.session_id, name: s.name.trim(), room: nn(s.room), staff_id: s.staff || null, date_from: d, date_to: dur === "once" ? d : null, sort_order: i })));
@@ -3118,8 +3155,8 @@ async function openSplitEditor(se, set){
         const mem = kids.map(k => ({ split_id: byOrder[memberOf[k.student_id] || 0].id, student_id: k.student_id }));
         if (mem.length) await insert("session_split_members", mem);
         toast("הפיצול נשמר"); box.hidden = true; box.innerHTML = ""; openPanel(se.session_id);
-      } catch(e) { $("spErr").textContent = /session_splits/.test(e.message) ? "צריך להריץ קודם את קובץ 40." : "השמירה נכשלה: " + e.message; $("spSave").disabled = false; }
-    };
+      } catch(e) { err(/session_splits/.test(e.message) ? "צריך להריץ קודם את קובץ 40." : "השמירה נכשלה: " + e.message); box.querySelectorAll("[data-spsave]").forEach(x => x.disabled = false); }
+    });
   };
   paint();
 }
