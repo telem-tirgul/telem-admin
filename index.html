@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.7">
+<meta name="app-version" content="5.8">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,6 +48,8 @@
   .side{ background:var(--side); color:var(--side-ink); display:flex; align-items:center; flex-wrap:wrap; gap:4px 18px;
          padding:10px 20px; position:sticky; top:0; z-index:40; }
   .brand{ font-family:var(--font-display); font-weight:900; font-size:18px; letter-spacing:.02em; line-height:1.2; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-logo{ height:38px; width:auto; background:#fff; border-radius:8px; padding:2px 5px; flex:none; }
   .brand small{ display:block; font-weight:500; font-size:12px; opacity:.7; letter-spacing:0; }
   .nav{ display:flex; gap:2px; margin-inline-start:12px; }
   .nav button{ background:none; border:none; color:inherit; padding:10px 14px; font-weight:700; font-size:14.5px; cursor:pointer;
@@ -635,6 +637,7 @@
   @media (max-width:760px){
     .side{ flex-wrap:wrap; align-items:center; padding:8px 10px; }
     .side .brand{ order:1; flex:1 1 0; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:14px; }
+    .side .brand .brand-t{ display:none; } .side .brand .brand-logo{ height:32px; }   /* טלפון: רק הלוגו */
     .nav-toggle{ padding:5px 10px !important; font-size:13.5px !important; }
     .nav-toggle{ display:inline-flex; align-items:center; gap:6px; order:2; margin-inline-start:auto; background:rgba(255,255,255,.1); color:inherit; border:1px solid rgba(255,255,255,.25); border-radius:10px; padding:6px 12px; font:inherit; font-weight:800; font-size:14.5px; cursor:pointer; }
     .side .who{ order:3; }
@@ -706,6 +709,27 @@
   .lk-name{ font-weight:700; font-size:14px; } .lk-in{ font-size:12.5px; padding:5px 8px; color:var(--ink-soft); min-width:0; width:100%; box-sizing:border-box; }
   .lk-ic{ display:inline-flex; gap:4px; } .lk-ic .btn{ padding:4px 9px; }
   .rg-facts{ display:flex; flex-wrap:wrap; gap:4px 16px; font-size:13px; color:var(--ink-soft); margin-bottom:4px; } .rg-facts b{ color:var(--ink); }
+  /* הרשמה ושיבוץ > קישורים: כללי / תרגולים שוטפים / מרתונים */
+  .rg-lk-seg{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:6px 0 16px; }
+  .rg-lk-seg button{ font:inherit; font-weight:900; font-size:19px; padding:14px 10px; border-radius:14px; border:2px solid var(--border); background:var(--paper); color:var(--ink); cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+  .rg-lk-seg button:hover{ border-color:var(--accent); }
+  .rg-lk-seg button[aria-selected="true"]{ background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 3px 10px color-mix(in srgb, var(--accent) 35%, transparent); }
+  /* הערים - משניות לבחירה הראשית */
+  .rg-lk-seg + .rg-city-row{ margin:0 0 12px; padding-top:0; border-top:0; gap:6px; }
+  .rg-lk-seg + .rg-city-row button{ font-size:14.5px; padding:6px 16px; border-radius:999px; border-width:1px; }
+  .rg-lk-seg + .rg-city-row button[aria-pressed="true"]{ background:color-mix(in srgb, var(--accent) 14%, var(--paper)); border-color:var(--accent); color:var(--accent); }
+  .rg-school{ display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-soft); } .rg-school select{ width:auto; padding:4px 8px; font-size:13.5px; }
+  .lk2-head, .lk2-row{ display:grid; grid-template-columns:minmax(0,1fr) 200px 200px; gap:6px 14px; align-items:center; }
+  .lk2-cell{ justify-content:center; }
+  .lk2-head{ font-size:12.5px; font-weight:700; color:var(--ink-soft); padding:6px 0 2px; } .lk2-head span:not(:first-child){ text-align:center; }
+  .lk2-row{ padding:7px 0; border-top:1px solid var(--border); }
+  .lk2-cell{ display:inline-flex; gap:4px; align-items:center; } .lk2-cell .btn{ padding:4px 9px; } .lk2-l{ display:none; font-size:12.5px; font-weight:700; color:var(--ink-soft); min-width:64px; }
+  .lk2-x{ display:inline-flex; gap:4px; margin-inline-start:8px; vertical-align:middle; } .lk2-x .btn{ padding:2px 8px; }
+  .mar-dates-t{ font-weight:800; color:var(--accent); font-size:13.5px; margin-inline-start:4px; white-space:nowrap; }
+  .lk2-row .lk-name small{ display:block; margin-top:1px; }
+  @media (max-width:760px){ .rg-sec-h{ flex-wrap:wrap; } .rg-school{ flex-basis:100%; }
+    .lk2-head{ display:none; } .lk2-row{ grid-template-columns:1fr; gap:6px; } .lk2-l{ display:inline-block; } .rg-lk-seg{ gap:6px; } .rg-lk-seg button{ padding:12px 2px; font-size:15px; white-space:nowrap; } }
+  .fhint{ font-size:12px; margin-top:3px; }
   .rg-opts{ display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; font-size:13.5px; } .rg-opts select{ width:auto; padding:5px 8px; }
   .rg-mar{ border-top:1px solid var(--border); padding-top:6px; margin-top:6px; } .rg-mar-t{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .rg-mar-t .btn{ margin-inline-start:auto; padding:2px 9px; }
@@ -856,7 +880,7 @@
 
 <div id="appView" class="app" hidden>
   <aside class="side">
-    <div class="brand" id="brandHome" role="button" tabindex="0" title="למסך הבית">תלם - המרכז לשיעורי תרגול<small>מערכת ניהול</small></div>
+    <div class="brand" id="brandHome" role="button" tabindex="0" title="למסך הבית"><img src="logo.png" class="brand-logo" alt="תלם"><span class="brand-t">תלם - המרכז לשיעורי תרגול<small>מערכת ניהול</small></span></div>
     <button type="button" class="nav-toggle" id="navToggle" aria-label="תפריט" aria-expanded="false">☰ <span id="navCur"></span></button>
     <nav class="nav" aria-label="תפריט">
       <button type="button" data-view="leads">תלמידים</button>
@@ -2853,7 +2877,7 @@ function openMarathonEditor(m, inPanel){
     <div><label class="lbl">עיר</label><select data-m="city">${CONFIG.cities.map(c => `<option ${c === city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>
     <div><label class="lbl">בית ספר</label><select data-m="school">${schoolOpts(city, m && m.school)}</select></div>
     <div><label class="lbl">מחיר המרתון (₪)</label><input type="number" min="0" data-m="p1" value="${m ? Number(m.price_first) : ""}"></div>
-    <div><label class="lbl">מחיר מוזל למי שכבר השתתף/ה השנה (₪) <span class="muted" style="font-weight:400">- לא חובה</span></label><input type="number" min="0" data-m="p2" value="${m && Number(m.price_repeat) !== Number(m.price_first) ? Number(m.price_repeat) : ""}"></div>
+    <div><label class="lbl">מחיר מוזל (₪)</label><input type="number" min="0" data-m="p2" value="${m && Number(m.price_repeat) !== Number(m.price_first) ? Number(m.price_repeat) : ""}"><div class="muted fhint">למי שכבר השתתף/ה במרתון השנה. לא חובה.</div></div>
     <label class="chk full"><input type="checkbox" data-m="open" ${!m || m.is_open ? "checked" : ""}> פתוח להרשמה</label>
     <div class="full"><label class="lbl">הערות (פנימי)</label><input data-m="notes" value="${esc(m && m.notes || "")}"></div>
     ${m ? "" : `<div class="full lg-edit-h" style="margin-top:6px;">הקבוצה הראשונה <span class="muted" style="font-weight:400; font-size:13px;">- חובה. עוד קבוצות מוסיפים אחר כך מחלון המרתון.</span></div>
@@ -4333,12 +4357,15 @@ const lkMar = (city, school) => lkFix(lkBase() + "marathon.html?" + new URLSearc
 // שורת קישור קצרה: שם · הקישור בתיבה מתגלגלת · העתקה / וואטסאפ / תצוגה
 const lkRow = (name, u, msg, extra) => `<div class="lk-row"><span class="lk-name">${name}</span><input class="lk-in" readonly dir="ltr" value="${esc(u || "")}" aria-label="קישור" onfocus="this.select()">
   <span class="lk-ic">${extra || ""}<button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a></span></div>`;
+// שני קישורים באותה שורה (התעניינות + הרשמה) - בלי תיבת הקישור, רק הכפתורים
+const lk2Btns = (label, u, msg) => `<span class="lk2-cell"><span class="lk2-l">${label}</span><button type="button" class="btn small" data-copy="${esc(u)}" title="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a></span>`;
+const lk2Row = (name, u1, m1, u2, m2, extra) => `<div class="lk2-row"><div class="lk-name">${name}${extra ? `<span class="lk2-x">${extra}</span>` : ""}</div>${lk2Btns("התעניינות", u1, m1)}${lk2Btns("הרשמה", u2, m2)}</div>`;
 const wireLk = (root) => root.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
 // מחירים לכל עיר - מהטבלה reg_prices (קובץ 44). אם עוד לא הורץ - המחירים שכתובים בטפסים.
 const REG_PRICES_FALLBACK = {
   "ראש העין": { single: { early: 348, regular: 393 }, "unlimited-single": { early: 514, regular: 584 }, double: { early: 684, regular: 742 }, registrationFee: 118, materialsFee: null, activityStartDate: "2026-10-11" },
-  "כפר סבא": { single: { early: 464, regular: 524 }, "unlimited-single": { early: 514, regular: 584 }, double: { early: 684, regular: 742 }, registrationFee: 117, materialsFee: 472, activityStartDate: "2026-10-18" },
-  "הוד השרון": { single: { early: 464, regular: 524 }, "unlimited-single": { early: 514, regular: 584 }, double: { early: 684, regular: 742 }, registrationFee: 117, materialsFee: 472, activityStartDate: "2026-10-18" } };
+  "כפר סבא": { single: { early: 464, regular: 524 }, "unlimited-single": { early: 514, regular: 584 }, double: { early: 684, regular: 742 }, registrationFee: 117, materialsFee: 472, activityStartDate: "2026-10-11" },
+  "הוד השרון": { single: { early: 464, regular: 524 }, "unlimited-single": { early: 514, regular: 584 }, double: { early: 684, regular: 742 }, registrationFee: 117, materialsFee: 472, activityStartDate: "2026-10-11" } };
 let REG_PRICES = REG_PRICES_FALLBACK, REG_PRICES_DB = null;   // null = עוד לא נטען, false = אין טבלה
 const REG_EARLY_UNTIL = "2026-10-08";
 const regRowToP = (r) => ({ single: { early: r.single_early, regular: r.single_regular }, "unlimited-single": { early: r.unlimited_early, regular: r.unlimited_regular },
@@ -4476,18 +4503,27 @@ async function renderRegMarathons(city){
   if (!RG.mar) {
     try {
       const [ms, ss] = await Promise.all([get("marathons", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&order=created_at"),
-        get("sessions", "select=marathon_id&kind=eq." + encodeURIComponent("מרתון") + "&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).catch(() => [])]);
-      RG.mar = ms; RG.marN = {}; ss.forEach(x => { RG.marN[x.marathon_id] = (RG.marN[x.marathon_id] || 0) + 1; });
+        get("sessions", "select=marathon_id,meeting_dates&kind=eq." + encodeURIComponent("מרתון") + "&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).catch(() => [])]);
+      RG.mar = ms; RG.marN = {}; RG.marD = {};
+      ss.forEach(x => { RG.marN[x.marathon_id] = (RG.marN[x.marathon_id] || 0) + 1; (x.meeting_dates || []).forEach(d => (RG.marD[x.marathon_id] = RG.marD[x.marathon_id] || new Set()).add(d)); });
     } catch(e) { box.innerHTML = `<div class="err">${e.status === 404 ? "כדי לנהל מרתונים צריך להריץ את קובץ 36." : "לא ניתן לטעון את המרתונים."}</div>`; return; }
   }
   if ($("rgMar") !== box || RG.city !== city) return;
-  const list = RG.mar.filter(m => m.city === city);
-  box.innerHTML = `<div class="rg-sec-h"><h3>הרשמה למרתונים</h3><button type="button" class="btn small primary" id="rgMarNew">+ מרתון חדש</button></div>
-    ${list.length ? list.map(m => { const u = m.code ? lkMarCode(m.code) : "", n = RG.marN[m.id] || 0, one = Number(m.price_repeat) === Number(m.price_first) || !m.price_repeat;
-      return lkRow(`${m.school ? scChip(m.school) + " " : ""}${esc(m.name)} <small class="nw">${one ? Number(m.price_first) + " ₪" : Number(m.price_first) + " ₪ · חוזר " + Number(m.price_repeat) + " ₪"} · ${n ? n + " קבוצות" : `<b style="color:var(--full)">⚠ אין קבוצות</b>`}${m.is_open ? "" : " · סגור"}</small>`,
-        u, "הרשמה ל" + m.name + (m.school ? " · " + m.school : "") + ": ", `${n ? "" : `<button type="button" class="btn small danger" data-rmdel="${m.id}" title="מרתון בלי קבוצות - למחוק">מחיקה</button>`}<button type="button" class="btn small" data-rmedit="${m.id}" title="עריכת המרתון">✎</button>`); }).join("")
+  const dm = (d) => { const [, mo, da] = d.split("-"); return Number(da) + "." + Number(mo); };
+  const datesOf = (id) => { const d = [...(RG.marD[id] || [])].sort(); return !d.length ? "" : d.length <= 3 ? d.map(dm).join(", ") : dm(d[0]) + "–" + dm(d[d.length - 1]); };
+  const firstDate = (id) => [...(RG.marD[id] || [])].sort()[0] || "9999";
+  const list = RG.mar.filter(m => m.city === city).sort((a, b) => firstDate(a.id).localeCompare(firstDate(b.id)));
+  box.innerHTML = `<div class="rg-sec-h"><h3>מרתונים · ${esc(city)}</h3><button type="button" class="btn small primary" id="rgMarNew">+ מרתון חדש</button></div>
+    ${list.length ? `<div class="lk2-head"><span></span><span>טופס התעניינות</span><span>טופס הרשמה</span></div>` + list.map(m => {
+      const n = RG.marN[m.id] || 0, one = Number(m.price_repeat) === Number(m.price_first) || !m.price_repeat, dts = datesOf(m.id);
+      const q = new URLSearchParams({ city: m.city }); if (m.school) q.set("school", m.school); q.set("tracks", "marathon"); if (m.code) q.set("m", m.code);
+      const extra0 = `<button type="button" class="btn small" data-rmedit="${m.id}" title="עריכת המרתון">✎</button>${n ? "" : `<button type="button" class="btn small danger" data-rmdel="${m.id}" title="מרתון בלי קבוצות - למחוק">מחיקה</button>`}`;
+      const name = `${m.school ? scChip(m.school) + " " : ""}${esc(m.name)}${dts ? ` <span class="mar-dates-t">${esc(dts)}</span>` : ""}<span class="lk2-x">${extra0}</span>
+        <small class="nw">${one ? Number(m.price_first) + " ₪" : Number(m.price_first) + " ₪ · חוזר " + Number(m.price_repeat) + " ₪"} · ${n ? n + " קבוצות" : `<b style="color:var(--full)">⚠ אין קבוצות</b>`}${m.is_open ? "" : " · סגור"}</small>`;
+      const where = m.name + (m.school ? " · " + m.school : "") + (dts ? " (" + dts + ")" : "");
+      return lk2Row(name, lkInterest(q), "התעניינות ב" + where + ": ", m.code ? lkMarCode(m.code) : "", "הרשמה ל" + where + ": "); }).join("")
       : `<div class="muted">אין מרתונים בעיר הזאת.</div>`}`;
-  box.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
+  wireLk(box);
   box.querySelectorAll("[data-rmdel]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmdel));
     if (!window.confirm(`למחוק את "${m.name}"${m.school ? " · " + m.school : ""}? אין לו קבוצות.`)) return;
     try { await del("marathons", "id=eq." + m.id); toast("המרתון נמחק"); RG.mar = null; G.marathons = null; renderReg(); }
@@ -4514,38 +4550,49 @@ async function renderReg(){
   if (RG.tab === "links" && !CONFIG.cities.includes(RG.city)) RG.city = CONFIG.cities[0];
   const city = RG.city;
   if (RG.tab === "links") {
-    const ush = lkFix(lkBase() + "shibutz.html"), uin = lkInterest(null), sea = SCH.season, fmt = (d) => d ? new Date(d + "T00:00").toLocaleDateString("he-IL", { day: "numeric", month: "numeric" }) : "";
-    // קישורים כלליים - בצבע אחר מהערים
-    let h = `<section class="rg-sec rg-general"><h3>קישורים כלליים <small>לכל הערים</small></h3>
-      ${lkRow("טופס שיבוץ" + (sea ? ` <small>${fmt(sea.opens_on)}–${fmt(sea.closes_on)}</small>` : ""), ush, "טופס השיבוץ של תלם: ")}
-      ${lkRow("טופס התעניינות", uin, "טופס התעניינות - תלם: ")}</section>`;
-    h += `<div class="rg-city-row" role="group" aria-label="עיר">${CONFIG.cities.map(c => `<button type="button" aria-pressed="${c === city}" data-rgc="${esc(c)}">${esc(c)}</button>`).join("")}</div>`;
-    if (REG_PRICES_DB === null) await loadRegPrices();
-    const schools = LK.schools[city] || [], P = REG_PRICES[city] || {};
-    // 0. מחירים ותאריכים - מקום אחד לעיר (משמש את טופס ההתעניינות ואת טופס ההרשמה)
-    h += `<section class="rg-sec rg-prices"><div class="rg-sec-h"><h3>מחירים ותאריכים · ${esc(city)} <small>מופיעים בטופס ההתעניינות ובטופס ההרשמה</small></h3><button type="button" class="btn small" id="rgPriceEdit">✎ עריכה</button></div>
-      <div class="rg-ptbl">${LK.tracks.map(x => `<div><span class="trk" style="background:${x.c}"></span>${esc(x.t)}</div><div>מוקדם <b>${P[x.v] ? P[x.v].early + " ₪" : "—"}</b></div><div>רגיל <b>${P[x.v] ? P[x.v].regular + " ₪" : "—"}</b></div>`).join("")}</div>
-      <div class="rg-facts"><span>דמי הרשמה <b>${P.registrationFee != null ? P.registrationFee + " ₪" : "—"}</b></span><span>חומרים <b>${P.materialsFee ? P.materialsFee + " ₪" : "—"}</b></span><span>תחילת פעילות <b>${fmt(P.activityStartDate) || "—"}</b></span><span>מחיר מוקדם עד <b>${fmt(P.earlyUntil || REG_EARLY_UNTIL) || "—"}</b></span></div></section>`;
-    // 1. טופס התעניינות
-    h += `<section class="rg-sec"><h3>טופס התעניינות</h3>
-      <div class="rg-opts"><select id="inSchool" aria-label="בית ספר"><option value="">כל בתי הספר</option>${schools.map(s => `<option>${esc(s)}</option>`).join("")}</select>
-      ${LK.tracks.map(x => `<label><input type="checkbox" data-itr="${x.v}" checked> ${esc(x.t)}</label>`).join("")}<label><input type="checkbox" data-itr="marathon"> מרתון</label></div>
-      <div id="inRow"></div></section>`;
-    // 2. הרשמה לתרגולים - מחירים + קישורים
-    h += `<section class="rg-sec"><h3>הרשמה לתרגולים</h3>
-      ${lkRow("כל המסלולים", lkReg(city, ""), "טופס ההרשמה לתלם - " + city + ": ")}
-      ${LK.tracks.map(x => lkRow(`<span class="trk" style="background:${x.c}"></span>${esc(x.t)}`, lkReg(city, x.v), "טופס ההרשמה לתלם - " + city + ": ")).join("")}</section>`;
-    // 3. הרשמה למרתונים
-    h += `<section class="rg-sec" id="rgMar"><div class="muted">טוען מרתונים...</div></section>`;
-    M.innerHTML = h;
-    M.querySelectorAll("[data-rgc]").forEach(b => b.onclick = () => { RG.city = b.dataset.rgc; store("telem_reg_city", RG.city); renderReg(); });
-    const paintIn = () => { const q = new URLSearchParams({ city }); if ($("inSchool").value) q.set("school", $("inSchool").value);
-      const tr = [...M.querySelectorAll("[data-itr]:checked")].map(x => x.dataset.itr); if (tr.length && tr.length < LK.tracks.length + 1) q.set("tracks", tr.join(","));
-      $("inRow").innerHTML = lkRow("הקישור", lkInterest(q), "טופס התעניינות - תלם " + city + ": "); wireLk($("inRow")); };
-    $("inSchool").onchange = paintIn; M.querySelectorAll("[data-itr]").forEach(x => x.onchange = paintIn); paintIn();
-    $("rgPriceEdit").onclick = () => { if (REG_PRICES_DB === false) { toast("כדי לערוך מחירים צריך להריץ את קובץ 44"); return; } openPriceEditor(city); };
+    // שלושה חלקים: כללי · תרגולים שוטפים · מרתונים
+    if (!["general", "regular", "mar"].includes(RG.lk)) RG.lk = store("telem_reg_lk") || "regular";
+    const fmt = (d) => d ? new Date(d + "T00:00").toLocaleDateString("he-IL", { day: "numeric", month: "numeric" }) : "";
+    let h = `<div class="rg-lk-seg" role="tablist">${[["general", "כללי"], ["regular", "תרגולים שוטפים"], ["mar", "מרתונים"]].map(([k, t]) => `<button type="button" role="tab" data-lk="${k}" aria-selected="${RG.lk === k}">${t}</button>`).join("")}</div>`;
+    if (RG.lk === "general") {
+      const ush = lkFix(lkBase() + "shibutz.html"), sea = SCH.season;
+      h += `<section class="rg-sec rg-general"><h3>קישורים כלליים <small>לכל הערים</small></h3>
+        ${lkRow("טופס שיבוץ" + (sea ? ` <small>${fmt(sea.opens_on)}–${fmt(sea.closes_on)}</small>` : ""), ush, "טופס השיבוץ של תלם: ")}
+        ${lkRow("טופס התעניינות", lkInterest(null), "טופס התעניינות - תלם: ")}</section>`;
+      M.innerHTML = h;
+    } else {
+      h += `<div class="rg-city-row" role="group" aria-label="עיר">${CONFIG.cities.map(c => `<button type="button" aria-pressed="${c === city}" data-rgc="${esc(c)}">${esc(c)}</button>`).join("")}</div>`;
+      if (RG.lk === "regular") {
+        if (REG_PRICES_DB === null) await loadRegPrices();
+        const schools = LK.schools[city] || [], P = REG_PRICES[city] || {};
+        // הגדרות: מחירים ותאריכים - מקום אחד לעיר (משמש את טופס ההתעניינות ואת טופס ההרשמה)
+        h += `<section class="rg-sec rg-prices"><div class="rg-sec-h"><h3>הגדרות · ${esc(city)} <small>מחירים ותאריכים - מופיעים בטופס ההתעניינות ובטופס ההרשמה</small></h3><button type="button" class="btn small" id="rgPriceEdit">✎ עריכה</button></div>
+          <div class="rg-ptbl">${LK.tracks.map(x => `<div><span class="trk" style="background:${x.c}"></span>${esc(x.t)}</div><div>מוקדם <b>${P[x.v] ? P[x.v].early + " ₪" : "—"}</b></div><div>רגיל <b>${P[x.v] ? P[x.v].regular + " ₪" : "—"}</b></div>`).join("")}</div>
+          <div class="rg-facts"><span>תחילת פעילות <b>${fmt(P.activityStartDate) || "—"}</b></span><span>מחיר מוקדם עד <b>${fmt(P.earlyUntil || REG_EARLY_UNTIL) || "—"}</b></span><span>דמי הרשמה <b>${P.registrationFee != null ? P.registrationFee + " ₪" : "—"}</b></span><span>חומרים <b>${P.materialsFee ? P.materialsFee + " ₪" : "—"}</b></span></div></section>`;
+        // הרשמה לתרגולים השוטפים: לכל מסלול - התעניינות והרשמה באותה שורה
+        h += `<section class="rg-sec"><div class="rg-sec-h"><h3>הרשמה לתרגולים השוטפים · ${esc(city)}</h3>
+            <label class="rg-school">בית ספר בטופס ההתעניינות <select id="inSchool"><option value="">כל בתי הספר</option>${schools.map(s => `<option>${esc(s)}</option>`).join("")}</select></label></div>
+          <div id="rgTrk"></div></section>`;
+        M.innerHTML = h;
+        const paintTrk = () => {
+          const sch = $("inSchool").value, iq = (tr) => { const q = new URLSearchParams({ city }); if (sch) q.set("school", sch); if (tr) q.set("tracks", tr); return q; };
+          const im = "טופס התעניינות - תלם " + city + ": ", rm = "טופס ההרשמה לתלם - " + city + ": ";
+          $("rgTrk").innerHTML = `<div class="lk2-head"><span></span><span>טופס התעניינות</span><span>טופס הרשמה</span></div>` +
+            lk2Row("כל המסלולים", lkInterest(iq("")), im, lkReg(city, ""), rm) +
+            LK.tracks.map(x => lk2Row(`<span class="trk" style="background:${x.c}"></span>${esc(x.t)}`, lkInterest(iq(x.v)), im, lkReg(city, x.v), rm)).join("");
+          wireLk($("rgTrk"));
+        };
+        $("inSchool").onchange = paintTrk; paintTrk();
+        $("rgPriceEdit").onclick = () => { if (REG_PRICES_DB === false) { toast("כדי לערוך מחירים צריך להריץ את קובץ 44"); return; } openPriceEditor(city); };
+      } else {
+        h += `<section class="rg-sec" id="rgMar"><div class="muted">טוען מרתונים...</div></section>`;
+        M.innerHTML = h;
+        renderRegMarathons(city);
+      }
+      M.querySelectorAll("[data-rgc]").forEach(b => b.onclick = () => { RG.city = b.dataset.rgc; store("telem_reg_city", RG.city); renderReg(); });
+    }
+    M.querySelectorAll("[data-lk]").forEach(b => b.onclick = () => { RG.lk = b.dataset.lk; store("telem_reg_lk", RG.lk); renderReg(); });
     wireLk(M);
-    renderRegMarathons(city);
   } else if (RG.tab === "pay") {
     const rows = RG.pay.filter(x => !city || x.city === city);
     M.innerHTML = `<div class="card"><h3 class="rep-h" style="margin-top:0;">ממתינים לאשראי ${city ? "· " + esc(city) : ""} <span class="muted" style="font-weight:400; font-size:13px;">מי שסימן/ה בטופס "לשלם טלפונית". אחרי שגובים - לוחצים "שולם" והסטטוס עובר לנרשם.</span></h3>

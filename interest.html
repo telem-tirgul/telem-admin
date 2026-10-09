@@ -416,7 +416,7 @@ const CONFIG = {
         double:            { early: 684, regular: 742 },
         registrationFee: 117,  // דמי שיבוץ והרשמה - לא מקוזז
         materialsFee: 472,     // חומרי תרגול/עזרי לימוד - מקוזז מיוני
-        activityStartDate: "2026-10-18"  // מועד תחילת הפעילות + תחילת החיוב החודשי (הוראת קבע)
+        activityStartDate: "2026-10-11"  // מועד תחילת הפעילות + תחילת החיוב החודשי (הוראת קבע)
       },
       "הוד השרון": {
         single:            { early: 464, regular: 524 },
@@ -424,7 +424,7 @@ const CONFIG = {
         double:            { early: 684, regular: 742 },
         registrationFee: 117,  // דמי שיבוץ והרשמה - לא מקוזז
         materialsFee: 472,     // חומרי תרגול/עזרי לימוד - מקוזז מיוני
-        activityStartDate: "2026-10-18"  // מועד תחילת הפעילות + תחילת החיוב החודשי (הוראת קבע)
+        activityStartDate: "2026-10-11"  // מועד תחילת הפעילות + תחילת החיוב החודשי (הוראת קבע)
       }
     },
 
@@ -457,6 +457,9 @@ const $ = (id) => document.getElementById(id);
 const Q = new URLSearchParams(location.search), PREVIEW = Q.get("preview") === "1";
 if (PREVIEW) { const pb = document.createElement("div"); pb.className = "preview-banner"; pb.textContent = "תצוגה מקדימה - שום דבר לא נשמר"; document.body.insertBefore(pb, document.body.firstChild); }
 const P_CITY = (Q.get("city") || "").slice(0, 40), P_SCHOOL = (Q.get("school") || "").slice(0, 60);
+const P_MAR = (Q.get("m") || "").slice(0, 40);   // קישור התעניינות למרתון מסוים (קוד המרתון)
+let MAR = null;
+const marDates = () => { if (!MAR) return ""; const d = [...new Set((MAR.groups || []).flatMap(g => g.dates || []))].sort(); const f = (x) => { const [, mo, da] = x.split("-"); return Number(da) + "." + Number(mo); }; return d.length <= 4 ? d.map(f).join(", ") : f(d[0]) + "–" + f(d[d.length - 1]); };
 const P_TRACKS = (Q.get("tracks") || "").split(",").map(s => s.trim()).filter(t => CONFIG.trackInfo[t] || t === "marathon");
 function schoolOpts(city){
   const list = CONFIG.citySchools[city] || [];
@@ -474,7 +477,10 @@ function renderTracks(){
   box.innerHTML = "";
   tracks.forEach(t => {
     const d = document.createElement("div"); d.className = "ti-box";
-    if (t === "marathon") { d.innerHTML = "<h3></h3><p></p>"; d.querySelector("h3").textContent = "מרתון מתמטיקה"; d.querySelector("p").textContent = "מפגשי תרגול מרוכזים לקראת מבחנים. המועדים והמחיר יישלחו אליכם."; box.appendChild(d); return; }
+    if (t === "marathon") { d.innerHTML = "<h3></h3><p></p>"; d.querySelector("h3").textContent = MAR ? MAR.name : "מרתון מתמטיקה";
+      const dts = marDates();
+      d.querySelector("p").textContent = MAR ? ("מפגשי תרגול מרוכזים לקראת מבחנים" + (dts ? " · מועדים: " + dts : "") + (MAR.price_first ? " · מחיר: " + Number(MAR.price_first) + " ₪" : "") + ".") : "מפגשי תרגול מרוכזים לקראת מבחנים. המועדים והמחיר יישלחו אליכם.";
+      box.appendChild(d); return; }
     const info = CONFIG.trackInfo[t], cityT = CONFIG.trackPricing[city], pr = cityT && cityT[t];
     d.innerHTML = "<h3></h3><p></p>" + (pr ? "<ul><li>הרשמה מוקדמת: <b>" + pr.early + " ₪</b> לחודש</li><li>הרשמה רגילה: <b>" + pr.regular + " ₪</b> לחודש</li><li>דמי שיבוץ והרשמה: <b>" + cityT.registrationFee + " ₪</b></li>" + (cityT.materialsFee ? "<li>חומרי תרגול ועזרי לימוד דיגיטליים: <b>" + cityT.materialsFee + " ₪</b> (מקוזז מעלות חודש יוני)</li>" : "") + "</ul>" : "");
     d.querySelector("h3").textContent = info.title; d.querySelector("p").textContent = info.body; box.appendChild(d);
@@ -482,6 +488,7 @@ function renderTracks(){
   $("introText").textContent = tracks.length ? "מלאו את הפרטים ונחזור אליכם עם כל המידע ולהשלמת ההרשמה." : "השאירו פרטים ונחזור אליכם עם כל המידע על התרגולים בעיר ובבית הספר שלכם.";
 }
 renderTracks();
+if (P_MAR) callSupabase("marathon_public", { p_code: P_MAR }, true).then(function(m){ if (m && m.name) { MAR = m; renderTracks(); } }).catch(function(){});
 // מחירים מהמערכת (נערכים במערכת הניהול). אם אין חיבור - נשארים המחירים שכתובים למעלה.
 callSupabase("reg_prices_public", null).then(function(all){
   if (!all || typeof all !== "object") return;
@@ -489,7 +496,7 @@ callSupabase("reg_prices_public", null).then(function(all){
   renderTracks();
 }).catch(function(){});
 const digits = (v) => String(v || "").replace(/\D/g, "");
-  function callSupabase(fnName, payload){
+  function callSupabase(fnName, payload, raw){
     const s = CONFIG.supabase;
     if (!s || !s.url || !s.anonKey) {
       return Promise.reject(new Error("supabase not configured"));
@@ -500,7 +507,7 @@ const digits = (v) => String(v || "").replace(/\D/g, "");
     return fetch(s.url + "/rest/v1/rpc/" + fnName, {
       method: "POST",
       headers: headers,
-      body: JSON.stringify({ payload: payload })
+      body: JSON.stringify(raw ? payload : { payload: payload })
     }).then(function(res){
       return res.json().catch(function(){ return null; }).then(function(body){
         if (!res.ok) {
@@ -518,7 +525,7 @@ $("intForm").addEventListener("submit", function(e){
   bad("field-city", !city); bad("field-sfirst", !$("f-sfirst").value.trim()); bad("field-pfirst", !$("f-pfirst").value.trim());
   bad("field-pphone", !/^0\d{8,9}$/.test(ph)); bad("field-sphone", !!sph && !/^0\d{8,9}$/.test(sph)); bad("field-email", !!em && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em));
   $("topError").style.display = ok ? "none" : "block"; if (!ok) return;
-  const courses = (P_TRACKS.length ? P_TRACKS : []).map(t => t === "marathon" ? "מרתון מתמטיקה" : CONFIG.trackInfo[t].title);
+  const courses = (P_TRACKS.length ? P_TRACKS : []).map(t => t === "marathon" ? (MAR ? "מרתון: " + MAR.name + (marDates() ? " (" + marDates() + ")" : "") : "מרתון מתמטיקה") : CONFIG.trackInfo[t].title);
   const payload = { website: $("f-website").value, city: city === "אחר" ? "" : city, school: $("f-school").value || null, courses: courses, filled_by: $("f-filled").value, notes: $("f-notes").value.trim(),
     student: { first_name: $("f-sfirst").value.trim(), last_name: $("f-slast").value.trim(), phone: sph || null, grade: $("f-grade").value || null, math_level: $("f-math").value || null, english_level: $("f-eng").value || null, school: $("f-school").value || null },
     parent: { first_name: $("f-pfirst").value.trim(), last_name: $("f-plast").value.trim(), phone: ph, email: em || null } };
