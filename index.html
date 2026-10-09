@@ -6,6 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
+<meta name="app-version" content="5.7">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -736,7 +737,11 @@
   .ws-rc:hover, .ws-rc:focus-visible{ border-color:var(--gold); box-shadow:0 2px 8px rgba(0,0,0,.07); outline:none; }
   .ws-rc-th{ width:92px; height:118px; border-radius:6px; overflow:hidden; background:var(--muted); } .ws-rc-th img{ width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
   .ws-rc-b{ display:flex; flex-direction:column; gap:4px; min-width:0; }
-  .ws-rc-k{ align-self:flex-start; font-size:11.5px; font-weight:800; border-radius:999px; padding:0 8px; background:color-mix(in srgb, var(--gold) 28%, var(--paper)); }
+  .ws-rc-k{ align-self:flex-start; font-size:11.5px; font-weight:800; border-radius:999px; padding:0 8px; background:color-mix(in srgb, var(--kc, var(--gold)) 28%, var(--paper)); }
+  /* צבע לכל סוג דפים: סיכום זהב, לפי נושאים כחול-אפור, ובאנגלית - דקדוק ורוד, אנסין כחול, כללי אפור */
+  .k-summary{ --kc:var(--gold); } .k-topic{ --kc:#5B7FAE; } .k-grammar{ --kc:#C0607F; } .k-unseen{ --kc:#5B6BC0; } .k-general{ --kc:#8A817B; }
+  .ws-rc[class*="k-"]{ border-inline-start:5px solid var(--kc); }
+  #wsKind button[class*="k-"][aria-pressed="true"]{ background:color-mix(in srgb, var(--kc) 32%, var(--paper)); }
   .ws-rc-t{ font-weight:800; font-size:15px; line-height:1.3; }
   .ws-rc-hits{ list-style:none; margin:0; padding:0; font-size:13px; display:flex; flex-direction:column; gap:2px; }
   .ws-rc-hits li[data-pg]{ cursor:pointer; border-radius:6px; padding:1px 4px; } .ws-rc-hits li[data-pg]:hover{ background:var(--muted); } .ws-rc-hits li.more{ color:var(--ink-soft); padding:1px 4px; }
@@ -765,6 +770,20 @@
     #wsBody .ws-album .mt{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:0 8px; align-items:baseline; padding:9px 12px; }
     #wsBody .ws-album .ch{ grid-column:2; }
   } .ws-how{ font-size:12.5px; margin-bottom:14px; }
+  /* מחשב: הבחירה בעמודה קבועה מימין (כמו בטלפון - שורה מתחת לשורה), והנושאים משמאל */
+  @media (min-width:900px){
+    .ws-layout{ display:grid; grid-template-columns:250px minmax(0,1fr); gap:22px; align-items:start; }
+    .ws-side{ position:sticky; top:84px; background:var(--paper); border:1px solid var(--border); border-radius:14px; padding:12px; }
+    .ws-side[hidden]{ display:none; } .ws-layout:has(.ws-side[hidden]){ display:block; }
+    .ws-side .ws-pick{ flex-direction:column; align-items:stretch; gap:8px; margin-bottom:8px; }
+    .ws-side .ws-seg{ display:flex; } .ws-side .ws-seg button{ flex:1; padding:0 4px !important; height:36px; min-height:0 !important; line-height:1.2; font-size:14.5px; }
+    .ws-side #wsKind button{ height:34px; min-height:0 !important; padding:0 8px !important; }
+    .ws-side #wsKind{ display:flex; flex-direction:column; border-radius:12px; margin-bottom:10px; }
+    .ws-side #wsKind button{ border-radius:9px; text-align:center; }
+    .ws-side .ws-how{ margin:4px 2px 0; line-height:1.55; }
+  }
+  /* ייבוא דפים - רק במחשב */
+  @media (max-width:760px){ #wsImportBtn, #wsImport{ display:none !important; } }
   .ws-albums{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; }
   .ws-album{ all:unset; cursor:pointer; display:flex; flex-direction:column; background:var(--card, #fff); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
   .ws-album .cv{ aspect-ratio:210/150; overflow:hidden; background:#fff; border-bottom:1px solid var(--border); } .ws-album .cv img{ width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
@@ -792,6 +811,9 @@
   /* מסך הבית, הפרטים שלי, בתי הספר שלי */
   body:not(.instructor) [data-inst]{ display:none !important; }
   .brand[role=button]{ cursor:pointer; }
+  .upd-bar{ position:fixed; inset-inline:16px; bottom:16px; z-index:90; max-width:420px; margin-inline:auto; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 14px; border-radius:12px; background:var(--side); color:var(--side-ink); box-shadow:0 6px 24px rgba(0,0,0,.25); font-weight:600; }
+  .upd-bar[hidden]{ display:none; }
+  .home-load{ color:var(--ink-soft); font-size:.9rem; margin:12px 2px 0; }
   .home-tiles{ display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:14px; }
   .home-hero{ display:flex; align-items:center; gap:18px; margin:4px 0 22px; }
   .home-hero .home-logo{ height:76px; width:auto; }
@@ -1129,11 +1151,15 @@
       </div>
       <div id="wsTop">
         <div class="ws-search"><span class="ws-s-ic" aria-hidden="true">🔍</span><input id="wsSearch" type="search" placeholder="חיפוש נושא או דף בכל הספרים - למשל: שברים, פרבולה, Past simple" aria-label="חיפוש נושא או דף" autocomplete="off"><button type="button" class="ws-s-x" id="wsSearchX" aria-label="ניקוי החיפוש" hidden>✕</button></div>
-        <div class="ws-pick" id="wsPick"></div>
-        <div class="gseg ws-kind" id="wsKind" role="group" aria-label="סוג"></div>
-        <div class="muted ws-how">איך שולחים לתלמיד: נושא ← דף ← <b>העתקה</b> ← חוזרים לצ'אט בוואטסאפ ← לחיצה ארוכה בשורת ההקלדה ← <b>הדבקה</b>.</div>
       </div>
-      <div id="wsBody"></div>
+      <div class="ws-layout">
+        <aside class="ws-side" id="wsSide">
+          <div class="ws-pick" id="wsPick"></div>
+          <div class="gseg ws-kind" id="wsKind" role="group" aria-label="סוג"></div>
+          <div class="muted ws-how">איך שולחים לתלמיד: נושא ← דף ← <b>העתקה</b> ← חוזרים לצ'אט בוואטסאפ ← לחיצה ארוכה בשורת ההקלדה ← <b>הדבקה</b>.</div>
+        </aside>
+        <div id="wsBody"></div>
+      </div>
     </section>
     <div class="ws-viewer" id="wsViewer" hidden>
       <div class="ws-vtop"><button type="button" class="ws-x" id="wsClose" aria-label="סגירה">✕</button><div class="ws-vt" id="wsVTitle"></div></div>
@@ -1150,6 +1176,7 @@
     <section id="view-home" hidden>
       <div class="home-hero"><img src="logo.png" alt="תלם" class="home-logo"><div><div class="home-org">המרכז לשיעורי תרגול · מערכת ניהול</div><h1 id="homeHello">שלום</h1></div></div>
       <div class="home-tiles" id="homeTiles"></div>
+      <p class="home-load" id="homeLoad" hidden>טוען נתונים…</p>
     </section>
 
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
@@ -1293,6 +1320,7 @@
 </aside>
 <div class="qpop" id="pop" hidden></div>
 <div class="toast" id="toast" role="status" hidden></div>
+<div class="upd-bar" id="updBar" role="status" hidden><span>יש גרסה חדשה של המערכת</span><button type="button" class="btn small" id="updBtn">רענון</button></div>
 <div class="toast" id="idleWarn" role="alert" hidden style="background:#b45309; color:#fff; top:20px; bottom:auto;">אין פעילות כבר זמן מה - בעוד דקה תתבצע יציאה אוטומטית. כדי להישאר, אפשר להזיז את העכבר.</div>
 
 <script>
@@ -1307,7 +1335,7 @@ const CONFIG = {
   schoolYear: "תשפ\"ז",
   cities: ["ראש העין", "הוד השרון", "כפר סבא"],
   pageSize: 100,
-  idleMinutes: 30   // יציאה אוטומטית אחרי כמה דקות בלי פעילות
+  idleMinutes: 60   // יציאה אוטומטית אחרי כמה דקות בלי פעילות
 };
 const GRADES = ["ה'","ו'","ז'","ח'","ט'","י'","יא'","יב'"];
 const DAYS = ["א","ב","ג","ד","ה","ו"];
@@ -1375,12 +1403,12 @@ async function api(method, path, body, extraHeaders){
 }
 const get = (table, q) => api("GET", "/rest/v1/" + table + "?" + q);
 // השרת מחזיר עד 1000 שורות בכל פעם - טוענים בחלקים עד הסוף
+// 4 חלקים במקביל (במקום אחד אחרי השני) - טעינה מהירה יותר של טבלאות גדולות
 async function getAll(table, q){
-  const out = [], step = 1000;
-  for (let off = 0; ; off += step) {
-    const part = await get(table, q + "&limit=" + step + "&offset=" + off);
-    out.push(...part);
-    if (part.length < step) return out;
+  const out = [], step = 1000, batch = 4;
+  for (let off = 0; ; off += step * batch) {
+    const parts = await Promise.all(Array.from({ length: batch }, (_, i) => get(table, q + "&limit=" + step + "&offset=" + (off + i * step))));
+    for (const part of parts) { out.push(...part); if (part.length < step) return out; }
   }
 }
 const patch = (table, filter, v) => api("PATCH", "/rest/v1/" + table + "?" + filter, v, { "Prefer": "return=minimal" });
@@ -1393,8 +1421,9 @@ let ME = { role: "admin", full_name: "" };
 // ======================================================================
 // כניסה / יציאה / ניווט
 // ======================================================================
+function hideViews(){ document.querySelectorAll('section[id^="view-"]').forEach(x => { x.hidden = true; }); }
 function showLogin(){
-  $("appView").hidden = true; $("loginView").hidden = false;
+  $("appView").hidden = true; $("loginView").hidden = false; hideViews();
   // האימייל האחרון נשמר במחשב (רק האימייל - את הסיסמה שומר הדפדפן, אם מאשרים לו)
   const last = store("telem_last_email");
   if (last && !$("lgEmail").value) { $("lgEmail").value = last; $("lgRemember").checked = true; setTimeout(() => $("lgPass").focus(), 0); }
@@ -1496,7 +1525,14 @@ async function afterAuthLink(){
 let currentView = "leads";
 const SETTINGS_VIEWS = ["staff","backup","me"];
 const INFO_VIEWS = ["info","schools","myschools","holidays"];
+let DATA_READY = true, DATA_WAIT = null;
 function go(view){
+  // אחרי הכניסה: דף הבית מוצג מיד, והנתונים נטענים ברקע. מסך אחר - מחכה לסיום הטעינה.
+  if (!DATA_READY && DATA_WAIT && view !== "home" && ME.role !== "instructor") {
+    const v = view; toast("טוען נתונים…");
+    DATA_WAIT.then(() => { go(v); if (v === "leads") renderLeads(); }).catch(() => {});
+    return;
+  }
   currentView = view;
   document.body.dataset.view = view;
   const inst = ME.role === "instructor", key = inst ? "telem_settings_view_i" : "telem_settings_view";
@@ -1547,7 +1583,18 @@ window.addEventListener("popstate", (e) => {
   NAV_POP = true;
   try {
     closePanel();
-    if (st.view === "lead" && st.lead && L.leads.some(l => l.id === st.lead)) openLead(st.lead);
+    if (st.view === "ws") {
+      // מאגר דפים: חוזרים לאותו ספר, נושא ודף
+      if (st.viewer == null && !$("wsViewer").hidden) wsClose(true);
+      if (st.ws) { WS.book = st.ws.book; WS.kind = st.ws.kind; }
+      WS.q = ""; $("wsSearch").value = ""; $("wsSearchX").hidden = true;
+      const back = !!WS.topic && !(st.ws && st.ws.topic);
+      WS.topic = st.ws ? st.ws.topic : null;
+      if (currentView !== "ws") go("ws");
+      const y = back ? (WS.listY || 0) : null;
+      (async () => { await renderWs(); if (y != null) window.scrollTo(0, y); if (st.viewer != null && (!$("wsViewer").hidden ? WS.idx !== st.viewer : true)) wsOpen(st.viewer, true); })();
+    }
+    else if (st.view === "lead" && st.lead && L.leads.some(l => l.id === st.lead)) openLead(st.lead);
     else if (st.view === "leads" || st.view === "lead") { go("leads"); renderLeads(); }
     else go(st.view);
   } finally { NAV_POP = false; }
@@ -3692,7 +3739,7 @@ function renderHome(){
     ["settings", "⚙", "הגדרות", "צוות, גיבוי, הפרטים שלי"]
   ];
   $("homeTiles").innerHTML = tiles.map(([v, ic, t, d]) => `<button type="button" class="home-tile" data-go="${v}"><span class="ic" aria-hidden="true">${ic}</span><b>${esc(t)}</b><span>${esc(d)}</span></button>`).join("");
-  $("homeTiles").querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const v = b.dataset.go; go(v); if (v === "leads") renderLeads(); });
+  $("homeTiles").querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const v = b.dataset.go; go(v); if (v === "leads" && DATA_READY) renderLeads(); });
 }
 $("brandHome").addEventListener("click", () => go("home"));
 $("brandHome").addEventListener("keydown", (e) => { if (e.key === "Enter") go("home"); });
@@ -3728,8 +3775,10 @@ async function loadMySchools(){
 // מאגר דפי תרגול (מנהלים ומתרגלים). התמונות ב-Storage (פרטי), מוצגות בקישורים זמניים.
 // ======================================================================
 const WS = { rows: null, book: store("telem_ws_book") || "", kind: store("telem_ws_kind") || "summary", topic: null, tab: "page", urls: {}, list: [], idx: 0 };
-const WS_KIND = { summary: "דפי סיכום", topic: "תרגול לפי נושאים", grammar: "Grammar", unseen: "Unseen", general: "General" };
+const WS_KIND = { summary: "דפי סיכום", topic: "תרגול לפי נושאים", grammar: "דקדוק", unseen: "אנסין", general: "כללי" };
 const WS_KIND_ORD = ["summary", "topic", "grammar", "unseen", "general"];
+// בתוצאות החיפוש: קודם "תרגול לפי נושאים", אחר כך דפי הסיכום
+const WS_SEARCH_ORD = ["topic", "summary", "grammar", "unseen", "general"];
 async function loadWs(){
   if (WS.rows) { renderWs(); return; }
   $("wsBody").innerHTML = "<div class='muted'>טוען...</div>";
@@ -3761,8 +3810,8 @@ function wsTopics(){
 }
 async function renderWs(){
   const books = wsBooks();
-  if (!books.length) { $("wsTop").hidden = true; $("wsBody").innerHTML = "<div class='card muted'>המאגר ריק.</div>"; return; }
-  $("wsTop").hidden = !!WS.topic;
+  if (!books.length) { $("wsTop").hidden = true; $("wsSide").hidden = true; $("wsBody").innerHTML = "<div class='card muted'>המאגר ריק.</div>"; return; }
+  $("wsTop").hidden = false; $("wsSide").hidden = !!WS.topic;   // שורת החיפוש תמיד, גם בתוך נושא
   if (!books.some(b => b[0] === WS.book)) WS.book = books[0][0];
   const kinds = [...new Set(WS.rows.filter(r => r.book === WS.book).map(r => r.kind))].sort((a, b) => WS_KIND_ORD.indexOf(a) - WS_KIND_ORD.indexOf(b));
   if (!kinds.includes(WS.kind)) WS.kind = kinds[0];
@@ -3778,19 +3827,19 @@ async function renderWs(){
     seg("ws-grade", grades.map(g => ({ a: `data-wg="${esc(g)}"`, on: g === cur.grade, t: "כיתה " + g + "'" }))) +
     seg("ws-part", parts.map(b => ({ a: `data-b="${esc(b)}"`, on: b === WS.book, t: "חלק " + (info[b].part || "") + "'" })));
   $("wsKind").hidden = kinds.length < 2;
-  $("wsKind").innerHTML = kinds.map(k => `<button type="button" data-k="${esc(k)}" aria-pressed="${k === WS.kind}">${esc(WS_KIND[k] || k)}</button>`).join("");
+  $("wsKind").innerHTML = kinds.map(k => `<button type="button" class="k-${esc(k)}" data-k="${esc(k)}" aria-pressed="${k === WS.kind}">${esc(WS_KIND[k] || k)}</button>`).join("");
   const missing = WS.rows.filter(r => !r.uploaded).length;
   const warn = missing ? `<div class="ws-warn">${missing} דפים עוד לא הועלו${ME.role === "instructor" ? "." : " - \"ייבוא דפים מהמחשב\" למעלה."}</div>` : "";
-  document.querySelector("#wsTop .ws-how").hidden = !!(WS.q || "").trim();
-  if (!WS.topic && (WS.q || "").length >= 2) { $("wsPick").hidden = true; $("wsKind").hidden = true; $("wsBody").innerHTML = wsSearchHtml(); wsWireSearch(); return; }
-  $("wsPick").hidden = false;
+  document.querySelector("#wsSide .ws-how").hidden = !!(WS.q || "").trim();
+  if (!WS.topic && (WS.q || "").length >= 2) { $("wsPick").hidden = true; $("wsKind").hidden = true; $("wsSide").hidden = true; $("wsBody").innerHTML = wsSearchHtml(); wsWireSearch(); return; }
+  $("wsPick").hidden = false; $("wsSide").hidden = !!WS.topic;
   if (!WS.topic) {
     const tops = wsTopics(), sign = await wsSign(tops.map(t => t.pages[0] && t.pages[0].uploaded ? t.pages[0].storage_path : null).filter(Boolean)).catch(() => () => "");
     if (WS.topic) return;
     $("wsBody").innerHTML = warn + `<div class="ws-albums">${tops.map(t => `<button type="button" class="ws-album" data-t="${esc(t.no)}">
       <div class="cv">${t.pages[0] && sign(t.pages[0].storage_path) ? `<img src="${esc(sign(t.pages[0].storage_path))}" alt="" loading="lazy">` : ""}</div>
       <div class="mt"><span class="no">נושא ${esc(String(Number(t.no)))}</span><span class="nm">${esc(t.name)}</span><span class="ch">${esc([t.chapters, t.pages.length + " דפים"].filter(Boolean).join(" · "))}</span></div></button>`).join("")}</div>`;
-    $("wsBody").querySelectorAll("[data-t]").forEach(b => b.onclick = () => { WS.topic = b.dataset.t; WS.tab = "page"; renderWs(); window.scrollTo(0, 0); });
+    $("wsBody").querySelectorAll("[data-t]").forEach(b => b.onclick = () => { WS.listY = window.scrollY; WS.topic = b.dataset.t; WS.tab = "page"; wsPush(); renderWs(); window.scrollTo(0, 0); });
     return;
   }
   const t = wsTopics().find(x => x.no === WS.topic);
@@ -3814,7 +3863,7 @@ async function renderWs(){
     if (buf.length) html += `<div class="ws-pages">${buf.join("")}</div>`;
   } else html += `<div class="ws-pages">${list.map(card).join("")}</div>`;
   $("wsBody").innerHTML = html;
-  $("wsBack").onclick = () => { WS.topic = null; renderWs(); };
+  $("wsBack").onclick = () => { if (history.state && history.state.view === "ws" && history.state.ws && history.state.ws.topic) { history.back(); return; } WS.topic = null; renderWs(); };
   $("wsBody").querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { WS.tab = b.dataset.tab; renderWs(); });
   $("wsBody").querySelectorAll(".ws-pg").forEach(b => b.onclick = () => wsOpen(Number(b.dataset.i)));
 }
@@ -3832,7 +3881,7 @@ function wsSearchHtml(){
     else if (wsNorm(r.sub).includes(q) || wsNorm(r.title).includes(q)) t.hits.push(r);
   });
   const res = [...m.values()].filter(t => t.topic || t.hits.length)
-    .sort((a, b) => wsBookRank(a.r.book) - wsBookRank(b.r.book) || a.r.book.localeCompare(b.r.book) || WS_KIND_ORD.indexOf(a.r.kind) - WS_KIND_ORD.indexOf(b.r.kind) || (b.topic - a.topic) || a.r.topic_no.localeCompare(b.r.topic_no));
+    .sort((a, b) => wsBookRank(a.r.book) - wsBookRank(b.r.book) || a.r.book.localeCompare(b.r.book) || WS_SEARCH_ORD.indexOf(a.r.kind) - WS_SEARCH_ORD.indexOf(b.r.kind) || a.r.topic_no.localeCompare(b.r.topic_no, undefined, { numeric: true }));
   if (!res.length) return `<div class="ws-empty">לא נמצא נושא או דף עם <b>"${esc(raw)}"</b>.<div class="muted">אפשר לנסות מילה קצרה יותר, למשל "שבר" במקום "שברים פשוטים".</div></div>`;
   const hl = (s) => { s = String(s || ""); const i = wsNorm(s).indexOf(q); return i < 0 ? esc(s) : esc(s.slice(0, i)) + "<mark>" + esc(s.slice(i, i + q.length)) + "</mark>" + esc(s.slice(i + q.length)); };
   const nPages = res.reduce((n, t) => n + (t.topic ? t.pages : t.hits.length), 0);
@@ -3840,7 +3889,7 @@ function wsSearchHtml(){
   res.forEach(t => {
     if (t.r.book !== book) { if (book !== null) html += "</div>"; book = t.r.book; html += `<h3 class="ws-res-book">${esc(t.r.book_label)}</h3><div class="ws-res">`; }
     const cover = (t.hits[0] || t.first);
-    html += `<div class="ws-rc" data-go="${esc(t.r.book + "|" + t.r.kind + "|" + t.r.topic_no)}" role="button" tabindex="0">
+    html += `<div class="ws-rc k-${esc(t.r.kind)}" data-go="${esc(t.r.book + "|" + t.r.kind + "|" + t.r.topic_no)}" role="button" tabindex="0">
       <div class="ws-rc-th">${cover && cover.uploaded ? `<img data-sp="${esc(cover.storage_path)}" alt="" loading="lazy">` : ""}</div>
       <div class="ws-rc-b"><span class="ws-rc-k">${esc(WS_KIND[t.r.kind] || t.r.kind)}</span>
         <div class="ws-rc-t">נושא ${esc(String(Number(t.r.topic_no)))} · ${hl(t.r.topic_name)}</div>
@@ -3853,7 +3902,7 @@ function wsWireSearch(){
   const go = async (el, page) => {
     const [book, kind, topic] = el.dataset.go.split("|");
     WS.book = book; WS.kind = kind; WS.topic = topic; WS.tab = "page"; store("telem_ws_book", book); store("telem_ws_kind", kind);
-    WS.q = ""; $("wsSearch").value = ""; $("wsSearchX").hidden = true; await renderWs(); window.scrollTo(0, 0);
+    WS.q = ""; $("wsSearch").value = ""; $("wsSearchX").hidden = true; wsPush(); await renderWs(); window.scrollTo(0, 0);
     if (page) { const i = WS.list.findIndex(r => r.storage_path === page); if (i >= 0) wsOpen(i); }   // לחיצה על דף - נפתח ישר
   };
   $("wsBody").querySelectorAll("[data-go]").forEach(c => {
@@ -3863,7 +3912,8 @@ function wsWireSearch(){
   const imgs = [...$("wsBody").querySelectorAll("img[data-sp]")];
   if (imgs.length) wsSign(imgs.map(i => i.dataset.sp)).then(sign => imgs.forEach(i => { const u = sign(i.dataset.sp); if (u) i.src = u; })).catch(() => {});
 }
-$("wsSearch").addEventListener("input", (e) => { WS.q = e.target.value; WS.topic = null; $("wsSearchX").hidden = !e.target.value; renderWs(); });
+$("wsSearch").addEventListener("input", (e) => { WS.q = e.target.value; if (WS.topic) { WS.topic = null; wsPush(); }  // חיפוש מתוך נושא: "אחורה" יחזיר לנושא
+  $("wsSearchX").hidden = !e.target.value; renderWs(); });
 $("wsSearch").addEventListener("keydown", (e) => { if (e.key === "Escape") { $("wsSearchX").click(); } });
 $("wsSearchX").addEventListener("click", () => { $("wsSearch").value = ""; WS.q = ""; $("wsSearchX").hidden = true; renderWs(); $("wsSearch").focus(); });
 $("wsPick").addEventListener("click", (e) => {
@@ -3876,8 +3926,21 @@ $("wsPick").addEventListener("click", (e) => {
   if (!nb) return; WS.book = nb; store("telem_ws_book", nb); renderWs();
 });
 $("wsKind").addEventListener("click", (e) => { const b = e.target.closest("[data-k]"); if (!b) return; WS.kind = b.dataset.k; store("telem_ws_kind", WS.kind); renderWs(); });
-async function wsOpen(i){
+// אנדרואיד (סמסונג ועוד): הדפדפן לא מעתיק תמונות, ווטסאפ באנדרואיד לא מדביק תמונה - שולחים דרך "שיתוף"
+const WS_ANDROID = /Android/i.test(navigator.userAgent);
+if (WS_ANDROID && navigator.canShare) document.querySelector("#wsSide .ws-how").innerHTML = "איך שולחים לתלמיד: נושא ← דף ← <b>שליחה</b> ← וואטסאפ ← בוחרים את הצ'אט.";
+function wsPush(viewer){
+  if (NAV_POP) return;
+  const st = { telem: 1, view: "ws", lead: null, ws: { book: WS.book, kind: WS.kind, topic: WS.topic }, viewer: viewer == null ? null : viewer };
+  const cur = history.state;
+  if (cur && cur.telem && cur.view === "ws" && JSON.stringify(cur.ws) === JSON.stringify(st.ws) && (cur.viewer == null ? null : cur.viewer) === st.viewer) return;
+  // דף בתוך התצוגה (הבא/הקודם) מחליף את השורה בהיסטוריה, לא מוסיף
+  if (cur && cur.telem && cur.view === "ws" && cur.viewer != null && st.viewer != null) history.replaceState(st, ""); else history.pushState(st, "");
+}
+async function wsOpen(i, fromPop){
   WS.idx = i; const r = WS.list[i]; if (!r) return;
+  if (!fromPop) wsPush(i);
+  WS.file = null;
   $("wsViewer").hidden = false; document.body.style.overflow = "hidden";
   $("wsVTitle").textContent = (r.type === "answers" ? "פתרונות · " : r.page_no + " · ") + (r.title || "");
   $("wsPrev").disabled = i <= 0; $("wsNext").disabled = i >= WS.list.length - 1;
@@ -3886,21 +3949,35 @@ async function wsOpen(i){
   const sign = await wsSign([r.storage_path]); const url = sign(r.storage_path);
   if (WS.idx !== i) return;
   $("wsVImg").src = url; $("wsCopy").disabled = false;
+  // מכינים את הקובץ מראש - כדי שהשיתוף/ההעתקה יקרו מיד בלחיצה
+  const fname = ((r.topic_name || "דף") + " - " + (r.title || r.page_no)).replace(/[\\/:*?"<>|]/g, " ") + "." + ((r.storage_path.match(/\.(\w+)$/) || [, "png"])[1]);
+  fetch(url).then(x => x.blob()).then(b => { if (WS.idx === i) WS.file = new File([b], fname, { type: b.type || "image/png" }); }).catch(() => {});
   $("wsDl").href = url; $("wsDl").setAttribute("download", (r.topic_name || "דף") + " - " + (r.title || r.page_no) + "." + ((r.storage_path.match(/\.(\w+)$/) || [, "png"])[1]));
 }
-function wsClose(){ $("wsViewer").hidden = true; document.body.style.overflow = ""; }
+function wsClose(fromPop){
+  if (!fromPop && history.state && history.state.view === "ws" && history.state.viewer != null) { history.back(); return; }
+  $("wsViewer").hidden = true; document.body.style.overflow = "";
+}
 
-$("wsClose").addEventListener("click", wsClose);
+$("wsClose").addEventListener("click", () => wsClose());
 $("wsPrev").addEventListener("click", () => wsOpen(WS.idx - 1));
 $("wsNext").addEventListener("click", () => wsOpen(WS.idx + 1));
 document.addEventListener("keydown", (e) => { if ($("wsViewer").hidden) return; if (e.key === "Escape") wsClose(); if (e.key === "ArrowLeft" && !$("wsNext").disabled) wsOpen(WS.idx + 1); if (e.key === "ArrowRight" && !$("wsPrev").disabled) wsOpen(WS.idx - 1); });
 // העתקת התמונה ללוח (להדבקה בוואטסאפ). אם הדפדפן לא מאפשר - פותחים את התמונה ללחיצה ארוכה.
+if (WS_ANDROID && navigator.canShare) { $("wsCopy").textContent = "שליחה"; }
 $("wsCopy").addEventListener("click", async () => {
   const url = $("wsVImg").src; if (!url) return;
+  if (WS_ANDROID && navigator.canShare) {
+    const f = WS.file || await fetch(url).then(x => x.blob()).then(b => new File([b], "דף.png", { type: b.type || "image/png" })).catch(() => null);
+    if (f && navigator.canShare({ files: [f] })) {
+      try { await navigator.share({ files: [f] }); } catch(e) { if (e.name !== "AbortError") toast("השליחה לא עבדה - אפשר \"הורדה\" ולשלוח מהגלריה"); }
+      return;
+    }
+  }
   const toPng = (blob) => blob.type === "image/png" ? blob : new Promise((res) => { const img = new Image(); img.onload = () => { const c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext("2d").drawImage(img, 0, 0); c.toBlob(res, "image/png"); }; img.src = URL.createObjectURL(blob); });
   try {
     if (!navigator.clipboard || !window.ClipboardItem) throw new Error("no clipboard");
-    await navigator.clipboard.write([new ClipboardItem({ "image/png": fetch(url).then(r => r.blob()).then(toPng) })]);
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": (WS.file ? Promise.resolve(WS.file) : fetch(url).then(r => r.blob())).then(toPng) })]);
     toast("הדף הועתק - חוזרים לצ'אט ומדביקים");
   } catch(e) {
     toast("ההעתקה לא עבדה בדפדפן הזה - לחיצה ארוכה על הדף ← העתקה");
@@ -4575,7 +4652,7 @@ async function boot(){
   if (!(await token())) { showLogin(); return; }
   if (store(IDLE_KEY) && idleFor() >= idleMs()) { await logout("יצאת מהמערכת אוטומטית אחרי " + CONFIG.idleMinutes + " דקות ללא פעילות."); return; }
   store(IDLE_KEY, String(Date.now()));
-  $("loginView").hidden = true; $("appView").hidden = false;
+  hideViews(); $("loginView").hidden = true; $("appView").hidden = false;
   $("whoEmail").textContent = auth.email || "";
   // תפקיד: מתרגל/ת רואה רק נוכחות
   try { const r = await rpc("my_role"); ME = r || { role: null }; }
@@ -4585,11 +4662,48 @@ async function boot(){
   document.querySelectorAll(".nav button").forEach(b => { b.hidden = ME.role === "instructor" && !["att","ws","info"].includes(b.dataset.view); });
   if (ME.full_name) $("whoEmail").textContent = ME.full_name;
   if (ME.role === "instructor") { go("home"); afterAuthLink(); return; }
-  try { await loadLists(); await loadLeads(); }
-  catch(e) { $("leadsTbl").innerHTML = "<tr><td class='empty-state'>לא ניתן לטעון נתונים. ייתכן שהמשתמש לא מוגדר כאיש צוות, או שעוד לא הורץ קובץ 5.</td></tr>"; go("leads"); return; }
-  setupFilters(); go("home"); afterAuthLink();
+  // דף הבית מיד; התלמידים, ההערות וההיסטוריה נטענים ברקע
+  DATA_READY = false; go("home"); $("homeLoad").hidden = false;
+  DATA_WAIT = (async () => { await loadLists(); await loadLeads(); setupFilters(); })();
+  try { await DATA_WAIT; DATA_READY = true; $("homeLoad").hidden = true; }
+  catch(e) { DATA_READY = true; DATA_WAIT = null; $("homeLoad").hidden = true; $("leadsTbl").innerHTML = "<tr><td class='empty-state'>לא ניתן לטעון נתונים. ייתכן שהמשתמש לא מוגדר כאיש צוות, או שעוד לא הורץ קובץ 5.</td></tr>"; go("leads"); return; }
+  if (currentView === "leads") renderLeads();
+  afterAuthLink();
 }
 $("lfStatus").addEventListener("change", e => paintStatus(e.target, Number(e.target.value)));
+// ---------- גרסה חדשה: המערכת מתעדכנת לבד ----------
+// בודקים בפתיחה, בכל חזרה לחלון/לאפליקציה וכל שעה. יש גרסה חדשה -> רענון אוטומטי,
+// אבל לא באמצע עבודה (עריכה פתוחה, חלון פתוח, הקלדה בשדה) - אז מחכים עד שאפשר, ובינתיים פס עם כפתור "רענון".
+const APP_VER = (document.querySelector('meta[name="app-version"]') || {}).content || "";
+let UPD_NEW = false;
+function updSafe(){
+  const a = document.activeElement;
+  if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.id !== "wsSearch" && a.type !== "checkbox" && a.type !== "radio") return false;
+  if (typeof LIST_EDIT !== "undefined" && LIST_EDIT) return false;
+  if (document.querySelector("#leadForm .lead-main.editing")) return false;
+  if ([...document.querySelectorAll(".panel-bg")].some(x => !x.hidden)) return false;
+  if (!$("panel").hidden) return false;
+  return true;
+}
+function updReload(){ sstore("telem_updated", APP_VER); location.replace(location.pathname + "?v=" + Date.now() + location.hash); }
+function updTry(){ if (UPD_NEW && updSafe() && (document.visibilityState === "hidden" || idleFor() > 10000)) updReload(); }
+async function checkUpdate(){
+  if (!APP_VER || location.protocol === "file:" || UPD_NEW) { updTry(); return; }
+  try {
+    const t = await (await fetch(location.pathname + "?check=" + Date.now(), { cache: "no-store" })).text();
+    const m = t.match(/name="app-version" content="([^"]+)"/);
+    if (m && m[1] !== APP_VER) {
+      UPD_NEW = true;
+      if (updSafe()) updReload(); else $("updBar").hidden = false;
+    }
+  } catch(e) {}
+}
+$("updBtn").addEventListener("click", updReload);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkUpdate(); else updTry(); });
+setInterval(checkUpdate, 60 * 60 * 1000);
+setInterval(updTry, 15000);
+if (sstore("telem_updated")) { sstore("telem_updated", null); setTimeout(() => toast("המערכת עודכנה לגרסה החדשה"), 800); }
+checkUpdate();
 boot();
 })();
 </script>
