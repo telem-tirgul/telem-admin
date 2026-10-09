@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.8">
+<meta name="app-version" content="5.9">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -710,8 +710,8 @@
   .lk-ic{ display:inline-flex; gap:4px; } .lk-ic .btn{ padding:4px 9px; }
   .rg-facts{ display:flex; flex-wrap:wrap; gap:4px 16px; font-size:13px; color:var(--ink-soft); margin-bottom:4px; } .rg-facts b{ color:var(--ink); }
   /* הרשמה ושיבוץ > קישורים: כללי / תרגולים שוטפים / מרתונים */
-  .rg-lk-seg{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin:6px 0 16px; }
-  .rg-lk-seg button{ font:inherit; font-weight:900; font-size:19px; padding:14px 10px; border-radius:14px; border:2px solid var(--border); background:var(--paper); color:var(--ink); cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.05); }
+  .rg-lk-seg{ display:grid; grid-template-columns:repeat(3, minmax(0, 190px)); gap:8px; margin:6px 0 14px; }
+  .rg-lk-seg button{ font:inherit; font-weight:800; font-size:16px; padding:9px 10px; border-radius:12px; border:2px solid var(--border); background:var(--paper); color:var(--ink); cursor:pointer; box-shadow:0 1px 2px rgba(0,0,0,.05); }
   .rg-lk-seg button:hover{ border-color:var(--accent); }
   .rg-lk-seg button[aria-selected="true"]{ background:var(--accent); border-color:var(--accent); color:#fff; box-shadow:0 3px 10px color-mix(in srgb, var(--accent) 35%, transparent); }
   /* הערים - משניות לבחירה הראשית */
@@ -728,8 +728,12 @@
   .mar-dates-t{ font-weight:800; color:var(--accent); font-size:13.5px; margin-inline-start:4px; white-space:nowrap; }
   .lk2-row .lk-name small{ display:block; margin-top:1px; }
   @media (max-width:760px){ .rg-sec-h{ flex-wrap:wrap; } .rg-school{ flex-basis:100%; }
-    .lk2-head{ display:none; } .lk2-row{ grid-template-columns:1fr; gap:6px; } .lk2-l{ display:inline-block; } .rg-lk-seg{ gap:6px; } .rg-lk-seg button{ padding:12px 2px; font-size:15px; white-space:nowrap; } }
+    .lk2-head{ display:none; } .lk2-row{ grid-template-columns:1fr; gap:6px; } .lk2-l{ display:inline-block; } .rg-lk-seg{ gap:6px; grid-template-columns:repeat(3, 1fr); } .rg-lk-seg button{ padding:9px 2px; font-size:14.5px; white-space:nowrap; } }
   .fhint{ font-size:12px; margin-top:3px; }
+  .hist-hits{ margin-top:14px; border-color:color-mix(in srgb, var(--gold) 45%, var(--border)); background:color-mix(in srgb, var(--gold) 7%, var(--paper)); }
+  .past-badge{ font-size:11.5px; font-weight:700; padding:0 7px; border-radius:999px; background:color-mix(in srgb, var(--ok) 16%, var(--paper)); color:var(--ok); }
+  .hh-jump{ all:unset; cursor:pointer; font-size:13px; font-weight:700; color:var(--accent); margin-inline-start:10px; text-decoration:underline; text-underline-offset:3px; }
+  .hh-h{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin-bottom:8px; } .hh-h #hhAll{ margin-inline-start:auto; }
   .rg-opts{ display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; font-size:13.5px; } .rg-opts select{ width:auto; padding:5px 8px; }
   .rg-mar{ border-top:1px solid var(--border); padding-top:6px; margin-top:6px; } .rg-mar-t{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
   .rg-mar-t .btn{ margin-inline-start:auto; padding:2px 9px; }
@@ -925,7 +929,7 @@
         <div class="filters-foot"><button class="btn small" type="button" id="clearFilters">ניקוי סינון</button></div>
       </div>
       <div class="toolbar">
-        <div class="muted" id="countLine"></div>
+        <div style="display:flex; align-items:center; flex-wrap:wrap;"><div class="muted" id="countLine"></div><button type="button" class="hh-jump" id="histJump" hidden></button></div>
         <div style="display:flex; gap:8px;">
           <button class="btn small" type="button" id="listEditBtn" title="שינוי סטטוס, פעיל וכוכב ישירות ברשימה">✎ עריכה ברשימה</button>
           <button class="btn small" type="button" id="exportBtn">הורדה לאקסל</button>
@@ -1359,7 +1363,8 @@ const CONFIG = {
   schoolYear: "תשפ\"ז",
   cities: ["ראש העין", "הוד השרון", "כפר סבא"],
   pageSize: 100,
-  idleMinutes: 60   // יציאה אוטומטית אחרי כמה דקות בלי פעילות
+  idleMinutes: 60,  // יציאה אוטומטית אחרי כמה דקות בלי פעילות
+  formsBase: "https://telem-tirgul.github.io/"   // הכתובת של הטפסים (מאגר telem-tirgul.github.io) - כך נבנים כל הקישורים
 };
 const GRADES = ["ה'","ו'","ז'","ח'","ט'","י'","יא'","יב'"];
 const DAYS = ["א","ב","ג","ד","ה","ו"];
@@ -1806,7 +1811,8 @@ const COLS = [
   ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["manager","מנהל"],["remind","תזכורת"],["updated","תאריך עדכון"]
 ];
 function renderLeads(){
-  const list = filtered(), pages = Math.max(1, Math.ceil(list.length / CONFIG.pageSize));
+  const list = filtered(); paintHistHits(list);
+  const pages = Math.max(1, Math.ceil(list.length / CONFIG.pageSize));
   if (F.page >= pages) F.page = pages - 1;
   const slice = list.slice(F.page * CONFIG.pageSize, (F.page + 1) * CONFIG.pageSize);
   $("countLine").textContent = list.length ? `${F.page * CONFIG.pageSize + 1}-${F.page * CONFIG.pageSize + slice.length} מתוך ${list.length}` : "אין תוצאות";
@@ -4293,13 +4299,36 @@ $("arCsv").addEventListener("click", () => {
 // היסטוריה - שנים קודמות (מנהלים, בהגדרות): חיפוש בכל הרשומות מה-CRM הישן
 // ======================================================================
 const H = { rows: null, page: 0, view: "search" };
+// כל ההיסטוריה (כ-10,000 שורות) - נטענת פעם אחת, לחיפוש "שנים קודמות" ולחיפוש במסך התלמידים
+async function loadHistRows(){
+  if (H.rows) return H.rows;
+  if (!H.loading) H.loading = getAll("student_history", "select=id,year_start,school_year,kid_key,first_name,last_name,city,school,grade,status,source,parent1_name,parent1_phone,parent2_phone,student_phone,student_id,linked_how&order=year_start.desc,id")
+    .then(r => (H.rows = r)).finally(() => { H.loading = null; });
+  return H.loading;
+}
+const histMatch = (h, q, qd) => [h.first_name, h.last_name, h.parent1_name, h.school, h.city].join(" ").toLowerCase().includes(q)
+  || (qd.length >= 3 && [h.parent1_phone, h.parent2_phone, h.student_phone].map(digits).join(" ").includes(qd));
+// מסך התלמידים: אם יש ילדים מתאימים בשנים הקודמות (שלא מופיעים בתוצאות) - קישור קטן ליד מספר התוצאות, שפותח את "שנים קודמות" עם אותו חיפוש
+async function paintHistHits(list){
+  const btn = $("histJump"), q = $("fSearch").value.trim().toLowerCase(), qd = digits(q);
+  btn.hidden = true;
+  if (q.length < 2) return;
+  if (!H.rows) { try { await loadHistRows(); } catch(e) { return; } if ($("fSearch").value.trim().toLowerCase() !== q) return; }
+  const shown = new Set((list || []).map(l => l.student_id)), kids = new Map();
+  H.rows.forEach(h => { if (!histMatch(h, q, qd)) return; const k = h.kid_key || ("h" + h.id); if (!kids.has(k)) kids.set(k, []); kids.get(k).push(h); });
+  const n = [...kids.values()].filter(g => !g.some(h => h.student_id && shown.has(h.student_id))).length;
+  if (!n) return;
+  btn.hidden = false; btn.textContent = `נמצאו עוד ${n} בשנים קודמות ←`;
+  btn.onclick = () => { $("hSearch").value = $("fSearch").value; H.view = "search"; H.page = 0; go("history"); };
+}
+
 async function loadHistoryView(){
   document.querySelectorAll("[data-hv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.hv === H.view)));
   $("hvSearch").hidden = H.view !== "search"; $("hvSum").hidden = H.view !== "sum";
   if (H.view === "sum") { $("hvSum").innerHTML = ""; repPast("", "hvSum"); return; }
   if (!H.rows) {
     $("hTbl").innerHTML = "<tbody><tr><td class='empty-state'>טוען...</td></tr></tbody>";
-    try { H.rows = await getAll("student_history", "select=id,year_start,school_year,first_name,last_name,city,school,grade,status,source,parent1_name,parent1_phone,parent2_phone,student_phone,student_id,linked_how&order=year_start.desc,id"); }
+    try { await loadHistRows(); }
     catch(e) { $("hTbl").innerHTML = `<tbody><tr><td class="empty-state">${e.status === 404 ? "צריך להריץ את קובץ 31." : "לא ניתן לטעון."}</td></tr></tbody>`; return; }
     const years = [...new Set(H.rows.map(h => h.school_year + "|" + h.year_start))].sort((a, b) => b.split("|")[1] - a.split("|")[1]);
     $("hYear").innerHTML = "<option value=''>כל השנים</option>" + years.map(y => `<option value="${esc(y.split("|")[1])}">${esc(y.split("|")[0])}</option>`).join("");
@@ -4348,7 +4377,7 @@ const LK = {
   tracks: [ { v: "single", t: "פעמיים בשבוע - מקצוע אחד", c: "#B3241F" }, { v: "unlimited-single", t: "ללא הגבלה - מקצוע אחד", c: "#5E9430" }, { v: "double", t: "שני מקצועות (מתמטיקה ואנגלית)", c: "#1E7FD1" } ]
 };
 // ברירת מחדל: התיקייה שבה יושבת מערכת הניהול (הטפסים יושבים לידה). כשפותחים מהמחשב - כתובת האתר.
-const lkDefaultBase = () => /^https?:/.test(location.protocol) ? location.href.replace(/[?#].*$/, "").replace(/[^/]*$/, "") : "https://telem-tirgul.github.io/";
+const lkDefaultBase = () => CONFIG.formsBase || (/^https?:/.test(location.protocol) ? location.href.replace(/[?#].*$/, "").replace(/[^/]*$/, "") : "https://telem-tirgul.github.io/");
 const lkBase = () => { let b = ($("lkBase").value || "").trim() || lkDefaultBase(); if (!b.endsWith("/")) b += "/"; return b; };
 const lkFix = (u) => decodeURIComponent(u).replace(/"/g, "%22");
 const lkReg = (city, track) => lkFix(lkBase() + "register.html?" + new URLSearchParams(Object.assign({ city }, track ? { track } : {})).toString());
