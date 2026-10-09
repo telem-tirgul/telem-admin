@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
 <link rel="icon" type="image/png" href="favicon.png">
@@ -254,6 +255,21 @@
   .att-rows{ list-style:none; margin:0 0 14px; padding:0; }
   .att-rows li{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px 14px; padding:10px 4px; border-bottom:1px solid var(--border); }
   .att-name b{ font-size:16.5px; }
+  /* שכבה - גדול ובצבע; כותרת לכל מקצוע */
+  .att-rows li[data-i]{ position:relative; gap:10px; } .att-rows li[data-i] .att-name{ flex:1 1 auto; min-width:0; }
+  .gbadge{ display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; padding:0; border-radius:50%; font-weight:800; font-size:13.5px; letter-spacing:-.3px; flex:none; box-sizing:border-box; background:transparent; color:var(--ink); border:2px solid var(--gi); }
+  .g-ה, .g-ו{ --gb:#E3EEF7; --gi:#2C5A80; } .g-ז{ --gb:#DDF1EC; --gi:#1F6152; } .g-ח{ --gb:#F6E3EA; --gi:#8A3457; } .g-ט{ --gb:#E5E5F6; --gi:#45428A; }
+  .g-י{ --gb:#F4EBDB; --gi:#7A5521; } .g-יא{ --gb:#E8E8E6; --gi:#4A4A46; } .g-יב{ --gb:#F3E3DD; --gi:#7E3B26; } .g-x{ --gb:var(--muted); --gi:var(--ink-soft); }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); } }
+  :root[data-theme="dark"] .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); }
+  .sch-mini{ color:var(--scd, var(--ink-soft)); font-weight:700; }
+  .att-rows li.att-sec{ display:flex !important; align-items:center; gap:8px; background:var(--muted); font-weight:800; padding:6px 10px !important; border-radius:8px; margin-top:8px; }
+  .att-rows li.att-sec span:last-child{ color:var(--ink-soft); font-size:13px; }
+  .seg .sm, .subj .sm{ display:none; }
+  /* מעקב - שורה מתחת לילד, מוזחת מתחת לשם */
+  .att-rows li[data-i]{ flex-wrap:wrap; }
+  .att-track-row{ flex-basis:100%; padding-inline-start:48px; margin-top:-2px; }
+  .att-track-row .att-track{ display:inline-block; border-inline-start:3px solid #E0B44A; }
   .att-name .meta{ display:block; font-size:12.5px; color:var(--ink-soft); }
   .att-ctl{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .seg{ display:inline-flex; border:1.5px solid var(--border); border-radius:10px; overflow:hidden; }
@@ -497,7 +513,22 @@
   .cal-grid{ display:grid; min-width:640px; }
   .cal-col{ border-inline-start:1px solid var(--border); min-width:0; }
   .cal-col.cal-times{ border-inline-start:0; }
-  .cal-day{ height:38px; display:flex; align-items:center; justify-content:center; background:var(--muted); font-family:var(--font-display); font-weight:800; color:var(--accent); border-bottom:1px solid var(--border); }
+  .hol-tbl input, .hol-tbl select{ padding:5px 8px; font-size:14px; width:100%; box-sizing:border-box; min-width:90px; } .hol-tbl input[type=checkbox]{ width:auto; min-width:0; }
+  .hol-tbl tr.past td{ opacity:.5; } .hol-k-holiday{ color:#4A4542; font-weight:800; } .hol-k-vacation{ font-weight:700; }
+  #view-holidays .tbl{ min-width:860px; }
+  .hol-chips{ display:flex; flex-wrap:wrap; gap:2px; justify-content:center; margin-top:2px; }
+  .hol-chip{ font-family:var(--font-body); font-size:10.5px; font-weight:800; border-radius:999px; padding:0 6px; line-height:1.6; white-space:nowrap; }
+  .hol-chip.hol-holiday{ background:#6B6560; color:#fff; } .hol-chip.hol-vacation{ background:#E4E0DC; color:#4A4542; } .hol-chip.hol-note{ background:transparent; color:var(--ink-soft); border:1px solid var(--border); }
+  /* חג - אפור כהה יותר, חופשה - אפור בהיר */
+  .cal-body.hol-col-holiday{ background-color:color-mix(in srgb, var(--ink) 9%, transparent); background-image:repeating-linear-gradient(135deg, transparent 0 10px, color-mix(in srgb, var(--ink) 10%, transparent) 10px 12px), repeating-linear-gradient(to bottom, var(--border) 0 1px, transparent 1px calc(var(--ppm) * 30)); }
+  .cal-body.hol-col-vacation{ background-color:color-mix(in srgb, var(--ink) 3%, transparent); background-image:repeating-linear-gradient(135deg, transparent 0 10px, color-mix(in srgb, var(--ink) 5%, transparent) 10px 12px), repeating-linear-gradient(to bottom, var(--border) 0 1px, transparent 1px calc(var(--ppm) * 30)); }
+  .cal-ev.hol-fade, .mob-group.hol-fade, .att-group.hol-fade{ opacity:.5; }
+  .cx-box{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 10px; }
+  .cx-on{ background:color-mix(in srgb, var(--ink) 8%, var(--paper)); border:1px solid var(--border); border-radius:10px; padding:8px 12px; }
+  .cx-form{ display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap; } .cx-form select, .cx-form input{ width:auto; padding:5px 8px; }
+  #attSheet .card.cx-off .att-rows, #attSheet .card.cx-off .sh-tools{ opacity:.45; }
+  .cx-tag{ display:inline-block; font-size:11px; font-weight:800; border-radius:999px; padding:0 7px; background:var(--paper); color:var(--ink); border:1px solid var(--ink-soft); margin:1px 0; }
+  .cal-day{ height:56px; padding:3px 2px; box-sizing:border-box; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--muted); font-family:var(--font-display); font-weight:800; color:var(--accent); border-bottom:1px solid var(--border); }
   .cal-body{ position:relative; background-image:repeating-linear-gradient(to bottom, var(--border) 0 1px, transparent 1px calc(var(--ppm) * 30)); }
   .cal-times .cal-body{ background:none; }
   .cal-h{ position:absolute; inset-inline:0; margin-top:-8px; font-size:12px; line-height:16px; color:var(--ink-soft); text-align:center; direction:ltr; font-variant-numeric:tabular-nums; }
@@ -627,9 +658,18 @@
     .att-name b{ font-size:15px; } .att-name .meta{ font-size:11.5px; } .att-track{ font-size:12px; padding:2px 6px; }
     .att-ctl{ display:flex !important; flex:none; gap:4px; flex-wrap:nowrap; }
     .att-ctl .seg{ display:inline-flex !important; }
-    .seg button{ padding:8px 10px !important; font-size:14px !important; }
-    .subj{ padding:6px 6px !important; font-size:12px !important; gap:3px; }
-    .subj input{ width:15px; height:15px; }
+    /* דף נוכחות בטלפון: שורה אחת לילד, כפתורים קטנים (✓ / ✗, מת' / אנג') */
+    .att-rows li[data-i]{ flex-wrap:wrap !important; gap:4px 6px !important; padding:5px 2px !important; }
+    .att-rows li[data-i] .att-name{ flex:1 1 0 !important; }
+    .att-rows li[data-i] .att-name .meta{ display:block !important; font-size:11px; line-height:1.2; }
+    .att-name{ flex:1 1 auto !important; } .att-name b{ font-size:14.5px; } .att-name .meta{ display:none; }
+    .gbadge{ width:32px; height:32px; font-size:11.5px; }
+    .att-track-row{ padding-inline-start:40px; } .att-track-row .att-track{ font-size:12px; padding:2px 8px; }
+    .seg .lg, .subj .lg{ display:none; } .seg .sm, .subj .sm{ display:inline; }
+    .seg button{ height:32px; padding:0 9px !important; font-size:15px !important; min-width:34px; box-sizing:border-box; display:inline-flex; align-items:center; justify-content:center; }
+    .att-ctl{ align-items:center !important; }
+    .subj{ height:32px; box-sizing:border-box; padding:0 6px !important; font-size:11.5px !important; gap:3px; display:inline-flex !important; align-items:center; }
+    .subj input{ width:14px; height:14px; margin:0; }
     .sh-fields textarea{ min-height:56px; }
     .split-bar button{ padding:4px 9px; font-size:12.5px; }
   }
@@ -682,16 +722,49 @@
   .rg-city-grid .lk-act{ width:auto; text-align:start; white-space:normal; } .rg-city-grid .lk-btns{ flex-wrap:wrap; }
   .rg-city-grid .lk-url{ word-break:break-all; }
   .rg-mar-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
-  .ws-search{ margin:0 0 12px; } .ws-search input{ width:100%; max-width:520px; box-sizing:border-box; }
-  .ws-res{ display:flex; flex-direction:column; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--paper); }
-  .ws-res button{ all:unset; cursor:pointer; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:2px 12px; padding:10px 14px; border-bottom:1px solid var(--border); }
-  .ws-res button:last-child{ border-bottom:0; } .ws-res button:hover, .ws-res button:focus-visible{ background:var(--muted); }
-  .ws-res .t{ font-weight:700; } .ws-res .b{ font-size:12.5px; color:var(--ink-soft); } .ws-res .n{ grid-row:1 / span 2; grid-column:2; align-self:center; font-size:13px; color:var(--accent); font-weight:700; white-space:nowrap; }
-  .ws-res mark{ background:color-mix(in srgb, var(--gold) 35%, transparent); color:inherit; border-radius:3px; }
+  /* חיפוש במאגר */
+  .ws-search{ position:relative; margin:0 0 14px; max-width:680px; }
+  .ws-search input{ width:100%; box-sizing:border-box; font-size:16px; padding:12px 44px 12px 40px; border-radius:14px; border:1.5px solid var(--border); background:var(--paper); box-shadow:0 1px 3px rgba(0,0,0,.05); }
+  .ws-search input:focus{ border-color:var(--gold); outline:none; box-shadow:0 0 0 3px color-mix(in srgb, var(--gold) 25%, transparent); }
+  .ws-search input::-webkit-search-cancel-button{ display:none; }
+  .ws-s-ic{ position:absolute; inset-inline-start:14px; top:50%; transform:translateY(-50%); font-size:16px; opacity:.55; pointer-events:none; }
+  .ws-s-x{ position:absolute; inset-inline-end:8px; top:50%; transform:translateY(-50%); border:0; background:var(--muted); color:var(--ink-soft); width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:13px; }
+  .ws-res-sum{ font-size:14px; color:var(--ink-soft); margin:0 0 6px; } .ws-res-sum b{ color:var(--ink); }
+  .ws-res-book{ font-size:16px; color:var(--accent); margin:16px 0 8px; padding-bottom:4px; border-bottom:1px solid var(--border); }
+  .ws-res{ display:grid; grid-template-columns:repeat(auto-fill, minmax(330px, 1fr)); gap:10px; }
+  .ws-rc{ display:grid; grid-template-columns:92px minmax(0,1fr); gap:12px; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:10px; cursor:pointer; text-align:start; }
+  .ws-rc:hover, .ws-rc:focus-visible{ border-color:var(--gold); box-shadow:0 2px 8px rgba(0,0,0,.07); outline:none; }
+  .ws-rc-th{ width:92px; height:118px; border-radius:6px; overflow:hidden; background:var(--muted); } .ws-rc-th img{ width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
+  .ws-rc-b{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .ws-rc-k{ align-self:flex-start; font-size:11.5px; font-weight:800; border-radius:999px; padding:0 8px; background:color-mix(in srgb, var(--gold) 28%, var(--paper)); }
+  .ws-rc-t{ font-weight:800; font-size:15px; line-height:1.3; }
+  .ws-rc-hits{ list-style:none; margin:0; padding:0; font-size:13px; display:flex; flex-direction:column; gap:2px; }
+  .ws-rc-hits li[data-pg]{ cursor:pointer; border-radius:6px; padding:1px 4px; } .ws-rc-hits li[data-pg]:hover{ background:var(--muted); } .ws-rc-hits li.more{ color:var(--ink-soft); padding:1px 4px; }
+  .ws-rc-n{ margin-top:auto; font-size:12.5px; color:var(--accent); font-weight:700; }
+  .ws-empty{ background:var(--paper); border:1px dashed var(--border); border-radius:12px; padding:18px; text-align:center; font-size:15px; display:flex; flex-direction:column; gap:4px; }
+  @media (max-width:760px){ .ws-res{ grid-template-columns:1fr; } .ws-rc{ grid-template-columns:minmax(0,1fr); } .ws-rc-th{ display:none; } .ws-search input{ padding:10px 40px 10px 36px; } }
+  .ws-res mark, .ws-rc mark{ background:none; color:var(--accent,#7a1f2b); font-weight:700; text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--accent,#7a1f2b) 55%, transparent); text-decoration-thickness:2px; text-underline-offset:3px; padding:0; }
   .ws-books{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px; }
   .ws-books button{ font:inherit; font-weight:700; font-size:14px; border:1px solid var(--border); background:var(--card, #fff); color:inherit; border-radius:999px; padding:8px 16px; cursor:pointer; }
   .ws-books button[aria-pressed="true"]{ background:var(--accent); color:#fff; border-color:var(--accent); }
-  .ws-kind{ margin-bottom:10px; } .ws-how{ font-size:12.5px; margin-bottom:14px; }
+  .ws-kind{ margin-bottom:10px; }
+  /* סוג הדפים (סיכום / לפי נושאים...) - בזהב, כדי שלא יתבלבל עם בחירת הספר */
+  #wsKind{ border-color:color-mix(in srgb, var(--gold) 50%, var(--border)); }
+  #wsKind button[aria-pressed="true"]{ background:color-mix(in srgb, var(--gold) 35%, var(--paper)); color:var(--ink); }
+  .ws-pick{ display:flex; flex-wrap:wrap; gap:8px 10px; margin-bottom:10px; align-items:center; }
+  .ws-seg button{ padding:7px 16px; font-size:14.5px; }
+  .ws-seg button[aria-pressed="true"]{ background:var(--accent); color:#fff; box-shadow:none; }
+  @media (max-width:760px){
+    .ws-pick{ flex-direction:column; align-items:stretch; gap:6px; margin-bottom:6px; } .ws-seg{ display:flex; } .ws-seg button{ flex:1; padding:8px 4px !important; font-size:15px; min-height:0 !important; height:38px; line-height:1.2; }
+    #wsKind{ display:flex; width:100%; } #wsKind button{ flex:1; padding:9px 6px; font-size:15px; }
+    .ws-how{ display:none; }
+    /* רשימת הנושאים בטלפון: שורה לכל נושא, בלי תמונה */
+    #wsBody .ws-albums{ display:flex; flex-direction:column; gap:6px; }
+    #wsBody .ws-album{ display:block; border-radius:10px; }
+    #wsBody .ws-album .cv{ display:none; }
+    #wsBody .ws-album .mt{ display:grid; grid-template-columns:auto minmax(0,1fr); gap:0 8px; align-items:baseline; padding:9px 12px; }
+    #wsBody .ws-album .ch{ grid-column:2; }
+  } .ws-how{ font-size:12.5px; margin-bottom:14px; }
   .ws-albums{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; }
   .ws-album{ all:unset; cursor:pointer; display:flex; flex-direction:column; background:var(--card, #fff); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
   .ws-album .cv{ aspect-ratio:210/150; overflow:hidden; background:#fff; border-bottom:1px solid var(--border); } .ws-album .cv img{ width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
@@ -960,6 +1033,7 @@
           <button class="btn" type="button" id="shBack">חזרה לקבוצות</button>
         </div>
         <div class="notice" id="shLocked" hidden>אפשר לסמן ולתקן נוכחות רק ביום השיעור.</div>
+        <div class="cx-box" id="shCx" hidden></div>
         <div class="card">
           <div class="sh-tools"><button class="btn small" type="button" id="shAll">כולם נוכחים</button><span class="muted" id="shCount"></span></div>
           <div class="split-bar" id="shSplitBar" hidden></div>
@@ -1030,7 +1104,7 @@
 
     <!-- ===== מידע (כל הצוות) ===== -->
     <section id="view-info" hidden>
-      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button></div>
       <div class="page-head"><h1>מידע</h1><button class="btn small" type="button" id="infoEditBtn" data-admin>✎ עריכה</button></div>
       <div class="gseg subnav" role="group" aria-label="דפי מידע" id="infoTabs"></div>
       <div class="card info-card" id="infoBody"></div>
@@ -1054,9 +1128,9 @@
         <div id="wsImportMsg" class="bk-list" style="margin-top:8px;"></div>
       </div>
       <div id="wsTop">
-        <div class="ws-search"><input id="wsSearch" type="search" placeholder="חיפוש נושא או דף בכל הספרים (למשל: שברים, פרבולה)" aria-label="חיפוש נושא או דף" autocomplete="off"></div>
-        <div class="ws-books" id="wsBooks"></div>
-        <div class="gseg ws-kind" id="wsKind" role="group" aria-label="סוג"><button type="button" data-k="summary">דפי סיכום</button><button type="button" data-k="topic">תרגול לפי נושאים</button></div>
+        <div class="ws-search"><span class="ws-s-ic" aria-hidden="true">🔍</span><input id="wsSearch" type="search" placeholder="חיפוש נושא או דף בכל הספרים - למשל: שברים, פרבולה, Past simple" aria-label="חיפוש נושא או דף" autocomplete="off"><button type="button" class="ws-s-x" id="wsSearchX" aria-label="ניקוי החיפוש" hidden>✕</button></div>
+        <div class="ws-pick" id="wsPick"></div>
+        <div class="gseg ws-kind" id="wsKind" role="group" aria-label="סוג"></div>
         <div class="muted ws-how">איך שולחים לתלמיד: נושא ← דף ← <b>העתקה</b> ← חוזרים לצ'אט בוואטסאפ ← לחיצה ארוכה בשורת ההקלדה ← <b>הדבקה</b>.</div>
       </div>
       <div id="wsBody"></div>
@@ -1090,7 +1164,7 @@
 
     <!-- ===== בתי הספר שלי (מתרגלים) ===== -->
     <section id="view-myschools" hidden>
-      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button></div>
       <div class="page-head"><h1>בתי הספר שלי</h1></div>
       <div id="msBody"></div>
     </section>
@@ -1131,8 +1205,14 @@
     </section>
 
     <!-- ===== בתי ספר (מידע, מנהלים בלבד) ===== -->
+    <section id="view-holidays" hidden>
+      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button></div>
+      <div class="page-head"><h1>חגים וחופשות</h1><button class="btn small primary" type="button" id="holAdd">+ יום חדש</button></div>
+      <div class="muted" style="font-size:13.5px; margin:-6px 0 10px;"><b>חג</b> ו<b>חופשה</b> - כל קבוצה שוטפת מסומנת אוטומטית "לא התקיים תרגול" (מרתונים לא). אם בכל זאת היה תרגול - מבטלים בדף הנוכחות של הקבוצה. <b>יום ציון</b> - רק תזכורת. השינויים נשמרים מיד.</div>
+      <div class="tbl-wrap"><table class="tbl hol-tbl" id="holTbl"></table></div>
+    </section>
     <section id="view-schools" hidden>
-      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button></div>
       <div class="page-head"><h1>בתי ספר</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn small" type="button" id="scEdit">עריכה</button>
@@ -1415,7 +1495,7 @@ async function afterAuthLink(){
 
 let currentView = "leads";
 const SETTINGS_VIEWS = ["staff","backup","me"];
-const INFO_VIEWS = ["info","schools","myschools"];
+const INFO_VIEWS = ["info","schools","myschools","holidays"];
 function go(view){
   currentView = view;
   document.body.dataset.view = view;
@@ -1426,10 +1506,11 @@ function go(view){
   // בתי ספר והיסטוריה - תחת "מידע"
   if (inst && (view === "schools" || view === "history")) view = "myschools";
   if (!inst && view === "myschools") view = "schools";
+  if (inst && view === "holidays") view = "info";
   if (SETTINGS_VIEWS.includes(view)) store(key, view);
   if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
   const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.sched = "reg";
-  ["home","leads","lead","groups","att","sched","reg","info","staff","schools","reports","history","backup","ws","me","myschools"].forEach(v => { $("view-" + v).hidden = v !== view; });
+  ["home","leads","lead","groups","att","sched","reg","info","staff","schools","reports","history","backup","ws","me","myschools","holidays"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   { const cur = document.querySelector('.nav button[aria-current="page"]'); if ($("navCur")) $("navCur").textContent = cur ? cur.textContent.replace("⚙", "").trim() : (view === "home" ? "תפריט" : ({ me: "הגדרות", staff: "הגדרות", backup: "הגדרות" }[view] || "תפריט")); }
   document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view)));
@@ -1448,6 +1529,7 @@ function go(view){
   if (view === "att") { showAttList(); loadAttGroups(); }
   if (view === "staff") loadStaff();
   if (view === "schools") loadSchools();
+  if (view === "holidays") renderHolidays(true);
   navPush(view);
   window.scrollTo(0, 0);
 }
@@ -2255,6 +2337,7 @@ async function loadGroups(){
       get("marathons", "select=*&order=id.desc").catch(() => [])
     ]);
     G.marathons = mar; G.hasKind = s.length === 0 || "kind" in s[0];
+    await loadHol();
     await loadNotices();
     s.forEach(x => { if (!x.kind) x.kind = "שוטף"; });
     G.ins = {}; ins.forEach(x => { if (x.staff) (G.ins[x.session_id] = G.ins[x.session_id] || []).push(x.staff.full_name); });
@@ -2342,8 +2425,68 @@ function paintWeekNav(show){
 $("gWkPrev").addEventListener("click", () => { G.week = addDays(G.week, -7); renderGrid(); });
 $("gWkNext").addEventListener("click", () => { G.week = addDays(G.week, 7); renderGrid(); });
 $("gWkNow").addEventListener("click", () => { G.week = thisWeek(); renderGrid(); });
+// ---------- חגים וחופשות (קובץ 46) ----------
+async function renderHolidays(reload){
+  const T = $("holTbl");
+  if (reload || !HOL.rows) { T.innerHTML = "<tr><td class='empty-state'>טוען...</td></tr>";
+    try { HOL.rows = await getAll("days_off", "select=*&order=date_from"); }
+    catch(e) { T.innerHTML = `<tr><td class='empty-state'>${e.status === 404 || e.code === "PGRST205" ? "צריך להריץ את קובץ 46." : "לא ניתן לטעון."}</td></tr>`; return; } }
+  const today = todayIL(), rows = HOL.rows.slice().sort((a, b) => a.date_from.localeCompare(b.date_from));
+  T.innerHTML = `<thead><tr><th>שם</th><th>מתאריך</th><th>עד</th><th>סוג</th><th>עיר</th><th>בית ספר</th><th></th></tr></thead><tbody>` +
+    (rows.length ? rows.map(h => `<tr data-h="${h.id}" class="${h.date_to < today ? "past" : ""}">
+      <td><input data-f="name" value="${esc(h.name)}"></td>
+      <td><input type="date" data-f="date_from" value="${esc(h.date_from)}"></td>
+      <td><input type="date" data-f="date_to" value="${esc(h.date_to)}"></td>
+      <td><select data-f="kind" class="hol-k hol-k-${h.kind}">${Object.entries({ holiday: "חג", vacation: "חופשה", note: "יום ציון" }).map(([k, t]) => `<option value="${k}" ${k === h.kind ? "selected" : ""}>${t}</option>`).join("")}</select></td>
+      <td><select data-f="city"><option value="">כל הערים</option>${CONFIG.cities.map(c => `<option ${c === h.city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></td>
+      <td><input data-f="school" value="${esc(h.school || "")}" placeholder="כל בתי הספר"></td>
+      <td><button type="button" class="btn small" data-hdel="${h.id}">מחיקה</button></td></tr>`).join("") : "<tr><td colspan='7' class='empty-state'>אין ימים מיוחדים.</td></tr>") + "</tbody>";
+  T.querySelectorAll("[data-f]").forEach(el => el.onchange = async () => {
+    const id = Number(el.closest("tr").dataset.h), f = el.dataset.f, h = HOL.rows.find(x => x.id === id);
+    const v = el.type === "checkbox" ? el.checked : (el.value.trim() || null);
+    if ((f === "name" || f === "date_from" || f === "date_to") && !v) { toast("השדה הזה חובה"); el.value = h[f] || ""; return; }
+    const body = { [f]: v }; if (f === "date_from" && h.date_to < v) body.date_to = v; if (f === "date_to" && v < h.date_from) { toast("תאריך הסיום לפני ההתחלה"); el.value = h.date_to; return; }
+    try { await patch("days_off", "id=eq." + id, body); Object.assign(h, body); toast("נשמר"); if (f === "kind" || body.date_to) renderHolidays(false); }
+    catch(e) { toast("לא נשמר: " + e.message); el.value = h[f] || ""; }
+  });
+  T.querySelectorAll("[data-hdel]").forEach(b => b.onclick = async () => { const h = HOL.rows.find(x => x.id === Number(b.dataset.hdel));
+    if (!window.confirm(`למחוק את "${h.name}"?`)) return;
+    try { await del("days_off", "id=eq." + h.id); HOL.rows = HOL.rows.filter(x => x.id !== h.id); renderHolidays(false); toast("נמחק"); } catch(e) { toast("לא נמחק: " + e.message); } });
+}
+$("holAdd").addEventListener("click", async () => {
+  try { const r = await insert("days_off", { school_year: CONFIG.schoolYear, name: "יום חופש", date_from: todayIL(), date_to: todayIL(), kind: "vacation" });
+        (HOL.rows = HOL.rows || []).push(r[0]); renderHolidays(false); const tr = $("holTbl").querySelector(`[data-h="${r[0].id}"] [data-f=name]`); if (tr) { tr.focus(); tr.select(); } }
+  catch(e) { toast(e.status === 404 ? "צריך להריץ את קובץ 46" : "לא נשמר: " + e.message); }
+});
+const HOL = { rows: null };
+const HOL_KIND = { holiday: "חג – אין פעילות", vacation: "חופשת בית ספר", note: "יום ציון" };
+async function loadHol(force){ if (HOL.rows && !force) return; try { HOL.rows = await getAll("days_off", "select=*&order=date_from"); } catch(e) { HOL.rows = []; } }
+// הימים המיוחדים בתאריך (לפי עיר/בית ספר אם נתונים)
+const holOn = (date, city, school) => (HOL.rows || []).filter(h => date >= h.date_from && date <= h.date_to && (!h.city || !city || h.city === city) && (!h.school || !school || h.school === school));
+const holGlobal = (date) => (HOL.rows || []).filter(h => date >= h.date_from && date <= h.date_to && !h.city && !h.school);
+// "לא התקיים תרגול": סימון של מנהל/ת (cancelled true/false) או אוטומטית בחג/חופשה (קבוצה שוטפת בלבד).
+// מחזיר { reason, auto } אם לא התקיים, אחרת null.
+function lessonCx(se, date, cancelled, reason){
+  if (cancelled === true) return { reason: reason || "", auto: false };
+  if (cancelled === false || !date || se.kind === "מרתון") return null;
+  const hs = holOn(date, se.city, se.location).filter(h => h.kind !== "note");
+  const h = hs.find(x => x.kind === "holiday") || hs[0];
+  return h ? { reason: h.name, auto: true } : null;
+}
+// בלוח הקבוצות: הסימונים של השבוע המוצג
+G.cx = {}; G.cxWeek = null;
+async function loadCx(week){
+  try { const r = await get("attendance_lessons", "select=session_id,lesson_date,cancelled,cancel_reason&cancelled=not.is.null&lesson_date=gte." + week + "&lesson_date=lte." + addDays(week, 6));
+        G.cx = {}; r.forEach(x => G.cx[x.session_id + "|" + x.lesson_date] = x); } catch(e) { G.cx = {}; }
+  G.cxWeek = week;
+}
+const holFor = (date, se) => { const x = G.cx[se.session_id + "|" + date] || {}; return lessonCx(se, date, x.cancelled, x.cancel_reason); };
+const cxTag = (c, short) => `<span class="cx-tag" title="לא התקיים${c.reason ? " · " + esc(c.reason) : ""}">לא התקיים${c.reason && !short ? " · " + esc(c.reason) : ""}</span>`;
+const holChips = (date) => holGlobal(date).map(h => `<span class="hol-chip hol-${h.kind}" title="${esc(HOL_KIND[h.kind])}">${esc(h.name)}</span>`).join("");
+const holColCls = (date) => { const hs = holGlobal(date); return hs.some(h => h.kind === "holiday") ? " hol-col-holiday" : hs.some(h => h.kind === "vacation") ? " hol-col-vacation" : ""; };
 function renderCal(list){
   $("gGridWrap").hidden = true; $("gCal").hidden = false;
+  if (G.cxWeek !== G.week) { const w = G.week; loadCx(w).then(() => { if (G.week === w && G.mode !== "table") renderGrid(); }); }
   // קבוצות שוטפות - כל שבוע; מפגשי מרתון - רק בשבוע המוצג
   const wEnd = addDays(G.week, 6);
   const ev = gEvents(list).filter(x => !x.date || (x.date >= G.week && x.date <= wEnd));
@@ -2353,19 +2496,20 @@ function renderCal(list){
   const PPM = 1.5, H = (t1 - t0) * PPM + 14;
   let hours = ""; for (let t = t0; t <= t1; t += 60) hours += `<div class="cal-h" style="top:${(t - t0) * PPM}px">${String(t / 60).padStart(2, "0")}:00</div>`;
   const cols = days.map(d => {
+    const dt = weekDate(d);
     const de = ev.filter(x => x.day === d).sort((a, b) => a.s - b.s || b.e - a.e);
     let cluster = [], clusterEnd = -1; const out = [];
     const flush = () => { const lanes = []; cluster.forEach(x => { let i = lanes.findIndex(end => end <= x.s); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = x.e; x.lane = i; }); cluster.forEach(x => { x.n = lanes.length; out.push(x); }); cluster = []; };
     de.forEach(x => { if (cluster.length && x.s >= clusterEnd) flush(); cluster.push(x); clusterEnd = Math.max(clusterEnd, x.e); }); if (cluster.length) flush();
     const blocks = out.map(x => {
-      const se = x.se, n = se.assigned_count || 0, w = 100 / x.n, mar = se.kind === "מרתון";
-      return `<button type="button" class="cal-ev ${scCls(se.location)}${mar ? " ev-mar" : ""}" data-id="${se.session_id}" style="top:${(x.s - t0) * PPM}px; height:${(x.e - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
+      const se = x.se, n = se.assigned_count || 0, w = 100 / x.n, mar = se.kind === "מרתון", hf = holFor(x.date || dt, se);
+      return `<button type="button" class="cal-ev ${scCls(se.location)}${mar ? " ev-mar" : ""}${hf ? " hol-fade" : ""}" data-id="${se.session_id}" style="top:${(x.s - t0) * PPM}px; height:${(x.e - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
         title="${mar ? "מרתון · " + esc(se.time_label) + " · " + fmtDM(x.date) + " · " : ""}${esc(se.location)} · ${x.st}-${x.en}${se.room ? " · " + esc(se.room) : ""}">
-        <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(se.location)}</span><span class="ev-time">${mar && se.time_label ? esc(se.time_label) + " · " : ""}${rng(x.st, x.en)}</span>
+        <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(se.location)}</span>${hf ? cxTag(hf, true) : ""}<span class="ev-time">${mar && se.time_label ? esc(se.time_label) + " · " : ""}${rng(x.st, x.en)}</span>
         ${se.room || G.cities.length > 1 ? `<span class="ev-meta">${G.cities.length > 1 ? esc(se.city) : ""}${se.room && G.cities.length > 1 ? " · " : ""}${se.room ? "📍 " + esc(se.room) : ""}</span>` : ""}
         <span class="ev-meta">${n} ילדים${(() => { const p = (G.prop || []).filter(k => k.session_id === se.session_id).length; return p ? ` · <b>${p} מוצעים</b>` : ""; })()}${G.ins && G.ins[se.session_id] ? " · " + esc(G.ins[se.session_id].join(", ")) : ""}</span></button>`;
     }).join("");
-    return `<div class="cal-col"><div class="cal-day${weekDate(d) === t ? " today" : ""}">${DAY_NAMES[d]}<small>${fmtDM(weekDate(d))}</small></div><div class="cal-body" style="height:${H}px">${blocks}</div></div>`;
+    return `<div class="cal-col"><div class="cal-day${weekDate(d) === t ? " today" : ""}">${DAY_NAMES[d]}<small>${fmtDM(weekDate(d))}</small>${holChips(dt) ? `<span class="hol-chips">${holChips(dt)}</span>` : ""}</div><div class="cal-body${holColCls(dt)}" style="height:${H}px">${blocks}</div></div>`;
   }).join("");
   $("gCal").innerHTML = `<div class="cal-grid" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${days.length}, minmax(130px, 1fr));">
     <div class="cal-col cal-times"><div class="cal-day"></div><div class="cal-body" style="height:${H}px">${hours}</div></div>${cols}</div>`;
@@ -2422,11 +2566,12 @@ function renderGrid(){
     const wEnd = addDays(G.week, 6), ev = gEvents(sorted).filter(x => !x.date || (x.date >= G.week && x.date <= wEnd));
     let h = "<tbody><tr><td class='mob-days'>";
     DAYS.filter(d => d !== "ו" || ev.some(x => x.day === d)).forEach(d => {
-      h += `<h3 class="mob-day">יום ${DAY_NAMES[d]} · ${fmtDM(weekDate(d))}</h3>`;
+      const dt = weekDate(d);
+      h += `<h3 class="mob-day">יום ${DAY_NAMES[d]} · ${fmtDM(dt)} ${holChips(dt)}</h3>`;
       const de = ev.filter(x => x.day === d).sort((a, b) => a.s - b.s);
       if (!de.length) h += `<div class="muted" style="padding:4px 2px 8px;">אין קבוצות</div>`;
       de.forEach(x => { const se = x.se, mar = se.kind === "מרתון";
-        h += `<button type="button" class="group mob-group ${scCls(se.location)}" data-id="${se.session_id}">
+        h += `<button type="button" class="group mob-group ${scCls(se.location)}${holFor(x.date || dt, se) ? " hol-fade" : ""}" data-id="${se.session_id}">
           <span class="loc">${mar ? `<span class="mar-tag" style="margin:0">מרתון</span> ` : ""}<b>${rng(x.st, x.en)}</b> · ${esc(se.location)}${G.cities.length > 1 ? " (" + esc(se.city) + ")" : ""}${se.room ? " · 📍 " + esc(se.room) : ""}${mar ? " · " + esc(se.time_label) : ""}</span>${G.ins && G.ins[se.session_id] ? `<span class="ins">${esc(G.ins[se.session_id].join(", "))}</span>` : ""}<span class="cnt">${se.assigned_count || 0} ילדים</span></button>`; });
     });
     $("gGrid").innerHTML = h + "</td></tr></tbody>";
@@ -2943,6 +3088,7 @@ $("attWkNow").addEventListener("click", () => { A.date = todayIL(); loadAttGroup
 async function loadAttWeek(){
   renderAttCities();
   $("attMark").querySelector(".att-date").hidden = true; $("attWeekNav").hidden = false; $("attGroups").hidden = true; $("attCal").hidden = false;
+  await loadHol();
   const wk = weekStart(A.date), today = todayIL(), now = new Date().toLocaleTimeString("en-GB", { timeZone: "Asia/Jerusalem", hour: "2-digit", minute: "2-digit" });
   const dates = [0, 1, 2, 3, 4, 5].map(i => addDays(wk, i));
   $("attWkLbl").textContent = `${fmtDM(dates[0])} - ${fmtDM(dates[4])}` + (weekStart(today) === wk ? " (השבוע)" : "");
@@ -2955,7 +3101,9 @@ async function loadAttWeek(){
   const hm = (t) => String(t || "").slice(0, 5), mins = (t) => { const [h, m] = hm(t).split(":").map(Number); return h * 60 + (m || 0); };
   const ev = []; lists.forEach((l, i) => (l || []).filter(attCityOk).forEach(g => ev.push({ g, date: dates[i], s: mins(g.start_time), e: Math.max(mins(g.end_time), mins(g.start_time) + 30) })));
   // מצב: סומן / לא סומן (כבר עבר) / עתידי
-  ev.forEach(x => { x.st = x.g.marked ? "ok" : (x.date < today || (x.date === today && now >= hm(x.g.end_time))) ? "miss" : "fut"; });
+  // לא התקיים (סימון מנהל/ת או חג/חופשה) - חיוור ולא נחשב "לא סומן"
+  ev.forEach(x => { x.hf = lessonCx({ kind: x.g.kind, city: x.g.city, location: x.g.location }, x.date, x.g.cancelled, x.g.cancel_reason); });
+  ev.forEach(x => { x.st = x.g.marked ? "ok" : x.hf ? "hol" : (x.date < today || (x.date === today && now >= hm(x.g.end_time))) ? "miss" : "fut"; });
   const nOk = ev.filter(x => x.st === "ok").length, nMiss = ev.filter(x => x.st === "miss").length, nFut = ev.filter(x => x.st === "fut").length;
   $("attSum").innerHTML = ev.length ? `בשבוע הזה: <b>${nOk}</b> סומנו · <span class="miss"><b>${nMiss}</b> חסרות</span>${nFut ? ` · <b>${nFut}</b> עוד לא היו` : ""}` : "";
   if (!ev.length) { $("attCal").innerHTML = `<div class="card muted">${ME.role === "instructor" ? "אין לך קבוצות בשבוע הזה." : "אין קבוצות בשבוע הזה."}</div>`; return; }
@@ -2971,17 +3119,17 @@ async function loadAttWeek(){
     const blocks = out.map(x => { const g = x.g, mar = g.kind === "מרתון", w = 100 / x.n;
       const narrow = x.n > 1;   // כמה קבוצות זו לצד זו - תגית קטנה בלי טקסט
       const st = x.st === "ok" ? `<span class="att-st ok" title="סומן: ${g.marked_count} נוכחים מתוך ${g.kids}">✓${narrow ? "" : " " + g.marked_count + "/" + g.kids}</span>` : x.st === "miss" ? `<span class="att-st miss" title="לא סומן">${narrow ? "" : "לא סומן"}</span>` : "";
-      return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${x.st === "fut" ? " fut" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${(x.e - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
+      return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${x.st === "fut" ? " fut" : ""}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${(x.e - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
         title="${esc(g.location)} · ${hm(g.start_time)}-${hm(g.end_time)}${g.room ? " · " + esc(g.room) : ""}">
-        <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>
+        <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>${x.st === "hol" ? cxTag(x.hf, true) : ""}
         <span class="ev-time">${mar && g.time_label ? esc(g.time_label) + " · " : ""}${rng(hm(g.start_time), hm(g.end_time))}</span>
         ${g.room || multi ? `<span class="ev-meta">${multi ? esc(g.city) : ""}${g.room && multi ? " · " : ""}${g.room ? "📍 " + esc(g.room) : ""}</span>` : ""}
         <span class="ev-meta">${g.kids} ילדים${ME.role !== "instructor" && g.instructors ? " · " + esc(g.instructors) : ""}</span>${st}</button>`; }).join("");
-    return `<div class="cal-col"><div class="cal-day${d === today ? " today" : ""}">${DAY_NAMES[dayLetter(d)]}<small>${fmtDM(d)}</small></div><div class="cal-body" style="height:${H}px">${blocks}</div></div>`;
+    return `<div class="cal-col"><div class="cal-day${d === today ? " today" : ""}">${DAY_NAMES[dayLetter(d)]}<small>${fmtDM(d)}</small>${holChips(d) ? `<span class="hol-chips">${holChips(d)}</span>` : ""}</div><div class="cal-body${holColCls(d)}" style="height:${H}px">${blocks}</div></div>`;
   }).join("");
   $("attCal").innerHTML = `<div class="tbl-wrap"><div class="cal-grid" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${showDates.length}, minmax(130px, 1fr));">
     <div class="cal-col cal-times"><div class="cal-day"></div><div class="cal-body" style="height:${H}px">${hours}</div></div>${cols}</div></div>`;
-  $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = () => { A.date = b.dataset.d; openSheet(Number(b.dataset.s)); });
+  $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = () => { A.date = b.dataset.d; const x = ev.find(e => String(e.g.session_id) === b.dataset.s && e.date === b.dataset.d); A.curG = x ? x.g : null; openSheet(Number(b.dataset.s)); });
 }
 async function loadAttGroups(){
   if (!isMobile()) { $("attDate").value = A.date; return loadAttWeek(); }
@@ -2990,19 +3138,22 @@ async function loadAttGroups(){
 
   $("attGroups").className = "att-groups"; $("attGroups").innerHTML = "<div class='muted'>טוען...</div>";
   try {
+    await loadHol();
     A.groups = (await rpc("attendance_groups", { p_date: A.date, p_city: null })).filter(attCityOk);
+    if (holChips(A.date)) $("attDayName").insertAdjacentHTML("beforeend", ` <span class="hol-chips" style="display:inline-flex">${holChips(A.date)}</span>`);
     if (!A.groups.length) {
       $("attGroups").innerHTML = `<div class="card muted">${ME.role === "instructor" ? "אין לך קבוצות ביום הזה." : "אין קבוצות ביום הזה."}</div>`;
       return;
     }
     const hm = (t) => String(t || "").slice(0, 5);
-    const card = (g, showCity) => `<button type="button" class="att-group ${scCls(g.location)} ${g.marked ? "done" : ""}" data-s="${g.session_id}">
+    A.groups.forEach(g => { g.cx = g.marked ? null : lessonCx({ kind: g.kind, city: g.city, location: g.location }, A.date, g.cancelled, g.cancel_reason); });
+    const card = (g, showCity) => `<button type="button" class="att-group ${scCls(g.location)} ${g.marked ? "done" : ""}${g.cx ? " hol-fade" : ""}" data-s="${g.session_id}">
       <span class="t">${g.kind === "מרתון" ? esc(g.time_label) + `<span class="kind-tag">מרתון</span>` : rng(hm(g.start_time), hm(g.end_time))}</span>
       <span class="w">${scChip(g.location)}${showCity ? " · " + esc(g.city) : ""}</span>${g.room ? `<span class="m">חדר: <b><bdi>${esc(g.room)}</bdi></b></span>` : ""}
       <span class="m">${g.kids} ילדים${ME.role !== "instructor" && g.instructors ? " · " + esc(g.instructors) : ""}</span>
       ${g.splits && g.splits.length ? (ME.role === "instructor" ? (g.splits.find(s => s.mine) ? `<span class="m">תת-קבוצה: <b>${esc(g.splits.find(s => s.mine).name)}</b></span>` : "")
         : `<span class="m">מפוצלת: ${g.splits.map(s => `<b>${esc(s.name)}</b> ${s.kids}${s.instructor ? " (" + esc(s.instructor) + ")" : ""}`).join(" · ")}</span>`) : ""}
-      ${g.marked ? `<span class="ok">✓ סומן · ${g.marked_count} נוכחים</span>` : `<span class="m">טרם סומן</span>`}</button>`;
+      ${g.marked ? `<span class="ok">✓ סומן · ${g.marked_count} נוכחים</span>` : g.cx ? cxTag(g.cx) : `<span class="m">טרם סומן</span>`}</button>`;
     if (ME.role === "instructor" || isMobile()) {
       $("attGroups").className = "att-groups";
       $("attGroups").innerHTML = A.groups.map(g => card(g, ME.role !== "instructor")).join("");
@@ -3015,7 +3166,7 @@ async function loadAttGroups(){
       $("attGroups").innerHTML = `<table class="att-board"><thead><tr><th class="time">שעה</th>${cols.map(c => `<th>${byCity ? esc(c) : scChip(c)}</th>`).join("")}</tr></thead><tbody>` +
         times.map(t => `<tr><th class="time">${t}</th>${cols.map(c => `<td>${A.groups.filter(g => hm(g.start_time) === t && colOf(g) === c).map(g => card(g, false)).join("")}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
     }
-    $("attGroups").querySelectorAll("[data-s]").forEach(b => b.onclick = () => openSheet(Number(b.dataset.s)));
+    $("attGroups").querySelectorAll("[data-s]").forEach(b => b.onclick = () => { A.curG = A.groups.find(g => String(g.session_id) === b.dataset.s) || null; openSheet(Number(b.dataset.s)); });
   } catch(e) {
     $("attGroups").innerHTML = "<div class='card err'>לא ניתן לטעון את הקבוצות" + (e.status === 404 ? " (צריך להריץ את קובץ 16)." : ".") + "</div>";
   }
@@ -3028,6 +3179,7 @@ async function openSheet(sessionId){
     const sh = await rpc("attendance_sheet", { p_session: sessionId, p_date: A.date });
     A.sheet = sh;
     A.rows = sh.rows.map(r => ({ ...r, present: r.present == null ? null : r.present, did_math: !!r.did_math, did_english: !!r.did_english, saved: r.present != null }));
+    A.rows.sort(attSort);
     A.removed = [];
     A.splitView = sh.splits && sh.splits.length && ME.role !== "instructor" ? (sh.my_split || "") : "";
     $("shAddPanel").hidden = true; $("shAddQ").value = ""; $("shAddRes").innerHTML = ""; $("shAddBox").hidden = !sh.can_edit;
@@ -3040,6 +3192,7 @@ async function openSheet(sessionId){
     ["shExtra","shNotes","shSave","shAll"].forEach(id => $(id).disabled = !sh.can_edit);
     $("shMeta").textContent = sh.lesson && sh.lesson.updated_at ? `נשמר לאחרונה: ${fmtDate(sh.lesson.updated_at)}${sh.lesson.updated_by ? " · " + sh.lesson.updated_by : ""}` : "";
     renderSheetRows();
+    renderSheetCx();
     if (ME.role !== "instructor") loadHistory(sessionId, A.date);
   } catch(e) {
     $("shRows").innerHTML = "<li class='err'>לא ניתן לטעון את רשימת הילדים.</li>";
@@ -3054,24 +3207,65 @@ function renderSplitBar(){
   bar.innerHTML = `<span class="lbl2">תת-קבוצות:</span><button type="button" data-sv2="" aria-pressed="${!A.splitView}">כולם (${A.rows.length})</button>` + sp.map(s => `<button type="button" data-sv2="${s.id}" aria-pressed="${String(A.splitView) === String(s.id)}">${esc(s.name)}${s.room ? " · " + esc(s.room) : ""}${s.instructor ? " · " + esc(s.instructor) : ""} (${A.rows.filter(r => r.split_id === s.id).length})</button>`).join("");
   bar.querySelectorAll("[data-sv2]").forEach(b => b.onclick = () => { A.splitView = b.dataset.sv2; renderSheetRows(); });
 }
+// מיון בדף הנוכחות: מתמטיקה, אנגלית, מתמטיקה+אנגלית (ובלי מקצוע בסוף), ובתוך כל מקצוע לפי שכבה ואז שם
+const GRADE_ORD = ["ה","ו","ז","ח","ט","י","יא","יב"];
+const gradeKey = (g) => String(g || "").replace(/['׳"״\s]/g, "");
+const subjGrp = (v) => { v = String(v || ""); const m = v.includes("מתמטיקה"), e = v.includes("אנגלית"); return m && e ? 2 : m ? 0 : e ? 1 : 3; };
+const SUBJ_GRP_T = ["מתמטיקה", "אנגלית", "מתמטיקה + אנגלית", "בלי מקצוע"];
+function attSort(a, b){
+  const ga = GRADE_ORD.indexOf(gradeKey(a.grade)), gb = GRADE_ORD.indexOf(gradeKey(b.grade));
+  return subjGrp(a.subject) - subjGrp(b.subject) || (ga < 0 ? 99 : ga) - (gb < 0 ? 99 : gb) || (Number(a.class_num) || 99) - (Number(b.class_num) || 99)
+    || (a.last_name || "").localeCompare(b.last_name || "", "he") || (a.first_name || "").localeCompare(b.first_name || "", "he");
+}
+// שכבה + מספר כיתה (ח'3), צבע עדין לפי שכבה
+const gradeBadge = (g, n) => { const k = gradeKey(g); return `<span class="gbadge g-${GRADE_ORD.includes(k) ? k : "x"}">${k ? esc(k + "'" + (n || "")) : "?"}</span>`; };
+// "לא התקיים תרגול": מנהלים מסמנים (וסיבה). מתרגלים רואים, וכותבים בהערות אם לא התקיים.
+const CX_REASONS = ["חג", "חופשה", "אירוע בבית הספר", "מתרגל/ת חסר/ה"];
+function renderSheetCx(){
+  const sh = A.sheet, L0 = sh.lesson || {}, box = $("shCx"), adm = ME.role !== "instructor";
+  const g = A.curG || {}, cx = lessonCx({ kind: g.kind || "שוטף", city: sh.city, location: sh.location }, A.date, L0.cancelled, L0.cancel_reason);
+  document.querySelector("#attSheet .card").classList.toggle("cx-off", !!cx);
+  if (!cx && !adm) { box.hidden = true; return; }
+  box.hidden = false;
+  if (cx) box.innerHTML = `<div class="cx-on"><b>התרגול לא התקיים</b>${cx.reason ? " · " + esc(cx.reason) : ""}${cx.auto ? ` <span class="muted">(לפי לוח החגים)</span>` : ""}</div>
+    ${adm ? `<button type="button" class="btn small" data-cx="held">התקיים בכל זאת</button>${cx.auto ? "" : `<button type="button" class="btn small" data-cx="auto" title="חזרה ללוח החגים">ביטול הסימון</button>`}` : ""}`;
+  else box.innerHTML = `<button type="button" class="btn small" data-cx="open">לא התקיים תרגול</button>
+    <span class="cx-form" hidden><select id="cxReason">${CX_REASONS.map(r => `<option>${esc(r)}</option>`).join("")}<option value="">אחר...</option></select>
+    <input id="cxOther" placeholder="סיבה" hidden><button type="button" class="btn small primary" data-cx="save">שמירה</button></span>
+    ${L0.cancelled === false ? `<span class="muted" style="font-size:12.5px;">סומן "התקיים" למרות החג.</span>` : ""}`;
+  const set = async (v, reason) => { try { await rpc("set_lesson_cancelled", { p_session: sh.session_id, p_date: A.date, p_cancelled: v, p_reason: reason || null });
+      sh.lesson = Object.assign({}, sh.lesson || {}, { cancelled: v, cancel_reason: v ? reason : null }); toast(v ? "סומן: לא התקיים" : "נשמר"); renderSheetCx(); }
+    catch(e) { toast(/set_lesson_cancelled|404/.test(e.message + e.status) ? "צריך להריץ את קובץ 46" : "לא נשמר: " + e.message); } };
+  box.querySelectorAll("[data-cx]").forEach(b => b.onclick = () => {
+    const a = b.dataset.cx;
+    if (a === "open") { box.querySelector(".cx-form").hidden = false; b.hidden = true; $("cxReason").onchange = () => { $("cxOther").hidden = $("cxReason").value !== ""; }; }
+    else if (a === "save") set(true, $("cxReason").value || $("cxOther").value.trim() || "אחר");
+    else if (a === "held") set(false, null);
+    else if (a === "auto") set(null, null);
+  });
+}
 function renderSheetRows(){
   const can = A.sheet.can_edit;
   renderSplitBar();
   if (!A.rows.length) { $("shRows").innerHTML = "<li class='muted'>אין ילדים משובצים לקבוצה הזאת.</li>"; updateCount(); return; }
   const spName = (id) => ((A.sheet.splits || []).find(s => s.id === id) || {}).name;
-  $("shRows").innerHTML = A.rows.map((r, i) => !shVisible(r) ? "" : `<li data-i="${i}">
+  let prevGrp = null;
+  $("shRows").innerHTML = A.rows.map((r, i) => { if (!shVisible(r)) return "";
+    const grp = subjGrp(r.subject), head = grp !== prevGrp ? (prevGrp = grp, `<li class="att-sec">${grp < 3 ? subjChip(SUBJ_GRP_T[grp]) : "<b>בלי מקצוע</b>"} <span>${A.rows.filter(x => shVisible(x) && subjGrp(x.subject) === grp).length}</span></li>`) : "";
+    return head + `<li data-i="${i}">${gradeBadge(r.grade, r.class_num)}
     <div class="att-name"><b>${esc(r.first_name)} ${esc(r.last_name || "")}</b>${r.split_id && ME.role !== "instructor" ? `<span class="split-tag">${esc(spName(r.split_id) || "")}</span>` : ""}
       ${r.arrival_time ? `<span class="ptime">שעה אישית ${rng(r.arrival_time, r.personal_end || addMin(r.arrival_time, 45))}</span>` : ""}
-      <span class="meta">${r.subject ? subjChip(r.subject) + " · " : ""}${[r.grade && "כיתה " + r.grade, r.school].filter(Boolean).map(esc).join(" · ")}${r.in_group ? "" : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
-      ${r.tracking ? `<span class="att-track">📌 ${esc(r.tracking)}</span>` : ""}</div>
-    <div class="att-ctl">
-      <div class="seg" role="group" aria-label="נוכחות">
-        <button type="button" class="yes ${r.present === true ? "on" : ""}" data-p="1" ${can ? "" : "disabled"}>נוכח/ת</button>
-        <button type="button" class="no ${r.present === false ? "on" : ""}" data-p="0" ${can ? "" : "disabled"}>חסר/ה</button>
+      <span class="meta">${r.school ? `<span class="sch-mini ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${r.in_group ? "" : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
       </div>
-      <label class="subj ${r.present ? "" : "off"}"><input type="checkbox" data-m ${r.did_math ? "checked" : ""} ${can && r.present ? "" : "disabled"}> מתמטיקה</label>
-      <label class="subj ${r.present ? "" : "off"}"><input type="checkbox" data-e ${r.did_english ? "checked" : ""} ${can && r.present ? "" : "disabled"}> אנגלית</label>
-    </div></li>`).join("");
+    <div class="att-ctl">
+      ${grp >= 2 ? `<label class="subj ${r.present ? "" : "off"}"><input type="checkbox" data-m ${r.did_math ? "checked" : ""} ${can && r.present ? "" : "disabled"}> <span class="lg">מתמטיקה</span><span class="sm">מת'</span></label>
+      <label class="subj ${r.present ? "" : "off"}"><input type="checkbox" data-e ${r.did_english ? "checked" : ""} ${can && r.present ? "" : "disabled"}> <span class="lg">אנגלית</span><span class="sm">אנג'</span></label>` : ""}
+      <div class="seg" role="group" aria-label="נוכחות">
+        <button type="button" class="yes ${r.present === true ? "on" : ""}" data-p="1" ${can ? "" : "disabled"} aria-label="נוכח/ת"><span class="lg">נוכח/ת</span><span class="sm">✓</span></button>
+        <button type="button" class="no ${r.present === false ? "on" : ""}" data-p="0" ${can ? "" : "disabled"} aria-label="חסר/ה"><span class="lg">חסר/ה</span><span class="sm">✗</span></button>
+      </div>
+
+    </div>${r.tracking ? `<div class="att-track-row"><span class="att-track">📌 ${esc(r.tracking)}</span></div>` : ""}</li>`; }).join("");
   updateCount();
 }
 function updateCount(){
@@ -3534,11 +3728,12 @@ async function loadMySchools(){
 // מאגר דפי תרגול (מנהלים ומתרגלים). התמונות ב-Storage (פרטי), מוצגות בקישורים זמניים.
 // ======================================================================
 const WS = { rows: null, book: store("telem_ws_book") || "", kind: store("telem_ws_kind") || "summary", topic: null, tab: "page", urls: {}, list: [], idx: 0 };
-const WS_KIND = { summary: "דפי סיכום", topic: "תרגול לפי נושאים" };
+const WS_KIND = { summary: "דפי סיכום", topic: "תרגול לפי נושאים", grammar: "Grammar", unseen: "Unseen", general: "General" };
+const WS_KIND_ORD = ["summary", "topic", "grammar", "unseen", "general"];
 async function loadWs(){
   if (WS.rows) { renderWs(); return; }
   $("wsBody").innerHTML = "<div class='muted'>טוען...</div>";
-  try { WS.rows = await getAll("worksheets", "select=id,book,book_label,grade,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,source_path,sort_order,uploaded&is_active=eq.true&order=book,kind,topic_no,sort_order"); }
+  try { WS.rows = await getAll("worksheets", "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,source_path,sort_order,uploaded&is_active=eq.true&order=book,kind,topic_no,sort_order"); }
   catch(e) { $("wsBody").innerHTML = `<div class="card err">${e.status === 404 || e.code === "PGRST205" ? "צריך להריץ את קובץ 33." : "לא ניתן לטעון את המאגר."}</div>`; return; }
   renderWs();
 }
@@ -3569,15 +3764,26 @@ async function renderWs(){
   if (!books.length) { $("wsTop").hidden = true; $("wsBody").innerHTML = "<div class='card muted'>המאגר ריק.</div>"; return; }
   $("wsTop").hidden = !!WS.topic;
   if (!books.some(b => b[0] === WS.book)) WS.book = books[0][0];
-  const kinds = [...new Set(WS.rows.filter(r => r.book === WS.book).map(r => r.kind))];
+  const kinds = [...new Set(WS.rows.filter(r => r.book === WS.book).map(r => r.kind))].sort((a, b) => WS_KIND_ORD.indexOf(a) - WS_KIND_ORD.indexOf(b));
   if (!kinds.includes(WS.kind)) WS.kind = kinds[0];
-  $("wsBooks").innerHTML = books.map(([b, l]) => `<button type="button" data-b="${esc(b)}" aria-pressed="${b === WS.book}">${esc(l)}</button>`).join("");
+  // בחירה בכפתורים: מקצוע -> שכבה -> חלק (ואז סוג הדפים)
+  const info = {}; WS.rows.forEach(r => { if (!info[r.book]) info[r.book] = { subj: r.book === "ENG" ? "eng" : "math", grade: r.grade || "", part: r.part || ({ A: "א", B: "ב" })[String(r.book).slice(-1)] || "" }; });
+  const cur = info[WS.book] || {}, inSubj = books.filter(([b]) => (info[b] || {}).subj === cur.subj);
+  const grades = [...new Set(inSubj.map(([b]) => info[b].grade).filter(Boolean))];
+  const parts = inSubj.filter(([b]) => info[b].grade === cur.grade).map(([b]) => b);
+  const subjs = [...new Set(books.map(([b]) => (info[b] || {}).subj))];
+  const seg = (cls, items) => items.length > 1 ? `<div class="gseg ws-seg ${cls}">${items.map(x => `<button type="button" ${x.a} aria-pressed="${x.on}">${esc(x.t)}</button>`).join("")}</div>` : "";
+  $("wsPick").innerHTML =
+    seg("ws-subj", subjs.map(x => ({ a: `data-ws="${x}"`, on: x === cur.subj, t: x === "eng" ? "אנגלית" : "מתמטיקה" }))) +
+    seg("ws-grade", grades.map(g => ({ a: `data-wg="${esc(g)}"`, on: g === cur.grade, t: "כיתה " + g + "'" }))) +
+    seg("ws-part", parts.map(b => ({ a: `data-b="${esc(b)}"`, on: b === WS.book, t: "חלק " + (info[b].part || "") + "'" })));
   $("wsKind").hidden = kinds.length < 2;
-  $("wsKind").querySelectorAll("[data-k]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.k === WS.kind)));
+  $("wsKind").innerHTML = kinds.map(k => `<button type="button" data-k="${esc(k)}" aria-pressed="${k === WS.kind}">${esc(WS_KIND[k] || k)}</button>`).join("");
   const missing = WS.rows.filter(r => !r.uploaded).length;
   const warn = missing ? `<div class="ws-warn">${missing} דפים עוד לא הועלו${ME.role === "instructor" ? "." : " - \"ייבוא דפים מהמחשב\" למעלה."}</div>` : "";
-  if (!WS.topic && (WS.q || "").length >= 2) { $("wsBooks").hidden = true; $("wsKind").hidden = true; $("wsBody").innerHTML = wsSearchHtml(); wsWireSearch(); return; }
-  $("wsBooks").hidden = false;
+  document.querySelector("#wsTop .ws-how").hidden = !!(WS.q || "").trim();
+  if (!WS.topic && (WS.q || "").length >= 2) { $("wsPick").hidden = true; $("wsKind").hidden = true; $("wsBody").innerHTML = wsSearchHtml(); wsWireSearch(); return; }
+  $("wsPick").hidden = false;
   if (!WS.topic) {
     const tops = wsTopics(), sign = await wsSign(tops.map(t => t.pages[0] && t.pages[0].uploaded ? t.pages[0].storage_path : null).filter(Boolean)).catch(() => () => "");
     if (WS.topic) return;
@@ -3616,34 +3822,59 @@ async function renderWs(){
 // השוואה בלי אותיות סופיות (גרף = גרפים)
 const wsNorm = (s) => String(s || "").toLowerCase().replace(/[ךםןףץ]/g, c => ({ "ך":"כ", "ם":"מ", "ן":"נ", "ף":"פ", "ץ":"צ" }[c]));
 function wsSearchHtml(){
-  const q = wsNorm(WS.q.trim()), m = new Map();
+  const raw = WS.q.trim(), q = wsNorm(raw), m = new Map();
   WS.rows.forEach(r => {
-    const inTopic = wsNorm(r.topic_name).includes(q);
-    const inSub = r.type === "page" && wsNorm(r.sub).includes(q);
-    const inTitle = r.type === "page" && !inSub && wsNorm(r.title).includes(q);
     const k = r.book + "|" + r.kind + "|" + r.topic_no;
-    if (!m.has(k)) m.set(k, { r, pages: 0, hits: 0, topic: false, subs: new Set() });
-    const t = m.get(k); if (r.type === "page") t.pages++;
-    if (inTopic) t.topic = true; if (inTitle) t.hits++; if (inSub) t.subs.add(r.sub);
+    if (!m.has(k)) m.set(k, { r, pages: 0, topic: false, hits: [], first: null });
+    const t = m.get(k); if (r.type !== "page") return;
+    t.pages++; if (!t.first || r.sort_order < t.first.sort_order) t.first = r;
+    if (wsNorm(r.topic_name).includes(q)) t.topic = true;
+    else if (wsNorm(r.sub).includes(q) || wsNorm(r.title).includes(q)) t.hits.push(r);
   });
-  const res = [...m.values()].filter(t => t.topic || t.hits || t.subs.size)
-    .sort((a, b) => (b.topic - a.topic) || (b.subs.size > 0) - (a.subs.size > 0) || wsBookRank(a.r.book) - wsBookRank(b.r.book) || a.r.book.localeCompare(b.r.book) || a.r.kind.localeCompare(b.r.kind) || a.r.topic_no.localeCompare(b.r.topic_no));
-  if (!res.length) return `<div class="card muted">לא נמצא נושא או דף עם "${esc(WS.q.trim())}".</div>`;
-  const hl = (s) => { const i = wsNorm(s).indexOf(q); return i < 0 ? esc(s) : esc(s.slice(0, i)) + "<mark>" + esc(s.slice(i, i + q.length)) + "</mark>" + esc(s.slice(i + q.length)); };
-  return `<div class="muted" style="margin-bottom:8px; font-size:13.5px;">${res.length} נושאים</div><div class="ws-res">${res.map(t => `<button type="button" data-go="${esc(t.r.book + "|" + t.r.kind + "|" + t.r.topic_no)}">
-    <span class="t">נושא ${esc(String(Number(t.r.topic_no)))} · ${hl(t.r.topic_name || "")}</span>
-    <span class="b">${esc(t.r.book_label)} · ${esc(WS_KIND[t.r.kind])}${t.subs.size ? ` · תת-נושא: ${[...t.subs].map(hl).join(", ")}` : ""}${!t.topic && t.hits ? ` · ${t.hits === 1 ? "דף אחד" : t.hits + " דפים"} עם "${esc(WS.q.trim())}" בכותרת` : ""}</span>
-    <span class="n">${t.pages} דפים</span></button>`).join("")}</div>`;
+  const res = [...m.values()].filter(t => t.topic || t.hits.length)
+    .sort((a, b) => wsBookRank(a.r.book) - wsBookRank(b.r.book) || a.r.book.localeCompare(b.r.book) || WS_KIND_ORD.indexOf(a.r.kind) - WS_KIND_ORD.indexOf(b.r.kind) || (b.topic - a.topic) || a.r.topic_no.localeCompare(b.r.topic_no));
+  if (!res.length) return `<div class="ws-empty">לא נמצא נושא או דף עם <b>"${esc(raw)}"</b>.<div class="muted">אפשר לנסות מילה קצרה יותר, למשל "שבר" במקום "שברים פשוטים".</div></div>`;
+  const hl = (s) => { s = String(s || ""); const i = wsNorm(s).indexOf(q); return i < 0 ? esc(s) : esc(s.slice(0, i)) + "<mark>" + esc(s.slice(i, i + q.length)) + "</mark>" + esc(s.slice(i + q.length)); };
+  const nPages = res.reduce((n, t) => n + (t.topic ? t.pages : t.hits.length), 0);
+  let html = `<div class="ws-res-sum">נמצאו <b>${res.length}</b> נושאים · <b>${nPages}</b> דפים</div>`, book = null;
+  res.forEach(t => {
+    if (t.r.book !== book) { if (book !== null) html += "</div>"; book = t.r.book; html += `<h3 class="ws-res-book">${esc(t.r.book_label)}</h3><div class="ws-res">`; }
+    const cover = (t.hits[0] || t.first);
+    html += `<div class="ws-rc" data-go="${esc(t.r.book + "|" + t.r.kind + "|" + t.r.topic_no)}" role="button" tabindex="0">
+      <div class="ws-rc-th">${cover && cover.uploaded ? `<img data-sp="${esc(cover.storage_path)}" alt="" loading="lazy">` : ""}</div>
+      <div class="ws-rc-b"><span class="ws-rc-k">${esc(WS_KIND[t.r.kind] || t.r.kind)}</span>
+        <div class="ws-rc-t">נושא ${esc(String(Number(t.r.topic_no)))} · ${hl(t.r.topic_name)}</div>
+        ${t.hits.length ? `<ul class="ws-rc-hits">${t.hits.slice(0, 3).map(r => `<li data-pg="${esc(r.storage_path)}">דף ${esc(String(r.page_no))} · ${hl(r.title || r.sub || "")}${r.sub && wsNorm(r.sub).includes(q) && r.title ? ` <span class="muted">(${hl(r.sub)})</span>` : ""}</li>`).join("")}${t.hits.length > 3 ? `<li class="more">ועוד ${t.hits.length - 3} דפים</li>` : ""}</ul>` : ""}
+        <div class="ws-rc-n">${t.pages} דפים בנושא ←</div></div></div>`;
+  });
+  return html + "</div>";
 }
 function wsWireSearch(){
-  $("wsBody").querySelectorAll("[data-go]").forEach(b => b.onclick = () => {
-    const [book, kind, topic] = b.dataset.go.split("|");
+  const go = async (el, page) => {
+    const [book, kind, topic] = el.dataset.go.split("|");
     WS.book = book; WS.kind = kind; WS.topic = topic; WS.tab = "page"; store("telem_ws_book", book); store("telem_ws_kind", kind);
-    WS.q = ""; $("wsSearch").value = ""; renderWs(); window.scrollTo(0, 0);
+    WS.q = ""; $("wsSearch").value = ""; $("wsSearchX").hidden = true; await renderWs(); window.scrollTo(0, 0);
+    if (page) { const i = WS.list.findIndex(r => r.storage_path === page); if (i >= 0) wsOpen(i); }   // לחיצה על דף - נפתח ישר
+  };
+  $("wsBody").querySelectorAll("[data-go]").forEach(c => {
+    c.onclick = (e) => { const li = e.target.closest("[data-pg]"); go(c, li ? li.dataset.pg : null); };
+    c.onkeydown = (e) => { if (e.key === "Enter") go(c, null); };
   });
+  const imgs = [...$("wsBody").querySelectorAll("img[data-sp]")];
+  if (imgs.length) wsSign(imgs.map(i => i.dataset.sp)).then(sign => imgs.forEach(i => { const u = sign(i.dataset.sp); if (u) i.src = u; })).catch(() => {});
 }
-$("wsSearch").addEventListener("input", (e) => { WS.q = e.target.value; WS.topic = null; renderWs(); });
-$("wsBooks").addEventListener("click", (e) => { const b = e.target.closest("[data-b]"); if (!b) return; WS.book = b.dataset.b; store("telem_ws_book", WS.book); renderWs(); });
+$("wsSearch").addEventListener("input", (e) => { WS.q = e.target.value; WS.topic = null; $("wsSearchX").hidden = !e.target.value; renderWs(); });
+$("wsSearch").addEventListener("keydown", (e) => { if (e.key === "Escape") { $("wsSearchX").click(); } });
+$("wsSearchX").addEventListener("click", () => { $("wsSearch").value = ""; WS.q = ""; $("wsSearchX").hidden = true; renderWs(); $("wsSearch").focus(); });
+$("wsPick").addEventListener("click", (e) => {
+  const books = wsBooks().map(x => x[0]), first = (f) => books.find(b => { const r = WS.rows.find(x => x.book === b); return r && f(r); });
+  const s = e.target.closest("[data-ws]"), g = e.target.closest("[data-wg]"), p = e.target.closest("[data-b]");
+  let nb = null;
+  if (s) nb = first(r => (r.book === "ENG" ? "eng" : "math") === s.dataset.ws);
+  else if (g) { const suf = String(WS.book).slice(-1); nb = books.find(b => b !== "ENG" && b.slice(-1) === suf && (WS.rows.find(x => x.book === b) || {}).grade === g.dataset.wg) || first(r => r.book !== "ENG" && r.grade === g.dataset.wg); }
+  else if (p) nb = p.dataset.b;
+  if (!nb) return; WS.book = nb; store("telem_ws_book", nb); renderWs();
+});
 $("wsKind").addEventListener("click", (e) => { const b = e.target.closest("[data-k]"); if (!b) return; WS.kind = b.dataset.k; store("telem_ws_kind", WS.kind); renderWs(); });
 async function wsOpen(i){
   WS.idx = i; const r = WS.list[i]; if (!r) return;
