@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.9">
+<meta name="app-version" content="5.10">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -547,6 +547,11 @@
   .g-table .closed{ color:var(--full); font-weight:700; }
   .roster{ list-style:none; margin:0; padding:6px 12px 24px; overflow-y:auto; }
   .roster li{ padding:10px 6px; border-bottom:1px solid var(--border); }
+  /* חלון הקבוצה - כמו דף הנוכחות: כותרת לכל מקצוע, עיגול שכבה+כיתה, בית הספר בצבע */
+  .roster li.ro-sec{ display:flex; align-items:center; gap:8px; background:var(--muted); font-weight:800; padding:6px 10px; border-radius:8px; margin-top:8px; border-bottom:0; }
+  .roster li.ro-sec span:last-child{ color:var(--ink-soft); font-size:13px; }
+  .roster li.ro-k{ display:flex; gap:10px; align-items:flex-start; } .ro-main{ flex:1; min-width:0; }
+  .roster li.ro-k .gbadge{ margin-top:2px; } .ro-track{ color:var(--accent); }
   .roster .row-top{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
   .roster .nm{ font-weight:700; }
   .roster .meta{ font-size:12.5px; color:var(--ink-soft); }
@@ -2408,7 +2413,7 @@ async function loadGroups(){
     const year = "school_year=eq." + encodeURIComponent(CONFIG.schoolYear);
     const [s, a, l, ins, mar] = await Promise.all([
       get("session_summary", "select=*&" + year),
-      getAll("assignments", "select=id,session_id,subject,arrival_time,personal_end,status,note,student:students(id,first_name,last_name,grade,school,family:families(parent1_first,parent1_phone))&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")&order=id"),
+      getAll("assignments", "select=id,session_id,subject,arrival_time,personal_end,status,note,student:students(id,first_name,last_name,grade,class_num,tracking,school,family:families(parent1_first,parent1_phone))&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")&order=id"),
       get("locations", "select=id,city,name,color_class"),
       get("session_instructors", "select=session_id,staff(full_name)").catch(() => []),
       get("marathons", "select=*&order=id.desc").catch(() => [])
@@ -2422,7 +2427,7 @@ async function loadGroups(){
     // G.roster - משובצים בלבד (כל הספירות). G.prop - שיבוצים מוצעים (ממתינים לאישור)
     const rows = a.filter(x => ids.has(x.session_id)).map(x => { const st = x.student || {}, f = st.family || {};
       return { id:x.id, session_id:x.session_id, subject:x.subject, arrival_time:x.arrival_time, personal_end:x.personal_end, status:x.status, note:x.note, student_id: st.id,
-               first_name:st.first_name, last_name:st.last_name, grade:st.grade, school:st.school, parent1_first:f.parent1_first, parent1_phone:f.parent1_phone }; });
+               first_name:st.first_name, last_name:st.last_name, grade:st.grade, class_num:st.class_num, tracking:st.tracking, school:st.school, parent1_first:f.parent1_first, parent1_phone:f.parent1_phone }; });
     G.roster = rows.filter(x => x.status !== "ממתין"); G.prop = rows.filter(x => x.status === "ממתין");
     G.locs = l; G.locColors = {}; l.forEach(x => { G.locColors[x.city + "|" + x.name] = LOC_COLOR[x.color_class] || ""; });
     if (!CONFIG.cities.includes(G.city)) G.city = CONFIG.cities[0];
@@ -2660,19 +2665,24 @@ function renderGrid(){
 function openPanel(id){
   const se = G.sessions.find(x => x.session_id === id); if (!se) return;
   G.panel = id; $("gEdit").hidden = true; $("gEdit").innerHTML = ""; $("gEditBtn").hidden = false; $("roster").hidden = false; $("roster").classList.remove("editing");
-  const kids = G.roster.filter(k => k.session_id === id).sort((a, b) => (a.last_name || "").localeCompare(b.last_name || "", "he"));
+  // אותו מיון כמו בדף הנוכחות: מתמטיקה, אנגלית, מתמטיקה+אנגלית; בתוך כל מקצוע לפי שכבה, כיתה ושם
+  const kids = G.roster.filter(k => k.session_id === id).sort(attSort);
   const mOf = se.kind === "מרתון" ? (G.marathons || []).find(m => m.id === se.marathon_id) : null;
   $("panelTitle").textContent = mOf ? `${mOf.name} · ${se.time_label}` : `${se.location} · יום ${DAY_NAMES[se.day]}`;
   $("panelSub").textContent = `${mOf ? marMeetings(se).map(meetTxt).join(" | ").replace(/<[^>]+>/g, "") + " · " + se.location : se.time_label} · ${se.city}${se.room ? " · חדר " + se.room : ""} · ${kids.length} ילדים${(G.prop || []).some(k => k.session_id === id) ? " · " + (G.prop || []).filter(k => k.session_id === id).length + " מוצעים" : ""}` + (G.ins && G.ins[id] ? ` · מתרגל/ת: ${G.ins[id].join(", ")}` : "");
   const start = (se.start_time || "").slice(0, 5);
+  // הערות אוטומטיות מהייבוא ("קובץ נרשמים 8.10") לא מוצגות
+  const realNote = (n) => n && !/^קובץ נרשמים/.test(String(n).trim());
+  let prevGrp = null;
   $("roster").innerHTML = kids.length ? kids.map(k => {
     const arr = (k.arrival_time || "").slice(0, 5);
     const lead = L.leads.find(x => x.student_id === k.student_id);
-    return `<li data-aid="${k.id}"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}
+    const grp = subjGrp(k.subject), head = grp !== prevGrp ? (prevGrp = grp, `<li class="ro-sec">${grp < 3 ? subjChip(SUBJ_GRP_T[grp]) : "<b>בלי מקצוע</b>"} <span>${kids.filter(x => subjGrp(x.subject) === grp).length}</span></li>`) : "";
+    return head + `<li data-aid="${k.id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}
       ${arr && arr !== start ? `<span class="tag diff">שעה אישית ${rng(arr, (k.personal_end || "").slice(0, 5) || addMin(arr, 45))}</span>` : ""}${k.status && k.status !== "משובץ" ? `<span class="tag">${esc(k.status)}</span>` : ""}</span>
       <button type="button" class="btn small" data-move="${k.id}">העברה</button></div>
-      <div class="meta">${subjChip(k.subject)} · כיתה ${esc(k.grade || "-")} · ${esc(k.school || "-")}${k.parent1_phone ? ` · ${esc(k.parent1_first || "הורה")}: ${esc(k.parent1_phone)}` : ""}</div>
-      ${k.note ? `<div class="meta">${esc(k.note)}</div>` : ""}<div class="move-box" hidden></div></li>`;
+      <div class="meta">${k.school ? `<span class="sch-mini ${scCls(k.school)}">${esc(k.school)}</span>` : ""}${k.parent1_phone ? ` · ${esc(k.parent1_first || "הורה")}: ${esc(k.parent1_phone)}` : ""}</div>
+      ${realNote(k.note) ? `<div class="meta">${esc(k.note)}</div>` : ""}${k.tracking ? `<div class="meta ro-track">📌 ${esc(k.tracking)}</div>` : ""}<div class="move-box" hidden></div></div></li>`;
   }).join("") : "<li class='meta'>אין ילדים בקבוצה הזאת.</li>";
   // שיבוצים מוצעים: קיבל/ה הודעה -> אישר/ה (ואז עובר/ת למשובצים)
   const props = (G.prop || []).filter(k => k.session_id === id).sort((a, b) => (a.last_name || "").localeCompare(b.last_name || "", "he"));
@@ -2682,8 +2692,6 @@ function openPanel(id){
       <span class="prop-st ${st}">${PROP_ST[st]}</span></span><button type="button" class="btn small" data-prm="${k.id}">הסרה</button></div>
       <div class="meta">${subjChip(k.subject)} · כיתה ${esc(k.grade || "-")} · ${esc(k.school || "-")}${k.parent1_phone ? ` · ${esc(k.parent1_first || "הורה")}: ${esc(k.parent1_phone)}` : ""}</div>
       <div class="prop-chk"><label><input type="checkbox" data-pn="${k.id}" ${n.notified_at ? "checked" : ""}> קיבל/ה הודעה</label><label><input type="checkbox" data-pc="${k.id}"> אישר/ה – עובר/ת למשובצים</label></div></li>`; }).join(""));
-  if (kids.length) { const c = { m: 0, e: 0, b: 0 }; kids.forEach(k => { const v = String(k.subject || ""), m = v.includes("מתמטיקה"), e = v.includes("אנגלית"); if (m && e) c.b++; else if (m) c.m++; else if (e) c.e++; });
-    $("roster").insertAdjacentHTML("afterbegin", `<li class="subj-legend">${c.m ? subjChip("מתמטיקה").replace("</span>", ": " + c.m + "</span>") : ""}${c.e ? subjChip("אנגלית").replace("</span>", ": " + c.e + "</span>") : ""}${c.b ? subjChip("מתמטיקה ואנגלית").replace("</span>", ": " + c.b + "</span>") : ""}</li>`); }
   if (mOf) { $("roster").insertAdjacentHTML("afterbegin", marBoxHtml(mOf)); wireMarBox($("roster"), mOf); }
   wireProp(se);
   $("roster").querySelectorAll("[data-move]").forEach(b => b.onclick = () => openMove(se, b.dataset.move));
