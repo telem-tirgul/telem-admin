@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.18.1">
+<meta name="app-version" content="5.18.3">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -254,7 +254,7 @@
   .att-board .att-group .t{ font-size:15px; } .kind-tag{ display:inline-block; font-size:11px; font-weight:800; border-radius:999px; padding:0 8px; background:var(--paper); color:var(--ink); border:1px dashed var(--ink-soft); margin-inline-start:6px; }
 
   .att-dlbl{ position:relative; display:inline-flex; } .att-dlbl > span{ display:none; }
-  .att-filt{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:12px; } .att-filt #attCities{ margin-bottom:0; } .att-filt select{ width:auto; padding:6px 10px; font-size:13.5px; border-radius:999px; }
+  .att-filt{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:12px; } .att-filt #attCities{ margin-bottom:0; } .att-filt select{ width:auto; min-width:180px; padding:6px 12px; font-size:14px; border-radius:999px; }
   .att-dayname{ font-family:var(--font-display); font-weight:800; font-size:20px; color:var(--accent); }
 
   #attCities{ margin-bottom:12px; width:fit-content; flex-wrap:wrap; }
@@ -565,9 +565,13 @@
   .cx-form{ display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap; } .cx-form select, .cx-form input{ width:auto; padding:5px 8px; }
   #attSheet .card.cx-off .att-rows, #attSheet .card.cx-off .sh-tools{ opacity:.45; }
   .cx-tag{ display:inline-block; font-size:11px; font-weight:800; border-radius:999px; padding:0 7px; background:var(--paper); color:var(--ink); border:1px solid var(--ink-soft); margin:1px 0; }
-  .cal-day{ height:56px; padding:3px 2px; box-sizing:border-box; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--muted); font-family:var(--font-display); font-weight:800; color:var(--accent); border-bottom:1px solid var(--border); }
+  .cal-day{ height:62px; padding:3px 2px; box-sizing:border-box; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--muted); font-family:var(--font-display); font-weight:800; color:var(--accent); border-bottom:1px solid var(--border); }
   .cal-body{ position:relative; background-image:repeating-linear-gradient(to bottom, var(--border) 0 1px, transparent 1px calc(var(--ppm) * 30)); }
   .cal-times .cal-body{ background:none; }
+  .cal-sub{ display:flex; width:100%; margin-top:2px; } .cal-sub span{ flex:1; font-size:10.5px; font-weight:700; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; }
+  .cal-day.today .cal-sub span{ color:#fff; opacity:.85; }
+  .cal-sep{ position:absolute; top:0; bottom:0; width:0; border-inline-start:1px dashed var(--border); pointer-events:none; }
+  .cal-grid.c3 .cal-ev{ padding:3px 4px; } .cal-grid.c3 .cal-ev .ev-loc{ font-size:12px; } .cal-grid.c3 .cal-ev .ev-time{ font-size:10.5px; letter-spacing:-.2px; } .cal-grid.c3 .cal-ev .ev-meta{ font-size:11px; }
   .cal-h{ position:absolute; inset-inline:0; margin-top:-8px; font-size:12px; line-height:16px; color:var(--ink-soft); text-align:center; direction:ltr; font-variant-numeric:tabular-nums; }
   .cal-h:first-child{ margin-top:2px; }
   .cal-ev{ position:absolute; border:0; border-inline-start:4px solid var(--scd, var(--accent)); border-radius:8px; background:var(--scb, var(--muted)); color:var(--sci, var(--ink)); text-align:start; padding:4px 7px; cursor:pointer; overflow:hidden; display:flex; flex-direction:column; gap:1px; font:inherit; box-shadow:0 1px 2px rgba(0,0,0,.08); }
@@ -577,6 +581,7 @@
   .cal-ev .ev-time{ font-size:12.5px; font-weight:700; }
   .cal-ev .ev-meta{ font-size:12px; opacity:.85; }
   /* קופסה צרה (כמה קבוצות באותה שעה): כל שורה בשורה אחת, מה שלא נכנס נחתך ב-... במקום להישבר לשורות שנחתכות */
+  .cal-ev .ev-city{ font-size:11px; font-weight:600; opacity:.75; } .cal-ev .ev-n{ font-weight:600; opacity:.9; display:inline-block; white-space:nowrap; } .cal-ev .ev-n::before{ content:"· "; }
   .cal-ev .ev-loc, .cal-ev .ev-meta{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:none; } .cal-ev .ev-time{ flex:none; line-height:1.25; }
   .g-table td, .g-table th{ text-align:start; }
   .g-table tbody tr{ cursor:pointer; } .g-table tbody tr:hover td{ background:var(--muted); }
@@ -1597,6 +1602,7 @@ $("loginForm").addEventListener("submit", async (e) => {
   $("lgBtn").disabled = false;
 });
 async function logout(msg){
+  try { sessionStorage.removeItem("telem_last"); sessionStorage.removeItem("telem_resume"); } catch(e) {} RESUME = null;
   try { const t = await token(); if (t) await fetch(CONFIG.supabaseUrl + "/auth/v1/logout", { method:"POST", headers: Object.assign(baseHeaders(), {"Authorization":"Bearer "+t}) }); } catch(e) {}
   saveAuth(null); showLogin(); $("idleWarn").hidden = true;
   $("lgMsg").textContent = msg || "";
@@ -1700,7 +1706,7 @@ let currentView = "leads";
 // (גם אחרי "רענון" מפס העדכון - שם המסך נשמר לפני הטעינה מחדש)
 let RESUME = (() => { try {
   let st = history.state;
-  if (!(st && st.telem)) { const v = sessionStorage.getItem("telem_resume"); if (v) st = JSON.parse(v); }
+  if (!(st && st.telem)) { const v = sessionStorage.getItem("telem_resume") || sessionStorage.getItem("telem_last"); if (v) st = JSON.parse(v); }
   sessionStorage.removeItem("telem_resume");
   return st && st.telem && st.view && st.view !== "home" ? st : null; } catch(e) { return null; } })();
 function resumeView(){
@@ -1765,9 +1771,11 @@ function navPush(view){
   const cur = history.state;
   if (cur && cur.telem && cur.view === st.view && cur.lead === st.lead) return;
   if (!cur || !cur.telem) history.replaceState(st, ""); else history.pushState(st, "");
+  try { sessionStorage.setItem("telem_last", JSON.stringify(st)); } catch(e) {}
 }
 window.addEventListener("popstate", (e) => {
   const st = e.state; if (!st || !st.telem || !auth || !ME) return;
+  try { sessionStorage.setItem("telem_last", JSON.stringify(st)); } catch(e2) {}
   NAV_POP = true;
   try {
     closePanel();
@@ -2910,6 +2918,27 @@ const holChips = (date) => holGlobal(date).map(h => `<span class="hol-chip hol-$
 const holColCls = (date) => { const hs = holGlobal(date); return hs.some(h => h.kind === "holiday") ? " hol-col-holiday" : hs.some(h => h.kind === "vacation") ? " hol-col-vacation" : ""; };
 // קבוצה שמתארכת בכמה דקות (עד 10) לתוך הקבוצה הבאה - לא מחלקים את הרוחב לשניים
 const CAL_OVL = 10;
+// סידור ביום: כשמוצגות כמה ערים - כל יום מחולק לטור קבוע לכל עיר (ראש העין, הוד השרון, כפר סבא),
+// ובתוך עיר - זו לצד זו רק כשבאמת חופפות (חפיפה של עד 10 דק' לא נחשבת)
+const calCities = (sel) => CONFIG.cities.filter(c => (sel || []).includes(c));
+function calLayout(de, cityOf, fixed){
+  const cities = fixed && fixed.length ? fixed : [...new Set(de.map(cityOf))].sort((a, b) => CONFIG.cities.indexOf(a) - CONFIG.cities.indexOf(b));
+  const C = Math.max(1, cities.length), out = [];
+  cities.forEach((c, ci) => {
+    const list = de.filter(x => cityOf(x) === c).sort((a, b) => a.s - b.s || b.e - a.e);
+    let cluster = [], cEnd = -1;
+    const flush = () => { const lanes = [];
+      cluster.forEach(x => { let i = lanes.findIndex(end => end <= x.s + CAL_OVL); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = x.e; x.lane = i; });
+      cluster.forEach(x => { x.n = lanes.length; x.w = 100 / C / x.n; x.left = (ci + x.lane / x.n) * 100 / C;
+        const nx = cluster.filter(y => y.lane === x.lane && y.s > x.s && y.s < x.e).sort((a, b) => a.s - b.s)[0]; x.de = nx ? nx.s : x.e; out.push(x); });
+      cluster = []; };
+    list.forEach(x => { if (cluster.length && x.s >= cEnd) flush(); cluster.push(x); cEnd = Math.max(cEnd, x.e); }); if (cluster.length) flush();
+  });
+  return out;
+}
+// כותרת קטנה של הערים מתחת ליום + קווים מפרידים בין הטורים
+const calCityHead = (cs) => cs.length > 1 ? `<span class="cal-sub">${cs.map(c => `<span>${esc(c)}</span>`).join("")}</span>` : "";
+const calSeps = (cs) => cs.length > 1 ? cs.slice(1).map((c, i) => `<div class="cal-sep" style="inset-inline-start:${(i + 1) * 100 / cs.length}%"></div>`).join("") : "";
 function renderCal(list){
   $("gGridWrap").hidden = true; $("gCal").hidden = false;
   if (G.cxWeek !== G.week) { const w = G.week; loadCx(w).then(() => { if (G.week === w && G.mode !== "table") renderGrid(); }); }
@@ -2919,24 +2948,24 @@ function renderCal(list){
   const days = DAYS.filter(d => d !== "ו" || ev.some(x => x.day === d));
   const t = todayIL();
   const t0 = ev.length ? Math.floor(Math.min(...ev.map(x => x.s)) / 60) * 60 : 15 * 60, t1 = ev.length ? Math.ceil(Math.max(...ev.map(x => x.e)) / 60) * 60 : 18 * 60;
-  const PPM = 1.5, H = (t1 - t0) * PPM + 14;
+  const PPM = 2, H = (t1 - t0) * PPM + 14;
   let hours = ""; for (let t = t0; t <= t1; t += 60) hours += `<div class="cal-h" style="top:${(t - t0) * PPM}px">${String(t / 60).padStart(2, "0")}:00</div>`;
+  const CS = calCities(G.cities);
   const cols = days.map(d => {
     const dt = weekDate(d);
-    const de = ev.filter(x => x.day === d).sort((a, b) => a.s - b.s || b.e - a.e);
-    let cluster = [], clusterEnd = -1; const out = [];
-    const flush = () => { const lanes = []; cluster.forEach(x => { let i = lanes.findIndex(end => end <= x.s + CAL_OVL); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = x.e; x.lane = i; }); cluster.forEach(x => { x.n = lanes.length; const nx = cluster.filter(y => y.lane === x.lane && y.s > x.s && y.s < x.e).sort((a, b) => a.s - b.s)[0]; x.de = nx ? nx.s : x.e; out.push(x); }); cluster = []; };
-    de.forEach(x => { if (cluster.length && x.s >= clusterEnd) flush(); cluster.push(x); clusterEnd = Math.max(clusterEnd, x.e); }); if (cluster.length) flush();
+    const out = calLayout(ev.filter(x => x.day === d), x => x.se.city, CS);
     const blocks = out.map(x => {
-      const se = x.se, n = se.assigned_count || 0, w = 100 / x.n, mar = se.kind === "מרתון", hf = holFor(x.date || dt, se);
-      return `<button type="button" class="cal-ev ${scCls(se.location)}${mar ? " ev-mar" : ""}${hf ? " hol-fade" : ""}" data-id="${se.session_id}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
-        title="${mar ? "מרתון · " + esc(se.time_label) + " · " + fmtDM(x.date) + " · " : ""}${esc(se.location)} · ${x.st}-${x.en}${se.room ? " · " + esc(se.room) : ""}">
-        <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(se.location)}</span>${hf ? cxTag(hf, true) : ""}<span class="ev-time">${mar && se.time_label ? esc(se.time_label) + " · " : ""}${rng(x.st, x.en)}</span>
-        <span class="ev-meta">${n} ילדים${(() => { const p = (G.prop || []).filter(k => k.session_id === se.session_id).length; return p ? ` · <b>${p} מוצעים</b>` : ""; })()}${G.cities.length > 1 ? " · " + esc(se.city) : ""}${se.room ? " · 📍 " + esc(se.room) : ""}</span>${G.ins && G.ins[se.session_id] ? `<span class="ev-meta">${esc(G.ins[se.session_id].join(", "))}</span>` : ""}</button>`;
+      const se = x.se, n = se.assigned_count || 0, mar = se.kind === "מרתון", hf = holFor(x.date || dt, se);
+      const prop = (G.prop || []).filter(k => k.session_id === se.session_id).length;
+      return `<button type="button" class="cal-ev ${scCls(se.location)}${mar ? " ev-mar" : ""}${hf ? " hol-fade" : ""}" data-id="${se.session_id}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.left}% + 2px); width:calc(${x.w}% - 4px);"
+        title="${mar ? "מרתון · " + esc(se.time_label) + " · " + fmtDM(x.date) + " · " : ""}${esc(se.location)} · ${esc(se.city)} · ${x.st}-${x.en}${se.room ? " · " + esc(se.room) : ""}${G.ins && G.ins[se.session_id] ? " · " + esc(G.ins[se.session_id].join(", ")) : ""}">
+        <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(se.location)}</span>${hf ? cxTag(hf, true) : ""}
+        <span class="ev-time">${mar && se.time_label ? esc(se.time_label) + " · " : ""}${rng(x.st, x.en)} <span class="ev-n">${n} ילדים${prop ? ` · <b>${prop} מוצעים</b>` : ""}</span></span>
+        ${se.room ? `<span class="ev-meta">📍 ${esc(se.room)}</span>` : ""}</button>`;
     }).join("");
-    return `<div class="cal-col"><div class="cal-day${weekDate(d) === t ? " today" : ""}">${DAY_NAMES[d]}<small>${fmtDM(weekDate(d))}</small>${holChips(dt) ? `<span class="hol-chips">${holChips(dt)}</span>` : ""}</div><div class="cal-body${holColCls(dt)}" style="height:${H}px">${blocks}</div></div>`;
+    return `<div class="cal-col"><div class="cal-day${weekDate(d) === t ? " today" : ""}">${DAY_NAMES[d]}<small>${fmtDM(weekDate(d))}</small>${holChips(dt) ? `<span class="hol-chips">${holChips(dt)}</span>` : ""}${calCityHead(CS)}</div><div class="cal-body${holColCls(dt)}" style="height:${H}px">${calSeps(CS)}${blocks}</div></div>`;
   }).join("");
-  $("gCal").innerHTML = `<div class="cal-grid" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${days.length}, minmax(130px, 1fr));">
+  $("gCal").innerHTML = `<div class="cal-grid${CS.length > 2 ? " c3" : ""}" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${days.length}, minmax(${Math.max(130, CS.length * 78)}px, 1fr));">
     <div class="cal-col cal-times"><div class="cal-day"></div><div class="cal-body" style="height:${H}px">${hours}</div></div>${cols}</div>`;
   $("gCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = () => openPanel(Number(b.dataset.id)));
 }
@@ -3568,34 +3597,33 @@ async function loadAttWeek(){
   catch(e) { $("attCal").innerHTML = "<div class='card err'>לא ניתן לטעון את הקבוצות" + (e.status === 404 ? " (צריך להריץ את קובץ 16)." : ".") + "</div>"; return; }
   if (weekStart(A.date) !== wk) return;
   const hm = (t) => String(t || "").slice(0, 5), mins = (t) => { const [h, m] = hm(t).split(":").map(Number); return h * 60 + (m || 0); };
-  const ev = []; lists.forEach((l, i) => (l || []).filter(attCityOk).forEach(g => ev.push({ g, date: dates[i], s: mins(g.start_time), e: Math.max(mins(g.end_time), mins(g.start_time) + 30) })));
+  renderAttIns(lists.flatMap(l => (l || []).filter(attCityOk)));
+  const ev = []; lists.forEach((l, i) => (l || []).filter(attCityOk).filter(attInsOk).forEach(g => ev.push({ g, date: dates[i], s: mins(g.start_time), e: Math.max(mins(g.end_time), mins(g.start_time) + 30) })));
   // מצב: סומן / לא סומן (כבר עבר) / עתידי
   // לא התקיים (סימון מנהל/ת או חג/חופשה) - חיוור ולא נחשב "לא סומן"
   ev.forEach(x => { x.hf = lessonCx({ kind: x.g.kind, city: x.g.city, location: x.g.location }, x.date, x.g.cancelled, x.g.cancel_reason); });
   ev.forEach(x => { x.st = x.g.marked ? "ok" : x.hf ? "hol" : (x.date < today || (x.date === today && now >= hm(x.g.end_time))) ? "miss" : "fut"; });
   const nOk = ev.filter(x => x.st === "ok").length, nMiss = ev.filter(x => x.st === "miss").length, nFut = ev.filter(x => x.st === "fut").length;
-  $("attSum").innerHTML = ev.length ? `בשבוע הזה: <b>${nOk}</b> סומנו · <span class="miss"><b>${nMiss}</b> חסרות</span>${nFut ? ` · <b>${nFut}</b> עוד לא היו` : ""}` : "";
+  $("attSum").innerHTML = ev.length ? `קבוצות השבוע: <b>${nOk}</b> סומנה נוכחות · <span class="miss"><b>${nMiss}</b> כבר היו ולא סומנו</span>${nFut ? ` · <b>${nFut}</b> עוד לא התקיימו` : ""}` : "";
   if (!ev.length) { $("attCal").innerHTML = `<div class="card muted">${ME.role === "instructor" ? "אין לך קבוצות בשבוע הזה." : "אין קבוצות בשבוע הזה."}</div>`; return; }
   const showDates = dates.filter((d, i) => i < 5 || ev.some(x => x.date === d));
   const t0 = Math.floor(Math.min(...ev.map(x => x.s)) / 60) * 60, t1 = Math.ceil(Math.max(...ev.map(x => x.e)) / 60) * 60;
-  const PPM = 1.5, H = (t1 - t0) * PPM + 14, multi = ME.role !== "instructor" && A.cities.length > 1;
+  const PPM = 2, H = (t1 - t0) * PPM + 14, multi = ME.role !== "instructor" && A.cities.length > 1;
   let hours = ""; for (let t = t0; t <= t1; t += 60) hours += `<div class="cal-h" style="top:${(t - t0) * PPM}px">${String(t / 60).padStart(2, "0")}:00</div>`;
+  const CS = multi ? calCities(A.cities) : [];
   const cols = showDates.map(d => {
-    const de = ev.filter(x => x.date === d).sort((a, b) => a.s - b.s || b.e - a.e);
-    let cluster = [], cEnd = -1; const out = [];
-    const flush = () => { const lanes = []; cluster.forEach(x => { let i = lanes.findIndex(end => end <= x.s + CAL_OVL); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = x.e; x.lane = i; }); cluster.forEach(x => { x.n = lanes.length; const nx = cluster.filter(y => y.lane === x.lane && y.s > x.s && y.s < x.e).sort((a, b) => a.s - b.s)[0]; x.de = nx ? nx.s : x.e; out.push(x); }); cluster = []; };
-    de.forEach(x => { if (cluster.length && x.s >= cEnd) flush(); cluster.push(x); cEnd = Math.max(cEnd, x.e); }); if (cluster.length) flush();
-    const blocks = out.map(x => { const g = x.g, mar = g.kind === "מרתון", w = 100 / x.n;
-      const narrow = x.n > 1;   // כמה קבוצות זו לצד זו - תגית קטנה בלי טקסט
+    const out = calLayout(ev.filter(x => x.date === d), x => x.g.city, CS);
+    const blocks = out.map(x => { const g = x.g, mar = g.kind === "מרתון";
+      const narrow = x.w <= 50;   // כמה קבוצות זו לצד זו - תגית קטנה בלי טקסט
       const st = x.st === "ok" ? `<span class="att-st ok" title="סומן: ${g.marked_count} נוכחים מתוך ${g.kids}">✓${narrow ? "" : " " + g.marked_count + "/" + g.kids}</span>` : x.st === "miss" ? `<span class="att-st miss" title="לא סומן">${narrow ? "" : "לא סומן"}</span>` : "";
-      return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${x.st === "fut" ? " fut" : ""}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
-        title="${esc(g.location)} · ${hm(g.start_time)}-${hm(g.end_time)}${g.room ? " · " + esc(g.room) : ""}">
+      return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${x.st === "fut" ? " fut" : ""}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.left}% + 2px); width:calc(${x.w}% - 4px);"
+        title="${esc(g.location)} · ${esc(g.city)} · ${hm(g.start_time)}-${hm(g.end_time)}${g.room ? " · " + esc(g.room) : ""}${g.instructors ? " · " + esc(g.instructors) : ""}">
         <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>${x.st === "hol" ? cxTag(x.hf, true) : ""}
-        <span class="ev-time">${mar && g.time_label ? esc(g.time_label) + " · " : ""}${rng(hm(g.start_time), hm(g.end_time))}</span>
-        <span class="ev-meta">${g.kids} ילדים${multi ? " · " + esc(g.city) : ""}${g.room ? " · 📍 " + esc(g.room) : ""}</span>${ME.role !== "instructor" && g.instructors ? `<span class="ev-meta">${esc(g.instructors)}</span>` : ""}${st}</button>`; }).join("");
-    return `<div class="cal-col"><div class="cal-day${d === today ? " today" : ""}">${DAY_NAMES[dayLetter(d)]}<small>${fmtDM(d)}</small>${holChips(d) ? `<span class="hol-chips">${holChips(d)}</span>` : ""}</div><div class="cal-body${holColCls(d)}" style="height:${H}px">${blocks}</div></div>`;
+        <span class="ev-time">${mar && g.time_label ? esc(g.time_label) + " · " : ""}${rng(hm(g.start_time), hm(g.end_time))} <span class="ev-n">${g.kids} ילדים</span></span>
+        ${g.room ? `<span class="ev-meta">📍 ${esc(g.room)}</span>` : ""}${st}</button>`; }).join("");
+    return `<div class="cal-col"><div class="cal-day${d === today ? " today" : ""}">${DAY_NAMES[dayLetter(d)]}<small>${fmtDM(d)}</small>${holChips(d) ? `<span class="hol-chips">${holChips(d)}</span>` : ""}${calCityHead(CS)}</div><div class="cal-body${holColCls(d)}" style="height:${H}px">${calSeps(CS)}${blocks}</div></div>`;
   }).join("");
-  $("attCal").innerHTML = `<div class="tbl-wrap"><div class="cal-grid" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${showDates.length}, minmax(130px, 1fr));">
+  $("attCal").innerHTML = `<div class="tbl-wrap"><div class="cal-grid${CS.length > 2 ? " c3" : ""}" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${showDates.length}, minmax(${Math.max(130, CS.length * 78)}px, 1fr));">
     <div class="cal-col cal-times"><div class="cal-day"></div><div class="cal-body" style="height:${H}px">${hours}</div></div>${cols}</div></div>`;
   $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = () => { A.date = b.dataset.d; const x = ev.find(e => String(e.g.session_id) === b.dataset.s && e.date === b.dataset.d); A.curG = x ? x.g : null; openSheet(Number(b.dataset.s)); });
 }
@@ -4445,6 +4473,7 @@ function wsPush(viewer){
   if (cur && cur.telem && cur.view === "ws" && JSON.stringify(cur.ws) === JSON.stringify(st.ws) && (cur.viewer == null ? null : cur.viewer) === st.viewer) return;
   // דף בתוך התצוגה (הבא/הקודם) מחליף את השורה בהיסטוריה, לא מוסיף
   if (cur && cur.telem && cur.view === "ws" && cur.viewer != null && st.viewer != null) history.replaceState(st, ""); else history.pushState(st, "");
+  try { sessionStorage.setItem("telem_last", JSON.stringify(st)); } catch(e) {}
 }
 async function wsOpen(i, fromPop){
   WS.idx = i; const r = WS.list[i]; if (!r) return;
