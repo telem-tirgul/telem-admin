@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.11">
+<meta name="app-version" content="5.12">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -265,7 +265,9 @@
   .g-י{ --gb:#F4EBDB; --gi:#7A5521; } .g-יא{ --gb:#E8E8E6; --gi:#4A4A46; } .g-יב{ --gb:#F3E3DD; --gi:#7E3B26; } .g-x{ --gb:var(--muted); --gi:var(--ink-soft); }
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); } }
   :root[data-theme="dark"] .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); }
+  .dbl-star{ color:var(--gold); font-size:1.05em; margin-inline-end:3px; }
   .sch-mini{ color:var(--scd, var(--ink-soft)); font-weight:700; }
+  .school-chip.sch-sm{ font-size:12px; padding:0 8px; line-height:1.5; font-weight:700; }
   .att-rows li.att-sec{ display:flex !important; align-items:center; gap:8px; background:var(--muted); font-weight:800; padding:6px 10px !important; border-radius:8px; margin-top:8px; }
   .att-rows li.att-sec span:last-child{ color:var(--ink-soft); font-size:13px; }
   .seg .sm, .subj .sm{ display:none; }
@@ -359,8 +361,8 @@
      --l מילוי, --h כתב, --d מסגרת (בצבעים הכהים הכתב לבן) */
   .sc-rh1{ --l:#FFF0A6; --h:#5E4B00; } .sc-rh2{ --l:#FFC94D; --h:#5A3E00; } .sc-rh3{ --l:#F59A3C; --h:#4A2400; }
   .sc-rh4{ --l:#C9663A; --h:#FFFFFF; --d:#7A3315; } .sc-rh5{ --l:#8A5530; --h:#FFFFFF; --d:#4A2A12; }
-  .sc-ks1{ --l:#D8F0B0; --h:#3A5A10; } .sc-ks2{ --l:#5FB35A; --h:#FFFFFF; --d:#2D6A29; } .sc-ks3{ --l:#2E6E4A; --h:#FFFFFF; --d:#173D27; }
-  .sc-hs1{ --l:#CDE6FA; --h:#174A80; } .sc-hs2{ --l:#4F93D9; --h:#FFFFFF; --d:#1F5A9E; } .sc-hs3{ --l:#1E3F7A; --h:#FFFFFF; --d:#0D2147; }
+  .sc-ks1{ --l:#D8F0B0; --h:#3A5A10; } .sc-ks2{ --l:#5FB35A; --h:#FFFFFF; --d:#2D6A29; } .sc-ks3{ --l:#2E6E4A; --h:#FFFFFF; --d:#173D27; } .sc-ks4{ --l:#9ED3C0; --h:#11493A; --d:#1C6B55; }
+  .sc-hs1{ --l:#CDE6FA; --h:#174A80; } .sc-hs2{ --l:#4F93D9; --h:#FFFFFF; --d:#1F5A9E; } .sc-hs3{ --l:#1E3F7A; --h:#FFFFFF; --d:#0D2147; } .sc-hs4{ --l:#B9B4EC; --h:#2E2670; --d:#4A3FA8; }
   .sc-x{ --l:#ECE9E7; --h:#5F5A57; }
   .sc{ --scb:var(--l); --sci:var(--h); --scd:var(--d, var(--h)); }
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .sc{ --scb:color-mix(in srgb, var(--l) 42%, #231B18); --sci:color-mix(in srgb, var(--l) 30%, #fff); --scd:color-mix(in srgb, var(--l) 75%, #fff); } }
@@ -756,6 +758,8 @@
   @media (max-width:760px){ .rg-sec-h{ flex-wrap:wrap; } .rg-school{ flex-basis:100%; }
     .lk2-head{ display:none; } .lk2-row{ grid-template-columns:1fr; gap:6px; } .lk2-l{ display:inline-block; } .rg-lk-seg{ gap:6px; grid-template-columns:repeat(3, 1fr); } .rg-lk-seg button{ padding:9px 2px; font-size:14.5px; white-space:nowrap; } }
   .fhint{ font-size:12px; margin-top:3px; }
+  .sw-open{ font:inherit; font-size:12.5px; font-weight:800; border-radius:999px; padding:2px 10px; margin-inline-start:6px; cursor:pointer; border:1.5px solid var(--border); background:var(--paper); color:var(--ink-soft); }
+  .sw-open.on{ border-color:var(--ok); color:var(--ok); background:color-mix(in srgb, var(--ok) 10%, var(--paper)); }
   .hist-hits{ margin-top:14px; border-color:color-mix(in srgb, var(--gold) 45%, var(--border)); background:color-mix(in srgb, var(--gold) 7%, var(--paper)); }
   .past-badge{ font-size:11.5px; font-weight:700; padding:0 7px; border-radius:999px; background:color-mix(in srgb, var(--ok) 16%, var(--paper)); color:var(--ok); }
   .hh-jump{ all:unset; cursor:pointer; font-size:13px; font-weight:700; color:var(--accent); margin-inline-start:10px; text-decoration:underline; text-underline-offset:3px; }
@@ -857,7 +861,8 @@
   .ws-vtop{ display:flex; align-items:center; gap:10px; padding:10px 14px; color:#fff; } .ws-vt{ flex:1; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .ws-x, .ws-nav{ background:rgba(255,255,255,.15); color:#fff; border:0; border-radius:12px; width:46px; height:44px; font-size:20px; cursor:pointer; } .ws-nav:disabled{ opacity:.3; }
   .ws-vimg{ flex:1; overflow:auto; display:flex; justify-content:center; align-items:flex-start; padding:4px 10px; -webkit-overflow-scrolling:touch; }
-  .ws-vimg img{ max-width:min(100%, 820px); height:auto; background:#fff; border-radius:4px; -webkit-touch-callout:default; }
+  .ws-vimg img{ max-width:min(100%, 820px); height:auto; background:#fff; border-radius:4px; -webkit-touch-callout:default; transform-origin:center top; transition:transform .05s; }
+  .ws-vimg{ touch-action:pan-y; } .ws-vimg:has(img.zoomed){ touch-action:none; overflow:hidden; }
   .ws-vbot{ display:flex; gap:8px; padding:10px 14px 14px; justify-content:center; align-items:center; flex-wrap:wrap; }
   .ws-copy{ background:#25d366 !important; color:#0b2b17 !important; font-weight:800; font-size:17px; min-width:9em; border:0; }
   .ws-sec{ background:rgba(255,255,255,.15) !important; color:#fff !important; border:0; text-decoration:none; }
@@ -1400,7 +1405,7 @@ const LOC_COLOR = { "g-gv":"c-gv", "g-br":"c-br" };
 // צבע קבוע לכל בית ספר
 // גוונים לפי עיר: ראש העין צהוב/חום, כפר סבא ירוק, הוד השרון כחול. בית ספר שלא ברשימה - אפור.
 const SCHOOL_COLOR = { "בארי":"rh1", "עומר":"rh2", "גוונים":"rh3", "היובל":"rh4", "בראשית":"rh5",
-  "שרת":"ks1", "שז\"ר":"ks2", "אורט שפירא":"ks3", "השחר":"hs1", "הראשונים":"hs2", "עתידים":"hs3" };
+  "שרת":"ks1", "שז\"ר":"ks2", "אורט שפירא":"ks3", "אלון":"ks4", "השחר":"hs1", "הראשונים":"hs2", "עתידים":"hs3", "השקמים":"hs4" };
 function scCls(name){
   const n = String(name || "").replace(/״/g, '"').trim(); if (!n) return "";
   return "sc sc-" + (SCHOOL_COLOR[n] || "x");
@@ -2701,10 +2706,11 @@ function openPanel(id){
     const arr = (k.arrival_time || "").slice(0, 5);
     const lead = L.leads.find(x => x.student_id === k.student_id);
     const grp = subjGrp(k.subject), head = grp !== prevGrp ? (prevGrp = grp, `<li class="ro-sec">${grp < 3 ? subjChip(SUBJ_GRP_T[grp]) : "<b>בלי מקצוע</b>"} <span>${kids.filter(x => subjGrp(x.subject) === grp).length}</span></li>`) : "";
-    return head + `<li data-aid="${k.id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}
+    const dbl = se.kind !== "מרתון" && isDouble(k.student_id, se.day, se.location, k.arrival_time, k.personal_end);
+    return head + `<li data-aid="${k.id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${dblStar(dbl)}${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}
       ${arr && arr !== start ? `<span class="tag diff">שעה אישית ${rng(arr, (k.personal_end || "").slice(0, 5) || addMin(arr, 45))}</span>` : ""}${k.status && k.status !== "משובץ" ? `<span class="tag">${esc(k.status)}</span>` : ""}</span>
       <button type="button" class="btn small" data-move="${k.id}">העברה</button></div>
-      <div class="meta">${k.school ? `<span class="sch-mini ${scCls(k.school)}">${esc(k.school)}</span>` : ""}${k.parent1_phone ? ` · ${esc(k.parent1_first || "הורה")}: ${esc(k.parent1_phone)}` : ""}</div>
+      <div class="meta">${k.school ? `<span class="school-chip sch-sm ${scCls(k.school)}">${esc(k.school)}</span>` : ""}${k.parent1_phone ? ` · ${esc(k.parent1_first || "הורה")}: ${esc(k.parent1_phone)}` : ""}</div>
       ${realNote(k.note) ? `<div class="meta">${esc(k.note)}</div>` : ""}${k.tracking ? `<div class="meta ro-track">📌 ${esc(k.tracking)}</div>` : ""}<div class="move-box" hidden></div></div></li>`;
   }).join("") : "<li class='meta'>אין ילדים בקבוצה הזאת.</li>";
   // שיבוצים מוצעים: קיבל/ה הודעה -> אישר/ה (ואז עובר/ת למשובצים)
@@ -3115,7 +3121,7 @@ async function openSplitEditor(se, set){
       const grp = subjGrp(k.subject), head = grp !== prevGrp ? (prevGrp = grp, `<li class="ro-sec">${grp < 3 ? subjChip(SUBJ_GRP_T[grp]) : "<b>בלי מקצוע</b>"} <span>${kids.filter(x => subjGrp(x.subject) === grp).length}</span></li>`) : "";
       return head + `<li class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>
         <span class="sp-seg" role="group" aria-label="תת-קבוצה">${subs.map((s, i) => `<button type="button" data-kid="${k.student_id}" data-to="${i}" aria-pressed="${(memberOf[k.student_id] || 0) === i}">${esc(subName(i))}</button>`).join("")}</span></div>
-        <div class="meta">${k.school ? `<span class="sch-mini ${scCls(k.school)}">${esc(k.school)}</span>` : ""}</div></div></li>`; }).join("");
+        <div class="meta">${k.school ? `<span class="school-chip sch-sm ${scCls(k.school)}">${esc(k.school)}</span>` : ""}</div></div></li>`; }).join("");
     box.innerHTML = `<div class="full sp-top"><div class="lg-edit-h">${set ? "עריכת פיצול" : "פיצול לתת-קבוצות"}</div>
         <div class="sp-btns"><button type="button" class="btn small primary" data-spsave>שמירה</button><button type="button" class="btn small" data-spcancel>ביטול</button></div></div>
       <div class="full sp-when">
@@ -3313,6 +3319,7 @@ async function openSheet(sessionId){
     $("shNotes").value = (sh.lesson && sh.lesson.notes) || "";
     ["shExtra","shNotes","shSave","shAll"].forEach(id => $(id).disabled = !sh.can_edit);
     $("shMeta").textContent = sh.lesson && sh.lesson.updated_at ? `נשמר לאחרונה: ${fmtDate(sh.lesson.updated_at)}${sh.lesson.updated_by ? " · " + sh.lesson.updated_by : ""}` : "";
+    A.dirty = false; attDraftRestore();
     renderSheetRows();
     renderSheetCx();
     if (ME.role !== "instructor") loadHistory(sessionId, A.date);
@@ -3339,6 +3346,19 @@ function attSort(a, b){
   return subjGrp(a.subject) - subjGrp(b.subject) || (ga < 0 ? 99 : ga) - (gb < 0 ? 99 : gb) || (Number(a.class_num) || 99) - (Number(b.class_num) || 99)
     || (a.last_name || "").localeCompare(b.last_name || "", "he") || (a.first_name || "").localeCompare(b.first_name || "", "he");
 }
+// שיעור כפול: ★ ליד השם (שתי קבוצות באותו יום באותו בית ספר, או שעה אישית ארוכה)
+const hmMin = (t) => { const m = String(t || "").match(/^(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
+function isDouble(sid, day, loc, arr, pend){
+  const a = hmMin(arr), b = hmMin(pend);
+  if (a != null && b != null && b - a >= 80) return true;
+  if (typeof G !== "undefined" && G.roster && G.sessions) {
+    const n = new Set(G.roster.filter(k => k.student_id === sid).map(k => G.sessions.find(x => x.session_id === k.session_id)).filter(x => x && x.day === day && x.location === loc && x.kind !== "מרתון").map(x => x.session_id)).size;
+    if (n >= 2) return true;
+  }
+  const L0 = (typeof L !== "undefined" && L.asg && L.asg[sid]) || [];
+  return new Set(L0.filter(x => x.day === day && x.location && x.location.name === loc).map(x => x.start_time)).size >= 2;
+}
+const dblStar = (on) => on ? `<span class="dbl-star" title="שיעור כפול" aria-label="שיעור כפול">★</span>` : "";
 // שכבה + מספר כיתה (ח'3), צבע עדין לפי שכבה
 const gradeBadge = (g, n) => { const k = gradeKey(g); return `<span class="gbadge g-${GRADE_ORD.includes(k) ? k : "x"}">${k ? esc(k + "'" + (n || "")) : "?"}</span>`; };
 // "לא התקיים תרגול": מנהלים מסמנים (וסיבה). מתרגלים רואים, וכותבים בהערות אם לא התקיים.
@@ -3375,9 +3395,9 @@ function renderSheetRows(){
   $("shRows").innerHTML = A.rows.map((r, i) => { if (!shVisible(r)) return "";
     const grp = subjGrp(r.subject), head = grp !== prevGrp ? (prevGrp = grp, `<li class="att-sec">${grp < 3 ? subjChip(SUBJ_GRP_T[grp]) : "<b>בלי מקצוע</b>"} <span>${A.rows.filter(x => shVisible(x) && subjGrp(x.subject) === grp).length}</span></li>`) : "";
     return head + `<li data-i="${i}">${gradeBadge(r.grade, r.class_num)}
-    <div class="att-name"><b>${esc(r.first_name)} ${esc(r.last_name || "")}</b>${r.split_id && ME.role !== "instructor" ? `<span class="split-tag">${esc(spName(r.split_id) || "")}</span>` : ""}
+    <div class="att-name"><b>${dblStar(isDouble(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location, r.arrival_time, r.personal_end))}${esc(r.first_name)} ${esc(r.last_name || "")}</b>${r.split_id && ME.role !== "instructor" ? `<span class="split-tag">${esc(spName(r.split_id) || "")}</span>` : ""}
       ${r.arrival_time ? `<span class="ptime">שעה אישית ${rng(r.arrival_time, r.personal_end || addMin(r.arrival_time, 45))}</span>` : ""}
-      <span class="meta">${r.school ? `<span class="sch-mini ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${r.in_group ? "" : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
+      <span class="meta">${r.school ? `<span class="school-chip sch-sm ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${r.in_group ? "" : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
       </div>
     <div class="att-ctl">
       ${grp >= 2 ? `<label class="subj ${r.present ? "" : "off"}"><input type="checkbox" data-m ${r.did_math ? "checked" : ""} ${can && r.present ? "" : "disabled"}> <span class="lg">מתמטיקה</span><span class="sm">מת'</span></label>
@@ -3394,6 +3414,27 @@ function updateCount(){
   const rows = A.rows.filter(shVisible), p = rows.filter(r => r.present === true).length, n = rows.filter(r => r.present == null).length;
   $("shCount").textContent = `${p} נוכחים מתוך ${rows.length}` + (n ? ` · ${n} לא סומנו` : "");
 }
+// טיוטת נוכחות: כל סימון נשמר גם בטלפון עצמו, כך שאם השמירה נכשלה (אין קליטה), הדף התרענן או יצאו מהמערכת - הסימון לא הולך לאיבוד
+const attDraftKey = () => A.sheet ? "telem_att_draft_" + A.sheet.session_id + "_" + A.sheet.date : "";
+function attDirty(){
+  if (!A.sheet || !A.sheet.can_edit) return;
+  A.dirty = true;
+  store(attDraftKey(), JSON.stringify({ t: Date.now(), extra: $("shExtra").value, notes: $("shNotes").value,
+    rows: A.rows.map(r => ({ id: r.student_id, p: r.present, m: r.did_math, e: r.did_english })), removed: A.removed || [] }));
+}
+function attDraftClear(){ if (A.sheet) store(attDraftKey(), null); A.dirty = false; }
+function attDraftRestore(){
+  let d = null; try { d = JSON.parse(store(attDraftKey()) || "null"); } catch(e) {}
+  if (!d || !A.sheet.can_edit) return;
+  const saved = A.sheet.lesson && A.sheet.lesson.updated_at ? new Date(A.sheet.lesson.updated_at).getTime() : 0;
+  if (d.t < saved) { store(attDraftKey(), null); return; }   // נשמר במערכת אחרי הטיוטה - אין מה לשחזר
+  const by = {}; (d.rows || []).forEach(x => by[x.id] = x);
+  A.rows.forEach(r => { const x = by[r.student_id]; if (x) { r.present = x.p; r.did_math = !!x.m; r.did_english = !!x.e; } });
+  A.removed = d.removed || []; A.rows = A.rows.filter(r => !A.removed.includes(r.student_id));
+  if (d.extra != null) $("shExtra").value = d.extra; if (d.notes != null) $("shNotes").value = d.notes;
+  A.dirty = true; toast("שוחזר סימון שעוד לא נשמר - לא לשכוח ללחוץ \"שמירה\"");
+}
+window.addEventListener("beforeunload", (e) => { if (A.dirty && !$("attSheet").hidden) { e.preventDefault(); e.returnValue = ""; } });
 function setPresent(r, v){
   r.present = v;
   if (v && !r.did_math && !r.did_english) { const d = subjDefault(r.subject); r.did_math = d.m; r.did_english = d.e; }
@@ -3401,18 +3442,22 @@ function setPresent(r, v){
 }
 $("shRows").addEventListener("click", (e) => {
   const rm = e.target.closest("[data-rm]");
-  if (rm && A.sheet.can_edit) { const i = Number(rm.closest("li").dataset.i), r = A.rows[i]; if (r.saved) A.removed.push(r.student_id); A.rows.splice(i, 1); renderSheetRows(); return; }
+  if (rm && A.sheet.can_edit) { const i = Number(rm.closest("li").dataset.i), r = A.rows[i]; if (r.saved) A.removed.push(r.student_id); A.rows.splice(i, 1); attDirty(); renderSheetRows(); return; }
   const b = e.target.closest("[data-p]"); if (!b || !A.sheet.can_edit) return;
   const r = A.rows[Number(b.closest("li").dataset.i)];
-  setPresent(r, b.dataset.p === "1"); renderSheetRows(); $("shErr").textContent = "";
+  setPresent(r, b.dataset.p === "1"); attDirty(); renderSheetRows(); $("shErr").textContent = "";
 });
 $("shRows").addEventListener("change", (e) => {
   const li = e.target.closest("li"); if (!li) return; const r = A.rows[Number(li.dataset.i)];
   if (e.target.hasAttribute("data-m")) r.did_math = e.target.checked;
   if (e.target.hasAttribute("data-e")) r.did_english = e.target.checked;
+  attDirty();
 });
-$("shAll").addEventListener("click", () => { A.rows.filter(shVisible).forEach(r => { if (r.present == null) setPresent(r, true); }); renderSheetRows(); });
-$("shBack").addEventListener("click", () => { showAttList(); loadAttGroups(); });
+["shExtra", "shNotes"].forEach(id => $(id).addEventListener("input", attDirty));
+$("shAll").addEventListener("click", () => { A.rows.filter(shVisible).forEach(r => { if (r.present == null) setPresent(r, true); }); attDirty(); renderSheetRows(); });
+$("shBack").addEventListener("click", () => {
+  if (A.dirty && !window.confirm("יש סימון נוכחות שעוד לא נשמר. לצאת בלי לשמור?")) return;
+  attDraftClear(); showAttList(); loadAttGroups(); });
 $("shSave").addEventListener("click", async () => {
   const err = $("shErr"); err.textContent = "";
   const missing = A.rows.filter(r => r.present == null);
@@ -3425,10 +3470,10 @@ $("shSave").addEventListener("click", async () => {
       p_rows: A.rows.map(r => ({ student_id: r.student_id, present: r.present, did_math: r.did_math, did_english: r.did_english }))
         .concat((A.removed || []).map(id => ({ student_id: id, present: null, remove: true }))),
       p_extra: $("shExtra").value, p_notes: $("shNotes").value });
-    toast("הנוכחות נשמרה");
+    toast("הנוכחות נשמרה"); attDraftClear();
     showAttList(); loadAttGroups();
   } catch(e2) {
-    err.textContent = /only save attendance for today/.test(e2.message) ? "אפשר לשמור נוכחות רק ביום השיעור." : "השמירה נכשלה: " + e2.message;
+    err.textContent = /only save attendance for today/.test(e2.message) ? "אפשר לשמור נוכחות רק ביום השיעור." : (/fetch|network|Failed/i.test(e2.message) ? "אין חיבור לאינטרנט - הסימון שמור בטלפון. כשהקליטה תחזור, לוחצים שוב \"שמירה\"." : "השמירה נכשלה: " + e2.message);
   }
   $("shSave").disabled = false;
 });
@@ -4015,6 +4060,7 @@ function wsPush(viewer){
 async function wsOpen(i, fromPop){
   WS.idx = i; const r = WS.list[i]; if (!r) return;
   if (!fromPop) wsPush(i);
+  wzReset();
   WS.file = null;
   $("wsViewer").hidden = false; document.body.style.overflow = "hidden";
   $("wsVTitle").textContent = (r.type === "answers" ? "פתרונות · " : r.page_no + " · ") + (r.title || "");
@@ -4029,6 +4075,33 @@ async function wsOpen(i, fromPop){
   fetch(url).then(x => x.blob()).then(b => { if (WS.idx === i) WS.file = new File([b], fname, { type: b.type || "image/png" }); }).catch(() => {});
   $("wsDl").href = url; $("wsDl").setAttribute("download", (r.topic_name || "דף") + " - " + (r.title || r.page_no) + "." + ((r.storage_path.match(/\.(\w+)$/) || [, "png"])[1]));
 }
+// הגדלה בשתי אצבעות בתוך הדף הפתוח (באייקון במסך הבית של האייפון הדפדפן לא מאפשר הגדלה של כל העמוד)
+const WZ = { s: 1, x: 0, y: 0 };
+function wzApply(){ const im = $("wsVImg"); im.style.transform = WZ.s === 1 ? "" : `translate(${WZ.x}px, ${WZ.y}px) scale(${WZ.s})`; im.classList.toggle("zoomed", WZ.s > 1); }
+function wzReset(){ WZ.s = 1; WZ.x = 0; WZ.y = 0; wzApply(); }
+(function(){
+  const box = document.querySelector(".ws-vimg"); let st = null, lastTap = 0;
+  const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  box.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 2) st = { mode: "pinch", d: dist(e.touches), s: WZ.s };
+    else if (e.touches.length === 1 && WZ.s > 1) st = { mode: "pan", cx: e.touches[0].clientX, cy: e.touches[0].clientY, x: WZ.x, y: WZ.y };
+    else st = null;
+  }, { passive: true });
+  box.addEventListener("touchmove", (e) => {
+    if (!st) return;
+    if (st.mode === "pinch" && e.touches.length === 2) { e.preventDefault(); WZ.s = Math.min(5, Math.max(1, st.s * dist(e.touches) / st.d)); if (WZ.s === 1) { WZ.x = 0; WZ.y = 0; } wzApply(); }
+    else if (st.mode === "pan" && e.touches.length === 1) { e.preventDefault(); WZ.x = st.x + e.touches[0].clientX - st.cx; WZ.y = st.y + e.touches[0].clientY - st.cy; wzApply(); }
+  }, { passive: false });
+  box.addEventListener("touchend", (e) => {
+    if (WZ.s < 1.05) wzReset();
+    if (e.touches.length === 0 && e.changedTouches.length === 1 && (!st || st.mode !== "pinch")) {
+      const now = Date.now();
+      if (now - lastTap < 300) { if (WZ.s > 1) wzReset(); else { WZ.s = 2.5; WZ.x = 0; WZ.y = 0; wzApply(); } lastTap = 0; }   // לחיצה כפולה: הגדלה / חזרה
+      else lastTap = now;
+    }
+    if (e.touches.length === 0) st = null;
+  });
+})();
 function wsClose(fromPop){
   if (!fromPop && history.state && history.state.view === "ws" && history.state.viewer != null) { history.back(); return; }
   $("wsViewer").hidden = true; document.body.style.overflow = "";
@@ -4631,9 +4704,15 @@ async function renderReg(){
     if (RG.lk === "general") {
       const ush = lkFix(lkBase() + "shibutz.html"), sea = SCH.season;
       h += `<section class="rg-sec rg-general"><h3>קישורים כלליים <small>לכל הערים</small></h3>
-        ${lkRow("טופס שיבוץ" + (sea ? ` <small>${fmt(sea.opens_on)}–${fmt(sea.closes_on)}</small>` : ""), ush, "טופס השיבוץ של תלם: ")}
+        ${lkRow("טופס שיבוץ" + (sea && sea.is_open !== undefined ? ` <button type="button" class="sw-open ${sea.is_open ? "on" : ""}" id="schOpen" title="פתיחה/סגירה של טופס השיבוץ">${sea.is_open ? "● פתוח" : "○ סגור"}</button>` : ""), ush, "טופס השיבוץ של תלם: ")}
         ${lkRow("טופס התעניינות", lkInterest(null), "טופס התעניינות - תלם: ")}</section>`;
       M.innerHTML = h;
+      // טופס השיבוץ: פתוח/סגור (כשסגור - בטופס רק "השיבוצים לשנה זו הסתיימו")
+      if ($("schOpen")) $("schOpen").onclick = async () => {
+        const v = !sea.is_open;
+        if (!window.confirm(v ? "לפתוח את טופס השיבוץ? מי שייכנס לקישור יוכל לשלוח בקשת שיבוץ." : "לסגור את טופס השיבוץ? מי שייכנס לקישור יראה: \"השיבוצים לשנה זו הסתיימו, נתראה בשנה הבאה\".")) return;
+        try { await patch("scheduling_seasons", "school_year=eq." + encodeURIComponent(sea.school_year), { is_open: v }); sea.is_open = v; toast(v ? "טופס השיבוץ פתוח" : "טופס השיבוץ סגור"); renderReg(); }
+        catch(e) { toast("לא נשמר: " + e.message); } };
     } else {
       h += `<div class="rg-city-row" role="group" aria-label="עיר">${CONFIG.cities.map(c => `<button type="button" aria-pressed="${c === city}" data-rgc="${esc(c)}">${esc(c)}</button>`).join("")}</div>`;
       if (RG.lk === "regular") {
@@ -4804,6 +4883,7 @@ function updSafe(){
   if (document.querySelector("#leadForm .lead-main.editing")) return false;
   if ([...document.querySelectorAll(".panel-bg")].some(x => !x.hidden)) return false;
   if (!$("panel").hidden) return false;
+  if (A.dirty && !$("attSheet").hidden) return false;   // באמצע סימון נוכחות שלא נשמר
   return true;
 }
 function updReload(){ sstore("telem_updated", APP_VER); location.replace(location.pathname + "?v=" + Date.now() + location.hash); }
