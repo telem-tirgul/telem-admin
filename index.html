@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.17">
+<meta name="app-version" content="5.17.1">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -267,11 +267,12 @@
   .att-name b{ font-size:16.5px; }
   /* שכבה - גדול ובצבע; כותרת לכל מקצוע */
   .att-rows li[data-i]{ position:relative; gap:10px; } .att-rows li[data-i] .att-name{ flex:1 1 auto; min-width:0; }
-  .gbadge{ display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; padding:0; border-radius:50%; font-weight:800; font-size:13.5px; letter-spacing:-.3px; flex:none; box-sizing:border-box; background:transparent; color:var(--ink); border:2px solid var(--gi); }
-  .g-ה, .g-ו{ --gb:#E3EEF7; --gi:#2C5A80; } .g-ז{ --gb:#DDF1EC; --gi:#1F6152; } .g-ח{ --gb:#F6E3EA; --gi:#8A3457; } .g-ט{ --gb:#E5E5F6; --gi:#45428A; }
-  .g-י{ --gb:#F4EBDB; --gi:#7A5521; } .g-יא{ --gb:#E8E8E6; --gi:#4A4A46; } .g-יב{ --gb:#F3E3DD; --gi:#7E3B26; } .g-x{ --gb:var(--muted); --gi:var(--ink-soft); }
-  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); } }
-  :root[data-theme="dark"] .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); }
+  .gbadge{ display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; padding:0; border-radius:50%; font-weight:800; font-size:13.5px; letter-spacing:-.3px; flex:none; box-sizing:border-box; background:var(--gb); color:var(--gi); border:2px solid var(--gi); }
+  /* צבע שונה לכל שכבה (רקע בהיר + קו וטקסט חזקים). בלי אדום - שמור למבחן קרוב */
+  .g-ה, .g-ו{ --gb:#E2EEFA; --gi:#2F78C4; } .g-ז{ --gb:#DFF3E8; --gi:#24935F; } .g-ח{ --gb:#FCEBD9; --gi:#C86E14; } .g-ט{ --gb:#ECE5FA; --gi:#7B55C9; }
+  .g-י{ --gb:#DDF2F4; --gi:#0F8A96; } .g-יא{ --gb:#F8E1EE; --gi:#B8327F; } .g-יב{ --gb:#EFE6DC; --gi:#6E5236; } .g-x{ --gb:transparent; --gi:var(--ink-soft); }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); color:color-mix(in srgb, var(--gi) 55%, #fff); background:color-mix(in srgb, var(--gi) 22%, transparent); } }
+  :root[data-theme="dark"] .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); color:color-mix(in srgb, var(--gi) 55%, #fff); background:color-mix(in srgb, var(--gi) 22%, transparent); }
   .dbl-star{ color:var(--gold); font-size:1.05em; margin-inline-end:3px; }
   .sch-mini{ color:var(--scd, var(--ink-soft)); font-weight:700; }
   .school-chip.sch-sm{ font-size:12px; padding:0 8px; line-height:1.5; font-weight:700; }
@@ -1291,7 +1292,7 @@
       <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>הפרטים שלי</h1></div>
       <div class="card me-card">
-        <dl class="me-dl"><dt>שם</dt><dd id="meName"></dd><dt>אימייל</dt><dd id="meEmail" dir="ltr"></dd><dt>תפקיד</dt><dd id="meRole"></dd></dl>
+        <dl class="me-dl"><dt>שם</dt><dd id="meName"></dd><dt>אימייל</dt><dd id="meEmail" dir="ltr"></dd><dt>תפקיד</dt><dd id="meRole"></dd><dt>גרסת המערכת</dt><dd id="meVer" dir="ltr" style="text-align:right"></dd></dl>
         <button class="btn" type="button" id="mePwBtn">שינוי סיסמה</button>
       </div>
     </section>
@@ -4141,6 +4142,7 @@ function renderMe(){
   $("meName").textContent = ME.full_name || "—";
   $("meEmail").textContent = (auth && auth.email) || "—";
   $("meRole").textContent = ME.role === "instructor" ? "מתרגל/ת" : "מנהל/ת";
+  { const mv = document.querySelector('meta[name="app-version"]'); $("meVer").textContent = mv ? mv.content : ""; }
 }
 $("mePwBtn").addEventListener("click", openPasswordBox);
 // ---------- בתי הספר שלי (מתרגלים): רק בתי הספר והקבוצות שלהם, בלי אנשי קשר ובלי טלפונים ----------
