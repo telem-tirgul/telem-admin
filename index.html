@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.18">
+<meta name="app-version" content="5.18.1">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -576,6 +576,8 @@
   .cal-ev .ev-loc{ font-weight:800; font-size:13.5px; line-height:1.2; }
   .cal-ev .ev-time{ font-size:12.5px; font-weight:700; }
   .cal-ev .ev-meta{ font-size:12px; opacity:.85; }
+  /* קופסה צרה (כמה קבוצות באותה שעה): כל שורה בשורה אחת, מה שלא נכנס נחתך ב-... במקום להישבר לשורות שנחתכות */
+  .cal-ev .ev-loc, .cal-ev .ev-meta{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:none; } .cal-ev .ev-time{ flex:none; line-height:1.25; }
   .g-table td, .g-table th{ text-align:start; }
   .g-table tbody tr{ cursor:pointer; } .g-table tbody tr:hover td{ background:var(--muted); }
   .g-table .closed{ color:var(--full); font-weight:700; }
@@ -1695,7 +1697,12 @@ const icon = (k) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${IC
 document.querySelectorAll(".nav button[data-view]").forEach(b => { if (ICON[b.dataset.view]) b.insertAdjacentHTML("afterbegin", icon(b.dataset.view)); });
 let currentView = "leads";
 // רענון (F5): חוזרים למסך שהיה פתוח (נשמר ב-history.state של הדפדפן), לא לדף הבית
-let RESUME = (() => { try { const st = history.state; return st && st.telem && st.view && st.view !== "home" ? st : null; } catch(e) { return null; } })();
+// (גם אחרי "רענון" מפס העדכון - שם המסך נשמר לפני הטעינה מחדש)
+let RESUME = (() => { try {
+  let st = history.state;
+  if (!(st && st.telem)) { const v = sessionStorage.getItem("telem_resume"); if (v) st = JSON.parse(v); }
+  sessionStorage.removeItem("telem_resume");
+  return st && st.telem && st.view && st.view !== "home" ? st : null; } catch(e) { return null; } })();
 function resumeView(){
   const st = RESUME; RESUME = null;
   if (!st || currentView !== "home") return;
@@ -2919,13 +2926,13 @@ function renderCal(list){
     const de = ev.filter(x => x.day === d).sort((a, b) => a.s - b.s || b.e - a.e);
     let cluster = [], clusterEnd = -1; const out = [];
     const flush = () => { const lanes = []; cluster.forEach(x => { let i = lanes.findIndex(end => end <= x.s + CAL_OVL); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = x.e; x.lane = i; }); cluster.forEach(x => { x.n = lanes.length; const nx = cluster.filter(y => y.lane === x.lane && y.s > x.s && y.s < x.e).sort((a, b) => a.s - b.s)[0]; x.de = nx ? nx.s : x.e; out.push(x); }); cluster = []; };
-    de.forEach(x => { if (cluster.length && x.s >= clusterEnd - CAL_OVL) flush(); cluster.push(x); clusterEnd = Math.max(clusterEnd, x.e); }); if (cluster.length) flush();
+    de.forEach(x => { if (cluster.length && x.s >= clusterEnd) flush(); cluster.push(x); clusterEnd = Math.max(clusterEnd, x.e); }); if (cluster.length) flush();
     const blocks = out.map(x => {
       const se = x.se, n = se.assigned_count || 0, w = 100 / x.n, mar = se.kind === "מרתון", hf = holFor(x.date || dt, se);
       return `<button type="button" class="cal-ev ${scCls(se.location)}${mar ? " ev-mar" : ""}${hf ? " hol-fade" : ""}" data-id="${se.session_id}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
         title="${mar ? "מרתון · " + esc(se.time_label) + " · " + fmtDM(x.date) + " · " : ""}${esc(se.location)} · ${x.st}-${x.en}${se.room ? " · " + esc(se.room) : ""}">
         <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(se.location)}</span>${hf ? cxTag(hf, true) : ""}<span class="ev-time">${mar && se.time_label ? esc(se.time_label) + " · " : ""}${rng(x.st, x.en)}</span>
-        <span class="ev-meta">${G.cities.length > 1 ? esc(se.city) + " · " : ""}${se.room ? "📍 " + esc(se.room) + " · " : ""}${n} ילדים${(() => { const p = (G.prop || []).filter(k => k.session_id === se.session_id).length; return p ? ` · <b>${p} מוצעים</b>` : ""; })()}${G.ins && G.ins[se.session_id] ? " · " + esc(G.ins[se.session_id].join(", ")) : ""}</span></button>`;
+        <span class="ev-meta">${n} ילדים${(() => { const p = (G.prop || []).filter(k => k.session_id === se.session_id).length; return p ? ` · <b>${p} מוצעים</b>` : ""; })()}${G.cities.length > 1 ? " · " + esc(se.city) : ""}${se.room ? " · 📍 " + esc(se.room) : ""}</span>${G.ins && G.ins[se.session_id] ? `<span class="ev-meta">${esc(G.ins[se.session_id].join(", "))}</span>` : ""}</button>`;
     }).join("");
     return `<div class="cal-col"><div class="cal-day${weekDate(d) === t ? " today" : ""}">${DAY_NAMES[d]}<small>${fmtDM(weekDate(d))}</small>${holChips(dt) ? `<span class="hol-chips">${holChips(dt)}</span>` : ""}</div><div class="cal-body${holColCls(dt)}" style="height:${H}px">${blocks}</div></div>`;
   }).join("");
@@ -3577,7 +3584,7 @@ async function loadAttWeek(){
     const de = ev.filter(x => x.date === d).sort((a, b) => a.s - b.s || b.e - a.e);
     let cluster = [], cEnd = -1; const out = [];
     const flush = () => { const lanes = []; cluster.forEach(x => { let i = lanes.findIndex(end => end <= x.s + CAL_OVL); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = x.e; x.lane = i; }); cluster.forEach(x => { x.n = lanes.length; const nx = cluster.filter(y => y.lane === x.lane && y.s > x.s && y.s < x.e).sort((a, b) => a.s - b.s)[0]; x.de = nx ? nx.s : x.e; out.push(x); }); cluster = []; };
-    de.forEach(x => { if (cluster.length && x.s >= cEnd - CAL_OVL) flush(); cluster.push(x); cEnd = Math.max(cEnd, x.e); }); if (cluster.length) flush();
+    de.forEach(x => { if (cluster.length && x.s >= cEnd) flush(); cluster.push(x); cEnd = Math.max(cEnd, x.e); }); if (cluster.length) flush();
     const blocks = out.map(x => { const g = x.g, mar = g.kind === "מרתון", w = 100 / x.n;
       const narrow = x.n > 1;   // כמה קבוצות זו לצד זו - תגית קטנה בלי טקסט
       const st = x.st === "ok" ? `<span class="att-st ok" title="סומן: ${g.marked_count} נוכחים מתוך ${g.kids}">✓${narrow ? "" : " " + g.marked_count + "/" + g.kids}</span>` : x.st === "miss" ? `<span class="att-st miss" title="לא סומן">${narrow ? "" : "לא סומן"}</span>` : "";
@@ -3585,8 +3592,7 @@ async function loadAttWeek(){
         title="${esc(g.location)} · ${hm(g.start_time)}-${hm(g.end_time)}${g.room ? " · " + esc(g.room) : ""}">
         <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>${x.st === "hol" ? cxTag(x.hf, true) : ""}
         <span class="ev-time">${mar && g.time_label ? esc(g.time_label) + " · " : ""}${rng(hm(g.start_time), hm(g.end_time))}</span>
-        ${g.room || multi ? `<span class="ev-meta">${multi ? esc(g.city) : ""}${g.room && multi ? " · " : ""}${g.room ? "📍 " + esc(g.room) : ""}</span>` : ""}
-        <span class="ev-meta">${g.kids} ילדים${ME.role !== "instructor" && g.instructors ? " · " + esc(g.instructors) : ""}</span>${st}</button>`; }).join("");
+        <span class="ev-meta">${g.kids} ילדים${multi ? " · " + esc(g.city) : ""}${g.room ? " · 📍 " + esc(g.room) : ""}</span>${ME.role !== "instructor" && g.instructors ? `<span class="ev-meta">${esc(g.instructors)}</span>` : ""}${st}</button>`; }).join("");
     return `<div class="cal-col"><div class="cal-day${d === today ? " today" : ""}">${DAY_NAMES[dayLetter(d)]}<small>${fmtDM(d)}</small>${holChips(d) ? `<span class="hol-chips">${holChips(d)}</span>` : ""}</div><div class="cal-body${holColCls(d)}" style="height:${H}px">${blocks}</div></div>`;
   }).join("");
   $("attCal").innerHTML = `<div class="tbl-wrap"><div class="cal-grid" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${showDates.length}, minmax(130px, 1fr));">
@@ -5336,7 +5342,7 @@ function updSafe(){
   if (A.dirty && !$("attSheet").hidden) return false;   // באמצע סימון נוכחות שלא נשמר
   return true;
 }
-function updReload(){ sstore("telem_updated", APP_VER); location.replace(location.pathname + "?v=" + Date.now() + location.hash); }
+function updReload(){ sstore("telem_updated", APP_VER); try { if (history.state && history.state.telem) sessionStorage.setItem("telem_resume", JSON.stringify(history.state)); } catch(e) {} location.replace(location.pathname + "?v=" + Date.now() + location.hash); }
 function updTry(){ if (UPD_NEW && updSafe() && (document.visibilityState === "hidden" || idleFor() > 10000)) updReload(); }
 async function checkUpdate(){
   if (!APP_VER || location.protocol === "file:" || UPD_NEW) { updTry(); return; }
