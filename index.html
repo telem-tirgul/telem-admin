@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.17.1">
+<meta name="app-version" content="5.18">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -113,6 +113,11 @@
   .remind-f{ display:flex; align-items:center; gap:6px; } .remind-f input[type=date]{ width:auto; flex:1; min-width:0; }
   .ok-txt{ color:var(--ok); }
   .filters-foot{ display:flex; justify-content:flex-end; }
+  .filters-chk{ display:flex; flex-wrap:wrap; gap:6px 18px; align-items:center; margin-top:-4px; } .filters-chk .chk{ padding-bottom:0; font-size:13.5px; } .filters-chk .remind-f input[type=date]{ flex:none; width:auto; padding:4px 8px; font-size:13px; }
+  .filters > *{ min-width:0; } .filters input, .filters select{ min-width:0; max-width:100%; box-sizing:border-box; }
+  tr.h-row{ cursor:pointer; } tr.h-row:hover td{ background:var(--muted); } .h-more{ color:var(--ink-soft); font-size:11px; } tr.h-row.open .h-more{ display:inline-block; transform:rotate(180deg); }
+  tr.h-det td{ background:color-mix(in srgb, var(--accent) 4%, var(--paper)); } .h-dl{ display:grid; grid-template-columns:max-content 1fr; gap:4px 14px; margin:2px 0; font-size:13.5px; } .h-dl dt{ color:var(--ink-soft); } .h-dl dd{ margin:0; white-space:pre-wrap; }
+  .clear-f{ border:0; background:none; color:var(--accent); font-weight:700; font-size:13px; cursor:pointer; padding:0 10px; text-decoration:underline; }
   .filters{ display:grid; grid-template-columns:repeat(auto-fill, minmax(170px,1fr)); gap:10px 12px; align-items:end; margin-bottom:14px; }
   .filters .wide{ grid-column:span 2; }
   @media (max-width:520px){ .filters .wide{ grid-column:auto; } }
@@ -241,13 +246,15 @@
   #attCities.tabs .tab[aria-selected="true"]{ background:var(--accent); color:#fff; }
   .att-date{ display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:12px; }
   .att-date-row{ display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap; }
-  .att-date-row > .btn, .att-date-row > input{ height:40px; box-sizing:border-box; margin:0; font-size:14px; font-weight:700; border-radius:10px; }
-  .att-date-row > .btn{ padding:0 16px; display:inline-flex; align-items:center; } .att-date-row > input{ width:170px; padding:0 10px; border:1.5px solid var(--border); background:var(--paper); font-family:inherit; }
+  .att-date-row > .btn, .att-date-row > input, .att-dlbl > input{ height:40px; box-sizing:border-box; margin:0; font-size:14px; font-weight:700; border-radius:10px; }
+  .att-date-row > .btn{ padding:0 16px; display:inline-flex; align-items:center; } .att-date-row > input, .att-dlbl > input{ width:170px; padding:0 10px; border:1.5px solid var(--border); background:var(--paper); font-family:inherit; }
 
   .att-board{ width:100%; border-collapse:separate; border-spacing:6px; } .att-board th{ font-size:13px; color:var(--ink-soft); font-weight:800; text-align:center; }
   .att-board th.time{ text-align:start; white-space:nowrap; width:1%; } .att-board td{ vertical-align:top; } .att-board .att-group{ width:100%; margin-bottom:6px; padding:10px 12px; }
   .att-board .att-group .t{ font-size:15px; } .kind-tag{ display:inline-block; font-size:11px; font-weight:800; border-radius:999px; padding:0 8px; background:var(--paper); color:var(--ink); border:1px dashed var(--ink-soft); margin-inline-start:6px; }
 
+  .att-dlbl{ position:relative; display:inline-flex; } .att-dlbl > span{ display:none; }
+  .att-filt{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:12px; } .att-filt #attCities{ margin-bottom:0; } .att-filt select{ width:auto; padding:6px 10px; font-size:13.5px; border-radius:999px; }
   .att-dayname{ font-family:var(--font-display); font-weight:800; font-size:20px; color:var(--accent); }
 
   #attCities{ margin-bottom:12px; width:fit-content; flex-wrap:wrap; }
@@ -339,7 +346,17 @@
   #scBells, #scContacts{ table-layout:fixed; } #scBells td:last-child, #scContacts td:last-child{ width:36px; padding-inline:2px; }
   #scContacts td:nth-child(3) input{ direction:ltr; text-align:right; }
   .sc-tbl td input{ width:100% !important; box-sizing:border-box; min-width:0; }
-  .sc-groups td{ white-space:nowrap; } .sc-groups td.muted{ white-space:normal; }
+  .sc-groups td{ white-space:nowrap; } .sc-groups td.muted, .sc-groups td.rm{ white-space:normal; } .sc-groups td.rm{ min-width:0; overflow-wrap:anywhere; }
+  .sc-main{ display:grid; grid-template-columns:minmax(0, 1.25fr) minmax(0, 1fr); gap:12px; margin-bottom:12px; align-items:start; } .sc-main .card h3{ font-size:16px; color:var(--accent); margin:0 0 8px; }
+  @media (max-width:900px){ .sc-main{ grid-template-columns:minmax(0, 1fr); } }
+  .sx-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; } .sx-h h3{ margin:0 !important; }
+  .sx-row{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--border); } .sx-row:last-child{ border-bottom:0; }
+  .sx-items{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding-top:7px; } .sx-items .ex-tag{ margin:0; font-size:13px; padding:1px 10px; }
+  .sx-mk{ font-size:12.5px; color:var(--ink-soft); } .sx-mk-b{ border:0; background:none; padding:0; font:inherit; color:inherit; cursor:pointer; text-decoration:underline dotted; } .sx-none{ font-size:13px; }
+  .sc-more{ margin-bottom:12px; } .sc-more summary{ cursor:pointer; font-weight:800; color:var(--accent); font-size:15.5px; } .sc-more[open] summary{ margin-bottom:10px; }
+  .sc-more h3{ font-size:15px; color:var(--accent); margin:0 0 6px; }
+  .sc-contacts{ display:flex; flex-direction:column; gap:6px; } .sc-ct{ border-bottom:1px solid var(--border); padding-bottom:4px; font-size:14px; }
+  .sc-mode{ margin-bottom:10px; margin-inline-start:8px; }
   .sc-groups tr{ cursor:pointer; } .sc-groups tr:hover td{ background:var(--muted); } .sc-groups td.go{ color:var(--accent); font-weight:700; }
   .sc-head{ display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px; }
   .sc-head h2{ font-size:22px; color:var(--accent); margin:0; }
@@ -539,7 +556,10 @@
   .cx-box{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 10px; }
   .cx-box{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:flex-start; margin:-6px 0 10px; }
   .cx-btn{ background:transparent !important; border:1px dashed var(--border) !important; color:var(--ink-soft) !important; font-weight:600 !important; }
-  .sh-top-btns{ display:flex; gap:6px; align-items:flex-start; flex-wrap:wrap; }
+  .sh-head{ margin-bottom:12px; } .sh-h1row{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; } .sh-h1row h1{ min-width:0; }
+  .sh-top-btns{ display:flex; gap:6px; align-items:center; flex:none; }
+  .sh-totrow{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; margin-top:2px; } .sh-totrow .cx-box{ margin:0 !important; margin-inline-start:auto !important; }
+  @media (max-width:760px){ .lg-t{ display:none; } .sh-h1row h1{ font-size:19px; } .sh-top-btns .btn{ padding:5px 9px; font-size:12.5px; } }
   .sh-total{ font-size:14px; color:var(--ink-soft); margin-top:2px; } .sh-total b{ color:var(--accent); font-size:15px; }
   .cx-on{ background:color-mix(in srgb, var(--ink) 8%, var(--paper)); border:1px solid var(--border); border-radius:10px; padding:8px 12px; }
   .cx-form{ display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap; } .cx-form select, .cx-form input{ width:auto; padding:5px 8px; }
@@ -561,7 +581,7 @@
   .g-table .closed{ color:var(--full); font-weight:700; }
   .roster{ list-style:none; margin:0; padding:6px 12px 24px; overflow-y:auto; }
   .roster li{ padding:10px 6px; border-bottom:1px solid var(--border); }
-  #panelSub span{ display:block; } #panelSub .ps-ins{ font-size:12.5px; }
+  #panelSub span{ display:block; } #panelSub span.g-dates{ display:inline; white-space:nowrap; } #panelSub .ps-ins{ font-size:12.5px; }
   .sc-line{ display:flex; justify-content:space-between; align-items:center; gap:8px; } .sc-line b.h{ margin:0; } .sc-more{ margin-top:4px; }
   /* פיצול: כמו רשימת הקבוצה, ולכל ילד/ה כפתורי תת-קבוצה */
   .sp-top{ display:flex; justify-content:space-between; align-items:center; gap:8px; } .sp-btns{ display:flex; gap:6px; }
@@ -628,7 +648,7 @@
     .mob-only{ display:inline-flex; }
     /* סינונים: רק חיפוש, השאר בלחיצה */
     .filters-card:not(.open) .filters > *:not(.wide){ display:none; }
-    .filters-card:not(.open) #clearFilters{ display:none; }
+    .filters-card:not(.open) .filters-chk{ display:none; }
     .filters{ grid-template-columns:1fr 1fr; }
     .filters .wide{ grid-column:1/-1; }
     /* טבלת לידים -> כרטיסים */
@@ -689,6 +709,13 @@
     .kind-seg button{ min-height:40px; font-size:15px; flex:1 1 0; }
     /* נוכחות - קטן ומהיר */
     .att-date{ padding:8px 10px; gap:6px; margin-bottom:8px; }
+    .att-date .att-dayname:not(:has(.hol-chips)){ display:none; } .att-date .att-dayname{ font-size:13px; }
+    .att-date-row{ flex-wrap:nowrap; width:100%; } .att-date-row > .btn{ padding:0 12px; font-size:16px; }
+    .att-dlbl{ flex:1; min-width:0; justify-content:center; align-items:center; height:40px; border:1.5px solid var(--border); border-radius:10px; background:var(--paper); font-weight:800; font-size:14.5px; color:var(--accent); white-space:nowrap; overflow:hidden; }
+    .att-dlbl > span{ display:inline; } .att-dlbl .today-word{ font-size:13px; }
+    .att-dlbl > input{ position:absolute; inset:0; width:100% !important; height:100% !important; opacity:0; border:0; }
+    .att-date-row > .today-btn.is-today{ display:none; }
+    .att-filt{ margin-bottom:10px; } .att-filt #attCities{ width:100%; } .att-filt #attCities .tab{ flex:1; } .att-filt select{ flex:1 1 100%; min-width:0; padding:8px 12px; }
     .att-dayname{ font-size:16px; }
     .att-date-row{ flex-wrap:nowrap; gap:4px; }
     .att-date-row > .btn{ padding:0 8px; font-size:12.5px; height:36px; }
@@ -991,14 +1018,15 @@
           <div><label class="lbl" for="fManager">מנהל</label><select id="fManager"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fFrom">עודכן מ-</label><input id="fFrom" type="date"></div>
           <div><label class="lbl" for="fTo">עד</label><input id="fTo" type="date"></div>
-          <label class="chk"><input type="checkbox" id="fStar"> רק עם כוכב</label>
+        </div>
+        <div class="filters-chk">
           <label class="chk"><input type="checkbox" id="fActive" checked> רק פעילים</label>
+          <label class="chk"><input type="checkbox" id="fStar"> רק עם כוכב</label>
           <div class="remind-f"><label class="chk"><input type="checkbox" id="fRemind"> תזכורות עד</label><input type="date" id="fRemindDate" aria-label="תזכורות עד תאריך"></div>
         </div>
-        <div class="filters-foot"><button class="btn small" type="button" id="clearFilters">ניקוי סינון</button></div>
       </div>
       <div class="toolbar">
-        <div style="display:flex; align-items:center; flex-wrap:wrap;"><div class="muted" id="countLine"></div><button type="button" class="hh-jump" id="histJump" hidden></button></div>
+        <div style="display:flex; align-items:center; flex-wrap:wrap;"><div class="muted" id="countLine"></div><button type="button" class="clear-f" id="clearFilters" hidden>✕ ניקוי סינון</button><button type="button" class="hh-jump" id="histJump" hidden></button></div>
         <div style="display:flex; gap:8px;">
           <button class="btn small" type="button" id="listEditBtn" title="שינוי סטטוס, פעיל וכוכב ישירות ברשימה">✎ עריכה ברשימה</button>
           <button class="btn small" type="button" id="exportBtn">הורדה לאקסל</button>
@@ -1127,13 +1155,13 @@
         <div class="att-date card">
           <div id="attDayName" class="att-dayname"></div>
           <div class="att-date-row">
-            <button class="btn" type="button" id="attPrev" aria-label="יום קודם">→ יום קודם</button>
-            <input type="date" id="attDate" aria-label="תאריך">
+            <button class="btn" type="button" id="attPrev" aria-label="יום קודם">→<span class="lg-t"> יום קודם</span></button>
+            <label class="att-dlbl"><span id="attDLbl"></span><input type="date" id="attDate" aria-label="תאריך"></label>
             <button class="btn today-btn" type="button" id="attToday">היום</button>
-            <button class="btn" type="button" id="attNext" aria-label="יום הבא">יום הבא ←</button>
+            <button class="btn" type="button" id="attNext" aria-label="יום הבא"><span class="lg-t">יום הבא </span>←</button>
           </div>
         </div>
-        <div class="tabs" role="tablist" id="attCities" data-admin></div>
+        <div class="att-filt" data-admin><div class="tabs" role="tablist" id="attCities"></div><select id="attIns" aria-label="מתרגל"></select></div>
         <div class="week-nav" id="attWeekNav" hidden style="margin-top:10px;"><button type="button" class="btn small" id="attWkPrev">→ שבוע קודם</button><b id="attWkLbl"></b><button type="button" class="btn small" id="attWkNow">השבוע</button><button type="button" class="btn small" id="attWkNext">שבוע הבא ←</button></div>
         <div id="attGroups" class="att-groups"></div>
         <div class="cal" id="attCal" hidden></div>
@@ -1151,12 +1179,13 @@
         </div>
       </div>
       <div id="attSheet" hidden>
-        <div class="page-head">
-          <div><h1 id="shTitle"></h1><div class="lead-sub" id="shSub"></div><div class="sh-total" id="shTotal"></div></div>
-          <div class="sh-top-btns"><button class="btn" type="button" id="shBack">→ חזרה לקבוצות</button><button class="btn icon-btn" type="button" id="shGroup" data-admin title="פתיחת הקבוצה במסך קבוצות ומרתונים" aria-label="פתיחת הקבוצה במסך קבוצות ומרתונים"></button></div>
+        <div class="sh-head">
+          <div class="sh-h1row"><h1 id="shTitle"></h1>
+            <div class="sh-top-btns"><button class="btn small" type="button" id="shGroup" data-admin title="פתיחת הקבוצה במסך קבוצות ומרתונים">✎ <span class="lg-t">עריכת </span>קבוצה</button><button class="btn small" type="button" id="shBack">→ חזרה<span class="lg-t"> לקבוצות</span></button></div></div>
+          <div class="lead-sub" id="shSub"></div>
+          <div class="sh-totrow"><div class="sh-total" id="shTotal"></div><div class="cx-box" id="shCx" hidden></div></div>
         </div>
         <div class="notice" id="shLocked" hidden>אפשר לסמן ולתקן נוכחות רק ביום השיעור.</div>
-        <div class="cx-box" id="shCx" hidden></div>
         <div class="card">
           <div class="sh-tools"><button class="btn small" type="button" id="shAll">כולם נוכחים</button><span class="muted" id="shCount"></span></div>
           <div class="split-bar" id="shSplitBar" hidden></div>
@@ -1234,7 +1263,7 @@
 
     <!-- ===== מידע (כל הצוות) ===== -->
     <section id="view-info" hidden>
-      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="exams">מבחנים</button></div>
+      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button></div>
       <div class="page-head"><h1>מידע</h1><button class="btn small" type="button" id="infoEditBtn" data-admin>✎ עריכה</button></div>
       <div class="gseg subnav" role="group" aria-label="דפי מידע" id="infoTabs"></div>
       <div class="card info-card" id="infoBody"></div>
@@ -1299,7 +1328,8 @@
 
     <!-- ===== בתי הספר שלי (מתרגלים) ===== -->
     <section id="view-myschools" hidden>
-      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="exams">מבחנים</button></div>
+      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button></div>
+      <div class="gseg sc-mode" role="group" aria-label="תצוגה"><button type="button" data-scm="schools">לפי בית ספר</button><button type="button" data-scm="exams">כל המבחנים לפי תאריך</button></div>
       <div class="page-head"><h1>בתי הספר שלי</h1></div>
       <div id="msBody"></div>
     </section>
@@ -1315,6 +1345,7 @@
           <div><label class="lbl" for="hYear">שנה</label><select id="hYear"><option value="">כל השנים</option></select></div>
           <div><label class="lbl" for="hCity">עיר</label><select id="hCity"><option value="">כל הערים</option></select></div>
           <div><label class="lbl" for="hType">סוג</label><select id="hType"><option value="">הכול</option><option value="reg">נרשמו</option><option value="lead">פנו ולא נרשמו</option></select></div>
+          <div><label class="lbl" for="hCard">השנה</label><select id="hCard"><option value="">הכול</option><option value="yes">יש להם כרטיס השנה</option><option value="no">אין להם כרטיס השנה</option></select></div>
         </div></div>
         <div class="toolbar"><div class="muted" id="hCount"></div></div>
         <div class="tbl-wrap"><table class="tbl" id="hTbl"></table></div>
@@ -1348,7 +1379,8 @@
     </section>
     <!-- ===== מבחנים בבתי הספר (קובץ 50) ===== -->
     <section id="view-exams" hidden>
-      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="exams">מבחנים</button></div>
+      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button></div>
+      <div class="gseg sc-mode" role="group" aria-label="תצוגה"><button type="button" data-scm="schools">לפי בית ספר</button><button type="button" data-scm="exams">כל המבחנים לפי תאריך</button></div>
       <div class="page-head"><h1>מבחנים במתמטיקה</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;" data-admin>
           <button class="btn small" type="button" id="exImpBtn">ייבוא מהקובץ</button><input type="file" id="exImpFile" accept=".xlsx" hidden>
@@ -1364,7 +1396,8 @@
       <div id="exList"></div>
     </section>
     <section id="view-schools" hidden>
-      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button><button type="button" data-sv="exams">מבחנים</button></div>
+      <div class="gseg subnav" role="group" aria-label="מידע"><button type="button" data-sv="info">מידע למתרגלים</button><button type="button" data-sv="schools" data-admin>בתי ספר</button><button type="button" data-sv="myschools" data-inst>בתי הספר שלי</button></div>
+      <div class="gseg sc-mode" role="group" aria-label="תצוגה"><button type="button" data-scm="schools">לפי בית ספר</button><button type="button" data-scm="exams">כל המבחנים לפי תאריך</button></div>
       <div class="page-head"><h1>בתי ספר</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn small" type="button" id="scEdit">עריכה</button>
@@ -1694,7 +1727,8 @@ function go(view){
   ["home","leads","lead","groups","att","sched","reg","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues","exams"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   { const cur = document.querySelector('.nav button[aria-current="page"]'); if ($("navCur")) $("navCur").textContent = cur ? cur.textContent.replace("⚙", "").trim() : (view === "home" ? "תפריט" : ({ me: "הגדרות", staff: "הגדרות", backup: "הגדרות" }[view] || "תפריט")); }
-  document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view)));
+  document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view || (view === "exams" && (b.dataset.sv === "schools" || b.dataset.sv === "myschools")))));
+  document.querySelectorAll("[data-scm]").forEach(b => b.setAttribute("aria-pressed", String((b.dataset.scm === "exams") === (view === "exams"))));
   document.querySelectorAll("[data-gv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.gv === view)));
   if (view === "reports") loadReports();
   if (view === "sched") renderSched();
@@ -1934,6 +1968,8 @@ function renderLeads(){
   if (F.page >= pages) F.page = pages - 1;
   const slice = list.slice(F.page * CONFIG.pageSize, (F.page + 1) * CONFIG.pageSize);
   $("countLine").textContent = list.length ? `${F.page * CONFIG.pageSize + 1}-${F.page * CONFIG.pageSize + slice.length} מתוך ${list.length}` : "אין תוצאות";
+  // "ניקוי סינון" - רק כשיש סינון פעיל
+  $("clearFilters").hidden = !(["fSearch","fCity","fSchool","fGrade","fAsg","fSource","fManager","fFrom","fTo"].some(id => $(id).value) || F.statuses.size || $("fStar").checked || $("fRemind").checked || !$("fActive").checked);
   $("pageInfo").textContent = `עמוד ${F.page + 1} מתוך ${pages}`;
   $("prevPage").disabled = F.page === 0; $("nextPage").disabled = F.page >= pages - 1;
   const sortable = ["id","status","source","name","school","grade","asg","manager","remind","updated"];
@@ -2293,7 +2329,7 @@ async function loadLeadHist(l){
     if (!rows.length) { box.textContent = "אין."; return; }
     box.classList.remove("muted");
     box.innerHTML = `<table class="hist-tbl"><tbody>${rows.map(h => { const sib = h.student_id !== l.student.id, more = [h.message, h.notes].filter(Boolean).join("\n\n");
-      return `<tr class="${sib ? "sib-row" : ""}"><td><b>${esc(h.school_year)}</b></td>
+      return `<tr class="${sib ? "sib-row" : ""}"><td style="white-space:nowrap"><b>${esc(hyLbl(h.school_year, h.year_start))}</b></td>
         <td>${sib ? esc(h.first_name + " " + (h.last_name || "")) + " (אח/ות)<br>" : ""}${esc([h.grade ? "כיתה " + h.grade : "", h.school].filter(Boolean).join(" · "))}</td>
         <td>${histReg(h) ? "<b>" + esc(h.status) + "</b>" : esc(h.status || "")}${more ? `<details><summary>הערות</summary><div>${esc(more)}</div></details>` : ""}</td></tr>`; }).join("")}</tbody></table>`;
   } catch(e) { box.textContent = e.status === 404 ? "צריך להריץ את קובץ 31." : "לא ניתן לטעון."; }
@@ -2529,7 +2565,7 @@ $("leadForm").addEventListener("submit", async (e) => {
 // ======================================================================
 // לוח קבוצות
 // ======================================================================
-const G = { sessions:[], roster:[], locColors:{}, city: store("telem_groups_city"), panel: null };
+const G = { yearEnd: "2027-06-20", sessions:[], roster:[], locColors:{}, city: store("telem_groups_city"), panel: null };
 async function loadGroups(){
   $("gGrid").innerHTML = "<tr><td class='empty-state'>טוען...</td></tr>";
   try {
@@ -2542,7 +2578,8 @@ async function loadGroups(){
       get("marathons", "select=*&order=id.desc").catch(() => [])
     ]);
     G.marathons = mar; G.hasKind = s.length === 0 || "kind" in s[0];
-    await Promise.all([loadHol(), loadExams(true)]);
+    await Promise.all([loadHol(), loadExams(true),
+      get("scheduling_seasons", "select=year_end&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).then(r => { G.yearEnd = (r[0] && r[0].year_end) || G.yearEnd; }).catch(() => {})]);
     await loadNotices();
     s.forEach(x => { if (!x.kind) x.kind = "שוטף"; });
     G.ins = {}; ins.forEach(x => { if (x.staff) (G.ins[x.session_id] = G.ins[x.session_id] || []).push(x.staff.full_name); });
@@ -2618,11 +2655,16 @@ function gEvents(list){
   });
   return ev.filter(x => DAY_ORDER[x.day]);
 }
-// שבוע מוצג בלוח (יום ראשון של השבוע). בשישי/שבת - ברירת מחדל השבוע הבא.
+// שבוע מוצג בלוח (יום ראשון של השבוע). תמיד השבוע הנוכחי - גם בשישי/שבת (כמו בנוכחות)
 const weekStart = (iso) => { const d = new Date(iso + "T12:00:00Z"); return addDays(iso, -d.getUTCDay()); };
-const thisWeek = () => { const t = todayIL(), dow = new Date(t + "T12:00:00Z").getUTCDay(); return weekStart(dow >= 5 ? addDays(t, 7) : t); };
+const thisWeek = () => weekStart(todayIL());
 G.week = null;   // נקבע בהצגה הראשונה
 const weekDate = (d) => addDays(G.week, DAY_ORDER[d] - 1);
+// תאריכי הקבוצה (קובץ 52): קבוצה שוטפת פעילה רק בין "מתאריך" ל"עד תאריך"
+const sesActiveOn = (x, d) => (!x.date_from || d >= x.date_from) && (!x.date_to || d <= x.date_to);
+const LAST_DOW = { "א":0, "ב":1, "ג":2, "ד":3, "ה":4, "ו":5 };
+// המפגש האחרון עד סוף השנה (כולל), לפי יום הקבוצה
+const lastMeeting = (day, end) => { if (!end || !(day in LAST_DOW)) return ""; const dw = new Date(end + "T12:00:00Z").getUTCDay(); return addDays(end, -((dw - LAST_DOW[day] + 7) % 7)); };
 function paintWeekNav(show){
   $("gWeekNav").hidden = !show; if (!show) return;
   $("gWkLbl").textContent = `${fmtDM(G.week)} - ${fmtDM(addDays(G.week, 4))}${G.week === thisWeek() ? " (השבוע)" : ""}`;
@@ -2859,6 +2901,8 @@ const holFor = (date, se) => { const x = G.cx[se.session_id + "|" + date] || {};
 const cxTag = (c, short) => `<span class="cx-tag" title="לא התקיים${c.reason ? " · " + esc(c.reason) : ""}">לא התקיים${c.reason && !short ? " · " + esc(c.reason) : ""}</span>`;
 const holChips = (date) => holGlobal(date).map(h => `<span class="hol-chip hol-${h.kind}" title="${esc(HOL_KIND[h.kind])}">${esc(h.name)}</span>`).join("");
 const holColCls = (date) => { const hs = holGlobal(date); return hs.some(h => h.kind === "holiday") ? " hol-col-holiday" : hs.some(h => h.kind === "vacation") ? " hol-col-vacation" : ""; };
+// קבוצה שמתארכת בכמה דקות (עד 10) לתוך הקבוצה הבאה - לא מחלקים את הרוחב לשניים
+const CAL_OVL = 10;
 function renderCal(list){
   $("gGridWrap").hidden = true; $("gCal").hidden = false;
   if (G.cxWeek !== G.week) { const w = G.week; loadCx(w).then(() => { if (G.week === w && G.mode !== "table") renderGrid(); }); }
@@ -2874,15 +2918,14 @@ function renderCal(list){
     const dt = weekDate(d);
     const de = ev.filter(x => x.day === d).sort((a, b) => a.s - b.s || b.e - a.e);
     let cluster = [], clusterEnd = -1; const out = [];
-    const flush = () => { const lanes = []; cluster.forEach(x => { let i = lanes.findIndex(end => end <= x.s); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = x.e; x.lane = i; }); cluster.forEach(x => { x.n = lanes.length; out.push(x); }); cluster = []; };
-    de.forEach(x => { if (cluster.length && x.s >= clusterEnd) flush(); cluster.push(x); clusterEnd = Math.max(clusterEnd, x.e); }); if (cluster.length) flush();
+    const flush = () => { const lanes = []; cluster.forEach(x => { let i = lanes.findIndex(end => end <= x.s + CAL_OVL); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = x.e; x.lane = i; }); cluster.forEach(x => { x.n = lanes.length; const nx = cluster.filter(y => y.lane === x.lane && y.s > x.s && y.s < x.e).sort((a, b) => a.s - b.s)[0]; x.de = nx ? nx.s : x.e; out.push(x); }); cluster = []; };
+    de.forEach(x => { if (cluster.length && x.s >= clusterEnd - CAL_OVL) flush(); cluster.push(x); clusterEnd = Math.max(clusterEnd, x.e); }); if (cluster.length) flush();
     const blocks = out.map(x => {
       const se = x.se, n = se.assigned_count || 0, w = 100 / x.n, mar = se.kind === "מרתון", hf = holFor(x.date || dt, se);
-      return `<button type="button" class="cal-ev ${scCls(se.location)}${mar ? " ev-mar" : ""}${hf ? " hol-fade" : ""}" data-id="${se.session_id}" style="top:${(x.s - t0) * PPM}px; height:${(x.e - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
+      return `<button type="button" class="cal-ev ${scCls(se.location)}${mar ? " ev-mar" : ""}${hf ? " hol-fade" : ""}" data-id="${se.session_id}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
         title="${mar ? "מרתון · " + esc(se.time_label) + " · " + fmtDM(x.date) + " · " : ""}${esc(se.location)} · ${x.st}-${x.en}${se.room ? " · " + esc(se.room) : ""}">
         <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(se.location)}</span>${hf ? cxTag(hf, true) : ""}<span class="ev-time">${mar && se.time_label ? esc(se.time_label) + " · " : ""}${rng(x.st, x.en)}</span>
-        ${se.room || G.cities.length > 1 ? `<span class="ev-meta">${G.cities.length > 1 ? esc(se.city) : ""}${se.room && G.cities.length > 1 ? " · " : ""}${se.room ? "📍 " + esc(se.room) : ""}</span>` : ""}
-        <span class="ev-meta">${n} ילדים${(() => { const p = (G.prop || []).filter(k => k.session_id === se.session_id).length; return p ? ` · <b>${p} מוצעים</b>` : ""; })()}${G.ins && G.ins[se.session_id] ? " · " + esc(G.ins[se.session_id].join(", ")) : ""}</span></button>`;
+        <span class="ev-meta">${G.cities.length > 1 ? esc(se.city) + " · " : ""}${se.room ? "📍 " + esc(se.room) + " · " : ""}${n} ילדים${(() => { const p = (G.prop || []).filter(k => k.session_id === se.session_id).length; return p ? ` · <b>${p} מוצעים</b>` : ""; })()}${G.ins && G.ins[se.session_id] ? " · " + esc(G.ins[se.session_id].join(", ")) : ""}</span></button>`;
     }).join("");
     return `<div class="cal-col"><div class="cal-day${weekDate(d) === t ? " today" : ""}">${DAY_NAMES[d]}<small>${fmtDM(weekDate(d))}</small>${holChips(dt) ? `<span class="hol-chips">${holChips(dt)}</span>` : ""}</div><div class="cal-body${holColCls(dt)}" style="height:${H}px">${blocks}</div></div>`;
   }).join("");
@@ -2920,6 +2963,7 @@ function renderGrid(){
     + (nMar || G.kind === "מרתון" ? `<div class="stat"><b>${nMar}</b><span>קבוצות מרתון</span></div>` : "");
   if (!G.week) G.week = thisWeek();
   paintWeekNav(G.mode !== "table");
+  if (G.mode !== "table") list = list.filter(x => x.kind === "מרתון" || sesActiveOn(x, weekDate(x.day)));
   if (!list.length && G.mode === "table") { $("gGrid").className = "grid"; $("gGrid").innerHTML = "<tr><td class='empty-state'>אין קבוצות להצגה.</td></tr>"; return; }
   const sorted = list.slice().sort((a, b) => (a.kind === "מרתון") - (b.kind === "מרתון")
     || (a.kind === "מרתון" ? gFirstDate(a).localeCompare(gFirstDate(b)) : (DAY_ORDER[a.day] - DAY_ORDER[b.day]))
@@ -2963,7 +3007,7 @@ function openPanel(id){
   const mOf = se.kind === "מרתון" ? (G.marathons || []).find(m => m.id === se.marathon_id) : null;
   $("panelTitle").textContent = mOf ? `${mOf.name} · ${se.time_label}` : `${se.location} · יום ${DAY_NAMES[se.day]}`;
   const nProp = (G.prop || []).filter(k => k.session_id === id).length;
-  $("panelSub").innerHTML = `<span>${esc(mOf ? marMeetings(se).map(meetTxt).join(" | ").replace(/<[^>]+>/g, "") + " · " + se.location : se.time_label)} · ${esc(se.city)} · <b>${kids.length} ילדים</b>${nProp ? " · " + nProp + " מוצעים" : ""}</span>`
+  $("panelSub").innerHTML = `<span>${esc(mOf ? marMeetings(se).map(meetTxt).join(" | ").replace(/<[^>]+>/g, "") + " · " + se.location : se.time_label)} · ${esc(se.city)}${!mOf && (se.date_from || se.date_to) ? ` · <span class="g-dates">${se.date_from ? "מ-" + esc(fmtDM(se.date_from)) : ""}${se.date_to ? " עד " + esc(fmtDM(se.date_to)) : ""}</span>` : ""} · <b>${kids.length} ילדים</b>${nProp ? " · " + nProp + " מוצעים" : ""}</span>`
     + (G.ins && G.ins[id] ? `<span class="ps-ins">מתרגלים: ${esc(G.ins[id].join(", "))}</span>` : "");
   const start = (se.start_time || "").slice(0, 5);
   // הערות אוטומטיות מהייבוא ("קובץ נרשמים 8.10") לא מוצגות
@@ -3047,6 +3091,8 @@ async function openGroupEditor(se, preset){
     <div><label class="lbl">שעת סיום</label><input type="time" data-g="end" value="${se ? hm(se.end_time) : ""}"></div>
     <div><label class="lbl">כיתה</label><input data-g="room" value="${esc(se && se.room || "")}" placeholder="למשל ח1"></div>
     <div><label class="lbl">מקסימום ילדים</label><input type="number" min="0" data-g="cap" value="${se && se.capacity != null ? se.capacity : ""}" placeholder="ללא הגבלה"></div>
+    <div><label class="lbl">מתאריך</label><input type="date" data-g="from" value="${esc(se ? (se.date_from || "") : todayIL())}"></div>
+    <div><label class="lbl">עד תאריך <span class="muted" style="font-weight:400">(המפגש האחרון)</span></label><input type="date" data-g="to" value="${esc(se ? (se.date_to || lastMeeting(se.day, G.yearEnd)) : lastMeeting(DAYS[0], G.yearEnd))}"></div>
     <label class="chk full"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
     <div class="err full" data-g="err"></div>
     <div class="full lg-btns"><button type="button" class="btn small primary" data-g="save">שמירה</button>
@@ -3054,13 +3100,19 @@ async function openGroupEditor(se, preset){
       <button type="button" class="btn small" data-g="cancel">ביטול</button></div>`;
   const g = (k) => box.querySelector(`[data-g="${k}"]`);
   g("start").onchange = () => { if (g("start").value && !g("end").value) g("end").value = addMin(g("start").value, 45); };
+  // שינוי יום: אם "עד תאריך" היה המפגש האחרון של השנה - מתעדכן ליום החדש
+  let prevDay = g("day").value;
+  g("day").onchange = () => { if (!g("to").value || g("to").value === lastMeeting(prevDay, G.yearEnd)) g("to").value = lastMeeting(g("day").value, G.yearEnd); prevDay = g("day").value; };
   g("cancel").onclick = () => { if (se) openPanel(se.session_id); else closePanel(); };
   g("save").onclick = async () => {
     const day = g("day").value, locId = Number(g("loc").value), st = g("start").value, en = g("end").value;
     if (!locId || !st || !en) { g("err").textContent = "צריך לבחור בית ספר, שעת התחלה ושעת סיום."; return; }
     if (en <= st) { g("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
+    if (!g("from").value) { g("err").textContent = "צריך לבחור מאיזה תאריך הקבוצה מתחילה."; return; }
+    if (g("to").value && g("to").value < g("from").value) { g("err").textContent = "\"עד תאריך\" לפני \"מתאריך\"."; return; }
     const body = { day, location_id: locId, start_time: st, end_time: en, time_label: st + "-" + en, room: nn(g("room").value),
-      capacity: g("cap").value === "" ? null : Number(g("cap").value), is_open: g("open").checked };
+      capacity: g("cap").value === "" ? null : Number(g("cap").value), is_open: g("open").checked,
+      date_from: g("from").value || null, date_to: g("to").value || lastMeeting(day, G.yearEnd) || null };
     g("save").disabled = true;
     try {
       // עמודה פנויה בלוח (אסור שתי קבוצות באותה עיר/יום/שעה עם אותה עמודה)
@@ -3459,6 +3511,9 @@ function showAttList(){ $("attList").hidden = false; $("attSheet").hidden = true
 function renderAttDate(){
   $("attDate").value = A.date;
   $("attDayName").innerHTML = "יום " + esc(DAY_FULL[dayLetter(A.date)]) + (A.date === todayIL() ? ' · <span class="today-word">היום</span>' : "");
+  // נייד: שורה אחת - "יום חמישי 15.10.2026" (לחיצה פותחת לוח תאריכים)
+  $("attDLbl").innerHTML = `יום ${esc(DAY_FULL[dayLetter(A.date)])} ${esc(fmtIso(A.date))}` + (A.date === todayIL() ? ' <span class="today-word">· היום</span>' : "");
+  $("attToday").classList.toggle("is-today", A.date === todayIL());
 }
 $("attPrev").addEventListener("click", () => { A.date = addDays(A.date, -1); loadAttGroups(); });
 $("attNext").addEventListener("click", () => { A.date = addDays(A.date, 1); loadAttGroups(); });
@@ -3476,6 +3531,18 @@ function renderAttCities(){
   });
 }
 const attCityOk = (g) => ME.role === "instructor" || A.cities.includes(g.city);
+// סינון לפי מתרגל (מנהלים): "הקבוצות שלי" / מתרגל מסוים. נשמר בטלפון.
+A.ins = store("telem_att_ins") || "";
+const attInsOf = (g) => [g.instructors || ""].concat((g.splits || []).map(s => s.instructor || "")).join(", ");
+const attInsOk = (g) => ME.role === "instructor" || !A.ins || attInsOf(g).split(/,\s*/).includes(A.ins === "__me" ? (ME.full_name || "") : A.ins);
+function renderAttIns(all){
+  if (ME.role === "instructor") return;
+  const names = [...new Set(all.flatMap(g => attInsOf(g).split(/,\s*/)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "he"));
+  if (A.ins && A.ins !== "__me" && !names.includes(A.ins)) names.push(A.ins);
+  $("attIns").innerHTML = `<option value="">כל המתרגלים</option>${ME.full_name ? `<option value="__me">הקבוצות שלי</option>` : ""}` + names.filter(n => n !== ME.full_name).map(n => `<option>${esc(n)}</option>`).join("");
+  $("attIns").value = A.ins;
+}
+$("attIns").addEventListener("change", () => { A.ins = $("attIns").value; store("telem_att_ins", A.ins || null); loadAttGroups(); });
 $("attWkPrev").addEventListener("click", () => { A.date = addDays(weekStart(A.date), -7); loadAttGroups(); });
 $("attWkNext").addEventListener("click", () => { A.date = addDays(weekStart(A.date), 7); loadAttGroups(); });
 $("attWkNow").addEventListener("click", () => { A.date = todayIL(); loadAttGroups(); });
@@ -3509,12 +3576,12 @@ async function loadAttWeek(){
   const cols = showDates.map(d => {
     const de = ev.filter(x => x.date === d).sort((a, b) => a.s - b.s || b.e - a.e);
     let cluster = [], cEnd = -1; const out = [];
-    const flush = () => { const lanes = []; cluster.forEach(x => { let i = lanes.findIndex(end => end <= x.s); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = x.e; x.lane = i; }); cluster.forEach(x => { x.n = lanes.length; out.push(x); }); cluster = []; };
-    de.forEach(x => { if (cluster.length && x.s >= cEnd) flush(); cluster.push(x); cEnd = Math.max(cEnd, x.e); }); if (cluster.length) flush();
+    const flush = () => { const lanes = []; cluster.forEach(x => { let i = lanes.findIndex(end => end <= x.s + CAL_OVL); if (i < 0) { i = lanes.length; lanes.push(0); } lanes[i] = x.e; x.lane = i; }); cluster.forEach(x => { x.n = lanes.length; const nx = cluster.filter(y => y.lane === x.lane && y.s > x.s && y.s < x.e).sort((a, b) => a.s - b.s)[0]; x.de = nx ? nx.s : x.e; out.push(x); }); cluster = []; };
+    de.forEach(x => { if (cluster.length && x.s >= cEnd - CAL_OVL) flush(); cluster.push(x); cEnd = Math.max(cEnd, x.e); }); if (cluster.length) flush();
     const blocks = out.map(x => { const g = x.g, mar = g.kind === "מרתון", w = 100 / x.n;
       const narrow = x.n > 1;   // כמה קבוצות זו לצד זו - תגית קטנה בלי טקסט
       const st = x.st === "ok" ? `<span class="att-st ok" title="סומן: ${g.marked_count} נוכחים מתוך ${g.kids}">✓${narrow ? "" : " " + g.marked_count + "/" + g.kids}</span>` : x.st === "miss" ? `<span class="att-st miss" title="לא סומן">${narrow ? "" : "לא סומן"}</span>` : "";
-      return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${x.st === "fut" ? " fut" : ""}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${(x.e - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
+      return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${x.st === "fut" ? " fut" : ""}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.lane * w}% + 2px); width:calc(${w}% - 4px);"
         title="${esc(g.location)} · ${hm(g.start_time)}-${hm(g.end_time)}${g.room ? " · " + esc(g.room) : ""}">
         <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>${x.st === "hol" ? cxTag(x.hf, true) : ""}
         <span class="ev-time">${mar && g.time_label ? esc(g.time_label) + " · " : ""}${rng(hm(g.start_time), hm(g.end_time))}</span>
@@ -3534,10 +3601,12 @@ async function loadAttGroups(){
   $("attGroups").className = "att-groups"; $("attGroups").innerHTML = "<div class='muted'>טוען...</div>";
   try {
     await loadHol();
-    A.groups = (await rpc("attendance_groups", { p_date: A.date, p_city: null })).filter(attCityOk);
+    const allG = (await rpc("attendance_groups", { p_date: A.date, p_city: null })).filter(attCityOk);
+    renderAttIns(allG);
+    A.groups = allG.filter(attInsOk);
     if (holChips(A.date)) $("attDayName").insertAdjacentHTML("beforeend", ` <span class="hol-chips" style="display:inline-flex">${holChips(A.date)}</span>`);
     if (!A.groups.length) {
-      $("attGroups").innerHTML = `<div class="card muted">${ME.role === "instructor" ? "אין לך קבוצות ביום הזה." : "אין קבוצות ביום הזה."}</div>`;
+      $("attGroups").innerHTML = `<div class="card muted">${ME.role === "instructor" ? "אין לך קבוצות ביום הזה." : A.ins && allG.length ? "אין קבוצות ביום הזה למתרגל/ת שנבחר/ה." : "אין קבוצות ביום הזה."}</div>`;
       return;
     }
     const hm = (t) => String(t || "").slice(0, 5);
@@ -3724,7 +3793,6 @@ $("shRows").addEventListener("change", (e) => {
 });
 ["shExtra", "shNotes"].forEach(id => $(id).addEventListener("input", attDirty));
 $("shAll").addEventListener("click", () => { A.rows.filter(shVisible).forEach(r => { if (r.present == null) setPresent(r, true); }); attDirty(); renderSheetRows(); });
-$("shGroup").innerHTML = icon("groups") + '<span class="ib-t">עריכת הקבוצה</span>';
 $("shGroup").addEventListener("click", async () => {
   if (attDirty && attDirty() && !window.confirm("יש סימונים שלא נשמרו. לעבור בכל זאת? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הנוכחות)")) return;
   G.openAfter = A.sheet && A.sheet.session_id; go("groups");
@@ -3921,6 +3989,36 @@ function renderAssign(){
 // בתי ספר - מידע (מנהלים בלבד)
 // ======================================================================
 const SC = { list: [], groups: [], ins: {}, cur: store("telem_school") || null, edit: false };
+// שמות כיתות כמו "ז2" לא מתהפכים ("2ז") - כל שם כיתה מבודד
+const bidiRooms = (v) => esc(v).replace(/[א-ת]{1,3}['׳]?\d+/g, m => `<bdi>${m}</bdi>`);
+// מעבר: לפי בית ספר / כל המבחנים לפי תאריך
+document.querySelectorAll("[data-scm]").forEach(b => b.addEventListener("click", () => go(b.dataset.scm === "exams" ? "exams" : (ME.role === "instructor" ? "myschools" : "schools"))));
+// מבחנים ו"לומדים עכשיו" של בית ספר אחד, לפי שכבה (בעמוד בית הספר)
+function schoolExamsHtml(name, city, admin){
+  const t = todayIL(), sk = schKey(name);
+  const rows = (EX.rows || []).filter(e => schKey(exSchName(e)) === sk && (!city || !e.school || !e.school.city || e.school.city === city));
+  const grades = [...new Set(rows.map(e => gradeKey(e.grade)))].sort((a, b) => GRADE_ORD.indexOf(a) - GRADE_ORD.indexOf(b));
+  const body = grades.map(gk => {
+    const gr = rows.filter(e => gradeKey(e.grade) === gk);
+    const st = gr.filter(e => EX_STUDY.test(e.kind) && e.exam_date <= t).pop();
+    const ex = gr.filter(e => !EX_STUDY.test(e.kind) && e.exam_date >= t);
+    const main = ex.filter(e => !EX_MAKEUP.test(e.kind)), mk = ex.filter(e => EX_MAKEUP.test(e.kind));
+    if (!st && !ex.length) return "";
+    return `<div class="sx-row">${gradeBadge(gk)}<div class="sx-items">
+      ${st ? `<button type="button" class="ex-tag ex-nbt" data-ex="${st.id}" title="מה לומדים עכשיו בכיתה">📓 לומדים עכשיו</button>` : ""}
+      ${main.map(e => exTag(e, t)).join("")}
+      ${mk.length ? `<span class="sx-mk">${mk.map(e => `<button type="button" class="sx-mk-b" data-ex="${e.id}">${esc(e.kind.replace("מועד ", ""))} ${esc(fmtDM(e.exam_date))}</button>`).join(" · ")}</span>` : ""}
+      ${!main.length && !mk.length ? `<span class="muted sx-none">אין מבחנים קרובים ידועים</span>` : ""}</div></div>`;
+  }).join("");
+  return `<div class="card sx-card"><div class="sx-h"><h3>מבחנים ולומדים עכשיו</h3>${admin ? `<button type="button" class="btn small" data-sxadd="${esc(name)}|${esc(city || "")}">+ מבחן</button>` : ""}</div>
+    ${body || `<div class="muted">עוד לא התקבלו תאריכי מבחנים או חומר.</div>`}</div>`;
+}
+function bindSchoolExams(root){
+  root.querySelectorAll("[data-sxadd]").forEach(b => b.onclick = () => {
+    const [n, c] = b.dataset.sxadd.split("|"); go("exams"); exOpenForm(null);
+    const sc = (L.schools || []).find(x => x.name === n && (!c || x.city === c)); if (sc && $("exfSch")) $("exfSch").value = sc.id;
+  });
+}
 async function loadSchools(){
   $("scBody").innerHTML = "<div class='muted'>טוען...</div>";
   try {
@@ -3929,6 +4027,7 @@ async function loadSchools(){
       get("session_summary", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).catch(() => []),
       get("session_instructors", "select=session_id,staff(full_name)").catch(() => [])
     ]);
+    await loadExams();
     SC.list = list; SC.groups = groups; SC.ins = {}; SC.loaded = true;
     ins.forEach(r => { if (r.staff && r.staff.full_name) (SC.ins[r.session_id] = SC.ins[r.session_id] || []).push(r.staff.full_name); });
     if (!SC.list.some(x => String(x.id) === String(SC.cur))) SC.cur = SC.list.length ? SC.list[0].id : null;
@@ -3952,25 +4051,33 @@ function renderSchools(){
   const x = SC.list.find(y => String(y.id) === String(SC.cur));
   if (!x) { $("scBody").innerHTML = "<div class='card muted'>אין עדיין בתי ספר. אפשר להוסיף בכפתור \"+ בית ספר\".</div>"; return; }
   const tel = (p) => p ? String(p).split(/[\n,]|\s+(?=0)/).map(t => t.trim()).filter(Boolean).map(t => `<a href="tel:${digits(t)}" dir="ltr" style="white-space:nowrap">${esc(t)}</a>`).join("<br>") : "";
-  const txt = (v) => v ? `<div class="sc-text">${esc(v)}</div>` : "<span class='muted'>-</span>";
+  const txt = (v) => v ? `<div class="sc-text">${bidiRooms(v)}</div>` : "<span class='muted'>-</span>";
   const bells = x.bells || [], contacts = x.contacts || [];
   const hm = (t) => String(t || "").slice(0, 5);
   const groups = SC.groups.filter(g => g.city === x.city && g.location === x.name && (g.assigned_count || 0) > 0 && (g.kind || "שוטף") === "שוטף")
     .sort((a, b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day) || String(a.start_time).localeCompare(String(b.start_time)));
   const groupsHtml = groups.length ? `<table class="sc-tbl sc-groups"><tbody>${groups.map(g => `<tr data-sid="${g.session_id}" title="פתיחה בלוח הקבוצות">
       <td><b>יום ${esc(g.day)}'</b></td><td>${rng(hm(g.start_time), hm(g.end_time))}</td>
-      <td>${g.room ? `<bdi>${esc(g.room)}</bdi>` : ""}</td><td class="muted">${g.assigned_count} ילדים${SC.ins[g.session_id] ? " · " + esc(SC.ins[g.session_id].join(", ")) : ""}</td>
+      <td class="rm">${g.room ? `<bdi>${esc(g.room)}</bdi>` : ""}</td><td class="muted">${g.assigned_count} ילדים${SC.ins[g.session_id] ? " · " + esc(SC.ins[g.session_id].join(", ")) : ""}</td>
       <td class="go">←</td></tr>`).join("")}</tbody></table>` : "<span class='muted'>אין קבוצות השנה</span>";
   if (!SC.edit) {
+    const bellsH = bells.length ? `<table class="sc-tbl"><tbody>${bells.map(b => `<tr class="${/שיעור/.test(b.label) ? "" : "brk"}"><td>${esc(b.label)}</td><td dir="ltr" style="text-align:right">${esc(b.start)}–${esc(b.end)}</td></tr>`).join("")}</tbody></table>` : "<span class='muted'>אין</span>";
+    const contH = contacts.length ? `<div class="sc-contacts">${contacts.map(c => `<div class="sc-ct"><span class="muted">${esc(c.role)}</span>${c.name ? ` <b>${esc(c.name)}</b>` : ""}<div>${tel(c.phone)}</div></div>`).join("")}</div>` : "<span class='muted'>אין</span>";
     $("scBody").innerHTML = `
       <div class="sc-head"><h2>${esc(x.name)}</h2><span class="muted">${esc(x.city)}</span>${x.phone ? `<span>טלפון בית הספר: ${tel(x.phone)}</span>` : ""}</div>
-      <div class="sc-grid">
-        <div class="card"><h3>הקבוצות שלנו כאן</h3>${groupsHtml}<h3 style="margin-top:12px;">כיתות</h3>${txt(x.rooms)}</div>
-        <div class="card"><h3>לוח צלצולים</h3>${bells.length ? `<table class="sc-tbl"><tbody>${bells.map(b => `<tr class="${/שיעור/.test(b.label) ? "" : "brk"}"><td>${esc(b.label)}</td><td dir="ltr" style="text-align:right">${esc(b.start)}–${esc(b.end)}</td></tr>`).join("")}</tbody></table>` : "<span class='muted'>אין</span>"}</div>
-        <div class="card"><h3>אנשי קשר</h3>${contacts.length ? `<table class="sc-tbl"><tbody>${contacts.map(c => `<tr><td class="muted">${esc(c.role)}</td><td><b>${esc(c.name || "")}</b></td><td>${tel(c.phone)}</td></tr>`).join("")}</tbody></table>` : "<span class='muted'>אין</span>"}</div>
+      <div class="sc-main">
+        ${schoolExamsHtml(x.name, x.city, true)}
+        <div class="card"><h3>הקבוצות שלנו כאן</h3>${groupsHtml}</div>
       </div>
-      <div class="meta-line">עודכן: ${esc(fmtDate(x.updated_at))}</div>`;
+      <details class="card sc-more"><summary>פרטי בית הספר <span class="muted">· כיתות, לוח צלצולים, אנשי קשר</span></summary>
+        <div class="sc-grid">
+          <div><h3>כיתות</h3>${txt(x.rooms)}</div>
+          <div><h3>לוח צלצולים</h3>${bellsH}</div>
+          <div><h3>אנשי קשר</h3>${contH}</div>
+        </div>
+        <div class="meta-line">עודכן: ${esc(fmtDate(x.updated_at))}</div></details>`;
     $("scBody").querySelectorAll(".sc-groups tr[data-sid]").forEach(tr => tr.onclick = () => openGroupOnBoard(Number(tr.dataset.sid), x.city));
+    bindSchoolExams($("scBody"));
     return;
   }
   const row = (cls, cells) => `<tr class="${cls}">${cells}<td><button type="button" class="btn small" data-rm>✕</button></td></tr>`;
@@ -4149,18 +4256,19 @@ $("mePwBtn").addEventListener("click", openPasswordBox);
 async function loadMySchools(){
   $("msBody").innerHTML = "<div class='muted'>טוען...</div>";
   let data;
-  try { data = await rpc("my_schools", { p_year: CONFIG.schoolYear }); }
+  try { [data] = await Promise.all([rpc("my_schools", { p_year: CONFIG.schoolYear }), loadExams()]); }
   catch(e) { $("msBody").innerHTML = `<div class="card err">${e.status === 404 || e.code === "PGRST202" ? "צריך להריץ את קובץ 34." : "לא ניתן לטעון."}</div>`; return; }
   const hm = (t) => String(t || "").slice(0, 5);
   if (!data || !data.length) { $("msBody").innerHTML = "<div class='card muted'>עוד לא שויכו אליך קבוצות.</div>"; return; }
   $("msBody").innerHTML = data.map(sc => {
     const site = sc.site || {}, bells = site.bells || [];
     return `<div class="ms-school"><h2>${scChip(sc.location)} <span class="muted" style="font-size:14px; font-weight:400;">${esc(sc.city)}</span></h2>
+      ${schoolExamsHtml(sc.location, sc.city, false)}
       <div class="sc-grid">
         <div class="card"><h3>הקבוצות שלי</h3>${(sc.groups || []).map(g => `<div class="ms-grp"><h4>יום ${esc(DAY_NAMES[g.day] || g.day)} · ${rng(hm(g.start_time), hm(g.end_time))}${g.room ? ` · חדר <bdi>${esc(g.room)}</bdi>` : ""}</h4>
           <ul class="ms-kids">${(g.kids || []).map(k => `<li><span>${esc(k.first_name)} ${esc(k.last_name || "")}</span><span class="muted">${esc([k.grade ? "כיתה " + classLabel(k.grade, k.class_num) : "", k.subject, k.arrival_time && hm(k.arrival_time) !== hm(g.start_time) ? "שעה אישית " + hm(k.arrival_time) : ""].filter(Boolean).join(" · "))}</span></li>`).join("") || "<li class='muted'>אין ילדים</li>"}</ul></div>`).join("")}</div>
         <div class="card"><h3>לוח צלצולים</h3>${bells.length ? `<table class="sc-tbl"><tbody>${bells.map(b => `<tr class="${/שיעור/.test(b.label) ? "" : "brk"}"><td>${esc(b.label)}</td><td dir="ltr" style="text-align:right">${esc(b.start)}–${esc(b.end)}</td></tr>`).join("")}</tbody></table>` : "<span class='muted'>עוד לא הוזן</span>"}
-          <h3 style="margin-top:12px;">כיתות</h3>${site.rooms ? `<div class="sc-text">${esc(site.rooms)}</div>` : "<span class='muted'>-</span>"}
+          <h3 style="margin-top:12px;">כיתות</h3>${site.rooms ? `<div class="sc-text">${bidiRooms(site.rooms)}</div>` : "<span class='muted'>-</span>"}
           ${site.instructions ? `<h3 style="margin-top:12px;">הנחיות</h3><div class="sc-text">${esc(site.instructions)}</div>` : ""}</div>
       </div></div>`;
   }).join("");
@@ -4695,7 +4803,7 @@ const H = { rows: null, page: 0, view: "search" };
 // כל ההיסטוריה (כ-10,000 שורות) - נטענת פעם אחת, לחיפוש "שנים קודמות" ולחיפוש במסך התלמידים
 async function loadHistRows(){
   if (H.rows) return H.rows;
-  if (!H.loading) H.loading = getAll("student_history", "select=id,year_start,school_year,kid_key,first_name,last_name,city,school,grade,status,source,parent1_name,parent1_phone,parent2_phone,student_phone,student_id,linked_how&order=year_start.desc,id")
+  if (!H.loading) H.loading = getAll("student_history", "select=id,year_start,school_year,kid_key,first_name,last_name,city,school,grade,status,source,parent1_name,parent1_phone,parent2_name,parent2_phone,student_phone,home_phone,email,message,notes,student_id,linked_how&order=year_start.desc,id")
     .then(r => (H.rows = r)).finally(() => { H.loading = null; });
   return H.loading;
 }
@@ -4715,6 +4823,8 @@ async function paintHistHits(list){
   btn.onclick = () => { $("hSearch").value = $("fSearch").value; H.view = "search"; H.page = 0; go("history"); };
 }
 
+// "תשפ"ז 26-27"
+const hyLbl = (sy, ys) => ys ? `${sy || ""} ${String(ys % 100).padStart(2, "0")}-${String((Number(ys) + 1) % 100).padStart(2, "0")}` : (sy || "");
 async function loadHistoryView(){
   document.querySelectorAll("[data-hv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.hv === H.view)));
   $("hvSearch").hidden = H.view !== "search"; $("hvSum").hidden = H.view !== "sum";
@@ -4723,22 +4833,27 @@ async function loadHistoryView(){
     $("hTbl").innerHTML = "<tbody><tr><td class='empty-state'>טוען...</td></tr></tbody>";
     try { await loadHistRows(); }
     catch(e) { $("hTbl").innerHTML = `<tbody><tr><td class="empty-state">${e.status === 404 ? "צריך להריץ את קובץ 31." : "לא ניתן לטעון."}</td></tr></tbody>`; return; }
+  }
+  if ($("hYear").options.length < 2 && H.rows.length) {   // גם כשהרשימה כבר נטענה (למשל מקישור "נמצאו עוד בשנים קודמות")
     const years = [...new Set(H.rows.map(h => h.school_year + "|" + h.year_start))].sort((a, b) => b.split("|")[1] - a.split("|")[1]);
-    $("hYear").innerHTML = "<option value=''>כל השנים</option>" + years.map(y => `<option value="${esc(y.split("|")[1])}">${esc(y.split("|")[0])}</option>`).join("");
+    $("hYear").innerHTML = "<option value=''>כל השנים</option>" + years.map(y => `<option value="${esc(y.split("|")[1])}">${esc(hyLbl(y.split("|")[0], Number(y.split("|")[1])))}</option>`).join("");
     $("hCity").innerHTML = "<option value=''>כל הערים</option>" + [...new Set(H.rows.map(h => h.city).filter(Boolean))].sort((a, b) => a.localeCompare(b, "he")).map(c => `<option>${esc(c)}</option>`).join("");
   }
   renderHistoryView();
 }
 function renderHistoryView(){
-  const q = $("hSearch").value.trim().toLowerCase(), qd = digits(q), y = $("hYear").value, c = $("hCity").value, t = $("hType").value;
+  const q = $("hSearch").value.trim().toLowerCase(), qd = digits(q), y = $("hYear").value, c = $("hCity").value, t = $("hType").value, cd = $("hCard").value;
+  const hasCard = (h) => !!(h.student_id && L.leads.some(l => l.student_id === h.student_id));
   const list = H.rows.filter(h => {
     if (y && String(h.year_start) !== y) return false;
     if (c && h.city !== c) return false;
     if (t === "reg" && !histReg(h)) return false;
     if (t === "lead" && histReg(h)) return false;
+    if (cd === "yes" && !hasCard(h)) return false;
+    if (cd === "no" && hasCard(h)) return false;
     if (q) {
-      const txt = [h.first_name, h.last_name, h.parent1_name, h.school, h.city].join(" ").toLowerCase();
-      const ph = [h.parent1_phone, h.parent2_phone, h.student_phone].map(digits).join(" ");
+      const txt = [h.first_name, h.last_name, h.parent1_name, h.parent2_name, h.email, h.school, h.city].join(" ").toLowerCase();
+      const ph = [h.parent1_phone, h.parent2_phone, h.student_phone, h.home_phone].map(digits).join(" ");
       if (!txt.includes(q) && !(qd.length >= 3 && ph.includes(qd))) return false;
     }
     return true;
@@ -4749,15 +4864,26 @@ function renderHistoryView(){
   $("hPage").textContent = `${H.page + 1} / ${pages}`; $("hPrev").disabled = H.page === 0; $("hNext").disabled = H.page >= pages - 1;
   $("hTbl").innerHTML = `<thead><tr><th>שנה</th><th>שם</th><th>עיר · בית ספר · כיתה</th><th>סטטוס</th><th>הורה</th><th>אצלנו</th></tr></thead><tbody>` + (rows.length ? rows.map(h => {
     const lead = h.student_id ? L.leads.find(l => l.student_id === h.student_id) : null;
-    return `<tr><td class="num">${esc(h.school_year)}</td><td><b>${esc(h.first_name || "")} ${esc(h.last_name || "")}</b></td>
+    return `<tr class="h-row" data-hid="${h.id}" title="לחיצה - כל הפרטים"><td class="num" style="white-space:nowrap">${esc(hyLbl(h.school_year, h.year_start))}</td><td><b>${esc(h.first_name || "")} ${esc(h.last_name || "")}</b> <span class="h-more">▾</span></td>
       <td class="muted">${esc([h.city, h.school, h.grade].filter(Boolean).join(" · "))}</td>
       <td>${histReg(h) ? `<b class="ok-txt">${esc(h.status)}</b>` : esc(h.status || "")}</td>
       <td class="muted">${esc([h.parent1_name, h.parent1_phone].filter(Boolean).join(" · "))}</td>
       <td>${lead ? `<button type="button" class="btn small" data-lead="${lead.id}">לכרטיס</button>` : "<span class='muted'>—</span>"}</td></tr>`;
   }).join("") : "<tr><td colspan='6' class='empty-state'>לא נמצאו רשומות.</td></tr>") + "</tbody>";
-  $("hTbl").querySelectorAll("[data-lead]").forEach(b => b.onclick = () => openLead(Number(b.dataset.lead)));
+  $("hTbl").querySelectorAll("[data-lead]").forEach(b => b.onclick = (ev) => { ev.stopPropagation(); openLead(Number(b.dataset.lead)); });
+  // לחיצה על שורה: כל הפרטים שיובאו מה-CRM הישן
+  $("hTbl").querySelectorAll("tr.h-row").forEach(tr => tr.onclick = () => {
+    const nx = tr.nextElementSibling; if (nx && nx.classList.contains("h-det")) { nx.remove(); tr.classList.remove("open"); return; }
+    const h = H.rows.find(x => x.id === Number(tr.dataset.hid)); if (!h) return;
+    const tl = (v) => v ? String(v).split(/[,;\s]+(?=0)/).map(t => `<a href="tel:${digits(t)}" dir="ltr">${esc(t.trim())}</a>`).join(", ") : "";
+    const f = [["הורה 1", [esc(h.parent1_name || ""), tl(h.parent1_phone)].filter(Boolean).join(" · ")], ["הורה 2", [esc(h.parent2_name || ""), tl(h.parent2_phone)].filter(Boolean).join(" · ")],
+      ["טלפון הילד/ה", tl(h.student_phone)], ["טלפון בבית", tl(h.home_phone)], ["אימייל", h.email ? `<a href="mailto:${esc(h.email)}" dir="ltr">${esc(h.email)}</a>` : ""],
+      ["מקור", esc(h.source || "")], ["הודעה", esc(h.message || "")], ["הערות", esc(h.notes || "")]].filter(x => x[1]);
+    tr.classList.add("open");
+    tr.insertAdjacentHTML("afterend", `<tr class="h-det"><td colspan="6"><dl class="h-dl">${f.map(x => `<dt>${x[0]}</dt><dd>${x[1]}</dd>`).join("") || "<dd class='muted'>אין פרטים נוספים.</dd>"}</dl></td></tr>`);
+  });
 }
-["hSearch","hYear","hCity","hType"].forEach(id => $(id).addEventListener(id === "hSearch" ? "input" : "change", () => { H.page = 0; renderHistoryView(); }));
+["hSearch","hYear","hCity","hType","hCard"].forEach(id => $(id).addEventListener(id === "hSearch" ? "input" : "change", () => { H.page = 0; renderHistoryView(); }));
 $("hPrev").addEventListener("click", () => { H.page--; renderHistoryView(); });
 $("hNext").addEventListener("click", () => { H.page++; renderHistoryView(); });
 document.querySelectorAll("[data-hv]").forEach(b => b.addEventListener("click", () => { H.view = b.dataset.hv; loadHistoryView(); }));
