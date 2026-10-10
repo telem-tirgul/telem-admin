@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.12">
+<meta name="app-version" content="5.13">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -529,6 +529,9 @@
   .cal-body.hol-col-vacation{ background-color:color-mix(in srgb, var(--ink) 3%, transparent); background-image:repeating-linear-gradient(135deg, transparent 0 10px, color-mix(in srgb, var(--ink) 5%, transparent) 10px 12px), repeating-linear-gradient(to bottom, var(--border) 0 1px, transparent 1px calc(var(--ppm) * 30)); }
   .cal-ev.hol-fade, .mob-group.hol-fade, .att-group.hol-fade{ opacity:.5; }
   .cx-box{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 10px; }
+  .cx-box{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:flex-start; margin:-6px 0 10px; }
+  .cx-btn{ background:transparent !important; border:1px dashed var(--border) !important; color:var(--ink-soft) !important; font-weight:600 !important; }
+  .sh-total{ font-size:14px; color:var(--ink-soft); margin-top:2px; } .sh-total b{ color:var(--accent); font-size:15px; }
   .cx-on{ background:color-mix(in srgb, var(--ink) 8%, var(--paper)); border:1px solid var(--border); border-radius:10px; padding:8px 12px; }
   .cx-form{ display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap; } .cx-form select, .cx-form input{ width:auto; padding:5px 8px; }
   #attSheet .card.cx-off .att-rows, #attSheet .card.cx-off .sh-tools{ opacity:.45; }
@@ -758,6 +761,10 @@
   @media (max-width:760px){ .rg-sec-h{ flex-wrap:wrap; } .rg-school{ flex-basis:100%; }
     .lk2-head{ display:none; } .lk2-row{ grid-template-columns:1fr; gap:6px; } .lk2-l{ display:inline-block; } .rg-lk-seg{ gap:6px; grid-template-columns:repeat(3, 1fr); } .rg-lk-seg button{ padding:9px 2px; font-size:14.5px; white-space:nowrap; } }
   .fhint{ font-size:12px; margin-top:3px; }
+  .bug-box{ width:min(440px,92%); display:flex; flex-direction:column; gap:10px; } .bug-box textarea{ width:100%; box-sizing:border-box; font:inherit; }
+  .iss{ margin-bottom:8px; } .iss.done{ opacity:.6; } .iss-h{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; } .iss-act{ margin-inline-start:auto; display:inline-flex; gap:6px; align-items:center; }
+  .iss-b{ white-space:pre-wrap; margin-top:6px; } .iss-e{ font-size:12px; margin-top:4px; direction:ltr; text-align:left; }
+  .lead-log{ font-size:13px; display:flex; flex-direction:column; gap:6px; max-height:260px; overflow:auto; } .ll-row{ display:flex; flex-direction:column; border-bottom:1px solid var(--border); padding-bottom:4px; } .ll-when{ color:var(--ink-soft); font-size:12px; }
   .sw-open{ font:inherit; font-size:12.5px; font-weight:800; border-radius:999px; padding:2px 10px; margin-inline-start:6px; cursor:pointer; border:1.5px solid var(--border); background:var(--paper); color:var(--ink-soft); }
   .sw-open.on{ border-color:var(--ok); color:var(--ok); background:color-mix(in srgb, var(--ok) 10%, var(--paper)); }
   .hist-hits{ margin-top:14px; border-color:color-mix(in srgb, var(--gold) 45%, var(--border)); background:color-mix(in srgb, var(--gold) 7%, var(--paper)); }
@@ -927,6 +934,7 @@
       <button type="button" data-view="info">מידע</button>
     </nav>
     <div class="who"><span id="whoEmail"></span>
+      <button class="btn small ghost" id="bugBtn" type="button" title="דיווח על בעיה" aria-label="דיווח על בעיה">🐞</button>
       <button class="btn small ghost gear" id="gearBtn" type="button" title="הגדרות" aria-label="הגדרות">⚙</button>
       <button class="btn small ghost" id="logoutBtn" type="button">יציאה</button>
     </div>
@@ -1072,6 +1080,8 @@
             <div id="leadCancel2" style="font-size:13.5px;"></div>
             <h3 class="side-h">שנים קודמות</h3>
             <div id="leadHist" class="muted" style="font-size:13.5px;"></div>
+            <h3 class="side-h">היסטוריית שינויים</h3>
+            <div id="leadLog" class="lead-log"></div>
           </div>
         </div>
       </form>
@@ -1110,8 +1120,8 @@
       </div>
       <div id="attSheet" hidden>
         <div class="page-head">
-          <div><h1 id="shTitle"></h1><div class="lead-sub" id="shSub"></div></div>
-          <button class="btn" type="button" id="shBack">חזרה לקבוצות</button>
+          <div><h1 id="shTitle"></h1><div class="lead-sub" id="shSub"></div><div class="sh-total" id="shTotal"></div></div>
+          <button class="btn" type="button" id="shBack">→ חזרה לקבוצות</button>
         </div>
         <div class="notice" id="shLocked" hidden>אפשר לסמן ולתקן נוכחות רק ביום השיעור.</div>
         <div class="cx-box" id="shCx" hidden></div>
@@ -1123,13 +1133,13 @@
             <button class="btn small" type="button" id="shAddBtn">+ ילד/ה רשום/ה מקבוצה אחרת</button>
             <div id="shAddPanel" hidden>
               <input id="shAddQ" type="search" placeholder="שם הילד/ה (לפחות 2 אותיות)..." aria-label="חיפוש ילד/ה רשום/ה" autocomplete="off">
-              <div class="muted" style="font-size:12.5px; margin-top:4px;">רק ילדים רשומים - קודם מהעיר של הקבוצה, ואחריהם מערים אחרות. ילד/ה שלא רשום/ה - כותבים בשדה למטה.</div>
+              <div class="muted" style="font-size:12.5px; margin-top:4px;">רק ילדים רשומים - קודם מהעיר של הקבוצה, ואחריהם מערים אחרות. ילד/ה שלא רשום/ה - כותבים בהערות למטה.</div>
               <ul class="sh-add-res" id="shAddRes"></ul>
             </div>
           </div>
           <div class="sh-fields">
-            <div><label class="lbl" for="shExtra">ילדים שלא רשומים (שם + הערה)</label><textarea id="shExtra" rows="2"></textarea></div>
-            <div><label class="lbl" for="shNotes">הערות</label><textarea id="shNotes" rows="2"></textarea></div>
+            <textarea id="shExtra" hidden></textarea>
+            <div><label class="lbl" for="shNotes">הערות <span class="muted" style="font-weight:400">(כולל ילדים שלא רשומים - שם + הערה)</span></label><textarea id="shNotes" rows="3"></textarea></div>
           </div>
           <div class="err" id="shErr"></div>
           <div class="actions sh-actions"><button class="btn primary" type="button" id="shSave">שמירה</button></div>
@@ -1140,8 +1150,15 @@
     </section>
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
+    <section id="view-issues" hidden>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="page-head"><h1>דיווחים על בעיות</h1>
+        <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-iss="open" aria-pressed="true">פתוחים</button><button type="button" data-iss="all" aria-pressed="false">הכול</button></div></div>
+      <p class="muted" style="font-size:13.5px; margin:-4px 0 12px;">כל דיווח מ-🐞 בפס העליון. בסוף היום - "העתקה" ומדביקים ל-Claude, ואז "טופל".</p>
+      <div id="issList"></div>
+    </section>
     <section id="view-backup" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>גיבוי</h1></div>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
@@ -1240,7 +1257,7 @@
 
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
     <section id="view-me" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>הפרטים שלי</h1></div>
       <div class="card me-card">
         <dl class="me-dl"><dt>שם</dt><dd id="meName"></dd><dt>אימייל</dt><dd id="meEmail" dir="ltr"></dd><dt>תפקיד</dt><dd id="meRole"></dd></dl>
@@ -1316,7 +1333,7 @@
 
     <!-- ===== צוות ומתרגלים ===== -->
     <section id="view-staff" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>צוות ומתרגלים</h1></div>
       <div class="card" style="margin-bottom:14px;">
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
@@ -1583,7 +1600,7 @@ async function afterAuthLink(){
 }
 
 let currentView = "leads";
-const SETTINGS_VIEWS = ["staff","backup","me"];
+const SETTINGS_VIEWS = ["staff","backup","issues","me"];
 const INFO_VIEWS = ["info","schools","myschools","holidays"];
 let DATA_READY = true, DATA_WAIT = null;
 function go(view){
@@ -1606,7 +1623,7 @@ function go(view){
   if (SETTINGS_VIEWS.includes(view)) store(key, view);
   if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
   const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.sched = "reg";
-  ["home","leads","lead","groups","att","sched","reg","info","staff","schools","reports","history","backup","ws","me","myschools","holidays"].forEach(v => { $("view-" + v).hidden = v !== view; });
+  ["home","leads","lead","groups","att","sched","reg","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   { const cur = document.querySelector('.nav button[aria-current="page"]'); if ($("navCur")) $("navCur").textContent = cur ? cur.textContent.replace("⚙", "").trim() : (view === "home" ? "תפריט" : ({ me: "הגדרות", staff: "הגדרות", backup: "הגדרות" }[view] || "תפריט")); }
   document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view)));
@@ -1617,6 +1634,7 @@ function go(view){
   if (view === "info") loadInfo();
   if (view === "history") loadHistoryView();
   if (view === "backup") showBackupInfo();
+  if (view === "issues") loadIssues();
   if (view === "ws") loadWs();
   if (view === "home") renderHome();
   if (view === "me") renderMe();
@@ -2051,7 +2069,7 @@ function openLead(id){
   setLeadEdit(!l);
   go("lead");
   renderTrack(l); $("leadPay").innerHTML = ""; $("leadCancel2").innerHTML = "";
-  if (l) { loadNotes(l.id); loadLeadGroups(l.student.id); loadLeadSig(l); loadLeadHist(l); loadLeadPay(l); loadLeadCancel(l); } else { $("leadSig").textContent = ""; $("leadHist").textContent = ""; }
+  if (l) { loadNotes(l.id); loadLeadGroups(l.student.id); loadLeadSig(l); loadLeadHist(l); loadLeadLog(l); loadLeadPay(l); loadLeadCancel(l); } else { $("leadSig").textContent = ""; $("leadHist").textContent = ""; }
 }
 // כותרת המסך: שם הילד בגדול, ומתחת - הורה, טלפון, בית ספר ושכבה. מתעדכנת תוך כדי הקלדה.
 function updateLeadHead(){
@@ -2188,6 +2206,16 @@ async function loadLeadSig(l){
   } catch(e) { $("leadSig").textContent = e.status === 404 ? "צריך להריץ את קובץ 29." : "לא ניתן לטעון."; }
 }
 // היסטוריה מה-CRM הישן: השנים של הילד, ובאפור - אחים מאותה משפחה שפנו בעבר
+// ---------- יומן שינויים בכרטיס תלמיד (קובץ 49) ----------
+async function loadLeadLog(l){
+  const box = $("leadLog"); box.innerHTML = "<span class='muted'>טוען...</span>";
+  try {
+    const rows = await get("change_log", "select=at,kind,action,old_value,new_value,by_name&student_id=eq." + l.student.id + "&order=at.desc&limit=60");
+    if (!rows.length) { box.innerHTML = "<span class='muted'>אין עדיין שינויים רשומים.</span>"; return; }
+    box.innerHTML = rows.map(r => `<div class="ll-row"><span class="ll-when">${esc(fmtDate(r.at))} · ${esc(r.by_name || "")}</span>
+      <span><b>${esc(r.kind)} ${esc(r.action)}:</b> ${r.old_value && r.new_value ? `${esc(r.old_value)} ← <b>${esc(r.new_value)}</b>` : esc(r.new_value || r.old_value || "")}</span></div>`).join("");
+  } catch(e) { box.innerHTML = `<span class="muted">${e.status === 404 || /change_log/.test(e.message) ? "יופיע אחרי הרצת קובץ 49." : "לא ניתן לטעון."}</span>`; }
+}
 async function loadLeadHist(l){
   const box = $("leadHist"); box.textContent = "טוען...";
   try {
@@ -3315,8 +3343,9 @@ async function openSheet(sessionId){
     const mySp = sh.my_split && (sh.splits || []).find(s => s.id === sh.my_split);
     $("shSub").innerHTML = `יום <b>${DAY_FULL[sh.day || dayLetter(sh.date)]}</b> · <b>${fmtIso(sh.date)}</b> · ${esc(sh.city)}${mySp ? ` · תת-קבוצה <b>${esc(mySp.name)}</b>` : ""}${(mySp && mySp.room) || sh.room ? ` · חדר <b><bdi>${esc((mySp && mySp.room) || sh.room)}</bdi></b>` : ""}`;
     $("shLocked").hidden = !!sh.can_edit;
-    $("shExtra").value = (sh.lesson && sh.lesson.extra_students) || "";
-    $("shNotes").value = (sh.lesson && sh.lesson.notes) || "";
+    // "ילדים שלא רשומים" אוחד עם ההערות
+    { const ex = ((sh.lesson && sh.lesson.extra_students) || "").trim(), nt = ((sh.lesson && sh.lesson.notes) || "").trim();
+      $("shExtra").value = ""; $("shNotes").value = ex ? (nt ? nt + "\n" : "") + "ילדים שלא רשומים: " + ex : nt; }
     ["shExtra","shNotes","shSave","shAll"].forEach(id => $(id).disabled = !sh.can_edit);
     $("shMeta").textContent = sh.lesson && sh.lesson.updated_at ? `נשמר לאחרונה: ${fmtDate(sh.lesson.updated_at)}${sh.lesson.updated_by ? " · " + sh.lesson.updated_by : ""}` : "";
     A.dirty = false; attDraftRestore();
@@ -3371,7 +3400,7 @@ function renderSheetCx(){
   box.hidden = false;
   if (cx) box.innerHTML = `<div class="cx-on"><b>התרגול לא התקיים</b>${cx.reason ? " · " + esc(cx.reason) : ""}${cx.auto ? ` <span class="muted">(לפי לוח החגים)</span>` : ""}</div>
     ${adm ? `<button type="button" class="btn small" data-cx="held">התקיים בכל זאת</button>${cx.auto ? "" : `<button type="button" class="btn small" data-cx="auto" title="חזרה ללוח החגים">ביטול הסימון</button>`}` : ""}`;
-  else box.innerHTML = `<button type="button" class="btn small" data-cx="open">לא התקיים תרגול</button>
+  else box.innerHTML = `<button type="button" class="btn small cx-btn" data-cx="open" title="לסמן שהתרגול לא התקיים (חג, אירוע...)">⊘ לא התקיים</button>
     <span class="cx-form" hidden><select id="cxReason">${CX_REASONS.map(r => `<option>${esc(r)}</option>`).join("")}<option value="">אחר...</option></select>
     <input id="cxOther" placeholder="סיבה" hidden><button type="button" class="btn small primary" data-cx="save">שמירה</button></span>
     ${L0.cancelled === false ? `<span class="muted" style="font-size:12.5px;">סומן "התקיים" למרות החג.</span>` : ""}`;
@@ -3413,6 +3442,7 @@ function renderSheetRows(){
 function updateCount(){
   const rows = A.rows.filter(shVisible), p = rows.filter(r => r.present === true).length, n = rows.filter(r => r.present == null).length;
   $("shCount").textContent = `${p} נוכחים מתוך ${rows.length}` + (n ? ` · ${n} לא סומנו` : "");
+  $("shTotal").innerHTML = `<b>${A.rows.length}</b> ילדים בקבוצה` + (rows.length !== A.rows.length ? ` · ${rows.length} בתת-הקבוצה המוצגת` : "");
 }
 // טיוטת נוכחות: כל סימון נשמר גם בטלפון עצמו, כך שאם השמירה נכשלה (אין קליטה), הדף התרענן או יצאו מהמערכת - הסימון לא הולך לאיבוד
 const attDraftKey = () => A.sheet ? "telem_att_draft_" + A.sheet.session_id + "_" + A.sheet.date : "";
@@ -3469,7 +3499,7 @@ $("shSave").addEventListener("click", async () => {
     await rpc("save_attendance", { p_session: A.sheet.session_id, p_date: A.sheet.date,
       p_rows: A.rows.map(r => ({ student_id: r.student_id, present: r.present, did_math: r.did_math, did_english: r.did_english }))
         .concat((A.removed || []).map(id => ({ student_id: id, present: null, remove: true }))),
-      p_extra: $("shExtra").value, p_notes: $("shNotes").value });
+      p_extra: "", p_notes: $("shNotes").value });
     toast("הנוכחות נשמרה"); attDraftClear();
     showAttList(); loadAttGroups();
   } catch(e2) {
@@ -4841,7 +4871,7 @@ $("infoAdd").addEventListener("click", async () => {
         INF.cur = r[0].id; await loadInfo(); $("infoEditBtn").click(); }
   catch(e) { $("infoErr").textContent = "לא נוסף: " + e.message; }
 });
-async function copyText(t){ try { await navigator.clipboard.writeText(t); toast("הקישור הועתק"); } catch(e) { prompt("להעתקה:", t); } }
+async function copyText(t, msg){ try { await navigator.clipboard.writeText(t); toast(msg || "הקישור הועתק"); } catch(e) { prompt("להעתקה:", t); } }
 $("lkBase").value = store("telem_site_url") || "";
 $("lkBase").addEventListener("change", () => { store("telem_site_url", $("lkBase").value.trim()); if (currentView === "sched") renderSched(); if (currentView === "reg") renderReg(); });
 
@@ -4871,6 +4901,54 @@ async function boot(){
   afterAuthLink();
 }
 $("lfStatus").addEventListener("change", e => paintStatus(e.target, Number(e.target.value)));
+// ---------- 🐞 דיווח על בעיה (קובץ 49) ----------
+// שגיאות אחרונות נשמרות כדי לצרף לדיווח
+const ERRS = [];
+window.addEventListener("error", (e) => { ERRS.push({ t: new Date().toISOString(), m: String(e.message || e.error || "").slice(0, 300) }); if (ERRS.length > 8) ERRS.shift(); });
+window.addEventListener("unhandledrejection", (e) => { ERRS.push({ t: new Date().toISOString(), m: String((e.reason && e.reason.message) || e.reason || "").slice(0, 300) }); if (ERRS.length > 8) ERRS.shift(); });
+$("bugBtn").addEventListener("click", () => {
+  const box = document.createElement("div");
+  box.className = "panel-bg"; box.style.display = "flex"; box.style.alignItems = "center"; box.style.justifyContent = "center";
+  box.innerHTML = `<form class="card bug-box"><h3 style="color:var(--accent);">🐞 דיווח על בעיה</h3>
+    <div class="muted" style="font-size:13px;">מה קרה? מה ניסית לעשות? הפרטים הטכניים (איזה מסך, איזה מכשיר) מצורפים לבד.</div>
+    <textarea id="bugText" rows="5" maxlength="4000" required placeholder="למשל: לחצתי שמירה בנוכחות ולא קרה כלום"></textarea>
+    <div class="msg" id="bugMsg"></div>
+    <div style="display:flex; gap:8px;"><button class="btn primary" type="submit">שליחה</button><button class="btn" type="button" data-x>ביטול</button></div></form>`;
+  document.body.appendChild(box);
+  const close = () => box.remove();
+  box.querySelector("[data-x]").onclick = close; box.onclick = (e) => { if (e.target === box) close(); };
+  setTimeout(() => $("bugText").focus(), 0);
+  box.querySelector("form").onsubmit = async (e) => {
+    e.preventDefault(); const body = $("bugText").value.trim(); if (!body) return;
+    const ctx = { view: currentView, ver: APP_VER, role: ME.role, ua: navigator.userAgent, screen: innerWidth + "x" + innerHeight,
+      standalone: !!(window.matchMedia && matchMedia("(display-mode: standalone)").matches) || !!navigator.standalone,
+      lead: currentView === "lead" && typeof editing !== "undefined" && editing ? editing.id : null, errors: ERRS.slice() };
+    try { await api("POST", "/rest/v1/problem_reports", { body, context: ctx }, { "Prefer": "return=minimal" }); close(); toast("הדיווח נשלח - תודה!"); }
+    catch(err) { $("bugMsg").textContent = /problem_reports|404/.test(err.message + err.status) ? "צריך להריץ קודם את קובץ 49." : "לא נשלח: " + err.message; }
+  };
+});
+const ISS = { mode: "open" };
+const issText = (r) => { const c = r.context || {};
+  return `דיווח #${r.id} · ${fmtDate(r.created_at)} · ${r.staff_name || ""}\n${r.body}\n[מסך: ${c.view || "-"} · גרסה: ${c.ver || "-"} · ${c.screen || ""}${c.standalone ? " · אייקון במסך הבית" : ""}${/iPhone|iPad/.test(c.ua || "") ? " · אייפון" : /Android/.test(c.ua || "") ? " · אנדרואיד" : ""}]` + ((c.errors || []).length ? `\nשגיאות: ${c.errors.map(x => x.m).join(" | ")}` : ""); };
+async function loadIssues(){
+  document.querySelectorAll("[data-iss]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.iss === ISS.mode)));
+  const box = $("issList"); box.innerHTML = "<div class='card muted'>טוען...</div>";
+  let rows;
+  try { rows = await get("problem_reports", "select=*&order=created_at.desc&limit=300" + (ISS.mode === "open" ? "&resolved_at=is.null" : "")); }
+  catch(e) { box.innerHTML = `<div class="card err">${e.status === 404 || /problem_reports/.test(e.message) ? "צריך להריץ את קובץ 49." : "לא ניתן לטעון."}</div>`; return; }
+  ISS.rows = rows;
+  box.innerHTML = rows.length ? `<div style="margin-bottom:8px;"><button type="button" class="btn small" id="issCopyAll">העתקת כל הפתוחים</button></div>` + rows.map(r => { const c = r.context || {};
+    return `<div class="card iss ${r.resolved_at ? "done" : ""}"><div class="iss-h"><b>${esc(r.staff_name || "")}</b> <span class="muted">${esc(fmtDate(r.created_at))} · ${esc(c.view || "")}${/iPhone|iPad/.test(c.ua || "") ? " · אייפון" : /Android/.test(c.ua || "") ? " · אנדרואיד" : " · מחשב"}</span>
+      <span class="iss-act"><button type="button" class="btn small" data-icopy="${r.id}">העתקה</button>${r.resolved_at ? `<span class="ok-txt" style="font-size:13px;">✓ טופל${r.resolved_by ? " · " + esc(r.resolved_by) : ""}</span>` : `<button type="button" class="btn small primary" data-idone="${r.id}">טופל ✓</button>`}</span></div>
+      <div class="iss-b">${esc(r.body)}</div>${(c.errors || []).length ? `<div class="muted iss-e">שגיאות: ${esc(c.errors.map(x => x.m).join(" | "))}</div>` : ""}</div>`; }).join("")
+    : `<div class="card muted">${ISS.mode === "open" ? "אין דיווחים פתוחים 🎉" : "אין דיווחים."}</div>`;
+  box.querySelectorAll("[data-icopy]").forEach(b => b.onclick = () => copyText(issText(rows.find(r => String(r.id) === b.dataset.icopy)), "הדיווח הועתק"));
+  if ($("issCopyAll")) $("issCopyAll").onclick = () => copyText(rows.filter(r => !r.resolved_at).map(issText).join("\n\n"), "הדיווחים הועתקו");
+  box.querySelectorAll("[data-idone]").forEach(b => b.onclick = async () => {
+    try { await patch("problem_reports", "id=eq." + b.dataset.idone, { resolved_at: new Date().toISOString(), resolved_by: ME.full_name || "" }); toast("סומן: טופל"); loadIssues(); }
+    catch(e) { toast("לא נשמר: " + e.message); } });
+}
+document.querySelectorAll("[data-iss]").forEach(b => b.addEventListener("click", () => { ISS.mode = b.dataset.iss; loadIssues(); }));
 // ---------- גרסה חדשה: המערכת מתעדכנת לבד ----------
 // בודקים בפתיחה, בכל חזרה לחלון/לאפליקציה וכל שעה. יש גרסה חדשה -> רענון אוטומטי,
 // אבל לא באמצע עבודה (עריכה פתוחה, חלון פתוח, הקלדה בשדה) - אז מחכים עד שאפשר, ובינתיים פס עם כפתור "רענון".
