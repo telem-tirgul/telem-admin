@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.16">
+<meta name="app-version" content="5.17">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,6 +54,13 @@
   .nav{ display:flex; gap:2px; margin-inline-start:12px; }
   .nav button{ background:none; border:none; color:inherit; padding:10px 14px; font-weight:700; font-size:14.5px; cursor:pointer;
                border-bottom:3px solid transparent; border-radius:6px 6px 0 0; }
+  .nav button{ display:inline-flex; align-items:center; gap:6px; }
+  .home-tile .ic svg.ic{ width:28px; height:28px; color:var(--accent); }
+  svg.ic{ width:17px; height:17px; flex:none; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .btn.icon-btn{ display:inline-flex; align-items:center; gap:6px; } .btn.icon-btn svg.ic{ width:18px; height:18px; }
+  @media (max-width:760px){ .btn.icon-btn .ib-t{ display:none; } .btn.icon-btn{ padding:6px 8px; } }
+  @media (min-width:761px) and (max-width:1480px){ .nav{ margin-inline-start:4px; } .nav button{ padding:10px 8px; gap:5px; } .side{ gap:4px 12px; } }
+  @media (min-width:761px) and (max-width:1380px){ .brand-t{ display:none; } }
   .nav button:hover{ background:rgba(255,255,255,.06); }
   .nav button[aria-current="page"]{ background:rgba(255,255,255,.1); border-bottom-color:var(--gold); }
   .side .who{ margin-inline-start:auto; display:flex; align-items:center; gap:8px; font-size:12.5px; }
@@ -531,6 +538,7 @@
   .cx-box{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:0 0 10px; }
   .cx-box{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:flex-start; margin:-6px 0 10px; }
   .cx-btn{ background:transparent !important; border:1px dashed var(--border) !important; color:var(--ink-soft) !important; font-weight:600 !important; }
+  .sh-top-btns{ display:flex; gap:6px; align-items:flex-start; flex-wrap:wrap; }
   .sh-total{ font-size:14px; color:var(--ink-soft); margin-top:2px; } .sh-total b{ color:var(--accent); font-size:15px; }
   .cx-on{ background:color-mix(in srgb, var(--ink) 8%, var(--paper)); border:1px solid var(--border); border-radius:10px; padding:8px 12px; }
   .cx-form{ display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap; } .cx-form select, .cx-form input{ width:auto; padding:5px 8px; }
@@ -766,6 +774,7 @@
   .iss-b{ white-space:pre-wrap; margin-top:6px; } .iss-e{ font-size:12px; margin-top:4px; direction:ltr; text-align:left; }
   .ex-tag{ display:inline-block; font-size:12px; font-weight:700; color:#5B4A1E; background:#F6EED8; border:1px solid #E6D6A8; border-radius:999px; padding:0 8px; line-height:1.6; margin-inline-start:6px; white-space:nowrap; }
   .ex-tag.soon{ color:#fff; background:#B5523B; border-color:#B5523B; }
+  @media (max-width:760px){ .ex-ic, .ex-nbt .ex-lbl{ display:none; } .ex-tag.ex-nbt{ padding:0 6px; } }
   .ex-tag.near{ color:#8E3B28; background:#F6DCD3; border-color:#EBBDAF; }
   button.ex-tag{ font-family:inherit; cursor:pointer; } .ex-tag.ex-nbt{ color:#3F5A80; background:#EEF2F8; border-color:#CBD6E6; } .ex-nb{ border:0; background:none; padding:0 2px; margin-inline-start:4px; font-size:15px; line-height:1; cursor:pointer; vertical-align:middle; font-size:17px; }
   .ex-pop{ position:fixed; inset:0; background:rgba(30,20,15,.35); z-index:400; display:flex; align-items:center; justify-content:center; padding:16px; } .ex-pop[hidden]{ display:none; }
@@ -949,7 +958,7 @@
       <button type="button" data-view="reg" data-admin>הרשמה ושיבוץ</button>
       <button type="button" data-view="groups" data-admin>קבוצות ומרתונים</button>
       <button type="button" data-view="att">נוכחות</button>
-      <button type="button" data-view="ws">מאגר דפים</button>
+      <button type="button" data-view="ws">מאגר תרגולים</button>
       <button type="button" data-view="reports">דוחות</button>
       <button type="button" data-view="info">מידע</button>
     </nav>
@@ -1143,7 +1152,7 @@
       <div id="attSheet" hidden>
         <div class="page-head">
           <div><h1 id="shTitle"></h1><div class="lead-sub" id="shSub"></div><div class="sh-total" id="shTotal"></div></div>
-          <button class="btn" type="button" id="shBack">→ חזרה לקבוצות</button>
+          <div class="sh-top-btns"><button class="btn" type="button" id="shBack">→ חזרה לקבוצות</button><button class="btn icon-btn" type="button" id="shGroup" data-admin title="פתיחת הקבוצה במסך קבוצות ומרתונים" aria-label="פתיחת הקבוצה במסך קבוצות ומרתונים"></button></div>
         </div>
         <div class="notice" id="shLocked" hidden>אפשר לסמן ולתקן נוכחות רק ביום השיעור.</div>
         <div class="cx-box" id="shCx" hidden></div>
@@ -1239,7 +1248,7 @@
 
     <!-- ===== מאגר דפי תרגול (מנהלים ומתרגלים) ===== -->
     <section id="view-ws" hidden>
-      <div class="page-head"><h1>מאגר דפי תרגול</h1>
+      <div class="page-head"><h1>מאגר תרגולים</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;"><button class="btn small" type="button" id="wsImportBtn" data-admin>ייבוא דפים מהמחשב</button></div></div>
       <div class="card" id="wsImport" hidden data-admin>
         <h3 class="rep-h" style="margin-top:0;">ייבוא דפים מהמחשב</h3>
@@ -1377,7 +1386,7 @@
       <div class="card" style="margin-bottom:14px;">
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
           <b>משתמש חדש:</b> אימייל, שם ותפקיד. אפשר לכתוב סיסמה ראשונית ולמסור אותה, או להשאיר ריק - ואז נשלחת הזמנה במייל לבחירת סיסמה.
-          <b>משתמש קיים:</b> אותו טופס מעדכן שם ותפקיד. מתרגל/ת רואה רק נוכחות, מאגר דפים ובתי הספר שלו/ה.
+          <b>משתמש קיים:</b> אותו טופס מעדכן שם ותפקיד. מתרגל/ת רואה רק נוכחות, מאגר תרגולים ובתי הספר שלו/ה.
           <b>לתצוגה בלבד:</b> רק שם, בלי אימייל ובלי סיסמה. לא יכול/ה להתחבר - רק מופיע/ה בקבוצות. "הפוך למשתמש" נותן גישה בהמשך, והקבוצות נשמרות.
         </div>
         <form id="stForm" class="st-form">
@@ -1638,7 +1647,26 @@ async function afterAuthLink(){
     : { title: "ברוכים הבאים! בחירת סיסמה", note: "זו הכניסה הראשונה שלך. בוחרים סיסמה (לפחות 10 תווים) - איתה נכנסים מעכשיו." });
 }
 
+// אייקונים (קו) לכל מסך בתפריט - משמשים גם לכפתורי מעבר קטנים בין מסכים
+const ICON = {
+  leads: '<path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+  reg: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4M12 16h4M8 11h.01M8 16h.01"/>',
+  groups: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  att: '<path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+  ws: '<path d="M15 2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M15 2v5h5"/><path d="M4 7v13a2 2 0 0 0 2 2h10"/>',
+  reports: '<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>'
+};
+const icon = (k) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON[k] || ""}</svg>`;
+document.querySelectorAll(".nav button[data-view]").forEach(b => { if (ICON[b.dataset.view]) b.insertAdjacentHTML("afterbegin", icon(b.dataset.view)); });
 let currentView = "leads";
+// רענון (F5): חוזרים למסך שהיה פתוח (נשמר ב-history.state של הדפדפן), לא לדף הבית
+let RESUME = (() => { try { const st = history.state; return st && st.telem && st.view && st.view !== "home" ? st : null; } catch(e) { return null; } })();
+function resumeView(){
+  const st = RESUME; RESUME = null;
+  if (!st || currentView !== "home") return;
+  window.dispatchEvent(new PopStateEvent("popstate", { state: st }));
+}
 const SETTINGS_VIEWS = ["staff","backup","issues","holidays","me"];
 const INFO_VIEWS = ["info","schools","myschools","exams"];
 let DATA_READY = true, DATA_WAIT = null;
@@ -1690,7 +1718,7 @@ function go(view){
 // כפתור "אחורה" של הדפדפן: חוזר למסך הקודם במערכת (ולא יוצא ממנה)
 let NAV_POP = false;
 function navPush(view){
-  if (NAV_POP) return;
+  if (NAV_POP || (RESUME && view === "home")) return;
   const st = { telem: 1, view, lead: view === "lead" && typeof editing !== "undefined" && editing ? editing.id : null };
   const cur = history.state;
   if (cur && cur.telem && cur.view === st.view && cur.lead === st.lead) return;
@@ -2528,6 +2556,7 @@ async function loadGroups(){
     if (!G.cities) { try { G.cities = JSON.parse(store("telem_groups_cities") || "null"); } catch(e) {} if (!Array.isArray(G.cities) || !G.cities.length) G.cities = [G.city]; }
     G.cities = G.cities.filter(c => CONFIG.cities.includes(c)); if (!G.cities.length) G.cities = [G.city];
     renderTabs(); renderLocFilter(); renderGrid();
+    if (G.openAfter) { const id = G.openAfter; G.openAfter = null; if (G.sessions.some(x => x.session_id === id)) openPanel(id); }
     if (G.pendingOpen) { const id = G.pendingOpen; G.pendingOpen = null; openPanel(id); }
   } catch(e) { $("gGrid").innerHTML = "<tr><td class='empty-state'>לא ניתן לטעון את הקבוצות.</td></tr>"; }
 }
@@ -2667,9 +2696,9 @@ const exLabel = (k) => /מיפוי/.test(k) ? "מיפוי" : k;
 const exCls = (iso, from) => { const d = exDays(iso, from); return d < 0 ? "" : d < 7 ? " soon" : d <= 14 ? " near" : ""; };
 function exTag(e, from){
   if (!e) return "";
-  return `<button type="button" class="ex-tag${exCls(e.exam_date, from)}" data-ex="${e.id}" title="החומר למבחן">📝 ${esc(exLabel(e.kind))} ${fmtDM(e.exam_date)}</button>`;
+  return `<button type="button" class="ex-tag${exCls(e.exam_date, from)}" data-ex="${e.id}" title="החומר למבחן"><span class="ex-ic">📝 </span>${esc(exLabel(e.kind))} ${fmtDM(e.exam_date)}</button>`;
 }
-const nbBtn = (e) => e ? `<button type="button" class="ex-tag ex-nbt" data-ex="${e.id}" title="מה לומדים עכשיו בכיתה">📓 לומדים עכשיו</button>` : "";
+const nbBtn = (e) => e ? `<button type="button" class="ex-tag ex-nbt" data-ex="${e.id}" title="מה לומדים עכשיו בכיתה" aria-label="לומדים עכשיו">📓<span class="ex-lbl"> לומדים עכשיו</span></button>` : "";
 // תגית "המבחן הבא" לילד ברשימת קבוצה / נוכחות (רק אם לומד/ת מתמטיקה)
 const kidExTag = (k, city, from) => subjGrp(k.subject) === 1 ? "" : exTag(nextExam(k.school, city, k.grade, k.class_num, from), from) + nbBtn(studyFor(k.school, city, k.grade, k.class_num, from));
 // לחיצה על 📝 או 📓: חלון קטן עם הנושאים והחומר
@@ -3694,6 +3723,11 @@ $("shRows").addEventListener("change", (e) => {
 });
 ["shExtra", "shNotes"].forEach(id => $(id).addEventListener("input", attDirty));
 $("shAll").addEventListener("click", () => { A.rows.filter(shVisible).forEach(r => { if (r.present == null) setPresent(r, true); }); attDirty(); renderSheetRows(); });
+$("shGroup").innerHTML = icon("groups") + '<span class="ib-t">עריכת הקבוצה</span>';
+$("shGroup").addEventListener("click", async () => {
+  if (attDirty && attDirty() && !window.confirm("יש סימונים שלא נשמרו. לעבור בכל זאת? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הנוכחות)")) return;
+  G.openAfter = A.sheet && A.sheet.session_id; go("groups");
+});
 $("shBack").addEventListener("click", () => {
   if (A.dirty && !window.confirm("יש סימון נוכחות שעוד לא נשמר. לצאת בלי לשמור?")) return;
   attDraftClear(); showAttList(); loadAttGroups(); });
@@ -3987,7 +4021,7 @@ const BK_TABLES = [
   ["attendance","נוכחות"],["attendance_lessons","מפגשים"],["attendance_log","יומן נוכחות"],["enrollments","הרשמות"],["tracks","מסלולים"],
   ["study_levels","רמות לימוד"],["site_info","מידע לאתר"],["signatures","חתימות"],
   ["marathons","מרתונים"],["marathon_registrations","הרשמות מרתון"],["payments","תשלומים"],
-  ["worksheets","מאגר דפים"],["worksheet_sends","דפים שנשלחו"]
+  ["worksheets","מאגר תרגולים"],["worksheet_sends","דפים שנשלחו"]
 ];
 const BK_NO_ORDER = ["session_instructors","attendance_lessons","study_levels"];
 function showBackupInfo(){ const t = store("telem_last_backup"); $("bkLast").textContent = t ? "הגיבוי האחרון מהמחשב הזה: " + fmtDate(t) : "עוד לא הורד גיבוי מהמחשב הזה."; }
@@ -4084,7 +4118,7 @@ function renderHome(){
   $("homeHello").textContent = first ? "שלום " + first : "שלום";
   const tiles = inst ? [
     ["att", "✔", "נוכחות", "סימון נוכחות בקבוצות שלי"],
-    ["ws", "📄", "מאגר דפים", "דפי תרגול להעתקה והורדה"],
+    ["ws", "📄", "מאגר תרגולים", "דפי תרגול להעתקה והורדה"],
     ["info", "ℹ", "מידע", "מידע למתרגלים ובתי הספר שלי"],
     ["settings", "⚙", "הגדרות", "הפרטים שלי"]
   ] : [
@@ -4092,12 +4126,12 @@ function renderHome(){
     ["groups", "🗓", "קבוצות ומרתונים", "לוח אחד לכל הקבוצות והמרתונים"],
     ["att", "✔", "נוכחות", "סימון נוכחות לפי יום ודוח לכל קבוצה"],
     ["reg", "📝", "הרשמה ושיבוץ", "קישורים, בקשות שיבוץ, ממתינים לאשראי, ביטולים"],
-    ["ws", "📄", "מאגר דפים", "דפי תרגול להעתקה והורדה"],
+    ["ws", "📄", "מאגר תרגולים", "דפי תרגול להעתקה והורדה"],
     ["reports", "📊", "דוחות", "נרשמים, נוכחות, לידים ושעות מתרגלים"],
     ["info", "ℹ", "מידע", "מידע למתרגלים ובתי ספר"],
     ["settings", "⚙", "הגדרות", "צוות, גיבוי, הפרטים שלי"]
   ];
-  $("homeTiles").innerHTML = tiles.map(([v, ic, t, d]) => `<button type="button" class="home-tile" data-go="${v}"><span class="ic" aria-hidden="true">${ic}</span><b>${esc(t)}</b><span>${esc(d)}</span></button>`).join("");
+  $("homeTiles").innerHTML = tiles.map(([v, ic, t, d]) => `<button type="button" class="home-tile" data-go="${v}"><span class="ic" aria-hidden="true">${ICON[v] ? icon(v) : ic}</span><b>${esc(t)}</b><span>${esc(d)}</span></button>`).join("");
   $("homeTiles").querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const v = b.dataset.go; go(v); if (v === "leads" && DATA_READY) renderLeads(); });
 }
 $("brandHome").addEventListener("click", () => go("home"));
@@ -5100,7 +5134,7 @@ async function boot(){
   document.body.classList.toggle("instructor", ME.role === "instructor");
   document.querySelectorAll(".nav button").forEach(b => { b.hidden = ME.role === "instructor" && !["att","ws","info"].includes(b.dataset.view); });
   if (ME.full_name) $("whoEmail").textContent = ME.full_name;
-  if (ME.role === "instructor") { go("home"); afterAuthLink(); return; }
+  if (ME.role === "instructor") { go("home"); afterAuthLink(); resumeView(); return; }
   // דף הבית מיד; התלמידים, ההערות וההיסטוריה נטענים ברקע
   DATA_READY = false; go("home"); $("homeLoad").hidden = false;
   DATA_WAIT = (async () => { await loadLists(); await loadLeads(); setupFilters(); })();
@@ -5108,6 +5142,7 @@ async function boot(){
   catch(e) { DATA_READY = true; DATA_WAIT = null; $("homeLoad").hidden = true; $("leadsTbl").innerHTML = "<tr><td class='empty-state'>לא ניתן לטעון נתונים. ייתכן שהמשתמש לא מוגדר כאיש צוות, או שעוד לא הורץ קובץ 5.</td></tr>"; go("leads"); return; }
   if (currentView === "leads") renderLeads();
   afterAuthLink();
+  resumeView();
 }
 $("lfStatus").addEventListener("change", e => paintStatus(e.target, Number(e.target.value)));
 // ---------- 🐞 דיווח על בעיה (קובץ 49) ----------
