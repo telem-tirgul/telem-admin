@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.3">
+<meta name="app-version" content="5.19.4">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -298,8 +298,11 @@
   .seg .sm, .subj .sm{ display:none; }
   /* מעקב - שורה מתחת לילד, מוזחת מתחת לשם */
   .att-rows li[data-i]{ flex-wrap:wrap; }
+  .tb-txt{ white-space:pre-wrap; margin-top:4px; } .tb-pt{ margin-top:4px; font-size:13.5px; }
+  .tb-pts{ margin-top:8px; } .tb-pt-row{ display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; justify-content:space-between; padding:4px 0; border-top:1px dashed var(--border); font-size:13.5px; }
   .att-track-row{ flex-basis:100%; padding-inline-start:48px; margin-top:-2px; }
   .att-track-row .att-track{ display:inline-block; border-inline-start:3px solid #E0B44A; }
+  .att-track-row .att-track + .att-track{ margin-inline-start:6px; } .att-track.att-pt{ background:#FFF0DC; border-color:#E6A04A; color:#6B3E00; }
   .att-name .meta{ display:block; font-size:12.5px; color:var(--ink-soft); }
   .att-ctl{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .seg{ display:inline-flex; border:1.5px solid var(--border); border-radius:10px; overflow:hidden; }
@@ -407,7 +410,8 @@
   .asg-pill{ display:inline-flex; flex-wrap:wrap; gap:4px; }
   .asg-pill > span{ display:inline-flex; align-items:center; gap:4px; font-size:12.5px; font-weight:700; white-space:nowrap; background:var(--scb, var(--ok-bg)); color:var(--sci, var(--ok)); border-radius:999px; padding:1px 8px; direction:rtl; }
   .asg-pill > span i{ width:7px; height:7px; border-radius:50%; background:currentColor; }
-  .asg-pill.prop > span{ background:var(--paper); color:var(--ink-soft); border:1.5px dashed var(--ink-soft); }
+  .asg-pill.prop > span{ background:#FFF3C4; color:#7A5300; border:1.5px solid #E0B43C; }   /* מוצע - ממתין לאישור: צהוב, שעון */
+  .asg-pill.prop > span i{ display:none; } .asg-pill.prop > span::before{ content:"⏳"; font-size:11px; }
   .lg-card.lg-prop{ background:repeating-linear-gradient(135deg, var(--paper) 0 8px, color-mix(in srgb, var(--muted) 70%, var(--paper)) 8px 16px); border-style:dashed; }
   .lg-prop-h{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:6px; font-size:13px; } .lg-prop-h .ntc{ display:flex; gap:12px; }
   .lg-st{ display:flex; gap:14px; flex-wrap:wrap; font-size:13.5px; } .lg-st label{ display:flex; gap:5px; align-items:center; }
@@ -582,6 +586,7 @@
   .ex-cal td.hol, .ex-cal th.hol{ background:color-mix(in srgb, var(--ink-soft) 18%, var(--paper)); }
   .ex-cal .today{ box-shadow:inset 0 0 0 2px var(--accent); }
   .gr-b{ display:inline-block; min-width:26px; padding:1px 4px; border-radius:9px; font-weight:800; background:var(--gb); color:var(--gi); }
+  .resume-load{ margin:24px 0; text-align:center; font-size:16px; }
   .ar-group-h{ display:flex; gap:10px; align-items:center; margin:14px 0 6px; font-weight:800; }
   .cal{ overflow-x:auto; background:var(--paper); border:1px solid var(--border); border-radius:12px; }
   .cal-grid{ display:grid; min-width:640px; }
@@ -1826,6 +1831,7 @@ const SETTINGS_VIEWS = ["staff","backup","issues","me"];
 const INFO_VIEWS = [];   // "מידע למתרגלים" ו"חגים וחופשות" - בתפריט הקטן ⓘ ליד ההגדרות
 let DATA_READY = true, DATA_WAIT = null;
 function go(view){
+  try { if (!NAV_POP && view !== "home") RESUME = null; } catch(e) {}   // המשתמש עבר למסך בעצמו - לא לחזור אחר כך למסך שלפני הרענון
   // אחרי הכניסה: דף הבית מוצג מיד, והנתונים נטענים ברקע. מסך אחר - מחכה לסיום הטעינה.
   if (!DATA_READY && DATA_WAIT && NEED_DATA.includes(view) && ME.role !== "instructor") {
     const v = view; toast("טוען נתונים…");
@@ -2323,24 +2329,61 @@ function updateLeadHead(){
 
 
 // ---------- מעקב: בקשות והוראות של ההורים (מתרגלים רואים בדף הנוכחות) ----------
-function renderTrack(l, editMode){
+// 📌 מעקב (בקשות ההורים) + ⏰ שעה אישית לכל קבוצה שוטפת - הכול מופיע למתרגלים בשורת המעקב בנוכחות
+async function trackAsg(l){
+  try {
+    const r = await get("assignments", "select=id,arrival_time,personal_end,status,session:sessions(id,day,start_time,end_time,kind,school_year,location:locations(name))&student_id=eq." + l.student.id + "&order=id");
+    return r.filter(a => a.session && a.session.school_year === CONFIG.schoolYear && a.session.kind !== "מרתון")
+      .sort((a, b) => (DAY_ORDER[a.session.day] ?? 9) - (DAY_ORDER[b.session.day] ?? 9) || String(a.session.start_time).localeCompare(String(b.session.start_time)));
+  } catch(e) { return []; }
+}
+const tbHm = (t) => String(t || "").slice(0, 5);
+const tbGrp = (a) => `יום ${esc(a.session.day)}' ${tbHm(a.session.start_time)} · ${esc((a.session.location && a.session.location.name) || "")}`;
+async function renderTrack(l, editMode){
   const box = $("trackBox");
   if (!l) { box.hidden = true; return; }
   box.hidden = false;
   const txt = l.student.tracking || "";
+  const tok = String(l.student.id) + ":" + Date.now(); box.dataset.tok = tok;
+  const asg = await trackAsg(l);
+  if (box.dataset.tok !== tok) return;   // בינתיים נפתח כרטיס אחר
+  const pts = asg.filter(a => a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time));
   if (!editMode) {
-    box.innerHTML = `<div class="tb-h"><span>📌 מעקב ${txt ? "" : "<span class='muted' style='font-weight:500'>- אין (בקשות והוראות של ההורים, למשל \"אסור לשחרר מוקדם\")</span>"}</span><button type="button" class="btn small" id="tbEdit">${txt ? "✎ עריכה" : "+ הוספה"}</button></div>${txt ? `<div class="tb-txt">${esc(txt)}</div>` : ""}`;
+    box.innerHTML = `<div class="tb-h"><span>📌 מעקב ${txt || pts.length ? "" : "<span class='muted' style='font-weight:500'>- אין (בקשות והוראות של ההורים, למשל \"אסור לשחרר מוקדם\", ושעה אישית)</span>"}</span><button type="button" class="btn small" id="tbEdit">${txt || pts.length ? "✎ עריכה" : "+ הוספה"}</button></div>
+      ${txt ? `<div class="tb-txt">${esc(txt)}</div>` : ""}
+      ${pts.map(a => `<div class="tb-pt">⏰ ${tbGrp(a)} – שעה אישית <b>${rng(tbHm(a.arrival_time), tbHm(a.personal_end) || addMin(tbHm(a.arrival_time), 45))}</b></div>`).join("")}`;
     $("tbEdit").onclick = () => renderTrack(l, true);
     return;
   }
   box.innerHTML = `<div class="tb-h"><span>📌 מעקב <span class="muted" style="font-weight:500">- המתרגלים רואים את זה בדף הנוכחות</span></span></div>
-    <textarea id="tbText" maxlength="2000">${esc(txt)}</textarea><div class="err" id="tbErr"></div>
+    <textarea id="tbText" maxlength="2000">${esc(txt)}</textarea>
+    ${asg.length ? `<div class="tb-pts"><div class="lbl">⏰ שעה אישית <span class="muted" style="font-weight:400">(רק אם שונה משעת הקבוצה)</span></div>
+      ${asg.map(a => `<div class="tb-pt-row" data-aid="${a.id}"><span>${tbGrp(a)} <span class="muted">(${rng(tbHm(a.session.start_time), tbHm(a.session.end_time))})</span></span>
+        <span class="lg-times"><input type="time" data-pf value="${a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time) ? tbHm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-pt value="${a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time) ? tbHm(a.personal_end) : ""}" aria-label="עד שעה"></span></div>`).join("")}</div>` : ""}
+    <div class="err" id="tbErr"></div>
     <div style="display:flex; gap:6px; margin-top:6px;"><button type="button" class="btn small primary" id="tbSave">שמירה</button><button type="button" class="btn small" id="tbCancel">ביטול</button></div>`;
+  box.querySelectorAll(".tb-pt-row [data-pf]").forEach(inp => inp.onchange = () => { const t = inp.closest(".tb-pt-row").querySelector("[data-pt]"); t.value = inp.value ? addMin(inp.value, 45) : ""; });
   $("tbText").focus();
   $("tbCancel").onclick = () => renderTrack(l);
   $("tbSave").onclick = async () => {
-    const v = nn($("tbText").value); $("tbSave").disabled = true;
-    try { await patch("students", "id=eq." + l.student.id, { tracking: v }); l.student.tracking = v; toast("נשמר"); renderTrack(l); }
+    const v = nn($("tbText").value);
+    // שעות אישיות שהשתנו
+    const ups = [];
+    for (const row of box.querySelectorAll(".tb-pt-row")) {
+      const a = asg.find(x => String(x.id) === row.dataset.aid); if (!a) continue;
+      let from = row.querySelector("[data-pf]").value || null, to = row.querySelector("[data-pt]").value || null;
+      if (from && from === tbHm(a.session.start_time)) { from = null; to = null; }
+      if (!from) to = null; else if (!to) to = addMin(from, 45);
+      if (from && to && to <= from) { $("tbErr").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה (" + tbGrp(a).replace(/<[^>]+>/g, "") + ")."; return; }
+      const curF = a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time) ? tbHm(a.arrival_time) : null, curT = curF ? tbHm(a.personal_end) || null : null;
+      if (from !== curF || (from && to !== curT)) ups.push({ id: a.id, body: { arrival_time: from, personal_end: to } });
+    }
+    $("tbSave").disabled = true;
+    try {
+      if (v !== (l.student.tracking || null)) { await patch("students", "id=eq." + l.student.id, { tracking: v }); l.student.tracking = v; }
+      for (const u of ups) await patch("assignments", "id=eq." + u.id, u.body);
+      toast("נשמר"); renderTrack(l); if (ups.length) loadLeadGroups(l.student.id);
+    }
     catch(e) { $("tbErr").textContent = /tracking/.test(e.message) ? "צריך להריץ קודם את קובץ 40." : "השמירה נכשלה: " + e.message; $("tbSave").disabled = false; }
   };
 }
@@ -3926,7 +3969,6 @@ function renderSheetRows(){
     const grp = subjGrp(r.subject), head = grp !== prevGrp ? (prevGrp = grp, `<li class="att-sec">${grp < 3 ? subjChip(SUBJ_GRP_T[grp]) : "<b>בלי מקצוע</b>"} <span>${A.rows.filter(x => shVisible(x) && subjGrp(x.subject) === grp).length}</span></li>`) : "";
     return head + `<li data-i="${i}">${gradeBadge(r.grade, r.class_num)}
     <div class="att-name"><b>${dblStar(isDouble(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location, r.arrival_time, r.personal_end))}${esc(r.first_name)} ${esc(r.last_name || "")}</b>${r.split_id && ME.role !== "instructor" ? `<span class="split-tag">${esc(spName(r.split_id) || "")}</span>` : ""}
-      ${r.arrival_time ? `<span class="ptime">שעה אישית ${rng(r.arrival_time, r.personal_end || addMin(r.arrival_time, 45))}</span>` : ""}
       <span class="meta">${r.school ? `<span class="school-chip sch-sm ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${kidExTag(r, A.sheet.city, A.sheet.date || A.date)}${r.in_group ? "" : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
       </div>
     <div class="att-ctl">
@@ -3937,7 +3979,7 @@ function renderSheetRows(){
         <button type="button" class="no ${r.present === false ? "on" : ""}" data-p="0" ${can ? "" : "disabled"} aria-label="חסר/ה"><span class="lg">חסר/ה</span><span class="sm">✗</span></button>
       </div>
 
-    </div>${r.tracking ? `<div class="att-track-row"><span class="att-track">📌 ${esc(r.tracking)}</span></div>` : ""}</li>`; }).join("");
+    </div>${r.tracking || r.arrival_time ? `<div class="att-track-row">${r.arrival_time ? `<span class="att-track att-pt">⏰ שעה אישית ${rng(String(r.arrival_time).slice(0, 5), String(r.personal_end || addMin(String(r.arrival_time).slice(0, 5), 45)).slice(0, 5))}</span>` : ""}${r.tracking ? `<span class="att-track">📌 ${esc(r.tracking)}</span>` : ""}</div>` : ""}</li>`; }).join("");
   updateCount();
 }
 function updateCount(){
@@ -5525,10 +5567,16 @@ async function boot(){
   DATA_READY = false;
   // רענון במסך שלא צריך את רשימת התלמידים (מאגר, נוכחות, מידע...) - חוזרים אליו מיד, בלי לעבור בדף הבית
   const quick = RESUME && !NEED_DATA.includes(RESUME.view);
-  if (!quick) { go("home"); $("homeLoad").hidden = false; }
+  // מסך שצריך את רשימת התלמידים (תלמידים, קבוצות, דוחות...): לא עוברים בדף הבית - מציגים "טוען" במקום, וחוזרים למסך כשהנתונים מוכנים
+  const slow = RESUME && !quick;
+  if (slow) { hideViews(); let ld = $("resumeLoad"); if (!ld) { ld = document.createElement("div"); ld.id = "resumeLoad"; ld.className = "card muted resume-load"; ld.textContent = "טוען נתונים…"; document.querySelector("main.main").prepend(ld); } ld.hidden = false; }
+  else if (!quick) { go("home"); $("homeLoad").hidden = false; }
   DATA_WAIT = (async () => { await loadLists(); await loadLeads(); setupFilters(); })();
   if (quick) resumeView(true);
   try { await DATA_WAIT; DATA_READY = true; $("homeLoad").hidden = true; }
+  catch(e) { /* מטופל למטה */ }
+  finally { if ($("resumeLoad")) $("resumeLoad").hidden = true; if (slow && RESUME) resumeView(true); }
+  try { await DATA_WAIT; }
   catch(e) { DATA_READY = true; DATA_WAIT = null; $("homeLoad").hidden = true; $("leadsTbl").innerHTML = "<tr><td class='empty-state'>לא ניתן לטעון נתונים. ייתכן שהמשתמש לא מוגדר כאיש צוות, או שעוד לא הורץ קובץ 5.</td></tr>"; go("leads"); return; }
   if (currentView === "leads") renderLeads();
   afterAuthLink();
