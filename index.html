@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.4">
+<meta name="app-version" content="5.19.5">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -298,6 +298,7 @@
   .seg .sm, .subj .sm{ display:none; }
   /* מעקב - שורה מתחת לילד, מוזחת מתחת לשם */
   .att-rows li[data-i]{ flex-wrap:wrap; }
+  .lg-pick{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px; } .lg-pick select{ flex:1 1 120px; min-width:0; }
   .tb-txt{ white-space:pre-wrap; margin-top:4px; } .tb-pt{ margin-top:4px; font-size:13.5px; }
   .tb-pts{ margin-top:8px; } .tb-pt-row{ display:flex; flex-wrap:wrap; gap:4px 10px; align-items:center; justify-content:space-between; padding:4px 0; border-top:1px dashed var(--border); font-size:13.5px; }
   .att-track-row{ flex-basis:100%; padding-inline-start:48px; margin-top:-2px; }
@@ -586,6 +587,10 @@
   .ex-cal td.hol, .ex-cal th.hol{ background:color-mix(in srgb, var(--ink-soft) 18%, var(--paper)); }
   .ex-cal .today{ box-shadow:inset 0 0 0 2px var(--accent); }
   .gr-b{ display:inline-block; min-width:26px; padding:1px 4px; border-radius:9px; font-weight:800; background:var(--gb); color:var(--gi); }
+  #leadsTbl .c-parent{ white-space:nowrap; font-size:13px; } #leadsTbl .c-parent .pn{ display:block; } #leadsTbl .c-parent .pp{ color:var(--ink-soft); font-size:12.5px; text-decoration:none; }
+  #leadsTbl .c-rem{ text-align:center; } #leadsTbl .asg-none{ white-space:nowrap; } #leadsTbl td.c-upd{ white-space:nowrap; font-size:12.5px; }
+  #leadsTbl .src-sel{ font:inherit; font-size:13px; border:1px solid transparent; background-color:transparent; padding:3px 2px; width:112px; max-width:112px; border-radius:6px; cursor:pointer; color:var(--ink); }
+  #leadsTbl .src-sel:hover, #leadsTbl .src-sel:focus{ border-color:var(--border); background-color:var(--paper); } .rem-ic{ font-size:15px; opacity:.55; cursor:help; } .rem-ic.due{ opacity:1; filter:drop-shadow(0 0 2px #e53935); }
   .resume-load{ margin:24px 0; text-align:center; font-size:16px; }
   .ar-group-h{ display:flex; gap:10px; align-items:center; margin:14px 0 6px; font-weight:800; }
   .cal{ overflow-x:auto; background:var(--paper); border:1px solid var(--border); border-radius:12px; }
@@ -718,8 +723,8 @@
     #leadsTbl .c-school{ order:5; } #leadsTbl .c-grade{ order:6; } #leadsTbl .c-asg{ order:6; flex:1 1 100%; }
     #leadsTbl .c-grade::before, #leadsTbl .c-src::before, #leadsTbl .c-upd::before{ content:"·"; margin-inline-end:6px; color:var(--ink-soft); }
     #leadsTbl .c-src{ order:7; color:var(--ink-soft); }
-    #leadsTbl .c-mgr:empty, #leadsTbl .c-rem:empty{ display:none; }
-    #leadsTbl .c-mgr{ order:8; } #leadsTbl .c-rem{ order:9; }
+    #leadsTbl .c-parent:empty, #leadsTbl .c-rem:empty{ display:none; }
+    #leadsTbl .c-parent{ order:8; } #leadsTbl .c-rem{ order:9; }
     #leadsTbl .c-id{ order:10; color:var(--ink-soft); font-size:12px; } #leadsTbl .c-upd{ order:11; color:var(--ink-soft); font-size:12px; }
     #leadsTbl .c-star{ order:12; margin-inline-start:auto; } #leadsTbl .c-act{ order:13; }
     /* טבלת צוות -> כרטיסים */
@@ -1017,8 +1022,8 @@
   .ms-kids{ list-style:none; margin:6px 0 0; padding:0; font-size:13.5px; } .ms-kids li{ padding:4px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:8px; }
   .ms-grp{ border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:10px; } .ms-grp h4{ margin:0; font-size:15px; }
   /* מצב עריכה ברשימת התלמידים ובקבוצות */
-  #leadsTbl.locked select.status, #leadsTbl.locked .switch, #leadsTbl.locked .star{ pointer-events:none; }
-  #leadsTbl.locked select.status{ appearance:none; -webkit-appearance:none; background-image:none !important; }
+  #leadsTbl.locked .switch, #leadsTbl.locked .star{ pointer-events:none; }
+  /* הסטטוס נשאר לשינוי גם כשהרשימה נעולה */
   #view-lead.ro #lgAddBtn, #view-lead.ro [data-chg]{ display:none !important; }
   #roster:not(.editing) [data-move]{ display:none; }
   .list-edit-on{ background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
@@ -1050,7 +1055,6 @@
     <nav class="nav" aria-label="תפריט">
       <button type="button" data-view="leads">תלמידים</button>
       <button type="button" data-view="schools"><span class="lbl-a">בתי ספר</span><span class="lbl-i">בתי הספר שלי</span></button>
-      <button type="button" data-view="reg" data-admin>הרשמה ושיבוץ</button>
       <button type="button" data-view="groups" data-admin>קבוצות ומרתונים</button>
       <button type="button" data-view="att">נוכחות</button>
       <button type="button" data-view="ws">מאגר תרגולים</button>
@@ -1281,14 +1285,14 @@
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
     <section id="view-issues" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>דיווחים על בעיות</h1>
         <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-iss="open" aria-pressed="true">פתוחים</button><button type="button" data-iss="all" aria-pressed="false">הכול</button></div></div>
       <p class="muted" style="font-size:13.5px; margin:-4px 0 12px;">כל דיווח מ-🐞 בפס העליון. בסוף היום - "העתקה" ומדביקים ל-Claude, ואז "טופל".</p>
       <div id="issList"></div>
     </section>
     <section id="view-backup" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>גיבוי</h1></div>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
@@ -1308,7 +1312,8 @@
 
     <!-- ===== קישורי הרשמה (בהגדרות) ===== -->
     <section id="view-sched" hidden>
-      <div class="page-head"><h1>הרשמה ושיבוץ</h1></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="page-head"><h1>טפסים והרשמה</h1></div>
       <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה ושיבוץ"><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button></div>
       <div class="card" id="scGeneral" hidden></div>
       <div class="sc-wrap">
@@ -1321,7 +1326,8 @@
 
     <!-- ===== הרשמה (מנהלים): קישורים, ממתינים לאשראי, בקשות ביטול, טופסי התעניינות ===== -->
     <section id="view-reg" hidden>
-      <div class="page-head"><h1>הרשמה ושיבוץ</h1></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="page-head"><h1>טפסים והרשמה</h1></div>
       <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה ושיבוץ"><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button></div>
       <div class="sc-wrap">
         <nav class="sc-cities" id="rgCities" aria-label="בחירת עיר"></nav>
@@ -1386,7 +1392,7 @@
 
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
     <section id="view-me" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>הפרטים שלי</h1></div>
       <div class="card me-card">
         <dl class="me-dl"><dt>שם</dt><dd id="meName"></dd><dt>אימייל</dt><dd id="meEmail" dir="ltr"></dd><dt>תפקיד</dt><dd id="meRole"></dd><dt>גרסת המערכת</dt><dd id="meVer" dir="ltr" style="text-align:right"></dd></dl>
@@ -1483,7 +1489,7 @@
 
     <!-- ===== צוות ומתרגלים ===== -->
     <section id="view-staff" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>צוות ומתרגלים</h1></div>
       <div class="card" style="margin-bottom:14px;">
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
@@ -1827,7 +1833,7 @@ function resumeView(force){
   if (!st || (!force && currentView !== "home")) return;
   window.dispatchEvent(new PopStateEvent("popstate", { state: st }));
 }
-const SETTINGS_VIEWS = ["staff","backup","issues","me"];
+const SETTINGS_VIEWS = ["staff","backup","issues","me","reg","sched"];   // "טפסים והרשמה" (קישורים, בקשות שיבוץ...) - בתוך ההגדרות
 const INFO_VIEWS = [];   // "מידע למתרגלים" ו"חגים וחופשות" - בתפריט הקטן ⓘ ליד ההגדרות
 let DATA_READY = true, DATA_WAIT = null;
 function go(view){
@@ -1851,11 +1857,11 @@ function go(view){
   if (inst && view === "holidays") view = "info";
   if (SETTINGS_VIEWS.includes(view)) store(key, view);
   if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
-  const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.sched = "reg"; navOf.exams = "groups"; navOf.myschools = "schools";
+  const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.exams = "groups"; navOf.myschools = "schools";
   ["home","leads","lead","groups","att","sched","reg","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues","exams"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   { const cur = document.querySelector('.nav button[aria-current="page"]'); if ($("navCur")) $("navCur").textContent = cur ? (cur.querySelector(inst ? ".lbl-i" : ".lbl-a") || cur).textContent.replace("⚙", "").trim() : (view === "home" ? "תפריט" : ({ me: "הגדרות", staff: "הגדרות", backup: "הגדרות", issues: "הגדרות", info: "מידע למתרגלים", holidays: "חגים וחופשות" }[view] || "תפריט")); }
-  document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view)));
+  document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view || (b.dataset.sv === "reg" && view === "sched"))));
   document.querySelectorAll("[data-gv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.gv === view)));
   if (view === "reports") loadReports();
   if (view === "sched") renderSched();
@@ -1933,8 +1939,30 @@ async function loadLists(){
   ]);
   L.statuses = st; L.sources = so; L.staffAll = sf; L.staff = sf.filter(x => x.role !== "instructor" && x.role !== "display"); L.schools = sc; L.levels = lv.map(x => x.name);
 }
+const ASG_Q = () => getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")");
+function setAsg(asg){
+  L.asg = {}; L.prop = {}; asg.forEach(a => { if (!a.session) return; const m = a.status === "ממתין" ? L.prop : L.asg; (m[a.student_id] = m[a.student_id] || []).push(a.session); });
+  Object.values(L.asg).forEach(v => v.sort((x, y) => DAY_ORDER[x.day] - DAY_ORDER[y.day] || String(x.start_time).localeCompare(String(y.start_time))));
+}
+// עדכון קל (כל כמה דקות): רק לידים שהשתנו מאז הטעינה האחרונה + שיבוצים + הערות חדשות. לא מוריד שוב את כל הרשימה.
+async function loadLeadsDelta(){
+  if (!L.loadedAt || Date.now() - (L.fullAt || 0) > 30 * 60 * 1000) return loadLeads();   // פעם בחצי שעה - טעינה מלאה
+  const since = new Date(L.loadedAt - 120000).toISOString(), t0 = Date.now(), q = encodeURIComponent(since);
+  const [ch, asg, notes] = await Promise.all([
+    get("leads", "select=" + LEAD_SELECT + "&updated_at=gt." + q + "&order=updated_at.desc,id.desc&limit=1000"),
+    ASG_Q().catch(() => null),
+    get("notes", "select=id,lead_id,body,created_at&created_at=gt." + q + "&order=created_at&limit=1000").catch(() => [])
+  ]);
+  ch.filter(l => l.student).forEach(l => { const i = L.leads.findIndex(x => x.id === l.id); if (i >= 0) L.leads[i] = l; else L.leads.unshift(l); });
+  if (asg) setAsg(asg);
+  notes.forEach(n => { const arr = (L.notes[n.lead_id] = L.notes[n.lead_id] || []); if (!arr.some(x => x.id === n.id)) { arr.push(n); L.notesCount[n.lead_id] = arr.length; } });
+  await loadNotices();
+  L.loadedAt = t0;
+  return ch.length || notes.length;
+}
 async function loadLeads(){
   $("countLine").textContent = "טוען...";
+  const t0 = Date.now();
   const [leads, notes, asg, hist, mreg] = await Promise.all([
     getAll("leads", "select=" + LEAD_SELECT + "&order=updated_at.desc,id.desc")
       .catch(e => /tracking/.test(String(e && e.message)) ? getAll("leads", "select=" + LEAD_SELECT.replace("tracking,", "") + "&order=updated_at.desc,id.desc") : Promise.reject(e)),
@@ -1949,9 +1977,9 @@ async function loadLeads(){
   // שנים קודמות (מה-CRM הישן) לפי תלמיד
   L.hist = {}; hist.forEach(h => (L.hist[h.student_id] = L.hist[h.student_id] || []).push(h));
   // משובצים ב-L.asg, שיבוצים מוצעים ("ממתין") ב-L.prop
-  L.asg = {}; L.prop = {}; asg.forEach(a => { if (!a.session) return; const m = a.status === "ממתין" ? L.prop : L.asg; (m[a.student_id] = m[a.student_id] || []).push(a.session); });
-  Object.values(L.asg).forEach(v => v.sort((x, y) => DAY_ORDER[x.day] - DAY_ORDER[y.day] || String(x.start_time).localeCompare(String(y.start_time))));
+  setAsg(asg);
   L.leads = leads.filter(l => l.student);
+  L.loadedAt = t0; L.fullAt = t0;
   L.notesCount = {}; L.notes = {}; notes.forEach(n => { L.notesCount[n.lead_id] = (L.notesCount[n.lead_id] || 0) + 1; (L.notes[n.lead_id] = L.notes[n.lead_id] || []).push(n); });
 }
 const statusName = (id) => (L.statuses.find(s => s.id === id) || {}).name || "";
@@ -2069,7 +2097,7 @@ function filtered(){
   const key = {
     id: l => Number(l.legacy_user_id) || l.id + 1e6, name: l => (l.student.first_name + " " + (l.student.last_name || "")),
     status: l => statusName(l.status_id), source: l => sourceName(l.source_id), school: l => schoolOf(l.student).name,
-    grade: l => String(GRADES.indexOf(l.student.grade)).padStart(2, "0") + String(l.student.class_num || "").replace(/\D/g, "").padStart(3, "0"), asg: l => asgOf(l).length, manager: l => staffName(l.manager_id), remind: l => l.remind_at || "~",
+    grade: l => String(GRADES.indexOf(l.student.grade)).padStart(2, "0") + String(l.student.class_num || "").replace(/\D/g, "").padStart(3, "0"), asg: l => asgOf(l).length, parent: l => [(l.student.family || {}).parent1_first, (l.student.family || {}).parent1_last].filter(Boolean).join(" "), manager: l => staffName(l.manager_id), remind: l => l.remind_at || "~",
     updated: l => lastUpdate(l) || ""
   }[F.sort];
   list.sort((a, b) => { const x = key(a), y = key(b); return (x > y ? 1 : x < y ? -1 : 0) * F.dir; });
@@ -2091,7 +2119,7 @@ const PROP_ST = { none: "טרם נשלחה הודעה", sent: "קיבל הודע
 const asgText = (x) => `${x.day}' ${String(x.start_time || "").slice(0, 5)} ${(x.location && x.location.name) || ""}`;
 const COLS = [
   ["info",""],["id","ID"],["active","פעיל"],["star","★"],["status","סטטוס"],["source","מקור ליד"],["notes",""],["name","שם"],
-  ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["manager","מנהל"],["remind","תזכורת"],["updated","תאריך עדכון"]
+  ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","תאריך עדכון"]
 ];
 function renderLeads(){
   const list = filtered(); paintHistHits(list);
@@ -2103,7 +2131,7 @@ function renderLeads(){
   $("clearFilters").hidden = !(["fSearch","fCity","fSchool","fGrade","fAsg","fSource","fManager","fFrom","fTo"].some(id => $(id).value) || F.statuses.size || $("fStar").checked || $("fRemind").checked || !$("fActive").checked); markFilters();
   $("pageInfo").textContent = `עמוד ${F.page + 1} מתוך ${pages}`;
   $("prevPage").disabled = F.page === 0; $("nextPage").disabled = F.page >= pages - 1;
-  const sortable = ["id","status","source","name","school","grade","asg","manager","remind","updated"];
+  const sortable = ["id","status","source","name","school","grade","asg","parent","manager","remind","updated"];
   const head = "<thead><tr>" + COLS.map(([k, t]) => `<th ${sortable.includes(k) ? `data-sort="${k}"` : ""}>${t} ${F.sort === k ? `<span class="arr">${F.dir > 0 ? "▲" : "▼"}</span>` : ""}</th>`).join("") + "</tr></thead>";
   const now = new Date();
   const rows = slice.map(l => {
@@ -2116,8 +2144,8 @@ function renderLeads(){
       <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
       <td class="c-act"><button type="button" class="switch ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}"></button></td>
       <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
-      <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${LIST_EDIT ? "" : " disabled"}${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff; border-color:transparent;"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select></td>
-      <td class="c-src">${esc(sourceName(l.source_id))}</td>
+      <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff; border-color:transparent;"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select></td>
+      <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
       <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" title="הערות">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
       <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${marTag(s)}</td>
       <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
@@ -2126,8 +2154,9 @@ function renderLeads(){
         const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
         return pills || props ? pills + (pills && props ? " " : "") + props : `<span class="asg-none">לא משובץ</span>`; })()}</td>
-      <td class="c-mgr">${esc(staffName(l.manager_id))}</td>
-      <td class="c-rem">${l.remind_at ? `<span class="pill ${due ? "due" : ""}">${esc(fmtDate(l.remind_at))}</span>` : ""}</td>
+      <td class="c-parent">${(() => { const fm = s.family || {}, nm = [fm.parent1_first, fm.parent1_last].filter(Boolean).join(" "), ph = fm.parent1_phone || "";
+        return nm || ph ? `<span class="pn">${esc(nm)}</span>${ph ? `<a class="pp" dir="ltr" href="tel:${esc(ph)}" onclick="event.stopPropagation()">${esc(String(ph).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : ""}` : ""; })()}</td>
+      <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
       <td class="num c-upd">${esc(fmtDate(lastUpdate(l)))}</td>
     </tr>`;
   }).join("");
@@ -2165,12 +2194,18 @@ $("leadsTbl").addEventListener("click", async (e) => {
   }
 });
 $("leadsTbl").addEventListener("change", async (e) => {
+  if (e.target.dataset.act === "source") {   // מקור ליד - משנים ישר מהטבלה
+    const tr = e.target.closest("tr"), l = L.leads.find(x => String(x.id) === tr.dataset.id), v = e.target.value ? Number(e.target.value) : null;
+    try { await patch("leads", "id=eq." + l.id, { source_id: v }); l.source_id = v; l.updated_at = new Date().toISOString(); toast(`מקור הליד של ${l.student.first_name} ${l.student.last_name || ""} עודכן ל"${sourceName(v) || "ללא"}"`); }
+    catch(err) { toast("לא נשמר: " + err.message); e.target.value = l.source_id || ""; }
+    return;
+  }
   if (e.target.dataset.act !== "status") return;
-  if (!LIST_EDIT) { renderLeads(); return; }
+  // סטטוס - משנים ישר מהטבלה (בלי "עריכה ברשימה")
   const tr = e.target.closest("tr"), l = L.leads.find(x => String(x.id) === tr.dataset.id);
   const v = e.target.value ? Number(e.target.value) : null;
   try { await patch("leads", "id=eq." + l.id, { status_id: v }); l.status_id = v; l.updated_at = new Date().toISOString();
-        paintStatus(e.target, v); toast("הסטטוס עודכן"); }
+        paintStatus(e.target, v); toast(`הסטטוס של ${l.student.first_name} ${l.student.last_name || ""} עודכן ל"${statusName(v) || "ללא"}"`); }
   catch(err) { toast("לא נשמר: " + err.message); e.target.value = l.status_id || ""; }
 });
 
@@ -2577,6 +2612,12 @@ function wireNtc(root){
 }
 // ---------- שינוי שיבוץ מכרטיס התלמיד ----------
 const SUBJECTS = ["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"];
+// מקצוע לפי שם הסטטוס: "נרשם מת." / "נרשם אנג." / "נרשם מת. + אנג." (גם "מתמטיקה" / "אנגלית" במלואן)
+function subjFromStatus(n){
+  n = String(n || ""); if (!/נרשם|משובץ|ממתין/.test(n) || /קיץ/.test(n)) return "";
+  const m = /מת|מתמטיקה/.test(n), e = /אנג|אנגלית/.test(n);
+  return m && e ? "מתמטיקה ואנגלית" : m ? "מתמטיקה" : e ? "אנגלית" : "";
+}
 let LG_SESSIONS = null;
 async function openAsgEditor(studentId, a, cur){
   document.querySelectorAll("#leadGroups .lg-edit").forEach(x => { x.hidden = true; x.innerHTML = ""; });
@@ -2592,17 +2633,26 @@ async function openAsgEditor(studentId, a, cur){
       && ((g.assigned_count || 0) > 0 || (a && a.session.id === g.session_id)))
     .sort((x, y) => (x.city === city ? 0 : 1) - (y.city === city ? 0 : 1) || String(x.city).localeCompare(y.city) || (DAY_ORDER[x.day] ?? 9) - (DAY_ORDER[y.day] ?? 9) || String(x.start_time).localeCompare(String(y.start_time)) || String(x.location).localeCompare(y.location));
   const cities = [...new Set(list.map(g => g.city))];
+  const curG = a ? LG_SESSIONS.find(g => g.session_id === a.session.id) : null;
+  const pc = { city: curG ? curG.city : (cities.includes(city) ? city : cities[0]), day: curG ? (curG.kind === "מרתון" ? "מרתון" : curG.day) : "", loc: curG ? curG.location : "" };
   const optG = (g) => `<option value="${g.session_id}" ${a && a.session.id === g.session_id ? "selected" : ""}>${g.kind === "מרתון" ? "מרתון " + esc((g.meeting_dates || []).map(fmtDM).join(", ")) : "יום " + esc(g.day) + "'"} ${hm(g.start_time)}${g.end_time ? "-" + hm(g.end_time) : ""} · ${esc(g.location)}${g.room ? " · חדר " + esc(g.room) : ""} · ${g.assigned_count || 0} ילדים</option>`;
   // המקצוע נקבע לפי מה שהילד/ה נרשם/ה (טופס ההרשמה), ואם אין - לפי השיבוצים הקיימים. בוחרים רק אם לא ידוע.
   let enrSubj = "";
   try { const en = await get("enrollments", "select=subject&student_id=eq." + studentId + "&status=neq." + encodeURIComponent("בוטל") + "&subject=not.is.null&order=id.desc&limit=1"); enrSubj = (en[0] && en[0].subject) || ""; } catch(e) {}
-  const subj = enrSubj || (a && a.subject) || (cur.find(x => x.subject) || {}).subject || "";
+  // קודם - הסטטוס שמסומן עכשיו בכרטיס (גם אם עוד לא נשמר), למשל "נרשם מת. + אנג."
+  const stSubj = subjFromStatus(statusName(Number($("lfStatus").value)));
+  const subj = stSubj || enrSubj || (a && a.subject) || (cur.find(x => x.subject) || {}).subject || "";
   box.innerHTML = `
     <div class="lg-edit-h">${a ? "שינוי שיבוץ" : "הוספה לקבוצה"}</div>
-    <label class="lbl">קבוצה</label>
-    <select data-f="session">${a ? "" : "<option value=''>בחירת קבוצה...</option>"}${cities.map(c => `<optgroup label="${esc(c)}">${list.filter(g => g.city === c).map(optG).join("")}</optgroup>`).join("")}</select>
+    <label class="lbl">קבוצה <span class="muted" style="font-weight:400">- מצמצמים לפי עיר, יום ובית ספר</span></label>
+    <div class="lg-pick">
+      <select data-p="city" aria-label="עיר">${cities.map(c => `<option ${c === pc.city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select>
+      <select data-p="day" aria-label="יום"></select>
+      <select data-p="loc" aria-label="בית ספר"></select>
+    </div>
+    <select data-f="session"></select>
     <label class="lbl">מקצוע</label>
-    ${subj ? `<div class="lg-subj"><b>${esc(subj)}</b> <span class="muted">${enrSubj ? "(לפי ההרשמה)" : "(לפי השיבוץ הקיים)"}</span></div><input type="hidden" data-f="subject" value="${esc(subj)}">`
+    ${subj ? `<div class="lg-subj"><b>${esc(subj)}</b> <span class="muted">${stSubj ? "(לפי הסטטוס בכרטיס)" : enrSubj ? "(לפי ההרשמה)" : "(לפי השיבוץ הקיים)"}</span></div><input type="hidden" data-f="subject" value="${esc(subj)}">`
       : `<select data-f="subject"><option value="">בחירה...</option>${SUBJECTS.map(x => `<option>${x}</option>`).join("")}</select><div class="muted" style="font-size:12.5px;">לא ידוע במה הילד/ה נרשם/ה - בוחרים פעם אחת.</div>`}
     ${a ? "" : `<label class="lbl">מצב</label><div class="lg-st"><label><input type="radio" name="lgSt" value="ממתין" checked> מוצע – ממתין לאישור</label><label><input type="radio" name="lgSt" value="משובץ"> משובץ (כבר אישר)</label></div>`}
     <label class="lbl">שעה אישית <span class="muted">(רק אם שונה משעת הקבוצה)</span></label>
@@ -2612,9 +2662,29 @@ async function openAsgEditor(studentId, a, cur){
       ${a ? `<button type="button" class="btn small danger" data-f="rm">הסרה מהקבוצה</button>` : ""}
       <button type="button" class="btn small" data-f="cancel">ביטול</button></div>`;
   const f = (k) => box.querySelector(`[data-f="${k}"]`);
+  // בחירה מדורגת: עיר -> יום -> בית ספר -> הקבוצה (שעה)
+  const P = (k) => box.querySelector(`[data-p="${k}"]`);
+  const fillPick = (keepSel) => {
+    const c = P("city").value, inC = list.filter(g => g.city === c);
+    const days = [...new Set(inC.map(g => g.kind === "מרתון" ? "מרתון" : g.day))].sort((x, y) => (DAY_ORDER[x] ?? 9) - (DAY_ORDER[y] ?? 9));
+    const dv = keepSel && days.includes(pc.day) ? pc.day : (days.includes(P("day").value) ? P("day").value : "");
+    P("day").innerHTML = `<option value="">כל הימים</option>` + days.map(d => `<option value="${esc(d)}" ${d === dv ? "selected" : ""}>${d === "מרתון" ? "מרתונים" : "יום " + esc(DAY_NAMES[d] || d)}</option>`).join("");
+    const inD = inC.filter(g => !P("day").value || (g.kind === "מרתון" ? "מרתון" : g.day) === P("day").value);
+    const locs = [...new Set(inD.map(g => g.location))].sort((x, y) => x.localeCompare(y, "he"));
+    const lv = keepSel && locs.includes(pc.loc) ? pc.loc : (locs.includes(P("loc").value) ? P("loc").value : "");
+    P("loc").innerHTML = `<option value="">כל בתי הספר</option>` + locs.map(l => `<option ${l === lv ? "selected" : ""}>${esc(l)}</option>`).join("");
+    const gs = inD.filter(g => !P("loc").value || g.location === P("loc").value);
+    const cur = keepSel && a ? a.session.id : Number(f("session").value);
+    f("session").innerHTML = `<option value="">${gs.length ? "בחירת קבוצה... (" + gs.length + ")" : "אין קבוצות לפי הבחירה"}</option>` + gs.map(optG).join("");
+    if (gs.some(g => g.session_id === cur)) f("session").value = String(cur);
+    else if (gs.length === 1) f("session").value = String(gs[0].session_id);
+  };
+  ["city", "day", "loc"].forEach(k => P(k).onchange = () => fillPick(false));
+  fillPick(true);
   f("from").onchange = () => { f("to").value = f("from").value ? addMin(f("from").value, 45) : ""; };
   f("cancel").onclick = () => { box.hidden = true; box.innerHTML = ""; };
-  const done = async (msg) => { LG_SESSIONS = null; toast(msg); await loadLeadGroups(studentId); };
+  const done = async (msg) => { LG_SESSIONS = null; toast(msg); await loadLeadGroups(studentId);
+    loadLeads().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); };   // שהרשימה תתעדכן גם בלי לרענן
   f("save").onclick = async () => {
     const sid = Number(f("session").value);
     if (!sid) { f("err").textContent = "צריך לבחור קבוצה."; return; }
@@ -2623,7 +2693,8 @@ async function openAsgEditor(studentId, a, cur){
     if (from && g && from === hm(g.start_time)) { from = null; to = null; }
     if (!from) to = null; else if (!to) to = addMin(from, 45);
     if (from && to && to <= from) { f("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
-    const body = { session_id: sid, subject: f("subject").value || null, arrival_time: from, personal_end: to };
+    // אם שינו את הסטטוס בכרטיס אחרי שנפתח החלון - לוקחים את המקצוע מהסטטוס העדכני
+    const body = { session_id: sid, subject: subjFromStatus(statusName(Number($("lfStatus").value))) || f("subject").value || null, arrival_time: from, personal_end: to };
     f("save").disabled = true;
     try {
       if (a) await patch("assignments", "id=eq." + a.id, body);
@@ -4468,11 +4539,10 @@ function renderHome(){
     ["leads", "👥", "תלמידים", "לידים, כרטיסי תלמיד, שנים קודמות"],
     ["groups", "🗓", "קבוצות ומרתונים", "לוח אחד לכל הקבוצות והמרתונים"],
     ["att", "✔", "נוכחות", "סימון נוכחות לפי יום ודוח לכל קבוצה"],
-    ["reg", "📝", "הרשמה ושיבוץ", "קישורים, בקשות שיבוץ, ממתינים לאשראי, ביטולים"],
     ["ws", "📄", "מאגר תרגולים", "דפי תרגול להעתקה והורדה"],
     ["reports", "📊", "דוחות", "נרשמים, נוכחות, לידים ושעות מתרגלים"],
     ["schools", "🏫", "בתי ספר", "פרטי בית הספר והקבוצות שלנו"],
-    ["settings", "⚙", "הגדרות", "צוות, גיבוי, הפרטים שלי"]
+    ["settings", "⚙", "הגדרות", "צוות, גיבוי, טפסים והרשמה, הפרטים שלי"]
   ];
   $("homeTiles").innerHTML = tiles.map(([v, ic, t, d]) => `<button type="button" class="home-tile" data-go="${v}"><span class="ic" aria-hidden="true">${ICON[v] ? icon(v) : ic}</span><b>${esc(t)}</b><span>${esc(d)}</span></button>`).join("");
   $("homeTiles").querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const v = b.dataset.go; go(v); if (v === "leads" && DATA_READY) renderLeads(); });
@@ -5662,6 +5732,28 @@ async function checkUpdate(){
 $("updBtn").addEventListener("click", updReload);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkUpdate(); else updTry(); });
 setInterval(checkUpdate, 60 * 60 * 1000);
+// ---------- עדכון נתונים אוטומטי: כל 3 דקות (וכשחוזרים ללשונית) - כדי לראות שינויים שאחרים עשו ----------
+// רק כשבטוח: לא באמצע הקלדה / עריכה / חלון פתוח / נוכחות שלא נשמרה. כרטיס תלמיד פתוח - לא מתעדכן (שלא יידרסו שינויים).
+const LIVE_ON = false;   // כבוי בינתיים (הלקוחה: "חכה עם זה") - מדליקים כשמחליטים
+const LIVE_MS = 3 * 60 * 1000; let LIVE_LAST = Date.now(), LIVE_BUSY = false;
+async function liveRefresh(minGap){
+  if (!LIVE_ON || LIVE_BUSY || !auth || $("appView").hidden || document.visibilityState !== "visible" || !DATA_READY) return;
+  if (Date.now() - LIVE_LAST < (minGap == null ? LIVE_MS : minGap)) return;
+  if (!updSafe() || UPD_NEW) return;
+  LIVE_BUSY = true; LIVE_LAST = Date.now(); const y = window.scrollY, v = currentView;
+  try {
+    if (v === "leads") { const n = await loadLeadsDelta(); if (currentView === "leads" && updSafe()) renderLeads(); }
+    else if (v === "groups") await loadGroups();
+    else if (v === "att") { if ($("attSheet").hidden) await loadAttGroups(); }
+    else if (v === "exams") await renderExams(true);
+    else if (v === "reports") await loadReports();
+    else if (v === "schools") await loadSchools();
+    else if (v === "home" || v === "lead") { await loadLeadsDelta(); }   // ברקע - שהרשימה תהיה עדכנית כשחוזרים אליה
+    if (currentView === v) window.scrollTo(0, y);
+  } catch(e) {} finally { LIVE_BUSY = false; }
+}
+setInterval(() => liveRefresh(), 30000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") liveRefresh(60000); });
 setInterval(updTry, 15000);
 if (sstore("telem_updated")) { sstore("telem_updated", null); setTimeout(() => toast("המערכת עודכנה לגרסה החדשה"), 800); }
 checkUpdate();
