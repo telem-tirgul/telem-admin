@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.6">
+<meta name="app-version" content="5.19.7">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1015,7 +1015,7 @@
   .ws-bar{ position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; background:var(--bg); padding:8px 0; margin-bottom:8px; border-bottom:1px solid var(--border); }
   .ws-bar h2{ margin:0; font-size:18px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ws-tabs{ display:flex; gap:6px; margin:0; }
-  .ws-sw{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; margin:4px 0 12px; } .ws-sw:empty{ display:none; } .ws-bar .ws-back{ margin-inline-start:auto; }
+  .ws-sw{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; margin:4px 0 12px; } .ws-sw:empty{ display:none; } 
   .ws-tabs button{ font:inherit; font-weight:700; font-size:14px; border:1px solid var(--border); background:var(--card, #fff); color:inherit; border-radius:999px; padding:6px 14px; cursor:pointer; }
   .ws-tabs button[aria-selected="true"]{ background:var(--accent); color:#fff; border-color:var(--accent); }
   .ws-gh{ font-weight:700; margin:16px 0 8px; display:flex; gap:8px; align-items:baseline; } .ws-gh small{ color:var(--accent); font-weight:700; }
@@ -1023,13 +1023,44 @@
   .ws-pg{ all:unset; cursor:pointer; background:var(--card, #fff); border:1px solid var(--border); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
   .ws-pg .th{ aspect-ratio:210/297; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px; } .ws-pg img{ width:100%; height:100%; object-fit:contain; display:block; }
   .ws-pgw{ position:relative; display:flex; } .ws-pgw > .ws-pg{ flex:1; min-width:0; }
-  .ws-ck{ position:absolute; top:6px; inset-inline-start:6px; z-index:2; width:34px; height:34px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.92); border:1px solid var(--border); border-radius:8px; cursor:pointer; }
+  .ws-ck{ position:absolute; bottom:4px; inset-inline-end:4px; z-index:2; width:34px; height:34px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.92); border:1px solid var(--border); border-radius:8px; cursor:pointer; }
   .ws-ck input{ width:20px; height:20px; margin:0; accent-color:var(--accent); cursor:pointer; }
+  .ws-pgw:has(.ws-ck) .cap{ padding-inline-end:46px; min-height:32px; align-items:center; }
   .ws-pgw.sel > .ws-pg{ outline:3px solid var(--accent); outline-offset:-1px; }
-  .ws-selall{ display:flex; justify-content:flex-end; margin:4px 0 8px; } .ws-gh .ws-gsel{ margin-inline-start:auto; }
+  .ws-lnk{ all:unset; cursor:pointer; color:var(--accent); font-weight:700; font-size:13.5px; text-decoration:underline; text-underline-offset:3px; padding:4px 2px; white-space:nowrap; }
+  .ws-sw .ws-selall{ margin-inline-start:auto; } .ws-sw .ws-selall[hidden]{ display:none; } .ws-sw:has(.ws-selall){ display:flex !important; } .ws-gh .ws-gsel{ margin-inline-start:auto; }
   .ws-gh:has(.ws-gsel){ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .ws-gh > span{ display:flex; gap:8px; align-items:baseline; }
   .ws-selbar{ position:sticky; bottom:10px; z-index:20; margin-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 14px; background:var(--paper, #fff); border:2px solid var(--accent); border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,.18); }
   .ws-selbar span{ font-weight:800; flex:1; }
+  /* 5.19.7: מסך נושא - חזרה כחץ ליד הכותרת, "בחירה לשליחה" כמו בגלריה */
+  .ws-bar .ws-back{ all:unset; cursor:pointer; flex:none; display:inline-flex; align-items:center; gap:4px; padding:7px 12px; border:1.5px solid var(--border); border-radius:999px; background:var(--paper); font-weight:800; font-size:14px; color:var(--accent); }
+  .ws-tabs small{ font-weight:600; opacity:.75; margin-inline-start:2px; }
+  .ws-sw .ws-selbtn{ margin-inline-start:auto; display:inline-flex; align-items:center; gap:6px; border-color:var(--accent); color:var(--accent); font-weight:800; }
+  .ws-kind-in .ks{ display:none; }
+  .ws-pg .th{ position:relative; }
+  .ws-tick{ position:absolute; bottom:8px; left:8px; width:26px; height:26px; border-radius:50%; border:2px solid #fff; background:rgba(0,0,0,.28); box-shadow:0 1px 4px rgba(0,0,0,.35); }
+  .ws-pgw.sel .ws-tick{ background:var(--accent); }
+  .ws-pgw.sel .ws-tick::after{ content:""; position:absolute; left:8px; top:3.5px; width:6px; height:12px; border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg); }
+  .ws-selmode .ws-pgw:not(.sel) .ws-pg img{ opacity:.82; }
+  .ws-selmode .ws-pgw.sel > .ws-pg{ outline:3px solid var(--accent); outline-offset:-1px; }
+  .ws-selbar .btn.primary:disabled{ opacity:.45; }
+  .ws-gpick{ all:unset; cursor:pointer; display:flex; align-items:center; gap:10px; -webkit-tap-highlight-color:transparent; }
+  .ws-gpick.ws-gh{ width:100%; box-sizing:border-box; padding:6px 8px; margin:12px 0 8px; border-radius:10px; background:color-mix(in srgb, var(--accent) 6%, transparent); }
+  .ws-tpick{ min-width:0; flex:1; }
+  .ws-gtick{ flex:none; position:relative; width:24px; height:24px; border-radius:50%; border:2px solid var(--accent); background:var(--paper, #fff); box-sizing:border-box; }
+  .ws-gtick.on{ background:var(--accent); }
+  .ws-gtick.on::after{ content:""; position:absolute; left:7px; top:3px; width:5px; height:11px; border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg); }
+  .ws-selhint{ font-size:13px; color:var(--ink-soft, #777); margin:-4px 0 6px; }
+  @media (max-width:760px){
+    #view-ws.ws-topic .page-head, #view-ws.ws-topic .ws-search{ display:none; }
+    .ws-bar .ws-back-t{ display:none; } .ws-bar .ws-back{ padding:6px 12px; font-size:17px; }
+    .ws-bar h2{ font-size:17px; }
+    .ws-sw{ gap:8px; margin:2px 0 10px; } .ws-sw .gseg button, .ws-tabs button{ padding:7px 12px !important; font-size:14px !important; min-height:0 !important; }
+    .ws-kind-in .kl{ display:none; } .ws-kind-in .ks{ display:inline; }
+    .ws-sw .ws-selbtn{ margin-inline-start:0; }
+    .ws-pages{ gap:10px; }
+  }
+  @media (max-width:760px){ .ws-selbar{ flex-wrap:nowrap; gap:8px; padding:8px 10px; bottom:8px; } .ws-selbar span{ font-size:14px; white-space:nowrap; } .ws-selbar .btn.primary{ flex:none; padding:8px 12px; font-size:14px; } #wsSelClr{ padding:6px 8px; font-size:12.5px; } }
   .ws-pg .cap{ padding:6px 8px 8px; font-size:13px; line-height:1.3; display:flex; gap:6px; } .ws-pg .cap b{ color:var(--accent); }
   .ws-viewer{ position:fixed; inset:0; z-index:200; background:rgba(18,14,20,.95); display:flex; flex-direction:column; }
   .ws-vtop{ display:flex; align-items:center; gap:10px; padding:10px 14px; color:#fff; } .ws-vt{ flex:1; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -1417,7 +1448,7 @@
           <div class="muted ws-how">איך שולחים לתלמיד: נושא ← דף ← <b>העתקה</b> ← חוזרים לצ'אט בוואטסאפ ← לחיצה ארוכה בשורת ההקלדה ← <b>הדבקה</b>.</div>
         </aside>
         <div id="wsBody"></div>
-        <div class="ws-selbar" id="wsSelBar" hidden><span id="wsSelN"></span><button type="button" class="btn primary" id="wsSelSend">שלח את המסומנים</button><button type="button" class="btn small" id="wsSelClr">ביטול הסימון</button></div>
+        <div class="ws-selbar" id="wsSelBar" hidden><span id="wsSelN"></span><button type="button" class="btn primary" id="wsSelSend">שלח את המסומנים</button><button type="button" class="btn small" id="wsSelClr">סיום</button></div>
       </div>
     </section>
     <div class="ws-viewer" id="wsViewer" hidden>
@@ -1755,6 +1786,7 @@ $("loginForm").addEventListener("submit", async (e) => {
   $("lgBtn").disabled = false;
 });
 async function logout(msg){
+  L.histP = null; L.hist = null; L.histReady = false;
   try { sessionStorage.removeItem("telem_last"); sessionStorage.removeItem("telem_resume"); store("telem_last_keep", null); sessionStorage.removeItem("telem_lead_filters"); } catch(e) {} RESUME = null;
   try { const t = await token(); if (t) await fetch(CONFIG.supabaseUrl + "/auth/v1/logout", { method:"POST", headers: Object.assign(baseHeaders(), {"Authorization":"Bearer "+t}) }); } catch(e) {}
   saveAuth(null); showLogin(); $("idleWarn").hidden = true;
@@ -2023,19 +2055,23 @@ async function loadLeadsDelta(){
 async function loadLeads(){
   $("countLine").textContent = "טוען...";
   const t0 = Date.now();
-  const [leads, notes, asg, hist, mreg] = await Promise.all([
+  // 5.19.7: השנים הקודמות (student_history - הרבה שורות) נטענות ברקע, אחרי שהרשימה כבר מוצגת
+  if (!L.histP) L.histP = getAll("student_history", "select=student_id,school_year,year_start,status&student_id=not.is.null&order=year_start").catch(() => [])
+    .then(hist => { L.hist = {}; hist.forEach(h => (L.hist[h.student_id] = L.hist[h.student_id] || []).push(h)); L.histReady = true;
+      // הרשימה כבר מוצגת - מוסיפים את סימני "בעבר" (אם לא עורכים משהו בטבלה באותו רגע)
+      if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads();
+      return L.hist; });
+  if (!L.hist) L.hist = {};
+  const [leads, notes, asg, mreg] = await Promise.all([
     getAll("leads", "select=" + LEAD_SELECT + "&order=updated_at.desc,id.desc")
       .catch(e => /tracking/.test(String(e && e.message)) ? getAll("leads", "select=" + LEAD_SELECT.replace("tracking,", "") + "&order=updated_at.desc,id.desc") : Promise.reject(e)),
     getAll("notes", "select=id,lead_id,body,created_at&order=created_at"),
     getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")
       .catch(() => getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")).catch(() => []),
-    getAll("student_history", "select=student_id,school_year,year_start,status&student_id=not.is.null&order=year_start").catch(() => []),
     getAll("marathon_registrations", "select=student_id,status,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id").catch(() => [])
   ]);
   L.mar = {}; mreg.forEach(r => (L.mar[r.student_id] = L.mar[r.student_id] || []).push(r));
   await loadNotices();
-  // שנים קודמות (מה-CRM הישן) לפי תלמיד
-  L.hist = {}; hist.forEach(h => (L.hist[h.student_id] = L.hist[h.student_id] || []).push(h));
   // משובצים ב-L.asg, שיבוצים מוצעים ("ממתין") ב-L.prop
   setAsg(asg);
   L.leads = leads.filter(l => l.student);
@@ -4087,9 +4123,9 @@ async function loadAttGroups(){
     const card = (g, showCity) => `<button type="button" class="att-group ${scCls(g.location)} ${g.marked ? "done" : ""}${g.cx ? " hol-fade" : ""}" data-s="${g.session_id}">
       <span class="t">${g.kind === "מרתון" ? esc(g.time_label) + `<span class="kind-tag">מרתון</span>` : rng(hm(g.start_time), hm(g.end_time))}</span>
       <span class="w">${scChip(g.location)}${showCity ? " · " + esc(g.city) : ""}</span><span class="ag-br"></span>${g.room ? `<span class="m">חדר: <b><bdi>${esc(g.room)}</bdi></b></span>` : ""}
-      <span class="m kn">${g.kids} ילדים</span>${ME.role !== "instructor" && g.instructors ? `<span class="ag-ins">${esc(g.instructors)}</span>` : ""}
+      ${g.marked ? "" : `<span class="m kn">${g.kids} ילדים</span>`}${ME.role !== "instructor" && g.instructors ? `<span class="ag-ins">${esc(g.instructors)}</span>` : ""}
 
-      ${g.marked ? `<span class="ok">✓ סומן · ${g.marked_count} נוכחים</span>` : g.cx ? cxTag(g.cx) : `<span class="m">טרם סומן</span>`}</button>`;
+      ${g.marked ? `<span class="ok">✓ סומן · <b>${g.marked_count}</b> נוכחים מתוך ${g.kids}</span>` : g.cx ? cxTag(g.cx) : `<span class="m">טרם סומן</span>`}</button>`;
     if (ME.role === "instructor" || isMobile()) {
       $("attGroups").className = "att-groups";
       $("attGroups").innerHTML = A.groups.map(g => card(g, ME.role !== "instructor")).join("");
@@ -4804,9 +4840,9 @@ async function renderWs(){
   const missing = WS.rows.filter(r => !r.uploaded).length;
   const warn = missing ? `<div class="ws-warn">${missing} דפים עוד לא הועלו${ME.role === "instructor" ? "." : " - \"ייבוא דפים מהמחשב\" למעלה."}</div>` : "";
   document.querySelector("#wsSide .ws-how").hidden = !!(WS.q || "").trim();
-  if (!WS.topic && (WS.q || "").length >= 2) { $("wsSelBar").hidden = true; $("wsPick").hidden = true; $("wsKind").hidden = true; $("wsSide").hidden = true; $("wsBody").innerHTML = wsSearchHtml(); wsWireSearch(); return; }
+  if (!WS.topic && (WS.q || "").length >= 2) { $("wsSelBar").hidden = true; $("view-ws").classList.remove("ws-selmode", "ws-topic"); $("wsPick").hidden = true; $("wsKind").hidden = true; $("wsSide").hidden = true; $("wsBody").innerHTML = wsSearchHtml(); wsWireSearch(); return; }
   $("wsPick").hidden = false; $("wsSide").hidden = !!WS.topic;
-  if (!WS.topic) $("wsSelBar").hidden = true;
+  if (!WS.topic) { $("wsSelBar").hidden = true; $("view-ws").classList.remove("ws-selmode", "ws-topic"); }
   if (!WS.topic) {
     // הרשימה: נושאי "לפי נושא" (הסוג הראשון), ובסוף נושאים שיש רק בסוג אחר (למשל דפי סיכום בלי נושא מקביל)
     if (!kindOut) WS.kind = kinds[0];
@@ -4820,6 +4856,7 @@ async function renderWs(){
     $("wsBody").querySelectorAll("[data-t]").forEach(b => b.onclick = () => { WS.listY = window.scrollY; WS.listKind = WS.kind; WS.kind = b.dataset.tk || WS.kind; WS.topic = b.dataset.t; WS.tab = "page"; wsPush(); renderWs(); window.scrollTo(0, 0); });
     return;
   }
+  $("view-ws").classList.add("ws-topic");
   const t = wsTopics().find(x => x.no === WS.topic);
   if (t && !t.answers.length) WS.tab = "page";
   if (!t) { WS.topic = null; renderWs(); return; }
@@ -4829,21 +4866,31 @@ async function renderWs(){
   // בתוך נושא: מעבר בין "לפי נושא" ל"דפי סיכום" (ושאר הסוגים) של אותו נושא, בלי לחזור אחורה
   const kindsIn = [...new Set(WS.rows.filter(r => r.book === WS.book).map(r => r.kind))].sort((a, b) => WS_KIND_ORD.indexOf(a) - WS_KIND_ORD.indexOf(b));
   const kSeg = kindsIn.length > 1 && WS.book !== "ENG" ? `<div class="gseg ws-kind-in" role="group" aria-label="סוג הדפים">${kindsIn.map(k => { const no = wsMatch(t, k);
-    return `<button type="button" class="k-${esc(k)}" ${no ? `data-kin="${esc(k)}|${esc(no)}"` : `disabled title="אין ${esc(WS_KIND[k] || k)} לנושא הזה"`} aria-pressed="${k === WS.kind}">${esc(WS_KIND[k] || k)}</button>`; }).join("")}</div>` : "";
-  let html = `<div class="ws-bar"><h2><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}</h2><button type="button" class="btn small ws-back" id="wsBack">→ כל הנושאים</button></div>
-    <div class="ws-sw">${kSeg}${t.answers.length ? `<div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים (${t.pages.length})</button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות (${t.answers.length})</button></div>` : ""}</div>
+    return `<button type="button" class="k-${esc(k)}" ${no ? `data-kin="${esc(k)}|${esc(no)}"` : `disabled title="אין ${esc(WS_KIND[k] || k)} לנושא הזה"`} aria-pressed="${k === WS.kind}"><span class="kl">${esc(WS_KIND[k] || k)}</span><span class="ks">${esc(({ topic: "תרגול", summary: "סיכום" })[k] || WS_KIND[k] || k)}</span></button>`; }).join("")}</div>` : "";
+  if (WS.selTopic !== WS.book + "|" + WS.kind + "|" + WS.topic) { WS.sel = new Set(); WS.selMode = false; WS.selTopic = WS.book + "|" + WS.kind + "|" + WS.topic; }
+  const grpOf = (r) => (r.chapter || "") + "|" + (r.sub || "");
+  const allIn = (g) => { const rs = list.filter(r => r.uploaded && (g === "all" || grpOf(r) === g)); return rs.length && rs.every(r => WS.sel.has(r.storage_path)); };
+  const canSel = list.some(r => r.uploaded), SM = !!WS.selMode;
+  $("view-ws").classList.toggle("ws-selmode", SM);
+  // בחירה לשליחה: כמו בגלריה של הטלפון - "בחירה" ואז נגיעה בדפים מסמנת אותם
+  const gTick = (g) => `<span class="ws-gtick${allIn(g) ? " on" : ""}" aria-hidden="true"></span>`;
+  const selBtn = !canSel ? "" : SM ? `<button type="button" class="ws-lnk ws-selall" id="wsSelNone" ${WS.sel.size ? "" : "hidden"}>ניקוי</button>`
+    : `<button type="button" class="btn small ws-selbtn" id="wsSelMode"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 12.5l2.8 2.8L16.5 9.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>בחירה לשליחה</button>`;
+  let html = `<div class="ws-bar"><button type="button" class="ws-back" id="wsBack" aria-label="כל הנושאים" title="כל הנושאים">→<span class="ws-back-t"> כל הנושאים</span></button>${SM ? `<button type="button" class="ws-gpick ws-tpick" data-gsel="all" title="בחירת כל ה${WS.tab === "answers" ? "פתרונות" : "דפים"} בנושא">${gTick("all")}` : ""}<h2><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}</h2>${SM ? "</button>" : ""}</div>
+    ${SM ? `<div class="ws-selhint">נוגעים בדף כדי לבחור אותו, או בשם הנושא / תת-הנושא כדי לבחור את כל הדפים שבו.</div>` : ""}
+    <div class="ws-sw">${kSeg}${t.answers.length ? `<div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים <small>${t.pages.length}</small></button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות <small>${t.answers.length}</small></button></div>` : ""}${selBtn}</div>
     ${WS.tab === "answers" ? `<div class="ws-warn">פתרונות - לשימוש הצוות. לשלוח לתלמיד רק אם החלטתם.</div>` : ""}`;
-  if (WS.selTopic !== WS.book + "|" + WS.kind + "|" + WS.topic) { WS.sel = new Set(); WS.selTopic = WS.book + "|" + WS.kind + "|" + WS.topic; }
   WS.sign = sign;
-  const card = (r, i) => `<div class="ws-pgw${WS.sel.has(r.storage_path) ? " sel" : ""}">${r.uploaded ? `<label class="ws-ck" title="סימון לשליחה"><input type="checkbox" data-ck="${i}" ${WS.sel.has(r.storage_path) ? "checked" : ""} aria-label="סימון ${esc(r.title || String(r.page_no))}"></label>` : ""}<button type="button" class="ws-pg" data-i="${i}"><div class="th">${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}</div>
-    <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}</span></div></button></div>`;
-  html += `<div class="ws-selall"><button type="button" class="btn small" data-gsel="all">☑ סמן את כל ה${WS.tab === "answers" ? "פתרונות" : "דפים"} בנושא</button></div>`;
+  const card = (r, i) => { const on = WS.sel.has(r.storage_path);
+    return `<div class="ws-pgw${on ? " sel" : ""}"><button type="button" class="ws-pg" data-i="${i}" ${SM && r.uploaded ? `role="checkbox" aria-checked="${on}"` : ""}><div class="th">${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}${SM && r.uploaded ? `<span class="ws-tick" aria-hidden="true"></span>` : ""}</div>
+    <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}</span></div></button></div>`; };
   if (WS.tab === "page" && WS.kind === "topic") {
     let cur = null, buf = [];
-    list.forEach((r, i) => { const k = (r.chapter || "") + "|" + (r.sub || "");
+    list.forEach((r, i) => { const k = grpOf(r);
       if (k !== cur) { if (buf.length) html += `<div class="ws-pages">${buf.join("")}</div>`; buf = []; cur = k;
         // כותרת רק כשיש תת-נושא או פרק (בספרים בלי חלוקה - בלי כותרת)
-        if (r.sub || r.chapter) html += `<div class="ws-gh"><span>${esc(r.sub || "")}${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</span><button type="button" class="btn small ws-gsel" data-gsel="${esc(k)}">☑ סמן את כל תת-הנושא</button></div>`; }
+        if (r.sub || r.chapter) html += SM ? `<button type="button" class="ws-gh ws-gpick ws-gsel" data-gsel="${esc(k)}">${gTick(k)}<span>${esc(r.sub || "")}${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</span></button>`
+          : `<div class="ws-gh"><span>${esc(r.sub || "")}${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</span></div>`; }
       buf.push(card(r, i)); });
     if (buf.length) html += `<div class="ws-pages">${buf.join("")}</div>`;
   } else html += `<div class="ws-pages">${list.map(card).join("")}</div>`;
@@ -4852,20 +4899,30 @@ async function renderWs(){
   $("wsBody").querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { WS.tab = b.dataset.tab; renderWs(); });
   $("wsBody").querySelectorAll("[data-kin]").forEach(b => b.onclick = () => { const [k, no] = b.dataset.kin.split("|"); if (k === WS.kind) return;
     WS.kind = k; WS.topic = no; WS.tab = "page"; store("telem_ws_kind", k); wsReplace(); renderWs(); });
-  $("wsBody").querySelectorAll(".ws-pg").forEach(b => b.onclick = () => wsOpen(Number(b.dataset.i)));
-  $("wsBody").querySelectorAll("[data-ck]").forEach(c => c.onchange = () => { const r = list[Number(c.dataset.ck)]; if (c.checked) WS.sel.add(r.storage_path); else WS.sel.delete(r.storage_path); c.closest(".ws-pgw").classList.toggle("sel", c.checked); wsSelUpd(); });
+  const relabel = () => $("wsBody").querySelectorAll("[data-gsel] .ws-gtick").forEach(x => x.classList.toggle("on", !!allIn(x.closest("[data-gsel]").dataset.gsel)));
+  $("wsBody").querySelectorAll(".ws-pg").forEach(b => b.onclick = () => {
+    const i = Number(b.dataset.i), r = list[i];
+    if (!WS.selMode) { wsOpen(i); return; }
+    if (!r.uploaded) return;
+    const on = !WS.sel.has(r.storage_path); if (on) WS.sel.add(r.storage_path); else WS.sel.delete(r.storage_path);
+    b.closest(".ws-pgw").classList.toggle("sel", on); b.setAttribute("aria-checked", String(on)); relabel(); wsSelUpd(); });
+  if ($("wsSelMode")) $("wsSelMode").onclick = () => { WS.selMode = true; renderWs(); };
+  if ($("wsSelNone")) $("wsSelNone").onclick = () => { WS.sel = new Set(); WS.ready = null; renderWs(); };
   $("wsBody").querySelectorAll("[data-gsel]").forEach(b => b.onclick = () => {
-    const g = b.dataset.gsel, rows = list.filter(r => r.uploaded && (g === "all" || (r.chapter || "") + "|" + (r.sub || "") === g));
+    const g = b.dataset.gsel, rows = list.filter(r => r.uploaded && (g === "all" || grpOf(r) === g));
     const allOn = rows.every(r => WS.sel.has(r.storage_path));
-    rows.forEach(r => allOn ? WS.sel.delete(r.storage_path) : WS.sel.add(r.storage_path)); WS.ready = null; renderWs(); });
+    rows.forEach(r => allOn ? WS.sel.delete(r.storage_path) : WS.sel.add(r.storage_path)); WS.ready = null;
+    $("wsBody").querySelectorAll(".ws-pg").forEach(x => { const r = list[Number(x.dataset.i)], on = WS.sel.has(r.storage_path); x.closest(".ws-pgw").classList.toggle("sel", on); if (x.hasAttribute("aria-checked")) x.setAttribute("aria-checked", String(on)); });
+    relabel(); wsSelUpd(); });
   wsSelUpd();
 }
-// סימון כמה דפים ושליחה יחד: בטלפון - חלון השיתוף עם כל הקבצים (וואטסאפ...), במחשב - קובץ ZIP
+// בחירת כמה דפים ושליחה יחד: בטלפון - חלון השיתוף עם כל הקבצים (וואטסאפ...), במחשב - קובץ ZIP
 function wsSelUpd(){
   const n = WS.sel ? WS.sel.size : 0, bar = $("wsSelBar");
-  bar.hidden = !n || !WS.topic; WS.ready = WS.ready && WS.ready.n === n ? WS.ready : null;
-  $("wsSelN").textContent = n === 1 ? "דף אחד מסומן" : n + " דפים מסומנים";
-  $("wsSelSend").textContent = WS.ready ? `לשלוח עכשיו (${n} דפים מוכנים)` : "שלח את המסומנים";
+  bar.hidden = !WS.selMode || !WS.topic; WS.ready = WS.ready && WS.ready.n === n ? WS.ready : null;
+  $("wsSelN").textContent = !n ? "לא נבחרו דפים" : n === 1 ? "נבחר דף אחד" : "נבחרו " + n + " דפים";
+  $("wsSelSend").disabled = !n; if ($("wsSelNone")) $("wsSelNone").hidden = !n;
+  $("wsSelSend").textContent = WS.ready ? "לשלוח עכשיו ✓" : (wsMobile() ? "שליחה" : "הורדה (ZIP)");
 }
 const wsMobile = () => !!(window.matchMedia && matchMedia("(pointer:coarse)").matches) || /Android|iPhone|iPad/i.test(navigator.userAgent);
 async function wsSelFiles(){
@@ -4879,7 +4936,7 @@ async function wsSelFiles(){
     return new File([b], nm + "." + ext, { type: b.type || "image/png" });
   }));
 }
-$("wsSelClr").addEventListener("click", () => { WS.sel = new Set(); WS.ready = null; renderWs(); });
+$("wsSelClr").addEventListener("click", () => { WS.sel = new Set(); WS.ready = null; WS.selMode = false; renderWs(); });
 $("wsSelSend").addEventListener("click", async () => {
   const btn = $("wsSelSend"), n = WS.sel.size; if (!n) return;
   const t = (WS.list[0] && WS.list[0].topic_name) || "דפים";
@@ -5114,6 +5171,7 @@ async function loadReports(){
     ]);
     R.sessions = s; R.ins = {}; ins.forEach(x => { if (x.staff) (R.ins[x.session_id] = R.ins[x.session_id] || []).push(x.staff); });
     if (!L.asg) await loadLeads();
+    await L.histP;
     R.att = null;
     renderReports();
   } catch(e) { $("repBody").innerHTML = "<div class='card err'>לא ניתן לטעון את הדוחות.</div>"; }
