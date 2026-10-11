@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.5">
+<meta name="app-version" content="5.19.6">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -93,7 +93,7 @@
   #fSearch{ font-size:16px; padding:10px 38px 10px 12px; background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238a7a6e' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat right 11px center; }
   /* כרטיס תלמיד */
   .card-tag{ display:inline-block; font-size:12px; font-weight:700; letter-spacing:.3px; color:var(--paper); background:var(--accent); border-radius:999px; padding:2px 10px; margin-bottom:4px; }
-  .lead-main.editing{ background:color-mix(in srgb, var(--gold) 12%, var(--paper)); outline:2px solid var(--gold); outline-offset:-1px; }
+  .lead-main.dirty{ background:color-mix(in srgb, var(--gold) 10%, var(--paper)); outline:2px solid var(--gold); outline-offset:-1px; }
   .edit-banner{ background:var(--gold); color:#2B2320; font-weight:700; border-radius:8px; padding:7px 12px; margin-bottom:12px; }
   #leadForm.ro .lead-main :is(input, select, textarea):disabled{ background:transparent; border-color:transparent; box-shadow:none; opacity:1; color:var(--ink); -webkit-text-fill-color:var(--ink); cursor:default; padding-inline-start:0; appearance:none; -webkit-appearance:none; resize:none; }
   #leadForm.ro .lead-main select.status-big:disabled{ padding-inline-start:10px; }
@@ -198,7 +198,7 @@
   .lead-main .phone-row{ flex-wrap:wrap; } .lead-main .phone-row input{ flex:1 1 130px; max-width:220px; }
   .lead-main .form-grid > div:has(#lfRemind) > div{ min-width:0; } .lead-main #lfRemind{ flex:1; min-width:0; }
   .lead-main .field.invalid{ border-color:var(--full); }
-  .lead-main.editing :is(.form-grid, .key-grid) > div{ border-color:color-mix(in srgb, var(--gold) 55%, var(--border)); }
+  .lead-main.dirty :is(.form-grid, .key-grid) > div{ border-color:color-mix(in srgb, var(--gold) 55%, var(--border)); }
   #leadForm.ro .lead-main :is(input, select):disabled::placeholder{ color:var(--ink-soft); -webkit-text-fill-color:var(--ink-soft); opacity:.6; }
   @media (max-width:1150px){ .lead-main .form-grid, .lead-main .key-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
   @media (max-width:600px){ .lead-main .form-grid, .lead-main .key-grid{ grid-template-columns:1fr; } }
@@ -311,6 +311,7 @@
   .seg button + button{ border-inline-start:1.5px solid var(--border); }
   .seg button.on.yes{ background:#4ea30c; color:#fff; }
   .seg button.on.no{ background:#c0392b; color:#fff; }
+  #shCount .c-yes{ color:#3d8a06; } #shCount .c-no{ color:#c0392b; }
   .subj{ display:inline-flex; align-items:center; gap:5px; font-size:14px; font-weight:600; padding:6px 8px; border-radius:8px; background:var(--muted); cursor:pointer; }
   .subj input{ width:18px; height:18px; }
   .subj.off{ opacity:.4; }
@@ -373,6 +374,15 @@
   .sc-mode{ margin-bottom:10px; margin-inline-start:8px; }
   .sc-groups tr{ cursor:pointer; } .sc-groups tr:hover td{ background:var(--muted); } .sc-groups td.go{ color:var(--accent); font-weight:700; }
   .sc-head{ display:flex; gap:12px; align-items:baseline; flex-wrap:wrap; margin-bottom:12px; }
+  /* בחירת בית ספר: שורה אחת - עיר + בתי הספר בצבעים; הנבחר בולט, השאר דהויים */
+  .sc-picker.card{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 14px; padding:8px 12px; margin-bottom:14px; min-height:0; }
+  .sc-picker .sc-city button{ padding:6px 14px; font-size:14px; }
+  .sc-picker .sc-city{ flex:none; } .sc-picker .sc-city[hidden]{ display:none; }
+  .sc-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .sc-chips .tab{ border-radius:999px; padding:5px 12px; font-size:14px; font-weight:700; border:2px solid transparent; opacity:.6; background:var(--scb, var(--paper)); color:var(--sci, var(--ink)); cursor:pointer; }
+  .sc-chips .tab:hover{ opacity:.9; }
+  .sc-chips .tab[aria-selected="true"], .sc-chips .tab.sc[aria-selected="true"]{ opacity:1; background:var(--scb, var(--paper)); color:var(--sci, var(--ink)); border-color:var(--sci, var(--ink)); box-shadow:0 2px 6px rgba(0,0,0,.15); }
+  .sc-chips .tab[aria-selected="true"]::before{ content:"✓ "; }
   .sc-head h2{ font-size:22px; color:var(--accent); margin:0; }
   .lg-personal{ margin-top:4px; background:#FFF4E5; border-radius:6px; padding:3px 8px; font-size:14px; display:inline-block; }
   .ptime{ display:inline-block; margin-inline-start:8px; background:#FFF4E5; color:#7A4B00; border-radius:6px; padding:1px 8px; font-size:13px; font-weight:700; }
@@ -569,28 +579,46 @@
   .ex-monthnav{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; } @media (max-width: 700px){ .ex-monthnav b{ min-width:0; } .ex-monthnav .btn{ padding:0 8px; } } .ex-monthnav b{ min-width:110px; text-align:center; font-size:16px; }
   .ex-legend{ display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center; font-size:13px; margin:6px 0 8px; }
   .ex-legend i{ display:inline-block; width:16px; height:12px; border-radius:3px; margin-inline-end:5px; vertical-align:-1px; border:1px solid var(--border); }
-  .lg-ex{ background:#7CD992; } .lg-mk{ background:#D6F5DC; } .lg-hol{ background:color-mix(in srgb, var(--ink-soft) 22%, transparent); }
+  .lg-ex{ background:#7CD992; } .lg-qz{ background:#BDEBC8; } .lg-mk{ background:#D6F5DC; } .lg-hol{ background:color-mix(in srgb, var(--ink-soft) 22%, transparent); }
   .ex-cal-wrap{ max-height:72vh; }
   .ex-cal{ min-width:100%; border-collapse:separate; border-spacing:0; font-size:12px; background:var(--paper); }
   .ex-cal th, .ex-cal td{ border-bottom:1px solid var(--border); border-inline-start:1px solid color-mix(in srgb, var(--border) 60%, transparent); padding:0; text-align:center; }
   .ex-cal thead th{ position:sticky; top:0; z-index:2; background:var(--paper); font-weight:700; }
-  .ex-cal thead tr:nth-child(2) th{ top:22px; } .ex-cal th.dl{ height:22px; color:var(--ink-soft); font-weight:600; } .ex-cal th.dn{ height:22px; }
-  .ex-cal td.d, .ex-cal th.dl, .ex-cal th.dn{ min-width:34px; width:34px; }
-  .ex-cal td.d{ height:28px; font-size:10.5px; font-weight:700; }
+  .ex-cal thead tr:nth-child(2) th{ top:24px; } .ex-cal thead tr:nth-child(3) th{ top:46px; } .ex-cal th.dl{ height:22px; color:var(--ink-soft); font-weight:600; } .ex-cal th.dn{ height:22px; }
+  .ex-cal th.mo > span{ position:sticky; right:146px; } .ex-cal tr.ex-city td > span{ position:sticky; right:10px; }
+  .ex-cal th.mo{ height:24px; text-align:right; padding:0 8px; font-size:13px; font-weight:800; color:var(--accent); border-inline-start:3px solid var(--accent) !important; background:color-mix(in srgb, var(--gold) 14%, var(--paper)); }
+  .ex-cal td.d, .ex-cal th.dl, .ex-cal th.dn{ min-width:26px; width:26px; max-width:26px; }
+  .ex-cal td.d{ height:28px; font-size:9.5px; font-weight:700; letter-spacing:-.3px; overflow:hidden; white-space:nowrap; }
   .ex-cal .wk{ border-inline-start:2px solid color-mix(in srgb, var(--ink) 35%, transparent) !important; }
+  .ex-cal .ms{ border-inline-start:3px solid var(--accent) !important; }
   .ex-cal .sch, .ex-cal .gr{ position:sticky; z-index:1; background:var(--paper); white-space:nowrap; }
   .ex-cal .sch{ right:0; min-width:96px; padding:0 8px; text-align:right; } .ex-cal .gr{ right:96px; min-width:40px; }
   .ex-cal thead .sch, .ex-cal thead .gr{ z-index:3; }
   .ex-cal tr.first td{ border-top:1px solid color-mix(in srgb, var(--ink) 25%, transparent); }
   .ex-cal tr.ex-city td{ background:color-mix(in srgb, var(--gold) 28%, var(--paper)); font-weight:800; text-align:right; padding:3px 10px; position:sticky; right:0; }
-  .ex-cal td.ex{ background:#7CD992; color:#0F4D22; cursor:pointer; } .ex-cal td.mk{ background:#D6F5DC; color:#2E6B3E; cursor:pointer; }
+  .ex-cal td.ex{ background:#7CD992; color:#0F4D22; cursor:pointer; }
+  .ex-cal td.ex.qz{ background:#BDEBC8; color:#2C6B3D; font-weight:600; }   /* בוחן - ירוק דהוי יותר ממבחן */ .ex-cal td.mk{ background:#D6F5DC; color:#2E6B3E; cursor:pointer; }
+  .ex-cal td.fri:not(.ex):not(.mk), .ex-cal th.fri,
   .ex-cal td.hol, .ex-cal th.hol{ background:color-mix(in srgb, var(--ink-soft) 18%, var(--paper)); }
-  .ex-cal .today{ box-shadow:inset 0 0 0 2px var(--accent); }
+  .ex-cal .today:not(.ex):not(.mk){ background:var(--today-bg, #F3EEFC) !important; } .ex-cal td.today.ex, .ex-cal td.today.mk{ box-shadow:inset 0 -3px 0 #8E6FD0; }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .ex-cal{ --today-bg:#2E2840; } }
+  :root[data-theme="dark"] .ex-cal{ --today-bg:#2E2840; } .ex-cal th.today{ color:#5B3FA0; font-weight:800; }
   .gr-b{ display:inline-block; min-width:26px; padding:1px 4px; border-radius:9px; font-weight:800; background:var(--gb); color:var(--gi); }
-  #leadsTbl .c-parent{ white-space:nowrap; font-size:13px; } #leadsTbl .c-parent .pn{ display:block; } #leadsTbl .c-parent .pp{ color:var(--ink-soft); font-size:12.5px; text-decoration:none; }
+  #leadsTbl .c-parent{ white-space:nowrap; font-size:13px; } #leadsTbl .c-parent .pn{ display:inline; } #leadsTbl .c-parent .sep{ color:var(--ink-soft); } #leadsTbl .c-parent .pp{ color:var(--ink-soft); font-size:12.5px; text-decoration:none; }
   #leadsTbl .c-rem{ text-align:center; } #leadsTbl .asg-none{ white-space:nowrap; } #leadsTbl td.c-upd{ white-space:nowrap; font-size:12.5px; }
   #leadsTbl .src-sel{ font:inherit; font-size:13px; border:1px solid transparent; background-color:transparent; padding:3px 2px; width:112px; max-width:112px; border-radius:6px; cursor:pointer; color:var(--ink); }
   #leadsTbl .src-sel:hover, #leadsTbl .src-sel:focus{ border-color:var(--border); background-color:var(--paper); } .rem-ic{ font-size:15px; opacity:.55; cursor:help; } .rem-ic.due{ opacity:1; filter:drop-shadow(0 0 2px #e53935); }
+  .ex-pop-meta{ margin-top:10px; font-size:11.5px; color:var(--ink-soft); line-height:1.4; }
+  .asg-pop{ width:min(560px, 94vw); margin-top:8vh; max-height:84vh; overflow:auto; }
+  .asg-pop-h{ display:flex; align-items:center; gap:8px; margin-bottom:10px; } .asg-pop-h .btn{ margin-inline-start:auto; }
+  .asg-pop-row{ display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:14px; }
+  #leadsTbl td.c-asg{ cursor:pointer; } #leadsTbl td.c-asg:hover{ background:color-mix(in srgb, var(--gold) 12%, transparent); }
+  #leadsTbl td.c-status{ white-space:nowrap; } .mar-ic{ font-size:14px; margin-inline-start:4px; cursor:help; vertical-align:middle; }
+  #leadsTbl .switch{ width:24px; height:13px; } #leadsTbl .switch::after{ top:2px; width:9px; height:9px; } #leadsTbl .switch.on::after{ inset-inline-start:13px; }
+  #leadsTbl td.c-id{ font-size:11.5px; color:var(--ink-soft); } @media (min-width:761px){ #leadsTbl td.c-act, #leadsTbl th:nth-child(3){ width:1%; } }
+  .att-ctl .subj-mini{ margin:0; align-self:center; }
+  .subj-mini{ display:inline-block; margin-inline-start:8px; font-size:13px; font-weight:700; line-height:1.5; border-radius:999px; padding:1px 10px; vertical-align:middle; }
+  .subj-mini.s-m{ background:#DDF5D6; color:#1F6B17; } .subj-mini.s-e{ background:#FFF6B8; color:#6B5600; } .subj-mini.s-b{ background:#DCEAFB; color:#1D4F91; } .subj-mini.s-x{ background:var(--muted); color:var(--ink-soft); }
   .resume-load{ margin:24px 0; text-align:center; font-size:16px; }
   .ar-group-h{ display:flex; gap:10px; align-items:center; margin:14px 0 6px; font-weight:800; }
   .cal{ overflow-x:auto; background:var(--paper); border:1px solid var(--border); border-radius:12px; }
@@ -719,7 +747,8 @@
     #leadsTbl tbody td{ border:0; padding:0; font-size:13px; }
     #leadsTbl .c-name{ order:1; flex:1 1 60%; } #leadsTbl .c-name .name-link{ font-size:16.5px; }
     #leadsTbl .c-notes{ order:2; } #leadsTbl .c-info{ order:3; }
-    #leadsTbl .c-status{ order:4; flex:1 1 100%; } #leadsTbl .c-status select{ width:100%; font-size:14.5px; padding:7px 10px; }
+    #leadsTbl .c-status{ order:4; flex:1 1 100%; display:flex !important; align-items:center; gap:4px; } #leadsTbl .c-status select{ width:100%; flex:1; min-width:0; font-size:14.5px; padding:7px 10px; }
+    #leadsTbl .c-act{ padding-inline-end:6px; } #leadsTbl .c-grade:empty{ display:none; }
     #leadsTbl .c-school{ order:5; } #leadsTbl .c-grade{ order:6; } #leadsTbl .c-asg{ order:6; flex:1 1 100%; }
     #leadsTbl .c-grade::before, #leadsTbl .c-src::before, #leadsTbl .c-upd::before{ content:"·"; margin-inline-end:6px; color:var(--ink-soft); }
     #leadsTbl .c-src{ order:7; color:var(--ink-soft); }
@@ -767,6 +796,15 @@
     .side.nav-open .nav button{ border-radius:10px; border:0; text-align:center; padding:12px 8px; font-size:15px; background:rgba(255,255,255,.06); }
     .side.nav-open .nav button[hidden]{ display:none; }
     .side.nav-open .nav button[aria-current="page"]{ background:rgba(255,255,255,.18); }
+    /* 5.19.6: בנייד - כל התפריט תמיד גלוי, שורה אחת של אייקונים (בלי ☰) */
+    .nav-toggle{ display:none !important; }
+    .side .nav{ display:flex !important; order:4; flex-basis:100%; gap:3px; margin:6px 0 4px; padding:0; overflow:visible; }
+    .side .nav button{ flex:1 1 0; min-width:0; flex-direction:column; gap:1px; padding:5px 2px 4px !important; font-size:0 !important; border:0; border-radius:10px; background:rgba(255,255,255,.06); }
+    .side .nav button[hidden]{ display:none !important; }
+    .side .nav button > *{ display:none !important; }
+    .side .nav button::before{ content:attr(data-ic); font-size:20px; line-height:1.15; }
+    .side .nav button::after{ content:attr(data-sl); font-size:11.5px; font-weight:700; line-height:1.2; white-space:nowrap; }
+    .side .nav button[aria-current="page"]{ background:rgba(255,255,255,.22); box-shadow:inset 0 -2px 0 var(--gold); }
     .kind-seg button{ min-height:40px; font-size:15px; flex:1 1 0; }
     /* נוכחות - קטן ומהיר */
     .att-date{ padding:8px 10px; gap:6px; margin-bottom:8px; }
@@ -984,6 +1022,14 @@
   .ws-pages{ display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:12px; }
   .ws-pg{ all:unset; cursor:pointer; background:var(--card, #fff); border:1px solid var(--border); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
   .ws-pg .th{ aspect-ratio:210/297; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; color:#999; font-size:12px; } .ws-pg img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .ws-pgw{ position:relative; display:flex; } .ws-pgw > .ws-pg{ flex:1; min-width:0; }
+  .ws-ck{ position:absolute; top:6px; inset-inline-start:6px; z-index:2; width:34px; height:34px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.92); border:1px solid var(--border); border-radius:8px; cursor:pointer; }
+  .ws-ck input{ width:20px; height:20px; margin:0; accent-color:var(--accent); cursor:pointer; }
+  .ws-pgw.sel > .ws-pg{ outline:3px solid var(--accent); outline-offset:-1px; }
+  .ws-selall{ display:flex; justify-content:flex-end; margin:4px 0 8px; } .ws-gh .ws-gsel{ margin-inline-start:auto; }
+  .ws-gh:has(.ws-gsel){ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .ws-gh > span{ display:flex; gap:8px; align-items:baseline; }
+  .ws-selbar{ position:sticky; bottom:10px; z-index:20; margin-top:14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 14px; background:var(--paper, #fff); border:2px solid var(--accent); border-radius:12px; box-shadow:0 6px 20px rgba(0,0,0,.18); }
+  .ws-selbar span{ font-weight:800; flex:1; }
   .ws-pg .cap{ padding:6px 8px 8px; font-size:13px; line-height:1.3; display:flex; gap:6px; } .ws-pg .cap b{ color:var(--accent); }
   .ws-viewer{ position:fixed; inset:0; z-index:200; background:rgba(18,14,20,.95); display:flex; flex-direction:column; }
   .ws-vtop{ display:flex; align-items:center; gap:10px; padding:10px 14px; color:#fff; } .ws-vt{ flex:1; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -1041,6 +1087,7 @@
       <div><label class="lbl" for="lgEmail">אימייל</label><input id="lgEmail" name="email" type="email" autocomplete="username" required></div>
       <div><label class="lbl" for="lgPass">סיסמה</label><input id="lgPass" name="password" type="password" autocomplete="current-password" required></div>
       <label style="display:flex; gap:6px; align-items:center; font-size:13px;"><input type="checkbox" id="lgRemember" checked> לזכור את האימייל במחשב הזה</label>
+      <label style="display:flex; gap:6px; align-items:center; font-size:13px;"><input type="checkbox" id="lgKeep"> להישאר מחובר/ת במכשיר הזה (גם כשעוברים לוואטסאפ). לא במחשב משותף.</label>
       <button class="btn primary" id="lgBtn" type="submit">כניסה</button>
       <button class="btn small" id="lgForgot" type="button" style="align-self:flex-start; background:none; border:none; padding:2px 0; color:var(--accent); font-weight:700; text-decoration:underline; text-underline-offset:3px;">שכחתי סיסמה</button>
       <div class="msg" id="lgMsg"></div>
@@ -1053,12 +1100,12 @@
     <div class="brand" id="brandHome" role="button" tabindex="0" title="למסך הבית"><img src="logo.png" class="brand-logo" alt="תלם"><span class="brand-t">תלם - המרכז לשיעורי תרגול<small>מערכת ניהול</small></span></div>
     <button type="button" class="nav-toggle" id="navToggle" aria-label="תפריט" aria-expanded="false">☰ <span id="navCur"></span></button>
     <nav class="nav" aria-label="תפריט">
-      <button type="button" data-view="leads">תלמידים</button>
-      <button type="button" data-view="schools"><span class="lbl-a">בתי ספר</span><span class="lbl-i">בתי הספר שלי</span></button>
-      <button type="button" data-view="groups" data-admin>קבוצות ומרתונים</button>
-      <button type="button" data-view="att">נוכחות</button>
-      <button type="button" data-view="ws">מאגר תרגולים</button>
-      <button type="button" data-view="reports">דוחות</button>
+      <button type="button" data-view="leads" data-ic="👥" data-sl="תלמידים">תלמידים</button>
+      <button type="button" data-view="schools" data-ic="🏫" data-sl="בתי ספר"><span class="lbl-a">בתי ספר</span><span class="lbl-i">בתי הספר שלי</span></button>
+      <button type="button" data-view="groups" data-admin data-ic="🗓️" data-sl="קבוצות">קבוצות ומרתונים</button>
+      <button type="button" data-view="att" data-ic="✅" data-sl="נוכחות">נוכחות</button>
+      <button type="button" data-view="ws" data-ic="📚" data-sl="מאגר">מאגר תרגולים</button>
+      <button type="button" data-view="reports" data-ic="📊" data-sl="דוחות">דוחות</button>
     </nav>
     <div class="who"><span id="whoEmail"></span>
       <button class="btn small ghost" id="bugBtn" type="button" title="דיווח על בעיה" aria-label="דיווח על בעיה">🐞</button>
@@ -1118,7 +1165,7 @@
           <div id="leadSub" class="lead-sub"></div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn primary" type="button" id="leadEditBtn">✎ עריכה</button>
+          <button class="btn primary" type="button" id="leadEditBtn" hidden>✎ עריכה</button>
           <button class="btn" type="button" data-back>חזרה לרשימה</button>
         </div>
       </div>
@@ -1126,7 +1173,7 @@
       <form id="leadForm" novalidate>
         <div class="lead-cols">
           <div class="card lead-main">
-            <div class="edit-banner" id="editBanner" hidden>מצב עריכה - השינויים יישמרו רק אחרי לחיצה על "שמירה"</div>
+            <div class="edit-banner" id="editBanner" hidden>יש שינויים שלא נשמרו - לוחצים "שמירה"</div>
             <div class="toggles">
               <label><button type="button" class="switch" id="lfActive" aria-pressed="true"></button> פעיל</label>
               <label><button type="button" class="star" id="lfStar" aria-pressed="false">★</button> כוכב</label>
@@ -1370,6 +1417,7 @@
           <div class="muted ws-how">איך שולחים לתלמיד: נושא ← דף ← <b>העתקה</b> ← חוזרים לצ'אט בוואטסאפ ← לחיצה ארוכה בשורת ההקלדה ← <b>הדבקה</b>.</div>
         </aside>
         <div id="wsBody"></div>
+        <div class="ws-selbar" id="wsSelBar" hidden><span id="wsSelN"></span><button type="button" class="btn primary" id="wsSelSend">שלח את המסומנים</button><button type="button" class="btn small" id="wsSelClr">ביטול הסימון</button></div>
       </div>
     </section>
     <div class="ws-viewer" id="wsViewer" hidden>
@@ -1457,7 +1505,7 @@
         </div></div>
       <div class="ex-modebar">
         <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-exm="cal">לוח חודשי</button><button type="button" data-exm="list">רשימה</button></div>
-        <div class="ex-monthnav" id="exMonthNav"><button type="button" class="btn small" id="exMPrev">→ חודש קודם</button><b id="exMLbl"></b><button type="button" class="btn small" id="exMNow">החודש</button><button type="button" class="btn small" id="exMNext">חודש הבא ←</button></div>
+        <div class="ex-monthnav" id="exMonthNav"><button type="button" class="btn small" id="exMPrev">→ חודש קודם</button><b id="exMLbl"></b><button type="button" class="btn small" id="exMNow">היום</button><button type="button" class="btn small" id="exMNext">חודש הבא ←</button></div>
       </div>
       <div id="exInfo" class="muted ex-info"></div>
       <form id="exForm" class="card ex-form" hidden></form>
@@ -1482,8 +1530,10 @@
         <div><label class="lbl" for="scAddCity">עיר</label><select id="scAddCity"></select></div>
         <div><button class="btn primary" type="submit">הוספה</button></div>
       </form>
-      <div class="tabs" role="tablist" id="scCityTabs" style="margin-bottom:8px;"></div>
-      <div class="tabs" role="tablist" id="scTabs" style="margin-bottom:12px; flex-wrap:wrap; width:fit-content; max-width:100%;"></div>
+      <div class="sc-picker card">
+        <div class="gseg sc-city" role="group" aria-label="עיר" id="scCityTabs"></div>
+        <div class="sc-chips" role="tablist" id="scTabs"></div>
+      </div>
       <div id="scBody"></div>
     </section>
 
@@ -1601,9 +1651,14 @@ const AUTH_KEY = "telem_crm_session";
 let auth = null;
 // הכניסה נשמרת רק ללשונית הנוכחית (sessionStorage): סגירת הדפדפן או הלשונית = צריך להיכנס מחדש.
 function sstore(k, v){ try { if (v === undefined) return sessionStorage.getItem(k); if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch(e) { return null; } }
-store(AUTH_KEY, null); // ניקוי כניסה ישנה שנשמרה בגרסה קודמת
-try { auth = JSON.parse(sstore(AUTH_KEY) || "null"); } catch(e) {}
-function saveAuth(a){ auth = a; sstore(AUTH_KEY, a ? JSON.stringify(a) : null); }
+// 5.19.6: "להישאר מחוברת במכשיר הזה" - הכניסה נשמרת גם ב-localStorage, כדי שמעבר לוואטסאפ (כשהטלפון סוגר את הדפדפן ברקע) לא יוציא מהמערכת.
+//  היציאה האוטומטית אחרי שעה בלי שימוש נשארת. בלי הסימון - כמו קודם (רק הלשונית הנוכחית).
+const KEEP_KEY = "telem_keep";
+const keepOn = () => store(KEEP_KEY) === "1";
+if (!keepOn()) store(AUTH_KEY, null);
+try { auth = JSON.parse(sstore(AUTH_KEY) || (keepOn() ? store(AUTH_KEY) : null) || "null"); } catch(e) {}
+function saveAuth(a){ auth = a; const v = a ? JSON.stringify(a) : null; sstore(AUTH_KEY, v); store(AUTH_KEY, keepOn() ? v : null); }
+function saveLast(st){ try { const v = JSON.stringify(st); sessionStorage.setItem("telem_last", v); store("telem_last_keep", keepOn() ? v : null); } catch(e) {} }
 function baseHeaders(){
   const h = { "apikey": CONFIG.anonKey, "Content-Type": "application/json" };
   if (CONFIG.anonKey.indexOf("eyJ") === 0) h["Authorization"] = "Bearer " + CONFIG.anonKey;
@@ -1688,19 +1743,22 @@ function showLogin(){
   $("appView").hidden = true; $("loginView").hidden = false; hideViews();
   // האימייל האחרון נשמר במחשב (רק האימייל - את הסיסמה שומר הדפדפן, אם מאשרים לו)
   const last = store("telem_last_email");
+  $("lgKeep").checked = store(KEEP_KEY) != null ? keepOn() : !!(window.matchMedia && matchMedia("(max-width:760px), (pointer:coarse)").matches);
   if (last && !$("lgEmail").value) { $("lgEmail").value = last; $("lgRemember").checked = true; setTimeout(() => $("lgPass").focus(), 0); }
 }
 $("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault(); $("lgMsg").textContent = ""; $("lgBtn").disabled = true;
+  store(KEEP_KEY, $("lgKeep").checked ? "1" : "0");
   try { await tokenRequest("password", { email: $("lgEmail").value.trim(), password: $("lgPass").value }); $("lgPass").value = "";
     store("telem_last_email", $("lgRemember").checked ? $("lgEmail").value.trim() : null); store(IDLE_KEY, String(Date.now())); await boot(); }
   catch(err) { $("lgMsg").textContent = "האימייל או הסיסמה לא נכונים."; }
   $("lgBtn").disabled = false;
 });
 async function logout(msg){
-  try { sessionStorage.removeItem("telem_last"); sessionStorage.removeItem("telem_resume"); } catch(e) {} RESUME = null;
+  try { sessionStorage.removeItem("telem_last"); sessionStorage.removeItem("telem_resume"); store("telem_last_keep", null); sessionStorage.removeItem("telem_lead_filters"); } catch(e) {} RESUME = null;
   try { const t = await token(); if (t) await fetch(CONFIG.supabaseUrl + "/auth/v1/logout", { method:"POST", headers: Object.assign(baseHeaders(), {"Authorization":"Bearer "+t}) }); } catch(e) {}
   saveAuth(null); showLogin(); $("idleWarn").hidden = true;
+  try { setLeadDirty(false); currentView = "home"; F.statuses.clear(); LF_IDS.forEach(id => { const el = $(id); if (el.type === "checkbox") el.checked = id === "fActive"; else if (id !== "fRemindDate") el.value = ""; }); } catch(e) {}
   $("lgMsg").textContent = msg || "";
 }
 $("logoutBtn").addEventListener("click", () => logout());
@@ -1823,7 +1881,7 @@ let currentView = "leads";
 // (גם אחרי "רענון" מפס העדכון - שם המסך נשמר לפני הטעינה מחדש)
 let RESUME = (() => { try {
   let st = history.state;
-  if (!(st && st.telem)) { const v = sessionStorage.getItem("telem_resume") || sessionStorage.getItem("telem_last"); if (v) st = JSON.parse(v); }
+  if (!(st && st.telem)) { const v = sessionStorage.getItem("telem_resume") || sessionStorage.getItem("telem_last") || (keepOn() && auth ? store("telem_last_keep") : null); if (v) st = JSON.parse(v); }
   sessionStorage.removeItem("telem_resume");
   return st && st.telem && st.view && st.view !== "home" ? st : null; } catch(e) { return null; } })();
 // מסכים שצריכים את רשימת התלמידים המלאה - נפתחים רק אחרי שהיא נטענה. כל השאר נפתחים מיד.
@@ -1837,6 +1895,7 @@ const SETTINGS_VIEWS = ["staff","backup","issues","me","reg","sched"];   // "ט�
 const INFO_VIEWS = [];   // "מידע למתרגלים" ו"חגים וחופשות" - בתפריט הקטן ⓘ ליד ההגדרות
 let DATA_READY = true, DATA_WAIT = null;
 function go(view){
+  if (view !== "lead" && typeof LEAD_DIRTY !== "undefined" && LEAD_DIRTY && !LEAD_SAVING && currentView === "lead") { const v = view; askLeadSave(() => go(v)); return; }
   try { if (!NAV_POP && view !== "home") RESUME = null; } catch(e) {}   // המשתמש עבר למסך בעצמו - לא לחזור אחר כך למסך שלפני הרענון
   // אחרי הכניסה: דף הבית מוצג מיד, והנתונים נטענים ברקע. מסך אחר - מחכה לסיום הטעינה.
   if (!DATA_READY && DATA_WAIT && NEED_DATA.includes(view) && ME.role !== "instructor") {
@@ -1892,11 +1951,11 @@ function navPush(view){
   const cur = history.state;
   if (cur && cur.telem && cur.view === st.view && cur.lead === st.lead) return;
   if (!cur || !cur.telem) history.replaceState(st, ""); else history.pushState(st, "");
-  try { sessionStorage.setItem("telem_last", JSON.stringify(st)); } catch(e) {}
+  try { saveLast(st); } catch(e) {}
 }
 window.addEventListener("popstate", (e) => {
   const st = e.state; if (!st || !st.telem || !auth || !ME) return;
-  try { sessionStorage.setItem("telem_last", JSON.stringify(st)); } catch(e2) {}
+  try { saveLast(st); } catch(e2) {}
   NAV_POP = true;
   try {
     closePanel();
@@ -1913,11 +1972,12 @@ window.addEventListener("popstate", (e) => {
       (async () => { await renderWs(); if (y != null) window.scrollTo(0, y); if (st.viewer != null && (!$("wsViewer").hidden ? WS.idx !== st.viewer : true)) wsOpen(st.viewer, true); })();
     }
     else if (st.view === "lead" && st.lead && L.leads.some(l => l.id === st.lead)) openLead(st.lead);
-    else if (st.view === "leads" || st.view === "lead") { go("leads"); renderLeads(); }
+    else if (st.view === "leads" || st.view === "lead") { if (LEAD_DIRTY && currentView === "lead") askLeadSave(() => { go("leads"); renderLeads(); }); else { go("leads"); renderLeads(); } }
     else go(st.view);
   } finally { NAV_POP = false; }
 });
-document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => { if (b.dataset.view === "leads") { go("leads"); renderLeads(); } else go(b.dataset.view); }));
+document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => {
+  if (b.dataset.view === "leads") { if (LEAD_DIRTY && currentView === "lead") { askLeadSave(() => { go("leads"); renderLeads(); }); return; } go("leads"); renderLeads(); } else go(b.dataset.view); }));
 document.querySelectorAll("[data-gv]").forEach(b => b.addEventListener("click", () => go(b.dataset.gv)));
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", leadBack));
 
@@ -2020,6 +2080,11 @@ function marTag(st){
   const m = (L.mar && L.mar[st.id]) || []; if (!m.length) return "";
   return `<span class="mar-tag" title="${esc(m.map(x => (x.marathon ? [x.marathon.name, x.marathon.school, x.marathon.city].filter(Boolean).join(" · ") : "מרתון") + " · " + (x.status || "")).join("\n"))}">מרתון</span>`;
 }
+// אייקון קטן ליד הסטטוס - רשום/ה למרתון (הפרטים במעבר עכבר)
+function marIcon(st){
+  const m = (L.mar && L.mar[st.id]) || []; if (!m.length) return "";
+  return `<span class="mar-ic" title="${esc("מרתון: " + m.map(x => (x.marathon ? [x.marathon.name, x.marathon.school, x.marathon.city].filter(Boolean).join(" · ") : "מרתון") + " · " + (x.status || "")).join("\n"))}">🏁</span>`;
+}
 // תאריך העדכון של הליד (כל שמירה במסך הליד מעדכנת אותו)
 const lastUpdate = (l) => l.updated_at;
 
@@ -2027,7 +2092,18 @@ const lastUpdate = (l) => l.updated_at;
 // רשימת לידים
 // ======================================================================
 const F = { statuses: new Set(), page: 0, sort: "updated", dir: -1 };
-try { const saved = JSON.parse(store("telem_crm_status_filter") || "[]"); saved.forEach(x => F.statuses.add(x)); } catch(e) {}
+// כל הסינונים בעמוד התלמידים נשמרים יחד (גם סטטוס, גם שיבוץ וכו') - נשארים ברענון (F5), מתאפסים ביציאה או בלשונית חדשה
+const LF_KEY = "telem_lead_filters", LF_IDS = ["fSearch","fCity","fSchool","fGrade","fAsg","fSource","fManager","fFrom","fTo","fStar","fActive","fRemind","fRemindDate"];
+try { store("telem_crm_status_filter", null); } catch(e) {}   // היה נשמר לתמיד - כבר לא
+try { const sv = JSON.parse(sstore(LF_KEY) || "null"); if (sv && sv.statuses) sv.statuses.forEach(x => F.statuses.add(x)); if (sv && sv.sort) { F.sort = sv.sort; F.dir = sv.dir || -1; } } catch(e) {}
+function saveLeadFilters(){
+  try { const v = { statuses: [...F.statuses], sort: F.sort, dir: F.dir };
+    LF_IDS.forEach(id => { const el = $(id); v[id] = el.type === "checkbox" ? el.checked : el.value; }); sstore(LF_KEY, JSON.stringify(v)); } catch(e) {}
+}
+function restoreLeadFilters(){
+  try { const v = JSON.parse(sstore(LF_KEY) || "null"); if (!v) return;
+    LF_IDS.forEach(id => { if (!(id in v)) return; const el = $(id); if (el.type === "checkbox") el.checked = !!v[id]; else el.value = v[id]; }); } catch(e) {}
+}
 
 function fillSelect(el, items, emptyLabel){
   const cur = el.value;
@@ -2050,18 +2126,18 @@ function setupFilters(){
   document.addEventListener("click", e => { if (!box.contains(e.target)) pop.hidden = true; });
   pop.querySelectorAll("input").forEach(i => i.addEventListener("change", () => {
     const id = Number(i.value); i.checked ? F.statuses.add(id) : F.statuses.delete(id);
-    store("telem_crm_status_filter", JSON.stringify([...F.statuses])); label(); F.page = 0; renderLeads();
+    saveLeadFilters(); label(); F.page = 0; renderLeads();
   }));
 }
 $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 $("fRemindDate").addEventListener("change", () => { if ($("fRemindDate").value) $("fRemind").checked = true; });
 ["fSearch","fCity","fSchool","fGrade","fAsg","fSource","fManager","fFrom","fTo","fStar","fActive","fRemind","fRemindDate"].forEach(id =>
-  $(id).addEventListener(id === "fSearch" ? "input" : "change", () => { F.page = 0; renderLeads(); }));
+  $(id).addEventListener(id === "fSearch" ? "input" : "change", () => { F.page = 0; saveLeadFilters(); renderLeads(); }));
 $("clearFilters").addEventListener("click", () => {
   ["fSearch","fCity","fSchool","fGrade","fAsg","fSource","fManager","fFrom","fTo"].forEach(id => $(id).value = "");
   $("fStar").checked = false; $("fRemind").checked = false; $("fActive").checked = true;
   $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-  F.statuses.clear(); store("telem_crm_status_filter", null); setupFilters(); F.page = 0; renderLeads();
+  F.statuses.clear(); sstore(LF_KEY, null); setupFilters(); F.page = 0; renderLeads();
 });
 
 function filtered(){
@@ -2144,18 +2220,18 @@ function renderLeads(){
       <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
       <td class="c-act"><button type="button" class="switch ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}"></button></td>
       <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
-      <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff; border-color:transparent;"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select></td>
+      <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff; border-color:transparent;"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select>${marIcon(s)}</td>
       <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
-      <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" title="הערות">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
-      <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${marTag(s)}</td>
+      <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" title="${esc(ns.length ? ns.slice(-3).reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n").slice(0, 600) + (ns.length > 3 ? "\n(ועוד " + (ns.length - 3) + " - לחיצה לכל ההערות)" : "") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
+      <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}</td>
       <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
       <td class="c-grade">${esc(classLabel(s.grade, s.class_num))}</td>
-      <td class="c-asg">${(() => { const a = asgOf(l), pr = propOf(l);
+      <td class="c-asg" data-act="asg" title="לחיצה - שיבוץ לקבוצה / שינוי">${(() => { const a = asgOf(l), pr = propOf(l);
         const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
         return pills || props ? pills + (pills && props ? " " : "") + props : `<span class="asg-none">לא משובץ</span>`; })()}</td>
-      <td class="c-parent">${(() => { const fm = s.family || {}, nm = [fm.parent1_first, fm.parent1_last].filter(Boolean).join(" "), ph = fm.parent1_phone || "";
-        return nm || ph ? `<span class="pn">${esc(nm)}</span>${ph ? `<a class="pp" dir="ltr" href="tel:${esc(ph)}" onclick="event.stopPropagation()">${esc(String(ph).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : ""}` : ""; })()}</td>
+      <td class="c-parent">${(() => { const fm = s.family || {}, nm = fm.parent1_first || fm.parent1_last || "", ph = fm.parent1_phone || "";   // שם פרטי + טלפון בשורה אחת
+        return nm || ph ? `<span class="pn">${esc(nm)}</span>${nm && ph ? `<span class="sep"> · </span>` : ""}${ph ? `<a class="pp" dir="ltr" href="tel:${esc(ph)}" onclick="event.stopPropagation()">${esc(String(ph).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : ""}` : ""; })()}</td>
       <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
       <td class="num c-upd">${esc(fmtDate(lastUpdate(l)))}</td>
     </tr>`;
@@ -2164,7 +2240,7 @@ function renderLeads(){
   $("leadsTbl").innerHTML = head + "<tbody>" + (rows || `<tr><td colspan="14" class="empty-state">אין לידים שמתאימים לסינון.</td></tr>`) + "</tbody>";
   $("leadsTbl").querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
     if (F.sort === th.dataset.sort) F.dir *= -1; else { F.sort = th.dataset.sort; F.dir = th.dataset.sort === "updated" ? -1 : 1; }
-    renderLeads();
+    saveLeadFilters(); renderLeads();
   }));
 }
 $("prevPage").addEventListener("click", () => { F.page--; renderLeads(); });
@@ -2187,6 +2263,7 @@ $("leadsTbl").addEventListener("click", async (e) => {
   if (act === "open") { openLead(l.id); return; }
   if (act === "info") { showPop(el, infoHtml(l)); return; }
   if (act === "notes") { showPop(el, notesHtml(l), l); return; }
+  if (act === "asg") { if (e.target.closest("a")) return; openAsgPopup(l); return; }
   if (act === "active" || act === "star") {
     const field = act === "active" ? "is_active" : "is_starred", v = !l[field];
     try { await patch("leads", "id=eq." + l.id, { [field]: v }); l[field] = v; l.updated_at = new Date().toISOString(); renderLeads(); }
@@ -2295,11 +2372,13 @@ function fillLeadSelects(l){
 // מאיפה נכנסו לכרטיס התלמיד (היסטוריה, דוחות, קבוצות...) - "חזרה" מחזירה לשם ולאותו מקום בדף
 let LEAD_FROM = "leads", LEAD_FROM_Y = 0;
 function leadBack(){
+  if (LEAD_DIRTY && currentView === "lead") { askLeadSave(leadBack); return; }
   const v = LEAD_FROM, y = LEAD_FROM_Y;
   if (v === "leads") { go("leads"); renderLeads(); } else go(v);
   setTimeout(() => window.scrollTo(0, y), 0);
 }
 function openLead(id){
+  if (LEAD_DIRTY && !LEAD_SAVING && currentView === "lead" && (!editing || editing.id !== id)) { askLeadSave(() => openLead(id)); return; }
   if (currentView !== "lead" && !NAV_POP) { LEAD_FROM = ["home", "leads"].includes(currentView) ? "leads" : currentView; LEAD_FROM_Y = window.scrollY; }
   { const to = { leads: "לרשימה", history: "להיסטוריה", reports: "לדוחות", groups: "לקבוצות", att: "לנוכחות", sched: "לשיבוצים", reg: "להרשמה" }[LEAD_FROM] || "";
     document.querySelectorAll("[data-back]").forEach(b => b.textContent = "חזרה " + to);
@@ -2337,7 +2416,7 @@ function openLead(id){
   $("newNote").value = ""; $("addNoteBtn").disabled = !l;
   $("notesList").innerHTML = l ? "<li class='muted'>טוען...</li>" : "<li class='muted'>אפשר להוסיף הערות אחרי השמירה הראשונה.</li>";
   $("leadGroups").textContent = "";
-  setLeadEdit(!l);
+  setLeadEdit(true); setLeadDirty(false);
   go("lead");
   renderTrack(l); $("leadPay").innerHTML = ""; $("leadCancel2").innerHTML = "";
   if (l) { loadNotes(l.id); loadLeadGroups(l.student.id); loadLeadSig(l); loadLeadHist(l); loadLeadLog(l); loadLeadExams(l); loadLeadPay(l); loadLeadCancel(l); } else { $("leadSig").textContent = ""; $("leadHist").textContent = ""; }
@@ -2464,7 +2543,8 @@ async function loadLeadCancel(l){
     if (!window.confirm("לאשר את הביטול? ההרשמה והשיבוצים של המקצוע יסומנו כבוטלו, והסטטוס יעבור ל\"פרש\".")) return;
     b.disabled = true;
     try { await rpc("approve_cancellation", { p_id: Number(b.dataset.capprove) }); toast("הביטול אושר - הסטטוס עבר ל\"פרש\"");
-          await loadLeads(); const nl = L.leads.find(x => x.id === l.id); if (nl) openLead(nl.id); }
+          await loadLeads(); const nl = L.leads.find(x => x.id === l.id);
+          if (nl) { if (LEAD_DIRTY) { $("lfStatus").value = nl.status_id || ""; paintStatus($("lfStatus"), nl.status_id); editing = nl; loadLeadCancel(nl); } else openLead(nl.id); } }
     catch(e) { toast("לא נשמר: " + e.message); b.disabled = false; } });
   $("canNew").onclick = () => {
     const sch = (L.schools.find(x => x.id === l.student.school_id) || {});
@@ -2619,14 +2699,45 @@ function subjFromStatus(n){
   return m && e ? "מתמטיקה ואנגלית" : m ? "מתמטיקה" : e ? "אנגלית" : "";
 }
 let LG_SESSIONS = null;
-async function openAsgEditor(studentId, a, cur){
-  document.querySelectorAll("#leadGroups .lg-edit").forEach(x => { x.hidden = true; x.innerHTML = ""; });
-  const box = document.querySelector(`#leadGroups .lg-edit[data-ed="${a ? a.id : "new"}"]`);
+// שיבוץ ישר מטבלת התלמידים: חלון קטן - השיבוצים של הילד, הוספה / שינוי / הסרה
+async function openAsgPopup(l){
+  const sid = l.student.id, who = `${l.student.first_name} ${l.student.last_name || ""}`.trim();
+  const bg = document.createElement("div"); bg.className = "panel-bg"; bg.style.display = "flex"; bg.style.alignItems = "flex-start"; bg.style.justifyContent = "center";
+  bg.innerHTML = `<div class="card asg-pop" role="dialog" aria-modal="true"><div class="asg-pop-h"><b>שיבוץ · ${esc(who)}</b> <span class="muted">${esc(statusName(l.status_id) || "")}</span><button type="button" class="btn small" data-x>סגירה</button></div><div class="asg-pop-b">טוען...</div></div>`;
+  document.body.appendChild(bg);
+  const esc2 = (e) => { if (e.key === "Escape") close(); };
+  const close = () => { bg.remove(); document.removeEventListener("keydown", esc2); renderLeads(); };
+  document.addEventListener("keydown", esc2);
+  bg.querySelector("[data-x]").onclick = close; bg.addEventListener("click", (e) => { if (e.target === bg) close(); });
+  const body = bg.querySelector(".asg-pop-b");
+  const paint = async () => {
+    let as = [];
+    try { as = (await get("assignments", "select=id,subject,arrival_time,personal_end,status,session:sessions(id,day,time_label,start_time,end_time,room,city,school_year,kind,meeting_dates,location:locations(name))&student_id=eq." + sid))
+      .filter(a => a.session && a.session.school_year === CONFIG.schoolYear && (a.status === "משובץ" || a.status === "ממתין"))
+      .sort((a, b) => (DAY_ORDER[a.session.day] ?? 9) - (DAY_ORDER[b.session.day] ?? 9) || String(a.session.start_time).localeCompare(String(b.session.start_time))); } catch(e) { body.innerHTML = "<div class='err'>לא ניתן לטעון.</div>"; return; }
+    const hm = (t) => String(t || "").slice(0, 5);
+    body.innerHTML = (as.length ? as.map(a => `<div class="asg-pop-row"><span><b>${a.session.kind === "מרתון" ? "מרתון" : "יום " + esc(a.session.day) + "'"} ${rng(hm(a.session.start_time), hm(a.session.end_time))}</b> · ${esc((a.session.location && a.session.location.name) || "")}${a.subject ? ` · <span class="muted">${esc(a.subject)}</span>` : ""}${a.status && a.status !== "משובץ" ? ` <span class="asg-pill prop"><span>${esc(a.status === "ממתין" ? "מוצע" : a.status)}</span></span>` : ""}</span>
+        <span><button type="button" class="btn small" data-ch="${a.id}">✎ שינוי</button></span></div><div class="lg-edit" data-ed="${a.id}" hidden></div>`).join("") : "<div class='muted'>לא משובץ/ת לקבוצה השנה.</div>")
+      + `<button type="button" class="btn small primary" data-add style="margin-top:10px;">+ הוספה לקבוצה</button><div class="lg-edit" data-ed="new" hidden></div>`;
+    const opts = (ed) => ({ box: ed, statusId: l.status_id, city: leadCity(l), who, onDone: async () => { await loadLeads().catch(() => {}); const nl = L.leads.find(x => x.id === l.id); if (nl) l = nl; paint(); } });
+    body.querySelectorAll("[data-ch]").forEach(b => b.onclick = () => { const a = as.find(x => String(x.id) === b.dataset.ch); body.querySelectorAll(".lg-edit").forEach(x => { x.hidden = true; x.innerHTML = ""; });
+      openAsgEditor(sid, a, as, opts(body.querySelector(`.lg-edit[data-ed="${a.id}"]`))); });
+    body.querySelector("[data-add]").onclick = () => { body.querySelectorAll(".lg-edit").forEach(x => { x.hidden = true; x.innerHTML = ""; });
+      openAsgEditor(sid, null, as, opts(body.querySelector('.lg-edit[data-ed="new"]'))); };
+  };
+  paint();
+}
+// opts (מטבלת התלמידים): { box, statusId, city, who, onDone } - אחרת: עורך בכרטיס התלמיד
+async function openAsgEditor(studentId, a, cur, opts){
+  opts = opts || {};
+  if (!opts.box) document.querySelectorAll("#leadGroups .lg-edit").forEach(x => { x.hidden = true; x.innerHTML = ""; });
+  const box = opts.box || document.querySelector(`#leadGroups .lg-edit[data-ed="${a ? a.id : "new"}"]`);
+  const curStatus = () => opts.box ? opts.statusId : Number($("lfStatus").value);
   box.hidden = false; box.innerHTML = "<div class='muted'>טוען קבוצות...</div>";
   try { if (!LG_SESSIONS) LG_SESSIONS = await get("session_summary", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)); }
   catch(e) { box.innerHTML = "<div class='err'>לא ניתן לטעון את הקבוצות.</div>"; return; }
   const hm = (t) => String(t || "").slice(0, 5);
-  const city = (a && a.session.city) || (editing && editing.student.family && editing.student.family.city) || "";
+  const city = (a && a.session.city) || opts.city || (!opts.box && editing && editing.student.family && editing.student.family.city) || "";
   const taken = new Set(cur.filter(x => !a || x.id !== a.id).map(x => x.session.id));
   // רק קבוצות אמיתיות: מקום אחד (לא משבצת כללית כמו "בארי/עומר") ושיש בה ילדים, או הקבוצה הנוכחית
   const list = LG_SESSIONS.filter(g => !taken.has(g.session_id) && !String(g.location || "").includes("/")
@@ -2640,7 +2751,7 @@ async function openAsgEditor(studentId, a, cur){
   let enrSubj = "";
   try { const en = await get("enrollments", "select=subject&student_id=eq." + studentId + "&status=neq." + encodeURIComponent("בוטל") + "&subject=not.is.null&order=id.desc&limit=1"); enrSubj = (en[0] && en[0].subject) || ""; } catch(e) {}
   // קודם - הסטטוס שמסומן עכשיו בכרטיס (גם אם עוד לא נשמר), למשל "נרשם מת. + אנג."
-  const stSubj = subjFromStatus(statusName(Number($("lfStatus").value)));
+  const stSubj = subjFromStatus(statusName(curStatus()));
   const subj = stSubj || enrSubj || (a && a.subject) || (cur.find(x => x.subject) || {}).subject || "";
   box.innerHTML = `
     <div class="lg-edit-h">${a ? "שינוי שיבוץ" : "הוספה לקבוצה"}</div>
@@ -2652,7 +2763,7 @@ async function openAsgEditor(studentId, a, cur){
     </div>
     <select data-f="session"></select>
     <label class="lbl">מקצוע</label>
-    ${subj ? `<div class="lg-subj"><b>${esc(subj)}</b> <span class="muted">${stSubj ? "(לפי הסטטוס בכרטיס)" : enrSubj ? "(לפי ההרשמה)" : "(לפי השיבוץ הקיים)"}</span></div><input type="hidden" data-f="subject" value="${esc(subj)}">`
+    ${subj ? `<div class="lg-subj"><b>${esc(subj)}</b> <span class="muted">${stSubj ? "(לפי הסטטוס)" : enrSubj ? "(לפי ההרשמה)" : "(לפי השיבוץ הקיים)"}</span></div><input type="hidden" data-f="subject" value="${esc(subj)}">`
       : `<select data-f="subject"><option value="">בחירה...</option>${SUBJECTS.map(x => `<option>${x}</option>`).join("")}</select><div class="muted" style="font-size:12.5px;">לא ידוע במה הילד/ה נרשם/ה - בוחרים פעם אחת.</div>`}
     ${a ? "" : `<label class="lbl">מצב</label><div class="lg-st"><label><input type="radio" name="lgSt" value="ממתין" checked> מוצע – ממתין לאישור</label><label><input type="radio" name="lgSt" value="משובץ"> משובץ (כבר אישר)</label></div>`}
     <label class="lbl">שעה אישית <span class="muted">(רק אם שונה משעת הקבוצה)</span></label>
@@ -2682,8 +2793,8 @@ async function openAsgEditor(studentId, a, cur){
   ["city", "day", "loc"].forEach(k => P(k).onchange = () => fillPick(false));
   fillPick(true);
   f("from").onchange = () => { f("to").value = f("from").value ? addMin(f("from").value, 45) : ""; };
-  f("cancel").onclick = () => { box.hidden = true; box.innerHTML = ""; };
-  const done = async (msg) => { LG_SESSIONS = null; toast(msg); await loadLeadGroups(studentId);
+  f("cancel").onclick = () => { box.hidden = true; box.innerHTML = ""; if (opts.onCancel) opts.onCancel(); };
+  const done = async (msg) => { LG_SESSIONS = null; toast(msg); if (opts.onDone) return opts.onDone(); await loadLeadGroups(studentId);
     loadLeads().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); };   // שהרשימה תתעדכן גם בלי לרענן
   f("save").onclick = async () => {
     const sid = Number(f("session").value);
@@ -2694,7 +2805,7 @@ async function openAsgEditor(studentId, a, cur){
     if (!from) to = null; else if (!to) to = addMin(from, 45);
     if (from && to && to <= from) { f("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
     // אם שינו את הסטטוס בכרטיס אחרי שנפתח החלון - לוקחים את המקצוע מהסטטוס העדכני
-    const body = { session_id: sid, subject: subjFromStatus(statusName(Number($("lfStatus").value))) || f("subject").value || null, arrival_time: from, personal_end: to };
+    const body = { session_id: sid, subject: subjFromStatus(statusName(curStatus())) || f("subject").value || null, arrival_time: from, personal_end: to };
     f("save").disabled = true;
     try {
       if (a) await patch("assignments", "id=eq." + a.id, body);
@@ -2703,7 +2814,7 @@ async function openAsgEditor(studentId, a, cur){
     } catch(e) { f("err").textContent = e.code === "23505" ? "הילד/ה כבר משובץ/ת לקבוצה הזאת." : "השמירה נכשלה: " + e.message; f("save").disabled = false; }
   };
   if (a) f("rm").onclick = async () => {
-    const who = editing ? `${editing.student.first_name} ${editing.student.last_name || ""}`.trim() : "הילד/ה";
+    const who = opts.who || (editing ? `${editing.student.first_name} ${editing.student.last_name || ""}`.trim() : "הילד/ה");
     const what = `יום ${DAY_NAMES[a.session.day]} ${String(a.session.start_time || "").slice(0, 5)} ${(a.session.location && a.session.location.name) || ""}`;
     if (!window.confirm(`להסיר את ${who} מהקבוצה של ${what}?\n\nהנוכחות שכבר נרשמה נשמרת.`)) return;
     f("rm").disabled = true;
@@ -2736,21 +2847,48 @@ function validPhone(id, required){
 }
 let andBack = false;
 document.querySelectorAll("#leadForm [type=submit]").forEach(b => b.addEventListener("click", () => { andBack = !!b.dataset.andBack; }));
-// כרטיס תלמיד: נפתח לקריאה בלבד, עריכה רק אחרי לחיצה על "עריכה"
+// כרטיס תלמיד: עורכים ישר (בלי כפתור "עריכה"). שינוי שלא נשמר - שואלים לפני שעוברים מסך.
+let LEAD_DIRTY = false, LEAD_NAV_AFTER = null, LEAD_SAVING = false;
+function setLeadDirty(on){
+  LEAD_DIRTY = !!on; const card = document.querySelector("#leadForm .lead-main");
+  if (card) card.classList.toggle("dirty", LEAD_DIRTY); if ($("editBanner")) $("editBanner").hidden = !LEAD_DIRTY;
+}
+document.querySelector("#leadForm .lead-main").addEventListener("input", (e) => { if (!e.target.closest("#siblings")) setLeadDirty(true); });
+document.querySelector("#leadForm .lead-main").addEventListener("change", (e) => { if (!e.target.closest("#siblings")) setLeadDirty(true); });
+document.querySelector("#leadForm .lead-main").addEventListener("click", (e) => { if (e.target.closest("button.switch, button.star, #clearRemind")) setLeadDirty(true); });
+window.addEventListener("beforeunload", (e) => { if (LEAD_DIRTY && currentView === "lead") { e.preventDefault(); e.returnValue = ""; } });
+// חלון: לשמור את השינויים? -> שמירה / בלי לשמור / ביטול (נשארים)
+let LEAD_ASKING = false;
+function askLeadSave(onLeave){
+  if (LEAD_ASKING) return; LEAD_ASKING = true;
+  const bg = document.createElement("div"); bg.className = "panel-bg"; bg.style.display = "flex"; bg.style.alignItems = "center"; bg.style.justifyContent = "center";
+  bg.innerHTML = `<div class="card" role="dialog" aria-modal="true" style="max-width:420px;"><h3 style="margin:0 0 8px; color:var(--accent);">לשמור את השינויים?</h3>
+    <div class="muted" style="margin-bottom:14px;">עשית שינויים בכרטיס התלמיד ועוד לא שמרת.</div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;"><button type="button" class="btn primary" data-a="save">שמירה</button><button type="button" class="btn" data-a="drop">בלי לשמור</button><button type="button" class="btn" data-a="stay">ביטול - להישאר</button></div></div>`;
+  document.body.appendChild(bg);
+  const fixHist = () => { const h = history.state; if (!h || h.view !== "lead" || (editing && h.lead !== editing.id)) { try { history.pushState({ telem: 1, view: "lead", lead: editing ? editing.id : null }, ""); } catch(e) {} } };
+  const end = () => { bg.remove(); LEAD_ASKING = false; };
+  bg.querySelector('[data-a="save"]').onclick = () => { end(); fixHist(); LEAD_NAV_AFTER = onLeave; andBack = false; $("leadForm").requestSubmit(); };
+  bg.querySelector('[data-a="drop"]').onclick = () => { end(); setLeadDirty(false); onLeave(); };
+  bg.querySelector('[data-a="stay"]').onclick = () => { end(); fixHist(); };
+  bg.querySelector('[data-a="save"]').focus();
+}
 function setLeadEdit(on){
   const card = document.querySelector("#leadForm .lead-main");
   card.classList.toggle("editing", on); $("leadForm").classList.toggle("ro", !on); $("view-lead").classList.toggle("ro", !on);
   card.querySelectorAll("input, select, textarea, button.switch, button.star, #clearRemind").forEach(el => { if (!el.closest("#siblings")) el.disabled = !on; });
-  $("leadEditBtn").hidden = on; $("leadActions").hidden = !on; $("editBanner").hidden = !on;
+  $("leadEditBtn").hidden = true; $("leadActions").hidden = !on; $("editBanner").hidden = !LEAD_DIRTY;
   $("lfRemind").style.visibility = (!on && !$("lfRemind").value) ? "hidden" : "";
   $("lfMessage").closest("fieldset").hidden = !on && !$("lfMessage").value.trim();
   card.querySelectorAll("input:not([type=datetime-local])").forEach(el => { if (!el.closest("#siblings")) el.placeholder = on ? (el.dataset.ph || "") : "—"; });
 }
 $("sClass").addEventListener("input", () => { const v = $("sClass").value.replace(/\D/g, "").slice(0, 2); if (v !== $("sClass").value) $("sClass").value = v; });
 $("leadEditBtn").addEventListener("click", () => { setLeadEdit(true); $("sFirst").focus(); });
-$("leadCancel").addEventListener("click", () => { if (editing) openLead(editing.id); else { go("leads"); renderLeads(); } });
+$("leadCancel").addEventListener("click", () => { setLeadDirty(false); if (editing) openLead(editing.id); else { go("leads"); renderLeads(); } });
 $("leadForm").addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (LEAD_SAVING) return;   // שמירה כבר רצה - לא לשמור פעמיים (תלמיד כפול)
+  const navAfter = LEAD_NAV_AFTER; LEAD_NAV_AFTER = null;   // אם השמירה נכשלת - נשארים בכרטיס
   const err = $("leadErr"); err.textContent = "";
   let ok = true;
   ["sFirst","p1First"].forEach(id => { const bad = !$(id).value.trim(); $(id).closest(".field").classList.toggle("invalid", bad); if (bad) ok = false; });
@@ -2773,7 +2911,7 @@ $("leadForm").addEventListener("submit", async (e) => {
     manager_id: $("lfManager").value || null, filled_by: $("lfFilledBy").value, topic: $("lfTopic").value,
     is_active: $("lfActive").classList.contains("on"), is_starred: $("lfStar").classList.contains("on"), is_customer: $("lfCustomer").classList.contains("on"),
     remind_at: $("lfRemind").value ? new Date($("lfRemind").value).toISOString() : null, message: nn($("lfMessage").value) };
-  const btns = document.querySelectorAll("#leadForm [type=submit]"); btns.forEach(b => b.disabled = true);
+  const btns = document.querySelectorAll("#leadForm [type=submit]"); btns.forEach(b => b.disabled = true); LEAD_SAVING = true;
   try {
     let leadId;
     if (editing) {
@@ -2794,11 +2932,13 @@ $("leadForm").addEventListener("submit", async (e) => {
     }
     await loadLeads();
     toast("נשמר");
-    if (andBack) leadBack(); else openLead(leadId);
+    setLeadDirty(false);
+    if (navAfter) navAfter();
+    else if (andBack) leadBack(); else openLead(leadId);
   } catch(e2) {
     err.textContent = e2.code === "23505" ? "יש כבר ליד לתלמיד/ה הזה/ו." : "השמירה נכשלה: " + e2.message;
   }
-  btns.forEach(b => b.disabled = false);
+  LEAD_SAVING = false; btns.forEach(b => b.disabled = false);
 });
 
 // ======================================================================
@@ -2974,7 +3114,7 @@ const studyFor = (school, city, grade, cls, today) => exFor(school, city, grade,
 // הודעה שממשיכה הודעה קודמת: כל הודעות "חומר נלמד" של אותו בית ספר + שכבה (+ כיתה) מהשבוע שלפני האחרונה - לפי הסדר
 const studyAll = (e) => !e ? [] : (EX.rows || []).filter(x => EX_STUDY.test(x.kind) && schKey(exSchName(x)) === schKey(exSchName(e)) && gradeKey(x.grade) === gradeKey(e.grade)
   && String(x.class_num || "") === String(e.class_num || "") && x.exam_date <= e.exam_date && x.exam_date >= addDays(e.exam_date, -7));
-const studyTxt = (arr, cls) => arr.map(x => `<div class="${cls}">${arr.length > 1 ? `<span class="muted">${esc(fmtDM(x.exam_date))}${x.source ? " · " + esc(x.source) : ""}:</span> ` : ""}${x.topics ? esc(x.topics) : "<span class='muted'>לא נכתבו נושאים.</span>"}${x.material ? `<div class="muted">קובץ: ${esc(x.material)}</div>` : ""}</div>`).join("");
+const studyTxt = (arr, cls) => arr.map(x => `<div class="${cls}">${arr.length > 1 ? `<span class="muted">${esc(fmtDM(x.exam_date))}${x.source ? " · <b>מקור:</b> " + esc(x.source) : ""}:</span> ` : ""}${x.topics ? esc(x.topics) : "<span class='muted'>לא נכתבו נושאים.</span>"}${x.material ? `<div class="ex-pop-meta" style="margin-top:2px"><b>קובץ:</b> ${esc(x.material)}</div>` : ""}</div>`).join("");
 const nextExam = (school, city, grade, cls, from) => examsFor(school, city, grade, cls, from).find(e => !EX_MAKEUP.test(e.kind));
 const exDays = (iso, from) => Math.round((Date.parse(iso + "T12:00:00Z") - Date.parse(from + "T12:00:00Z")) / 864e5);
 const exLabel = (k) => /מיפוי/.test(k) ? "מיפוי" : k;
@@ -2997,8 +3137,7 @@ function exShow(id){
     <div class="ex-pop-h"><b>${st ? "📓 לומדים עכשיו" : "📝 " + esc(e.kind)} · ${esc(exSchName(e))} ${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b><button type="button" class="btn small" data-expclose>סגירה</button></div>
     <div class="muted">${st ? "התקבל " : "יום " + esc(DAY_FULL[dayLetter(e.exam_date)] || "") + " "}${esc(fmtIso(e.exam_date))}</div>
     ${st && studyAll(e).length > 1 ? studyTxt(studyAll(e), "ex-pop-t") : `${e.topics ? `<div class="ex-pop-t">${esc(e.topics)}</div>` : `<div class="muted ex-pop-t">${st ? "לא נכתבו נושאים." : "עוד לא התקבלו נושאים למבחן הזה."}</div>`}
-    ${e.material ? `<div class="ex-pop-m">קובץ: ${esc(e.material)}</div>` : ""}
-    ${e.source ? `<div class="muted ex-pop-m">מקור: ${esc(e.source)}</div>` : ""}`}</div>`;
+    ${e.material || e.source ? `<div class="ex-pop-meta">${[e.material ? "<b>קובץ:</b> " + esc(e.material) : "", e.source ? "<b>מקור:</b> " + esc(e.source) : ""].filter(Boolean).join(" · ")}</div>` : ""}`}</div>`;
   o.hidden = false;
 }
 document.addEventListener("click", (ev) => { const b = ev.target.closest && ev.target.closest("[data-ex]"); if (!b) return; ev.preventDefault(); ev.stopPropagation(); exShow(Number(b.dataset.ex)); }, true);
@@ -3035,7 +3174,7 @@ async function renderExams(reload){
   keep($("exSch"), schs, "כל בתי הספר"); keep($("exGrade"), grs, "כל השכבות");
   const t = todayIL(), fs = $("exSch").value, fg = $("exGrade").value, past = $("exPast").checked, mk = $("exMk").checked, adm = ME.role !== "instructor";
   const flt = (e) => (!fc || exCity(e) === fc) && (!fs || exSchName(e) === fs) && (!fg || gradeKey(e.grade) === fg);
-  if (cal) { await loadHol(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_STUDY.test(e.kind) && (mk || !EX_MAKEUP.test(e.kind)) && flt(e)), t); return; }
+  if (cal) { await loadHol(); if (!EX.scrollTo && document.querySelector(".ex-cal-wrap")) EX.scrollTo = exFirstVisible(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_STUDY.test(e.kind) && (mk || !EX_MAKEUP.test(e.kind)) && flt(e)), t); exScrollTo(EX.scrollTo || exWeekStart(t), true, false); EX.scrollTo = null; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
   const rows = EX.rows.filter(e => !EX_STUDY.test(e.kind) && (mk || !EX_MAKEUP.test(e.kind)) && (past || e.exam_date >= t) && flt(e));
   // 📓 חומר שלומדים עכשיו: האחרון לכל בית ספר + שכבה
   const stMap = {}; EX.rows.filter(e => EX_STUDY.test(e.kind) && e.exam_date <= t && flt(e)).forEach(e => { stMap[schKey(exSchName(e)) + "|" + gradeKey(e.grade) + "|" + (e.class_num || "")] = e; });
@@ -3067,15 +3206,39 @@ async function renderExams(reload){
 $("exMk").checked = store("telem_ex_mk") === "1";
 document.querySelectorAll("[data-exm]").forEach(b => b.addEventListener("click", () => { EX.mode = b.dataset.exm; store("telem_ex_mode", EX.mode); renderExams(false); }));
 const exMonthAdd = (m, n) => { const [y, mo] = m.split("-").map(Number), d = new Date(Date.UTC(y, mo - 1 + n, 1)); return d.toISOString().slice(0, 7); };
-$("exMPrev").addEventListener("click", () => { EX.month = exMonthAdd(EX.month, -1); renderExams(false); });
-$("exMNext").addEventListener("click", () => { EX.month = exMonthAdd(EX.month, 1); renderExams(false); });
-$("exMNow").addEventListener("click", () => { EX.month = todayIL().slice(0, 7); renderExams(false); });
+// החודשים בגלילה אחת (כל השנה). הכפתורים גוללים לחודש הקודם / הבא / להיום
+const exVisMonth = () => { const d = exFirstVisible(); return d ? d.slice(0, 7) : todayIL().slice(0, 7); };   // החודש של העמודה הימנית שנראית
+$("exMPrev").addEventListener("click", () => exScrollTo(exMonthAdd(exVisMonth(), -1) + "-01", true, true));
+$("exMNext").addEventListener("click", () => exScrollTo(exMonthAdd(exVisMonth(), 1) + "-01", true, true));
+$("exMNow").addEventListener("click", () => exScrollTo(exWeekStart(todayIL()), true, true));
+// תחילת שבוע הלימודים (יום ראשון) של תאריך - הלוח נפתח כשהשבוע הנוכחי מתחיל מימין
+// התאריך של העמודה הראשונה שנראית (מימין) - כדי שרענון / סינון לא יקפיץ להיום
+function exFirstVisible(){ const w = document.querySelector(".ex-cal-wrap"); if (!w) return null; const r = w.getBoundingClientRect();
+  const sticky = ((w.querySelector("thead .sch") || {}).offsetWidth || 0) + ((w.querySelector("thead .gr") || {}).offsetWidth || 0), edge = r.right - sticky - 2;
+  const th = [...w.querySelectorAll("th.dn[data-d]")].find(x => { const b = x.getBoundingClientRect(); return b.left <= edge && b.right >= edge - 4; }); return th ? th.dataset.d : null; }
+const exWeekStart = (iso) => addDays(iso, -new Date(iso + "T12:00:00Z").getUTCDay());
+function exScrollTo(iso, start, smooth){
+  const w = document.querySelector(".ex-cal-wrap"); if (!w) return;
+  const ths = [...w.querySelectorAll("th.dn[data-d]")]; if (!ths.length) return;
+  const th = ths.find(x => x.dataset.d >= iso) || ths[ths.length - 1];
+  const sticky = (w.querySelector("thead .sch") || {}).offsetWidth + (w.querySelector("thead .gr") || {}).offsetWidth || 0;
+  // RTL: העמודה צריכה להיות מימין, אחרי עמודות בית הספר והשכבה
+  const wr = w.getBoundingClientRect(), tr = th.getBoundingClientRect();
+  const delta = start ? (tr.right - (wr.right - sticky)) : (tr.left + tr.width / 2 - (wr.left + (wr.width - sticky) / 2));
+  if (!w.dataset.lbl) { w.dataset.lbl = 1; let tm; w.addEventListener("scroll", () => { clearTimeout(tm); tm = setTimeout(exMLabel, 80); }, { passive: true }); }
+  w.scrollBy({ left: delta, behavior: smooth ? "smooth" : "auto" });
+  setTimeout(exMLabel, smooth ? 450 : 0);
+}
+function exMLabel(){ const m = exVisMonth(), [y, mo] = m.split("-").map(Number); $("exMLbl").textContent = HE_MONTHS[mo - 1] + " " + y; }
 // לוח חודשי (לתכנון מרתונים): שורה לכל בית ספר ושכבה (לפי עיר), עמודה לכל יום א'-ו'. ירוק = מבחן.
 const HE_MONTHS = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 function exCalHtml(rows, today){
-  const m = EX.month, [y, mo] = m.split("-").map(Number), last = new Date(Date.UTC(y, mo, 0)).getUTCDate();
-  $("exMLbl").textContent = HE_MONTHS[mo - 1] + " " + y;
-  const days = []; for (let d = 1; d <= last; d++) { const iso = m + "-" + String(d).padStart(2, "0"), dl = dayLetter(iso); if (dl !== "ש") days.push({ iso, dl, d }); }
+  // כל שנת הלימודים בגלילה אחת: מ-1.9 עד סוף השנה (או עד המבחן האחרון)
+  const yEnd = G.yearEnd || "2027-06-30", firstEx = rows.reduce((m, e) => !m || e.exam_date < m ? e.exam_date : m, "");
+  const y0 = [(Number(yEnd.slice(0, 4)) - 1) + "-09-01", firstEx].filter(Boolean).sort()[0], lastEx = rows.reduce((m, e) => e.exam_date > m ? e.exam_date : m, ""), y1 = [G.yearEnd || "2027-06-30", lastEx].sort().pop();
+  const exD = new Set(rows.map(e => e.exam_date));   // ימי שישי לא מוצגים - אלא אם יש בהם מבחן
+  const days = []; for (let iso = y0; iso <= y1; iso = addDays(iso, 1)) { const dl = dayLetter(iso); if (dl !== "ש" && (dl !== "ו" || exD.has(iso))) days.push({ iso, dl, d: Number(iso.slice(8, 10)), m: iso.slice(0, 7) }); }
+  const months = []; days.forEach(x => { const l = months[months.length - 1]; if (l && l.m === x.m) l.n++; else { months.push({ m: x.m, n: 1 }); x.first = true; } });
   // שורות: כל בית ספר + שכבה שיש להם מבחן כלשהו (גם בחודשים אחרים), לפי עיר
   const exCity = (e) => (e.school && e.school.city) || "";
   const keyMap = new Map();
@@ -3084,18 +3247,19 @@ function exCalHtml(rows, today){
   const list = [...keyMap.values()].sort((a, b) => cityRank(a.city) - cityRank(b.city) || a.sch.localeCompare(b.sch, "he") || GRADE_ORD.indexOf(a.gr) - GRADE_ORD.indexOf(b.gr));
   if (!list.length) return "<div class='empty-state'>אין מבחנים לפי הבחירה.</div>";
   const holCell = (iso, city, sch) => { const h = holOn(iso, city || null, sch || null).filter(x => x.kind !== "note"); return h.length ? h[0].name : ""; };
-  const wk = (x) => x.dl === "א" ? " wk" : "";
-  let html = `<div class="ex-legend"><span><i class="lg-ex"></i>מבחן / מבדק / בוחן</span><span><i class="lg-mk"></i>מועד השלמה / שיפור ציון</span><span><i class="lg-hol"></i>חג / חופשה</span><span class="muted">לוחצים על משבצת ירוקה - רואים את הנושאים</span></div>
-    <div class="tbl-wrap ex-cal-wrap"><table class="ex-cal"><thead><tr><th class="sch" rowspan="2">בית ספר</th><th class="gr" rowspan="2">שכבה</th>${days.map(x => `<th class="dl${wk(x)}${x.iso === today ? " today" : ""}${holCell(x.iso) ? " hol" : ""}">${x.dl}</th>`).join("")}</tr>
-    <tr>${days.map(x => `<th class="dn${wk(x)}${x.iso === today ? " today" : ""}${holCell(x.iso) ? " hol" : ""}" title="${esc(holCell(x.iso))}">${x.d}</th>`).join("")}</tr></thead><tbody>`;
+  const wk = (x) => (x.dl === "א" ? " wk" : "") + (x.first ? " ms" : "") + (x.dl === "ו" ? " fri" : "");   // שישי - אפור כמו חג
+  let html = `<div class="ex-legend"><span><i class="lg-ex"></i>מבחן / מבדק</span><span><i class="lg-qz"></i>בוחן</span><span><i class="lg-mk"></i>מועד השלמה / שיפור ציון</span><span><i class="lg-hol"></i>חג / חופשה</span><span class="muted">לוחצים על משבצת ירוקה - רואים את הנושאים</span></div>
+    <div class="tbl-wrap ex-cal-wrap"><table class="ex-cal"><thead><tr><th class="sch" rowspan="3">בית ספר</th><th class="gr" rowspan="3">שכבה</th>${months.map(x => { const [yy, mm] = x.m.split("-").map(Number); return `<th class="mo" colspan="${x.n}"><span>${HE_MONTHS[mm - 1]} ${yy}</span></th>`; }).join("")}</tr>
+    <tr>${days.map(x => `<th class="dl${wk(x)}${x.d === 1 || x.iso === days[0].iso ? " m1" : ""}${x.iso === today ? " today" : ""}${holCell(x.iso) ? " hol" : ""}">${x.dl}</th>`).join("")}</tr>
+    <tr>${days.map(x => `<th class="dn${wk(x)}${x.iso === today ? " today" : ""}${holCell(x.iso) ? " hol" : ""}" data-d="${x.iso}" title="${esc(holCell(x.iso))}">${x.d}</th>`).join("")}</tr></thead><tbody>`;
   let city = null;
   list.forEach((r, i) => {
-    if (r.city !== city) { city = r.city; html += `<tr class="ex-city"><td colspan="${days.length + 2}">${esc(city || "בלי עיר")}</td></tr>`; }
+    if (r.city !== city) { city = r.city; html += `<tr class="ex-city"><td colspan="${days.length + 2}"><span>${esc(city || "בלי עיר")}</span></td></tr>`; }
     const first = i === 0 || list[i - 1].sch !== r.sch || list[i - 1].city !== r.city, span = first ? list.filter(x => x.sch === r.sch && x.city === r.city).length : 0;
     html += `<tr class="${first ? "first" : ""}">${first ? `<td class="sch" rowspan="${span}">${scChip(r.sch)}</td>` : ""}<td class="gr"><span class="gr-b g-${esc(r.gr)}">${esc(r.gr)}'</span></td>` + days.map(x => {
       const es = r.ex.filter(e => e.exam_date === x.iso), h = holCell(x.iso, r.city, r.sch);
       if (es.length) { const e = es.find(z => !EX_MAKEUP.test(z.kind)) || es[0], mkc = EX_MAKEUP.test(e.kind);
-        return `<td class="d${wk(x)} ${mkc ? "mk" : "ex"}${x.iso === today ? " today" : ""}" data-ex="${e.id}" title="${esc(es.map(z => z.kind + (z.class_num ? " (" + r.gr + "'" + z.class_num + ")" : "") + (z.topics ? ": " + z.topics : "")).join("\n"))}">${esc(exShort(e.kind))}</td>`; }
+        return `<td class="d${wk(x)} ${mkc ? "mk" : /בוחן/.test(e.kind) ? "ex qz" : "ex"}${x.iso === today ? " today" : ""}" data-ex="${e.id}" title="${esc(es.map(z => z.kind + (z.class_num ? " (" + r.gr + "'" + z.class_num + ")" : "") + (z.topics ? ": " + z.topics : "")).join("\n"))}">${esc(exShort(e.kind))}</td>`; }
       return `<td class="d${wk(x)}${h ? " hol" : ""}${x.iso === today ? " today" : ""}"${h ? ` title="${esc(h)}"` : ""}></td>`; }).join("") + "</tr>";
   });
   return html + "</tbody></table></div>";
@@ -3368,6 +3532,8 @@ function wireProp(se){
     try { await del("assignments", "id=eq." + k.id); toast("ההצעה הוסרה"); await loadGroups(); openPanel(se.session_id); } catch(e) { toast("לא נמחק: " + e.message); } });
 }
 // מקצוע בצבע לפי קובץ הנרשמים: מתמטיקה ירוק, אנגלית צהוב, שניהם כחול
+// מקצוע קצר ליד השם בנוכחות: מת' / אנג' / משולב
+function subjMini(s){ const g = subjGrp(s); return `<span class="subj-mini ${["s-m", "s-e", "s-b", "s-x"][g]}">${["מתמטיקה", "אנגלית", "משולב", "בלי מקצוע"][g]}</span>`; }
 function subjChip(s){
   const v = String(s || ""), m = v.includes("מתמטיקה"), e = v.includes("אנגלית");
   const cls = m && e ? "s-b" : m ? "s-m" : e ? "s-e" : "s-x", txt = m && e ? "מתמטיקה + אנגלית" : m ? "מתמטיקה" : e ? "אנגלית" : (v || "מקצוע לא ידוע");
@@ -3922,8 +4088,7 @@ async function loadAttGroups(){
       <span class="t">${g.kind === "מרתון" ? esc(g.time_label) + `<span class="kind-tag">מרתון</span>` : rng(hm(g.start_time), hm(g.end_time))}</span>
       <span class="w">${scChip(g.location)}${showCity ? " · " + esc(g.city) : ""}</span><span class="ag-br"></span>${g.room ? `<span class="m">חדר: <b><bdi>${esc(g.room)}</bdi></b></span>` : ""}
       <span class="m kn">${g.kids} ילדים</span>${ME.role !== "instructor" && g.instructors ? `<span class="ag-ins">${esc(g.instructors)}</span>` : ""}
-      ${g.splits && g.splits.length ? (ME.role === "instructor" ? (g.splits.find(s => s.mine) ? `<span class="m">תת-קבוצה: <b>${esc(g.splits.find(s => s.mine).name)}</b></span>` : "")
-        : `<span class="m">מפוצלת: ${g.splits.map(s => `<b>${esc(s.name)}</b> ${s.kids}${s.instructor ? " (" + esc(s.instructor) + ")" : ""}`).join(" · ")}</span>`) : ""}
+
       ${g.marked ? `<span class="ok">✓ סומן · ${g.marked_count} נוכחים</span>` : g.cx ? cxTag(g.cx) : `<span class="m">טרם סומן</span>`}</button>`;
     if (ME.role === "instructor" || isMobile()) {
       $("attGroups").className = "att-groups";
@@ -3952,10 +4117,10 @@ async function openSheet(sessionId){
     A.rows = sh.rows.map(r => ({ ...r, present: r.present == null ? null : r.present, did_math: !!r.did_math, did_english: !!r.did_english, saved: r.present != null }));
     A.rows.sort(attSort);
     A.removed = [];
-    A.splitView = sh.splits && sh.splits.length && ME.role !== "instructor" ? (sh.my_split || "") : "";
+    A.splitView = "";   // פיצול לתת-קבוצות/חדרים - לא בשימוש (הלקוחה 11.10): תמיד כל הילדים
     $("shAddPanel").hidden = true; $("shAddQ").value = ""; $("shAddRes").innerHTML = ""; $("shAddBox").hidden = !sh.can_edit;
     $("shTitle").textContent = `${sh.time_label} · ${sh.location}`;
-    const mySp = sh.my_split && (sh.splits || []).find(s => s.id === sh.my_split);
+    const mySp = null;
     $("shSub").innerHTML = `יום <b>${DAY_FULL[sh.day || dayLetter(sh.date)]}</b> · <b>${fmtIso(sh.date)}</b> · ${esc(sh.city)}${mySp ? ` · תת-קבוצה <b>${esc(mySp.name)}</b>` : ""}${(mySp && mySp.room) || sh.room ? ` · חדר <b><bdi>${esc((mySp && mySp.room) || sh.room)}</bdi></b>` : ""}`;
     $("shLocked").hidden = !!sh.can_edit;
     // "ילדים שלא רשומים" אוחד עם ההערות
@@ -3975,7 +4140,7 @@ const subjDefault = (subj) => ({ m: !subj || subj.indexOf("מתמטיקה") >= 0
 const shVisible = (r) => !A.splitView || r.split_id === Number(A.splitView);
 function renderSplitBar(){
   const sp = (A.sheet && A.sheet.splits) || [], bar = $("shSplitBar");
-  if (!sp.length || ME.role === "instructor") { bar.hidden = true; bar.innerHTML = ""; return; }
+  if (true || !sp.length || ME.role === "instructor") { bar.hidden = true; bar.innerHTML = ""; return; }   // לא בשימוש
   bar.hidden = false;
   bar.innerHTML = `<span class="lbl2">תת-קבוצות:</span><button type="button" data-sv2="" aria-pressed="${!A.splitView}">כולם (${A.rows.length})</button>` + sp.map(s => `<button type="button" data-sv2="${s.id}" aria-pressed="${String(A.splitView) === String(s.id)}">${esc(s.name)}${s.room ? " · " + esc(s.room) : ""}${s.instructor ? " · " + esc(s.instructor) : ""} (${A.rows.filter(r => r.split_id === s.id).length})</button>`).join("");
   bar.querySelectorAll("[data-sv2]").forEach(b => b.onclick = () => { A.splitView = b.dataset.sv2; renderSheetRows(); });
@@ -3985,10 +4150,9 @@ const GRADE_ORD = ["ה","ו","ז","ח","ט","י","יא","יב"];
 const gradeKey = (g) => String(g || "").replace(/['׳"״\s]/g, "");
 const subjGrp = (v) => { v = String(v || ""); const m = v.includes("מתמטיקה"), e = v.includes("אנגלית"); return m && e ? 2 : m ? 0 : e ? 1 : 3; };
 const SUBJ_GRP_T = ["מתמטיקה", "אנגלית", "מתמטיקה + אנגלית", "בלי מקצוע"];
+// דף הנוכחות: רשימה אחת לפי א"ב של השם הפרטי (בלי חלוקה למקצועות - קל למצוא ילד). המקצוע מסומן ליד השם.
 function attSort(a, b){
-  const ga = GRADE_ORD.indexOf(gradeKey(a.grade)), gb = GRADE_ORD.indexOf(gradeKey(b.grade));
-  return subjGrp(a.subject) - subjGrp(b.subject) || (ga < 0 ? 99 : ga) - (gb < 0 ? 99 : gb) || (Number(a.class_num) || 99) - (Number(b.class_num) || 99)
-    || (a.last_name || "").localeCompare(b.last_name || "", "he") || (a.first_name || "").localeCompare(b.first_name || "", "he");
+  return (a.first_name || "").localeCompare(b.first_name || "", "he") || (a.last_name || "").localeCompare(b.last_name || "", "he");
 }
 // שיעור כפול: ★ ליד השם (שתי קבוצות באותו יום באותו בית ספר, או שעה אישית ארוכה)
 const hmMin = (t) => { const m = String(t || "").match(/^(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
@@ -4037,25 +4201,24 @@ function renderSheetRows(){
   const spName = (id) => ((A.sheet.splits || []).find(s => s.id === id) || {}).name;
   let prevGrp = null;
   $("shRows").innerHTML = A.rows.map((r, i) => { if (!shVisible(r)) return "";
-    const grp = subjGrp(r.subject), head = grp !== prevGrp ? (prevGrp = grp, `<li class="att-sec">${grp < 3 ? subjChip(SUBJ_GRP_T[grp]) : "<b>בלי מקצוע</b>"} <span>${A.rows.filter(x => shVisible(x) && subjGrp(x.subject) === grp).length}</span></li>`) : "";
+    const grp = subjGrp(r.subject), head = "";
     return head + `<li data-i="${i}">${gradeBadge(r.grade, r.class_num)}
-    <div class="att-name"><b>${dblStar(isDouble(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location, r.arrival_time, r.personal_end))}${esc(r.first_name)} ${esc(r.last_name || "")}</b>${r.split_id && ME.role !== "instructor" ? `<span class="split-tag">${esc(spName(r.split_id) || "")}</span>` : ""}
+    <div class="att-name"><b>${dblStar(isDouble(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location, r.arrival_time, r.personal_end))}${esc(r.first_name)} ${esc(r.last_name || "")}</b>
       <span class="meta">${r.school ? `<span class="school-chip sch-sm ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${kidExTag(r, A.sheet.city, A.sheet.date || A.date)}${r.in_group ? "" : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
       </div>
     <div class="att-ctl">
-      ${grp >= 2 ? `<label class="subj ${r.present ? "" : "off"}"><input type="checkbox" data-m ${r.did_math ? "checked" : ""} ${can && r.present ? "" : "disabled"}> <span class="lg">מתמטיקה</span><span class="sm">מת'</span></label>
-      <label class="subj ${r.present ? "" : "off"}"><input type="checkbox" data-e ${r.did_english ? "checked" : ""} ${can && r.present ? "" : "disabled"}> <span class="lg">אנגלית</span><span class="sm">אנג'</span></label>` : ""}
+      ${subjMini(r.subject)}
       <div class="seg" role="group" aria-label="נוכחות">
-        <button type="button" class="yes ${r.present === true ? "on" : ""}" data-p="1" ${can ? "" : "disabled"} aria-label="נוכח/ת"><span class="lg">נוכח/ת</span><span class="sm">✓</span></button>
         <button type="button" class="no ${r.present === false ? "on" : ""}" data-p="0" ${can ? "" : "disabled"} aria-label="חסר/ה"><span class="lg">חסר/ה</span><span class="sm">✗</span></button>
+        <button type="button" class="yes ${r.present === true ? "on" : ""}" data-p="1" ${can ? "" : "disabled"} aria-label="נוכח/ת"><span class="lg">נוכח/ת</span><span class="sm">✓</span></button>
       </div>
 
     </div>${r.tracking || r.arrival_time ? `<div class="att-track-row">${r.arrival_time ? `<span class="att-track att-pt">⏰ שעה אישית ${rng(String(r.arrival_time).slice(0, 5), String(r.personal_end || addMin(String(r.arrival_time).slice(0, 5), 45)).slice(0, 5))}</span>` : ""}${r.tracking ? `<span class="att-track">📌 ${esc(r.tracking)}</span>` : ""}</div>` : ""}</li>`; }).join("");
   updateCount();
 }
 function updateCount(){
-  const rows = A.rows.filter(shVisible), p = rows.filter(r => r.present === true).length, n = rows.filter(r => r.present == null).length;
-  $("shCount").textContent = `${p} נוכחים מתוך ${rows.length}` + (n ? ` · ${n} לא סומנו` : "");
+  const rows = A.rows.filter(shVisible), p = rows.filter(r => r.present === true).length, x = rows.filter(r => r.present === false).length, n = rows.filter(r => r.present == null).length;
+  $("shCount").innerHTML = `<b class="c-yes">${p} נוכחים</b> · <b class="c-no">${x} חסרים</b>` + (n ? ` · ${n} לא סומנו` : "");
   $("shTotal").innerHTML = `<b>${A.rows.length}</b> ילדים בקבוצה` + (rows.length !== A.rows.length ? ` · ${rows.length} בתת-הקבוצה המוצגת` : "");
 }
 // טיוטת נוכחות: כל סימון נשמר גם בטלפון עצמו, כך שאם השמירה נכשלה (אין קליטה), הדף התרענן או יצאו מהמערכת - הסימון לא הולך לאיבוד
@@ -4108,8 +4271,7 @@ $("shBack").addEventListener("click", () => {
   attDraftClear(); showAttList(); loadAttGroups(); });
 $("shSave").addEventListener("click", async () => {
   const err = $("shErr"); err.textContent = "";
-  const missing = A.rows.filter(r => r.present == null);
-  if (missing.length) { err.textContent = `יש לסמן נוכח/ת או חסר/ה לכל הילדים (${missing.length} לא סומנו).`; return; }
+  const missing = A.rows.filter(r => r.present == null).length;   // מותר לשמור גם בלי לסמן את כולם - מי שלא סומן פשוט לא נשמר
   const bad = A.rows.filter(r => r.present && !r.did_math && !r.did_english);
   if (bad.length) { err.textContent = `יש לסמן מה עשו בפועל (מתמטיקה / אנגלית): ${bad.map(r => r.first_name).join(", ")}.`; return; }
   $("shSave").disabled = true;
@@ -4118,7 +4280,7 @@ $("shSave").addEventListener("click", async () => {
       p_rows: A.rows.map(r => ({ student_id: r.student_id, present: r.present, did_math: r.did_math, did_english: r.did_english }))
         .concat((A.removed || []).map(id => ({ student_id: id, present: null, remove: true }))),
       p_extra: "", p_notes: $("shNotes").value });
-    toast("הנוכחות נשמרה"); attDraftClear();
+    toast(missing ? `הנוכחות נשמרה (${missing} לא סומנו)` : "הנוכחות נשמרה"); attDraftClear();
     showAttList(); loadAttGroups();
   } catch(e2) {
     err.textContent = /only save attendance for today/.test(e2.message) ? "אפשר לשמור נוכחות רק ביום השיעור." : (/fetch|network|Failed/i.test(e2.message) ? "אין חיבור לאינטרנט - הסימון שמור בטלפון. כשהקליטה תחזור, לוחצים שוב \"שמירה\"." : "השמירה נכשלה: " + e2.message);
@@ -4348,8 +4510,8 @@ function renderSchools(){
   if (curObj) SC.city = curObj.city;
   if (!cities.includes(SC.city)) SC.city = cities[0];
   $("scCityTabs").hidden = cities.length < 2;
-  $("scCityTabs").innerHTML = cities.map(c => `<button class="tab" role="tab" aria-selected="${c === SC.city}" data-city="${esc(c)}">${esc(c)} <span class="n">(${SC.list.filter(x => x.city === c).length})</span></button>`).join("");
-  $("scCityTabs").querySelectorAll(".tab").forEach(b => b.onclick = () => { SC.city = b.dataset.city; const first = SC.list.find(x => x.city === SC.city); SC.cur = first ? first.id : null; store("telem_school", SC.cur); SC.edit = false; renderSchools(); });
+  $("scCityTabs").innerHTML = cities.map(c => `<button type="button" aria-pressed="${c === SC.city}" data-city="${esc(c)}">${esc(c)}</button>`).join("");
+  $("scCityTabs").querySelectorAll("[data-city]").forEach(b => b.onclick = () => { SC.city = b.dataset.city; const first = SC.list.find(x => x.city === SC.city); SC.cur = first ? first.id : null; store("telem_school", SC.cur); SC.edit = false; renderSchools(); });
   const multiCity = inGroups && cities.length > 1;
   $("scTabs").innerHTML = SC.list.filter(x => inGroups ? cities.includes(x.city) : x.city === SC.city).map(x => `<button class="tab ${scCls(x.name)}" role="tab" aria-selected="${String(x.id) === String(SC.cur)}" data-id="${x.id}">${esc(x.name)}${multiCity ? ` <span class="n">${esc(x.city)}</span>` : ""}</button>`).join("");
   $("scTabs").querySelectorAll(".tab").forEach(b => b.onclick = () => { SC.cur = b.dataset.id; store("telem_school", SC.cur); SC.edit = false; renderSchools(); });
@@ -4642,8 +4804,9 @@ async function renderWs(){
   const missing = WS.rows.filter(r => !r.uploaded).length;
   const warn = missing ? `<div class="ws-warn">${missing} דפים עוד לא הועלו${ME.role === "instructor" ? "." : " - \"ייבוא דפים מהמחשב\" למעלה."}</div>` : "";
   document.querySelector("#wsSide .ws-how").hidden = !!(WS.q || "").trim();
-  if (!WS.topic && (WS.q || "").length >= 2) { $("wsPick").hidden = true; $("wsKind").hidden = true; $("wsSide").hidden = true; $("wsBody").innerHTML = wsSearchHtml(); wsWireSearch(); return; }
+  if (!WS.topic && (WS.q || "").length >= 2) { $("wsSelBar").hidden = true; $("wsPick").hidden = true; $("wsKind").hidden = true; $("wsSide").hidden = true; $("wsBody").innerHTML = wsSearchHtml(); wsWireSearch(); return; }
   $("wsPick").hidden = false; $("wsSide").hidden = !!WS.topic;
+  if (!WS.topic) $("wsSelBar").hidden = true;
   if (!WS.topic) {
     // הרשימה: נושאי "לפי נושא" (הסוג הראשון), ובסוף נושאים שיש רק בסוג אחר (למשל דפי סיכום בלי נושא מקביל)
     if (!kindOut) WS.kind = kinds[0];
@@ -4670,14 +4833,17 @@ async function renderWs(){
   let html = `<div class="ws-bar"><h2><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}</h2><button type="button" class="btn small ws-back" id="wsBack">→ כל הנושאים</button></div>
     <div class="ws-sw">${kSeg}${t.answers.length ? `<div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים (${t.pages.length})</button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות (${t.answers.length})</button></div>` : ""}</div>
     ${WS.tab === "answers" ? `<div class="ws-warn">פתרונות - לשימוש הצוות. לשלוח לתלמיד רק אם החלטתם.</div>` : ""}`;
-  const card = (r, i) => `<button type="button" class="ws-pg" data-i="${i}"><div class="th">${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}</div>
-    <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}</span></div></button>`;
+  if (WS.selTopic !== WS.book + "|" + WS.kind + "|" + WS.topic) { WS.sel = new Set(); WS.selTopic = WS.book + "|" + WS.kind + "|" + WS.topic; }
+  WS.sign = sign;
+  const card = (r, i) => `<div class="ws-pgw${WS.sel.has(r.storage_path) ? " sel" : ""}">${r.uploaded ? `<label class="ws-ck" title="סימון לשליחה"><input type="checkbox" data-ck="${i}" ${WS.sel.has(r.storage_path) ? "checked" : ""} aria-label="סימון ${esc(r.title || String(r.page_no))}"></label>` : ""}<button type="button" class="ws-pg" data-i="${i}"><div class="th">${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}</div>
+    <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}</span></div></button></div>`;
+  html += `<div class="ws-selall"><button type="button" class="btn small" data-gsel="all">☑ סמן את כל ה${WS.tab === "answers" ? "פתרונות" : "דפים"} בנושא</button></div>`;
   if (WS.tab === "page" && WS.kind === "topic") {
     let cur = null, buf = [];
     list.forEach((r, i) => { const k = (r.chapter || "") + "|" + (r.sub || "");
       if (k !== cur) { if (buf.length) html += `<div class="ws-pages">${buf.join("")}</div>`; buf = []; cur = k;
         // כותרת רק כשיש תת-נושא או פרק (בספרים בלי חלוקה - בלי כותרת)
-        if (r.sub || r.chapter) html += `<div class="ws-gh">${esc(r.sub || "")}${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</div>`; }
+        if (r.sub || r.chapter) html += `<div class="ws-gh"><span>${esc(r.sub || "")}${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</span><button type="button" class="btn small ws-gsel" data-gsel="${esc(k)}">☑ סמן את כל תת-הנושא</button></div>`; }
       buf.push(card(r, i)); });
     if (buf.length) html += `<div class="ws-pages">${buf.join("")}</div>`;
   } else html += `<div class="ws-pages">${list.map(card).join("")}</div>`;
@@ -4687,7 +4853,56 @@ async function renderWs(){
   $("wsBody").querySelectorAll("[data-kin]").forEach(b => b.onclick = () => { const [k, no] = b.dataset.kin.split("|"); if (k === WS.kind) return;
     WS.kind = k; WS.topic = no; WS.tab = "page"; store("telem_ws_kind", k); wsReplace(); renderWs(); });
   $("wsBody").querySelectorAll(".ws-pg").forEach(b => b.onclick = () => wsOpen(Number(b.dataset.i)));
+  $("wsBody").querySelectorAll("[data-ck]").forEach(c => c.onchange = () => { const r = list[Number(c.dataset.ck)]; if (c.checked) WS.sel.add(r.storage_path); else WS.sel.delete(r.storage_path); c.closest(".ws-pgw").classList.toggle("sel", c.checked); wsSelUpd(); });
+  $("wsBody").querySelectorAll("[data-gsel]").forEach(b => b.onclick = () => {
+    const g = b.dataset.gsel, rows = list.filter(r => r.uploaded && (g === "all" || (r.chapter || "") + "|" + (r.sub || "") === g));
+    const allOn = rows.every(r => WS.sel.has(r.storage_path));
+    rows.forEach(r => allOn ? WS.sel.delete(r.storage_path) : WS.sel.add(r.storage_path)); WS.ready = null; renderWs(); });
+  wsSelUpd();
 }
+// סימון כמה דפים ושליחה יחד: בטלפון - חלון השיתוף עם כל הקבצים (וואטסאפ...), במחשב - קובץ ZIP
+function wsSelUpd(){
+  const n = WS.sel ? WS.sel.size : 0, bar = $("wsSelBar");
+  bar.hidden = !n || !WS.topic; WS.ready = WS.ready && WS.ready.n === n ? WS.ready : null;
+  $("wsSelN").textContent = n === 1 ? "דף אחד מסומן" : n + " דפים מסומנים";
+  $("wsSelSend").textContent = WS.ready ? `לשלוח עכשיו (${n} דפים מוכנים)` : "שלח את המסומנים";
+}
+const wsMobile = () => !!(window.matchMedia && matchMedia("(pointer:coarse)").matches) || /Android|iPhone|iPad/i.test(navigator.userAgent);
+async function wsSelFiles(){
+  const rows = (WS.rows || []).filter(r => WS.sel.has(r.storage_path)).sort((a, b) => (a.type === b.type ? 0 : a.type === "page" ? -1 : 1) || (a.sort_order || 0) - (b.sort_order || 0));
+  const used = new Set();
+  return Promise.all(rows.map(async r => {
+    const u = (WS.sign && WS.sign(r.storage_path)) || (await wsSign([r.storage_path]))(r.storage_path);
+    const b = await (await fetch(u)).blob(), ext = (r.storage_path.match(/\.(\w+)$/) || [, "png"])[1];
+    let nm = ((r.type === "answers" ? "פתרון - " : "") + (r.page_no ? String(r.page_no).padStart(2, "0") + " " : "") + (r.title || r.topic_name || "דף")).replace(/[\\/:*?"<>|]/g, "-").trim();
+    while (used.has(nm)) nm += "_"; used.add(nm);
+    return new File([b], nm + "." + ext, { type: b.type || "image/png" });
+  }));
+}
+$("wsSelClr").addEventListener("click", () => { WS.sel = new Set(); WS.ready = null; renderWs(); });
+$("wsSelSend").addEventListener("click", async () => {
+  const btn = $("wsSelSend"), n = WS.sel.size; if (!n) return;
+  const t = (WS.list[0] && WS.list[0].topic_name) || "דפים";
+  if (WS.ready && WS.ready.n === n) {   // הקבצים כבר הוכנו בלחיצה הקודמת (הטלפון דורש לחיצה "טרייה" לשיתוף)
+    try { await navigator.share({ files: WS.ready.files, title: t }); WS.ready = null; wsSelUpd(); } catch(e) { if (e.name !== "AbortError") toast("השליחה לא עבדה: " + e.message); }
+    return;
+  }
+  btn.disabled = true; const old = btn.textContent; btn.textContent = "מכין " + n + " דפים…";
+  try {
+    const files = await wsSelFiles();
+    if (wsMobile() && navigator.canShare && navigator.canShare({ files })) {
+      try { await navigator.share({ files, title: t }); }
+      catch(e) {
+        if (e.name === "NotAllowedError") { WS.ready = { n, files }; toast("הדפים מוכנים - לוחצים שוב לשליחה"); }
+        else if (e.name !== "AbortError") toast("השליחה לא עבדה: " + e.message);
+      }
+    } else {
+      const zip = await zipFiles(await Promise.all(files.map(async f => ({ name: f.name, data: new Uint8Array(await f.arrayBuffer()) }))), "application/zip");
+      bkDownload(zip, t.replace(/[\\/:*?"<>|]/g, "-") + " - " + n + " דפים.zip"); toast("הורד קובץ ZIP עם " + n + " דפים");
+    }
+  } catch(e) { toast("לא הצלחתי להכין את הדפים: " + e.message); }
+  btn.disabled = false; btn.textContent = old; wsSelUpd();
+});
 // הנושא המקביל בסוג דפים אחר: אותו שם, או אותו מספר כשיש מילה משותפת בשם (ז' 10 "גרפים" ≠ סיכום 10 "צורות חופפות")
 function wsMatch(t, k, from){
   if (k === (from || WS.kind)) return t.no;
@@ -4765,7 +4980,7 @@ if (WS_ANDROID && navigator.canShare) document.querySelector("#wsSide .ws-how").
 function wsReplace(){
   if (NAV_POP) return;
   const st = { telem: 1, view: "ws", lead: null, ws: { book: WS.book, kind: WS.kind, topic: WS.topic }, viewer: null };
-  history.replaceState(st, ""); try { sessionStorage.setItem("telem_last", JSON.stringify(st)); } catch(e) {}
+  history.replaceState(st, ""); try { saveLast(st); } catch(e) {}
 }
 function wsPush(viewer){
   if (NAV_POP) return;
@@ -4774,7 +4989,7 @@ function wsPush(viewer){
   if (cur && cur.telem && cur.view === "ws" && JSON.stringify(cur.ws) === JSON.stringify(st.ws) && (cur.viewer == null ? null : cur.viewer) === st.viewer) return;
   // דף בתוך התצוגה (הבא/הקודם) מחליף את השורה בהיסטוריה, לא מוסיף
   if (cur && cur.telem && cur.view === "ws" && cur.viewer != null && st.viewer != null) history.replaceState(st, ""); else history.pushState(st, "");
-  try { sessionStorage.setItem("telem_last", JSON.stringify(st)); } catch(e) {}
+  try { saveLast(st); } catch(e) {}
 }
 async function wsOpen(i, fromPop){
   WS.idx = i; const r = WS.list[i]; if (!r) return;
@@ -5641,7 +5856,7 @@ async function boot(){
   const slow = RESUME && !quick;
   if (slow) { hideViews(); let ld = $("resumeLoad"); if (!ld) { ld = document.createElement("div"); ld.id = "resumeLoad"; ld.className = "card muted resume-load"; ld.textContent = "טוען נתונים…"; document.querySelector("main.main").prepend(ld); } ld.hidden = false; }
   else if (!quick) { go("home"); $("homeLoad").hidden = false; }
-  DATA_WAIT = (async () => { await loadLists(); await loadLeads(); setupFilters(); })();
+  DATA_WAIT = (async () => { await loadLists(); await loadLeads(); setupFilters(); restoreLeadFilters(); })();
   if (quick) resumeView(true);
   try { await DATA_WAIT; DATA_READY = true; $("homeLoad").hidden = true; }
   catch(e) { /* מטופל למטה */ }
@@ -5710,7 +5925,7 @@ function updSafe(){
   const a = document.activeElement;
   if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName) && a.id !== "wsSearch" && a.type !== "checkbox" && a.type !== "radio") return false;
   if (typeof LIST_EDIT !== "undefined" && LIST_EDIT) return false;
-  if (document.querySelector("#leadForm .lead-main.editing")) return false;
+  if (typeof LEAD_DIRTY !== "undefined" && LEAD_DIRTY && currentView === "lead") return false;   // כרטיס עם שינויים שלא נשמרו
   if ([...document.querySelectorAll(".panel-bg")].some(x => !x.hidden)) return false;
   if (!$("panel").hidden) return false;
   if (A.dirty && !$("attSheet").hidden) return false;   // באמצע סימון נוכחות שלא נשמר
