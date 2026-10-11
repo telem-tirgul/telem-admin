@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19">
+<meta name="app-version" content="5.19.1">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -914,7 +914,7 @@
   .ws-books button[aria-pressed="true"]{ background:var(--accent); color:#fff; border-color:var(--accent); }
   .ws-kind{ margin-bottom:10px; }
   /* סוג הדפים (סיכום / לפי נושאים...) - בזהב, כדי שלא יתבלבל עם בחירת הספר */
-  .ws-bar{ flex-wrap:wrap; } .ws-bar-sub{ display:block; font-size:13px; font-weight:600; color:var(--ink-soft); } .ws-bar .ws-kind-in{ margin-inline-start:auto; } .ws-kind-in button[disabled]{ opacity:.4; cursor:not-allowed; } .ws-kind-in button[aria-pressed="true"]{ background:color-mix(in srgb, var(--gold) 35%, var(--paper)); color:var(--ink); }
+  .ws-bar{ flex-wrap:wrap; } .ws-bar-sub{ display:block; font-size:13px; font-weight:600; color:var(--ink-soft); } .ws-kind-in button[disabled]{ opacity:.4; cursor:not-allowed; } .ws-kind-in button[aria-pressed="true"]{ background:color-mix(in srgb, var(--gold) 35%, var(--paper)); color:var(--ink); }
   #wsKind{ border-color:color-mix(in srgb, var(--gold) 50%, var(--border)); }
   #wsKind button[aria-pressed="true"]{ background:color-mix(in srgb, var(--gold) 35%, var(--paper)); color:var(--ink); }
   .ws-pick{ display:flex; flex-wrap:wrap; gap:8px 10px; margin-bottom:10px; align-items:center; }
@@ -952,7 +952,8 @@
   .ws-album .no{ color:var(--accent); font-size:12px; font-weight:700; } .ws-album .nm{ font-weight:700; line-height:1.25; } .ws-album .ch{ font-size:12.5px; color:var(--ink-soft, #777); }
   .ws-bar{ position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px; background:var(--bg); padding:8px 0; margin-bottom:8px; border-bottom:1px solid var(--border); }
   .ws-bar h2{ margin:0; font-size:18px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .ws-tabs{ display:flex; gap:6px; margin:4px 0 12px; }
+  .ws-tabs{ display:flex; gap:6px; margin:0; }
+  .ws-sw{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; margin:4px 0 12px; } .ws-sw:empty{ display:none; } .ws-bar .ws-back{ margin-inline-start:auto; }
   .ws-tabs button{ font:inherit; font-weight:700; font-size:14px; border:1px solid var(--border); background:var(--card, #fff); color:inherit; border-radius:999px; padding:6px 14px; cursor:pointer; }
   .ws-tabs button[aria-selected="true"]{ background:var(--accent); color:#fff; border-color:var(--accent); }
   .ws-gh{ font-weight:700; margin:16px 0 8px; display:flex; gap:8px; align-items:baseline; } .ws-gh small{ color:var(--accent); font-weight:700; }
@@ -1586,17 +1587,45 @@ function baseHeaders(){
 async function tokenRequest(grant, body){
   const res = await fetch(CONFIG.supabaseUrl + "/auth/v1/token?grant_type=" + grant, { method:"POST", headers: baseHeaders(), body: JSON.stringify(body) });
   const data = await res.json().catch(() => null);
-  if (!res.ok || !data || !data.access_token) throw new Error("auth failed");
+  if (!res.ok || !data || !data.access_token) { const e = new Error("auth failed"); e.status = res.status; throw e; }
   saveAuth({ access_token: data.access_token, refresh_token: data.refresh_token,
              expires_at: data.expires_at || (Math.floor(Date.now()/1000) + (data.expires_in || 3600)),
              email: (data.user && data.user.email) || (auth && auth.email) || "" });
 }
+// חידוש הכניסה (כל שעה): פעם אחת בלבד גם כשיש כמה בקשות במקביל, ובתיאום בין לשוניות פתוחות
+// (קוד החידוש מתחלף בכל חידוש - אם שתי לשוניות מחדשות עם אותו קוד, השרת מנתק את שתיהן).
+// תקלת רשת (מחשב שהתעורר, אינטרנט שנפל) - לא מוציאה מהמערכת; מנסים שוב.
+const AUTH_BC = (typeof BroadcastChannel !== "undefined") ? new BroadcastChannel("telem_auth") : null;
+if (AUTH_BC) AUTH_BC.onmessage = (ev) => { const m = ev.data || {}; if (m.type === "refreshed" && auth && m.old === auth.refresh_token && m.auth) saveAuth(Object.assign({}, m.auth, { email: auth.email || m.auth.email })); };
+let REFRESHING = null;
+function refreshAuth(){
+  if (REFRESHING) return REFRESHING;
+  const run = async () => {
+    if (!auth) return false;
+    if (auth.expires_at - 120 > Date.now()/1000) return true;   // לשונית אחרת כבר חידשה בינתיים
+    const old = auth.refresh_token;
+    for (let i = 0; i < 3; i++) {
+      try { await tokenRequest("refresh_token", { refresh_token: old }); if (AUTH_BC) AUTH_BC.postMessage({ type: "refreshed", old, auth }); return true; }
+      catch(e) {
+        if (auth && auth.refresh_token !== old) return true;           // התקבל חידוש מלשונית אחרת
+        if (e.status === 400 || e.status === 401 || e.status === 403) { saveAuth(null); return false; }   // הכניסה באמת לא בתוקף
+        await new Promise(r => setTimeout(r, 1500 * (i + 1)));         // תקלת רשת - ניסיון נוסף
+      }
+    }
+    return !!auth && auth.expires_at > Date.now()/1000;                // עדיין בתוקף - ממשיכים
+  };
+  const locked = (navigator.locks && navigator.locks.request) ? navigator.locks.request("telem_refresh", run) : run();
+  REFRESHING = Promise.resolve(locked).finally(() => { REFRESHING = null; });
+  return REFRESHING;
+}
 async function token(){
   if (!auth) return null;
   if (auth.expires_at - 60 > Date.now()/1000) return auth.access_token;
-  try { await tokenRequest("refresh_token", { refresh_token: auth.refresh_token }); return auth.access_token; }
-  catch(e) { saveAuth(null); return null; }
+  const ok = await refreshAuth();
+  return ok && auth ? auth.access_token : null;
 }
+// חידוש מראש, לפני שהכניסה פגה (כל עוד המערכת פתוחה ויש פעילות)
+setInterval(() => { if (auth && !$("appView").hidden && auth.expires_at - 300 < Date.now()/1000 && idleFor() < idleMs()) refreshAuth(); }, 60000);
 async function api(method, path, body, extraHeaders){
   const t = await token();
   if (!t) { showLogin(); throw new Error("not signed in"); }
@@ -4492,8 +4521,8 @@ async function renderWs(){
   const kindsIn = [...new Set(WS.rows.filter(r => r.book === WS.book).map(r => r.kind))].sort((a, b) => WS_KIND_ORD.indexOf(a) - WS_KIND_ORD.indexOf(b));
   const kSeg = kindsIn.length > 1 ? `<div class="gseg ws-kind-in" role="group" aria-label="סוג הדפים">${kindsIn.map(k => { const no = wsMatch(t, k);
     return `<button type="button" class="k-${esc(k)}" ${no ? `data-kin="${esc(k)}|${esc(no)}"` : `disabled title="אין ${esc(WS_KIND[k] || k)} לנושא הזה"`} aria-pressed="${k === WS.kind}">${esc(WS_KIND[k] || k)}</button>`; }).join("")}</div>` : "";
-  let html = `<div class="ws-bar"><button type="button" class="btn small" id="wsBack">→ כל הנושאים</button><h2><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}</h2>${kSeg}</div>
-    ${t.answers.length ? `<div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים (${t.pages.length})</button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות (${t.answers.length})</button></div>` : ""}
+  let html = `<div class="ws-bar"><h2><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}</h2><button type="button" class="btn small ws-back" id="wsBack">→ כל הנושאים</button></div>
+    <div class="ws-sw">${kSeg}${t.answers.length ? `<div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים (${t.pages.length})</button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות (${t.answers.length})</button></div>` : ""}</div>
     ${WS.tab === "answers" ? `<div class="ws-warn">פתרונות - לשימוש הצוות. לשלוח לתלמיד רק אם החלטתם.</div>` : ""}`;
   const card = (r, i) => `<button type="button" class="ws-pg" data-i="${i}"><div class="th">${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}</div>
     <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}</span></div></button>`;
