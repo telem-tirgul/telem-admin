@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.7">
+<meta name="app-version" content="5.19.8">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -306,6 +306,9 @@
   .att-track-row .att-track + .att-track{ margin-inline-start:6px; } .att-track.att-pt{ background:#FFF0DC; border-color:#E6A04A; color:#6B3E00; }
   .att-name .meta{ display:block; font-size:12.5px; color:var(--ink-soft); }
   .att-ctl{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .att-sj2{ display:inline-flex; align-items:center; gap:0; padding:0 4px; border-radius:999px; background:#dbe9fb; color:#1f4f8a; font-weight:700; font-size:13px; line-height:1.6; }
+  .att-sj2 label{ display:inline-flex; align-items:center; gap:3px; padding:1px 5px; cursor:pointer; white-space:nowrap; }
+  .att-sj2 input{ width:14px; height:14px; margin:0; accent-color:#1f4f8a; cursor:pointer; }
   .seg{ display:inline-flex; border:1.5px solid var(--border); border-radius:10px; overflow:hidden; }
   .seg button{ border:0; background:var(--paper); padding:9px 16px; font-weight:800; font-size:15px; cursor:pointer; color:var(--ink-soft); font-family:inherit; }
   .seg button + button{ border-inline-start:1.5px solid var(--border); }
@@ -565,7 +568,15 @@
   .ar-filters > div:nth-child(1){ width:110px; } .ar-filters > div:nth-child(2){ width:135px; } .ar-filters > div:nth-child(3){ width:175px; } .ar-filters > div:nth-child(4), .ar-filters > div:nth-child(5){ width:138px; }
   .ar-btns{ flex-direction:row !important; gap:8px; margin-inline-start:auto; } .ar-btns .btn{ height:40px; padding:0 18px; font-size:15px; }
   @media (max-width: 700px){ .ar-filters > div{ width:calc(50% - 5px) !important; } .ar-filters > div:nth-child(3){ width:100% !important; } .ar-filters > .ar-rng{ width:100% !important; } .ar-btns{ width:100% !important; margin:0; } .ar-btns .btn{ flex:1; } }
-  .ar-sum-box{ margin-top:16px; padding:10px 14px; } .ar-sum-box > summary{ cursor:pointer; font-weight:700; } .ar-sum-box[open] > summary{ margin-bottom:10px; }
+  .ar-sum-box{ margin:0 0 14px; padding:12px 16px; } .ar-sum-box > summary{ cursor:pointer; font-weight:800; display:flex; align-items:center; gap:10px 16px; flex-wrap:wrap; } .ar-sum-box[open] > summary{ margin-bottom:12px; }
+  .ar-sum-box > summary .ar-days{ margin-inline-start:auto; } .ar-sum-box:not([open]) .ar-days{ display:none; }
+  .ar-tiles{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; } .ar-tiles .tile{ min-width:0; padding:8px 14px; }
+  .ar-sum-grid{ grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); } .ar-sum-grid .card{ max-height:300px; overflow:auto; margin:0; }
+  @media (max-width:760px){ .ar-tiles{ grid-template-columns:1fr 1fr; } .ar-sum-grid{ grid-template-columns:minmax(0, 1fr); } }
+  .ar-filters > .ar-q{ width:160px; } .ar-filters > .ar-q input{ width:100%; }
+  @media (max-width:700px){ .ar-filters > .ar-q{ width:100% !important; } }
+  .ar-kid{ display:flex; align-items:center; gap:6px; flex-wrap:nowrap; white-space:nowrap; } .ar-kid .ar-gr{ font-size:12px; font-weight:800; color:var(--ink-soft, #666); white-space:nowrap; }
+  .ar-tbl mark{ background:#ffe58a; color:inherit; padding:0; }
   .ar-tbl td.p{ color:var(--ok); font-weight:800; text-align:center; } .ar-tbl td.a{ color:var(--full); font-weight:800; text-align:center; background:color-mix(in srgb, var(--full) 8%, transparent); }
   .ar-tbl td.n{ text-align:center; color:var(--ink-soft); } .ar-tbl th.d{ direction:ltr; font-size:12px; white-space:nowrap; text-align:center; }
   .ar-tbl td .ar-s, .ar-tbl th .ar-s{ display:block; font-size:10.5px; font-weight:600; color:var(--ink-soft); white-space:nowrap; } .ar-tbl td.f{ background:color-mix(in srgb, var(--paper) 60%, transparent); } .ar-tbl th:first-child, .ar-tbl td:first-child{ position:sticky; right:0; background:var(--paper); z-index:1; white-space:nowrap; }
@@ -1059,6 +1070,10 @@
     .ws-kind-in .kl{ display:none; } .ws-kind-in .ks{ display:inline; }
     .ws-sw .ws-selbtn{ margin-inline-start:0; }
     .ws-pages{ gap:10px; }
+    /* אנסין: כל יחידה (3 דפים) בשורה אחת */
+    .ws-pages.ws-unit{ grid-template-columns:repeat(3, minmax(0, 1fr)); gap:6px; }
+    .ws-pages.ws-unit .ws-pg .cap{ font-size:11.5px; padding:4px 5px 5px; } .ws-pages.ws-unit .ws-pg .cap span{ display:none; }
+    .ws-pages.ws-unit .ws-tick{ width:22px; height:22px; bottom:5px; left:5px; } .ws-pages.ws-unit .ws-pgw.sel .ws-tick::after{ left:6.5px; top:2.5px; width:5px; height:10px; }
   }
   @media (max-width:760px){ .ws-selbar{ flex-wrap:nowrap; gap:8px; padding:8px 10px; bottom:8px; } .ws-selbar span{ font-size:14px; white-space:nowrap; } .ws-selbar .btn.primary{ flex:none; padding:8px 12px; font-size:14px; } #wsSelClr{ padding:6px 8px; font-size:12.5px; } }
   .ws-pg .cap{ padding:6px 8px 8px; font-size:13px; line-height:1.3; display:flex; gap:6px; } .ws-pg .cap b{ color:var(--accent); }
@@ -1324,6 +1339,7 @@
             <div><label class="lbl" for="arFrom">מתאריך</label><input type="date" id="arFrom"></div>
             <div><label class="lbl" for="arTo">עד</label><input type="date" id="arTo"></div>
             <div class="ar-rng"><span class="lbl">טווח מהיר</span><div class="gseg" role="group" aria-label="טווח"><button type="button" data-arr="h1">מחצית א'</button><button type="button" data-arr="h2">מחצית ב'</button><button type="button" data-arr="year">כל השנה</button></div></div>
+            <div class="ar-q"><label class="lbl" for="arQ">חיפוש ילד/ה</label><input id="arQ" type="search" placeholder="שם הילד/ה..." autocomplete="off"></div>
             <div class="ar-btns"><button class="btn primary" type="button" id="arShow">הצגה</button><button class="btn" type="button" id="arCsv">הורדה לאקסל</button></div>
           </div>
           <div id="arBody"></div>
@@ -1516,8 +1532,8 @@
         <button class="tab" role="tab" data-rep="att">נוכחות</button>
         <button class="tab" role="tab" data-rep="hours">שעות מתרגלים</button>
       </div>
-      <div id="repAttHost"></div>
       <div id="repBody"></div>
+      <div id="repAttHost"></div>
     </section>
 
     <!-- ===== בתי ספר (מידע, מנהלים בלבד) ===== -->
@@ -4151,6 +4167,9 @@ async function openSheet(sessionId){
     const [sh] = await Promise.all([rpc("attendance_sheet", { p_session: sessionId, p_date: A.date }), loadExams()]);
     A.sheet = sh;
     A.rows = sh.rows.map(r => ({ ...r, present: r.present == null ? null : r.present, did_math: !!r.did_math, did_english: !!r.did_english, saved: r.present != null }));
+    // ילד/ה שנוסף/ה לשיעור: המקצוע לפי ההרשמה שלו/ה (ומתקנים סימון ישן שנשמר רק מת' - נשמר בשמירה הבאה)
+    A.rows.forEach(r => { if (r.in_group || r.subject) return; r.subject = regSubj(r.student_id, r.reg_status);
+      if (r.subject && r.present && subjGrp(r.subject) !== 2) { const d = subjDefault(r.subject); r.did_math = d.m; r.did_english = d.e; } });
     A.rows.sort(attSort);
     A.removed = [];
     A.splitView = "";   // פיצול לתת-קבוצות/חדרים - לא בשימוש (הלקוחה 11.10): תמיד כל הילדים
@@ -4172,6 +4191,13 @@ async function openSheet(sessionId){
     $("shRows").innerHTML = "<li class='err'>לא ניתן לטעון את רשימת הילדים.</li>";
   }
 }
+// מקצוע לתצוגה: מהשיבוץ; לילד/ה שנוסף/ה לשיעור - לפי מה שנשמר (מת' / אנג' / שניהם)
+// המקצוע שהילד/ה רשום/ה אליו (לפי הסטטוס: נרשם מת. / אנג. / מת. + אנג.) - מה שרשום זה מה שעושה
+function regSubj(studentId, status){
+  const ld = (L.leads || []).find(l => l.student && l.student.id === studentId);
+  return subjFromStatus(status || "") || (ld ? subjFromStatus(statusName(ld.status_id)) : "") || null;
+}
+const rowSubj = (r) => r.subject || (r.did_math && r.did_english ? "מתמטיקה ואנגלית" : r.did_math ? "מתמטיקה" : r.did_english ? "אנגלית" : null);
 const subjDefault = (subj) => ({ m: !subj || subj.indexOf("מתמטיקה") >= 0, e: !!subj && subj.indexOf("אנגלית") >= 0 });
 const shVisible = (r) => !A.splitView || r.split_id === Number(A.splitView);
 function renderSplitBar(){
@@ -4243,7 +4269,7 @@ function renderSheetRows(){
       <span class="meta">${r.school ? `<span class="school-chip sch-sm ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${kidExTag(r, A.sheet.city, A.sheet.date || A.date)}${r.in_group ? "" : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
       </div>
     <div class="att-ctl">
-      ${subjMini(r.subject)}
+      ${subjGrp(rowSubj(r)) === 2 && r.present !== false ? `<span class="att-sj2${r.present && !r.did_math && !r.did_english ? " need" : ""}" title="משולב - לסמן מה עשה/תה היום"><label><input type="checkbox" data-m ${r.did_math ? "checked" : ""} ${can ? "" : "disabled"}>מת'</label><label><input type="checkbox" data-e ${r.did_english ? "checked" : ""} ${can ? "" : "disabled"}>אנג'</label></span>` : subjMini(rowSubj(r))}
       <div class="seg" role="group" aria-label="נוכחות">
         <button type="button" class="no ${r.present === false ? "on" : ""}" data-p="0" ${can ? "" : "disabled"} aria-label="חסר/ה"><span class="lg">חסר/ה</span><span class="sm">✗</span></button>
         <button type="button" class="yes ${r.present === true ? "on" : ""}" data-p="1" ${can ? "" : "disabled"} aria-label="נוכח/ת"><span class="lg">נוכח/ת</span><span class="sm">✓</span></button>
@@ -4280,7 +4306,8 @@ function attDraftRestore(){
 window.addEventListener("beforeunload", (e) => { if (A.dirty && !$("attSheet").hidden) { e.preventDefault(); e.returnValue = ""; } });
 function setPresent(r, v){
   r.present = v;
-  if (v && !r.did_math && !r.did_english) { const d = subjDefault(r.subject); r.did_math = d.m; r.did_english = d.e; }
+  // משולב: לא מסמנים מראש - המתרגל/ת מסמן/ת מה עשו בפועל (מת' / אנג' / שניהם)
+  if (v && !r.did_math && !r.did_english && subjGrp(rowSubj(r)) !== 2) { const d = subjDefault(rowSubj(r)); r.did_math = d.m; r.did_english = d.e; }
   if (!v) { r.did_math = false; r.did_english = false; }
 }
 $("shRows").addEventListener("click", (e) => {
@@ -4294,7 +4321,8 @@ $("shRows").addEventListener("change", (e) => {
   const li = e.target.closest("li"); if (!li) return; const r = A.rows[Number(li.dataset.i)];
   if (e.target.hasAttribute("data-m")) r.did_math = e.target.checked;
   if (e.target.hasAttribute("data-e")) r.did_english = e.target.checked;
-  attDirty();
+  if (e.target.checked && r.present !== true) { r.present = true; attDirty(); renderSheetRows(); return; }   // סימון מקצוע = נוכח/ת
+  $("shErr").textContent = ""; attDirty();
 });
 ["shExtra", "shNotes"].forEach(id => $(id).addEventListener("input", attDirty));
 $("shAll").addEventListener("click", () => { A.rows.filter(shVisible).forEach(r => { if (r.present == null) setPresent(r, true); }); attDirty(); renderSheetRows(); });
@@ -4346,7 +4374,9 @@ $("shAddRes").addEventListener("click", (e) => {
   const b = e.target.closest("[data-add]"); if (!b) return;
   const k = JSON.parse(b.dataset.add);
   A.removed = (A.removed || []).filter(id => id !== k.student_id);
-  const r = { student_id: k.student_id, first_name: k.first_name, last_name: k.last_name, grade: k.grade, school: k.school, subject: null, in_group: false, added: true, present: null, did_math: false, did_english: false, saved: false };
+  // המקצוע של הילד/ה: מהסטטוס ("נרשם מת. + אנג." ...) - מהחיפוש, או מרשימת התלמידים (מנהלים)
+  const subj = regSubj(k.student_id, k.status);
+  const r = { student_id: k.student_id, first_name: k.first_name, last_name: k.last_name, grade: k.grade, school: k.school, subject: subj, in_group: false, added: true, present: null, did_math: false, did_english: false, saved: false };
   setPresent(r, true); A.rows.push(r);
   $("shAddQ").value = ""; $("shAddRes").innerHTML = ""; $("shAddPanel").hidden = true;
   renderSheetRows(); toast(`${k.first_name} נוסף/ה לשיעור - לא לשכוח לשמור`);
@@ -4884,15 +4914,17 @@ async function renderWs(){
   const card = (r, i) => { const on = WS.sel.has(r.storage_path);
     return `<div class="ws-pgw${on ? " sel" : ""}"><button type="button" class="ws-pg" data-i="${i}" ${SM && r.uploaded ? `role="checkbox" aria-checked="${on}"` : ""}><div class="th">${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}${SM && r.uploaded ? `<span class="ws-tick" aria-hidden="true"></span>` : ""}</div>
     <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}</span></div></button></div>`; };
-  if (WS.tab === "page" && WS.kind === "topic") {
+  // חלוקה לתת-נושאים / יחידות (אנסין: כל יחידה = קטע + שאלות + אוצר מילים) - כשיש
+  const unitCls = WS.kind === "unseen" ? " ws-unit" : "";
+  if ((WS.tab === "page" && WS.kind === "topic") || list.some(r => r.sub || r.chapter)) {
     let cur = null, buf = [];
     list.forEach((r, i) => { const k = grpOf(r);
-      if (k !== cur) { if (buf.length) html += `<div class="ws-pages">${buf.join("")}</div>`; buf = []; cur = k;
+      if (k !== cur) { if (buf.length) html += `<div class="ws-pages${unitCls}">${buf.join("")}</div>`; buf = []; cur = k;
         // כותרת רק כשיש תת-נושא או פרק (בספרים בלי חלוקה - בלי כותרת)
-        if (r.sub || r.chapter) html += SM ? `<button type="button" class="ws-gh ws-gpick ws-gsel" data-gsel="${esc(k)}">${gTick(k)}<span>${esc(r.sub || "")}${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</span></button>`
-          : `<div class="ws-gh"><span>${esc(r.sub || "")}${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</span></div>`; }
+        if (r.sub || r.chapter) html += SM ? `<button type="button" class="ws-gh ws-gpick ws-gsel" data-gsel="${esc(k)}">${gTick(k)}<span><bdi>${esc(r.sub || "")}</bdi>${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</span></button>`
+          : `<div class="ws-gh"><span><bdi>${esc(r.sub || "")}</bdi>${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</span></div>`; }
       buf.push(card(r, i)); });
-    if (buf.length) html += `<div class="ws-pages">${buf.join("")}</div>`;
+    if (buf.length) html += `<div class="ws-pages${unitCls}">${buf.join("")}</div>`;
   } else html += `<div class="ws-pages">${list.map(card).join("")}</div>`;
   $("wsBody").innerHTML = html;
   $("wsBack").onclick = () => { if (history.state && history.state.view === "ws" && history.state.ws && history.state.ws.topic) { history.back(); return; } WS.topic = null; if (WS.listKind) WS.kind = WS.listKind; renderWs(); };
@@ -5300,16 +5332,17 @@ async function repAtt(city){
   const byKid = new Map(); rows.forEach(r => { const k = r.student_id + "|" + r.session_id; (byKid.get(k) || byKid.set(k, []).get(k)).push(r); });
   const streak = []; byKid.forEach((arr) => { arr.sort((a, b) => a.lesson_date.localeCompare(b.lesson_date)); let n = 0; for (let i = arr.length - 1; i >= 0 && !arr[i].present; i--) n++; if (n >= 2) streak.push({ r: arr[arr.length - 1], n }); });
   const leadOf = (sid) => L.leads.find(l => l.student.id === sid);
-  $("repBody").innerHTML = `<details class="card ar-sum-box"${R.attSumOpen ? " open" : ""}><summary>סיכום ${R.attDays} ימים אחרונים · ${pct(pres, rows.length)}% נוכחות · ${rows.length - pres} חיסורים · ${streak.length} חסרו ברצף</summary>
-    <div class="tiles"><div class="gseg" role="group" aria-label="טווח">${[7, 30, 90].map(d => `<button type="button" data-days="${d}" aria-pressed="${R.attDays === d}">${d} ימים</button>`).join("")}</div></div>
-    <div class="tiles">${tile(pct(pres, rows.length) + "%", "אחוז נוכחות")}${tile(lessons, "שיעורים שסומנו")}${tile(rows.length - pres, "חיסורים")}${tile(streak.length, "חסרו 2 פעמים ברצף או יותר")}</div>
-    <div class="rep-grid">
+  // 5.19.8: הסיכום למעלה ופתוח (במחשב - על כל רוחב המסך), הסינונים והטבלאות מתחת. בטלפון - נפתח בלחיצה.
+  $("repBody").innerHTML = `<details class="card ar-sum-box"${!isMobile() || R.attSumOpen ? " open" : ""}><summary><span>סיכום ${R.attDays} ימים אחרונים · ${pct(pres, rows.length)}% נוכחות · ${rows.length - pres} חיסורים · ${streak.length} חסרו ברצף</span>
+      <span class="gseg ar-days" role="group" aria-label="טווח">${[7, 30, 90].map(d => `<button type="button" data-days="${d}" aria-pressed="${R.attDays === d}">${d} ימים</button>`).join("")}</span></summary>
+    <div class="tiles ar-tiles">${tile(pct(pres, rows.length) + "%", "אחוז נוכחות")}${tile(lessons, "שיעורים שסומנו")}${tile(rows.length - pres, "חיסורים")}${tile(streak.length, "חסרו 2 פעמים ברצף או יותר")}</div>
+    <div class="rep-grid ar-sum-grid">
       <div class="card"><h3>אחוז נוכחות לפי בית ספר</h3>${barList([...bySchool.entries()].map(([t, o]) => ({ t, v: pct(o.p, o.n), h: scChip(t) })).sort((a, b) => a.v - b.v), { suffix: "%" })}</div>
       <div class="card"><h3>חסרו ברצף (${streak.length})</h3>${streak.length ? `<ul class="rep-list">${streak.sort((a, b) => b.n - a.n).map(x => { const l = leadOf(x.r.student_id), g = ses.get(x.r.session_id);
         return `<li><span>${l ? `<button type="button" class="name-link" data-lead="${l.id}">${esc(l.student.first_name)} ${esc(l.student.last_name || "")}</button>` : "#" + x.r.student_id}</span><span class="muted">${x.n} פעמים · ${esc(g.location)} יום ${esc(g.day)}' · אחרון ${esc(fmtDay(x.r.lesson_date))}</span></li>`; }).join("")}</ul>` : "<div class='muted'>אין</div>"}</div>
     </div></details>`;
   $("repBody").querySelector(".ar-sum-box").addEventListener("toggle", (e) => { R.attSumOpen = e.target.open; });
-  $("repBody").querySelectorAll("[data-days]").forEach(b => b.onclick = () => { R.attDays = Number(b.dataset.days); repAtt(city); });
+  $("repBody").querySelectorAll("[data-days]").forEach(b => b.onclick = (e) => { e.preventDefault(); R.attDays = Number(b.dataset.days); repAtt(city); });
   $("repBody").querySelectorAll("[data-lead]").forEach(b => b.onclick = () => openLead(Number(b.dataset.lead)));
 }
 // --- שעות מתרגלים
@@ -5345,22 +5378,27 @@ async function initAttReport(){
   if (!AR.sessions) { try { AR.sessions = (await get("session_summary", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear))).filter(x => (x.assigned_count || 0) > 0); } catch(e) { AR.sessions = []; } }
   if (!$("arFrom").value) arSetRange(todayIL() < AR_H2 ? "h1" : "h2", false);
   const cities = CONFIG.cities.filter(c => AR.sessions.some(x => x.city === c));
-  if (!$("arCity").options.length) { $("arCity").innerHTML = cities.map(c => `<option>${esc(c)}</option>`).join(""); $("arCity").value = store("telem_ar_city") || cities[0] || ""; }
+  if (!$("arCity").options.length) { $("arCity").innerHTML = `<option value="">כל הערים</option>` + cities.map(c => `<option>${esc(c)}</option>`).join(""); const sv = store("telem_ar_city"); $("arCity").value = sv != null && (sv === "" || cities.includes(sv)) ? sv : cities[0] || ""; }
   fillArSchools();
 }
+const arCityOk = (x) => !$("arCity").value || x.city === $("arCity").value;   // "כל הערים" = ערך ריק
 function fillArSchools(){
-  const locs = [...new Set(AR.sessions.filter(x => x.city === $("arCity").value).map(x => x.location))].sort((a, b) => a.localeCompare(b, "he"));
-  $("arSchool").innerHTML = `<option value="">כל בתי הספר</option>` + locs.map(l => `<option>${esc(l)}</option>`).join(""); fillArGroups();
+  const all = !$("arCity").value, cOrd = (c) => CONFIG.cities.indexOf(c);
+  const locs = [...new Map(AR.sessions.filter(arCityOk).map(x => [x.location, x.city])).entries()]
+    .sort((a, b) => (all ? cOrd(a[1]) - cOrd(b[1]) : 0) || a[0].localeCompare(b[0], "he"));
+  $("arSchool").innerHTML = `<option value="">כל בתי הספר</option>` + locs.map(([l, c]) => `<option value="${esc(l)}">${esc(l)}${all ? " · " + esc(c) : ""}</option>`).join(""); fillArGroups();
 }
 function fillArGroups(){
   const hm = (t) => String(t || "").slice(0, 5);
-  const gs = AR.sessions.filter(x => x.city === $("arCity").value && (!$("arSchool").value || x.location === $("arSchool").value))
-    .sort((a, b) => DAY_ORDER[a.day] - DAY_ORDER[b.day] || String(a.start_time).localeCompare(String(b.start_time)));
-  $("arGroup").innerHTML = `<option value="">כל הקבוצות</option>` + gs.map(g => `<option value="${g.session_id}">יום ${esc(g.day)}' ${hm(g.start_time)} · ${esc(g.location)}</option>`).join("");
+  const all = !$("arCity").value;
+  const gs = AR.sessions.filter(x => arCityOk(x) && (!$("arSchool").value || x.location === $("arSchool").value))
+    .sort((a, b) => (all ? CONFIG.cities.indexOf(a.city) - CONFIG.cities.indexOf(b.city) : 0) || DAY_ORDER[a.day] - DAY_ORDER[b.day] || String(a.start_time).localeCompare(String(b.start_time)));
+  $("arGroup").innerHTML = `<option value="">כל הקבוצות</option>` + gs.map(g => `<option value="${g.session_id}">יום ${esc(g.day)}' ${hm(g.start_time)} · ${esc(g.location)}${all ? " · " + esc(g.city) : ""}</option>`).join("");
 }
 $("arCity").addEventListener("change", () => { store("telem_ar_city", $("arCity").value); fillArSchools(); });
 $("arSchool").addEventListener("change", fillArGroups);
 $("arShow").addEventListener("click", showAttReport);
+$("arQ").addEventListener("input", () => { if (AR.data) renderAttReport(); });
 // מחצית א' עד 31.1, מחצית ב' מ-1.2 עד סוף השנה (20.6) - כל המפגשים של הקבוצה מופיעים כעמודות, גם עתידיים
 const AR_Y0 = "2026-09-01", AR_H2 = "2027-02-01";
 function arSetRange(k, show){
@@ -5374,15 +5412,15 @@ document.querySelectorAll("[data-arr]").forEach(b => b.addEventListener("click",
 ["arFrom", "arTo"].forEach(id => $(id).addEventListener("change", () => { AR.rng = null; document.querySelectorAll("[data-arr]").forEach(b => b.setAttribute("aria-pressed", "false")); }));
 async function showAttReport(){
   const gid = $("arGroup").value, from = $("arFrom").value, to = $("arTo").value;
-  const groups = AR.sessions.filter(x => x.city === $("arCity").value && (!$("arSchool").value || x.location === $("arSchool").value) && (!gid || String(x.session_id) === gid))
-    .sort((a, b) => DAY_ORDER[a.day] - DAY_ORDER[b.day] || String(a.start_time).localeCompare(String(b.start_time)));
+  const groups = AR.sessions.filter(x => arCityOk(x) && (!$("arSchool").value || x.location === $("arSchool").value) && (!gid || String(x.session_id) === gid))
+    .sort((a, b) => CONFIG.cities.indexOf(a.city) - CONFIG.cities.indexOf(b.city) || DAY_ORDER[a.day] - DAY_ORDER[b.day] || String(a.start_time).localeCompare(String(b.start_time)));
   if (!groups.length) { $("arBody").innerHTML = "<div class='muted'>אין קבוצות.</div>"; return; }
   $("arBody").innerHTML = "<div class='muted'>טוען...</div>";
   const ids = groups.map(g => g.session_id).join(",");
   try {
     const [att, asg, lsn] = await Promise.all([
-      getAll("attendance", `select=session_id,student_id,lesson_date,present,did_math,did_english,student:students(first_name,last_name)&session_id=in.(${ids})&lesson_date=gte.${from}&lesson_date=lte.${to}&order=lesson_date`),
-      getAll("assignments", `select=session_id,student_id,subject,student:students(first_name,last_name)&session_id=in.(${ids})&order=id`),
+      getAll("attendance", `select=session_id,student_id,lesson_date,present,did_math,did_english,student:students(first_name,last_name,grade,class_num,school,school_id)&session_id=in.(${ids})&lesson_date=gte.${from}&lesson_date=lte.${to}&order=lesson_date`),
+      getAll("assignments", `select=session_id,student_id,subject,student:students(first_name,last_name,grade,class_num,school,school_id)&session_id=in.(${ids})&order=id`),
       getAll("attendance_lessons", `select=session_id,lesson_date,cancelled,cancel_reason&session_id=in.(${ids})&cancelled=not.is.null&lesson_date=gte.${from}&lesson_date=lte.${to}`),
       loadHol()
     ]);
@@ -5405,6 +5443,7 @@ async function showAttReport(){
       const kids = new Map(), subjOf = new Map(); asg.filter(x => x.session_id === g.session_id).forEach(x => { kids.set(x.student_id, x.student); subjOf.set(x.student_id, x.subject); });
       a.forEach(r => { if (!kids.has(r.student_id)) kids.set(r.student_id, Object.assign({ guest: true }, r.student)); });
       const rows = [...kids.entries()].map(([sid, st]) => ({ sid, name: `${(st && st.first_name) || ""} ${(st && st.last_name) || ""}`.trim(), guest: st && st.guest, subject: subjOf.get(sid) || "",
+        grade: st && st.grade, class_num: st && st.class_num, school: st ? (((L.schools || []).find(x => x.id === st.school_id) || {}).name || st.school || "") : "",
         cells: dates.map(d => { if (cx[d] != null) return "c"; const r = a.find(x => x.student_id === sid && x.lesson_date === d); return r ? (r.present ? "p" : "a") : d > today ? "f" : "n"; }),
         subj: dates.map(d => { const r = a.find(x => x.student_id === sid && x.lesson_date === d); return r && r.present ? { m: !!r.did_math, e: !!r.did_english } : null; }) }))
         .sort((x, y) => x.name.localeCompare(y.name, "he"));
@@ -5417,20 +5456,26 @@ const arSubj = (x) => !x ? "" : x.m && x.e ? "מת'+אנג'" : x.m ? "מת'" : x
 function renderAttReport(){
   const hm = (t) => String(t || "").slice(0, 5), d2 = (d) => d.slice(8, 10) + "/" + d.slice(5, 7);
   const canCard = ME.role !== "instructor", leadOf = (sid) => canCard && L.leads ? L.leads.find(l => l.student && l.student.id === sid) : null;
-  const shown = AR.data.filter(x => x.marked || AR.data.length === 1), hidden = AR.data.length - shown.length;
+  // חיפוש ילד/ה: מציגים רק את השורות שלו/ה (בכל הקבוצות)
+  const q = wsNorm(($("arQ").value || "").trim()), hit = (r) => !q || wsNorm(r.name).includes(q);
+  const hl = (t) => { if (!q) return esc(t); const i = wsNorm(t).indexOf(q); return i < 0 ? esc(t) : esc(t.slice(0, i)) + "<mark>" + esc(t.slice(i, i + q.length)) + "</mark>" + esc(t.slice(i + q.length)); };
+  const shown = AR.data.filter(x => (x.marked || AR.data.length === 1) && (!q || x.rows.some(hit))).map(x => q ? Object.assign({}, x, { rows: x.rows.filter(hit) }) : x);
+  const hidden = q ? 0 : AR.data.filter(x => !(x.marked || AR.data.length === 1)).length;
+  if (q && !shown.length) { $("arBody").innerHTML = `<div class="card muted">לא נמצא ילד/ה בשם "${esc($("arQ").value.trim())}" בקבוצות ובתאריכים שנבחרו.</div>`; return; }
   $("arBody").innerHTML = (hidden ? `<div class="muted" style="margin-bottom:6px;">${hidden} קבוצות בלי נוכחות מסומנת בתאריכים האלה לא מוצגות.</div>` : "") + shown.map(({ g, dates, rows, cx }) => { const ncx = dates.filter(d => cx[d] != null).length; return `
-    <div class="ar-group-h">${scChip(g.location)} יום ${DAY_NAMES[g.day]} ${rng(hm(g.start_time), hm(g.end_time))} <span class="muted" style="font-weight:400;">${dates.length - ncx} מפגשים · ${new Set(rows.flatMap(r => r.cells.map((c, i) => c === "p" || c === "a" ? i : -1)).filter(i => i >= 0)).size} סומנו${ncx ? ` · ${ncx} לא התקיימו` : ""}</span></div>
+    <div class="ar-group-h">${scChip(g.location)}${!$("arCity").value ? ` <span class="muted" style="font-weight:600;">${esc(g.city)}</span> ·` : ""} יום ${DAY_NAMES[g.day]} ${rng(hm(g.start_time), hm(g.end_time))} <span class="muted" style="font-weight:400;">${dates.length - ncx} מפגשים · ${new Set(rows.flatMap(r => r.cells.map((c, i) => c === "p" || c === "a" ? i : -1)).filter(i => i >= 0)).size} סומנו${ncx ? ` · ${ncx} לא התקיימו` : ""}</span></div>
     <div class="tbl-wrap"><table class="tbl ar-tbl"><thead><tr><th>תלמיד/ה</th><th>מקצוע</th>${dates.map(d => `<th class="d${cx[d] != null ? " cx" : ""}"${cx[d] ? ` title="${esc(cx[d])}"` : ""}>${d2(d)}${cx[d] != null ? `<span class="ar-s">לא התקיים</span>${cx[d] ? `<span class="ar-s">${esc(cx[d])}</span>` : ""}` : ""}</th>`).join("")}<th>נוכחות</th><th title="כמה פעמים סומנה מתמטיקה">מת'</th><th title="כמה פעמים סומנה אנגלית">אנג'</th></tr></thead><tbody>
       ${rows.map(r => { const p = r.cells.filter(c => c === "p").length, n = r.cells.filter(c => c === "p" || c === "a").length, l = leadOf(r.sid);
-        const nm = l ? `<button type="button" class="name-link" data-lead="${l.id}" title="פתיחת כרטיס התלמיד/ה">${esc(r.name)}</button>` : esc(r.name);
-        return `<tr><td>${nm}${r.guest ? " <span class='muted'>(נוסף/ה לשיעור)</span>" : ""}</td><td class="ar-subj">${esc(r.subject) || "<span class='muted'>—</span>"}</td>${r.cells.map((c, i) => `<td class="${c}">${c === "p" ? "✓" + (arSubj(r.subj[i]) ? `<span class="ar-s">${arSubj(r.subj[i])}</span>` : "") : c === "a" ? "✗" : c === "c" ? "—" : c === "f" ? "" : "·"}</td>`).join("")}<td class="num">${n ? pct(p, n) + "%" : "—"}</td><td class="num">${r.subj.filter(x => x && x.m).length || ""}</td><td class="num">${r.subj.filter(x => x && x.e).length || ""}</td></tr>`; }).join("") || `<tr><td colspan="${dates.length + 5}" class="empty-state">אין ילדים</td></tr>`}
+        const nm = l ? `<button type="button" class="name-link" data-lead="${l.id}" title="פתיחת כרטיס התלמיד/ה">${hl(r.name)}</button>` : hl(r.name);
+        const gr = r.grade ? classLabel(r.grade, r.class_num) : "";
+        return `<tr><td><div class="ar-kid">${nm}${gr ? `<span class="ar-gr">${esc(gr)}</span>` : ""}${r.school ? `<span class="school-chip sch-sm ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${r.guest ? " <span class='muted'>(נוסף/ה לשיעור)</span>" : ""}</div></td><td class="ar-subj">${esc(r.subject) || "<span class='muted'>—</span>"}</td>${r.cells.map((c, i) => `<td class="${c}">${c === "p" ? "✓" + (arSubj(r.subj[i]) ? `<span class="ar-s">${arSubj(r.subj[i])}</span>` : "") : c === "a" ? "✗" : c === "c" ? "—" : c === "f" ? "" : "·"}</td>`).join("")}<td class="num">${n ? pct(p, n) + "%" : "—"}</td><td class="num">${r.subj.filter(x => x && x.m).length || ""}</td><td class="num">${r.subj.filter(x => x && x.e).length || ""}</td></tr>`; }).join("") || `<tr><td colspan="${dates.length + 5}" class="empty-state">אין ילדים</td></tr>`}
     </tbody>${rows.length && dates.length ? `<tfoot><tr><td class="muted">נוכחים</td><td></td>${dates.map((d, i) => { if (cx[d] != null) return `<td class="c"></td>`; const k = rows.filter(r => r.cells[i] === "p" || r.cells[i] === "a"); return `<td class="num ar-sum">${k.length ? rows.filter(r => r.cells[i] === "p").length + "/" + k.length : ""}</td>`; }).join("")}<td colspan="3"></td></tr></tfoot>` : ""}</table></div>`; }).join("") || "<div class='muted'>אין נתונים.</div>";
   $("arBody").querySelectorAll("[data-lead]").forEach(b => b.onclick = () => openLead(Number(b.dataset.lead)));
 }
 $("arCsv").addEventListener("click", () => {
   if (!AR.data) { toast("קודם לוחצים \"הצגה\""); return; }
   const lines = [["קבוצה","תלמיד/ה","מקצוע (רישום)","תאריך","נוכחות","מקצוע שסומן"]];
-  AR.data.forEach(({ g, dates, rows }) => rows.forEach(r => r.cells.forEach((c, i) => { if (c !== "n" && c !== "f") lines.push([`${g.location} יום ${g.day}' ${String(g.start_time).slice(0, 5)}`, r.name, r.subject, dates[i], c === "p" ? "נוכח/ת" : c === "c" ? "לא התקיים" : "חסר/ה", c === "p" ? arSubj(r.subj[i]).replace(/'/g, "").replace("מת", "מתמטיקה").replace("אנג", "אנגלית") : ""]); })));
+  AR.data.forEach(({ g, dates, rows }) => rows.forEach(r => r.cells.forEach((c, i) => { if (c !== "n" && c !== "f") lines.push([`${g.location}${!$("arCity").value ? " (" + g.city + ")" : ""} יום ${g.day}' ${String(g.start_time).slice(0, 5)}`, r.name, r.subject, dates[i], c === "p" ? "נוכח/ת" : c === "c" ? "לא התקיים" : "חסר/ה", c === "p" ? arSubj(r.subj[i]).replace(/'/g, "").replace("מת", "מתמטיקה").replace("אנג", "אנגלית") : ""]); })));
   const csv = "﻿" + lines.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\r\n");
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = "attendance-" + $("arFrom").value + "-" + $("arTo").value + ".csv"; a.click();
 });
