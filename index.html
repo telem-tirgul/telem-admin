@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.11">
+<meta name="app-version" content="5.19.12">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1085,6 +1085,9 @@
   .ws-gtick{ flex:none; position:relative; width:24px; height:24px; border-radius:50%; border:2px solid var(--accent); background:var(--paper, #fff); box-sizing:border-box; }
   .ws-gtick.on{ background:var(--accent); }
   .ws-gtick.on::after{ content:""; position:absolute; left:7px; top:3px; width:5px; height:11px; border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg); }
+  .ws-pstar{ position:absolute; top:6px; left:6px; z-index:1; font-size:18px; line-height:1; filter:drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
+  .ws-star-btn{ font-size:20px; min-width:46px; } .ws-star-btn.on{ background:#FFF4CC; border-color:#E0A100; }
+  .ws-bar .ws-tstar{ margin-inline-start:auto; flex:none; } .ws-bar .ws-tstar.on{ background:#FFF4CC; border-color:#E0A100; }
   .ws-selhint{ font-size:12.5px; color:var(--ink-soft, #777); margin:-4px 0 6px; }
   [data-gsel]{ -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; cursor:pointer; transition:background .15s; border-radius:10px; }
   [data-gsel].press{ background:color-mix(in srgb, var(--accent) 12%, transparent); }
@@ -1500,6 +1503,7 @@
       <div class="ws-vimg"><img id="wsVImg" alt=""></div>
       <div class="ws-vbot">
         <button type="button" class="ws-nav" id="wsPrev" aria-label="הדף הקודם">→</button>
+        <button type="button" class="btn ws-sec ws-star-btn" id="wsStar" data-admin title="סימון הדף כחשוב" aria-label="סימון הדף כחשוב">☆</button>
         <button type="button" class="btn ws-copy" id="wsCopy">העתקה</button>
         <a class="btn ws-sec" id="wsDl" download>הורדה</a>
         <button type="button" class="ws-nav" id="wsNext" aria-label="הדף הבא">←</button>
@@ -4901,7 +4905,8 @@ const WS_SEARCH_ORD = ["topic", "summary", "grammar", "unseen", "general"];
 async function loadWs(){
   if (WS.rows) { renderWs(); return; }
   $("wsBody").innerHTML = "<div class='muted'>טוען...</div>";
-  try { WS.rows = await getAll("worksheets", "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,source_path,sort_order,uploaded&is_active=eq.true&order=book,kind,topic_no,sort_order"); }
+  const WSQ = "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,source_path,sort_order,uploaded,is_star&is_active=eq.true&order=book,kind,topic_no,sort_order";
+  try { WS.rows = await getAll("worksheets", WSQ).catch(e => /is_star/.test(String(e && e.message)) ? getAll("worksheets", WSQ.replace(",is_star", "")) : Promise.reject(e)); }
   catch(e) { $("wsBody").innerHTML = `<div class="card err">${e.status === 404 || e.code === "PGRST205" ? "צריך להריץ את קובץ 33." : "לא ניתן לטעון את המאגר."}</div>`; return; }
   renderWs();
 }
@@ -4966,7 +4971,7 @@ async function renderWs(){
     if (WS.topic) return;
     $("wsBody").innerHTML = warn + `<div class="ws-albums">${tops.map(t => `<button type="button" class="ws-album" data-t="${esc(t.no)}" data-tk="${esc(t.kind)}">
       <div class="cv">${t.pages[0] && sign(t.pages[0].storage_path) ? `<img src="${esc(sign(t.pages[0].storage_path))}" alt="" loading="lazy">` : ""}</div>
-      <div class="mt"><span class="no">נושא ${esc(String(Number(t.no)))}</span><span class="nm">${esc(t.name)}</span><span class="ch">${esc([t.kind !== WS.kind ? (WS_KIND[t.kind] || t.kind) : "", t.chapters, t.pages.length + " דפים"].filter(Boolean).join(" · "))}</span></div></button>`).join("")}</div>`;
+      <div class="mt"><span class="no">נושא ${esc(String(Number(t.no)))}</span><span class="nm">${t.pages.concat(t.answers).some(r => r.is_star) ? `<span class="ws-tst" title="יש בנושא דפים חשובים">⭐</span> ` : ""}${esc(t.name)}</span><span class="ch">${esc([t.kind !== WS.kind ? (WS_KIND[t.kind] || t.kind) : "", t.chapters, t.pages.length + " דפים"].filter(Boolean).join(" · "))}</span></div></button>`).join("")}</div>`;
     $("wsBody").querySelectorAll("[data-t]").forEach(b => b.onclick = () => { WS.listY = window.scrollY; WS.listKind = WS.kind; WS.kind = b.dataset.tk || WS.kind; WS.topic = b.dataset.t; WS.tab = "page"; wsPush(); renderWs(); window.scrollTo(0, 0); });
     return;
   }
@@ -4987,12 +4992,12 @@ async function renderWs(){
   const allIn = (g) => { const rs = grpRows(g); return rs.length && rs.every(r => WS.sel.has(r.storage_path)) && WS.sel.size === rs.length; };
   const canSel = list.some(r => r.uploaded);
   // 5.19.9: שליחת יחידה / תת-נושא / נושא שלם - לחיצה ארוכה על השם (בלי מצב "בחירה"). דף בודד - מתוך הדף הפתוח.
-  let html = `<div class="ws-bar"><button type="button" class="ws-back" id="wsBack" aria-label="כל הנושאים" title="כל הנושאים">→<span class="ws-back-t"> כל הנושאים</span></button><h2 class="${allIn("all") ? "on" : ""}" ${canSel ? `data-gsel="all"` : ""}><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}</h2></div>
+  let html = `<div class="ws-bar"><button type="button" class="ws-back" id="wsBack" aria-label="כל הנושאים" title="כל הנושאים">→<span class="ws-back-t"> כל הנושאים</span></button><h2 class="${allIn("all") ? "on" : ""}" ${canSel ? `data-gsel="all"` : ""}><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}${list.some(r => r.is_star) ? " ⭐" : ""}</h2>${ME.role !== "instructor" ? `<button type="button" class="btn small ws-tstar${list.length && list.every(r => r.is_star) ? " on" : ""}" id="wsTStar" title="סימון כל הנושא כחשוב">${list.length && list.every(r => r.is_star) ? "⭐ חשוב" : "☆ חשוב"}</button>` : ""}</div>
     <div class="ws-sw">${kSeg}${t.answers.length ? `<div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים <small>${t.pages.length}</small></button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות <small>${t.answers.length}</small></button></div>` : ""}</div>
     ${canSel ? `<div class="ws-selhint">לשליחת כל הדפים יחד - לחיצה ארוכה על שם ${list.some(r => r.sub) ? (WS.kind === "unseen" ? "היחידה" : "תת-הנושא") + " (או הנושא)" : "הנושא"}.</div>` : ""}
     ${WS.tab === "answers" ? `<div class="ws-warn">פתרונות - לשימוש הצוות. לשלוח לתלמיד רק אם החלטתם.</div>` : ""}`;
   WS.sign = sign;
-  const card = (r, i) => `<div class="ws-pgw${WS.sel.has(r.storage_path) ? " sel" : ""}"><button type="button" class="ws-pg" data-i="${i}"><div class="th">${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}</div>
+  const card = (r, i) => `<div class="ws-pgw${WS.sel.has(r.storage_path) ? " sel" : ""}"><button type="button" class="ws-pg" data-i="${i}"><div class="th">${r.is_star ? `<span class="ws-pstar" title="דף חשוב">⭐</span>` : ""}${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}</div>
     <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}</span></div></button></div>`;
   // חלוקה לתת-נושאים / יחידות (אנסין: כל יחידה = קטע + שאלות + אוצר מילים) - כשיש
   const unitCls = WS.kind === "unseen" ? " ws-unit" : "";
@@ -5007,6 +5012,7 @@ async function renderWs(){
   } else html += `<div class="ws-pages">${list.map(card).join("")}</div>`;
   $("wsBody").innerHTML = html;
   $("view-ws").classList.toggle("ws-selmode", WS.sel.size > 0);
+  if ($("wsTStar")) $("wsTStar").onclick = async () => { const on = !(list.length && list.every(r => r.is_star)); if (await wsSetStar(list, on)) { toast(on ? "כל הנושא סומן כחשוב ⭐" : "הסימון הוסר מהנושא"); renderWs(); } };
   $("wsBack").onclick = () => { if (history.state && history.state.view === "ws" && history.state.ws && history.state.ws.topic) { history.back(); return; } WS.topic = null; if (WS.listKind) WS.kind = WS.listKind; renderWs(); };
   $("wsBody").querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { WS.tab = b.dataset.tab; renderWs(); });
   $("wsBody").querySelectorAll("[data-kin]").forEach(b => b.onclick = () => { const [k, no] = b.dataset.kin.split("|"); if (k === WS.kind) return;
@@ -5166,13 +5172,24 @@ function wsPush(viewer){
   if (cur && cur.telem && cur.view === "ws" && cur.viewer != null && st.viewer != null) history.replaceState(st, ""); else history.pushState(st, "");
   try { saveLast(st); } catch(e) {}
 }
+// ⭐ דפים חשובים (קובץ 55, משותף לכל הצוות; מסמנים מנהלים)
+async function wsSetStar(rows, on){
+  if (!rows.length) return false;
+  try { await patch("worksheets", "id=in.(" + rows.map(r => r.id).join(",") + ")", { is_star: on }); }
+  catch(e) { toast(/is_star/.test(e.message) ? "צריך להריץ קודם את קובץ 55." : "השמירה נכשלה: " + e.message); return false; }
+  rows.forEach(r => r.is_star = on); return true;
+}
+$("wsStar").addEventListener("click", async () => { const r = WS.list[WS.idx]; if (!r) return;
+  if (await wsSetStar([r], !r.is_star)) { $("wsStar").textContent = r.is_star ? "⭐" : "☆"; $("wsStar").classList.toggle("on", !!r.is_star);
+    $("wsVTitle").textContent = (r.is_star ? "⭐ " : "") + $("wsVTitle").textContent.replace(/^⭐ /, ""); toast(r.is_star ? "סומן כחשוב ⭐" : "הסימון הוסר"); WS.starDirty = true; } });
 async function wsOpen(i, fromPop){
   WS.idx = i; const r = WS.list[i]; if (!r) return;
   if (!fromPop) wsPush(i);
   wzReset();
   WS.file = null;
   $("wsViewer").hidden = false; document.body.style.overflow = "hidden";
-  $("wsVTitle").textContent = (r.type === "answers" ? "פתרונות · " : r.page_no + " · ") + (r.title || "");
+  $("wsVTitle").textContent = (r.is_star ? "⭐ " : "") + (r.type === "answers" ? "פתרונות · " : r.page_no + " · ") + (r.title || "");
+  $("wsStar").textContent = r.is_star ? "⭐" : "☆"; $("wsStar").classList.toggle("on", !!r.is_star);
   $("wsPrev").disabled = i <= 0; $("wsNext").disabled = i >= WS.list.length - 1;
   $("wsVImg").removeAttribute("src"); $("wsCopy").disabled = true;
   if (!r.uploaded) { $("wsVTitle").textContent += " (עוד לא הועלה)"; return; }
@@ -5212,6 +5229,7 @@ function wzReset(){ WZ.s = 1; WZ.x = 0; WZ.y = 0; wzApply(); }
   });
 })();
 function wsClose(fromPop){
+  if (WS.starDirty) { WS.starDirty = false; setTimeout(() => { if (currentView === "ws") renderWs(); }, 50); }
   if (!fromPop && history.state && history.state.view === "ws" && history.state.viewer != null) { history.back(); return; }
   $("wsViewer").hidden = true; document.body.style.overflow = "";
 }
