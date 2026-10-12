@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.16">
+<meta name="app-version" content="5.19.17">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -348,12 +348,21 @@
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); color:color-mix(in srgb, var(--gi) 55%, #fff); background:color-mix(in srgb, var(--gi) 22%, transparent); } }
   :root[data-theme="dark"] .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); color:color-mix(in srgb, var(--gi) 55%, #fff); background:color-mix(in srgb, var(--gi) 22%, transparent); }
   .dbl-star{ color:var(--gold); font-size:1.05em; margin-inline-end:3px; }
+  .dbl-star.dbl-x2{ display:inline-flex; align-items:center; background:#5A1216; color:#F3D27A !important; text-shadow:none !important; font-size:12.5px !important; font-weight:800; line-height:1 !important; border-radius:6px; padding:3px 6px; }
+  .dbl-star.dbl-x2{ direction:ltr; unicode-bidi:isolate; }
   .att-name b.att-nm{ display:flex; align-items:center; gap:6px; }
   .att-kl{ cursor:pointer; text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset:3px; } .att-kl:hover{ color:var(--accent); }
   .trk-btn{ cursor:pointer; } button.trk-btn:not(.btn){ all:unset; cursor:pointer; font-size:15px; line-height:1; padding:2px; opacity:.28; filter:grayscale(1); } button.trk-btn.on:not(.btn){ opacity:.9; filter:none; }
   .att-nm .dbl-star + .trk-btn{ margin-inline-start:2px; } .att-nm > span + .trk-btn{ margin-inline-start:auto; }
   /* מחשב: הכוכבית צמודה לשם, והמקצוע + כפתורי הנוכחות קרובים לשם (לא בצד השני של המסך) */
-  @media (min-width:761px){ .att-rows li[data-i]{ justify-content:flex-start; } .att-nm .dbl-star{ margin-inline-start:2px !important; } .att-rows li[data-i] .att-name{ flex:0 1 auto !important; min-width:230px; max-width:380px; } .att-rows li[data-i] .att-ctl{ margin-inline-start:12px; } }
+  /* 5.19.17: מחשב - כל השורות באותו מבנה: שם מימין, ובשמאל עמודה קבועה של מקצוע + נוכח/חסר (מיושר לשמאל, אחד מתחת לשני) */
+  @media (min-width:761px){
+    #attSheet > .card{ max-width:900px; } #shRows{ max-width:none; }
+    .att-rows li[data-i]{ justify-content:space-between; } .att-nm .dbl-star{ margin-inline-start:2px !important; }
+    .att-rows li[data-i] .att-name{ flex:1 1 0 !important; min-width:0; }
+    .att-rows li[data-i] .att-ctl{ display:grid !important; grid-template-columns:150px auto; align-items:center; justify-items:end; gap:10px; flex:none; margin-inline-start:auto; }
+    .att-rows li[data-i] .att-ctl > :first-child:last-child{ grid-column:2; }
+  }
   .room-empty{ color:#B03A2E; font-weight:700; white-space:nowrap; } .room-empty u{ text-decoration:none; border-bottom:1.5px dashed currentColor; display:inline-block; min-width:28px; }
   .btn.trk-btn{ padding:4px 7px; } .btn.trk-btn:not(.on){ opacity:.55; filter:grayscale(1); } .ro-btns{ display:inline-flex; gap:4px; } .att-nm .dbl-star{ margin-inline-start:auto; margin-inline-end:0; font-size:1.45em; line-height:1; color:#E0A100; text-shadow:0 0 1px #9a6d00; }
   .sch-mini{ color:var(--scd, var(--ink-soft)); font-weight:700; }
@@ -657,10 +666,13 @@
   .ar-kcal .ar-kid{ flex-wrap:wrap; white-space:normal; row-gap:2px; } .ar-kcal .ar-ksub{ font-size:11px; color:var(--ink-soft); }
   .ex-cal.ar-kcal td.d{ font-size:15px; font-weight:800; height:38px; cursor:default; }
   .ex-cal.ar-kcal td.p{ background:#D6F5DC; color:#1F6B17; cursor:pointer; } .ex-cal.ar-kcal td.a{ background:#FBE1DE; color:#B03A2E; cursor:pointer; }
+  .ex-cal.ar-kcal td.d .ar-x2{ display:block; font-size:9.5px; font-weight:800; line-height:1; color:#5A1216; margin-top:1px; } .ex-cal.ar-kcal td.dbl{ box-shadow:inset 0 0 0 2px #5A1216; }
   .ex-cal.ar-kcal td.c{ background:color-mix(in srgb, var(--ink-soft) 14%, var(--paper)); color:var(--ink-soft); } .ex-cal.ar-kcal td.n{ color:var(--ink-soft); }
   .ar-kcal tfoot td{ position:sticky; bottom:0; background:var(--paper); font-weight:800; font-size:12px; border-top:2px solid var(--border); } .ar-kcal tfoot .sch{ z-index:2; }
   .ar-legend .ar-l{ display:inline-block; width:20px; text-align:center; border-radius:4px; margin-inline-end:4px; } .ar-l.p{ background:#D6F5DC; color:#1F6B17; } .ar-l.a{ background:#FBE1DE; color:#B03A2E; } .ar-l.c{ background:#e9e6e1; } .ar-l.n{ color:var(--ink-soft); }
   .ex-cal.ar-kcal th.mo > span{ right:224px; }
+  /* 5.19.17: פס הגלילה של הילדים בצד ימין, ליד השמות */
+  .ar-kwrap{ direction:ltr; } .ar-kwrap > table{ direction:rtl; }
   @media (max-width:760px){ .ex-cal.ar-kcal .sch{ min-width:140px; max-width:140px; width:140px; padding:3px 6px; } .ex-cal.ar-kcal th.mo > span{ right:160px; } .ar-kcal .ar-ksub{ font-size:10.5px; } }
   .ar-tip{ position:absolute; z-index:50; max-width:240px; background:var(--ink, #222); color:#fff; font-size:13px; padding:7px 10px; border-radius:8px; white-space:pre-line; box-shadow:0 4px 14px rgba(0,0,0,.25); }
   .ar-tbl td.p{ color:var(--ok); font-weight:800; text-align:center; } .ar-tbl td.a{ color:var(--full); font-weight:800; text-align:center; background:color-mix(in srgb, var(--full) 8%, transparent); }
@@ -1290,8 +1302,8 @@
     <nav class="nav" aria-label="תפריט">
       <button type="button" data-view="leads" data-ic="👥" data-sl="תלמידים">תלמידים</button>
       <button type="button" data-view="schools" data-ic="🏫" data-sl="בתי ספר"><span class="lbl-a">בתי ספר</span><span class="lbl-i">בתי הספר שלי</span></button>
-      <button type="button" data-view="groups" data-admin data-ic="🗓️" data-sl="קבוצות">קבוצות ומרתונים</button>
-      <button type="button" data-view="att" data-ic="✅" data-sl="נוכחות">נוכחות</button>
+      <button type="button" data-view="att" data-ic="✅" data-sl="נוכחות"><span class="lbl-a">קבוצות ונוכחות</span><span class="lbl-i">נוכחות</span></button>
+      <button type="button" data-view="exams" data-admin data-ic="🗓️" data-sl="מרתונים">מרתונים</button>
       <button type="button" data-view="ws" data-ic="📚" data-sl="מאגר">מאגר תרגולים</button>
       <button type="button" data-view="reports" data-ic="📊" data-sl="דוחות">דוחות</button>
     </nav>
@@ -1307,7 +1319,7 @@
   <main class="main">
     <!-- ===== רשימת לידים ===== -->
     <section id="view-leads" hidden>
-      <div class="gseg subnav" role="group" aria-label="תלמידים" data-admin><button type="button" data-sv="leads">השנה</button><button type="button" data-sv="history">שנים קודמות</button></div>
+      <div class="gseg subnav" role="group" aria-label="תלמידים" data-admin><button type="button" data-sv="leads">השנה</button><button type="button" data-sv="attk">נוכחות</button></div>
       <div class="page-head">
         <h1>תלמידים</h1>
         <button class="btn primary" type="button" id="addLeadBtn">+ ליד חדש</button>
@@ -1451,6 +1463,7 @@
 
     <!-- ===== נוכחות ===== -->
     <section id="view-att" hidden>
+      <div class="gseg subnav" role="group" aria-label="קבוצות ונוכחות" data-admin><button type="button" data-sv="att">נוכחות</button><button type="button" data-sv="groups">קבוצות</button><button type="button" data-sv="attg">דוח לפי קבוצה</button></div>
       <div id="attList">
         <div class="page-head att-head"><h1>נוכחות ✓</h1><div id="attSum" class="att-sum"></div></div>
         <div id="attMark">
@@ -1469,6 +1482,7 @@
         <div class="cal" id="attCal" hidden></div>
         </div>
         <div id="attReport" hidden>
+          <div id="arSum"></div>
           <div class="card ar-filters">
             <div><label class="lbl" for="arCity">עיר</label><select id="arCity"></select></div>
             <div><label class="lbl" for="arSchool">בית ספר</label><select id="arSchool"></select></div>
@@ -1645,7 +1659,7 @@
 
     <!-- ===== דוחות (מנהלים בלבד) ===== -->
     <section id="view-history" hidden>
-      <div class="gseg subnav" role="group" aria-label="תלמידים" data-admin><button type="button" data-sv="leads">השנה</button><button type="button" data-sv="history">שנים קודמות</button></div>
+      <div class="gseg subnav" role="group" aria-label="תלמידים" data-admin><button type="button" data-sv="leads">השנה</button><button type="button" data-sv="attk">נוכחות</button></div>
       <div class="page-head"><h1>תלמידים - שנים קודמות</h1>
         <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-hv="search" aria-pressed="true">חיפוש ילדים</button><button type="button" data-hv="sum">סיכום לפי שנים</button></div></div>
       <div id="hvSearch">
@@ -1671,7 +1685,6 @@
       <div class="tabs rep-tabs" role="tablist" id="repTabs">
         <button class="tab" role="tab" data-rep="reg">נרשמים</button>
         <button class="tab" role="tab" data-rep="leads">לידים</button>
-        <button class="tab" role="tab" data-rep="att">נוכחות</button>
         <button class="tab" role="tab" data-rep="hours">שעות מתרגלים</button>
       </div>
       <div id="repBody"></div>
@@ -1684,9 +1697,19 @@
       <div class="muted" style="font-size:13.5px; margin:-6px 0 10px;"><b>חג</b> ו<b>חופשה</b> - כל קבוצה שוטפת מסומנת אוטומטית "לא התקיים תרגול" (מרתונים לא). אם בכל זאת היה תרגול - מבטלים בדף הנוכחות של הקבוצה. <b>יום ציון</b> - רק תזכורת. השינויים נשמרים מיד.</div>
       <div class="tbl-wrap"><table class="tbl hol-tbl" id="holTbl"></table></div>
     </section>
+    <!-- ===== 5.19.17: דוח נוכחות - בתלמידים (לפי ילד/ה) ובקבוצות ונוכחות (לפי קבוצה). אותו דוח, עובר בין המקומות ===== -->
+    <section id="view-attk" hidden>
+      <div class="gseg subnav" role="group" aria-label="תלמידים" data-admin><button type="button" data-sv="leads">השנה</button><button type="button" data-sv="attk">נוכחות</button></div>
+      <div class="page-head"><h1>נוכחות התלמידים</h1></div>
+      <div class="ar-host" id="arHostK"></div>
+    </section>
+    <section id="view-attg" hidden>
+      <div class="gseg subnav" role="group" aria-label="קבוצות ונוכחות" data-admin><button type="button" data-sv="att">נוכחות</button><button type="button" data-sv="groups">קבוצות</button><button type="button" data-sv="attg">דוח לפי קבוצה</button></div>
+      <div class="page-head"><h1>נוכחות לפי קבוצה</h1></div>
+      <div class="ar-host" id="arHostG"></div>
+    </section>
     <!-- ===== מבחנים בבתי הספר (קובץ 50) ===== -->
     <section id="view-exams" hidden>
-      <div class="gseg subnav" role="group" aria-label="קבוצות ומרתונים"><button type="button" data-gv="groups">קבוצות</button><button type="button" data-gv="exams">מרתונים</button></div>
       <div class="page-head"><h1>מרתונים · לוח מבחנים</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;" data-admin>
           <button class="btn small" type="button" id="exImpBtn">ייבוא מהקובץ</button><input type="file" id="exImpFile" accept=".xlsx" hidden>
@@ -1758,7 +1781,7 @@
 
     <!-- ===== לוח קבוצות ===== -->
     <section id="view-groups" hidden>
-      <div class="gseg subnav" role="group" aria-label="קבוצות ומרתונים" data-admin><button type="button" data-gv="groups">קבוצות</button><button type="button" data-gv="exams">מרתונים</button></div>
+      <div class="gseg subnav" role="group" aria-label="קבוצות ונוכחות" data-admin><button type="button" data-sv="att">נוכחות</button><button type="button" data-sv="groups">קבוצות</button><button type="button" data-sv="attg">דוח לפי קבוצה</button></div>
       <div class="page-head"><h1>קבוצות</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
           <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-gmode="board">לוח</button><button type="button" data-gmode="table">טבלה</button></div>
@@ -2065,6 +2088,7 @@ const ICON = {
   schools: '<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/><path d="M9 12h.01M15 12h.01"/>'
 };
 ICON.myschools = ICON.schools;
+ICON.exams = '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/>';
 const icon = (k) => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON[k] || ""}</svg>`;
 document.querySelectorAll(".nav button[data-view]").forEach(b => { if (ICON[b.dataset.view]) b.insertAdjacentHTML("afterbegin", icon(b.dataset.view)); });
 let currentView = "leads";
@@ -2107,8 +2131,8 @@ function go(view){
   if (inst && view === "holidays") view = "info";
   if (SETTINGS_VIEWS.includes(view)) store(key, view);
   if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
-  const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.exams = "groups"; navOf.myschools = "schools";
-  ["home","leads","lead","groups","att","sched","reg","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues","exams"].forEach(v => { $("view-" + v).hidden = v !== view; });
+  const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.attk = "leads"; navOf.groups = "att"; navOf.attg = "att"; navOf.myschools = "schools";
+  ["home","leads","lead","groups","att","sched","reg","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues","exams","attk","attg"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   { const cur = document.querySelector('.nav button[aria-current="page"]'); if ($("navCur")) $("navCur").textContent = cur ? (cur.querySelector(inst ? ".lbl-i" : ".lbl-a") || cur).textContent.replace("⚙", "").trim() : (view === "home" ? "תפריט" : ({ me: "הגדרות", staff: "הגדרות", backup: "הגדרות", issues: "הגדרות", info: "מידע למתרגלים", holidays: "חגים וחופשות" }[view] || "תפריט")); }
   document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view || (b.dataset.sv === "reg" && view === "sched"))));
@@ -2131,6 +2155,7 @@ function go(view){
   if (view === "schools") loadSchools();
   if (view === "holidays") renderHolidays(true);
   if (view === "exams") renderExams(true);
+  if (view === "attk" || view === "attg") { AR.view = view === "attg" ? "group" : "kid"; $(view === "attg" ? "arHostG" : "arHostK").appendChild($("attReport")); $("attReport").hidden = false; initAttReport().then(() => repAtt()); if (AR.raw) renderAttReport(); }
   navPush(view);
   window.scrollTo(0, 0);
   setTimeout(markFilters, 0); setTimeout(markFilters, 800);
@@ -4460,7 +4485,8 @@ function isDouble(sid, day, loc, arr, pend){
   const L0 = (typeof L !== "undefined" && L.asg && L.asg[sid]) || [];
   return new Set(L0.filter(x => x.day === day && x.location && x.location.name === loc).map(x => x.start_time)).size >= 2;
 }
-const dblStar = (on) => on ? `<span class="dbl-star" title="שיעור כפול" aria-label="שיעור כפול">★</span>` : "";
+// 5.19.17: סימן שיעור כפול "×2" (במקום ★ - הכוכב שמור ל"כוכב" של תלמיד; הלקוחה בחרה מתוך 3)
+const dblStar = (on) => on ? `<span class="dbl-star dbl-x2" dir="ltr" title="שיעור כפול" aria-label="שיעור כפול">×2</span>` : "";
 // שכבה + מספר כיתה (ח'3), צבע עדין לפי שכבה
 const gradeBadge = (g, n) => { const k = gradeKey(g); return `<span class="gbadge g-${GRADE_ORD.includes(k) ? k : "x"}">${k ? esc(k + "'" + (n || "")) : "?"}</span>`; };
 // "לא התקיים תרגול": מנהלים מסמנים (וסיבה). מתרגלים רואים, וכותבים בהערות אם לא התקיים.
@@ -5006,10 +5032,10 @@ function renderHome(){
     ["settings", "⚙", "הגדרות", "הפרטים שלי"]
   ] : [
     ["leads", "👥", "תלמידים", "לידים, כרטיסי תלמיד, שנים קודמות"],
-    ["groups", "🗓", "קבוצות ומרתונים", "לוח אחד לכל הקבוצות והמרתונים"],
-    ["att", "✔", "נוכחות", "סימון נוכחות לפי יום ודוח לכל קבוצה"],
+    ["att", "✔", "קבוצות ונוכחות", "סימון נוכחות, לוח הקבוצות ודוח לפי קבוצה"],
+    ["exams", "🗓", "מרתונים", "מרתונים ולוח המבחנים"],
     ["ws", "📄", "מאגר תרגולים", "דפי תרגול להעתקה והורדה"],
-    ["reports", "📊", "דוחות", "נרשמים, נוכחות, לידים ושעות מתרגלים"],
+    ["reports", "📊", "דוחות", "נרשמים, לידים ושעות מתרגלים"],
     ["schools", "🏫", "בתי ספר", "פרטי בית הספר והקבוצות שלנו"],
     ["settings", "⚙", "הגדרות", "צוות, גיבוי, טפסים והרשמה, הפרטים שלי"]
   ];
@@ -5627,7 +5653,8 @@ const countBy = (arr, fn) => { const m = new Map(); arr.forEach(x => { const k =
 const tile = (v, t, act) => `<div class="tile ${act ? "clickable" : ""}" ${act ? `data-act="${act}"` : ""}><b>${v}</b><span>${esc(t)}</span></div>`;
 function renderReports(){
   document.querySelectorAll("[data-rep]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.rep === R.tab)));
-  $("attReport").hidden = R.tab !== "att"; if (R.tab === "att") initAttReport();
+  if (R.tab === "att") R.tab = "reg";   // 5.19.17: דוח הנוכחות עבר לתלמידים / קבוצות ונוכחות
+  $("attReport").hidden = true;
   const city = $("repCity").value;
   (({ reg: repReg, schools: repSchools, leads: repLeads, att: repAtt, hours: repHours, past: repPast })[R.tab] || repReg)(city);
 }
@@ -5725,11 +5752,12 @@ async function loadAttRange(days){
   return getAll("attendance", "select=session_id,student_id,lesson_date,present&lesson_date=gte." + from + "&order=lesson_date");
 }
 async function repAtt(city){
-  $("repBody").innerHTML = "<div class='muted'>טוען נוכחות...</div>";
+  // 5.19.17: תיבת הסיכום עברה עם דוח הנוכחות (תלמידים / קבוצות ונוכחות) - בראש הדוח
+  if (city === undefined) city = $("arCity").value;
+  const box = $("arSum"); box.innerHTML = "<div class='muted'>טוען נוכחות...</div>";
   try { if (!R.att || R.att.days !== R.attDays) R.att = { days: R.attDays, rows: await loadAttRange(R.attDays) }; }
-  catch(e) { $("repBody").innerHTML = "<div class='card err'>לא ניתן לטעון נוכחות.</div>"; return; }
-  if (R.tab !== "att") return;
-  const ses = new Map(R.sessions.map(x => [x.session_id, x]));
+  catch(e) { box.innerHTML = "<div class='card err'>לא ניתן לטעון נוכחות.</div>"; return; }
+  const ses = new Map((AR.sessions || R.sessions || []).map(x => [x.session_id, x]));
   const rows = R.att.rows.filter(r => { const s0 = ses.get(r.session_id); return s0 && (!city || s0.city === city); });
   const pres = rows.filter(r => r.present).length, lessons = new Set(rows.map(r => r.session_id + "|" + r.lesson_date)).size;
   const bySchool = new Map(); rows.forEach(r => { const k = ses.get(r.session_id).location; const o = bySchool.get(k) || { p: 0, n: 0 }; o.n++; if (r.present) o.p++; bySchool.set(k, o); });
@@ -5738,7 +5766,7 @@ async function repAtt(city){
   const streak = []; byKid.forEach((arr) => { arr.sort((a, b) => a.lesson_date.localeCompare(b.lesson_date)); let n = 0; for (let i = arr.length - 1; i >= 0 && !arr[i].present; i--) n++; if (n >= 2) streak.push({ r: arr[arr.length - 1], n }); });
   const leadOf = (sid) => L.leads.find(l => l.student.id === sid);
   // 5.19.8: הסיכום למעלה ופתוח (במחשב - על כל רוחב המסך), הסינונים והטבלאות מתחת. בטלפון - נפתח בלחיצה.
-  $("repBody").innerHTML = `<details class="card ar-sum-box"${!isMobile() || R.attSumOpen ? " open" : ""}><summary><span>סיכום ${R.attDays} ימים אחרונים · ${pct(pres, rows.length)}% נוכחות · ${rows.length - pres} חיסורים · ${streak.length} חסרו ברצף</span>
+  box.innerHTML = `<details class="card ar-sum-box"${R.attSumOpen ? " open" : ""}><summary><span>סיכום ${R.attDays} ימים אחרונים · ${pct(pres, rows.length)}% נוכחות · ${rows.length - pres} חיסורים · ${streak.length} חסרו ברצף</span>
       <span class="gseg ar-days" role="group" aria-label="טווח">${[7, 30, 90].map(d => `<button type="button" data-days="${d}" aria-pressed="${R.attDays === d}">${d} ימים</button>`).join("")}</span></summary>
     <div class="tiles ar-tiles">${tile(pct(pres, rows.length) + "%", "אחוז נוכחות")}${tile(lessons, "שיעורים שסומנו")}${tile(rows.length - pres, "חיסורים")}${tile(streak.length, "חסרו 2 פעמים ברצף או יותר")}</div>
     <div class="rep-grid ar-sum-grid">
@@ -5746,9 +5774,9 @@ async function repAtt(city){
       <div class="card"><h3>חסרו ברצף (${streak.length})</h3>${streak.length ? `<ul class="rep-list">${streak.sort((a, b) => b.n - a.n).map(x => { const l = leadOf(x.r.student_id), g = ses.get(x.r.session_id);
         return `<li><span>${l ? `<button type="button" class="name-link" data-lead="${l.id}">${esc(l.student.first_name)} ${esc(l.student.last_name || "")}</button>` : "#" + x.r.student_id}</span><span class="muted">${x.n} פעמים · ${esc(g.location)} יום ${esc(g.day)}' · אחרון ${esc(fmtDay(x.r.lesson_date))}</span></li>`; }).join("")}</ul>` : "<div class='muted'>אין</div>"}</div>
     </div></details>`;
-  $("repBody").querySelector(".ar-sum-box").addEventListener("toggle", (e) => { R.attSumOpen = e.target.open; });
-  $("repBody").querySelectorAll("[data-days]").forEach(b => b.onclick = (e) => { e.preventDefault(); R.attDays = Number(b.dataset.days); repAtt(city); });
-  $("repBody").querySelectorAll("[data-lead]").forEach(b => b.onclick = () => openLead(Number(b.dataset.lead)));
+  box.querySelector(".ar-sum-box").addEventListener("toggle", (e) => { R.attSumOpen = e.target.open; });
+  box.querySelectorAll("[data-days]").forEach(b => b.onclick = (e) => { e.preventDefault(); R.attDays = Number(b.dataset.days); repAtt(city); });
+  box.querySelectorAll("[data-lead]").forEach(b => b.onclick = () => openLead(Number(b.dataset.lead)));
 }
 // --- שעות מתרגלים
 async function repHours(city){
@@ -5783,7 +5811,7 @@ async function initAttReport(){
   if (!AR.sessions) { try { AR.sessions = (await get("session_summary", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear))).filter(x => (x.assigned_count || 0) > 0); } catch(e) { AR.sessions = []; } }
   if (!$("arFrom").value) arSetRange(todayIL() < AR_H2 ? "h1" : "h2", false);
   const cities = CONFIG.cities.filter(c => AR.sessions.some(x => x.city === c));
-  if (!$("arCity").options.length) { $("arCity").innerHTML = `<option value="">כל הערים</option>` + cities.map(c => `<option>${esc(c)}</option>`).join(""); const sv = store("telem_ar_city"); $("arCity").value = sv != null && (sv === "" || cities.includes(sv)) ? sv : cities[0] || ""; }
+  if (!$("arCity").options.length) { $("arCity").innerHTML = `<option value="">כל הערים</option>` + cities.map(c => `<option>${esc(c)}</option>`).join(""); $("arCity").value = ""; }   // 5.19.17: בכניסה - כל הערים (כמו בתלמידים)
   fillArSchools();
 }
 const arCityOk = (x) => !$("arCity").value || x.city === $("arCity").value;   // "כל הערים" = ערך ריק
@@ -5800,7 +5828,7 @@ function fillArGroups(){
     .sort((a, b) => (all ? CONFIG.cities.indexOf(a.city) - CONFIG.cities.indexOf(b.city) : 0) || DAY_ORDER[a.day] - DAY_ORDER[b.day] || String(a.start_time).localeCompare(String(b.start_time)));
   $("arGroup").innerHTML = `<option value="">כל הקבוצות</option>` + gs.map(g => `<option value="${g.session_id}">יום ${esc(g.day)}' ${hm(g.start_time)} · ${esc(g.location)}${all ? " · " + esc(g.city) : ""}</option>`).join("");
 }
-$("arCity").addEventListener("change", () => { store("telem_ar_city", $("arCity").value); fillArSchools(); });
+$("arCity").addEventListener("change", () => { store("telem_ar_city", $("arCity").value); fillArSchools(); repAtt(); });
 $("arSchool").addEventListener("change", fillArGroups);
 $("arShow").addEventListener("click", showAttReport);
 $("arQ").addEventListener("input", () => { if (AR.data) renderAttReport(); });
@@ -5889,15 +5917,16 @@ function arKidHtml(q, hit, hl){
       const pres = rs.filter(r => r.present), abs = rs.filter(r => r.present === false);
       if (pres.length) { p++; dayCnt[di].p++; dayCnt[di].n++;
         const tip = pres.map(r => gLbl(gOf.get(r.session_id)) + (arSubj({ m: r.did_math, e: r.did_english }) ? " · " + arSubj({ m: r.did_math, e: r.did_english }) : "")).join("\n");
-        return `<td class="d p${wk(x)}${x.iso === today ? " today" : ""}" title="${esc(tip)}" data-tip="${esc(tip)}">✓</td>`; }
+        const dbl = pres.length > 1;   // 5.19.17: שני שיעורים באותו יום - מסומן ×2
+        return `<td class="d p${wk(x)}${dbl ? " dbl" : ""}" title="${esc((dbl ? "שיעור כפול\n" : "") + tip)}" data-tip="${esc((dbl ? "שיעור כפול · " : "") + tip)}">✓${dbl ? `<span class="ar-x2" dir="ltr">×2</span>` : ""}</td>`; }
       if (abs.length) { n++; dayCnt[di].n++; const tip = "חסר/ה · " + abs.map(r => gLbl(gOf.get(r.session_id))).join(" / ");
-        return `<td class="d a${wk(x)}${x.iso === today ? " today" : ""}" title="${esc(tip)}" data-tip="${esc(tip)}">✗</td>`; }
+        return `<td class="d a${wk(x)}" title="${esc(tip)}" data-tip="${esc(tip)}">✗</td>`; }
       // הקבוצה הקבועה שלו/ה נפגשת היום?
       const g = [...k.groups].map(id => gOf.get(id)).find(g => g && g.kind !== "מרתון" && g.day === x.dl && (!g.date_from || x.iso >= g.date_from) && (!g.date_to || x.iso <= g.date_to));
       if (g) { const c = cxOf[g.session_id + "|" + x.iso] || (lessonCx(g, x.iso) || {}).reason;
         if (c != null && c !== undefined) return `<td class="d c${wk(x)}" title="${esc(gLbl(g) + " · לא התקיים" + (c ? " (" + c + ")" : ""))}">—</td>`;
-        if (x.iso <= today) return `<td class="d n${wk(x)}${x.iso === today ? " today" : ""}" title="${esc(gLbl(g) + " · לא סומן")}">·</td>`; }
-      return `<td class="d${wk(x)}${hol ? " hol" : ""}${x.iso === today ? " today" : ""}"${hol ? ` title="${esc(hol)}"` : ""}></td>`;
+        if (x.iso <= today) return `<td class="d n${wk(x)}" title="${esc(gLbl(g) + " · לא סומן")}">·</td>`; }
+      return `<td class="d${wk(x)}${hol ? " hol" : ""}"${hol ? ` title="${esc(hol)}"` : ""}></td>`;
     }).join("");
     const l = leadOf(k.sid), gr = k.grade ? classLabel(k.grade, k.class_num) : "", subj = [...k.subj].join(" / ");
     const nm = l ? `<button type="button" class="name-link" data-lead="${l.id}" title="פתיחת כרטיס התלמיד/ה">${hl(k.name)}</button>` : hl(k.name);
@@ -5923,7 +5952,7 @@ function renderAttReport(){
   // חיפוש ילד/ה: מציגים רק את השורות שלו/ה (בכל הקבוצות)
   const q = wsNorm(($("arQ").value || "").trim()), hit = (r) => !q || wsNorm(r.name).includes(q);
   const hl = (t) => { if (!q) return esc(t); const i = wsNorm(t).indexOf(q); return i < 0 ? esc(t) : esc(t.slice(0, i)) + "<mark>" + esc(t.slice(i, i + q.length)) + "</mark>" + esc(t.slice(i + q.length)); };
-  const vSeg = `<div class="gseg ar-view" role="group" aria-label="תצוגה"><button type="button" data-arv="kid" aria-pressed="${AR.view !== "group"}">לפי ילד/ה</button><button type="button" data-arv="group" aria-pressed="${AR.view === "group"}">לפי קבוצה</button></div>`;
+  const vSeg = "";   // 5.19.17: "לפי ילד/ה" - בתלמידים, "לפי קבוצה" - בקבוצות ונוכחות
   const wireV = () => $("arBody").querySelectorAll("[data-arv]").forEach(b => b.onclick = () => { AR.view = b.dataset.arv; store("telem_ar_view", AR.view); renderAttReport(); });
   if (AR.view !== "group" && AR.raw) {
     $("arBody").innerHTML = vSeg + arKidHtml(q, hit, hl); wireV();
