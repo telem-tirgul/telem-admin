@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.17">
+<meta name="app-version" content="5.19.18">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -223,8 +223,20 @@
     .lead-main .key-box{ padding:8px 10px 10px; }
     .lead-main .key-box legend, .lead-main fieldset.sec legend{ font-size:13px; padding:6px 0 4px; }
     .lead-main fieldset.sec legend{ padding-top:8px; }
-    .lead-main .form-grid, .lead-main .key-grid{ grid-template-columns:repeat(12, minmax(0,1fr)); gap:5px 6px; }
-    .lead-main :is(.form-grid, .key-grid) > div{ display:flex; flex-direction:column; align-items:stretch; gap:1px; min-height:0; padding:2px 7px 4px; grid-column:span 2; }
+    .lead-main .form-grid, .lead-main .key-grid{ display:flex !important; flex-wrap:wrap; gap:5px 6px; }
+    /* 5.19.18: כל שדה ברוחב שמתאים לו (כמו בסינון) */
+    .lead-main :is(.form-grid, .key-grid) > div{ flex:1 1 130px; width:auto; min-width:0; }
+    .lead-main :is(.form-grid, .key-grid) > div:is(:has(#sFirst), :has(#p1First)){ flex-basis:128px; }
+    .lead-main :is(.form-grid, .key-grid) > div:is(:has(#sLast), :has(#p1Last), :has(#p2Last)){ flex-basis:145px; }
+    .lead-main .key-grid > div:has(#sGrade){ flex:.3 1 66px; } .lead-main .key-grid > div:has(#sClass){ flex:.3 1 58px; }   /* 5.19.18: כל שורה מיושרת לשני הצדדים - השדות גדלים למילוי, שכבה וכיתה כמעט לא */
+    .lead-main .key-grid > div:has(#sSchool){ flex-basis:165px; }
+    .lead-main :is(.form-grid, .key-grid) > div:is(:has(#sEmail), :has(#p1Email), :has(#p2Email)){ flex-basis:190px; }
+    .lead-main .key-grid > div:has(#p1Phone){ flex-basis:265px; }
+    .lead-main .form-grid > div:has(#lfStatus){ flex-basis:170px; } .lead-main .form-grid > div:has(#lfTopic){ flex-basis:105px; } .lead-main .form-grid > div:has(#lfFilledBy){ flex:.4 1 82px; }
+    .lead-main .form-grid > div:has(#lfRemind){ flex-basis:235px; }
+    .lead-main .form-grid > div:is(:has(#sEng), :has(#sMath)){ flex-basis:120px; }
+    .lead-main .form-grid > div.msg-cell, .lead-main .form-grid > div:has(#fAddr){ flex:3 1 240px; width:auto; }
+    .lead-main :is(.form-grid, .key-grid) > div{ display:flex; flex-direction:column; align-items:stretch; gap:1px; min-height:0; padding:2px 7px 4px; }
     .lead-main :is(.form-grid, .key-grid) > div > label.lbl{ font-size:11px; line-height:1.2; }
     .lead-main :is(.form-grid, .key-grid) :is(input, select){ font-size:13.5px; padding:3px 6px; min-height:0; height:30px; }
     .lead-main input.big{ font-size:14.5px; padding:3px 6px; }
@@ -247,7 +259,18 @@
   .meta-line{ display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft); }
   .actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-start; margin-top:12px; position:sticky; bottom:0;
             background:var(--bg); padding-block:10px; }
-  .lead-cols{ display:grid; grid-template-columns:minmax(0,2fr) minmax(280px,1fr); gap:16px; align-items:start; }
+  .lead-cols{ display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:16px; align-items:start; }
+  @media (min-width:961px){ .lead-cols{ align-items:stretch; } }
+  .lead-acc{ margin-top:14px; padding:4px 14px; }
+  .lead-pay:empty{ display:none; } .lead-pay{ margin-top:10px; } .lead-pay .pay-box{ margin:0; }
+  .la-row{ border-bottom:1px solid var(--border); } .la-row:last-child{ border-bottom:0; }
+  .la-row > summary{ list-style:none; cursor:pointer; display:flex; align-items:baseline; gap:12px; padding:10px 2px; }
+  .la-row > summary::-webkit-details-marker{ display:none; }
+  .la-row > summary::before{ content:"◂"; color:var(--ink-soft); font-size:12px; width:10px; flex:none; transition:transform .15s; } .la-row[open] > summary::before{ transform:rotate(-90deg); }
+  .la-row > summary b{ flex:none; color:var(--accent); font-size:14.5px; min-width:170px; }
+  .la-row .la-sum{ flex:1; min-width:0; color:var(--ink-soft); font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .la-row .la-body{ padding:0 22px 12px; max-height:420px; overflow:auto; }
+  @media (max-width:760px){ .la-row > summary{ flex-wrap:wrap; gap:2px 8px; } .la-row > summary b{ min-width:0; } .la-row .la-sum{ flex-basis:100%; padding-inline-start:18px; } .la-row .la-body{ padding:0 4px 10px; } }
   /* 5.19.14: בנייד - בראש כרטיס התלמיד: בית ספר, כיתה ושיבוצים (בלי לגלול) */
   .lead-quick{ display:none; }
   @media (max-width:960px){
@@ -1389,7 +1412,6 @@
                 <div class="field"><label class="lbl" for="sClass">כיתה</label><input id="sClass" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]*" data-ph="מס'"></div>
                 <div><label class="lbl" for="sSchool">בית ספר</label><select id="sSchool"></select></div>
                 <div class="field"><label class="lbl" for="sPhone">טלפון תלמיד/ה</label><input id="sPhone" class="big" type="tel" inputmode="numeric"></div>
-                <div><label class="lbl" for="sEmail">אימייל תלמיד/ה</label><input id="sEmail" type="email"></div>
                 <div class="field"><label class="lbl req" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
                 <div><label class="lbl" for="p1Last">משפחה (הורה)</label><input id="p1Last" class="big" type="text"></div>
                 <div><label class="lbl" for="p1Email">אימייל הורה</label><input id="p1Email" class="big" type="email" dir="ltr"></div>
@@ -1398,8 +1420,9 @@
               </div>
               <div id="siblings" class="sibs"></div>
             </fieldset>
+            <div id="leadPay" class="lead-pay"></div>
 
-            <fieldset class="sec"><legend>ליד ורמות</legend>
+            <fieldset class="sec"><legend>סטטוס ומעקב</legend>
               <div class="form-grid">
                 <div><label class="lbl" for="lfStatus">סטטוס</label><select id="lfStatus"></select></div>
                 <div><label class="lbl" for="lfTopic">נושא</label><select id="lfTopic"><option>ליד</option><option>מתעניין</option><option>נרשם</option></select></div>
@@ -1413,8 +1436,9 @@
                 <div class="msg-cell"><label class="lbl" for="lfMessage">הודעה <span class="muted" style="font-weight:400;">(מטופס האתר)</span></label><textarea id="lfMessage" aria-label="הודעה"></textarea></div>
               </div>
             </fieldset>
-            <fieldset class="sec"><legend>משפחה - פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(משותף לכל האחים)</span></legend>
+            <fieldset class="sec"><legend>פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(משותף לכל האחים)</span></legend>
               <div class="form-grid">
+                <div><label class="lbl" for="sEmail">אימייל תלמיד/ה</label><input id="sEmail" type="email"></div>
                 <div><label class="lbl" for="fCityIn">עיר</label><input id="fCityIn" type="text"></div>
                 <div><label class="lbl" for="p2First">שם פרטי הורה 2</label><input id="p2First" type="text"></div>
                 <div><label class="lbl" for="p2Last">משפחה (הורה 2)</label><input id="p2Last" type="text"></div>
@@ -1434,29 +1458,27 @@
           </div>
 
           <div class="card">
-            <div id="leadPay"></div>
             <div class="track-box tb-side" id="trackBox" hidden></div>
             <h3 class="side-h" style="margin-top:4px;">שיבוץ לקבוצות</h3>
             <div id="leadGroups"></div>
-            <h3 class="side-h">הערות <span class="muted" id="notesN" style="font-size:13px; font-weight:500;"></span></h3>
-            <div class="note-new" id="noteNew">
-              <textarea id="newNote" placeholder="+ הערה חדשה..." rows="1" aria-label="הערה חדשה"></textarea>
-              <button class="btn small primary" type="button" id="addNoteBtn">הוספה</button>
-            </div>
-            <ul class="notes-list" id="notesList"></ul>
-            <h3 class="side-h">מבחנים קרובים במתמטיקה</h3>
-            <div id="leadExams" style="font-size:13.5px;"></div>
-            <h3 class="side-h">נוכחות אחרונה</h3>
-            <div id="leadAtt" class="muted" style="font-size:13.5px;"></div>
-            <h3 class="side-h">חתימה על טופס ההרשמה</h3>
-            <div id="leadSig" class="muted" style="font-size:13.5px;"></div>
-            <h3 class="side-h">טופס ביטול</h3>
-            <div id="leadCancel2" style="font-size:13.5px;"></div>
-            <h3 class="side-h">שנים קודמות</h3>
-            <div id="leadHist" class="muted" style="font-size:13.5px;"></div>
-            <h3 class="side-h">היסטוריית שינויים</h3>
-            <div id="leadLog" class="lead-log"></div>
           </div>
+        </div>
+        <!-- 5.19.18: הערות והיסטוריה - שורות מקופלות (שורה עם תקציר, נפתחת בלחיצה), מתחת לכרטיס, לכל הרוחב -->
+        <div class="card lead-acc" id="leadAcc">
+          <details class="la-row" data-la="notes"><summary><b>הערות <span class="muted" id="notesN"></span></b><span class="la-sum" id="laNotes"></span></summary>
+            <div class="la-body">
+              <div class="note-new" id="noteNew">
+                <textarea id="newNote" placeholder="+ הערה חדשה..." rows="1" aria-label="הערה חדשה"></textarea>
+                <button class="btn small primary" type="button" id="addNoteBtn">הוספה</button>
+              </div>
+              <ul class="notes-list" id="notesList"></ul>
+            </div></details>
+          <details class="la-row"><summary><b>מבחנים קרובים במתמטיקה</b><span class="la-sum" data-of="leadExams"></span></summary><div class="la-body"><div id="leadExams" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row"><summary><b>נוכחות אחרונה</b><span class="la-sum" data-of="leadAtt"></span></summary><div class="la-body"><div id="leadAtt" class="muted" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row"><summary><b>חתימה על טופס ההרשמה</b><span class="la-sum" data-of="leadSig"></span></summary><div class="la-body"><div id="leadSig" class="muted" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row"><summary><b>טופס ביטול</b><span class="la-sum" data-of="leadCancel2"></span></summary><div class="la-body"><div id="leadCancel2" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row"><summary><b>שנים קודמות</b><span class="la-sum" data-of="leadHist"></span></summary><div class="la-body"><div id="leadHist" class="muted" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row"><summary><b>היסטוריית שינויים</b><span class="la-sum" data-of="leadLog"></span></summary><div class="la-body"><div id="leadLog" class="lead-log"></div></div></details>
         </div>
       </form>
     </section>
@@ -2634,7 +2656,7 @@ function openLead(id){
   $("siblings").innerHTML = sibs.length ? `<span class="sibs-lbl">אחים במשפחה:</span>` + sibs.map(x =>
     `<button type="button" class="sib ${isReg(x) ? "reg" : ""}" data-open="${x.id}" title="${esc(statusName(x.status_id) || "בלי סטטוס")}">${esc(x.student.first_name)} ${esc(x.student.last_name || "")}<small>${esc(statusName(x.status_id) || "בלי סטטוס")}${x.student.grade ? " · " + esc(classLabel(x.student.grade, x.student.class_num)) : ""}</small></button>`).join("") : "";
   $("siblings").querySelectorAll("[data-open]").forEach(b => b.onclick = () => openLead(Number(b.dataset.open)));
-  $("newNote").value = ""; $("noteNew").classList.remove("open"); $("notesN").textContent = ""; $("addNoteBtn").disabled = !l;
+  $("newNote").value = ""; $("noteNew").classList.remove("open"); $("notesN").textContent = ""; $("laNotes").textContent = ""; $("addNoteBtn").disabled = !l;
   $("notesList").innerHTML = l ? "<li class='muted'>טוען...</li>" : "<li class='muted'>אפשר להוסיף הערות אחרי השמירה הראשונה.</li>";
   $("leadGroups").textContent = "";
   setLeadEdit(true); setLeadDirty(false);
@@ -2735,6 +2757,8 @@ async function loadLeadPay(l){
   let rows = [];
   try { rows = await get("pending_phone_payments", "select=*&student_id=eq." + l.student.id + "&order=created_at"); } catch(e) { return; }
   if (!rows.length || !editing || editing.id !== l.id) return;
+  // 5.19.18: מוצג רק כשהסטטוס "לקחת אשראי" (מתחת לפרטים העיקריים)
+  if (!/אשראי/.test(statusName(l.status_id) || "")) { $("leadPay").innerHTML = ""; return; }
   $("leadPay").innerHTML = `<div class="pay-box"><b>ממתין לתשלום טלפוני (לקחת אשראי)</b>${rows.map((x, i) => `<div class="row"><span>${esc(x.kind === "marathon" ? x.what : (x.what || "") + (x.subject ? " · " + x.subject : ""))}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">(ואז ${fmtMoney(x.monthly_amount)} לחודש)</span>` : ""}</span>
     <button type="button" class="btn small primary" data-paid="${i}">שולם</button></div>`).join("")}</div>`;
   $("leadPay").querySelectorAll("[data-paid]").forEach(b => b.onclick = async () => { b.disabled = true; if (await markPaid(rows[Number(b.dataset.paid)])) { $("leadPay").innerHTML = ""; setTimeout(() => { const nl = L.leads.find(x => x.id === l.id); if (nl && editing && editing.id === l.id) { $("lfStatus").value = nl.status_id; paintStatus($("lfStatus"), nl.status_id); } }, 1500); } else b.disabled = false; });
@@ -2793,6 +2817,7 @@ async function loadNotes(leadId){
     const ns = await get("notes", "select=id,body,created_at,remind_at&lead_id=eq." + leadId + "&order=created_at.desc");
     const NSHOW = 2, ul = $("notesList");
     $("notesN").textContent = ns.length ? "(" + ns.length + ")" : "";
+    $("laNotes").textContent = ns.length ? fmtDate(ns[0].created_at) + " · " + String(ns[0].body || "").replace(/\s+/g, " ").slice(0, 150) : "אין הערות עדיין";
     ul.innerHTML = ns.length ? ns.map((n, i) => `<li${i >= NSHOW ? ' class="n-old"' : ""}><span class="when">${esc(fmtDate(n.created_at))}</span>${esc(n.body)}</li>`).join("")
       + (ns.length > NSHOW ? `<li class="more-n"><button type="button" class="btn small" id="notesMore">עוד ${ns.length - NSHOW} הערות ▾</button></li>` : "") : "<li class='muted'>אין הערות עדיין.</li>";
     ul.classList.add("collapsed");
@@ -3072,6 +3097,10 @@ $("filtersToggle").addEventListener("click", () => { const c = document.querySel
 // מעבר מכרטיס הליד לקבוצה בלוח הקבוצות
 function openGroupOnBoard(sessionId, city){ G.pendingOpen = sessionId; if (city && G.cities && !G.cities.includes(city)) G.cities = [city]; if (city) { G.city = city; store("telem_groups_city", city); } go("groups"); }
 $("addLeadBtn").addEventListener("click", () => openLead(null));
+// 5.19.18: תקציר לכל שורה מקופלת - השורה הראשונה של התוכן (מתעדכן כשהתוכן נטען)
+document.querySelectorAll("#leadAcc .la-sum[data-of]").forEach(sp => { const src = $(sp.dataset.of);
+  const upd = () => { const t = (src.textContent || "").replace(/\s+/g, " ").trim(); sp.textContent = /^טוען/.test(t) ? "" : t.slice(0, 160); };
+  new MutationObserver(upd).observe(src, { childList: true, subtree: true, characterData: true }); upd(); });
 $("newNote").addEventListener("focus", () => $("noteNew").classList.add("open"));
 $("newNote").addEventListener("blur", () => setTimeout(() => { if (!$("newNote").value.trim() && document.activeElement !== $("addNoteBtn")) $("noteNew").classList.remove("open"); }, 150));
 $("addNoteBtn").addEventListener("click", async () => {
@@ -4611,8 +4640,10 @@ $("shSave").addEventListener("click", async () => {
       p_rows: A.rows.map(r => ({ student_id: r.student_id, present: r.present, did_math: r.did_math, did_english: r.did_english }))
         .concat((A.removed || []).map(id => ({ student_id: id, present: null, remove: true }))),
       p_extra: "", p_notes: $("shNotes").value });
-    toast(missing ? `הנוכחות נשמרה (${missing} לא סומנו)` : "הנוכחות נשמרה"); attDraftClear(); store("telem_att_last", null);   // אחרי שמירה עוברים לרשימה - וזה מה שנזכר
-    showAttList(); loadAttGroups();
+    toast(missing ? `הנוכחות נשמרה (${missing} לא סומנו)` : "הנוכחות נשמרה"); attDraftClear();
+    // 5.19.18: נשארים בדף הקבוצה אחרי שמירה (אפשר לשמור חלק ולהמשיך לסמן כשמגיעים עוד ילדים). לרשימה - "חזרה".
+    A.rows.forEach(r => { if (r.present != null) r.saved = true; }); A.rows = A.rows.filter(r => !(A.removed || []).includes(r.student_id)); A.removed = [];
+    A.base = attSnap(); renderSheetRows(); loadAttGroups();
   } catch(e2) {
     err.textContent = /only save attendance for today/.test(e2.message) ? "אפשר לשמור נוכחות רק ביום השיעור." : (/fetch|network|Failed/i.test(e2.message) ? "אין חיבור לאינטרנט - הסימון שמור בטלפון. כשהקליטה תחזור, לוחצים שוב \"שמירה\"." : "השמירה נכשלה: " + e2.message);
   }
