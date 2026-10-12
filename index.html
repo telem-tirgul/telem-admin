@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.13">
+<meta name="app-version" content="5.19.14">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -202,6 +202,33 @@
   #leadForm.ro .lead-main :is(input, select):disabled::placeholder{ color:var(--ink-soft); -webkit-text-fill-color:var(--ink-soft); opacity:.6; }
   @media (max-width:1150px){ .lead-main .form-grid, .lead-main .key-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); } }
   @media (max-width:600px){ .lead-main .form-grid, .lead-main .key-grid{ grid-template-columns:1fr; } }
+  /* 5.19.14: כרטיס תלמיד במחשב - הכול במסך אחד: שם השדה מעל הערך, 12 עמודות, שדות קצרים צרים */
+  @media (min-width:961px){
+    .lead-main{ padding:12px 14px; }
+    .lead-main .toggles{ margin-bottom:8px; gap:16px; }
+    .lead-main .key-box{ padding:8px 10px 10px; }
+    .lead-main .key-box legend, .lead-main fieldset.sec legend{ font-size:13px; padding:6px 0 4px; }
+    .lead-main fieldset.sec legend{ padding-top:8px; }
+    .lead-main .form-grid, .lead-main .key-grid{ grid-template-columns:repeat(12, minmax(0,1fr)); gap:5px 6px; }
+    .lead-main :is(.form-grid, .key-grid) > div{ display:flex; flex-direction:column; align-items:stretch; gap:1px; min-height:0; padding:2px 7px 4px; grid-column:span 2; }
+    .lead-main :is(.form-grid, .key-grid) > div > label.lbl{ font-size:11px; line-height:1.2; }
+    .lead-main :is(.form-grid, .key-grid) :is(input, select){ font-size:13.5px; padding:3px 6px; min-height:0; height:30px; }
+    .lead-main input.big{ font-size:14.5px; padding:3px 6px; }
+    .lead-main .key-grid > div:is(:has(#sGrade), :has(#sClass), :has(#lfFilledBy)),
+    .lead-main .form-grid > div:has(#lfFilledBy){ grid-column:span 1; }
+    .lead-main .key-grid > div:has(#p1Phone){ grid-column:span 4; }
+    .lead-main .key-grid > div:has(#p1Email){ grid-column:span 4; }
+    .lead-main .form-grid > div:has(#lfRemind){ grid-column:span 3; }
+    .lead-main .form-grid > div:has(#fAddr){ grid-column:span 4; }
+    .lead-main .form-grid > div.msg-cell{ grid-column:span 8; }
+    .lead-main :is(.form-grid, .key-grid) > div > label.lbl{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .lead-main :is(.form-grid, .key-grid) select{ padding-inline-end:2px; }
+    .lead-main .phone-row{ flex-wrap:nowrap; gap:4px; } .lead-main .phone-row input{ max-width:none; }
+    .lead-main .phone-row .btn{ padding:3px 8px; font-size:12px; }
+    .lead-main #lfMessage{ min-height:30px; height:30px; font-size:13px; padding:4px 6px; resize:vertical; }
+    .lead-main .sibs:empty{ display:none; }
+    .lead-main .actions{ margin-top:6px; padding-block:6px; }
+  }
   .toggles label{ display:flex; gap:8px; align-items:center; font-weight:700; font-size:13.5px; cursor:pointer; }
   .meta-line{ display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft); }
   .actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-start; margin-top:12px; position:sticky; bottom:0;
@@ -209,6 +236,13 @@
   .lead-cols{ display:grid; grid-template-columns:minmax(0,2fr) minmax(280px,1fr); gap:16px; align-items:start; }
   @media (max-width:960px){ .lead-cols{ grid-template-columns:1fr; } }
   .notes-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; max-height:560px; overflow:auto; }
+  /* 5.19.14: הערה חדשה - שורה קטנה שמתרחבת; רשימת הערות מקופלת (2 אחרונות + "עוד") */
+  .note-new{ display:flex; gap:6px; align-items:flex-start; margin-bottom:10px; }
+  .note-new textarea{ flex:1; min-height:34px; height:34px; resize:none; transition:height .15s; padding:6px 10px; font-size:13.5px; }
+  .note-new #addNoteBtn{ display:none; }
+  .note-new.open{ flex-direction:column; } .note-new.open textarea{ flex:none; width:100%; height:90px; resize:vertical; } .note-new.open #addNoteBtn{ display:inline-flex; }
+  .notes-list li.more-n{ background:none; padding:0; text-align:center; } .notes-list li.more-n button{ width:100%; }
+  .notes-list.collapsed li.n-old{ display:none; }
   .notes-list li{ background:var(--muted); border-radius:10px; padding:10px 12px; white-space:pre-wrap; font-size:13.5px; }
   .notes-list .when{ display:block; font-size:12px; color:var(--ink-soft); margin-bottom:4px; white-space:normal; }
   .err{ color:var(--full); font-weight:700; font-size:12.5px; }
@@ -398,7 +432,7 @@
   .sc-chips .tab[aria-selected="true"], .sc-chips .tab.sc[aria-selected="true"]{ opacity:1; background:var(--scb, var(--paper)); color:var(--sci, var(--ink)); border-color:var(--sci, var(--ink)); box-shadow:0 2px 6px rgba(0,0,0,.15); }
   .sc-chips .tab[aria-selected="true"]::before{ content:"✓ "; }
   .sc-head h2{ font-size:22px; color:var(--accent); margin:0; }
-  .lg-personal{ margin-top:4px; background:#FFF4E5; border-radius:6px; padding:3px 8px; font-size:14px; display:inline-block; }
+  .lg-personal{ margin-top:4px; background:#fff8d6; border:1.5px solid #e9cf62; color:#5c4500; border-radius:8px; padding:3px 9px; font-size:14.5px; font-weight:700; display:inline-block; }
   .ptime{ display:inline-block; margin-inline-start:8px; background:#FFF4E5; color:#7A4B00; border-radius:6px; padding:1px 8px; font-size:13px; font-weight:700; }
   .att-mini{ display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-bottom:1px dashed var(--border); }
   .att-mini .p{ font-weight:800; color:#4ea30c; } .att-mini .a{ font-weight:800; color:#c0392b; }
@@ -479,6 +513,11 @@
   .track-box{ background:#fff8d6; border:1.5px solid #e9cf62; border-radius:12px; padding:10px 14px; margin-bottom:12px; }
   .track-box .tb-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; font-weight:800; color:#7a5a00; font-size:14px; }
   .track-box .tb-txt{ white-space:pre-wrap; font-size:15.5px; margin-top:4px; color:#3d3000; } .track-box textarea{ min-height:70px; margin-top:6px; background:#fffdf2; }
+  /* 5.19.14: המעקב בעמודת הצד, מעל ההערות - קטן יותר */
+  .track-box.tb-side{ padding:7px 10px; margin-bottom:12px; border-radius:10px; }
+  .track-box.tb-side .tb-h{ font-size:13px; } .track-box.tb-side .tb-h .muted{ font-size:12px; }
+  .track-box.tb-side .tb-txt{ font-size:14px; } .track-box.tb-side .tb-pt{ font-size:12.5px; }
+  .track-box.tb-side textarea{ min-height:56px; font-size:14px; }
   .track-pin{ cursor:help; margin-inline-start:4px; font-size:14px; }
   .att-track{ display:block; background:#fff8d6; border:1px solid #e9cf62; color:#5c4500; border-radius:8px; padding:3px 8px; font-size:13px; font-weight:700; margin-top:4px; white-space:pre-wrap; }
   .pay-box{ background:#fdeceb; border:1.5px solid #f0b8b4; border-radius:12px; padding:10px 12px; margin-bottom:10px; font-size:14px; }
@@ -724,7 +763,7 @@
     .panel header{ flex-direction:column; align-items:stretch; padding:12px 14px; gap:8px; }
     .panel header h3{ font-size:17px; } #panelSub{ font-size:13px; }
     .panel header > div:last-child{ justify-content:flex-start; }
-    .roster li.sc-box{ padding:8px 10px; } .sc-more{ display:none; }
+    .roster li.sc-box{ padding:8px 10px; } .roster .sc-more{ display:none; }   /* 5.19.14: רק בחלון הקבוצה - קודם הסתיר גם את לוח הצלצולים ואנשי הקשר בעמוד בתי הספר בנייד */
   }
   /* חלון הקבוצה - כמו דף הנוכחות: כותרת לכל מקצוע, עיגול שכבה+כיתה, בית הספר בצבע */
   .roster li.ro-sec, .sp-list li.ro-sec{ display:flex; align-items:center; gap:8px; background:var(--muted); font-weight:800; padding:6px 10px; border-radius:8px; margin-top:8px; border-bottom:0; }
@@ -836,8 +875,10 @@
     .side .nav{ display:flex !important; order:4; flex-basis:100%; gap:3px; margin:6px 0 4px; padding:0; overflow:visible; }
     .side .nav button{ flex:1 1 0; min-width:0; flex-direction:column; gap:1px; padding:5px 2px 4px !important; font-size:0 !important; border:0; border-radius:10px; background:rgba(255,255,255,.06); }
     .side .nav button[hidden]{ display:none !important; }
-    .side .nav button > *{ display:none !important; }
-    .side .nav button::before{ content:attr(data-ic); font-size:20px; line-height:1.15; }
+    .side .nav button > *:not(svg.ic){ display:none !important; }
+    /* 5.19.14: אייקוני קו בצבעי הלוגו (זהב/קרם) במקום אימוג'י צבעוניים */
+    .side .nav button > svg.ic{ display:block; width:22px; height:22px; margin:1px auto 2px; color:var(--gold); stroke-width:1.9; }
+    .side .nav button[aria-current="page"] > svg.ic{ color:#fff; }
     .side .nav button::after{ content:attr(data-sl); font-size:11.5px; font-weight:700; line-height:1.2; white-space:nowrap; }
     .side .nav button[aria-current="page"]{ background:rgba(255,255,255,.22); box-shadow:inset 0 -2px 0 var(--gold); }
     .kind-seg button{ min-height:40px; font-size:15px; flex:1 1 0; }
@@ -1015,6 +1056,32 @@
   #wsKind{ border-color:color-mix(in srgb, var(--gold) 50%, var(--border)); }
   #wsKind button[aria-pressed="true"]{ background:color-mix(in srgb, var(--gold) 35%, var(--paper)); color:var(--ink); }
   .ws-pick{ display:flex; flex-wrap:wrap; gap:8px 10px; margin-bottom:10px; align-items:center; }
+  /* 5.19.14: בטלפון - פס קבוע למעלה: מתמטיקה/אנגלית + ספר/חלק + נושא. נשאר גם כשדף פתוח */
+  .ws-quick{ display:none; }
+  @media (max-width:760px){
+    .ws-quick{ display:flex; flex-direction:column; gap:5px; position:sticky; top:0; z-index:8; background:var(--bg); padding:6px 0; margin:-4px 0 6px; border-bottom:1px solid var(--border); }
+    .ws-quick .wq-row{ display:flex; gap:6px; } .ws-quick .wq-row:empty{ display:none; }
+    .ws-quick .wq-row{ gap:5px; } .ws-quick .gseg{ display:flex; flex:1 1 auto; min-width:0; } .ws-quick .gseg button{ flex:1 1 auto; min-width:0; padding:4px 5px !important; font-size:14.5px; min-height:0 !important; height:36px; white-space:nowrap; }
+    #view-ws .ws-pick{ display:none; }
+    #view-ws .ws-bar{ top:var(--wsq, 48px); }
+    body.ws-vopen .ws-quick{ position:fixed; top:0; left:0; right:0; z-index:210; padding:6px 10px; margin:0; background:#161118; border-color:#333; }
+    body.ws-vopen .ws-quick .gseg{ background:rgba(255,255,255,.12); } body.ws-vopen .ws-quick .gseg button{ color:#fff; } body.ws-vopen .ws-quick .gseg button[aria-pressed="true"]{ background:#fff; color:#161118; }
+    body.ws-vopen .ws-viewer{ top:var(--wsq, 48px); }
+  }
+  /* 5.19.14: לחיצה ארוכה על דף - חלון קטן: שליחה / פתיחה */
+  .ws-pop{ position:fixed; inset:0; z-index:220; background:rgba(0,0,0,.35); display:flex; align-items:flex-end; justify-content:center; }
+  .ws-pop[hidden]{ display:none; }
+  .ws-pop-in{ background:var(--paper); width:min(100%, 420px); border-radius:16px 16px 0 0; padding:14px 16px max(16px, env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:8px; box-shadow:0 -6px 24px rgba(0,0,0,.2); }
+  .ws-pop-t{ font-weight:800; text-align:center; margin-bottom:2px; } .ws-pop-in .btn{ justify-content:center; height:46px; font-size:16px; }
+  .ws-pg img, .ws-st img{ -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; } .ws-pg{ -webkit-user-select:none; user-select:none; }
+  /* ⭐ דפים חשובים בראש הנושא - שליחה ישירה בלי לפתוח את הדף */
+  .ws-stars{ background:#fff8d6; border:1.5px solid #e9cf62; border-radius:12px; padding:8px 10px; margin:8px 0 12px; }
+  .ws-stars-h{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-weight:800; color:#7a5a00; margin-bottom:6px; }
+  .ws-stars-row{ display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch; }
+  .ws-st{ flex:none; width:118px; background:var(--paper); border:1px solid var(--border); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+  .ws-st .th{ height:120px; overflow:hidden; background:#fff; cursor:pointer; } .ws-st .th img{ width:100%; display:block; }
+  .ws-st .cp{ font-size:12px; padding:3px 6px; line-height:1.25; height:32px; overflow:hidden; } .ws-st .cp b{ color:var(--accent); }
+  .ws-st button.go{ margin:4px 6px 6px; padding:5px 0; border:0; border-radius:8px; background:#25d366; color:#0b2b17; font-weight:800; font-size:13.5px; cursor:pointer; }
   .ws-seg button{ padding:7px 16px; font-size:14.5px; }
   .ws-seg button[aria-pressed="true"]{ background:var(--accent); color:#fff; box-shadow:none; }
   @media (max-width:760px){
@@ -1128,7 +1195,8 @@
   .ws-vimg{ flex:1; overflow:auto; display:flex; justify-content:center; align-items:flex-start; padding:4px 10px; -webkit-overflow-scrolling:touch; }
   .ws-vimg img{ max-width:min(100%, 820px); height:auto; background:#fff; border-radius:4px; -webkit-touch-callout:default; transform-origin:center top; transition:transform .05s; }
   .ws-vimg{ touch-action:pan-y; } .ws-vimg:has(img.zoomed){ touch-action:none; overflow:hidden; }
-  .ws-vbot{ display:flex; gap:8px; padding:10px 14px 14px; justify-content:center; align-items:center; flex-wrap:wrap; }
+  .ws-vbot{ display:flex; gap:8px; padding:10px 14px max(14px, env(safe-area-inset-bottom)); justify-content:center; align-items:center; flex-wrap:nowrap; }
+  @media (max-width:600px){ .ws-vbot{ gap:6px; padding-inline:10px; } .ws-vbot .ws-copy{ flex:1 1 auto; min-width:0; padding-inline:8px; } .ws-vbot > *{ flex-shrink:0; } .ws-vbot .ws-nav{ width:42px; } .ws-vbot .ws-star-btn{ min-width:42px; padding-inline:6px; } .ws-vbot #wsDl{ padding-inline:10px; } }
   .ws-copy{ background:#25d366 !important; color:#0b2b17 !important; font-weight:800; font-size:17px; min-width:9em; border:0; }
   .ws-sec{ background:rgba(255,255,255,.15) !important; color:#fff !important; border:0; text-decoration:none; }
   .ws-warn{ background:var(--muted); border-radius:10px; padding:8px 12px; font-size:13.5px; margin-bottom:12px; }
@@ -1260,7 +1328,6 @@
           <button class="btn" type="button" data-back>חזרה לרשימה</button>
         </div>
       </div>
-      <div class="track-box" id="trackBox" hidden></div>
       <form id="leadForm" novalidate>
         <div class="lead-cols">
           <div class="card lead-main">
@@ -1276,7 +1343,11 @@
               <div class="key-grid">
                 <div class="field"><label class="lbl req" for="sFirst">שם פרטי</label><input id="sFirst" class="big" type="text" required></div>
                 <div><label class="lbl" for="sLast">שם משפחה</label><input id="sLast" class="big" type="text"></div>
+                <div><label class="lbl" for="sGrade">שכבה</label><select id="sGrade"></select></div>
+                <div class="field"><label class="lbl" for="sClass">כיתה</label><input id="sClass" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]*" data-ph="מס'"></div>
+                <div><label class="lbl" for="sSchool">בית ספר</label><select id="sSchool"></select></div>
                 <div class="field"><label class="lbl" for="sPhone">טלפון תלמיד/ה</label><input id="sPhone" class="big" type="tel" inputmode="numeric"></div>
+                <div><label class="lbl" for="sEmail">אימייל תלמיד/ה</label><input id="sEmail" type="email"></div>
                 <div class="field"><label class="lbl req" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
                 <div><label class="lbl" for="p1Last">משפחה (הורה)</label><input id="p1Last" class="big" type="text"></div>
                 <div><label class="lbl" for="p1Email">אימייל הורה</label><input id="p1Email" class="big" type="email" dir="ltr"></div>
@@ -1286,25 +1357,18 @@
               <div id="siblings" class="sibs"></div>
             </fieldset>
 
-            <fieldset class="sec"><legend>ליד</legend>
+            <fieldset class="sec"><legend>ליד ורמות</legend>
               <div class="form-grid">
                 <div><label class="lbl" for="lfStatus">סטטוס</label><select id="lfStatus"></select></div>
                 <div><label class="lbl" for="lfTopic">נושא</label><select id="lfTopic"><option>ליד</option><option>מתעניין</option><option>נרשם</option></select></div>
                 <div><label class="lbl" for="lfSource">מקור ליד</label><select id="lfSource"></select></div>
                 <div><label class="lbl" for="lfManager">מנהל</label><select id="lfManager"></select></div>
-                <div><label class="lbl" for="lfFilledBy">ממלא הטופס</label><select id="lfFilledBy"><option>הורה</option><option>תלמיד</option></select></div>
+                <div><label class="lbl" for="lfFilledBy" title="ממלא/ת הטופס">ממלא/ת</label><select id="lfFilledBy"><option>הורה</option><option>תלמיד</option></select></div>
                 <div><label class="lbl" for="lfRemind">תזכורת</label>
                   <div style="display:flex; gap:6px;"><input id="lfRemind" type="datetime-local"><button class="btn small" type="button" id="clearRemind">ביטול</button></div></div>
-              </div>
-            </fieldset>
-            <fieldset class="sec"><legend>תלמיד/ה - לימודים</legend>
-              <div class="form-grid">
-                <div><label class="lbl" for="sSchool">בית ספר</label><select id="sSchool"></select></div>
-                <div><label class="lbl" for="sGrade">שכבה</label><select id="sGrade"></select></div>
-                <div class="field"><label class="lbl" for="sClass">מספר כיתה</label><input id="sClass" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]*" data-ph="למשל 3"></div>
                 <div><label class="lbl" for="sEng">רמה אנגלית</label><select id="sEng"></select></div>
                 <div><label class="lbl" for="sMath">רמה מתמטיקה</label><select id="sMath"></select></div>
-                <div><label class="lbl" for="sEmail">אימייל תלמיד/ה</label><input id="sEmail" type="email"></div>
+                <div class="msg-cell"><label class="lbl" for="lfMessage">הודעה <span class="muted" style="font-weight:400;">(מטופס האתר)</span></label><textarea id="lfMessage" aria-label="הודעה"></textarea></div>
               </div>
             </fieldset>
             <fieldset class="sec"><legend>משפחה - פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(משותף לכל האחים)</span></legend>
@@ -1318,9 +1382,6 @@
                 <div><label class="lbl" for="fAddr">כתובת</label><input id="fAddr" type="text"></div>
               </div>
             </fieldset>
-            <fieldset class="sec"><legend>הודעה <span class="muted" style="font-size:12px; font-weight:500;">(מטופס ההתעניינות באתר)</span></legend>
-              <textarea id="lfMessage" aria-label="הודעה"></textarea>
-            </fieldset>
             <div class="meta-line" id="leadMeta"></div>
             <div class="err" id="leadErr"></div>
             <div class="actions" id="leadActions">
@@ -1332,14 +1393,15 @@
 
           <div class="card">
             <div id="leadPay"></div>
-            <h3 style="font-size:16px; color:var(--accent); margin-bottom:10px;">הערות</h3>
-            <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
-              <textarea id="newNote" placeholder="הערה חדשה..." style="min-height:80px;" aria-label="הערה חדשה"></textarea>
-              <button class="btn small primary" type="button" id="addNoteBtn" style="align-self:flex-start;">הוספת הערה</button>
+            <div class="track-box tb-side" id="trackBox" hidden></div>
+            <h3 class="side-h" style="margin-top:4px;">שיבוץ לקבוצות</h3>
+            <div id="leadGroups"></div>
+            <h3 class="side-h">הערות <span class="muted" id="notesN" style="font-size:13px; font-weight:500;"></span></h3>
+            <div class="note-new" id="noteNew">
+              <textarea id="newNote" placeholder="+ הערה חדשה..." rows="1" aria-label="הערה חדשה"></textarea>
+              <button class="btn small primary" type="button" id="addNoteBtn">הוספה</button>
             </div>
             <ul class="notes-list" id="notesList"></ul>
-            <h3 class="side-h">שיבוץ לקבוצות</h3>
-            <div id="leadGroups"></div>
             <h3 class="side-h">מבחנים קרובים במתמטיקה</h3>
             <div id="leadExams" style="font-size:13.5px;"></div>
             <h3 class="side-h">נוכחות אחרונה</h3>
@@ -1501,6 +1563,7 @@
         <input type="file" id="wsFolder" webkitdirectory directory multiple>
         <div id="wsImportMsg" class="bk-list" style="margin-top:8px;"></div>
       </div>
+      <div class="ws-quick" id="wsQuick"></div>
       <div id="wsTop">
         <div class="ws-search"><span class="ws-s-ic" aria-hidden="true">🔍</span><input id="wsSearch" type="search" placeholder="חיפוש נושא או דף בכל הספרים - למשל: שברים, פרבולה, Past simple" aria-label="חיפוש נושא או דף" autocomplete="off"><button type="button" class="ws-s-x" id="wsSearchX" aria-label="ניקוי החיפוש" hidden>✕</button></div>
       </div>
@@ -1511,6 +1574,7 @@
           <div class="muted ws-how">איך שולחים לתלמיד: נושא ← דף ← <b>העתקה</b> ← חוזרים לצ'אט בוואטסאפ ← לחיצה ארוכה בשורת ההקלדה ← <b>הדבקה</b>.</div>
         </aside>
         <div id="wsBody"></div>
+        <div class="ws-pop" id="wsPop" hidden><div class="ws-pop-in"><div class="ws-pop-t" id="wsPopT"></div><button type="button" class="btn ws-copy" id="wsPopSend">שליחה</button><button type="button" class="btn" id="wsPopOpen">פתיחת הדף</button><button type="button" class="btn" id="wsPopX">ביטול</button></div></div>
         <div class="ws-selbar" id="wsSelBar" hidden><span id="wsSelN"></span><button type="button" class="btn primary" id="wsSelSend">שלח את המסומנים</button><button type="button" class="btn small" id="wsSelClr" aria-label="ביטול הבחירה">✕</button></div>
       </div>
     </section>
@@ -2514,7 +2578,7 @@ function openLead(id){
   $("siblings").innerHTML = sibs.length ? `<span class="sibs-lbl">אחים במשפחה:</span>` + sibs.map(x =>
     `<button type="button" class="sib ${isReg(x) ? "reg" : ""}" data-open="${x.id}" title="${esc(statusName(x.status_id) || "בלי סטטוס")}">${esc(x.student.first_name)} ${esc(x.student.last_name || "")}<small>${esc(statusName(x.status_id) || "בלי סטטוס")}${x.student.grade ? " · " + esc(classLabel(x.student.grade, x.student.class_num)) : ""}</small></button>`).join("") : "";
   $("siblings").querySelectorAll("[data-open]").forEach(b => b.onclick = () => openLead(Number(b.dataset.open)));
-  $("newNote").value = ""; $("addNoteBtn").disabled = !l;
+  $("newNote").value = ""; $("noteNew").classList.remove("open"); $("notesN").textContent = ""; $("addNoteBtn").disabled = !l;
   $("notesList").innerHTML = l ? "<li class='muted'>טוען...</li>" : "<li class='muted'>אפשר להוסיף הערות אחרי השמירה הראשונה.</li>";
   $("leadGroups").textContent = "";
   setLeadEdit(true); setLeadDirty(false);
@@ -2670,7 +2734,12 @@ async function loadLeadCancel(l){
 async function loadNotes(leadId){
   try {
     const ns = await get("notes", "select=id,body,created_at,remind_at&lead_id=eq." + leadId + "&order=created_at.desc");
-    $("notesList").innerHTML = ns.length ? ns.map(n => `<li><span class="when">${esc(fmtDate(n.created_at))}</span>${esc(n.body)}</li>`).join("") : "<li class='muted'>אין הערות עדיין.</li>";
+    const NSHOW = 2, ul = $("notesList");
+    $("notesN").textContent = ns.length ? "(" + ns.length + ")" : "";
+    ul.innerHTML = ns.length ? ns.map((n, i) => `<li${i >= NSHOW ? ' class="n-old"' : ""}><span class="when">${esc(fmtDate(n.created_at))}</span>${esc(n.body)}</li>`).join("")
+      + (ns.length > NSHOW ? `<li class="more-n"><button type="button" class="btn small" id="notesMore">עוד ${ns.length - NSHOW} הערות ▾</button></li>` : "") : "<li class='muted'>אין הערות עדיין.</li>";
+    ul.classList.add("collapsed");
+    if ($("notesMore")) $("notesMore").onclick = () => { const c = ul.classList.toggle("collapsed"); $("notesMore").textContent = c ? `עוד ${ns.length - NSHOW} הערות ▾` : "פחות ▴"; };
   } catch(e) { $("notesList").innerHTML = "<li class='err'>לא ניתן לטעון הערות.</li>"; }
 }
 // חתימות מטפסי ההרשמה באתר (לפי טלפון ההורה ושם התלמיד/ה)
@@ -2733,7 +2802,7 @@ async function loadLeadGroups(studentId){
         ${prop ? `<div class="lg-prop-h"><span class="mar-tag" style="margin:0">מוצע</span> <span class="prop-st ${propStage(studentId)}">${PROP_ST[propStage(studentId)]}</span>
           <span class="ntc" data-pcard="${a.id}"><label><input type="checkbox" data-cn ${((NTC.map || {})[studentId] || {}).notified_at ? "checked" : ""}> קיבל/ה הודעה</label><label><input type="checkbox" data-cc> אישר/ה – למשובצים</label></span></div>` : ""}
         <div class="lg-when">${sessWhen(se)} <span class="lg-time">${rng(start, (se.end_time || "").slice(0, 5) || addMin(start, 45))}</span></div>
-        ${arr && arr !== start ? `<div class="lg-personal">שעה אישית: <b>${rng(arr, (a.personal_end || "").slice(0, 5) || addMin(arr, 45))}</b></div>` : ""}
+        ${arr && arr !== start ? `<div class="lg-personal">⏰ שעה אישית: <b>${rng(arr, (a.personal_end || "").slice(0, 5) || addMin(arr, 45))}</b></div>` : ""}
         <dl class="lg-dl">
           <dt>בית ספר</dt><dd>${scChip(se.location && se.location.name)}</dd>
           <dt>עיר</dt><dd>${esc(se.city || "")}</dd>
@@ -2933,11 +3002,13 @@ $("filtersToggle").addEventListener("click", () => { const c = document.querySel
 // מעבר מכרטיס הליד לקבוצה בלוח הקבוצות
 function openGroupOnBoard(sessionId, city){ G.pendingOpen = sessionId; if (city && G.cities && !G.cities.includes(city)) G.cities = [city]; if (city) { G.city = city; store("telem_groups_city", city); } go("groups"); }
 $("addLeadBtn").addEventListener("click", () => openLead(null));
+$("newNote").addEventListener("focus", () => $("noteNew").classList.add("open"));
+$("newNote").addEventListener("blur", () => setTimeout(() => { if (!$("newNote").value.trim() && document.activeElement !== $("addNoteBtn")) $("noteNew").classList.remove("open"); }, 150));
 $("addNoteBtn").addEventListener("click", async () => {
   const body = $("newNote").value.trim(); if (!body || !editing) return;
   const who = (auth && auth.email || "").split("@")[0];
   try { await insert("notes", { lead_id: editing.id, body: who ? `${who}: ${body}` : body });
-        $("newNote").value = ""; L.notesCount[editing.id] = (L.notesCount[editing.id] || 0) + 1; (L.notes[editing.id] = L.notes[editing.id] || []).push({ lead_id: editing.id, body: who ? `${who}: ${body}` : body, created_at: new Date().toISOString() }); loadNotes(editing.id); toast("ההערה נשמרה"); }
+        $("newNote").value = ""; $("noteNew").classList.remove("open"); L.notesCount[editing.id] = (L.notesCount[editing.id] || 0) + 1; (L.notes[editing.id] = L.notes[editing.id] || []).push({ lead_id: editing.id, body: who ? `${who}: ${body}` : body, created_at: new Date().toISOString() }); loadNotes(editing.id); toast("ההערה נשמרה"); }
   catch(err) { toast("ההערה לא נשמרה: " + err.message); }
 });
 
@@ -2980,7 +3051,7 @@ function setLeadEdit(on){
   card.querySelectorAll("input, select, textarea, button.switch, button.star, #clearRemind").forEach(el => { if (!el.closest("#siblings")) el.disabled = !on; });
   $("leadEditBtn").hidden = true; $("leadActions").hidden = !on; $("editBanner").hidden = !LEAD_DIRTY;
   $("lfRemind").style.visibility = (!on && !$("lfRemind").value) ? "hidden" : "";
-  $("lfMessage").closest("fieldset").hidden = !on && !$("lfMessage").value.trim();
+  $("lfMessage").closest(".msg-cell").hidden = !on && !$("lfMessage").value.trim();
   card.querySelectorAll("input:not([type=datetime-local])").forEach(el => { if (!el.closest("#siblings")) el.placeholder = on ? (el.dataset.ph || "") : "—"; });
 }
 $("sClass").addEventListener("input", () => { const v = $("sClass").value.replace(/\D/g, "").slice(0, 2); if (v !== $("sClass").value) $("sClass").value = v; });
@@ -3646,7 +3717,7 @@ function wireProp(se){
 }
 // מקצוע בצבע לפי קובץ הנרשמים: מתמטיקה ירוק, אנגלית צהוב, שניהם כחול
 // מקצוע קצר ליד השם בנוכחות: מת' / אנג' / משולב
-function subjMini(s){ const g = subjGrp(s); return `<span class="subj-mini ${["s-m", "s-e", "s-b", "s-x"][g]}">${["מתמטיקה", "אנגלית", "משולב", "בלי מקצוע"][g]}</span>`; }
+function subjMini(s){ const g = subjGrp(s); return `<span class="subj-mini ${["s-m", "s-e", "s-b", "s-x"][g]}">${["מת'", "אנג'", "משולב", "בלי מקצוע"][g]}</span>`; }   // 5.19.14: מקוצר (הלקוחה)
 function subjChip(s){
   const v = String(s || ""), m = v.includes("מתמטיקה"), e = v.includes("אנגלית");
   const cls = m && e ? "s-b" : m ? "s-m" : e ? "s-e" : "s-x", txt = m && e ? "מתמטיקה + אנגלית" : m ? "מתמטיקה" : e ? "אנגלית" : (v || "מקצוע לא ידוע");
@@ -4416,6 +4487,8 @@ function attDraftRestore(){
   A.rows.forEach(r => { const x = by[r.student_id]; if (x) { r.present = x.p; r.did_math = !!x.m; r.did_english = !!x.e; } });
   A.removed = d.removed || []; A.rows = A.rows.filter(r => !A.removed.includes(r.student_id));
   if (d.extra != null) $("shExtra").value = d.extra; if (d.notes != null) $("shNotes").value = d.notes;
+  // 5.19.14: אם הטיוטה זהה למה שכבר שמור - אין מה לשחזר ולא שואלים ביציאה
+  if (attSnap() === A.base) { store(attDraftKey(), null); A.dirty = false; return; }
   A.dirty = true; toast("שוחזר סימון שעוד לא נשמר - לא לשכוח ללחוץ \"שמירה\"");
 }
 window.addEventListener("beforeunload", (e) => { if (attChanged()) { e.preventDefault(); e.returnValue = ""; } });
@@ -4451,8 +4524,7 @@ $("shBack").addEventListener("click", () => {
 $("shSave").addEventListener("click", async () => {
   const err = $("shErr"); err.textContent = "";
   const missing = A.rows.filter(r => r.present == null).length;   // מותר לשמור גם בלי לסמן את כולם - מי שלא סומן פשוט לא נשמר
-  const bad = A.rows.filter(r => r.present && !r.did_math && !r.did_english);
-  if (bad.length) { err.textContent = `יש לסמן מה עשו בפועל (מתמטיקה / אנגלית): ${bad.map(r => r.first_name).join(", ")}.`; return; }
+  // 5.19.14: בלי הודעה על סימון חלקי - משולב/ת שסומן/ה נוכח/ת בלי מת'/אנג' נשמר/ת כנוכח/ת (הלקוחה)
   $("shSave").disabled = true;
   try {
     await rpc("save_attendance", { p_session: A.sheet.session_id, p_date: A.sheet.date,
@@ -4925,16 +4997,19 @@ async function loadMySchools(){
 // מאגר דפי תרגול (מנהלים ומתרגלים). התמונות ב-Storage (פרטי), מוצגות בקישורים זמניים.
 // ======================================================================
 const WS = { rows: null, book: store("telem_ws_book") || "", kind: "topic", topic: null, tab: "page", urls: {}, list: [], idx: 0 };
-const WS_KIND = { summary: "דפי סיכום", topic: "תרגול לפי נושאים", grammar: "דקדוק", unseen: "אנסין", general: "כללי" };
-const WS_KIND_ORD = ["topic", "summary", "grammar", "unseen", "general"];   // תמיד קודם "לפי נושא"
+const WS_KIND = { summary: "דפי סיכום", topic: "תרגול לפי נושאים", grammar: "דקדוק", unseen: "אנסין", vocab: "אוצר מילים", general: "כללי" };
+const WS_KIND_ORD = ["topic", "summary", "grammar", "unseen", "vocab", "general"];
+// 5.19.14: אנגלית - "אוצר מילים" (Vocabulary) בנפרד מ"כללי" (בלי שינוי במסד: מזהים לפי שם הנושא)
+const WS_VOCAB = /vocab|אוצר מילים/i;   // תמיד קודם "לפי נושא"
 // בתוצאות החיפוש: קודם "תרגול לפי נושאים", אחר כך דפי הסיכום
-const WS_SEARCH_ORD = ["topic", "summary", "grammar", "unseen", "general"];
+const WS_SEARCH_ORD = ["topic", "summary", "grammar", "unseen", "vocab", "general"];
 async function loadWs(){
   if (WS.rows) { renderWs(); return; }
   $("wsBody").innerHTML = "<div class='muted'>טוען...</div>";
   const WSQ = "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,source_path,sort_order,uploaded,is_star&is_active=eq.true&order=book,kind,topic_no,sort_order";
   try { WS.rows = await getAll("worksheets", WSQ).catch(e => /is_star/.test(String(e && e.message)) ? getAll("worksheets", WSQ.replace(",is_star", "")) : Promise.reject(e)); }
   catch(e) { $("wsBody").innerHTML = `<div class="card err">${e.status === 404 || e.code === "PGRST205" ? "צריך להריץ את קובץ 33." : "לא ניתן לטעון את המאגר."}</div>`; return; }
+  WS.rows.forEach(r => { if (r.book === "ENG" && r.kind === "general" && WS_VOCAB.test(r.topic_name || "")) r.kind = "vocab"; });
   renderWs();
 }
 // קישורים זמניים לתמונות (שעה), בקבוצות
@@ -4979,6 +5054,7 @@ async function renderWs(){
     seg("ws-part", parts.map(b => ({ a: `data-b="${esc(b)}"`, on: b === WS.book, t: "חלק " + (info[b].part || "") + "'" }))) +
     // אנגלית: דקדוק / אנסין / כללי - חלוקה לפי נושאי-על, באותו עיצוב כמו חלק א' / חלק ב'
     (WS.book === "ENG" ? seg("ws-part", kinds.map(k => ({ a: `data-wk="${esc(k)}"`, on: k === WS.kind, t: WS_KIND[k] || k }))) : "");
+  wsQuickRender(info, books, kinds);
   // מתמטיקה: הבחירה "לפי נושא / דפי סיכום" - רק בתוך נושא. אנגלית (דקדוק / אנסין / כללי) - בחוץ, כי לא לכל נושא יש את כל הסוגים
   const kindOut = WS.book === "ENG";
   $("wsKind").hidden = true;
@@ -5021,7 +5097,10 @@ async function renderWs(){
   // 5.19.9: שליחת יחידה / תת-נושא / נושא שלם - לחיצה ארוכה על השם (בלי מצב "בחירה"). דף בודד - מתוך הדף הפתוח.
   let html = `<div class="ws-bar"><button type="button" class="ws-back" id="wsBack" aria-label="כל הנושאים" title="כל הנושאים">→<span class="ws-back-t"> כל הנושאים</span></button><h2 class="${allIn("all") ? "on" : ""}" ${canSel ? `data-gsel="all"` : ""}><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}${list.some(r => r.is_star) ? " ⭐" : ""}</h2>${ME.role !== "instructor" ? `<button type="button" class="btn small ws-tstar${list.length && list.every(r => r.is_star) ? " on" : ""}" id="wsTStar" title="סימון כל הנושא כחשוב">${list.length && list.every(r => r.is_star) ? "⭐ חשוב" : "☆ חשוב"}</button>` : ""}</div>
     <div class="ws-sw">${kSeg}${t.answers.length ? `<div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים <small>${t.pages.length}</small></button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות <small>${t.answers.length}</small></button></div>` : ""}</div>
-    ${canSel ? `<div class="ws-selhint">לשליחת כל הדפים יחד - לחיצה ארוכה על שם ${list.some(r => r.sub) ? (WS.kind === "unseen" ? "היחידה" : "תת-הנושא") + " (או הנושא)" : "הנושא"}.</div>` : ""}
+    ${(() => { const st = list.map((r, i) => ({ r, i })).filter(x => x.r.is_star && x.r.uploaded); if (!st.length) return "";
+      return `<div class="ws-stars"><div class="ws-stars-h"><span>⭐ דפים חשובים בנושא (${st.length})</span>${st.length > 1 ? `<button type="button" class="btn small" id="wsStAll">${wsMobile() ? "שליחת כולם" : "הורדת כולם"}</button>` : ""}</div>
+        <div class="ws-stars-row">${st.map(x => `<div class="ws-st"><div class="th" data-sto="${x.i}">${sign(x.r.storage_path) ? `<img src="${esc(sign(x.r.storage_path))}" alt="" loading="lazy">` : ""}</div><div class="cp"><b>${esc(String(x.r.page_no || ""))}</b> ${esc(x.r.title || "")}</div><button type="button" class="go" data-sts="${x.i}">${WS_SHARE ? "שליחה" : "העתקה"}</button></div>`).join("")}</div></div>`; })()}
+    ${canSel ? `<div class="ws-selhint">לחיצה ארוכה על דף - ${WS_SHARE ? "שליחה" : "העתקה"} בלי לפתוח אותו. לכל הדפים יחד - לחיצה ארוכה על שם ${list.some(r => r.sub) ? (WS.kind === "unseen" ? "היחידה" : "תת-הנושא") + " (או הנושא)" : "הנושא"}.</div>` : ""}
     ${WS.tab === "answers" ? `<div class="ws-warn">פתרונות - לשימוש הצוות. לשלוח לתלמיד רק אם החלטתם.</div>` : ""}`;
   WS.sign = sign;
   const card = (r, i) => `<div class="ws-pgw${WS.sel.has(r.storage_path) ? " sel" : ""}"><button type="button" class="ws-pg" data-i="${i}"><div class="th">${r.is_star ? `<span class="ws-pstar" title="דף חשוב">⭐</span>` : ""}${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}</div>
@@ -5044,6 +5123,11 @@ async function renderWs(){
   } else html += `<div class="ws-pages">${list.map(card).join("")}</div>`;
   $("wsBody").innerHTML = html;
   $("view-ws").classList.toggle("ws-selmode", WS.sel.size > 0);
+  // ⭐ חשובים: שליחה/העתקה ישירה; לחיצה על התמונה פותחת את הדף
+  $("wsBody").querySelectorAll("[data-sto]").forEach(el => el.onclick = () => wsOpen(Number(el.dataset.sto)));
+  $("wsBody").querySelectorAll("[data-sts]").forEach(b => b.onclick = () => wsSendRow(list[Number(b.dataset.sts)]));
+  if ($("wsStAll")) $("wsStAll").onclick = () => { WS.sel = new Set(list.filter(r => r.is_star && r.uploaded).map(r => r.storage_path)); WS.ready = null; wsSelUpd(); $("wsSelSend").click(); };
+  if (wsMobile()) list.filter(r => r.is_star && r.uploaded).forEach(r => wsFileFor(r).catch(() => {}));   // מכינים מראש - כדי שחלון השיתוף ייפתח מיד
   // ⭐ ליחידה / תת-נושא - כל הדפים שלו
   $("wsBody").querySelectorAll("[data-gstar]").forEach(b => {
     b.addEventListener("pointerdown", (e) => e.stopPropagation());
@@ -5056,6 +5140,16 @@ async function renderWs(){
   $("wsBody").querySelectorAll("[data-kin]").forEach(b => b.onclick = () => { const [k, no] = b.dataset.kin.split("|"); if (k === WS.kind) return;
     WS.kind = k; WS.topic = no; WS.tab = "page"; store("telem_ws_kind", k); wsReplace(); renderWs(); });
   $("wsBody").querySelectorAll(".ws-pg").forEach(b => b.onclick = () => { if (b._lp) { b._lp = false; return; } wsOpen(Number(b.dataset.i)); });
+  // 5.19.14: לחיצה ארוכה על דף (או קליק ימני במחשב) - חלון "שליחה / פתיחת הדף", בלי להיכנס לדף
+  $("wsBody").querySelectorAll(".ws-pg").forEach(b => {
+    let tm = null, sx = 0, sy = 0; const r = () => list[Number(b.dataset.i)];
+    const stop = () => { clearTimeout(tm); tm = null; };
+    b.addEventListener("pointerdown", (e) => { if (e.button > 0) return; b._lp = false; sx = e.clientX; sy = e.clientY; const row = r(); if (row && row.uploaded && wsMobile()) wsFileFor(row).catch(() => {});
+      tm = setTimeout(() => { tm = null; b._lp = true; if (navigator.vibrate) try { navigator.vibrate(20); } catch(err) {} wsPopOpen(Number(b.dataset.i)); }, 450); });
+    b.addEventListener("pointermove", (e) => { if (tm && Math.hypot(e.clientX - sx, e.clientY - sy) > 10) stop(); });
+    ["pointerup", "pointerleave", "pointercancel"].forEach(ev => b.addEventListener(ev, stop));
+    b.addEventListener("contextmenu", (e) => { e.preventDefault(); if (!wsMobile()) { stop(); wsPopOpen(Number(b.dataset.i)); } });
+  });
   // לחיצה ארוכה (חצי שנייה) על שם - בוחרת את כל הדפים שלו לשליחה (ושוב - מבטלת). הקבצים מוכנים מראש, כדי ש"שליחה" תפתח מיד את חלון השיתוף.
   const pick = (g) => {
     const rows = grpRows(g), was = allIn(g);
@@ -5078,6 +5172,72 @@ async function renderWs(){
     el.addEventListener("click", (e) => { if (el._lp) { el._lp = false; e.preventDefault(); } });
   });
   wsSelUpd();
+}
+// 5.19.14: קובץ של דף (נשמר בזיכרון) - לשליחה ישירה של דף חשוב בלי לפתוח אותו
+WS.files = {};
+async function wsFileFor(r){
+  if (WS.files[r.storage_path]) return WS.files[r.storage_path];
+  const u = (WS.sign && WS.sign(r.storage_path)) || (await wsSign([r.storage_path]))(r.storage_path);
+  const b = await (await fetch(u)).blob(), ext = (r.storage_path.match(/\.(\w+)$/) || [, "png"])[1];
+  const nm = ((r.topic_name || "דף") + " - " + (r.title || r.page_no)).replace(/[\\/:*?"<>|]/g, " ");
+  return (WS.files[r.storage_path] = new File([b], nm + "." + ext, { type: b.type || "image/png" }));
+}
+async function wsSendRow(r){
+  if (!r) return;
+  if (WS_SHARE) {
+    const ready = WS.files[r.storage_path];
+    try {
+      const f = ready || await wsFileFor(r);
+      if (navigator.canShare({ files: [f] })) { await navigator.share({ files: [f] }); return; }
+    } catch(e) { if (e.name === "AbortError") return; if (e.name === "NotAllowedError") { toast("הדף מוכן - לוחצים שוב \"שליחה\""); return; } }
+  }
+  try {
+    const f = await wsFileFor(r);
+    const png = f.type === "image/png" ? f : await new Promise((res) => { const img = new Image(); img.onload = () => { const c = document.createElement("canvas"); c.width = img.naturalWidth; c.height = img.naturalHeight; c.getContext("2d").drawImage(img, 0, 0); c.toBlob(res, "image/png"); }; img.src = URL.createObjectURL(f); });
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
+    toast("הדף הועתק - חוזרים לצ'אט ומדביקים");
+  } catch(e) { toast("לא הצלחתי - פותחים את הדף ומשם שולחים"); }
+}
+function wsPopOpen(i){
+  const r = WS.list[i]; if (!r || !r.uploaded) return;
+  WS.popI = i; $("wsPopT").textContent = (r.is_star ? "⭐ " : "") + (r.page_no ? r.page_no + " · " : "") + (r.title || "");
+  $("wsPopSend").textContent = WS_SHARE ? "שליחה" : "העתקה"; $("wsPop").hidden = false;
+}
+$("wsPopSend").addEventListener("click", () => { const r = WS.list[WS.popI]; $("wsPop").hidden = true; wsSendRow(r); });
+$("wsPopOpen").addEventListener("click", () => { $("wsPop").hidden = true; wsOpen(WS.popI); });
+$("wsPopX").addEventListener("click", () => { $("wsPop").hidden = true; });
+$("wsPop").addEventListener("click", (e) => { if (e.target === $("wsPop")) $("wsPop").hidden = true; });
+// 5.19.14: פס קבוע בטלפון - כפתורים: מקצוע / כיתה / חלק (באנגלית: דקדוק / אנסין / כללי). נשאר גם כשדף פתוח
+function wsQuickRender(info, books, kinds){
+  const box = $("wsQuick"); if (!box) return;
+  const cur = info[WS.book] || {}, subj = cur.subj || "math";
+  const subjs = [...new Set(books.map(([b]) => (info[b] || {}).subj))];
+  const inSubj = books.filter(([b]) => (info[b] || {}).subj === subj);
+  const grades = [...new Set(inSubj.map(([b]) => info[b].grade).filter(Boolean))];
+  const parts = inSubj.filter(([b]) => info[b].grade === cur.grade).map(([b]) => b);
+  const seg = (items) => items.length > 1 ? `<div class="gseg">${items.map(x => `<button type="button" ${x.a} aria-pressed="${x.on}">${esc(x.t)}</button>`).join("")}</div>` : "";
+  const QK = { grammar: "דקדוק", unseen: "אנסין", vocab: "מילים", general: "כללי" };
+  box.innerHTML = `<div class="wq-row">${seg(subjs.map(x => ({ a: `data-qs="${x}"`, on: x === subj, t: x === "eng" ? "אנג'" : "מת'" })))}${subj === "eng"
+      ? seg(kinds.map(k => ({ a: `data-qk="${esc(k)}"`, on: k === WS.kind, t: QK[k] || WS_KIND[k] || k })))
+      : seg(grades.map(g => ({ a: `data-qg="${esc(g)}"`, on: g === cur.grade, t: g + "'" }))) + seg(parts.map(b => ({ a: `data-qb="${esc(b)}"`, on: b === WS.book, t: (info[b].part || "") + "'" })))}</div>`;
+  const go = (fn) => { wsViewerOff(); const was = WS.topic; fn(); WS.topic = null; if (was && WS.listKind && WS.book !== "ENG") WS.kind = WS.listKind; WS.tab = "page"; wsPush(); renderWs(); window.scrollTo(0, 0); };
+  const setBook = (b) => { if (!b) return; WS.book = b; store("telem_ws_book", b); };
+  box.querySelectorAll("[data-qs]").forEach(b => b.onclick = () => go(() => {
+    const last = store("telem_ws_book_" + b.dataset.qs), ok = last && books.some(([x]) => x === last && (info[x] || {}).subj === b.dataset.qs);
+    setBook(ok ? last : (books.find(([x]) => (info[x] || {}).subj === b.dataset.qs) || [])[0]); }));
+  box.querySelectorAll("[data-qg]").forEach(b => b.onclick = () => go(() => {
+    const suf = String(WS.book).slice(-1), g = b.dataset.qg;
+    setBook((inSubj.find(([x]) => info[x].grade === g && x.slice(-1) === suf) || inSubj.find(([x]) => info[x].grade === g) || [])[0]); }));
+  box.querySelectorAll("[data-qb]").forEach(b => b.onclick = () => go(() => setBook(b.dataset.qb)));
+  box.querySelectorAll("[data-qk]").forEach(b => b.onclick = () => go(() => { WS.kind = b.dataset.qk; WS.listKind = null; store("telem_ws_kind", WS.kind); }));
+  store("telem_ws_book_" + subj, WS.book);
+  requestAnimationFrame(() => { const h = box.offsetHeight; if (h) document.documentElement.style.setProperty("--wsq", h + "px"); });
+}
+// סגירת הדף הפתוח בלי "אחורה" (כשעוברים נושא מהפס העליון)
+function wsViewerOff(){
+  if ($("wsViewer").hidden) return;
+  $("wsViewer").hidden = true; document.body.style.overflow = ""; document.body.classList.remove("ws-vopen");
+  if (history.state && history.state.view === "ws" && history.state.viewer != null) { const st = Object.assign({}, history.state, { viewer: null }); history.replaceState(st, ""); }
 }
 // שליחת הדפים שנבחרו יחד: בטלפון - חלון השיתוף עם כל הקבצים (וואטסאפ...), במחשב - קובץ ZIP
 function wsSelUpd(){
@@ -5195,7 +5355,9 @@ $("wsPick").addEventListener("click", (e) => {
 $("wsKind").addEventListener("click", (e) => { const b = e.target.closest("[data-k]"); if (!b) return; WS.kind = b.dataset.k; store("telem_ws_kind", WS.kind); renderWs(); });
 // אנדרואיד (סמסונג ועוד): הדפדפן לא מעתיק תמונות, ווטסאפ באנדרואיד לא מדביק תמונה - שולחים דרך "שיתוף"
 const WS_ANDROID = /Android/i.test(navigator.userAgent);
-if (WS_ANDROID && navigator.canShare) document.querySelector("#wsSide .ws-how").innerHTML = "איך שולחים לתלמיד: נושא ← דף ← <b>שליחה</b> ← וואטסאפ ← בוחרים את הצ'אט.";
+// 5.19.14: "שליחה" (חלון השיתוף) בכל טלפון שתומך - גם אייפון; במחשב נשאר "העתקה"
+const WS_SHARE = wsMobile() && !!navigator.canShare;
+if (WS_SHARE) document.querySelector("#wsSide .ws-how").innerHTML = "איך שולחים לתלמיד: נושא ← דף ← <b>שליחה</b> ← וואטסאפ ← בוחרים את הצ'אט.";
 // מעבר בין סוגי דפים בתוך נושא: מחליף את השורה בהיסטוריה ("אחורה" חוזר לרשימת הנושאים)
 function wsReplace(){
   if (NAV_POP) return;
@@ -5226,7 +5388,7 @@ async function wsOpen(i, fromPop){
   if (!fromPop) wsPush(i);
   wzReset();
   WS.file = null;
-  $("wsViewer").hidden = false; document.body.style.overflow = "hidden";
+  $("wsViewer").hidden = false; document.body.style.overflow = "hidden"; document.body.classList.add("ws-vopen");
   $("wsVTitle").textContent = (r.is_star ? "⭐ " : "") + (r.type === "answers" ? "פתרונות · " : r.page_no + " · ") + (r.title || "");
   $("wsStar").textContent = r.is_star ? "⭐" : "☆"; $("wsStar").classList.toggle("on", !!r.is_star);
   $("wsPrev").disabled = i <= 0; $("wsNext").disabled = i >= WS.list.length - 1;
@@ -5270,7 +5432,7 @@ function wzReset(){ WZ.s = 1; WZ.x = 0; WZ.y = 0; wzApply(); }
 function wsClose(fromPop){
   if (WS.starDirty) { WS.starDirty = false; setTimeout(() => { if (currentView === "ws") renderWs(); }, 50); }
   if (!fromPop && history.state && history.state.view === "ws" && history.state.viewer != null) { history.back(); return; }
-  $("wsViewer").hidden = true; document.body.style.overflow = "";
+  $("wsViewer").hidden = true; document.body.style.overflow = ""; document.body.classList.remove("ws-vopen");
 }
 
 $("wsClose").addEventListener("click", () => wsClose());
@@ -5278,10 +5440,10 @@ $("wsPrev").addEventListener("click", () => wsOpen(WS.idx - 1));
 $("wsNext").addEventListener("click", () => wsOpen(WS.idx + 1));
 document.addEventListener("keydown", (e) => { if ($("wsViewer").hidden) return; if (e.key === "Escape") wsClose(); if (e.key === "ArrowLeft" && !$("wsNext").disabled) wsOpen(WS.idx + 1); if (e.key === "ArrowRight" && !$("wsPrev").disabled) wsOpen(WS.idx - 1); });
 // העתקת התמונה ללוח (להדבקה בוואטסאפ). אם הדפדפן לא מאפשר - פותחים את התמונה ללחיצה ארוכה.
-if (WS_ANDROID && navigator.canShare) { $("wsCopy").textContent = "שליחה"; }
+if (WS_SHARE) { $("wsCopy").textContent = "שליחה"; }
 $("wsCopy").addEventListener("click", async () => {
   const url = $("wsVImg").src; if (!url) return;
-  if (WS_ANDROID && navigator.canShare) {
+  if (WS_SHARE) {
     const f = WS.file || await fetch(url).then(x => x.blob()).then(b => new File([b], "דף.png", { type: b.type || "image/png" })).catch(() => null);
     if (f && navigator.canShare({ files: [f] })) {
       try { await navigator.share({ files: [f] }); } catch(e) { if (e.name !== "AbortError") toast("השליחה לא עבדה - אפשר \"הורדה\" ולשלוח מהגלריה"); }
