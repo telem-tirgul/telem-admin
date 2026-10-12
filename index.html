@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.10">
+<meta name="app-version" content="5.19.11">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -287,11 +287,17 @@
   .gbadge{ display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; padding:0; border-radius:50%; font-weight:800; font-size:13.5px; letter-spacing:-.3px; flex:none; box-sizing:border-box; background:var(--gb); color:var(--gi); border:2px solid var(--gi); }
   /* צבע שונה לכל שכבה (רקע בהיר + קו וטקסט חזקים). בלי אדום - שמור למבחן קרוב */
   .g-ה, .g-ו{ --gb:#E2EEFA; --gi:#2F78C4; } .g-ז{ --gb:#DFF3E8; --gi:#24935F; } .g-ח{ --gb:#FCEBD9; --gi:#C86E14; } .g-ט{ --gb:#ECE5FA; --gi:#7B55C9; }
-  .g-י{ --gb:#DDF2F4; --gi:#0F8A96; } .g-יא{ --gb:#F8E1EE; --gi:#B8327F; } .g-יב{ --gb:#EFE6DC; --gi:#6E5236; } .g-x{ --gb:transparent; --gi:var(--ink-soft); }
+  .g-י{ --gb:#F3F0C6; --gi:#857400; } .g-יא{ --gb:#F8E1EE; --gi:#B8327F; } .g-יב{ --gb:#EFE6DC; --gi:#6E5236; } .g-x{ --gb:transparent; --gi:var(--ink-soft); }
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); color:color-mix(in srgb, var(--gi) 55%, #fff); background:color-mix(in srgb, var(--gi) 22%, transparent); } }
   :root[data-theme="dark"] .gbadge{ border-color:color-mix(in srgb, var(--gi) 60%, #fff); color:color-mix(in srgb, var(--gi) 55%, #fff); background:color-mix(in srgb, var(--gi) 22%, transparent); }
   .dbl-star{ color:var(--gold); font-size:1.05em; margin-inline-end:3px; }
-  .att-name b.att-nm{ display:flex; align-items:center; gap:6px; } .att-nm .dbl-star{ margin-inline-start:auto; margin-inline-end:0; font-size:1.45em; line-height:1; color:#E0A100; text-shadow:0 0 1px #9a6d00; }
+  .att-name b.att-nm{ display:flex; align-items:center; gap:6px; }
+  .trk-btn{ cursor:pointer; } button.trk-btn:not(.btn){ all:unset; cursor:pointer; font-size:15px; line-height:1; padding:2px; opacity:.28; filter:grayscale(1); } button.trk-btn.on:not(.btn){ opacity:.9; filter:none; }
+  .att-nm .dbl-star + .trk-btn{ margin-inline-start:2px; } .att-nm > span + .trk-btn{ margin-inline-start:auto; }
+  /* מחשב: הכוכבית צמודה לשם, והמקצוע + כפתורי הנוכחות קרובים לשם (לא בצד השני של המסך) */
+  @media (min-width:761px){ .att-rows li[data-i]{ justify-content:flex-start; } .att-nm .dbl-star{ margin-inline-start:2px !important; } .att-rows li[data-i] .att-name{ flex:0 1 auto !important; min-width:230px; max-width:380px; } .att-rows li[data-i] .att-ctl{ margin-inline-start:12px; } }
+  .room-empty{ color:#B03A2E; font-weight:700; white-space:nowrap; } .room-empty u{ text-decoration:none; border-bottom:1.5px dashed currentColor; display:inline-block; min-width:28px; }
+  .btn.trk-btn{ padding:4px 7px; } .btn.trk-btn:not(.on){ opacity:.55; filter:grayscale(1); } .ro-btns{ display:inline-flex; gap:4px; } .att-nm .dbl-star{ margin-inline-start:auto; margin-inline-end:0; font-size:1.45em; line-height:1; color:#E0A100; text-shadow:0 0 1px #9a6d00; }
   .sch-mini{ color:var(--scd, var(--ink-soft)); font-weight:700; }
   .school-chip.sch-sm{ font-size:12px; padding:0 8px; line-height:1.5; font-weight:700; }
   .att-rows li.att-sec{ display:flex !important; align-items:center; gap:8px; background:var(--muted); font-weight:800; padding:6px 10px !important; border-radius:8px; margin-top:8px; }
@@ -623,6 +629,8 @@
   .ex-cal thead .sch, .ex-cal thead .gr{ z-index:3; }
   .ex-cal tr.first td{ border-top:1px solid color-mix(in srgb, var(--ink) 25%, transparent); }
   .ex-cal tr.ex-city td{ background:color-mix(in srgb, var(--gold) 28%, var(--paper)); font-weight:800; text-align:right; padding:3px 10px; position:sticky; right:0; }
+  .ex-cal td.sy{ background:#FFE066; color:#6B5300; cursor:pointer; font-size:8.5px; } .ex-cal td.sr{ background:#F28B82; color:#6E1410; cursor:pointer; font-size:8.5px; } .lg-sy{ background:#FFE066; } .lg-sr{ background:#F28B82; }
+  .ex-cal td.st{ background:#FFF3C4; cursor:pointer; font-size:12px; } .ex-legend .lg-st{ background:#FFF3C4; font-style:normal; font-size:10px; text-align:center; line-height:14px; }
   .ex-cal td.ex{ background:#7CD992; color:#0F4D22; cursor:pointer; }
   .ex-cal td.ex.qz{ background:#BDEBC8; color:#2C6B3D; font-weight:600; }   /* בוחן - ירוק דהוי יותר ממבחן */ .ex-cal td.mk{ background:#D6F5DC; color:#2E6B3E; cursor:pointer; }
   .ex-cal td.fri:not(.ex):not(.mk), .ex-cal th.fri,
@@ -1151,8 +1159,8 @@
     <form id="loginForm" method="post" action="#">
       <div><label class="lbl" for="lgEmail">אימייל</label><input id="lgEmail" name="email" type="email" autocomplete="username" required></div>
       <div><label class="lbl" for="lgPass">סיסמה</label><input id="lgPass" name="password" type="password" autocomplete="current-password" required></div>
-      <label style="display:flex; gap:6px; align-items:center; font-size:13px;"><input type="checkbox" id="lgRemember" checked> לזכור את האימייל במחשב הזה</label>
-      <label style="display:flex; gap:6px; align-items:center; font-size:13px;"><input type="checkbox" id="lgKeep"> להישאר מחובר/ת במכשיר הזה (גם כשעוברים לוואטסאפ). לא במחשב משותף.</label>
+      <label style="display:flex; gap:6px; align-items:center; font-size:13px;"><input type="checkbox" id="lgRemember" checked> לזכור את האימייל במחשב זה</label>
+      <label style="display:flex; gap:6px; align-items:center; font-size:13px;"><input type="checkbox" id="lgKeep"> להישאר מחובר/ת במכשיר הזה</label>
       <button class="btn primary" id="lgBtn" type="submit">כניסה</button>
       <button class="btn small" id="lgForgot" type="button" style="align-self:flex-start; background:none; border:none; padding:2px 0; color:var(--accent); font-weight:700; text-decoration:underline; text-underline-offset:3px;">שכחתי סיסמה</button>
       <div class="msg" id="lgMsg"></div>
@@ -1564,15 +1572,16 @@
     </section>
     <!-- ===== מבחנים בבתי הספר (קובץ 50) ===== -->
     <section id="view-exams" hidden>
-      <div class="gseg subnav" role="group" aria-label="קבוצות ומרתונים"><button type="button" data-gv="groups">קבוצות ומרתונים</button><button type="button" data-gv="exams">לוח מבחנים</button></div>
-      <div class="page-head"><h1>לוח מבחנים במתמטיקה</h1>
+      <div class="gseg subnav" role="group" aria-label="קבוצות ומרתונים"><button type="button" data-gv="groups">קבוצות</button><button type="button" data-gv="exams">מרתונים</button></div>
+      <div class="page-head"><h1>מרתונים · לוח מבחנים</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;" data-admin>
           <button class="btn small" type="button" id="exImpBtn">ייבוא מהקובץ</button><input type="file" id="exImpFile" accept=".xlsx" hidden>
-          <button class="btn small primary" type="button" id="exAddBtn">+ מבחן</button>
+          <button class="btn small primary" type="button" id="exAddBtn">+ אירוע</button>
+          <button class="btn small primary" type="button" id="exMarBtn">+ מרתון</button>
         </div></div>
       <div class="ex-modebar">
         <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-exm="cal">לוח חודשי</button><button type="button" data-exm="list">רשימה</button></div>
-        <div class="ex-monthnav" id="exMonthNav"><button type="button" class="btn small" id="exMPrev">→ חודש קודם</button><b id="exMLbl"></b><button type="button" class="btn small" id="exMNow">היום</button><button type="button" class="btn small" id="exMNext">חודש הבא ←</button></div>
+        <div class="ex-monthnav" id="exMonthNav"><button type="button" class="btn small" id="exMPrev" hidden>→ חודש קודם</button><b id="exMLbl"></b><button type="button" class="btn small" id="exMNow">היום</button><button type="button" class="btn small" id="exMNext" hidden>חודש הבא ←</button></div>
       </div>
       <div id="exInfo" class="muted ex-info"></div>
       <form id="exForm" class="card ex-form" hidden></form>
@@ -1635,8 +1644,8 @@
 
     <!-- ===== לוח קבוצות ===== -->
     <section id="view-groups" hidden>
-      <div class="gseg subnav" role="group" aria-label="קבוצות ומרתונים" data-admin><button type="button" data-gv="groups">קבוצות ומרתונים</button><button type="button" data-gv="exams">לוח מבחנים</button></div>
-      <div class="page-head"><h1>קבוצות ומרתונים</h1>
+      <div class="gseg subnav" role="group" aria-label="קבוצות ומרתונים" data-admin><button type="button" data-gv="groups">קבוצות</button><button type="button" data-gv="exams">מרתונים</button></div>
+      <div class="page-head"><h1>קבוצות</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
           <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-gmode="board">לוח</button><button type="button" data-gmode="table">טבלה</button></div>
           <button class="btn small primary" type="button" id="gNewBtn">+ קבוצה חדשה</button>
@@ -3163,7 +3172,11 @@ const EX = { rows: null, imp: null, edit: null, p: null, mode: null, month: null
 const EX_MAKEUP = /השלמה|שיפור/;
 // "חומר נלמד" = מה שלומדים עכשיו בכיתה (לא מבחן). התאריך = מתי התקבל.
 const EX_STUDY = /חומר נלמד|לומדים עכשיו|נושאים שוטפים/;
-const EX_KINDS = ["מבחן", "מבדק", "בוחן", "מבחן מיפוי", "מועד השלמה", "שיפור ציון", "חומר נלמד"];
+const EX_KINDS = ["מבחן", "מבדק", "בוחן", "מבחן מיפוי", "מועד השלמה", "שיפור ציון", "חומר נלמד", "SMS מבית הספר", "SMS מתלם"];
+const EX_EVT = /^SMS/;
+// טופס "+ אירוע": קודם סוג האירוע; במבחן - סוג המבחן
+const EX_EVTS = ["מבחן", "SMS מבית הספר", "SMS מתלם", "לומדים עכשיו"], EX_TESTS = ["מבחן", "מבדק", "בוחן", "מבחן מיפוי", "מועד השלמה", "שיפור ציון"];
+const exEvtOf = (e) => !e ? "מבחן" : EX_EVT.test(e.kind) ? e.kind : EX_STUDY.test(e.kind) ? "לומדים עכשיו" : "מבחן";   // אירועים (לא מבחן): הודעת SMS מבית הספר (צהוב) / מתלם (אדום) - בלוח, לא כ"מבחן" בנוכחות
 const schKey = (t) => String(t || "").replace(/["״׳'\s]/g, "");
 function loadExams(force){
   if (EX.p && !force) return EX.p;
@@ -3180,7 +3193,7 @@ function exFor(school, city, grade, cls){
     && (!city || !e.school || !e.school.city || e.school.city === city)
     && (!e.class_num || String(e.class_num) === String(cls || "")) && (e.subject || "מתמטיקה") === "מתמטיקה");
 }
-const examsFor = (school, city, grade, cls, from) => exFor(school, city, grade, cls).filter(e => e.exam_date >= from && !EX_STUDY.test(e.kind));
+const examsFor = (school, city, grade, cls, from) => exFor(school, city, grade, cls).filter(e => e.exam_date >= from && !EX_STUDY.test(e.kind) && !EX_EVT.test(e.kind));
 // החומר שלומדים עכשיו: השורה האחרונה מסוג "חומר נלמד" (עד היום)
 const studyFor = (school, city, grade, cls, today) => exFor(school, city, grade, cls).filter(e => EX_STUDY.test(e.kind) && e.exam_date <= today).pop() || null;
 // הודעה שממשיכה הודעה קודמת: כל הודעות "חומר נלמד" של אותו בית ספר + שכבה (+ כיתה) מהשבוע שלפני האחרונה - לפי הסדר
@@ -3246,12 +3259,14 @@ async function renderExams(reload){
   keep($("exSch"), schs, "כל בתי הספר"); keep($("exGrade"), grs, "כל השכבות");
   const t = todayIL(), fs = $("exSch").value, fg = $("exGrade").value, past = $("exPast").checked, mk = $("exMk").checked, adm = ME.role !== "instructor";
   const flt = (e) => (!fc || exCity(e) === fc) && (!fs || exSchName(e) === fs) && (!fg || gradeKey(e.grade) === fg);
-  if (cal) { await loadHol(); if (!EX.scrollTo && document.querySelector(".ex-cal-wrap")) EX.scrollTo = exFirstVisible(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_STUDY.test(e.kind) && (mk || !EX_MAKEUP.test(e.kind)) && flt(e)), t); exScrollTo(EX.scrollTo || exWeekStart(t), true, false); EX.scrollTo = null; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
+  if (cal) { await loadHol(); if (!EX.scrollTo && document.querySelector(".ex-cal-wrap")) EX.scrollTo = exFirstVisible(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => (mk || !EX_MAKEUP.test(e.kind)) && flt(e)), t); exScrollTo(EX.scrollTo || exWeekStart(t), true, false); EX.scrollTo = null; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
   const rows = EX.rows.filter(e => !EX_STUDY.test(e.kind) && (mk || !EX_MAKEUP.test(e.kind)) && (past || e.exam_date >= t) && flt(e));
   // 📓 חומר שלומדים עכשיו: האחרון לכל בית ספר + שכבה
   const stMap = {}; EX.rows.filter(e => EX_STUDY.test(e.kind) && e.exam_date <= t && flt(e)).forEach(e => { stMap[schKey(exSchName(e)) + "|" + gradeKey(e.grade) + "|" + (e.class_num || "")] = e; });
   const studies = Object.values(stMap);
-  const stH = studies.length ? `<div class="ex-study-box"><h3>📓 לומדים עכשיו</h3>${studies.map(e => `<button type="button" class="ex-st-item" data-ex="${e.id}">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> <span class="muted">· התקבל ${esc(fmtDM(e.exam_date))}</span>${studyAll(e).map(x => x.topics ? `<span class="ex-st-t">${esc(x.topics)}</span>` : "").join("")}</button>`).join("")}</div>` : "";
+  let stH = studies.length ? `<div class="ex-study-box"><h3>📓 לומדים עכשיו</h3>${studies.map(e => `<button type="button" class="ex-st-item" data-ex="${e.id}">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> <span class="muted">· התקבל ${esc(fmtDM(e.exam_date))}</span>${studyAll(e).map(x => x.topics ? `<span class="ex-st-t">${esc(x.topics)}</span>` : "").join("")}</button>`).join("")}</div>` : "";
+  // "לומדים עכשיו" - לא ברשימה (הלקוחה 11.10): מוצג בלוח, ביום שבו התקבל
+  stH = "";
   if (!rows.length) { box.innerHTML = stH + `<div class="empty-state">${EX.rows.length ? "אין מבחנים קרובים לפי הבחירה." : "עוד אין מבחנים במערכת."}</div>`; return; }
   const dateTxt = (e) => `<span class="ex-date${EX_MAKEUP.test(e.kind) ? "" : exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span>`;
   const btns = (e) => adm && e.origin === "manual" ? `<button type="button" class="btn small" data-exed="${e.id}">עריכה</button> <button type="button" class="btn small" data-exdel="${e.id}">מחיקה</button>` : "";
@@ -3320,7 +3335,7 @@ function exCalHtml(rows, today){
   if (!list.length) return "<div class='empty-state'>אין מבחנים לפי הבחירה.</div>";
   const holCell = (iso, city, sch) => { const h = holOn(iso, city || null, sch || null).filter(x => x.kind !== "note"); return h.length ? h[0].name : ""; };
   const wk = (x) => (x.dl === "א" ? " wk" : "") + (x.first ? " ms" : "") + (x.dl === "ו" ? " fri" : "");   // שישי - אפור כמו חג
-  let html = `<div class="ex-legend"><span><i class="lg-ex"></i>מבחן / מבדק</span><span><i class="lg-qz"></i>בוחן</span><span><i class="lg-mk"></i>מועד השלמה / שיפור ציון</span><span><i class="lg-hol"></i>חג / חופשה</span><span class="muted">לוחצים על משבצת ירוקה - רואים את הנושאים</span></div>
+  let html = `<div class="ex-legend"><span><i class="lg-ex"></i>מבחן / מבדק</span><span><i class="lg-qz"></i>בוחן</span><span><i class="lg-mk"></i>מועד השלמה / שיפור ציון</span><span><i class="lg-hol"></i>חג / חופשה</span><span><i class="lg-st">📓</i>לומדים עכשיו (התקבל)</span><span><i class="lg-sy"></i>SMS מבית הספר</span><span><i class="lg-sr"></i>SMS מתלם</span><span class="muted">לוחצים על משבצת ירוקה - רואים את הנושאים</span></div>
     <div class="tbl-wrap ex-cal-wrap"><table class="ex-cal"><thead><tr><th class="sch" rowspan="3">בית ספר</th><th class="gr" rowspan="3">שכבה</th>${months.map(x => { const [yy, mm] = x.m.split("-").map(Number); return `<th class="mo" colspan="${x.n}"><span>${HE_MONTHS[mm - 1]} ${yy}</span></th>`; }).join("")}</tr>
     <tr>${days.map(x => `<th class="dl${wk(x)}${x.d === 1 || x.iso === days[0].iso ? " m1" : ""}${x.iso === today ? " today" : ""}${holCell(x.iso) ? " hol" : ""}">${x.dl}</th>`).join("")}</tr>
     <tr>${days.map(x => `<th class="dn${wk(x)}${x.iso === today ? " today" : ""}${holCell(x.iso) ? " hol" : ""}" data-d="${x.iso}" title="${esc(holCell(x.iso))}">${x.d}</th>`).join("")}</tr></thead><tbody>`;
@@ -3329,9 +3344,12 @@ function exCalHtml(rows, today){
     if (r.city !== city) { city = r.city; html += `<tr class="ex-city"><td colspan="${days.length + 2}"><span>${esc(city || "בלי עיר")}</span></td></tr>`; }
     const first = i === 0 || list[i - 1].sch !== r.sch || list[i - 1].city !== r.city, span = first ? list.filter(x => x.sch === r.sch && x.city === r.city).length : 0;
     html += `<tr class="${first ? "first" : ""}">${first ? `<td class="sch" rowspan="${span}">${scChip(r.sch)}</td>` : ""}<td class="gr"><span class="gr-b g-${esc(r.gr)}">${esc(r.gr)}'</span></td>` + days.map(x => {
-      const es = r.ex.filter(e => e.exam_date === x.iso), h = holCell(x.iso, r.city, r.sch);
+      const all = r.ex.filter(e => e.exam_date === x.iso), es = all.filter(e => !EX_STUDY.test(e.kind) && !EX_EVT.test(e.kind)), evt = all.find(e => EX_EVT.test(e.kind)), stu = all.find(e => EX_STUDY.test(e.kind)), h = holCell(x.iso, r.city, r.sch);
       if (es.length) { const e = es.find(z => !EX_MAKEUP.test(z.kind)) || es[0], mkc = EX_MAKEUP.test(e.kind);
         return `<td class="d${wk(x)} ${mkc ? "mk" : /בוחן/.test(e.kind) ? "ex qz" : "ex"}${x.iso === today ? " today" : ""}" data-ex="${e.id}" title="${esc(es.map(z => z.kind + (z.class_num ? " (" + r.gr + "'" + z.class_num + ")" : "") + (z.topics ? ": " + z.topics : "")).join("\n"))}">${esc(exShort(e.kind))}</td>`; }
+      if (evt) { const tl = /תלם/.test(evt.kind); return `<td class="d ${tl ? "sr" : "sy"}${wk(x)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.topics ? ": " + evt.topics : ""))}">SMS</td>`; }
+      // "לומדים עכשיו" - הערה ביום שבו התקבל (נגיעה - הנושאים)
+      if (stu) return `<td class="d st${wk(x)}${x.iso === today ? " today" : ""}" data-ex="${stu.id}" title="${esc("לומדים עכשיו" + (stu.topics ? ": " + stu.topics : ""))}">📓</td>`;
       return `<td class="d${wk(x)}${h ? " hol" : ""}${x.iso === today ? " today" : ""}"${h ? ` title="${esc(h)}"` : ""}></td>`; }).join("") + "</tr>";
   });
   return html + "</tbody></table></div>";
@@ -3344,11 +3362,13 @@ function exOpenForm(e){
     <div><label class="lbl" for="exfGr">שכבה</label><select id="exfGr" required>${GRADE_ORD.slice(2).map(g => `<option value="${g}" ${e && gradeKey(e.grade) === g ? "selected" : ""}>${g}'</option>`).join("")}</select></div>
     <div><label class="lbl" for="exfCls">כיתה (לא חובה)</label><input id="exfCls" type="text" inputmode="numeric" placeholder="כל השכבה" value="${esc(e && e.class_num || "")}"></div>
     <div><label class="lbl" for="exfDate">תאריך</label><input id="exfDate" type="date" required value="${esc(e ? e.exam_date : "")}"></div>
-    <div><label class="lbl" for="exfKind">סוג</label><select id="exfKind">${EX_KINDS.map(k => `<option ${e && e.kind === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+    <div><label class="lbl" for="exfEvt">אירוע</label><select id="exfEvt">${EX_EVTS.map(k => `<option ${exEvtOf(e) === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+    <div id="exfKindBox"><label class="lbl" for="exfKind">סוג המבחן</label><select id="exfKind">${EX_TESTS.map(k => `<option ${e && e.kind === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>
     <div class="ex-f-wide"><label class="lbl" for="exfTop">נושאים</label><textarea id="exfTop" rows="2">${esc(e && e.topics || "")}</textarea></div>
     <div><label class="lbl" for="exfMat">שם קובץ (לא חובה)</label><input id="exfMat" type="text" value="${esc(e && e.material || "")}"></div>
     <div class="ex-f-btns"><button class="btn primary" type="submit">${e ? "שמירה" : "הוספה"}</button> <button class="btn" type="button" id="exfCancel">ביטול</button></div>`;
   $("exfCancel").onclick = () => { f.hidden = true; f.innerHTML = ""; };
+  const kb = () => { $("exfKindBox").hidden = $("exfEvt").value !== "מבחן"; }; $("exfEvt").onchange = kb; kb();
   $("exfSch").focus();
 }
 $("exAddBtn").addEventListener("click", () => exOpenForm(null));
@@ -3357,7 +3377,7 @@ $("exForm").addEventListener("submit", async (ev) => {
   const s = (L.schools || []).find(x => String(x.id) === $("exfSch").value);
   if (!s || !$("exfDate").value) { toast("חסרים בית ספר או תאריך"); return; }
   const body = { school_id: s.id, school_name: s.name, grade: $("exfGr").value, class_num: $("exfCls").value.trim() || null, exam_date: $("exfDate").value,
-                 kind: $("exfKind").value, material: $("exfMat").value.trim() || null, topics: $("exfTop").value.trim() || null, origin: "manual", updated_by: null };
+                 kind: $("exfEvt").value === "מבחן" ? $("exfKind").value : $("exfEvt").value === "לומדים עכשיו" ? "חומר נלמד" : $("exfEvt").value, material: $("exfMat").value.trim() || null, topics: $("exfTop").value.trim() || null, origin: "manual", updated_by: null };
   try { if (EX.edit) await patch("school_exams", "id=eq." + EX.edit.id, body); else await insert("school_exams", body);
         toast("נשמר"); $("exForm").hidden = true; $("exForm").innerHTML = ""; renderExams(true); }
   catch(err) { toast("לא נשמר: " + err.message); }
@@ -3548,7 +3568,7 @@ function openPanel(id){
   const se = G.sessions.find(x => x.session_id === id); if (!se) return;
   G.panel = id; $("gEdit").hidden = true; $("gEdit").innerHTML = ""; $("gEditBtn").hidden = false; $("roster").hidden = false; $("roster").classList.remove("editing");
   // אותו מיון כמו בדף הנוכחות: מתמטיקה, אנגלית, מתמטיקה+אנגלית; בתוך כל מקצוע לפי שכבה, כיתה ושם
-  const kids = G.roster.filter(k => k.session_id === id).sort(attSort);
+  const kids = G.roster.filter(k => k.session_id === id).sort(attSort);   // כמו בנוכחות: רשימה אחת לפי שם פרטי, המקצוע ליד כל ילד/ה
   const mOf = se.kind === "מרתון" ? (G.marathons || []).find(m => m.id === se.marathon_id) : null;
   $("panelTitle").textContent = mOf ? `${mOf.name} · ${se.time_label}` : `${se.location} · יום ${DAY_NAMES[se.day]}`;
   const nProp = (G.prop || []).filter(k => k.session_id === id).length;
@@ -3561,11 +3581,11 @@ function openPanel(id){
   $("roster").innerHTML = kids.length ? kids.map(k => {
     const arr = (k.arrival_time || "").slice(0, 5);
     const lead = L.leads.find(x => x.student_id === k.student_id);
-    const grp = subjGrp(k.subject), head = grp !== prevGrp ? (prevGrp = grp, `<li class="ro-sec">${grp < 3 ? subjChip(SUBJ_GRP_T[grp]) : "<b>בלי מקצוע</b>"} <span>${kids.filter(x => subjGrp(x.subject) === grp).length}</span></li>`) : "";
+    const head = "";   // כמו בנוכחות: בלי חלוקה למקצועות
     const dbl = se.kind !== "מרתון" && isDouble(k.student_id, se.day, se.location, k.arrival_time, k.personal_end);
-    return head + `<li data-aid="${k.id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${dblStar(dbl)}${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}
+    return head + `<li data-aid="${k.id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`} ${dblStar(dbl)}${subjMini(k.subject)}
       ${arr && arr !== start ? `<span class="tag diff">שעה אישית ${rng(arr, (k.personal_end || "").slice(0, 5) || addMin(arr, 45))}</span>` : ""}${k.status && k.status !== "משובץ" ? `<span class="tag">${esc(k.status)}</span>` : ""}</span>
-      <button type="button" class="btn small" data-move="${k.id}">העברה</button></div>
+      <span class="ro-btns"><button type="button" class="btn small trk-btn${k.tracking ? " on" : ""}" data-trk="${k.student_id}" title="הערת מעקב">📌</button> <button type="button" class="btn small" data-move="${k.id}">העברה</button></span></div>
       <div class="meta">${k.school ? `<span class="school-chip sch-sm ${scCls(k.school)}">${esc(k.school)}</span>` : ""}${kidExTag(k, se.city, todayIL())}${k.parent1_phone ? ` · ${esc(k.parent1_first || "הורה")}: ${esc(k.parent1_phone)}` : ""}</div>
       ${realNote(k.note) ? `<div class="meta">${esc(k.note)}</div>` : ""}${k.tracking ? `<div class="meta ro-track">📌 ${esc(k.tracking)}</div>` : ""}<div class="move-box" hidden></div></div></li>`;
   }).join("") : "<li class='meta'>אין ילדים בקבוצה הזאת.</li>";
@@ -3580,9 +3600,10 @@ function openPanel(id){
   if (mOf) { $("roster").insertAdjacentHTML("afterbegin", marBoxHtml(mOf)); wireMarBox($("roster"), mOf); }
   wireProp(se);
   $("roster").querySelectorAll("[data-move]").forEach(b => b.onclick = () => openMove(se, b.dataset.move));
+  $("roster").querySelectorAll("[data-trk]").forEach(b => b.onclick = async () => { const k = kids.find(x => String(x.student_id) === b.dataset.trk); if (k && await editTracking(k.student_id, k.tracking)) openPanel(id); });
   $("roster").querySelectorAll("[data-lead]").forEach(b => b.onclick = () => { closePanel(); openLead(Number(b.dataset.lead)); });
   $("panelAttBtn").hidden = false; $("panelAttBtn").onclick = () => openAttFor(se);
-  loadPanelSplits(se);
+  // פיצול לתת-קבוצות - הוסר מהלוח (הלקוחה 12.10, לא בשימוש בנוכחות). הקוד נשאר: loadPanelSplits(se)
   loadPanelSchool(se);
   $("panel").hidden = false; $("panelBg").hidden = false; $("panelClose").focus();
 }
@@ -3773,6 +3794,7 @@ function panelFor(title, sub){
   $("gEditBtn").hidden = true; $("panelAttBtn").hidden = true; $("roster").hidden = true; $("roster").innerHTML = "";
   $("panel").hidden = false; $("panelBg").hidden = false;
 }
+$("exMarBtn").addEventListener("click", async () => { go("groups"); for (let i = 0; i < 40 && G.hasKind === undefined; i++) await new Promise(r => setTimeout(r, 150)); $("mNewBtn").click(); });
 $("mNewBtn").addEventListener("click", () => { if (!G.hasKind) { toast("צריך להריץ קודם את קובץ 36"); return; } panelFor("מרתון חדש", G.city); openMarathonEditor(null); });
 function openMarathonEditor(m, inPanel){
   if (m && !inPanel) panelFor("עריכת מרתון", m.name);
@@ -3972,7 +3994,7 @@ async function openSplitEditor(se, set){
   $("roster").hidden = true; $("gEditBtn").hidden = true;
   const box = $("gEdit"); box.hidden = false;
   // אותו סידור כמו ברשימת הקבוצה: לפי מקצוע (עם כותרת), שכבה, כיתה ושם
-  const kids = G.roster.filter(k => k.session_id === se.session_id).sort(attSort);
+  const kids = G.roster.filter(k => k.session_id === se.session_id).sort(rosterSort);
   const first = set ? set[0] : null;
   let subs = set ? set.map(s => ({ name: s.name, room: s.room || "", staff: s.staff_id || "", members: s.members.map(m => m.student_id) }))
                  : [{ name: "א'", room: se.room || "", staff: "", members: [] }, { name: "ב'", room: "", staff: "", members: [] }];
@@ -4199,7 +4221,7 @@ async function shNavFill(sid){
 }
 function shGo(g){
   if (!g) return;
-  if (A.dirty && !window.confirm("יש סימון נוכחות שעוד לא נשמר. לעבור לקבוצה אחרת בלי לשמור? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הקבוצה)")) return;
+  if (attChanged() && !window.confirm("יש סימון נוכחות שעוד לא נשמר. לעבור לקבוצה אחרת בלי לשמור? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הקבוצה)")) return;
   A.dirty = false; A.curG = g; openSheet(g.session_id);
 }
 async function openSheet(sessionId){
@@ -4225,7 +4247,7 @@ async function openSheet(sessionId){
       $("shExtra").value = ""; $("shNotes").value = ex ? (nt ? nt + "\n" : "") + "ילדים שלא רשומים: " + ex : nt; }
     ["shExtra","shNotes","shSave","shAll"].forEach(id => $(id).disabled = !sh.can_edit);
     $("shMeta").textContent = sh.lesson && sh.lesson.updated_at ? `נשמר לאחרונה: ${fmtDate(sh.lesson.updated_at)}${sh.lesson.updated_by ? " · " + sh.lesson.updated_by : ""}` : "";
-    A.dirty = false; attDraftRestore();
+    A.dirty = false; A.base = attSnap(); attDraftRestore();
     shNavFill(sh.session_id);
     renderSheetRows();
     renderSheetCx();
@@ -4256,6 +4278,22 @@ const gradeKey = (g) => String(g || "").replace(/['׳"״\s]/g, "");
 const subjGrp = (v) => { v = String(v || ""); const m = v.includes("מתמטיקה"), e = v.includes("אנגלית"); return m && e ? 2 : m ? 0 : e ? 1 : 3; };
 const SUBJ_GRP_T = ["מתמטיקה", "אנגלית", "מתמטיקה + אנגלית", "בלי מקצוע"];
 // דף הנוכחות: רשימה אחת לפי א"ב של השם הפרטי (בלי חלוקה למקצועות - קל למצוא ילד). המקצוע מסומן ליד השם.
+// הערת מעקב לתלמיד/ה (students.tracking) - מחלון הקבוצה ומדף הנוכחות (מנהלים). מופיעה ב-📌 בכל המקומות.
+async function editTracking(studentId, cur){
+  const v0 = window.prompt("הערת מעקב (מופיעה עם 📌 בנוכחות, בקבוצה ובטבלת התלמידים). ריק = מחיקה:", cur || "");
+  if (v0 === null) return null;
+  const v = v0.trim() || null;
+  if (v === (cur || null)) return null;
+  try { await patch("students", "id=eq." + studentId, { tracking: v }); }
+  catch(e) { toast("השמירה נכשלה: " + e.message); return null; }
+  (L.leads || []).forEach(l => { if (l.student && l.student.id === studentId) l.student.tracking = v; });
+  (G.roster || []).forEach(k => { if (k.student_id === studentId) k.tracking = v; });
+  (A.rows || []).forEach(r => { if (r.student_id === studentId) r.tracking = v; });
+  toast(v ? "הערת המעקב נשמרה" : "הערת המעקב נמחקה");
+  return { v };
+}
+// חלון הקבוצה (לוח הקבוצות): קודם לפי מקצוע (מתמטיקה, אנגלית, משולב) - כדי שכל מקצוע יהיה ביחד - ובתוכו לפי שם פרטי
+function rosterSort(a, b){ return subjGrp(a.subject) - subjGrp(b.subject) || attSort(a, b); }
 function attSort(a, b){
   return (a.first_name || "").localeCompare(b.first_name || "", "he") || (a.last_name || "").localeCompare(b.last_name || "", "he");
 }
@@ -4334,6 +4372,9 @@ function attDirty(){
   store(attDraftKey(), JSON.stringify({ t: Date.now(), extra: $("shExtra").value, notes: $("shNotes").value,
     rows: A.rows.map(r => ({ id: r.student_id, p: r.present, m: r.did_math, e: r.did_english })), removed: A.removed || [] }));
 }
+// האם שונה משהו מאז הטעינה / השמירה האחרונה (רק אז שואלים לפני יציאה)
+function attSnap(){ return JSON.stringify({ r: (A.rows || []).map(r => [r.student_id, r.present, !!r.did_math, !!r.did_english]), n: ($("shNotes") || {}).value || "", rm: A.removed || [] }); }
+const attChanged = () => !!(A.sheet && A.sheet.can_edit && A.base != null && !$("attSheet").hidden && attSnap() !== A.base);
 function attDraftClear(){ if (A.sheet) store(attDraftKey(), null); A.dirty = false; }
 function attDraftRestore(){
   let d = null; try { d = JSON.parse(store(attDraftKey()) || "null"); } catch(e) {}
@@ -4346,14 +4387,14 @@ function attDraftRestore(){
   if (d.extra != null) $("shExtra").value = d.extra; if (d.notes != null) $("shNotes").value = d.notes;
   A.dirty = true; toast("שוחזר סימון שעוד לא נשמר - לא לשכוח ללחוץ \"שמירה\"");
 }
-window.addEventListener("beforeunload", (e) => { if (A.dirty && !$("attSheet").hidden) { e.preventDefault(); e.returnValue = ""; } });
+window.addEventListener("beforeunload", (e) => { if (attChanged()) { e.preventDefault(); e.returnValue = ""; } });
 function setPresent(r, v){
   r.present = v;
   // משולב: לא מסמנים מראש - המתרגל/ת מסמן/ת מה עשו בפועל (מת' / אנג' / שניהם)
   if (v && !r.did_math && !r.did_english && subjGrp(rowSubj(r)) !== 2) { const d = subjDefault(rowSubj(r)); r.did_math = d.m; r.did_english = d.e; }
   if (!v) { r.did_math = false; r.did_english = false; }
 }
-$("shRows").addEventListener("click", (e) => {
+$("shRows").addEventListener("click", async (e) => {
   const rm = e.target.closest("[data-rm]");
   if (rm && A.sheet.can_edit) { const i = Number(rm.closest("li").dataset.i), r = A.rows[i]; if (r.saved) A.removed.push(r.student_id); A.rows.splice(i, 1); attDirty(); renderSheetRows(); return; }
   const b = e.target.closest("[data-p]"); if (!b || !A.sheet.can_edit) return;
@@ -4370,11 +4411,11 @@ $("shRows").addEventListener("change", (e) => {
 ["shExtra", "shNotes"].forEach(id => $(id).addEventListener("input", attDirty));
 $("shAll").addEventListener("click", () => { A.rows.filter(shVisible).forEach(r => { if (r.present == null) setPresent(r, true); }); attDirty(); renderSheetRows(); });
 $("shGroup").addEventListener("click", async () => {
-  if (attDirty && attDirty() && !window.confirm("יש סימונים שלא נשמרו. לעבור בכל זאת? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הנוכחות)")) return;
+  if (attChanged() && !window.confirm("יש סימונים שלא נשמרו. לעבור בכל זאת? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הנוכחות)")) return;
   G.openAfter = A.sheet && A.sheet.session_id; go("groups");
 });
 $("shBack").addEventListener("click", () => {
-  if (A.dirty && !window.confirm("יש סימון נוכחות שעוד לא נשמר. לצאת בלי לשמור?")) return;
+  if (attChanged() && !window.confirm("יש סימון נוכחות שעוד לא נשמר. לצאת בלי לשמור?")) return;
   attDraftClear(); showAttList(); loadAttGroups(); });
 $("shSave").addEventListener("click", async () => {
   const err = $("shErr"); err.textContent = "";
@@ -6148,7 +6189,7 @@ function updSafe(){
   if (typeof LEAD_DIRTY !== "undefined" && LEAD_DIRTY && currentView === "lead") return false;   // כרטיס עם שינויים שלא נשמרו
   if ([...document.querySelectorAll(".panel-bg")].some(x => !x.hidden)) return false;
   if (!$("panel").hidden) return false;
-  if (A.dirty && !$("attSheet").hidden) return false;   // באמצע סימון נוכחות שלא נשמר
+  if (attChanged()) return false;   // באמצע סימון נוכחות שלא נשמר
   return true;
 }
 function updReload(){ sstore("telem_updated", APP_VER); try { if (history.state && history.state.telem) sessionStorage.setItem("telem_resume", JSON.stringify(history.state)); } catch(e) {} location.replace(location.pathname + "?v=" + Date.now() + location.hash); }
@@ -6169,7 +6210,7 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 setInterval(checkUpdate, 60 * 60 * 1000);
 // ---------- עדכון נתונים אוטומטי: כל 3 דקות (וכשחוזרים ללשונית) - כדי לראות שינויים שאחרים עשו ----------
 // רק כשבטוח: לא באמצע הקלדה / עריכה / חלון פתוח / נוכחות שלא נשמרה. כרטיס תלמיד פתוח - לא מתעדכן (שלא יידרסו שינויים).
-const LIVE_ON = false;   // כבוי בינתיים (הלקוחה: "חכה עם זה") - מדליקים כשמחליטים
+const LIVE_ON = true;   // הודלק 12.10 (הלקוחה). כרטיס תלמיד פתוח / עריכה / נוכחות שלא נשמרה - לא נוגעים
 const LIVE_MS = 3 * 60 * 1000; let LIVE_LAST = Date.now(), LIVE_BUSY = false;
 async function liveRefresh(minGap){
   if (!LIVE_ON || LIVE_BUSY || !auth || $("appView").hidden || document.visibilityState !== "visible" || !DATA_READY) return;
