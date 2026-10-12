@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.12">
+<meta name="app-version" content="5.19.13">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1085,6 +1085,21 @@
   .ws-gtick{ flex:none; position:relative; width:24px; height:24px; border-radius:50%; border:2px solid var(--accent); background:var(--paper, #fff); box-sizing:border-box; }
   .ws-gtick.on{ background:var(--accent); }
   .ws-gtick.on::after{ content:""; position:absolute; left:7px; top:3px; width:5px; height:11px; border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg); }
+  /* תתי-נושאים / יחידות - כרטיסים; במחשב זה לצד זה */
+  .ws-grp{ min-width:0; } .ws-grp + .ws-grp{ margin-top:6px; }
+  @media (min-width:900px){
+    .ws-grps{ display:grid; grid-template-columns:repeat(auto-fill, minmax(460px, 1fr)); gap:14px; align-items:start; }
+    .ws-grps-unit{ grid-template-columns:repeat(auto-fill, minmax(420px, 1fr)); }
+    .ws-grp{ background:var(--paper, #fff); border:1px solid var(--border); border-radius:14px; padding:4px 12px 12px; } .ws-grp + .ws-grp{ margin-top:0; }
+    .ws-grp.wide{ grid-column:1 / -1; }
+    .ws-grp .ws-gh{ margin:6px 0 8px; } .ws-grp .ws-pages{ grid-template-columns:repeat(auto-fill, minmax(118px, 1fr)); gap:10px; }
+    .ws-grps-unit .ws-grp .ws-pages{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  }
+  .ws-grp.on{ outline:2.5px solid var(--accent); outline-offset:1px; background:color-mix(in srgb, var(--accent) 5%, var(--paper, #fff)); }
+  .ws-grp .ws-gh[data-gsel].on{ box-shadow:none; background:none; padding-inline:0; }
+  .ws-selmode .ws-grp.on .ws-pgw.sel > .ws-pg{ outline:none; }
+  .ws-gh .ws-gstar{ all:unset; cursor:pointer; margin-inline-start:auto; font-size:19px; line-height:1; padding:2px 6px; color:var(--ink-soft); } .ws-gh .ws-gstar.on{ color:inherit; }
+  .ws-gh[data-gsel]{ display:flex; align-items:center; gap:8px; }
   .ws-pstar{ position:absolute; top:6px; left:6px; z-index:1; font-size:18px; line-height:1; filter:drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
   .ws-star-btn{ font-size:20px; min-width:46px; } .ws-star-btn.on{ background:#FFF4CC; border-color:#E0A100; }
   .ws-bar .ws-tstar{ margin-inline-start:auto; flex:none; } .ws-bar .ws-tstar.on{ background:#FFF4CC; border-color:#E0A100; }
@@ -1107,7 +1122,7 @@
   }
   @media (max-width:760px){ .ws-selbar{ flex-wrap:nowrap; gap:8px; padding:8px 10px; bottom:8px; } .ws-selbar span{ font-size:14px; white-space:nowrap; } .ws-selbar .btn.primary{ flex:none; padding:8px 12px; font-size:14px; } #wsSelClr{ padding:6px 8px; font-size:12.5px; } }
   .ws-pg .cap{ padding:6px 8px 8px; font-size:13px; line-height:1.3; display:flex; gap:6px; } .ws-pg .cap b{ color:var(--accent); }
-  .ws-viewer{ position:fixed; inset:0; z-index:200; background:rgba(18,14,20,.95); display:flex; flex-direction:column; }
+  .ws-viewer{ position:fixed; inset:0; z-index:200; background:#161118; display:flex; flex-direction:column; }
   .ws-vtop{ display:flex; align-items:center; gap:10px; padding:10px 14px; color:#fff; } .ws-vt{ flex:1; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .ws-x, .ws-nav{ background:rgba(255,255,255,.15); color:#fff; border:0; border-radius:12px; width:46px; height:44px; font-size:20px; cursor:pointer; } .ws-nav:disabled{ opacity:.3; }
   .ws-vimg{ flex:1; overflow:auto; display:flex; justify-content:center; align-items:flex-start; padding:4px 10px; -webkit-overflow-scrolling:touch; }
@@ -1376,6 +1391,7 @@
         </div>
       </div>
       <div id="attSheet" hidden>
+        <div id="shFilt"></div>
         <div class="sh-head">
           <div class="sh-h1row"><h1 id="shTitle"></h1>
             <div class="sh-top-btns"><button class="btn small" type="button" id="shGroup" data-admin title="פתיחת הקבוצה במסך קבוצות ומרתונים">✎ <span class="lg-t">עריכת </span>קבוצה</button><button class="btn small" type="button" id="shBack">→ חזרה<span class="lg-t"> לקבוצות</span></button></div></div>
@@ -4080,7 +4096,17 @@ const A = { date: todayIL(), city: store("telem_att_city") || "", groups: [], sh
 A.cities = (() => { try { const v = JSON.parse(store("telem_att_cities") || "null"); if (Array.isArray(v) && v.length) return v.filter(c => CONFIG.cities.includes(c)); } catch(e) {} return CONFIG.cities.slice(); })();
 if (!A.cities.length) A.cities = CONFIG.cities.slice();
 
-function showAttList(){ $("attList").hidden = false; $("attSheet").hidden = true; }
+// במחשב: שורת הערים והמתרגלים נשארת גם בתוך נוכחות של קבוצה - והקבוצה הקודמת / הבאה לפיה
+const ATT_FILT = { el: null, home: null, next: null };
+function attFiltTo(sheet){
+  const f = ATT_FILT.el || (ATT_FILT.el = document.querySelector("#attList .att-filt"));
+  if (!f) return;
+  if (!ATT_FILT.home) { ATT_FILT.home = f.parentNode; ATT_FILT.next = f.nextSibling; }
+  if (sheet && !isMobile()) $("shFilt").appendChild(f);
+  else if (f.parentNode !== ATT_FILT.home) ATT_FILT.home.insertBefore(f, ATT_FILT.next);
+}
+["click", "change"].forEach(ev => $("shFilt").addEventListener(ev, () => { if (A.sheet) setTimeout(() => shNavFill(A.sheet.session_id), 0); }, true));
+function showAttList(){ attFiltTo(false); $("attList").hidden = false; $("attSheet").hidden = true; }
 function renderAttDate(){
   $("attDate").value = A.date;
   $("attDayName").innerHTML = "יום " + esc(DAY_FULL[dayLetter(A.date)]) + (A.date === todayIL() ? ' · <span class="today-word">היום</span>' : "");
@@ -4229,6 +4255,7 @@ function shGo(g){
   A.dirty = false; A.curG = g; openSheet(g.session_id);
 }
 async function openSheet(sessionId){
+  attFiltTo(true);
   $("attList").hidden = true; $("attSheet").hidden = false; window.scrollTo(0, 0);
   $("shRows").innerHTML = "<li class='muted'>טוען...</li>"; $("shErr").textContent = ""; $("shMeta").textContent = "";
   try {
@@ -5002,16 +5029,27 @@ async function renderWs(){
   // חלוקה לתת-נושאים / יחידות (אנסין: כל יחידה = קטע + שאלות + אוצר מילים) - כשיש
   const unitCls = WS.kind === "unseen" ? " ws-unit" : "";
   if ((WS.tab === "page" && WS.kind === "topic") || list.some(r => r.sub || r.chapter)) {
-    let cur = null, buf = [];
+    // 5.19.13: כל תת-נושא / יחידה בכרטיס משלו; במחשב הכרטיסים זה לצד זה (מנצלים את רוחב המסך)
+    const groups = [];
     list.forEach((r, i) => { const k = grpOf(r);
-      if (k !== cur) { if (buf.length) html += `<div class="ws-pages${unitCls}">${buf.join("")}</div>`; buf = []; cur = k;
+      if (!groups.length || groups[groups.length - 1].k !== k) {
+        let head = "";
         // כותרת רק כשיש תת-נושא או פרק (בספרים בלי חלוקה - בלי כותרת)
-        if (r.sub || r.chapter) html += `<div class="ws-gh${allIn(k) ? " on" : ""}" data-gsel="${esc(k)}"><span><bdi>${esc(r.sub || "")}</bdi>${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}</span></div>`; }
-      buf.push(card(r, i)); });
-    if (buf.length) html += `<div class="ws-pages${unitCls}">${buf.join("")}</div>`;
+        if (r.sub || r.chapter) { const gst = (() => { const rs = list.filter(x => grpOf(x) === k); return rs.length && rs.every(x => x.is_star); })();
+          head = `<div class="ws-gh${allIn(k) ? " on" : ""}" data-gsel="${esc(k)}"><span><bdi>${esc(r.sub || "")}</bdi>${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}${gst && ME.role === "instructor" ? " ⭐" : ""}</span>${ME.role !== "instructor" ? `<button type="button" class="ws-gstar${gst ? " on" : ""}" data-gstar="${esc(k)}" title="סימון ${WS.kind === "unseen" ? "היחידה" : "תת-הנושא"} כחשוב" aria-label="סימון כחשוב">${gst ? "⭐" : "☆"}</button>` : ""}</div>`; }
+        groups.push({ k, head, cards: [] });
+      }
+      groups[groups.length - 1].cards.push(card(r, i)); });
+    html += `<div class="ws-grps${unitCls ? " ws-grps-unit" : ""}">` + groups.map(g => `<section class="ws-grp${g.cards.length > 4 ? " wide" : ""}${allIn(g.k) ? " on" : ""}">${g.head}<div class="ws-pages${unitCls}">${g.cards.join("")}</div></section>`).join("") + `</div>`;
   } else html += `<div class="ws-pages">${list.map(card).join("")}</div>`;
   $("wsBody").innerHTML = html;
   $("view-ws").classList.toggle("ws-selmode", WS.sel.size > 0);
+  // ⭐ ליחידה / תת-נושא - כל הדפים שלו
+  $("wsBody").querySelectorAll("[data-gstar]").forEach(b => {
+    b.addEventListener("pointerdown", (e) => e.stopPropagation());
+    b.onclick = async (e) => { e.stopPropagation(); const rs = list.filter(x => grpOf(x) === b.dataset.gstar), on = !(rs.length && rs.every(x => x.is_star));
+      if (await wsSetStar(rs, on)) { toast(on ? "סומן כחשוב ⭐" : "הסימון הוסר"); renderWs(); } };
+  });
   if ($("wsTStar")) $("wsTStar").onclick = async () => { const on = !(list.length && list.every(r => r.is_star)); if (await wsSetStar(list, on)) { toast(on ? "כל הנושא סומן כחשוב ⭐" : "הסימון הוסר מהנושא"); renderWs(); } };
   $("wsBack").onclick = () => { if (history.state && history.state.view === "ws" && history.state.ws && history.state.ws.topic) { history.back(); return; } WS.topic = null; if (WS.listKind) WS.kind = WS.listKind; renderWs(); };
   $("wsBody").querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { WS.tab = b.dataset.tab; renderWs(); });
@@ -5024,6 +5062,7 @@ async function renderWs(){
     WS.sel = new Set(was ? [] : rows.map(r => r.storage_path)); WS.ready = null;
     $("wsBody").querySelectorAll(".ws-pg").forEach(x => x.closest(".ws-pgw").classList.toggle("sel", WS.sel.has(list[Number(x.dataset.i)].storage_path)));
     $("wsBody").querySelectorAll("[data-gsel]").forEach(x => x.classList.toggle("on", !was && x.dataset.gsel === g));
+    $("wsBody").querySelectorAll(".ws-grp").forEach(x => { const h = x.querySelector("[data-gsel]"); x.classList.toggle("on", !!h && !was && h.dataset.gsel === g); });
     $("view-ws").classList.toggle("ws-selmode", WS.sel.size > 0);
     if (navigator.vibrate) try { navigator.vibrate(25); } catch(e) {}
     wsSelUpd();
