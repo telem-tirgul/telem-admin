@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.19">
+<meta name="app-version" content="5.19.20">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -525,6 +525,8 @@
   select.sch-sel{ background-color:var(--scb) !important; color:var(--sci) !important; -webkit-text-fill-color:var(--sci) !important; font-weight:800; border-radius:999px; }
   #leadForm.ro .lead-main select.sch-sel:disabled{ padding-inline-start:12px; width:auto; max-width:100%; }
   .asg-pill{ display:inline-flex; flex-wrap:wrap; gap:4px; }
+  .ws-hard{ font-style:normal; font-size:11px; font-weight:800; color:#7a4b00; background:#fff1d6; border:1px solid #f0d49a; border-radius:999px; padding:0 6px; white-space:nowrap; }
+  .asg-over{ display:inline-flex; align-items:center; justify-content:center; background:#fde2e1; color:#b42318; border:1px solid #f3b5b0; border-radius:999px; font-size:12px; font-weight:800; padding:0 6px; margin-inline-end:4px; vertical-align:middle; cursor:help; }
   .asg-pill > span{ display:inline-flex; align-items:center; gap:4px; font-size:12.5px; font-weight:700; white-space:nowrap; background:var(--scb, var(--ok-bg)); color:var(--sci, var(--ok)); border-radius:999px; padding:1px 8px; direction:rtl; }
   .asg-pill > span i{ width:7px; height:7px; border-radius:50%; background:currentColor; }
   .asg-pill.prop > span{ background:#FFF3C4; color:#7A5300; border:1.5px solid #E0B43C; }   /* מוצע - ממתין לאישור: צהוב, שעון */
@@ -866,7 +868,7 @@
   .att-ctl .seg{ flex:none; }
   @media (max-width:760px){
     /* כותרת: שורה אחת קומפקטית, תפריט נגלל לרוחב */
-    .side{ position:static; padding:8px 10px 0; gap:4px 10px; }
+    .side{ position:sticky; top:0; z-index:40; padding:8px 10px 0; gap:4px 10px; }   /* 5.19.20: גם בנייד הכותרת והתפריט תמיד למעלה */
     .brand{ font-size:15px; } .brand small{ display:none; }
     .side .who{ font-size:12px; } .side .who span{ display:none; }
     .side .who .btn{ padding:4px 8px; }
@@ -1112,6 +1114,10 @@
   .ws-rc-hits{ list-style:none; margin:0; padding:0; font-size:13px; display:flex; flex-direction:column; gap:2px; }
   .ws-rc-hits li[data-pg]{ cursor:pointer; border-radius:6px; padding:1px 4px; } .ws-rc-hits li[data-pg]:hover{ background:var(--muted); } .ws-rc-hits li.more{ color:var(--ink-soft); padding:1px 4px; }
   .ws-rc-n{ margin-top:auto; font-size:12.5px; color:var(--accent); font-weight:700; }
+  .ws-rc-ks{ margin-top:auto; display:flex; flex-wrap:wrap; gap:6px; }
+  .ws-rc-kb{ border:1px solid color-mix(in srgb, var(--kc) 60%, var(--border)); background:color-mix(in srgb, var(--kc) 18%, var(--paper)); color:var(--ink); border-radius:999px; padding:3px 10px; font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+  .ws-rc-kb span{ font-weight:500; color:var(--ink-soft); } .ws-rc-kb:hover{ background:color-mix(in srgb, var(--kc) 32%, var(--paper)); }
+  @media (max-width:760px){ .ws-rc{ padding:8px 10px; gap:6px; } .ws-rc-t{ font-size:14.5px; } .ws-rc-hits{ font-size:12.5px; } }
   .ws-empty{ background:var(--paper); border:1px dashed var(--border); border-radius:12px; padding:18px; text-align:center; font-size:15px; display:flex; flex-direction:column; gap:4px; }
   @media (max-width:760px){ .ws-res{ grid-template-columns:1fr; } .ws-rc{ grid-template-columns:minmax(0,1fr); } .ws-rc-th{ display:none; } .ws-search input{ padding:10px 40px 10px 36px; } }
   .ws-res mark, .ws-rc mark{ background:none; color:var(--accent,#7a1f2b); font-weight:700; text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--accent,#7a1f2b) 55%, transparent); text-decoration-thickness:2px; text-underline-offset:3px; padding:0; }
@@ -1127,20 +1133,20 @@
   /* 5.19.14: בטלפון - פס קבוע למעלה: מתמטיקה/אנגלית + ספר/חלק + נושא. נשאר גם כשדף פתוח */
   /* 5.19.19: בנייד - החלק העליון נשאר קבוע כשגוללים (נוכחות: תאריך + ערים + מתרגל; דף קבוצה: כותרת + חזרה + קבוצה קודמת/הבאה; תלמידים: חיפוש) */
   @media (max-width:760px){
-    .att-stick, .sh-stick{ position:sticky; top:0; z-index:9; background:var(--att-bg, var(--bg)); padding:6px 0 4px; margin-top:-6px; box-shadow:0 6px 8px -8px rgba(0,0,0,.25); }
+    .att-stick, .sh-stick{ position:sticky; top:var(--side-h, 0px); z-index:9; background:var(--att-bg, var(--bg)); padding:6px 0 4px; margin-top:-6px; box-shadow:0 6px 8px -8px rgba(0,0,0,.25); }
     .att-stick .att-date{ margin-bottom:6px; } .att-stick .att-filt{ margin-bottom:0; }
     .sh-stick .sh-head{ margin-bottom:4px; } .sh-stick .sh-h1row h1{ font-size:18px; } .sh-stick .sh-nav{ margin:4px 0 0; }
-    #view-leads .filters-card{ position:sticky; top:0; z-index:9; }
+    #view-leads .filters-card{ position:sticky; top:var(--side-h, 0px); z-index:9; }
   }
   .ws-quick{ display:none; }
   @media (max-width:760px){
-    .ws-stick{ position:sticky; top:0; z-index:8; background:var(--bg); padding:6px 0 6px; margin:-4px 0 6px; border-bottom:1px solid var(--border); }
+    .ws-stick{ position:sticky; top:var(--side-h, 0px); z-index:8; background:var(--bg); padding:6px 0 6px; margin:-4px 0 6px; border-bottom:1px solid var(--border); }
     .ws-stick .ws-search{ margin:6px 0 0; } .ws-stick .ws-search input{ padding-block:7px; }
     .ws-quick{ display:flex; flex-direction:column; gap:5px; }
     .ws-quick .wq-row{ display:flex; gap:6px; } .ws-quick .wq-row:empty{ display:none; }
     .ws-quick .wq-row{ gap:5px; } .ws-quick .gseg{ display:flex; flex:1 1 auto; min-width:0; } .ws-quick .gseg button{ flex:1 1 auto; min-width:0; padding:4px 5px !important; font-size:14.5px; min-height:0 !important; height:36px; white-space:nowrap; }
     #view-ws .ws-pick{ display:none; }
-    #view-ws .ws-bar{ top:var(--wsq, 48px); }
+    #view-ws .ws-bar{ top:calc(var(--side-h, 0px) + var(--wsq, 48px)); }
     body.ws-vopen .ws-stick{ position:fixed; top:0; left:0; right:0; z-index:210; padding:6px 10px; margin:0; background:#161118; border-color:#333; } body.ws-vopen #wsTop{ display:none; }
     body.ws-vopen .ws-quick .gseg{ background:rgba(255,255,255,.12); } body.ws-vopen .ws-quick .gseg button{ color:#fff; } body.ws-vopen .ws-quick .gseg button[aria-pressed="true"]{ background:#fff; color:#161118; }
     body.ws-vopen .ws-viewer{ top:var(--wsqv, 48px); }
@@ -1234,6 +1240,13 @@
   .ws-gtick.on::after{ content:""; position:absolute; left:7px; top:3px; width:5px; height:11px; border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg); }
   /* תתי-נושאים / יחידות - כרטיסים; במחשב זה לצד זה */
   .ws-grp{ min-width:0; } .ws-grp + .ws-grp{ margin-top:6px; }
+  /* 5.19.20: נושא גדול - תתי-נושאים נפתחים בלחיצה */
+  .ws-fold .ws-grp.closed .ws-pages{ display:none; }
+  .ws-fold .ws-grp .ws-gh{ background:var(--paper, #fff); border:1px solid var(--border); border-radius:12px; padding:10px 12px; margin:6px 0; }
+  .ws-fold .ws-grp:not(.closed) .ws-gh{ border-color:var(--gold); }
+  .ws-car{ font-style:normal; color:var(--accent); font-size:13px; width:14px; display:inline-block; }
+  .ws-gn{ font-style:normal; font-weight:500; font-size:12.5px; color:var(--ink-soft); }
+  @media (min-width:900px){ .ws-grps.ws-fold{ display:block; } .ws-fold .ws-grp{ background:none; border:0; padding:0; } .ws-fold .ws-grp + .ws-grp{ margin-top:0; } .ws-fold .ws-grp .ws-pages{ margin:4px 0 12px; } }
   @media (min-width:900px){
     .ws-grps{ display:grid; grid-template-columns:repeat(auto-fill, minmax(460px, 1fr)); gap:14px; align-items:start; }
     .ws-grps-unit{ grid-template-columns:repeat(auto-fill, minmax(420px, 1fr)); }
@@ -1371,7 +1384,7 @@
           <div><label class="lbl" for="fCity">עיר</label><select id="fCity"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fSchool">בית ספר</label><select id="fSchool"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fGrade">שכבה</label><select id="fGrade"><option value="">הכול</option></select></div>
-          <div><label class="lbl" for="fAsg">שיבוץ</label><select id="fAsg"><option value="">הכול</option><option value="yes">משובצים</option><option value="no">לא משובצים</option><option value="one">בקבוצה אחת בלבד</option><option value="prop">שיבוץ מוצע - כולם</option><option value="prop_none">מוצע - טרם נשלחה הודעה</option><option value="prop_sent">מוצע - קיבלו הודעה ולא אישרו</option></select></div>
+          <div><label class="lbl" for="fAsg">שיבוץ</label><select id="fAsg"><option value="">הכול</option><option value="yes">משובצים</option><option value="no">לא משובצים</option><option value="one">בקבוצה אחת בלבד</option><option value="many">⚠ ביותר משתי קבוצות</option><option value="over">⚠ מעל 90 דק' בשבוע</option><option value="prop">שיבוץ מוצע - כולם</option><option value="prop_none">מוצע - טרם נשלחה הודעה</option><option value="prop_sent">מוצע - קיבלו הודעה ולא אישרו</option></select></div>
           <div><label class="lbl" for="fSource">מקור ליד</label><select id="fSource"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fManager">מנהל</label><select id="fManager"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fFrom">עודכן מ-</label><input id="fFrom" type="date"></div>
@@ -2041,6 +2054,9 @@ $("infoBtn").addEventListener("click", (e) => { e.stopPropagation(); const m = $
 $("infoMenu").addEventListener("click", (e) => { const b = e.target.closest("[data-im]"); if (b) go(b.dataset.im); });
 document.addEventListener("click", (e) => { if (!$("infoMenu").hidden && !e.target.closest(".info-wrap")) { $("infoMenu").hidden = true; $("infoBtn").setAttribute("aria-expanded", "false"); } });
 // נייד: תפריט נפתח
+// 5.19.20: גובה הכותרת (נייד) - כדי שהפסים הקבועים של כל מסך ייעצרו מתחתיה
+{ const sd = document.querySelector(".side"), setH = () => document.documentElement.style.setProperty("--side-h", (window.matchMedia("(max-width:760px)").matches && sd.offsetHeight ? sd.offsetHeight : 0) + "px");
+  if (window.ResizeObserver) new ResizeObserver(setH).observe(sd); window.addEventListener("resize", setH); setH(); }
 $("navToggle").addEventListener("click", () => { const s = document.querySelector(".side"); const o = !s.classList.contains("nav-open"); s.classList.toggle("nav-open", o); $("navToggle").setAttribute("aria-expanded", String(o)); });
 document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => { document.querySelector(".side").classList.remove("nav-open"); $("navToggle").setAttribute("aria-expanded", "false"); }));
 
@@ -2262,9 +2278,9 @@ async function loadLists(){
   ]);
   L.statuses = st; L.sources = so; L.staffAll = sf; L.staff = sf.filter(x => x.role !== "instructor" && x.role !== "display"); L.schools = sc; L.levels = lv.map(x => x.name);
 }
-const ASG_Q = () => getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")");
+const ASG_Q = () => getAll("assignments", "select=student_id,status,arrival_time,personal_end,session:sessions!inner(day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")");
 function setAsg(asg){
-  L.asg = {}; L.prop = {}; asg.forEach(a => { if (!a.session) return; const m = a.status === "ממתין" ? L.prop : L.asg; (m[a.student_id] = m[a.student_id] || []).push(a.session); });
+  L.asg = {}; L.prop = {}; asg.forEach(a => { if (!a.session) return; const m = a.status === "ממתין" ? L.prop : L.asg; (m[a.student_id] = m[a.student_id] || []).push(Object.assign({}, a.session, { arrival_time: a.arrival_time, personal_end: a.personal_end })); });
   Object.values(L.asg).forEach(v => v.sort((x, y) => DAY_ORDER[x.day] - DAY_ORDER[y.day] || String(x.start_time).localeCompare(String(y.start_time))));
 }
 // עדכון קל (כל כמה דקות): רק לידים שהשתנו מאז הטעינה האחרונה + שיבוצים + הערות חדשות. לא מוריד שוב את כל הרשימה.
@@ -2297,7 +2313,7 @@ async function loadLeads(){
     getAll("leads", "select=" + LEAD_SELECT + "&order=updated_at.desc,id.desc")
       .catch(e => /tracking/.test(String(e && e.message)) ? getAll("leads", "select=" + LEAD_SELECT.replace("tracking,", "") + "&order=updated_at.desc,id.desc") : Promise.reject(e)),
     getAll("notes", "select=id,lead_id,body,created_at&order=created_at"),
-    getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")
+    getAll("assignments", "select=student_id,status,arrival_time,personal_end,session:sessions!inner(day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")
       .catch(() => getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")).catch(() => []),
     getAll("marathon_registrations", "select=student_id,status,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id").catch(() => [])
   ]);
@@ -2423,6 +2439,8 @@ function filtered(){
     if (grade && s.grade !== grade) return false;
     const na = asgOf(l).length, fa = $("fAsg").value;
     if (fa === "yes" && !na) return false; if (fa === "no" && na) return false; if (fa === "one" && na !== 1) return false;
+    if (fa === "many" && na <= 2) return false;   // 5.19.20
+    if (fa === "over" && !weekLoadCalc(asgOf(l).map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x })))) return false;
     if (fa === "prop" || fa === "prop_none" || fa === "prop_sent") { if (!propOf(l).length) return false;
       const st = propStage(s.id); if (fa === "prop_none" && st !== "none") return false; if (fa === "prop_sent" && st !== "sent") return false; }
     if (source && String(l.source_id) !== source) return false;
@@ -2496,7 +2514,8 @@ function renderLeads(){
       <td class="c-asg" data-act="asg" title="לחיצה - שיבוץ לקבוצה / שינוי">${(() => { const a = asgOf(l), pr = propOf(l);
         const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
-        return pills || props ? pills + (pills && props ? " " : "") + props : `<span class="asg-none">לא משובץ</span>`; })()}</td>
+        const ov = a.length ? weekLoadCalc(a.map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))) : "";   // 5.19.20
+        return (ov ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : `<span class="asg-none">לא משובץ</span>`); })()}</td>
       <td class="c-parent">${(() => { const fm = s.family || {}, nm = fm.parent1_first || fm.parent1_last || "", ph = fm.parent1_phone || "";   // שם פרטי + טלפון בשורה אחת
         return nm || ph ? `<span class="pn">${esc(nm)}</span>${nm && ph ? `<span class="sep"> · </span>` : ""}${ph ? `<a class="pp" dir="ltr" href="tel:${esc(ph)}" onclick="event.stopPropagation()">${esc(String(ph).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : ""}` : ""; })()}</td>
       <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
@@ -2712,6 +2731,31 @@ function updateLeadHead(){
 
 // ---------- מעקב: בקשות והוראות של ההורים (מתרגלים רואים בדף הנוכחות) ----------
 // 📌 מעקב (בקשות ההורים) + ⏰ שעה אישית לכל קבוצה שוטפת - הכול מופיע למתרגלים בשורת המעקב בנוכחות
+// 5.19.20: מגבלת שבוע - תלמיד/ה משובץ/ת עד 2 קבוצות שוטפות בשבוע, ועד 90 דק' סה"כ בשבוע (בלי מרתונים).
+// הזמן של כל קבוצה = השעה האישית אם יש (בלי שעת סיום - 45 דק'), אחרת שעות הקבוצה.
+// מעבר למגבלה - שואלים לפני שמירה, ובטבלת התלמידים מסומן ⚠. נספרים רק שיבוצים "משובץ" (הצעה נבדקת כשמאשרים אותה).
+const WEEK_MAX_MIN = 90, WEEK_MAX_GRP = 2;
+const DL_SEL = "select=id,status,arrival_time,personal_end,session:sessions(id,day,kind,start_time,end_time,school_year)&student_id=eq.";
+const asgLen = (arr, pend, st, en) => { const a = hmMin(arr), s0 = hmMin(st), e0 = hmMin(en);
+  if (a != null) { const b = hmMin(pend); return Math.max(0, (b != null ? b : a + 45) - a); }
+  return s0 != null && e0 != null ? Math.max(0, e0 - s0) : 45; };
+// rows: [{status, arrival_time, personal_end, session:{day,kind,start_time,end_time,school_year}}] -> "" או הסבר
+function weekLoadCalc(rows){
+  const g = rows.filter(a => a.session && (!a.session.school_year || a.session.school_year === CONFIG.schoolYear) && a.status === "משובץ" && a.session.kind !== "מרתון");
+  if (g.length > WEEK_MAX_GRP) return `יוצאות ${g.length} קבוצות בשבוע (מותר 2).`;
+  const tot = g.reduce((s, x) => s + asgLen(x.arrival_time, x.personal_end, x.session.start_time, x.session.end_time), 0);
+  if (tot > WEEK_MAX_MIN) return `יוצא ${tot} דק' בשבוע (מותר 90). אפשר לקבוע שעה אישית כדי לקצר.`;
+  return "";
+}
+// changes: [{ id (שיבוץ קיים, או חסר לחדש), status, session, arrival_time, personal_end }]. מחזיר true אם אפשר לשמור (בתוך המגבלה, או שאישרו בכל זאת)
+async function weekLoadOk(studentId, changes){
+  let rows; try { rows = await get("assignments", DL_SEL + studentId); } catch(e) { return true; }   // לא הצלחנו לבדוק - לא עוצרים
+  const ids = new Set(changes.filter(c => c.id).map(c => c.id));
+  const after = rows.filter(a => !ids.has(a.id)).concat(changes.map(c => Object.assign({}, rows.find(a => a.id === c.id) || {}, c)));
+  const er = weekLoadCalc(after);
+  if (!er || weekLoadCalc(rows) === er) return true;   // לא חורג, או שזה המצב שכבר היה (לא מחמירים) - בלי לשאול
+  return window.confirm("⚠ מעל המגבלה השבועית: " + er + "\n\nלשמור בכל זאת? התלמיד/ה יסומן/ת ⚠ בטבלת התלמידים.");
+}
 async function trackAsg(l){
   try {
     const r = await get("assignments", "select=id,arrival_time,personal_end,status,session:sessions(id,day,start_time,end_time,kind,school_year,location:locations(name))&student_id=eq." + l.student.id + "&order=id");
@@ -2761,6 +2805,8 @@ async function renderTrack(l, editMode){
       if (from !== curF || (from && to !== curT)) ups.push({ id: a.id, body: { arrival_time: from, personal_end: to } });
     }
     $("tbSave").disabled = true;
+    // 5.19.20: מגבלת יום - בודקים את כל השינויים יחד
+    if (ups.length && !(await weekLoadOk(l.student.id, ups.map(u => Object.assign({ id: u.id }, u.body))))) { $("tbSave").disabled = false; return; }
     try {
       if (v !== (l.student.tracking || null)) { await patch("students", "id=eq." + l.student.id, { tracking: v }); l.student.tracking = v; }
       for (const u of ups) await patch("assignments", "id=eq." + u.id, u.body);
@@ -2938,6 +2984,7 @@ async function loadLeadGroups(studentId){
       const aid = Number(box.dataset.pcard), up = (body) => api("POST", "/rest/v1/schedule_notices?on_conflict=student_id,school_year", Object.assign({ student_id: studentId, school_year: CONFIG.schoolYear }, body), { "Prefer": "resolution=merge-duplicates,return=minimal" }).then(() => { NTC.map[studentId] = Object.assign(NTC.map[studentId] || {}, body); });
       box.querySelector("[data-cn]").onchange = async (e) => { try { await up({ notified_at: e.target.checked ? new Date().toISOString() : null }); loadLeadGroups(studentId); } catch(err) { e.target.checked = !e.target.checked; toast("לא נשמר"); } };
       box.querySelector("[data-cc]").onchange = async (e) => { if (!e.target.checked) return; e.target.disabled = true;
+        if (!(await weekLoadOk(studentId, [{ id: aid, status: "משובץ" }]))) { e.target.checked = false; e.target.disabled = false; return; }
         try { const now = new Date().toISOString(); await patch("assignments", "id=eq." + aid, { status: "משובץ" });
               await up(Object.assign({ confirmed_at: now }, ((NTC.map[studentId] || {}).notified_at ? {} : { notified_at: now })));
               toast("אושר - עבר/ה למשובצים"); loadLeadGroups(studentId); loadLeads().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); }
@@ -3096,6 +3143,9 @@ async function openAsgEditor(studentId, a, cur, opts){
     // אם שינו את הסטטוס בכרטיס אחרי שנפתח החלון - לוקחים את המקצוע מהסטטוס העדכני
     const body = { session_id: sid, subject: subjFromStatus(statusName(curStatus())) || f("subject").value || null, arrival_time: from, personal_end: to };
     f("save").disabled = true;
+    // 5.19.20: עד 2 קבוצות ועד 90 דק' בשבוע - מעבר לזה שואלים
+    { const st = a ? a.status : ((box.querySelector("input[name=lgSt]:checked") || {}).value || "משובץ");
+      if (g && !(await weekLoadOk(studentId, [{ id: a ? a.id : undefined, status: st, session: Object.assign({ id: sid, school_year: CONFIG.schoolYear }, g), arrival_time: from, personal_end: to }]))) { f("save").disabled = false; return; } }
     try {
       if (a) await patch("assignments", "id=eq." + a.id, body);
       else { const st = (box.querySelector("input[name=lgSt]:checked") || {}).value || "משובץ"; await insert("assignments", Object.assign({ student_id: studentId, status: st }, body)); }
@@ -3829,6 +3879,7 @@ function wireProp(se){
     try { await saveNtc(k.student_id, { notified_at: cb.checked ? new Date().toISOString() : null }); openPanel(se.session_id); }
     catch(e) { cb.checked = !cb.checked; toast(/schedule_notices/.test(e.message) ? "צריך להריץ קודם את קובץ 41" : "לא נשמר"); } });
   R.querySelectorAll("[data-pc]").forEach(cb => cb.onchange = async () => { if (!cb.checked) return; const k = byId(cb.dataset.pc); cb.disabled = true;
+    if (!(await weekLoadOk(k.student_id, [{ id: k.id, status: "משובץ" }]))) { cb.checked = false; cb.disabled = false; return; }
     try { const now = new Date().toISOString(), n = NTC.map[k.student_id] || {};
       await patch("assignments", "id=eq." + k.id, { status: "משובץ" });
       await saveNtc(k.student_id, Object.assign({ confirmed_at: now }, n.notified_at ? {} : { notified_at: now }));
@@ -3946,6 +3997,7 @@ function openMove(se, aid){
   box.querySelector("[data-go]").onclick = async (ev) => {
     const target = Number(box.querySelector("select").value), kid = G.roster.find(k => String(k.id) === String(aid)), to = G.sessions.find(x => x.session_id === target);
     ev.target.disabled = true;
+    if (to.kind !== "מרתון" && !(await weekLoadOk(kid.student_id, [{ id: kid.id, session: Object.assign({ id: target, school_year: CONFIG.schoolYear }, to) }]))) { ev.target.disabled = false; return; }
     try { await patch("assignments", "id=eq." + aid, { session_id: target }); await loadGroups(); openPanel(G.panel);
           toast(`${kid.first_name} ${kid.last_name || ""} הועבר/ה ל${to.kind === "מרתון" ? to.time_label : "יום " + DAY_NAMES[to.day] + " " + to.time_label} · ${to.location}`); }
     catch(err) { ev.target.disabled = false; box.querySelector(".err").textContent = err.status === 409 ? "הילד/ה כבר בקבוצה הזאת." : "ההעברה לא נשמרה."; }
@@ -4463,7 +4515,7 @@ async function openSheet(sessionId){
     // ילד/ה שנוסף/ה לשיעור: המקצוע לפי ההרשמה שלו/ה (ומתקנים סימון ישן שנשמר רק מת' - נשמר בשמירה הבאה)
     A.rows.forEach(r => { if (r.in_group || r.subject) return; r.subject = regSubj(r.student_id, r.reg_status);
       if (r.subject && r.present && subjGrp(r.subject) !== 2) { const d = subjDefault(r.subject); r.did_math = d.m; r.did_english = d.e; } });
-    A.rows.sort(attSort);
+    A.rows.sort(attTimeSort);   // 5.19.20: לפי שעת ההגעה (שעה אישית, או שעת הקבוצה) ואז שם
     A.removed = [];
     A.splitView = "";   // פיצול לתת-קבוצות/חדרים - לא בשימוש (הלקוחה 11.10): תמיד כל הילדים
     $("shAddPanel").hidden = true; $("shAddQ").value = ""; $("shAddRes").innerHTML = ""; $("shAddBox").hidden = !sh.can_edit;
@@ -4526,6 +4578,12 @@ function rosterSort(a, b){ return subjGrp(a.subject) - subjGrp(b.subject) || att
 function attSort(a, b){
   return (a.first_name || "").localeCompare(b.first_name || "", "he") || (a.last_name || "").localeCompare(b.last_name || "", "he");
 }
+// 5.19.20: דף הנוכחות לפי שעת ההגעה - שעה אישית אם יש, אחרת שעת תחילת הקבוצה; באותה שעה לפי שם פרטי
+const attGrpStart = () => { const sh = A.sheet || {}, g = A.curG && A.curG.session_id === sh.session_id ? A.curG : null;
+  return hmMin(sh.start_time || (g && g.start_time) || sh.time_label); };
+const attArr = (r) => { const t = hmMin(r.arrival_time); return t != null ? t : attGrpStart(); };
+function attTimeSort(a, b){ return (attArr(a) ?? 9999) - (attArr(b) ?? 9999) || attSort(a, b); }
+const minHm = (m) => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
 // שיעור כפול: ★ ליד השם (שתי קבוצות באותו יום באותו בית ספר, או שעה אישית ארוכה)
 const hmMin = (t) => { const m = String(t || "").match(/^(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
 function isDouble(sid, day, loc, arr, pend){
@@ -4573,8 +4631,15 @@ function renderSheetRows(){
   if (!A.rows.length) { $("shRows").innerHTML = "<li class='muted'>אין ילדים משובצים לקבוצה הזאת.</li>"; updateCount(); return; }
   const spName = (id) => ((A.sheet.splits || []).find(s => s.id === id) || {}).name;
   let prevGrp = null;
+  A.rows.sort(attTimeSort);
+  // 5.19.20: כותרת שעה רק כשיש בקבוצה יותר משעת הגעה אחת (מי מגיע קודם ומי אחר כך)
+  const tSet = new Set(A.rows.filter(shVisible).map(attArr).filter(t => t != null)), multiT = tSet.size > 1;
+  let prevT = null;
   $("shRows").innerHTML = A.rows.map((r, i) => { if (!shVisible(r)) return "";
-    const grp = subjGrp(r.subject), head = "";
+    const grp = subjGrp(r.subject), t = attArr(r);
+    let head = "";
+    if (multiT && t != null && t !== prevT) { const n = A.rows.filter(x => shVisible(x) && attArr(x) === t).length;
+      head = `<li class="att-sec att-tsec"><span>⏰ <bdi>${minHm(t)}</bdi>${t === attGrpStart() ? " · שעת הקבוצה" : ""}</span><span>${n === 1 ? "ילד/ה 1" : n + " ילדים"}</span></li>`; prevT = t; }
     return head + `<li data-i="${i}">${gradeBadge(r.grade, r.class_num)}
     <div class="att-name"><b class="att-nm"><span${ME.role !== "instructor" && L.leads.some(l => l.student && l.student.id === r.student_id) ? ` class="att-kl" data-kl="${r.student_id}" role="button" tabindex="0" title="לכרטיס התלמיד/ה"` : ""}>${esc(r.first_name)} ${esc(r.last_name || "")}</span>${dblStar(isDouble(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location, r.arrival_time, r.personal_end))}</b>
       <span class="meta">${r.school ? `<span class="school-chip sch-sm ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${r.in_group ? "" : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
@@ -5146,8 +5211,32 @@ async function loadWs(){
   try { WS.rows = await getAll("worksheets", WSQ).catch(e => /is_star/.test(String(e && e.message)) ? getAll("worksheets", WSQ.replace(",is_star", "")) : Promise.reject(e)); }
   catch(e) { $("wsBody").innerHTML = `<div class="card err">${e.status === 404 || e.code === "PGRST205" ? "צריך להריץ את קובץ 33." : "לא ניתן לטעון את המאגר."}</div>`; return; }
   WS.rows.forEach(r => { if (r.book === "ENG" && r.kind === "general" && WS_VOCAB.test(r.topic_name || "")) r.kind = "vocab"; });
+  wsApplySplit(WS.rows);
   renderWs();
 }
+// 5.19.20: נושאים גדולים בלי חלוקה (17-30 דפים ברצף) - חלוקה לתתי-נושאים בתצוגה בלבד (לפי שמות הדפים; בלי שינוי במסד).
+// [מדף, שם תת-הנושא] - כל קבוצה מתחילה בדף הזה ועד תחילת הבאה. דף שכבר יש לו תת-נושא במסד - לא נוגעים.
+const WS_SPLIT = {
+  "8A|topic|01": [[1, "יחס"], [4, "חלוקה ביחס"], [9, "פרופורציה"], [14, "שאלות מילוליות"], [16, "יחס ישר ויחס הפוך"], [20, "קנה מידה"]],
+  "8A|topic|02": [[1, "יחס ישר"], [4, "השיפוע"], [9, "משוואת ישר"], [15, "חיוביות ושליליות"], [18, "מצבים מהחיים"], [21, "אי-שוויונות"], [24, "שטחים"]],
+  "8A|topic|03": [[1, "צורות חופפות"], [4, "צ.ז.צ"], [8, "ז.צ.ז"], [12, "בניית משולשים"], [15, "צ.צ.צ"], [18, "כתיבת הוכחות"], [22, "תיכונים"]],
+  "8A|topic|04": [[1, "היכרות"], [4, "זוויות הבסיס"], [8, "המשפט ההפוך"], [11, "קטע אחד – שלושה תפקידים"], [15, "המשפטים ההפוכים"], [18, "משולש שווה-צלעות"], [21, "הוכחות"]],
+  "8A|topic|05": [[1, "מה זה אחוז"], [5, "ערך האחוז"], [9, "מציאת הכמות השלמה"], [12, "מציאת האחוז"], [15, "הנחות, מע\"מ והגדלה"], [19, "שינוי באחוזים"], [23, "שינויים רצופים וריבית"]],
+  "8A|topic|06": [[1, "משוואות עם סוגריים"], [5, "משוואות מיוחדות"], [8, "משוואות עם שברים"], [12, "נעלם במכנה"], [15, "שאלות מילוליות"], [19, "דרך, מהירות וזמן"]],
+  "8A|topic|07": [[1, "פתיחת סוגריים"], [5, "נוסחאות הכפל המקוצר"], [9, "פירוק לגורמים"], [12, "שבר אלגברי ותחום הצבה"], [15, "צמצום"], [19, "חיבור וחיסור שברים אלגבריים"], [23, "כפל וחילוק שברים אלגבריים"]],
+  "8B|topic|08": [[1, "דיאגרמות"], [4, "שכיחות יחסית"], [7, "השכיח"], [10, "ממוצע"], [14, "חציון"]],
+  "8B|topic|09": [[1, "ודאי, אפשרי, בלתי אפשרי"], [4, "חישוב הסתברות"], [8, "שכיחות יחסית וניסוי"], [11, "תכונות ההסתברות"]],
+  "8B|topic|10": [[1, "הגדלה, הקטנה ויחס דמיון"], [4, "צלעות וזוויות מתאימות"], [8, "משפט הדמיון ז.ז"], [12, "מצולעים דומים"]],
+  "8B|topic|11": [[1, "פתרון משוואה וגרף"], [4, "פתרון גרפי"], [8, "שיטת ההצבה"], [12, "שיטת החיבור והחיסור"], [16, "שאלות מילוליות"]],
+  "8B|topic|12": [[1, "שורשים וקבוצות מספרים"], [7, "משפט פיתגורס"], [11, "המשפט ההפוך"], [14, "חפיפה יתר-ניצב"], [17, "פיתגורס בתיבה"]],
+  "8B|topic|13": [[1, "מכירים את הגליל"], [4, "עיגול – חזרה"], [7, "שטח מעטפת ושטח פנים"], [11, "נפח הגליל"], [15, "גליל ותיבה"]]
+};
+function wsApplySplit(rows){
+  rows.forEach(r => { const sp = WS_SPLIT[r.book + "|" + r.kind + "|" + r.topic_no]; if (!sp || r.sub || r.type !== "page") return;
+    const pg = Number(r.page_no); let nm = null; sp.forEach(([from, name]) => { if (pg >= from) nm = name; }); if (nm) { r.sub = nm; r.sub_view = true; } });
+}
+// דף "חשיבה" (חושבים / מעמיקים / אתגר / חשיבה בשם הדף) - תגית קטנה, כדי לראות מה בסיס ומה אתגר
+const WS_HARD = /חושבים|מעמיקים|אתגר|חשיבה/;
 // קישורים זמניים לתמונות (שעה), בקבוצות
 async function wsSign(paths){
   const now = Date.now(), need = paths.filter(p => !WS.urls[p] || WS.urls[p].exp < now + 60000);
@@ -5270,7 +5359,7 @@ async function renderWs(){
     ${WS.tab === "answers" ? `<div class="ws-warn">פתרונות - לשימוש הצוות. לשלוח לתלמיד רק אם החלטתם.</div>` : ""}`;
   WS.sign = sign;
   const card = (r, i) => `<div class="ws-pgw${WS.sel.has(r.storage_path) ? " sel" : ""}"><button type="button" class="ws-pg" data-i="${i}"><div class="th">${r.is_star ? `<span class="ws-pstar" title="דף חשוב">⭐</span>` : ""}${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}</div>
-    <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}</span></div></button></div>`;
+    <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}${r.type === "page" && WS_HARD.test(r.title || "") ? ` <i class="ws-hard" title="דף חשיבה / אתגר">🧩 אתגר</i>` : ""}</span></div></button></div>`;
   // חלוקה לתת-נושאים / יחידות (אנסין: כל יחידה = קטע + שאלות + אוצר מילים) - כשיש
   const unitCls = WS.kind === "unseen" ? " ws-unit" : "";
   if ((WS.tab === "page" && WS.kind === "topic") || list.some(r => r.sub || r.chapter)) {
@@ -5285,7 +5374,12 @@ async function renderWs(){
         groups.push({ k, head, cards: [] });
       }
       groups[groups.length - 1].cards.push(card(r, i)); });
-    html += `<div class="ws-grps${unitCls ? " ws-grps-unit" : ""}">` + groups.map(g => `<section class="ws-grp${g.cards.length > 4 ? " wide" : ""}${allIn(g.k) ? " on" : ""}">${g.head}<div class="ws-pages${unitCls}">${g.cards.join("")}</div></section>`).join("") + `</div>`;
+    // 5.19.20: נושא גדול (יותר מ-12 דפים, כמה תתי-נושאים) - כל תת-נושא סגור, ולחיצה על השם פותחת את הדפים שלו
+    const tkey = WS.book + "|" + WS.kind + "|" + WS.topic, fold = groups.length > 1 && groups.every(g => g.head) && list.length > 12;
+    WS.openG = WS.openG && WS.openG.t === tkey ? WS.openG : { t: tkey, s: new Set() };
+    html += `<div class="ws-grps${unitCls ? " ws-grps-unit" : ""}${fold ? " ws-fold" : ""}">` + groups.map(g => { const cl = fold && !WS.openG.s.has(g.k);
+      const head = fold ? g.head.replace("<span><bdi>", `<span><i class="ws-car" aria-hidden="true">${cl ? "◂" : "▾"}</i><bdi>`).replace("</bdi>", `</bdi><em class="ws-gn">${g.cards.length} דפים</em>`) : g.head;
+      return `<section class="ws-grp${g.cards.length > 4 ? " wide" : ""}${allIn(g.k) ? " on" : ""}${cl ? " closed" : ""}" data-gk="${esc(g.k)}">${head}<div class="ws-pages${unitCls}">${g.cards.join("")}</div></section>`; }).join("") + `</div>`;
   } else html += `<div class="ws-pages">${list.map(card).join("")}</div>`;
   $("wsBody").innerHTML = html;
   $("view-ws").classList.toggle("ws-selmode", WS.sel.size > 0);
@@ -5337,7 +5431,12 @@ async function renderWs(){
     el.addEventListener("pointermove", (e) => { if (tm && Math.hypot(e.clientX - sx, e.clientY - sy) > 10) stop(); });
     ["pointerup", "pointerleave", "pointercancel"].forEach(ev => el.addEventListener(ev, stop));
     el.addEventListener("contextmenu", (e) => e.preventDefault());
-    el.addEventListener("click", (e) => { if (el._lp) { el._lp = false; e.preventDefault(); } });
+    el.addEventListener("click", (e) => { if (el._lp) { el._lp = false; e.preventDefault(); return; }
+      // 5.19.20: לחיצה רגילה על שם תת-נושא בנושא גדול - פותחת/סוגרת אותו
+      const sec = el.closest(".ws-fold .ws-grp"); if (!sec || e.target.closest("[data-gstar]")) return;
+      const k = sec.dataset.gk, open = sec.classList.toggle("closed") === false;
+      if (open) WS.openG.s.add(k); else WS.openG.s.delete(k);
+      const car = sec.querySelector(".ws-car"); if (car) car.textContent = open ? "▾" : "◂"; });
   });
   wsSelUpd();
 }
@@ -5476,6 +5575,18 @@ function wsMatch(t, k, from){
 // חיפוש נושא בכל הספרים: לפי שם הנושא, תת-נושא או כותרת דף. לחיצה פותחת את הנושא.
 // השוואה בלי אותיות סופיות (גרף = גרפים)
 const wsNorm = (s) => String(s || "").toLowerCase().replace(/[ךםןףץ]/g, c => ({ "ך":"כ", "ם":"מ", "ן":"נ", "ף":"פ", "ץ":"צ" }[c]));
+// 5.19.20: מתמטיקה - "תרגול לפי נושאים" ו"דפי סיכום" של אותו נושא מוצגים בכרטיס אחד, ובתוכו כפתור לכל סוג (עם מספר הדפים)
+const WS_PAIR = ["topic", "summary"];
+function wsPartner(book, kind, no, name){
+  const k2 = kind === "topic" ? "summary" : "topic", cand = new Map();
+  WS.rows.forEach(r => { if (r.book !== book || r.kind !== k2 || r.type !== "page") return;
+    if (!cand.has(r.topic_no)) cand.set(r.topic_no, { name: r.topic_name, n: 0 }); cand.get(r.topic_no).n++; });
+  const nm = (x) => wsNorm(x).replace(/[–\-,]/g, " ").replace(/\s+/g, " ").trim(), words = (x) => new Set(nm(x).split(/\s+/).filter(w => w.length >= 3));
+  for (const [n2, c] of cand) if (nm(c.name) === nm(name)) return { kind: k2, no: n2, name: c.name, n: c.n };
+  const c = cand.get(no);
+  if (c) { const a = words(name), b = words(c.name); if ([...a].some(w => b.has(w) || [...b].some(v => v.startsWith(w) || w.startsWith(v)))) return { kind: k2, no, name: c.name, n: c.n }; }
+  return null;
+}
 function wsSearchHtml(){
   const raw = WS.q.trim(), q = wsNorm(raw), m = new Map();
   WS.rows.forEach(r => {
@@ -5486,21 +5597,37 @@ function wsSearchHtml(){
     if (wsNorm(r.topic_name).includes(q)) t.topic = true;
     else if (wsNorm(r.sub).includes(q) || wsNorm(r.title).includes(q)) t.hits.push(r);
   });
-  const res = [...m.values()].filter(t => t.topic || t.hits.length)
-    .sort((a, b) => wsBookRank(a.r.book) - wsBookRank(b.r.book) || a.r.book.localeCompare(b.r.book) || WS_SEARCH_ORD.indexOf(a.r.kind) - WS_SEARCH_ORD.indexOf(b.r.kind) || a.r.topic_no.localeCompare(b.r.topic_no, undefined, { numeric: true }));
+  const found = [...m.values()].filter(t => t.topic || t.hits.length);
+  // איחוד: כל תוצאה של סיכום/תרגול מצטרפת לכרטיס של הנושא המקביל (התרגול קודם)
+  const cards = new Map();
+  found.forEach(t => {
+    const r = t.r, own = r.book + "|" + r.kind + "|" + r.topic_no;
+    let key = own, part = null;
+    if (WS_PAIR.includes(r.kind)) { part = wsPartner(r.book, r.kind, r.topic_no, r.topic_name); if (part && part.kind === "topic") key = r.book + "|topic|" + part.no; }
+    if (!cards.has(key)) cards.set(key, { key, main: null, kinds: new Map(), hits: [], topic: false });
+    const c = cards.get(key);
+    c.kinds.set(r.kind, { go: own, n: t.pages });
+    if (part && !c.kinds.has(part.kind)) c.kinds.set(part.kind, { go: r.book + "|" + part.kind + "|" + part.no, n: part.n });
+    if (!c.main || r.kind === "topic") c.main = t;
+    c.topic = c.topic || t.topic; t.hits.forEach(x => c.hits.push(x));
+  });
+  const res = [...cards.values()].sort((a, b) => { const x = a.main.r, y = b.main.r;
+    return wsBookRank(x.book) - wsBookRank(y.book) || x.book.localeCompare(y.book) || WS_SEARCH_ORD.indexOf(x.kind) - WS_SEARCH_ORD.indexOf(y.kind) || x.topic_no.localeCompare(y.topic_no, undefined, { numeric: true }); });
   if (!res.length) return `<div class="ws-empty">לא נמצא נושא או דף עם <b>"${esc(raw)}"</b>.<div class="muted">אפשר לנסות מילה קצרה יותר, למשל "שבר" במקום "שברים פשוטים".</div></div>`;
   const hl = (s) => { s = String(s || ""); const i = wsNorm(s).indexOf(q); return i < 0 ? esc(s) : esc(s.slice(0, i)) + "<mark>" + esc(s.slice(i, i + q.length)) + "</mark>" + esc(s.slice(i + q.length)); };
-  const nPages = res.reduce((n, t) => n + (t.topic ? t.pages : t.hits.length), 0);
-  let html = `<div class="ws-res-sum">נמצאו <b>${res.length}</b> נושאים · <b>${nPages}</b> דפים</div>`, book = null;
-  res.forEach(t => {
-    if (t.r.book !== book) { if (book !== null) html += "</div>"; book = t.r.book; html += `<h3 class="ws-res-book">${esc(t.r.book_label)}</h3><div class="ws-res">`; }
-    const cover = (t.hits[0] || t.first);
-    html += `<div class="ws-rc k-${esc(t.r.kind)}" data-go="${esc(t.r.book + "|" + t.r.kind + "|" + t.r.topic_no)}" role="button" tabindex="0">
+  const KSHORT = { topic: "דפי תרגול", summary: "סיכום" };
+  let html = `<div class="ws-res-sum">נמצאו <b>${res.length}</b> נושאים</div>`, book = null;
+  res.forEach(c => {
+    const t = c.main, r = t.r;
+    if (r.book !== book) { if (book !== null) html += "</div>"; book = r.book; html += `<h3 class="ws-res-book">${esc(r.book_label)}</h3><div class="ws-res">`; }
+    const cover = (c.hits[0] || t.first), kinds = [...c.kinds.entries()].sort((a, b) => WS_KIND_ORD.indexOf(a[0]) - WS_KIND_ORD.indexOf(b[0]));
+    html += `<div class="ws-rc k-${esc(r.kind)}" data-go="${esc(r.book + "|" + r.kind + "|" + r.topic_no)}" role="button" tabindex="0">
       <div class="ws-rc-th">${cover && cover.uploaded ? `<img data-sp="${esc(cover.storage_path)}" alt="" loading="lazy">` : ""}</div>
-      <div class="ws-rc-b"><span class="ws-rc-k">${esc(WS_KIND[t.r.kind] || t.r.kind)}</span>
-        <div class="ws-rc-t">נושא ${esc(String(Number(t.r.topic_no)))} · ${hl(t.r.topic_name)}</div>
-        ${t.hits.length ? `<ul class="ws-rc-hits">${t.hits.slice(0, 3).map(r => `<li data-pg="${esc(r.storage_path)}">דף ${esc(String(r.page_no))} · ${hl(r.title || r.sub || "")}${r.sub && wsNorm(r.sub).includes(q) && r.title ? ` <span class="muted">(${hl(r.sub)})</span>` : ""}</li>`).join("")}${t.hits.length > 3 ? `<li class="more">ועוד ${t.hits.length - 3} דפים</li>` : ""}</ul>` : ""}
-        <div class="ws-rc-n">${t.pages} דפים בנושא ←</div></div></div>`;
+      <div class="ws-rc-b">
+        <div class="ws-rc-t">נושא ${esc(String(Number(r.topic_no)))} · ${hl(r.topic_name)}</div>
+        ${c.hits.length ? `<ul class="ws-rc-hits">${c.hits.slice(0, 2).map(x => `<li data-pg="${esc(x.storage_path)}" data-gk="${esc(x.book + "|" + x.kind + "|" + x.topic_no)}">דף ${esc(String(x.page_no))} · ${hl(x.title || x.sub || "")}</li>`).join("")}${c.hits.length > 2 ? `<li class="more">ועוד ${c.hits.length - 2} דפים</li>` : ""}</ul>` : ""}
+        <div class="ws-rc-ks">${kinds.map(([k, v]) => `<button type="button" class="ws-rc-kb k-${esc(k)}" data-gk="${esc(v.go)}">${esc(KSHORT[k] || WS_KIND[k] || k)} <span>${v.n}</span></button>`).join("")}</div>
+      </div></div>`;
   });
   return html + "</div>";
 }
@@ -5512,7 +5639,8 @@ function wsWireSearch(){
     if (page) { const i = WS.list.findIndex(r => r.storage_path === page); if (i >= 0) wsOpen(i); }   // לחיצה על דף - נפתח ישר
   };
   $("wsBody").querySelectorAll("[data-go]").forEach(c => {
-    c.onclick = (e) => { const li = e.target.closest("[data-pg]"); go(c, li ? li.dataset.pg : null); };
+    c.onclick = (e) => { const li = e.target.closest("[data-pg]"), kb = e.target.closest("[data-gk]");   // 5.19.20: כפתור סוג (תרגול/סיכום) או דף - פותחים את הסוג שלו
+      go(kb ? { dataset: { go: kb.dataset.gk } } : c, li ? li.dataset.pg : null); };
     c.onkeydown = (e) => { if (e.key === "Enter") go(c, null); };
   });
   const imgs = [...$("wsBody").querySelectorAll("img[data-sp]")];
