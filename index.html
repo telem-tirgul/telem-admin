@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.20">
+<meta name="app-version" content="5.19.21">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -529,6 +529,7 @@
   .asg-over{ display:inline-flex; align-items:center; justify-content:center; background:#fde2e1; color:#b42318; border:1px solid #f3b5b0; border-radius:999px; font-size:12px; font-weight:800; padding:0 6px; margin-inline-end:4px; vertical-align:middle; cursor:help; }
   .asg-pill > span{ display:inline-flex; align-items:center; gap:4px; font-size:12.5px; font-weight:700; white-space:nowrap; background:var(--scb, var(--ok-bg)); color:var(--sci, var(--ok)); border-radius:999px; padding:1px 8px; direction:rtl; }
   .asg-pill > span i{ width:7px; height:7px; border-radius:50%; background:currentColor; }
+  .asg-loc{ display:none; font-style:normal; font-weight:600; }
   .asg-pill.prop > span{ background:#FFF3C4; color:#7A5300; border:1.5px solid #E0B43C; }   /* מוצע - ממתין לאישור: צהוב, שעון */
   .asg-pill.prop > span i{ display:none; } .asg-pill.prop > span::before{ content:"⏳"; font-size:11px; }
   .lg-card.lg-prop{ background:repeating-linear-gradient(135deg, var(--paper) 0 8px, color-mix(in srgb, var(--muted) 70%, var(--paper)) 8px 16px); border-style:dashed; }
@@ -900,6 +901,14 @@
     #leadsTbl .c-parent{ order:8; } #leadsTbl .c-rem{ order:9; }
     #leadsTbl .c-id{ order:10; color:var(--ink-soft); font-size:12px; } #leadsTbl .c-upd{ order:11; color:var(--ink-soft); font-size:12px; }
     #leadsTbl .c-star{ order:12; margin-inline-start:auto; } #leadsTbl .c-act{ order:13; }
+    /* 5.19.21: כרטיס תלמיד בנייד - השם בולט ונוח ללחיצה, הסטטוס קטן, בשיבוצים גם המקום (בצבע בית הספר), בלי מתג "פעיל" ומספר */
+    #leadsTbl .c-name{ order:1; flex:1 1 calc(100% - 130px); min-width:0; } #leadsTbl .c-name .name-link{ font-size:17px; font-weight:800; padding:3px 0; text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--accent) 30%, transparent); text-underline-offset:3px; }
+    #leadsTbl .c-star{ order:2; margin-inline-start:0; } #leadsTbl .c-notes{ order:3; } #leadsTbl .c-info{ order:4; }
+    #leadsTbl .c-status{ order:5; flex:0 0 auto; } #leadsTbl .c-status select{ width:auto !important; field-sizing:content; flex:none !important; min-width:0 !important; max-width:170px; text-overflow:ellipsis; font-size:12.5px !important; padding:3px 8px !important; }
+    #leadsTbl .c-grade{ order:6; } #leadsTbl .c-school{ order:7; } #leadsTbl .c-asg{ order:8; flex:1 1 100%; } #leadsTbl .c-src{ order:9; }
+    #leadsTbl .c-parent{ order:10; } #leadsTbl .c-rem{ order:11; } #leadsTbl .c-upd{ order:12; margin-inline-start:auto; }
+    #leadsTbl .c-act, #leadsTbl .c-id, #leadsTbl .c-src{ display:none !important; }
+    #leadsTbl .c-asg .asg-pill > span{ font-size:13px; padding:2px 9px; } #leadsTbl .asg-loc{ display:inline; }
     /* טבלת צוות -> כרטיסים */
     .st-tbl thead{ display:none; }
     .st-tbl tr.st-row{ display:flex; flex-wrap:wrap; gap:4px 10px; padding:10px; border-top:1px solid var(--border); }
@@ -1147,9 +1156,9 @@
     .ws-quick .wq-row{ gap:5px; } .ws-quick .gseg{ display:flex; flex:1 1 auto; min-width:0; } .ws-quick .gseg button{ flex:1 1 auto; min-width:0; padding:4px 5px !important; font-size:14.5px; min-height:0 !important; height:36px; white-space:nowrap; }
     #view-ws .ws-pick{ display:none; }
     #view-ws .ws-bar{ top:calc(var(--side-h, 0px) + var(--wsq, 48px)); }
-    body.ws-vopen .ws-stick{ position:fixed; top:0; left:0; right:0; z-index:210; padding:6px 10px; margin:0; background:#161118; border-color:#333; } body.ws-vopen #wsTop{ display:none; }
+    body.ws-vopen .ws-stick{ position:fixed; top:var(--side-h, 0px); left:0; right:0; z-index:210; padding:6px 10px; margin:0; background:#161118; border-color:#333; } body.ws-vopen #wsTop{ display:none; }
     body.ws-vopen .ws-quick .gseg{ background:rgba(255,255,255,.12); } body.ws-vopen .ws-quick .gseg button{ color:#fff; } body.ws-vopen .ws-quick .gseg button[aria-pressed="true"]{ background:#fff; color:#161118; }
-    body.ws-vopen .ws-viewer{ top:var(--wsqv, 48px); }
+    body.ws-vopen .ws-viewer{ top:calc(var(--side-h, 0px) + var(--wsqv, 48px)); }   /* 5.19.21: התפריט הקבוע נשאר גלוי גם כשדף פתוח */
   }
   /* 5.19.14: לחיצה ארוכה על דף - חלון קטן: שליחה / פתיחה */
   .ws-pop{ position:fixed; inset:0; z-index:220; background:rgba(0,0,0,.35); display:flex; align-items:flex-end; justify-content:center; }
@@ -1241,12 +1250,13 @@
   /* תתי-נושאים / יחידות - כרטיסים; במחשב זה לצד זה */
   .ws-grp{ min-width:0; } .ws-grp + .ws-grp{ margin-top:6px; }
   /* 5.19.20: נושא גדול - תתי-נושאים נפתחים בלחיצה */
-  .ws-fold .ws-grp.closed .ws-pages{ display:none; }
-  .ws-fold .ws-grp .ws-gh{ background:var(--paper, #fff); border:1px solid var(--border); border-radius:12px; padding:10px 12px; margin:6px 0; }
-  .ws-fold .ws-grp:not(.closed) .ws-gh{ border-color:var(--gold); }
+  .ws-grp.fold.closed .ws-pages{ display:none; }
+  .ws-grp.fold .ws-gh{ background:var(--paper, #fff); border:1px solid var(--border); border-radius:12px; padding:10px 12px; margin:6px 0; }
+  .ws-grp.fold:not(.closed) .ws-gh{ border-color:var(--gold); }
+  .ws-grp.ws-sumg .ws-gh{ background:color-mix(in srgb, var(--gold) 14%, var(--paper, #fff)); }
   .ws-car{ font-style:normal; color:var(--accent); font-size:13px; width:14px; display:inline-block; }
   .ws-gn{ font-style:normal; font-weight:500; font-size:12.5px; color:var(--ink-soft); }
-  @media (min-width:900px){ .ws-grps.ws-fold{ display:block; } .ws-fold .ws-grp{ background:none; border:0; padding:0; } .ws-fold .ws-grp + .ws-grp{ margin-top:0; } .ws-fold .ws-grp .ws-pages{ margin:4px 0 12px; } }
+  @media (min-width:900px){ .ws-grp.ws-sumg{ grid-column:1/-1; background:none; border:0; padding:0; } .ws-grps.ws-fold{ display:block; } .ws-fold .ws-grp{ background:none; border:0; padding:0; } .ws-fold .ws-grp + .ws-grp{ margin-top:0; } .ws-fold .ws-grp .ws-pages{ margin:4px 0 12px; } }
   @media (min-width:900px){
     .ws-grps{ display:grid; grid-template-columns:repeat(auto-fill, minmax(460px, 1fr)); gap:14px; align-items:start; }
     .ws-grps-unit{ grid-template-columns:repeat(auto-fill, minmax(420px, 1fr)); }
@@ -2171,7 +2181,8 @@ const INFO_VIEWS = [];   // "מידע למתרגלים" ו"חגים וחופשו
 let DATA_READY = true, DATA_WAIT = null;
 function go(view){
   if (view !== "lead" && typeof LEAD_DIRTY !== "undefined" && LEAD_DIRTY && !LEAD_SAVING && currentView === "lead") { const v = view; askLeadSave(() => go(v)); return; }
-  try { if (!NAV_POP && view !== "home") RESUME = null; } catch(e) {}   // המשתמש עבר למסך בעצמו - לא לחזור אחר כך למסך שלפני הרענון
+  try { if (!NAV_POP && view !== "home") RESUME = null; } catch(e) {}
+  try { if (document.body.classList.contains("ws-vopen")) wsViewerOff(); } catch(e) {}   // 5.19.21: מעבר מסך מהתפריט כשדף פתוח - סוגרים את הדף   // המשתמש עבר למסך בעצמו - לא לחזור אחר כך למסך שלפני הרענון
   // אחרי הכניסה: דף הבית מוצג מיד, והנתונים נטענים ברקע. מסך אחר - מחכה לסיום הטעינה.
   if (!DATA_READY && DATA_WAIT && NEED_DATA.includes(view) && ME.role !== "instructor") {
     const v = view; toast("טוען נתונים…");
@@ -2512,7 +2523,7 @@ function renderLeads(){
       <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
       <td class="c-grade">${esc(classLabel(s.grade, s.class_num))}</td>
       <td class="c-asg" data-act="asg" title="לחיצה - שיבוץ לקבוצה / שינוי">${(() => { const a = asgOf(l), pr = propOf(l);
-        const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}</span>`).join("")}</span>` : "";
+        const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}${x.location && x.location.name ? `<em class="asg-loc"> · ${esc(x.location.name)}</em>` : ""}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
         const ov = a.length ? weekLoadCalc(a.map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))) : "";   // 5.19.20
         return (ov ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : `<span class="asg-none">לא משובץ</span>`); })()}</td>
@@ -5325,15 +5336,20 @@ async function renderWs(){
   const t = wsTopics().find(x => x.no === WS.topic);
   if (t && !t.answers.length) WS.tab = "page";
   if (!t) { WS.topic = null; renderWs(); return; }
-  const list = WS.tab === "page" ? t.pages : t.answers;
+  // 5.19.21: מתמטיקה - דפי הסיכום של הנושא בסוף התרגול (שורה "📘 דפי סיכום"), בלי כפתור מעבר נפרד
+  const sumNo = WS.tab === "page" && WS.kind === "topic" && WS.book !== "ENG" ? wsMatch(t, "summary", "topic") : null;
+  const sumT = sumNo ? wsTopics("summary").find(x => x.no === sumNo) : null;
+  if (sumT) sumT.pages.forEach(r => { r._sumG = true; });
+  const list = WS.tab === "page" ? (sumT ? t.pages.concat(sumT.pages) : t.pages) : t.answers;
   WS.list = list;
   const sign = await wsSign(list.filter(r => r.uploaded).map(r => r.storage_path)).catch(() => () => "");
   // בתוך נושא: מעבר בין "לפי נושא" ל"דפי סיכום" (ושאר הסוגים) של אותו נושא, בלי לחזור אחורה
   const kindsIn = [...new Set(WS.rows.filter(r => r.book === WS.book).map(r => r.kind))].sort((a, b) => WS_KIND_ORD.indexOf(a) - WS_KIND_ORD.indexOf(b));
-  const kSeg = kindsIn.length > 1 && WS.book !== "ENG" ? `<div class="gseg ws-kind-in" role="group" aria-label="סוג הדפים">${kindsIn.map(k => { const no = wsMatch(t, k);
+  const kSeg = false && kindsIn.length > 1 && WS.book !== "ENG" ? `<div class="gseg ws-kind-in" role="group" aria-label="סוג הדפים">${kindsIn.map(k => { const no = wsMatch(t, k);
     return `<button type="button" class="k-${esc(k)}" ${no ? `data-kin="${esc(k)}|${esc(no)}"` : `disabled title="אין ${esc(WS_KIND[k] || k)} לנושא הזה"`} aria-pressed="${k === WS.kind}"><span class="kl">${esc(WS_KIND[k] || k)}</span><span class="ks">${esc(({ topic: "תרגול", summary: "סיכום" })[k] || WS_KIND[k] || k)}</span></button>`; }).join("")}</div>` : "";
   if (WS.selTopic !== WS.book + "|" + WS.kind + "|" + WS.topic) { WS.sel = new Set(); WS.ready = null; WS.selTopic = WS.book + "|" + WS.kind + "|" + WS.topic; }
-  const grpOf = (r) => (r.chapter || "") + "|" + (r.sub || "");
+  const WS_SUMG = "📘 דפי סיכום";
+  const grpOf = (r) => r._sumG && WS.kind === "topic" ? "|" + WS_SUMG : (r.chapter || "") + "|" + (r.sub || "");
   const grpRows = (g) => list.filter(r => r.uploaded && (g === "all" || grpOf(r) === g));
   const allIn = (g) => { const rs = grpRows(g); return rs.length && rs.every(r => WS.sel.has(r.storage_path)) && WS.sel.size === rs.length; };
   const canSel = list.some(r => r.uploaded);
@@ -5369,17 +5385,18 @@ async function renderWs(){
       if (!groups.length || groups[groups.length - 1].k !== k) {
         let head = "";
         // כותרת רק כשיש תת-נושא או פרק (בספרים בלי חלוקה - בלי כותרת)
-        if (r.sub || r.chapter) { const gst = (() => { const rs = list.filter(x => grpOf(x) === k); return rs.length && rs.every(x => x.is_star); })();
-          head = `<div class="ws-gh${allIn(k) ? " on" : ""}" data-gsel="${esc(k)}"><span><bdi>${esc(r.sub || "")}</bdi>${r.chapter ? `<small>פרק ${esc(r.chapter)}</small>` : ""}${gst && ME.role === "instructor" ? " ⭐" : ""}</span>${ME.role !== "instructor" ? `<button type="button" class="ws-gstar${gst ? " on" : ""}" data-gstar="${esc(k)}" title="סימון ${WS.kind === "unseen" ? "היחידה" : "תת-הנושא"} כחשוב" aria-label="סימון כחשוב">${gst ? "⭐" : "☆"}</button>` : ""}</div>`; }
-        groups.push({ k, head, cards: [] });
+        const isSumG = k === "|" + WS_SUMG;
+        if (r.sub || r.chapter || isSumG) { const gst = (() => { const rs = list.filter(x => grpOf(x) === k); return rs.length && rs.every(x => x.is_star); })();
+          head = `<div class="ws-gh${allIn(k) ? " on" : ""}" data-gsel="${esc(k)}"><span><bdi>${esc(isSumG ? WS_SUMG : (r.sub || ""))}</bdi>${r.chapter && !isSumG ? `<small>פרק ${esc(r.chapter)}</small>` : ""}${gst && ME.role === "instructor" ? " ⭐" : ""}</span>${ME.role !== "instructor" ? `<button type="button" class="ws-gstar${gst ? " on" : ""}" data-gstar="${esc(k)}" title="סימון ${WS.kind === "unseen" ? "היחידה" : "תת-הנושא"} כחשוב" aria-label="סימון כחשוב">${gst ? "⭐" : "☆"}</button>` : ""}</div>`; }
+        groups.push({ k, head, cards: [], sum: isSumG });
       }
       groups[groups.length - 1].cards.push(card(r, i)); });
     // 5.19.20: נושא גדול (יותר מ-12 דפים, כמה תתי-נושאים) - כל תת-נושא סגור, ולחיצה על השם פותחת את הדפים שלו
-    const tkey = WS.book + "|" + WS.kind + "|" + WS.topic, fold = groups.length > 1 && groups.every(g => g.head) && list.length > 12;
+    const tkey = WS.book + "|" + WS.kind + "|" + WS.topic, fold = groups.length > 1 && groups.every(g => g.head || g.sum) && groups.filter(g => g.head).length > 1 && list.length > 12;
     WS.openG = WS.openG && WS.openG.t === tkey ? WS.openG : { t: tkey, s: new Set() };
-    html += `<div class="ws-grps${unitCls ? " ws-grps-unit" : ""}${fold ? " ws-fold" : ""}">` + groups.map(g => { const cl = fold && !WS.openG.s.has(g.k);
-      const head = fold ? g.head.replace("<span><bdi>", `<span><i class="ws-car" aria-hidden="true">${cl ? "◂" : "▾"}</i><bdi>`).replace("</bdi>", `</bdi><em class="ws-gn">${g.cards.length} דפים</em>`) : g.head;
-      return `<section class="ws-grp${g.cards.length > 4 ? " wide" : ""}${allIn(g.k) ? " on" : ""}${cl ? " closed" : ""}" data-gk="${esc(g.k)}">${head}<div class="ws-pages${unitCls}">${g.cards.join("")}</div></section>`; }).join("") + `</div>`;
+    html += `<div class="ws-grps${unitCls ? " ws-grps-unit" : ""}${fold ? " ws-fold" : ""}">` + groups.map(g => { const fd = fold || g.sum, cl = fd && !WS.openG.s.has(g.k);   // שורת הסיכום - תמיד סגורה עד שלוחצים
+      const head = fd ? g.head.replace("<span><bdi>", `<span><i class="ws-car" aria-hidden="true">${cl ? "◂" : "▾"}</i><bdi>`).replace("</bdi>", `</bdi><em class="ws-gn">${g.cards.length} דפים</em>`) : g.head;
+      return `<section class="ws-grp${g.cards.length > 4 ? " wide" : ""}${allIn(g.k) ? " on" : ""}${fd ? " fold" : ""}${g.sum ? " ws-sumg" : ""}${cl ? " closed" : ""}" data-gk="${esc(g.k)}">${head}<div class="ws-pages${unitCls}">${g.cards.join("")}</div></section>`; }).join("") + `</div>`;
   } else html += `<div class="ws-pages">${list.map(card).join("")}</div>`;
   $("wsBody").innerHTML = html;
   $("view-ws").classList.toggle("ws-selmode", WS.sel.size > 0);
@@ -5433,7 +5450,7 @@ async function renderWs(){
     el.addEventListener("contextmenu", (e) => e.preventDefault());
     el.addEventListener("click", (e) => { if (el._lp) { el._lp = false; e.preventDefault(); return; }
       // 5.19.20: לחיצה רגילה על שם תת-נושא בנושא גדול - פותחת/סוגרת אותו
-      const sec = el.closest(".ws-fold .ws-grp"); if (!sec || e.target.closest("[data-gstar]")) return;
+      const sec = el.closest(".ws-grp.fold"); if (!sec || e.target.closest("[data-gstar]")) return;
       const k = sec.dataset.gk, open = sec.classList.toggle("closed") === false;
       if (open) WS.openG.s.add(k); else WS.openG.s.delete(k);
       const car = sec.querySelector(".ws-car"); if (car) car.textContent = open ? "▾" : "◂"; });
@@ -5621,12 +5638,13 @@ function wsSearchHtml(){
     const t = c.main, r = t.r;
     if (r.book !== book) { if (book !== null) html += "</div>"; book = r.book; html += `<h3 class="ws-res-book">${esc(r.book_label)}</h3><div class="ws-res">`; }
     const cover = (c.hits[0] || t.first), kinds = [...c.kinds.entries()].sort((a, b) => WS_KIND_ORD.indexOf(a[0]) - WS_KIND_ORD.indexOf(b[0]));
-    html += `<div class="ws-rc k-${esc(r.kind)}" data-go="${esc(r.book + "|" + r.kind + "|" + r.topic_no)}" role="button" tabindex="0">
+    const goKey = (c.kinds.get("topic") || {}).go || (r.book + "|" + r.kind + "|" + r.topic_no);   // 5.19.21: נושא עם תרגול - נפתח בתרגול (הסיכום בסוף)
+    html += `<div class="ws-rc k-${esc(r.kind)}" data-go="${esc(goKey)}" role="button" tabindex="0">
       <div class="ws-rc-th">${cover && cover.uploaded ? `<img data-sp="${esc(cover.storage_path)}" alt="" loading="lazy">` : ""}</div>
       <div class="ws-rc-b">
         <div class="ws-rc-t">נושא ${esc(String(Number(r.topic_no)))} · ${hl(r.topic_name)}</div>
-        ${c.hits.length ? `<ul class="ws-rc-hits">${c.hits.slice(0, 2).map(x => `<li data-pg="${esc(x.storage_path)}" data-gk="${esc(x.book + "|" + x.kind + "|" + x.topic_no)}">דף ${esc(String(x.page_no))} · ${hl(x.title || x.sub || "")}</li>`).join("")}${c.hits.length > 2 ? `<li class="more">ועוד ${c.hits.length - 2} דפים</li>` : ""}</ul>` : ""}
-        <div class="ws-rc-ks">${kinds.map(([k, v]) => `<button type="button" class="ws-rc-kb k-${esc(k)}" data-gk="${esc(v.go)}">${esc(KSHORT[k] || WS_KIND[k] || k)} <span>${v.n}</span></button>`).join("")}</div>
+        ${c.hits.length ? `<ul class="ws-rc-hits">${c.hits.slice(0, 2).map(x => `<li data-pg="${esc(x.storage_path)}" data-gk="${esc(x.kind === "summary" && c.kinds.has("topic") ? goKey : x.book + "|" + x.kind + "|" + x.topic_no)}">דף ${esc(String(x.page_no))} · ${hl(x.title || x.sub || "")}</li>`).join("")}${c.hits.length > 2 ? `<li class="more">ועוד ${c.hits.length - 2} דפים</li>` : ""}</ul>` : ""}
+        <div class="ws-rc-n">${kinds.map(([k, v]) => `${v.n} ${esc(KSHORT[k] || WS_KIND[k] || k)}`).join(" + ")} ←</div>
       </div></div>`;
   });
   return html + "</div>";
