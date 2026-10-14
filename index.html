@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.23">
+<meta name="app-version" content="5.19.24">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -850,7 +850,8 @@
   .sp-det summary{ cursor:pointer; font-weight:700; font-size:13.5px; color:var(--ink-soft); padding:4px 0; }
   .sp-ed .sp-row{ grid-template-columns:70px minmax(0,1fr) 90px 34px !important; } .sp-hd{ font-size:12px; font-weight:700; color:var(--ink-soft); }
   @media (max-width:760px){
-    .panel header{ flex-direction:column; align-items:stretch; padding:12px 14px; gap:8px; }
+    .panel header{ flex-direction:column; align-items:stretch; padding:12px 14px; gap:8px; position:relative; }
+    .panel header #panelClose{ position:absolute; top:10px; left:12px; } .panel header > div:first-child{ padding-inline-end:44px; }
     .panel header h3{ font-size:17px; } #panelSub{ font-size:13px; }
     .panel header > div:last-child{ justify-content:flex-start; }
     .roster li.sc-box{ padding:8px 10px; } .roster .sc-more{ display:none; }   /* 5.19.14: רק בחלון הקבוצה - קודם הסתיר גם את לוח הצלצולים ואנשי הקשר בעמוד בתי הספר בנייד */
@@ -1229,7 +1230,7 @@
   }
   /* 5.19.23: מחשב - בחירת מקצוע / כיתה / חלק בשורה אחת ליד החיפוש, והתוצאות על כל רוחב הדף */
   @media (min-width:900px){
-    #wsTop{ display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-bottom:14px; } #wsTop .ws-search{ flex:1 1 340px; margin:0; }
+    #wsTop{ display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-bottom:14px; } #wsTop .ws-search{ flex:1 1 340px; margin:0; order:2; } #wsTop .ws-side{ order:1; }   /* הבחירה מימין, החיפוש משמאל */
     #wsTop .ws-side{ position:static; background:none; border:0; padding:0; border-radius:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     #wsTop .ws-side .ws-pick{ flex-direction:row; align-items:center; gap:8px; margin:0; flex-wrap:wrap; }
     #wsTop .ws-side .ws-seg button{ flex:none; padding:0 14px !important; }
@@ -1305,7 +1306,7 @@
   .ws-gh[data-gsel]{ display:flex; align-items:center; gap:8px; }
   .ws-pstar{ position:absolute; top:6px; left:6px; z-index:1; font-size:18px; line-height:1; filter:drop-shadow(0 1px 1px rgba(0,0,0,.35)); }
   .ws-star-btn{ font-size:20px; min-width:46px; } .ws-star-btn.on{ background:#FFF4CC; border-color:#E0A100; }
-  .ws-bar .ws-tstar{ margin-inline-start:auto; flex:none; } .ws-bar .ws-tstar.on{ background:#FFF4CC; border-color:#E0A100; }
+  .ws-bar .ws-tstar{ margin-inline-start:auto; flex:none; } .ws-bar .ws-back2{ flex:none; } .ws-bar h2 + .ws-back2{ margin-inline-start:auto; } .ws-bar .ws-tstar.on{ background:#FFF4CC; border-color:#E0A100; }
   .ws-selhint{ font-size:12.5px; color:var(--ink-soft, #777); margin:-4px 0 6px; }
   [data-gsel]{ -webkit-touch-callout:none; -webkit-user-select:none; user-select:none; cursor:pointer; transition:background .15s; border-radius:10px; }
   [data-gsel].press{ background:color-mix(in srgb, var(--accent) 12%, transparent); }
@@ -1872,7 +1873,7 @@
       <div class="tbl-wrap"><table class="tbl st-tbl" id="stTbl"></table></div>
       <div class="card" id="stAssign" hidden style="margin-top:14px;">
         <div class="page-head" style="margin-bottom:8px;"><h2 id="stAssignTitle" style="font-size:18px;"></h2>
-          <button class="btn small" type="button" id="stAssignClose">סגירה</button></div>
+          <button class="kp-x" type="button" id="stAssignClose" aria-label="סגירה" title="סגירה">✕</button></div>
         <div class="muted" style="margin-bottom:8px;">מסמנים את הקבוצות של המתרגל/ת. השינוי נשמר מיד.</div>
         <div class="tabs" role="tablist" id="stCities"></div>
         <div id="stSessions" class="st-sessions"></div>
@@ -1910,7 +1911,7 @@
 <div class="panel-bg" id="panelBg" hidden></div>
 <aside class="panel" id="panel" hidden aria-label="פרטי קבוצה">
   <header><div><h3 id="panelTitle"></h3><div class="muted" id="panelSub"></div></div>
-    <div style="display:flex; gap:6px; align-items:flex-start;"><button class="btn small" id="panelAttBtn" type="button">✓ נוכחות</button><button class="btn small" id="gEditBtn" type="button">✎ עריכת קבוצה</button><button class="btn small" id="panelClose" type="button">סגירה</button></div></header>
+    <div style="display:flex; gap:6px; align-items:flex-start;"><button class="btn small" id="panelAttBtn" type="button">✓ נוכחות</button><button class="btn small" id="gEditBtn" type="button">✎ עריכת קבוצה</button><button class="kp-x" id="panelClose" type="button" aria-label="סגירה" title="סגירה">✕</button></div></header>
   <div class="g-edit" id="gEdit" hidden></div>
   <ul class="roster" id="roster"></ul>
 </aside>
@@ -5289,15 +5290,35 @@ const WS_KIND_ORD = ["topic", "summary", "grammar", "unseen", "vocab", "general"
 const WS_VOCAB = /vocab|אוצר מילים/i;   // תמיד קודם "לפי נושא"
 // בתוצאות החיפוש: קודם "תרגול לפי נושאים", אחר כך דפי הסיכום
 const WS_SEARCH_ORD = ["topic", "summary", "grammar", "unseen", "vocab", "general"];
+// 5.19.24: טעינה מהירה - הרשימה נשמרת בטלפון/במחשב ומוצגת מיד; ברקע נטענת גרסה עדכנית ומתחלפת אם יש שינוי.
+// source_path (רק לייבוא מהמחשב) לא נטען כאן - נשלף רק בייבוא.
+const WS_CACHE = "telem_ws_cache_v1";
+const WSQ = "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,sort_order,uploaded,is_star&is_active=eq.true&order=book,kind,topic_no,sort_order";
+const wsPrep = (rows) => { rows.forEach(r => { if (r.book === "ENG" && r.kind === "general" && WS_VOCAB.test(r.topic_name || "")) r.kind = "vocab"; }); wsApplySplit(rows); return rows; };
+const wsFetch = () => getAll("worksheets", WSQ).catch(e => /is_star/.test(String(e && e.message)) ? getAll("worksheets", WSQ.replace(",is_star", "")) : Promise.reject(e));
 async function loadWs(){
   if (WS.rows) { renderWs(); return; }
+  let cached = null; try { cached = JSON.parse(store(WS_CACHE) || "null"); } catch(e) {}
+  if (cached && Array.isArray(cached.rows) && cached.rows.length) {
+    const cachedRaw = JSON.stringify(cached.rows);
+    WS.rows = wsPrep(cached.rows); renderWs();
+    wsFetch().then(fresh => { const raw = JSON.stringify(fresh); store(WS_CACHE, JSON.stringify({ t: Date.now(), rows: fresh }));
+      if (raw === cachedRaw) return;
+      WS.rows = wsPrep(fresh);
+      if (currentView === "ws" && !document.body.classList.contains("ws-vopen") && !(WS.sel && WS.sel.size)) renderWs(); }).catch(() => {});
+    return;
+  }
   $("wsBody").innerHTML = "<div class='muted'>טוען...</div>";
-  const WSQ = "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,source_path,sort_order,uploaded,is_star&is_active=eq.true&order=book,kind,topic_no,sort_order";
-  try { WS.rows = await getAll("worksheets", WSQ).catch(e => /is_star/.test(String(e && e.message)) ? getAll("worksheets", WSQ.replace(",is_star", "")) : Promise.reject(e)); }
-  catch(e) { $("wsBody").innerHTML = `<div class="card err">${e.status === 404 || e.code === "PGRST205" ? "צריך להריץ את קובץ 33." : "לא ניתן לטעון את המאגר."}</div>`; return; }
-  WS.rows.forEach(r => { if (r.book === "ENG" && r.kind === "general" && WS_VOCAB.test(r.topic_name || "")) r.kind = "vocab"; });
-  wsApplySplit(WS.rows);
-  renderWs();
+  // 5.19.24: בפעם הראשונה (בלי שמירה במכשיר) - קודם רק הספר שפותחים (מוצג מיד), ובמקביל כל השאר
+  const all = wsFetch(), b0 = store("telem_ws_book") || "7A";
+  let shown = false;
+  get("worksheets", WSQ + "&book=eq." + encodeURIComponent(b0)).then(first => { if (WS.rows || !first.length) return; WS.rows = wsPrep(first); WS.partial = true; shown = true; renderWs(); }).catch(() => {});
+  let fresh;
+  try { fresh = await all; }
+  catch(e) { if (!shown) $("wsBody").innerHTML = `<div class="card err">${e.status === 404 || e.code === "PGRST205" ? "צריך להריץ את קובץ 33." : "לא ניתן לטעון את המאגר."}</div>`; return; }
+  store(WS_CACHE, JSON.stringify({ t: Date.now(), rows: fresh }));
+  WS.rows = wsPrep(fresh); WS.partial = false;
+  if (!shown || (currentView === "ws" && !document.body.classList.contains("ws-vopen") && !(WS.sel && WS.sel.size))) renderWs();
 }
 // 5.19.20: נושאים גדולים בלי חלוקה (17-30 דפים ברצף) - חלוקה לתתי-נושאים בתצוגה בלבד (לפי שמות הדפים; בלי שינוי במסד).
 // [מדף, שם תת-הנושא] - כל קבוצה מתחילה בדף הזה ועד תחילת הבאה. דף שכבר יש לו תת-נושא במסד - לא נוגעים.
@@ -5428,7 +5449,7 @@ async function renderWs(){
   const allIn = (g) => { const rs = grpRows(g); return rs.length && rs.every(r => WS.sel.has(r.storage_path)) && WS.sel.size === rs.length; };
   const canSel = list.some(r => r.uploaded);
   // 5.19.9: שליחת יחידה / תת-נושא / נושא שלם - לחיצה ארוכה על השם (בלי מצב "בחירה"). דף בודד - מתוך הדף הפתוח.
-  let html = `<div class="ws-bar"><button type="button" class="ws-back" id="wsBack" aria-label="כל הנושאים" title="כל הנושאים">→<span class="ws-back-t"> כל הנושאים</span></button><h2 class="${allIn("all") ? "on" : ""}" ${canSel ? `data-gsel="all"` : ""}><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}${list.some(r => r.is_star) ? " ⭐" : ""}</h2>${ME.role !== "instructor" ? `<button type="button" class="btn small ws-tstar${list.length && list.every(r => r.is_star) ? " on" : ""}" id="wsTStar" title="סימון כל הנושא כחשוב">${list.length && list.every(r => r.is_star) ? "⭐ חשוב" : "☆ חשוב"}</button>` : ""}</div>
+  let html = `<div class="ws-bar"><h2 class="${allIn("all") ? "on" : ""}" ${canSel ? `data-gsel="all"` : ""}><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}${list.some(r => r.is_star) ? " ⭐" : ""}</h2>${ME.role !== "instructor" ? `<button type="button" class="btn small ws-tstar${list.length && list.every(r => r.is_star) ? " on" : ""}" id="wsTStar" title="סימון כל הנושא כחשוב">${list.length && list.every(r => r.is_star) ? "⭐ חשוב" : "☆ חשוב"}</button>` : ""}<button type="button" class="btn small ws-back2" id="wsBack" title="חזרה לכל הנושאים">→ חזרה<span class="lg-t"> לנושאים</span></button></div>
     <div class="ws-sw">${kSeg}${t.answers.length ? `<div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים <small>${t.pages.length}</small></button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות <small>${t.answers.length}</small></button></div>` : ""}</div>
     ${(() => { const st = list.map((r, i) => ({ r, i })).filter(x => x.r.is_star && x.r.uploaded); if (!st.length) return "";
       // 5.19.15: תת-נושא / יחידה שכולה חשובה - כרטיס אחד (שולח את כל הדפים שלה), ולא דף-דף. כל הנושא חשוב - כרטיס אחד לנושא.
@@ -5867,6 +5888,8 @@ $("wsFolder").addEventListener("change", async (e) => {
   const files = [...e.target.files].filter(f => /\.(png|jpe?g)$/i.test(f.name)), msg = $("wsImportMsg");
   if (!WS.rows) await loadWs();
   if (!WS.rows) return;
+  // 5.19.24: source_path נשלף רק כאן (לא בטעינה הרגילה)
+  if (!WS.rows.some(r => r.source_path)) { try { const sp = await getAll("worksheets", "select=id,source_path&is_active=eq.true"); const m = new Map(sp.map(x => [x.id, x.source_path])); WS.rows.forEach(r => { r.source_path = m.get(r.id) || null; }); } catch(err) { msg.textContent = "לא ניתן לטעון את רשימת הקבצים: " + err.message; return; } }
   const rel = (f) => (f.webkitRelativePath || f.name).replace(/\\/g, "/");
   const jobs = [];
   WS.rows.forEach(r => { const src = (r.source_path || "").normalize("NFC"); if (!src) return;
