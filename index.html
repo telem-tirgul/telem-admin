@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.22">
+<meta name="app-version" content="5.19.23">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -277,9 +277,28 @@
     .lead-quick{ display:flex; flex-direction:column; gap:5px; margin-top:8px; font-size:14px; }
     .lead-quick .lq-top{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; } .lead-quick .lq-cls{ font-weight:800; }
     .lead-quick .lq-g{ display:flex; flex-wrap:wrap; gap:4px 8px; align-items:center; background:var(--paper); border:1px solid var(--border); border-radius:10px; padding:5px 9px; }
+    .lead-quick .lq-gs{ display:flex; flex-wrap:wrap; gap:6px; } .lead-quick .lq-g2{ display:inline-flex; align-items:center; gap:5px; } .lead-quick .lq-g2 .asg-pill > span{ font-size:13.5px; padding:2px 10px; }
+    .lead-quick .lq-none{ color:#b42318; font-weight:700; font-size:13.5px; }
+    .lead-quick .lq-sum{ display:none; flex-direction:column; gap:4px; } .lead-quick .lq-st{ background:var(--muted); border-radius:999px; padding:2px 10px; font-size:13px; font-weight:700; }
+    .lead-quick .lq-row{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:14px; } .lead-quick .lq-k{ color:var(--ink-soft); font-size:12.5px; font-weight:700; min-width:48px; }
+    .lead-quick .lq-ph{ color:var(--accent); font-weight:700; text-decoration:none; } .lead-quick .lq-wa{ font-size:12.5px; font-weight:700; color:#1f8a4c; text-decoration:none; border:1px solid #bfe3cc; border-radius:999px; padding:0 8px; }
     .lead-quick .lq-g b{ font-weight:800; } .lead-quick .lq-pt{ background:#fff8d6; border:1px solid #e9cf62; color:#5c4500; border-radius:7px; padding:0 6px; font-weight:700; font-size:13px; }
   }
   @media (max-width:960px){ .lead-cols{ grid-template-columns:1fr; } }
+  /* 5.19.23: בנייד - כרטיס התלמיד נפתח לצפייה: הפרטים בקצרה למעלה, הטופס מוסתר עד "✎ עריכה" */
+  @media (max-width:760px){
+    #view-lead.lc-view .lead-quick .lq-sum{ display:flex; } #view-lead.lc-view #leadSub{ display:none; } #view-lead.lc-view .lead-main{ display:none; }
+    #view-lead.lc-view .lead-quick{ background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:10px 12px; gap:8px; }
+    #view-lead.lc-view #leadEditBtn{ order:-1; }
+    /* 5.19.23: כפתורי עריכה / חזרה - למעלה משמאל, ליד השם (כמו בשאר המסכים) */
+    #view-lead .page-head{ display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:start; gap:4px 8px; }
+    #view-lead .page-head > div:first-child{ display:contents; }
+    #view-lead .page-head .card-tag{ grid-column:1; grid-row:1; justify-self:start; } #view-lead .page-head h1{ grid-column:1; grid-row:2; margin:0; }
+    #view-lead .page-head > div:last-child{ grid-column:2; grid-row:1 / span 2; align-self:start; flex-wrap:nowrap !important; gap:6px !important; }
+    #view-lead .page-head > div:last-child .btn{ padding:6px 10px; font-size:13.5px; }
+    #view-lead #leadSub, #view-lead #leadQuick{ grid-column:1 / -1; }
+    #view-lead.lc-view #leadGroups, #view-lead.lc-view #trackBox + .side-h{ display:none; }   /* השיבוצים כבר למעלה; הרשימה המלאה (לשינוי) - בעריכה */
+  }
   .notes-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; max-height:560px; overflow:auto; }
   /* 5.19.14: הערה חדשה - שורה קטנה שמתרחבת; רשימת הערות מקופלת (2 אחרונות + "עוד") */
   .note-new{ display:flex; gap:6px; align-items:flex-start; margin-bottom:10px; }
@@ -755,7 +774,7 @@
   #leadsTbl .src-sel:hover, #leadsTbl .src-sel:focus{ border-color:var(--border); background-color:var(--paper); } .rem-ic{ font-size:15px; opacity:.55; cursor:help; } .rem-ic.due{ opacity:1; filter:drop-shadow(0 0 2px #e53935); }
   .ex-pop-meta{ margin-top:10px; font-size:11.5px; color:var(--ink-soft); line-height:1.4; }
   .asg-pop{ width:min(560px, 94vw); margin-top:8vh; max-height:84vh; overflow:auto; }
-  .asg-pop-h{ display:flex; align-items:center; gap:8px; margin-bottom:10px; } .asg-pop-h .btn{ margin-inline-start:auto; }
+  .asg-pop-h{ display:flex; align-items:center; gap:8px; margin-bottom:10px; } .asg-pop-h .btn, .asg-pop-h .kp-x{ margin-inline-start:auto; }
   .asg-pop-row{ display:flex; justify-content:space-between; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--border); font-size:14px; }
   #leadsTbl td.c-asg{ cursor:pointer; } #leadsTbl td.c-asg:hover{ background:color-mix(in srgb, var(--gold) 12%, transparent); }
   #leadsTbl td.c-status{ white-space:nowrap; } .mar-ic{ font-size:14px; margin-inline-start:4px; cursor:help; vertical-align:middle; }
@@ -852,7 +871,8 @@
          border-radius:10px; padding:12px 14px; box-shadow:0 8px 24px rgba(0,0,0,.25); font-size:14px; line-height:1.6; }
   .qpop .when{ color:#d6d6d6; font-size:12px; margin-inline-end:4px; }
   .qpop .pn{ padding:4px 0; border-bottom:1px solid rgba(255,255,255,.12); white-space:pre-wrap; }
-  .qpop .pop-title{ font-weight:700; margin-bottom:6px; }
+  .qpop .pop-title{ font-weight:700; margin-bottom:6px; padding-inline-end:30px; }
+  .qpop .pop-x{ position:sticky; top:0; float:left; margin:-4px -4px 0 0; width:30px; height:30px; border-radius:50%; border:0; background:rgba(255,255,255,.16); color:#fff; font-size:15px; cursor:pointer; z-index:1; }
   .qpop .pop-list{ max-height:40vh; overflow:auto; margin-bottom:8px; }
   .qpop textarea{ width:100%; border-radius:6px; border:0; padding:6px 8px; font:inherit; color:#222; }
   .qpop .muted{ color:#ccc; }
@@ -1062,6 +1082,11 @@
   button.ex-tag{ font-family:inherit; cursor:pointer; } .ex-tag.ex-nbt{ color:#3F5A80; background:#EEF2F8; border-color:#CBD6E6; } .ex-nb{ border:0; background:none; padding:0 2px; margin-inline-start:4px; font-size:15px; line-height:1; cursor:pointer; vertical-align:middle; font-size:17px; }
   .ex-pop{ position:fixed; inset:0; background:rgba(30,20,15,.35); z-index:400; display:flex; align-items:center; justify-content:center; padding:16px; } .ex-pop[hidden]{ display:none; }
   .ex-pop-box{ background:#fff; border-radius:14px; padding:16px 18px; max-width:440px; width:100%; max-height:80vh; overflow:auto; box-shadow:0 10px 30px rgba(0,0,0,.2); display:flex; flex-direction:column; gap:8px; font-size:15px; }
+  .kp-box{ gap:7px; } .kp-tags{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:14px; } .kp-st{ background:var(--muted); border-radius:999px; padding:2px 10px; font-size:13px; font-weight:700; }
+  .kp-r{ display:flex; gap:8px; font-size:14.5px; } .kp-k{ color:var(--ink-soft); font-size:13px; font-weight:700; min-width:58px; } .kp-ph{ color:var(--accent); font-weight:700; text-decoration:none; }
+  .kp-asg{ display:flex; flex-direction:column; gap:5px; font-size:14px; } .kp-a{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; } .kp-pt{ font-size:12.5px; color:#7a4b00; background:#fff1d6; border-radius:999px; padding:0 7px; }
+  .kp-btns{ display:flex; justify-content:flex-start; gap:8px; margin-top:6px; }
+  .kp-x{ flex:none; width:34px; height:34px; border-radius:50%; border:1px solid var(--border); background:var(--muted); color:var(--ink); font-size:16px; font-weight:700; cursor:pointer; line-height:1; }
   .ex-pop-h{ display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:16.5px; color:var(--accent); }
   .ex-pop-t, .ex-topics{ white-space:pre-line; } .ex-pop-t{ background:#FBF7EE; border-radius:10px; padding:10px 12px; line-height:1.6; } .ex-pop-m{ font-size:13.5px; }
   .ex-topics{ font-size:13.5px; } .ex-study{ background:#FBF7EE; border-radius:8px; padding:6px 8px; margin-bottom:4px; }
@@ -1201,6 +1226,15 @@
     .ws-side #wsKind{ display:flex; flex-direction:column; border-radius:12px; margin-bottom:10px; }
     .ws-side #wsKind button{ border-radius:9px; text-align:center; }
     .ws-side .ws-how{ margin:4px 2px 0; line-height:1.55; }
+  }
+  /* 5.19.23: מחשב - בחירת מקצוע / כיתה / חלק בשורה אחת ליד החיפוש, והתוצאות על כל רוחב הדף */
+  @media (min-width:900px){
+    #wsTop{ display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-bottom:14px; } #wsTop .ws-search{ flex:1 1 340px; margin:0; }
+    #wsTop .ws-side{ position:static; background:none; border:0; padding:0; border-radius:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    #wsTop .ws-side .ws-pick{ flex-direction:row; align-items:center; gap:8px; margin:0; flex-wrap:wrap; }
+    #wsTop .ws-side .ws-seg button{ flex:none; padding:0 14px !important; }
+    #wsTop .ws-side #wsKind{ flex-direction:row; margin:0; } #wsTop .ws-side .ws-how{ display:none; }
+    .ws-layout{ display:block; }
   }
   /* ייבוא דפים - רק במחשב */
   @media (max-width:760px){ #wsImportBtn, #wsImport{ display:none !important; } }
@@ -1428,7 +1462,7 @@
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn primary" type="button" id="leadEditBtn" hidden>✎ עריכה</button>
-          <button class="btn" type="button" data-back>חזרה לרשימה</button>
+          <button class="btn" type="button" data-back title="חזרה">→ חזרה</button>
         </div>
       </div>
       <form id="leadForm" novalidate>
@@ -1676,13 +1710,13 @@
       <div class="ws-stick" id="wsStick"><div class="ws-quick" id="wsQuick"></div>
       <div id="wsTop">
         <div class="ws-search"><span class="ws-s-ic" aria-hidden="true">🔍</span><input id="wsSearch" type="search" placeholder="חיפוש נושא או דף בכל הספרים - למשל: שברים, פרבולה, Past simple" aria-label="חיפוש נושא או דף" autocomplete="off"><button type="button" class="ws-s-x" id="wsSearchX" aria-label="ניקוי החיפוש" hidden>✕</button></div>
-      </div></div>
-      <div class="ws-layout">
         <aside class="ws-side" id="wsSide">
           <div class="ws-pick" id="wsPick"></div>
           <div class="gseg ws-kind" id="wsKind" role="group" aria-label="סוג"></div>
           <div class="muted ws-how">איך שולחים לתלמיד: נושא ← דף ← <b>העתקה</b> ← חוזרים לצ'אט בוואטסאפ ← לחיצה ארוכה בשורת ההקלדה ← <b>הדבקה</b>.</div>
         </aside>
+      </div></div>
+      <div class="ws-layout">
         <div id="wsBody"></div>
         <div class="ws-pop" id="wsPop" hidden><div class="ws-pop-in"><div class="ws-pop-t" id="wsPopT"></div><button type="button" class="btn ws-copy" id="wsPopSend">שליחה</button><button type="button" class="btn" id="wsPopOpen">פתיחת הדף</button><button type="button" class="btn" id="wsPopX">ביטול</button></div></div>
         <div class="ws-selbar" id="wsSelBar" hidden><span id="wsSelN"></span><button type="button" class="btn primary" id="wsSelSend">שלח את המסומנים</button><button type="button" class="btn small" id="wsSelClr" aria-label="ביטול הבחירה">✕</button></div>
@@ -1801,7 +1835,7 @@
     <section id="view-schools" hidden>
       <div class="page-head"><h1>בתי ספר</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn small" type="button" id="scEdit">עריכה</button>
+          <button class="btn small" type="button" id="scEdit">✎ עריכה</button>
           <button class="btn small" type="button" id="scAddBtn">+ בית ספר</button>
         </div></div>
       <form id="scAdd" class="card st-form" hidden style="margin-bottom:12px; grid-template-columns:1.5fr 1.5fr auto;">
@@ -2601,12 +2635,12 @@ function notesHtml(l){
   return `<div class="pop-notes"><div class="pop-title">הערות - ${esc(fullName(l.student.first_name, l.student.last_name))}</div>
     <div class="pop-list">${ns.slice().reverse().map(n => `<div class="pn"><span class="when">${esc(fmtDate(n.created_at))}</span> ${esc(cleanNote(n.body))}</div>`).join("") || "<div class='muted'>אין הערות עדיין.</div>"}</div>
     <textarea rows="3" placeholder="הערה חדשה..."></textarea>
-    <div style="display:flex; gap:8px; margin-top:6px;"><button type="button" class="btn small primary" data-pop="save">הוספת הערה</button><button type="button" class="btn small" data-pop="close">סגירה</button></div></div>`;
+    <div style="display:flex; gap:8px; margin-top:6px;"><button type="button" class="btn small primary" data-pop="save">הוספת הערה</button></div></div>`;
 }
 let popLead = null;
 function showPop(anchor, html, lead){
   const p = $("pop"); popLead = lead || null;
-  p.innerHTML = html; p.hidden = false;
+  p.innerHTML = `<button type="button" class="pop-x" data-pop="close" aria-label="סגירה" title="סגירה">✕</button>` + html; p.hidden = false;   // 5.19.23: תמיד יש ✕
   const r = anchor.getBoundingClientRect(), w = p.offsetWidth, h = p.offsetHeight;
   let left = r.left + r.width / 2 - w / 2, top = r.bottom + 6;
   left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
@@ -2677,7 +2711,7 @@ function openLead(id){
   if (LEAD_DIRTY && !LEAD_SAVING && currentView === "lead" && (!editing || editing.id !== id)) { askLeadSave(() => openLead(id)); return; }
   if (currentView !== "lead" && !NAV_POP) { LEAD_FROM = ["home", "leads"].includes(currentView) ? "leads" : currentView; LEAD_FROM_Y = window.scrollY; }
   { const to = { leads: "לרשימה", history: "להיסטוריה", reports: "לדוחות", groups: "לקבוצות", att: "לנוכחות", sched: "לשיבוצים", reg: "להרשמה" }[LEAD_FROM] || "";
-    document.querySelectorAll("[data-back]").forEach(b => b.textContent = "חזרה " + to);
+    document.querySelectorAll("[data-back]").forEach(b => b.innerHTML = "→ חזרה" + (to ? `<span class="lg-t"> ${to}</span>` : ""));   // 5.19.23: כמו בשאר המסכים - חץ + "חזרה"
     document.querySelectorAll("[data-and-back]").forEach(b => b.textContent = "שמירה וחזרה " + to); }
   const l = id ? L.leads.find(x => x.id === id) : null;
   editing = l;
@@ -2712,7 +2746,7 @@ function openLead(id){
   $("newNote").value = ""; $("noteNew").classList.remove("open"); $("notesN").textContent = ""; $("laNotes").textContent = ""; $("addNoteBtn").disabled = !l;
   $("notesList").innerHTML = l ? "<li class='muted'>טוען...</li>" : "<li class='muted'>אפשר להוסיף הערות אחרי השמירה הראשונה.</li>";
   $("leadGroups").textContent = "";
-  setLeadEdit(true); setLeadDirty(false);
+  setLeadEdit(!(l && LEAD_MOB())); setLeadDirty(false);   // 5.19.23: בנייד נפתח לצפייה; "✎ עריכה" פותח את הטופס
   go("lead");
   renderTrack(l); $("leadPay").innerHTML = ""; $("leadCancel2").innerHTML = "";
   leadQuick(l ? l.student : null, null);
@@ -2956,10 +2990,19 @@ function leadQuick(st, cur){
   const cls = (st.grade || "") + (st.class_num ? String(st.class_num) : "");
   const top = `<div class="lq-top">${sch ? `<span class="school-chip ${scCls(sch)}">${esc(sch)}</span>` : `<span class="muted">בית ספר לא ידוע</span>`}${cls ? `<span class="lq-cls">כיתה ${esc(cls)}</span>` : `<span class="muted">כיתה לא ידועה</span>`}</div>`;
   const hm = (t) => String(t || "").slice(0, 5);
-  const gs = cur == null ? `<div class="muted">טוען שיבוצים…</div>` : cur.length ? cur.map(a => { const se = a.session, st0 = hm(se.start_time), arr = hm(a.arrival_time);
-      return `<div class="lq-g"><b>${sessWhen(se)}</b><span>${rng(st0, hm(se.end_time) || addMin(st0, 45))}</span><span>${esc((se.location && se.location.name) || "")}</span>${a.subject ? `<span class="muted">${esc(a.subject)}</span>` : ""}${a.status === "ממתין" ? `<span class="mar-tag" style="margin:0">מוצע</span>` : ""}${arr && arr !== st0 ? `<span class="lq-pt">⏰ ${rng(arr, hm(a.personal_end) || addMin(arr, 45))}</span>` : ""}</div>`; }).join("")
-    : `<div class="muted">לא משובץ/ת לקבוצה השנה</div>`;
-  box.innerHTML = gs;   // בית הספר והכיתה כבר מופיעים בשורה שמתחת לשם
+  // 5.19.23: שיבוץ = תגית בצבע בית הספר שבו התרגול (יום, שעה, מקום); שעה אישית ליד
+  const gs = cur == null ? `<div class="muted">טוען שיבוצים…</div>` : cur.length ? `<div class="lq-gs">` + cur.map(a => { const se = a.session, st0 = hm(se.start_time), arr = hm(a.arrival_time), loc = (se.location && se.location.name) || "";
+      return `<span class="lq-g2"><span class="asg-pill"><span class="${scCls(loc)}"><i></i>${sessWhen(se)} ${rng(st0, hm(se.end_time) || addMin(st0, 45))} · ${esc(loc)}</span></span>${arr && arr !== st0 ? `<span class="lq-pt">⏰ ${rng(arr, hm(a.personal_end) || addMin(arr, 45))}</span>` : ""}${a.status === "ממתין" ? `<span class="mar-tag" style="margin:0">מוצע</span>` : ""}</span>`; }).join("") + `</div>`
+    : `<div class="lq-none">לא משובץ/ת לקבוצה השנה</div>`;
+  // 5.19.23: בנייד במצב צפייה - הפרטים העיקריים בקצרה (סטטוס, כיתה, בית ספר, הורה וטלפון)
+  const l = (L.leads || []).find(x => x.student && x.student.id === st.id), f = st.family || {}, ph = (v) => v ? `<a class="lq-ph" dir="ltr" href="tel:${esc(v)}">${esc(String(v).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : "";
+  const city = l ? leadCity(l) : (f.city || "");
+  const sum = `<div class="lq-sum"><div class="lq-top">${l && statusName(l.status_id) ? `<span class="lq-st"${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff;"` : ""}>${esc(statusName(l.status_id))}</span>` : ""}${city ? `<span class="muted">${esc(city)}</span>` : ""}</div>
+    <div class="lq-row"><span class="lq-k">בית ספר</span>${sch ? `<span class="school-chip ${scCls(sch)}">${esc(sch)}</span>` : "<span class='muted'>לא ידוע</span>"}<span class="lq-k" style="min-width:0; margin-inline-start:8px;">כיתה</span>${st.grade ? `<b>${esc(classLabel(st.grade, st.class_num))}</b>` : "<span class='muted'>לא ידוע</span>"}</div>
+    ${f.parent1_phone || f.parent1_first ? `<div class="lq-row"><span class="lq-k">הורה</span>${esc(fullName(f.parent1_first, f.parent1_last))} ${ph(f.parent1_phone)}${/^0\d{8,9}$/.test(f.parent1_phone || "") ? ` <a class="lq-wa" target="_blank" rel="noopener" href="https://wa.me/972${esc(String(f.parent1_phone).slice(1))}">וואטסאפ</a>` : ""}</div>` : ""}
+    ${f.parent2_phone ? `<div class="lq-row"><span class="lq-k">הורה 2</span>${esc(fullName(f.parent2_first, f.parent2_last))} ${ph(f.parent2_phone)}</div>` : ""}
+    ${st.phone ? `<div class="lq-row"><span class="lq-k">תלמיד/ה</span>${ph(st.phone)}</div>` : ""}</div>`;
+  box.innerHTML = sum + gs;
 }
 async function loadLeadGroups(studentId){
   $("leadGroups").innerHTML = "<div class='muted'>טוען...</div>"; $("leadAtt").textContent = "";
@@ -3049,7 +3092,7 @@ let LG_SESSIONS = null;
 async function openAsgPopup(l){
   const sid = l.student.id, who = `${l.student.first_name} ${l.student.last_name || ""}`.trim();
   const bg = document.createElement("div"); bg.className = "panel-bg"; bg.style.display = "flex"; bg.style.alignItems = "flex-start"; bg.style.justifyContent = "center";
-  bg.innerHTML = `<div class="card asg-pop" role="dialog" aria-modal="true"><div class="asg-pop-h"><b>שיבוץ · ${esc(who)}</b> <span class="muted">${esc(statusName(l.status_id) || "")}</span><button type="button" class="btn small" data-x>סגירה</button></div><div class="asg-pop-b">טוען...</div></div>`;
+  bg.innerHTML = `<div class="card asg-pop" role="dialog" aria-modal="true"><div class="asg-pop-h"><b>שיבוץ · ${esc(who)}</b> <span class="muted">${esc(statusName(l.status_id) || "")}</span><button type="button" class="kp-x" data-x aria-label="סגירה" title="סגירה">✕</button></div><div class="asg-pop-b">טוען...</div></div>`;
   document.body.appendChild(bg);
   const esc2 = (e) => { if (e.key === "Escape") close(); };
   const close = () => { bg.remove(); document.removeEventListener("keydown", esc2); renderLeads(); };
@@ -3228,17 +3271,18 @@ function askLeadSave(onLeave){
   bg.querySelector('[data-a="stay"]').onclick = () => { end(); fixHist(); };
   bg.querySelector('[data-a="save"]').focus();
 }
+const LEAD_MOB = () => !!(window.matchMedia && matchMedia("(max-width:760px)").matches);
 function setLeadEdit(on){
   const card = document.querySelector("#leadForm .lead-main");
   card.classList.toggle("editing", on); $("leadForm").classList.toggle("ro", !on); $("view-lead").classList.toggle("ro", !on);
   card.querySelectorAll("input, select, textarea, button.switch, button.star, #clearRemind").forEach(el => { if (!el.closest("#siblings")) el.disabled = !on; });
-  $("leadEditBtn").hidden = true; $("leadActions").hidden = !on; $("editBanner").hidden = !LEAD_DIRTY;
+  $("leadEditBtn").hidden = on; $("leadActions").hidden = !on; $("view-lead").classList.toggle("lc-view", !on); $("editBanner").hidden = !LEAD_DIRTY;
   $("lfRemind").style.visibility = (!on && !$("lfRemind").value) ? "hidden" : "";
   $("lfMessage").closest(".msg-cell").hidden = !on && !$("lfMessage").value.trim();
   card.querySelectorAll("input:not([type=datetime-local])").forEach(el => { if (!el.closest("#siblings")) el.placeholder = on ? (el.dataset.ph || "") : "—"; });
 }
 $("sClass").addEventListener("input", () => { const v = $("sClass").value.replace(/\D/g, "").slice(0, 2); if (v !== $("sClass").value) $("sClass").value = v; });
-$("leadEditBtn").addEventListener("click", () => { setLeadEdit(true); $("sFirst").focus(); });
+$("leadEditBtn").addEventListener("click", () => { setLeadEdit(true); const k = document.querySelector("#leadForm .lead-main"); if (k) k.scrollIntoView({ block: "start" }); });
 $("leadCancel").addEventListener("click", () => { setLeadDirty(false); if (editing) openLead(editing.id); else { go("leads"); renderLeads(); } });
 $("leadForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -3493,7 +3537,7 @@ function exShow(id){
   let o = $("exPop"); if (!o) { o = document.createElement("div"); o.id = "exPop"; o.className = "ex-pop"; document.body.appendChild(o);
     o.addEventListener("click", (ev) => { if (ev.target === o || ev.target.closest("[data-expclose]")) o.hidden = true; }); }
   o.innerHTML = `<div class="ex-pop-box" role="dialog" aria-modal="true">
-    <div class="ex-pop-h"><b>${st ? "📓 לומדים עכשיו" : "📝 " + esc(e.kind)} · ${esc(exSchName(e))} ${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b><button type="button" class="btn small" data-expclose>סגירה</button></div>
+    <div class="ex-pop-h"><b>${st ? "📓 לומדים עכשיו" : "📝 " + esc(e.kind)} · ${esc(exSchName(e))} ${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b><button type="button" class="kp-x" data-expclose aria-label="סגירה" title="סגירה">✕</button></div>
     <div class="muted">${st ? "התקבל " : "יום " + esc(DAY_FULL[dayLetter(e.exam_date)] || "") + " "}${esc(fmtIso(e.exam_date))}</div>
     ${st && studyAll(e).length > 1 ? studyTxt(studyAll(e), "ex-pop-t") : `${e.topics ? `<div class="ex-pop-t">${esc(e.topics)}</div>` : `<div class="muted ex-pop-t">${st ? "לא נכתבו נושאים." : "עוד לא התקבלו נושאים למבחן הזה."}</div>`}
     ${e.material || e.source ? `<div class="ex-pop-meta">${[e.material ? "<b>קובץ:</b> " + esc(e.material) : "", e.source ? "<b>מקור:</b> " + esc(e.source) : ""].filter(Boolean).join(" · ")}</div>` : ""}`}</div>`;
@@ -3543,7 +3587,7 @@ async function renderExams(reload){
   stH = "";
   if (!rows.length) { box.innerHTML = stH + `<div class="empty-state">${EX.rows.length ? "אין מבחנים קרובים לפי הבחירה." : "עוד אין מבחנים במערכת."}</div>`; return; }
   const dateTxt = (e) => `<span class="ex-date${EX_MAKEUP.test(e.kind) ? "" : exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span>`;
-  const btns = (e) => adm && e.origin === "manual" ? `<button type="button" class="btn small" data-exed="${e.id}">עריכה</button> <button type="button" class="btn small" data-exdel="${e.id}">מחיקה</button>` : "";
+  const btns = (e) => adm && e.origin === "manual" ? `<button type="button" class="btn small" data-exed="${e.id}">✎ עריכה</button> <button type="button" class="btn small" data-exdel="${e.id}">מחיקה</button>` : "";
   if (isMobile()) box.innerHTML = stH + `<div class="ex-cards">` + rows.map(e => `<div class="ex-card${e.exam_date < t ? " past" : ""}${EX_MAKEUP.test(e.kind) ? " mk" : ""}">
       <div>${dateTxt(e)} <span class="muted">יום ${esc(DAY_FULL[dayLetter(e.exam_date)] || "")}</span></div>
       <div class="ex-c2">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> · <span class="${EX_MAKEUP.test(e.kind) ? "muted" : "ex-k"}">${esc(e.kind)}</span></div>
@@ -4248,7 +4292,7 @@ async function loadPanelSplits(se){
   const sets = {}; cur.forEach(s => (sets[spSetKey(s)] = sets[spSetKey(s)] || []).push(s));
   const html = `<li class="sp-panel"><div class="row-top"><span><b>תת-קבוצות</b>${sp !== null && !Object.keys(sets).length ? ` <span class="muted">· הקבוצה לא מפוצלת</span>` : ""}</span>${sp === null ? "" : `<button type="button" class="btn small" id="spNew">✂ פיצול</button>`}</div>
     ${sp === null ? "<div class='meta'>צריך להריץ את קובץ 40.</div>" : Object.keys(sets).length ? Object.values(sets).map(g => `<div class="meta" style="margin-top:4px;"><b>${esc(spWhen(g[0]))}:</b> ${g.map(s => `${esc(s.name)} - ${s.members.length} ילדים${s.room ? ", " + esc(s.room) : ""}${s.staff ? ", " + esc(s.staff.full_name) : ""}`).join(" · ")}
-      <button type="button" class="btn small" data-spedit="${esc(spSetKey(g[0]))}">עריכה</button> <button type="button" class="btn small" data-spend="${esc(spSetKey(g[0]))}">${g[0].date_from > t ? "מחיקה" : "סיום הפיצול"}</button></div>`).join("") : ""}</li>`;
+      <button type="button" class="btn small" data-spedit="${esc(spSetKey(g[0]))}">✎ עריכה</button> <button type="button" class="btn small" data-spend="${esc(spSetKey(g[0]))}">${g[0].date_from > t ? "מחיקה" : "סיום הפיצול"}</button></div>`).join("") : ""}</li>`;
   $("roster").insertAdjacentHTML("afterbegin", html);
   // ילד/ה בתת-קבוצה היום - תגית ליד השם
   const today = cur.filter(s => s.date_from <= t);
@@ -4651,7 +4695,7 @@ function renderSheetRows(){
     if (multiT && t != null && t !== prevT) { const n = A.rows.filter(x => shVisible(x) && attArr(x) === t).length;
       head = `<li class="att-sec att-tsec"><span>⏰ <bdi>${minHm(t)}</bdi>${t === attGrpStart() ? " · שעת הקבוצה" : ""}</span><span>${n === 1 ? "ילד/ה 1" : n + " ילדים"}</span></li>`; prevT = t; }
     return head + `<li data-i="${i}">${gradeBadge(r.grade, r.class_num)}
-    <div class="att-name"><b class="att-nm"><span${ME.role !== "instructor" && L.leads.some(l => l.student && l.student.id === r.student_id) ? ` class="att-kl" data-kl="${r.student_id}" role="button" tabindex="0" title="לכרטיס התלמיד/ה"` : ""}>${esc(r.first_name)} ${esc(r.last_name || "")}</span>${dblStar(isDouble(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location, r.arrival_time, r.personal_end))}</b>
+    <div class="att-name"><b class="att-nm"><span${ME.role !== "instructor" && L.leads.some(l => l.student && l.student.id === r.student_id) ? ` class="att-kl" data-kl="${r.student_id}" role="button" tabindex="0" title="פרטים ושיבוצים"` : ""}>${esc(r.first_name)} ${esc(r.last_name || "")}</span>${dblStar(isDouble(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location, r.arrival_time, r.personal_end))}</b>
       <span class="meta">${r.school ? `<span class="school-chip sch-sm ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${r.in_group ? "" : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
       </div>
     <div class="att-ctl">
@@ -4703,11 +4747,42 @@ function setPresent(r, v){
   if (v && !r.did_math && !r.did_english && subjGrp(rowSubj(r)) !== 2) { const d = subjDefault(rowSubj(r)); r.did_math = d.m; r.did_english = d.e; }
   if (!v) { r.did_math = false; r.did_english = false; }
 }
+// 5.19.23: חלון פרטים מהיר של ילד/ה מתוך הנוכחות (מנהלים)
+async function attKidPop(l){
+  const s = l.student, f = s.family || {}, sch = schoolOf(s), city = leadCity(l);
+  let o = $("kidPop"); if (!o) { o = document.createElement("div"); o.id = "kidPop"; o.className = "ex-pop"; document.body.appendChild(o);
+    o.addEventListener("click", (ev) => { if (ev.target === o || ev.target.closest("[data-kpclose]")) o.hidden = true; }); }
+  const ph = (v) => v ? `<a class="kp-ph" dir="ltr" href="tel:${esc(v)}">${esc(String(v).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : "";
+  const row = (k, v) => v ? `<div class="kp-r"><span class="kp-k">${k}</span><span>${v}</span></div>` : "";
+  const paint = (asg) => {
+    o.innerHTML = `<div class="ex-pop-box kp-box" role="dialog" aria-modal="true">
+      <div class="ex-pop-h"><b>${esc(fullName(s.first_name, s.last_name))}</b><button type="button" class="kp-x" data-kpclose aria-label="סגירה" title="סגירה">✕</button></div>
+      <div class="kp-tags">${statusName(l.status_id) ? `<span class="kp-st"${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff;"` : ""}>${esc(statusName(l.status_id))}</span>` : ""}
+        ${city ? `<span class="muted">${esc(city)}</span>` : ""}</div>
+      <div class="kp-r"><span class="kp-k">בית ספר</span><span>${sch.name ? scChip(sch.name) : "<span class='muted'>לא ידוע</span>"}</span><span class="kp-k" style="min-width:0; margin-inline-start:10px;">כיתה</span><span>${s.grade ? `<b>${esc(classLabel(s.grade, s.class_num))}</b>` : "<span class='muted'>לא ידוע</span>"}</span></div>
+      ${row("הורה", [esc(fullName(f.parent1_first, f.parent1_last)), ph(f.parent1_phone)].filter(Boolean).join(" · "))}
+      ${f.parent2_phone ? row("הורה 2", [esc(fullName(f.parent2_first, f.parent2_last)), ph(f.parent2_phone)].filter(Boolean).join(" · ")) : ""}
+      ${row("תלמיד/ה", ph(s.phone))}
+      ${s.tracking ? row("📌 מעקב", esc(s.tracking)) : ""}
+      <div class="kp-k" style="margin-top:4px;">שיבוצים</div>
+      <div class="kp-asg">${asg == null ? "<span class='muted'>טוען…</span>" : asg.length ? asg.map(a => { const se = a.session, arr = String(a.arrival_time || "").slice(0, 5), st = String(se.start_time || "").slice(0, 5);
+        return `<div class="kp-a"><span class="asg-pill"><span class="${scCls(se.location && se.location.name)}"><i></i>${se.kind === "מרתון" ? "מרתון" : esc(se.day) + "'"} ${rng(st, String(se.end_time || "").slice(0, 5))} · ${esc((se.location && se.location.name) || "")}</span></span>${arr && arr !== st ? ` <span class="kp-pt">⏰ שעה אישית ${rng(arr, String(a.personal_end || "").slice(0, 5) || addMin(arr, 45))}</span>` : ""}${a.status === "ממתין" ? ` <span class="muted">(מוצע)</span>` : ""}</div>`; }).join("") : "<span class='muted'>לא משובץ/ת</span>"}</div>
+      <div class="kp-btns"><button type="button" class="btn small primary" data-kpopen>לכרטיס התלמיד ←</button></div></div>`;
+    o.querySelector("[data-kpopen]").onclick = () => { o.hidden = true; A.ret = { sid: A.sheet.session_id, date: A.date }; openLead(l.id); };
+  };
+  paint(null); o.hidden = false;
+  try { const r = await get("assignments", "select=id,status,arrival_time,personal_end,session:sessions(day,start_time,end_time,kind,school_year,location:locations(name))&student_id=eq." + s.id + "&order=id");
+    paint(r.filter(a => a.session && a.session.school_year === CONFIG.schoolYear && (a.status === "משובץ" || a.status === "ממתין"))
+      .sort((a, b) => (DAY_ORDER[a.session.day] ?? 9) - (DAY_ORDER[b.session.day] ?? 9) || String(a.session.start_time).localeCompare(String(b.session.start_time)))); }
+  catch(e) { paint([]); }
+}
+document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && $("kidPop") && !$("kidPop").hidden) $("kidPop").hidden = true; });
 $("shRows").addEventListener("click", async (e) => {
   // 5.19.14: מנהלים - לחיצה על שם הילד/ה פותחת את כרטיס התלמיד; "חזרה לנוכחות" מחזיר לאותה קבוצה ואותו יום (הסימון נשמר בטלפון)
   const kl = e.target.closest("[data-kl]");
+  // 5.19.23: לחיצה על השם - חלון עם הפרטים העיקריים והשיבוצים; לכרטיס (לעריכה) רק בכפתור
   if (kl) { const sid = Number(kl.dataset.kl), l = L.leads.find(x => x.student && x.student.id === sid); if (!l) return;
-    A.ret = { sid: A.sheet.session_id, date: A.date }; openLead(l.id); return; }
+    attKidPop(l); return; }
   const rm = e.target.closest("[data-rm]");
   if (rm && A.sheet.can_edit) { const i = Number(rm.closest("li").dataset.i), r = A.rows[i]; if (r.saved) A.removed.push(r.student_id); A.rows.splice(i, 1); attDirty(); renderSheetRows(); return; }
   const b = e.target.closest("[data-p]"); if (!b || !A.sheet.can_edit) return;
@@ -4812,7 +4887,7 @@ function renderStaff(){
       <td><span class="role-badge ${u.role}">${u.role === "admin" ? "מנהל/ת" : u.role === "display" ? "לתצוגה בלבד" : "מתרגל/ת"}</span></td>
       <td>${S.links.filter(l => l.staff_id === u.id).length || "-"}</td>
       <td style="white-space:nowrap"><button class="btn small" type="button" data-asg="${u.id}">שיוך קבוצות</button>
-        <button class="btn small" type="button" data-edit="${u.id}">עריכה</button>
+        <button class="btn small" type="button" data-edit="${u.id}">✎ עריכה</button>
         ${u.role === "display" ? `<button class="btn small" type="button" data-up="${u.id}">הפוך למשתמש</button>` : ""}
         ${u.email === auth.email ? "" : `<button class="btn small" type="button" data-rm="${u.id}">הסרה</button>`}</td></tr>`).join("") + "</tbody>";
   $("stTbl").querySelectorAll("[data-asg]").forEach(b => b.onclick = () => openAssign(b.dataset.asg));
@@ -4979,7 +5054,7 @@ function renderSchools(){
   const multiCity = inGroups && cities.length > 1;
   $("scTabs").innerHTML = SC.list.filter(x => inGroups ? cities.includes(x.city) : x.city === SC.city).map(x => `<button class="tab ${scCls(x.name)}" role="tab" aria-selected="${String(x.id) === String(SC.cur)}" data-id="${x.id}">${esc(x.name)}${multiCity ? ` <span class="n">${esc(x.city)}</span>` : ""}</button>`).join("");
   $("scTabs").querySelectorAll(".tab").forEach(b => b.onclick = () => { SC.cur = b.dataset.id; store("telem_school", SC.cur); SC.edit = false; renderSchools(); });
-  $("scEdit").textContent = SC.edit ? "ביטול עריכה" : "עריכה";
+  $("scEdit").textContent = SC.edit ? "ביטול עריכה" : "✎ עריכה";
   const x = SC.list.find(y => String(y.id) === String(SC.cur));
   if (!x) { $("scBody").innerHTML = "<div class='card muted'>אין עדיין בתי ספר. אפשר להוסיף בכפתור \"+ בית ספר\".</div>"; return; }
   const tel = (p) => p ? String(p).split(/[\n,]|\s+(?=0)/).map(t => t.trim()).filter(Boolean).map(t => `<a href="tel:${digits(t)}" dir="ltr" style="white-space:nowrap">${esc(t)}</a>`).join("<br>") : "";
