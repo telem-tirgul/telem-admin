@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.30">
+<meta name="app-version" content="5.19.31">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -602,7 +602,7 @@
   #view-att.att-side .sh-kicker{ display:block; font-weight:800; color:var(--accent); font-size:13px; letter-spacing:.3px; padding:12px 0 2px; }
   #view-att.att-side .sh-stick{ position:sticky; top:0; z-index:5; background:var(--att-bg, var(--bg)); }
   .att-side-bg{ position:fixed; inset:0; background:rgba(20,14,12,.35); z-index:40; }
-  .panel{ position:fixed; top:0; bottom:0; right:0; width:min(460px,100%); background:var(--paper); z-index:41;
+  .panel{ position:fixed; top:0; bottom:0; right:0; width:min(620px,100%); background:var(--paper); z-index:41;
           display:flex; flex-direction:column; box-shadow:0 0 40px rgba(0,0,0,.3); }
   .panel header{ padding:16px 18px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:10px; }
   .panel header h3{ color:var(--accent); font-size:18px; }
@@ -1647,7 +1647,7 @@
         <div class="sh-stick">
         <div class="sh-head">
           <div class="sh-h1row"><div class="sh-tbox"><h1 id="shTitle"></h1><div id="shTopCnt" class="sh-topcnt"></div></div>
-            <div class="sh-top-btns"><button class="btn small" type="button" id="shGroup" data-admin title="פתיחת הקבוצה במסך קבוצות ומרתונים">✎ <span class="lg-t">עריכת </span>קבוצה</button><button class="btn small" type="button" id="shBack">→ חזרה<span class="lg-t"> לקבוצות</span></button></div></div>
+            <div class="sh-top-btns"><button class="btn small" type="button" id="shGroup" data-admin title="חלון הקבוצה: הילדים, העברה, מתרגלים ועריכת פרטי הקבוצה">👥 <span class="lg-t">חלון ה</span>קבוצה</button><button class="btn small" type="button" id="shBack">→ חזרה<span class="lg-t"> לקבוצות</span></button></div></div>
         </div>
         <div class="sh-nav" id="shNav" hidden><button type="button" class="btn" id="shPrevG"></button><button type="button" class="btn" id="shNextG"></button></div>
         </div>
@@ -1852,7 +1852,7 @@
       <div class="ar-host" id="arHostK"></div>
     </section>
     <section id="view-attg" hidden>
-      <div class="page-head"><h1>דוח נוכחות</h1><button type="button" class="btn small" id="arBackBtn">→ חזרה</button></div>
+      <div class="page-head"><h1>דוח נוכחות</h1><button type="button" class="btn small" id="arBackBtn">→ חזרה ללוח</button></div>
       <div class="ar-host" id="arHostG"></div>
     </section>
     <!-- ===== מבחנים בבתי הספר (קובץ 50) ===== -->
@@ -3280,7 +3280,8 @@ $("filtersToggle").addEventListener("click", () => { const c = document.querySel
 // 5.19.29: חלון הקבוצה נפתח מעל המסך הנוכחי (מסך הקבוצות אוחד עם הנוכחות)
 let G_LOADING = null;
 async function ensureG(force){ if (force || !G.loaded || Date.now() - (G.loadedAt || 0) > 60000) { G_LOADING = G_LOADING || loadGroups().then(() => { G.loaded = true; }).finally(() => { G_LOADING = null; }); await G_LOADING; } }
-async function grpEdit(sid){ await ensureG(); if (G.sessions.some(x => x.session_id === sid)) openPanel(sid); else toast("הקבוצה לא נמצאה"); }
+// 5.19.31: נפתח ישר במצב עריכה (בלי ללחוץ שוב "עריכת קבוצה")
+async function grpEdit(sid){ await ensureG(); if (G.sessions.some(x => x.session_id === sid)) { G.autoEdit = true; openPanel(sid); } else toast("הקבוצה לא נמצאה"); }
 function openGroupOnBoard(sessionId, city){ grpEdit(sessionId); }
 $("addLeadBtn").addEventListener("click", () => openLead(null));
 // 5.19.18: תקציר לכל שורה מקופלת - השורה הראשונה של התוכן (מתעדכן כשהתוכן נטען)
@@ -3990,6 +3991,7 @@ function openPanel(id){
   // פיצול לתת-קבוצות - הוסר מהלוח (הלקוחה 12.10, לא בשימוש בנוכחות). הקוד נשאר: loadPanelSplits(se)
   loadPanelSchool(se);
   $("panel").hidden = false; $("panelBg").hidden = false; $("panelClose").focus();
+  if (G.autoEdit && !$("gEditBtn").hidden) $("gEditBtn").click();   // 5.19.31: החלון נשאר במצב עריכה גם אחרי פעולה (העברה, אישור, שמירה)
 }
 function wireProp(se){
   const R = $("roster"), byId = (v) => (G.prop || []).find(k => String(k.id) === String(v));
@@ -4056,7 +4058,7 @@ async function openGroupEditor(se, preset){
   // שינוי יום: אם "עד תאריך" היה המפגש האחרון של השנה - מתעדכן ליום החדש
   let prevDay = g("day").value;
   g("day").onchange = () => { if (!g("to").value || g("to").value === lastMeeting(prevDay, G.yearEnd)) g("to").value = lastMeeting(g("day").value, G.yearEnd); prevDay = g("day").value; };
-  g("cancel").onclick = () => { if (se) openPanel(se.session_id); else closePanel(); };
+  g("cancel").onclick = () => { if (se && !G.autoEdit) openPanel(se.session_id); else closePanelUser(); };   // 5.19.31: "ביטול" - סוגר וחוזר למקום שממנו באו
   g("save").onclick = async () => {
     const day = g("day").value, locId = Number(g("loc").value), st = g("start").value, en = g("end").value;
     if (!locId || !st || !en) { g("err").textContent = "צריך לבחור בית ספר, שעת התחלה ושעת סיום."; return; }
@@ -4103,7 +4105,7 @@ $("attNewG").addEventListener("click", async () => { await ensureG(); newGroup(n
 $("attNewM").addEventListener("click", async () => { await ensureG(); $("mNewBtn").click(); });
 $("attRepBtn").addEventListener("click", () => go("attg"));
 $("arBackBtn").addEventListener("click", () => go("att"));
-function closePanel(){ $("panel").hidden = true; $("panelBg").hidden = true; }
+function closePanel(){ $("panel").hidden = true; $("panelBg").hidden = true; G.autoEdit = false; }
 // 5.19.27: באו מהנוכחות ("✎ קבוצה") - סגירת החלון חוזרת לאותו דף נוכחות (אותו יום)
 function closePanelUser(){
   if ($("panel").hidden) return;
@@ -4305,7 +4307,7 @@ async function openMarGroupEditor(m, se){
   wireDates();
   g("adddate").onclick = () => { const last = [...g("dates").querySelectorAll(".d")].pop();
     g("dates").insertAdjacentHTML("beforeend", meetRow({ date: "", start: last ? last.querySelector("[data-ms]").value : "", end: last ? last.querySelector("[data-me]").value : "" })); wireDates(); };
-  g("cancel").onclick = () => { if (se) openPanel(se.session_id); else closePanel(); };
+  g("cancel").onclick = () => { if (se && !G.autoEdit) openPanel(se.session_id); else closePanelUser(); };   // 5.19.31: "ביטול" - סוגר וחוזר למקום שממנו באו
   g("save").onclick = async () => {
     const ms = [...g("dates").querySelectorAll(".d")].map(r => ({ date: r.querySelector("[data-md]").value, start: r.querySelector("[data-ms]").value, end: r.querySelector("[data-me]").value }))
       .filter(x => x.date || x.start || x.end).sort((a, b) => a.date.localeCompare(b.date));
@@ -4605,7 +4607,7 @@ async function loadAttWeek(){
       const st = MODE === "g" ? "" : x.st === "ok" ? `<span class="att-st ok" title="סומן: ${g.marked_count} נוכחים מתוך ${g.kids}">✓${narrow ? "" : " " + g.marked_count + "/" + g.kids}</span>` : x.st === "miss" ? `<span class="att-st miss" title="לא סומן">${narrow ? "" : "לא סומן"}</span>` : "";
       return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${x.st === "fut" && MODE !== "g" ? " fut" : ""}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.left}% + 2px); width:calc(${x.w}% - 4px);"
         title="${esc(g.location)} · ${esc(g.city)} · ${hm(g.start_time)}-${hm(g.end_time)}${g.room ? " · " + esc(g.room) : ""}${g.instructors ? " · " + esc(g.instructors) : ""}">
-        ${ME.role !== "instructor" && MODE !== "g" ? `<span class="ev-ed" data-ged role="button" title="עריכת הקבוצה (ילדים, מתרגלים, שעות)" aria-label="עריכת הקבוצה">✎</span>` : ""}<span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>${x.st === "hol" ? cxTag(x.hf, true) : ""}
+        ${ME.role !== "instructor" && MODE !== "g" ? `<span class="ev-ed" data-ged role="button" title="חלון הקבוצה (ילדים, מתרגלים, עריכה)" aria-label="חלון הקבוצה">✎</span>` : ""}<span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>${x.st === "hol" ? cxTag(x.hf, true) : ""}
         <span class="ev-time">${mar && g.time_label ? esc(g.time_label) + " · " : ""}${rng(hm(g.start_time), hm(g.end_time))} <span class="ev-n">${g.kids}${MODE === "g" && g.capacity ? "/" + g.capacity : ""} ילדים${MODE === "g" && g.prop ? ` · <b>${g.prop} מוצעים</b>` : ""}</span></span>
         ${MODE === "g" && g.instructors ? `<span class="ev-meta">👤 ${esc(g.instructors)}</span>` : ""}${g.room ? `<span class="ev-meta">📍 ${esc(g.room)}</span>` : ""}${st}</button>`; }).join("");
     return `<div class="cal-col"><div class="cal-day${d === today ? " today" : ""}">${DAY_NAMES[dayLetter(d)]}<small>${fmtDM(d)}</small>${holChips(d) ? `<span class="hol-chips">${holChips(d)}</span>` : ""}${calCityHead(CS)}</div><div class="cal-body${holColCls(d)}" style="height:${H}px">${calSeps(CS)}${blocks}</div></div>`;
@@ -4634,7 +4636,7 @@ async function loadAttGroups(){
     const hm = (t) => String(t || "").slice(0, 5);
     A.groups.forEach(g => { g.cx = g.marked ? null : lessonCx({ kind: g.kind, city: g.city, location: g.location }, A.date, g.cancelled, g.cancel_reason); });
     const card = (g, showCity) => `<button type="button" class="att-group ${scCls(g.location)} ${g.marked ? "done" : ""}${g.cx ? " hol-fade" : ""}" data-s="${g.session_id}">
-      ${ME.role !== "instructor" ? `<span class="ev-ed" data-ged role="button" title="עריכת הקבוצה (ילדים, מתרגלים, שעות)" aria-label="עריכת הקבוצה">✎</span>` : ""}<span class="t">${g.kind === "מרתון" ? esc(g.time_label) + `<span class="kind-tag">מרתון</span>` : rng(hm(g.start_time), hm(g.end_time))}</span>
+      ${ME.role !== "instructor" ? `<span class="ev-ed" data-ged role="button" title="חלון הקבוצה (ילדים, מתרגלים, עריכה)" aria-label="חלון הקבוצה">✎</span>` : ""}<span class="t">${g.kind === "מרתון" ? esc(g.time_label) + `<span class="kind-tag">מרתון</span>` : rng(hm(g.start_time), hm(g.end_time))}</span>
       <span class="w">${scChip(g.location)}${showCity ? " · " + esc(g.city) : ""}</span><span class="ag-br"></span>${g.room ? `<span class="m">חדר: <b><bdi>${esc(g.room)}</bdi></b></span>` : ""}
       ${g.marked ? "" : `<span class="m kn">${g.kids} ילדים</span>`}${ME.role !== "instructor" && g.instructors ? `<span class="ag-ins">${esc(g.instructors)}</span>` : ""}
 
@@ -4681,7 +4683,7 @@ function shGo(g){
 }
 async function openSheet(sessionId){
   attFiltTo(true);
-  $("shBack").innerHTML = attSide() ? "✕ סגירה" : `→ חזרה<span class="lg-t"> לקבוצות</span>`;
+  $("shBack").innerHTML = A.fromGrp === sessionId ? "→ חזרה לחלון הקבוצה" : attSide() ? "✕ סגירה" : `→ חזרה<span class="lg-t"> לקבוצות</span>`;
   if (attSide()) { $("attList").hidden = false; $("attSheet").hidden = false; $("view-att").classList.add("att-side"); $("attSideBg").hidden = false; $("attSheet").scrollTop = 0; }
   else { $("attList").hidden = true; $("attSheet").hidden = false; window.scrollTo(0, 0); }
   $("shRows").innerHTML = "<li class='muted'>טוען...</li>"; $("shErr").textContent = ""; $("shMeta").textContent = "";
