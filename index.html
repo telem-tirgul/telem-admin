@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.29">
+<meta name="app-version" content="5.19.30">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -596,6 +596,12 @@
 
   /* drawer + toast */
   .panel-bg{ position:fixed; inset:0; background:rgba(20,14,12,.45); z-index:40; }
+  /* 5.19.30: נוכחות של קבוצה - חלון בצד ימין במחשב (כמו חלון הקבוצה) */
+  .sh-kicker{ display:none; }
+  #view-att.att-side #attSheet{ position:fixed; top:0; bottom:0; right:0; width:min(620px, 100%); background:var(--att-bg, var(--bg)); z-index:40; overflow-y:auto; padding:0 18px 24px; box-shadow:-8px 0 24px rgba(0,0,0,.18); }
+  #view-att.att-side .sh-kicker{ display:block; font-weight:800; color:var(--accent); font-size:13px; letter-spacing:.3px; padding:12px 0 2px; }
+  #view-att.att-side .sh-stick{ position:sticky; top:0; z-index:5; background:var(--att-bg, var(--bg)); }
+  .att-side-bg{ position:fixed; inset:0; background:rgba(20,14,12,.35); z-index:40; }
   .panel{ position:fixed; top:0; bottom:0; right:0; width:min(460px,100%); background:var(--paper); z-index:41;
           display:flex; flex-direction:column; box-shadow:0 0 40px rgba(0,0,0,.3); }
   .panel header{ padding:16px 18px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:10px; }
@@ -1634,7 +1640,9 @@
           <div id="arBody"></div>
         </div>
       </div>
+      <div class="att-side-bg" id="attSideBg" hidden></div>
       <div id="attSheet" hidden>
+        <div class="sh-kicker">✓ נוכחות</div>
         <div id="shFilt"></div>
         <div class="sh-stick">
         <div class="sh-head">
@@ -4105,7 +4113,8 @@ function closePanelUser(){
 }
 $("panelClose").addEventListener("click", closePanelUser);
 $("panelBg").addEventListener("click", closePanelUser);
-document.addEventListener("keydown", e => { if (e.key === "Escape") closePanelUser(); });
+$("attSideBg").addEventListener("click", () => $("shBack").click());
+document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if (!$("panel").hidden) closePanelUser(); else if (currentView === "att" && $("view-att").classList.contains("att-side") && !$("attSheet").hidden) $("shBack").click(); });
 function openMove(se, aid){
   const box = $("roster").querySelector(`li[data-aid="${aid}"] .move-box`);
   if (!box.hidden) { box.hidden = true; return; }
@@ -4469,6 +4478,7 @@ if (!A.cities.length) A.cities = CONFIG.cities.slice();
 // במחשב: שורת הערים והמתרגלים נשארת גם בתוך נוכחות של קבוצה - והקבוצה הקודמת / הבאה לפיה
 const ATT_FILT = { el: null, home: null, next: null };
 function attFiltTo(sheet){
+  if (sheet && attSide()) return;   // 5.19.30: בחלון הצד הסינונים נשארים בלוח
   const f = ATT_FILT.el || (ATT_FILT.el = document.querySelector("#attList .att-filt"));
   if (!f) return;
   if (!ATT_FILT.home) { ATT_FILT.home = f.parentNode; ATT_FILT.next = f.nextSibling; }
@@ -4476,7 +4486,9 @@ function attFiltTo(sheet){
   else if (f.parentNode !== ATT_FILT.home) ATT_FILT.home.insertBefore(f, ATT_FILT.next);
 }
 ["click", "change"].forEach(ev => $("shFilt").addEventListener(ev, () => { if (A.sheet) setTimeout(() => shNavFill(A.sheet.session_id), 0); }, true));
-function showAttList(){ attFiltTo(false); $("attList").hidden = false; $("attSheet").hidden = true; }
+// 5.19.30: במחשב - הנוכחות של קבוצה נפתחת כחלון בצד (הלוח נשאר מאחור); בנייד - מסך מלא כמו קודם
+const attSide = () => !isMobile();
+function showAttList(){ attFiltTo(false); $("attList").hidden = false; $("attSheet").hidden = true; $("view-att").classList.remove("att-side"); $("attSideBg").hidden = true; }
 function renderAttDate(){
   $("attDate").value = A.date;
   $("attDayName").innerHTML = "יום " + esc(DAY_FULL[dayLetter(A.date)]) + (A.date === todayIL() ? ' · <span class="today-word">היום</span>' : "");
@@ -4669,7 +4681,9 @@ function shGo(g){
 }
 async function openSheet(sessionId){
   attFiltTo(true);
-  $("attList").hidden = true; $("attSheet").hidden = false; window.scrollTo(0, 0);
+  $("shBack").innerHTML = attSide() ? "✕ סגירה" : `→ חזרה<span class="lg-t"> לקבוצות</span>`;
+  if (attSide()) { $("attList").hidden = false; $("attSheet").hidden = false; $("view-att").classList.add("att-side"); $("attSideBg").hidden = false; $("attSheet").scrollTop = 0; }
+  else { $("attList").hidden = true; $("attSheet").hidden = false; window.scrollTo(0, 0); }
   $("shRows").innerHTML = "<li class='muted'>טוען...</li>"; $("shErr").textContent = ""; $("shMeta").textContent = "";
   try {
     // 5.19.29: לא מחכים ללוח המבחנים (טעינה ארוכה בפעם הראשונה) - הרשימה מוצגת מיד, תגיות המבחן מתווספות כשהוא מגיע
@@ -4679,7 +4693,7 @@ async function openSheet(sessionId){
     A.sheet = sh;
     // 5.19.15: זוכרים את הקבוצה הפתוחה (עד סוף היום) - "נוכחות" בתפריט חוזר ישר אליה
     store("telem_att_last", JSON.stringify({ sid: sessionId, date: A.date, day: todayIL(), label: [sh.location, sh.day ? "יום " + sh.day + "'" : "", sh.time_label].filter(Boolean).join(" · ") }));
-    A.rows = sh.rows.map(r => ({ ...r, present: r.present == null ? null : r.present, did_math: !!r.did_math, did_english: !!r.did_english, saved: r.present != null || !!r.planned, skip: !!r.skip, skip0: !!r.skip }));
+    A.rows = sh.rows.map(r => ({ ...r, present: r.present == null ? null : r.present, did_math: !!r.did_math, did_english: !!r.did_english, saved: r.present != null || !!r.planned, present0: r.present == null ? null : r.present, skip: !!r.skip, skip0: !!r.skip }));
     A.hasPlan = sh.rows.some(r => "skip" in r);   // 5.19.29 (קובץ 59): "לא מגיע/ה היום" ו"אמור/ה להגיע"
     // ילד/ה שנוסף/ה לשיעור: המקצוע לפי ההרשמה שלו/ה (ומתקנים סימון ישן שנשמר רק מת' - נשמר בשמירה הבאה)
     // 5.19.25: המקצוע תמיד לפי הסטטוס הנוכחי - גם לילדים בקבוצה (לא לפי מה שנשמר ביום השיבוץ)
@@ -4949,7 +4963,11 @@ $("shRows").addEventListener("click", async (e) => {
   if (rm && A.sheet.can_edit) { const i = Number(rm.closest("li").dataset.i), r = A.rows[i]; if (r.saved) A.removed.push(r.student_id); A.rows.splice(i, 1); attDirty(); renderSheetRows(); return; }
   const b = e.target.closest("[data-p]"); if (!b || !A.sheet.can_edit) return;
   const r = A.rows[Number(b.closest("li").dataset.i)];
-  setPresent(r, b.dataset.p === "1"); attDirty(); renderSheetRows(); $("shErr").textContent = "";
+  // 5.19.30: לחיצה שוב על הסימון הנבחר - מבטלת אותו (סומן/ה בטעות); נמחק בשמירה (קובץ 60)
+  const pv = b.dataset.p === "1";
+  if (r.present === pv) { r.present = null; r.did_math = false; r.did_english = false; if (r.saved && !r.planned || r.present0 != null) r.unmark = true; }
+  else { setPresent(r, pv); r.unmark = false; }
+  attDirty(); renderSheetRows(); $("shErr").textContent = "";
 });
 $("shRows").addEventListener("change", (e) => {
   const li = e.target.closest("li"); if (!li) return; const r = A.rows[Number(li.dataset.i)];
@@ -4979,12 +4997,13 @@ $("shSave").addEventListener("click", async () => {
     await rpc("save_attendance", { p_session: A.sheet.session_id, p_date: A.sheet.date,
       p_rows: A.rows.map(r => { const o = { student_id: r.student_id, present: r.skip ? null : r.present, did_math: r.did_math, did_english: r.did_english };
           if (r.skip) o.plan = "skip"; else if (r.skip0) o.plan = "clear"; else if (!r.in_group && r.added && r.present == null && !r.planned) o.plan = "add";
+          if (r.unmark && r.present == null && !r.skip) o.unmark = true;
           return o; })
         .concat((A.removed || []).map(id => ({ student_id: id, present: null, remove: true }))),
       p_extra: "", p_notes: $("shNotes").value });
     toast(missing ? `הנוכחות נשמרה (${missing} לא סומנו)` : "הנוכחות נשמרה"); attDraftClear();
     // 5.19.18: נשארים בדף הקבוצה אחרי שמירה (אפשר לשמור חלק ולהמשיך לסמן כשמגיעים עוד ילדים). לרשימה - "חזרה".
-    A.rows.forEach(r => { if (r.present != null) r.saved = true; r.skip0 = r.skip; if (A.hasPlan && r.added && !r.in_group) { r.planned = true; r.saved = true; } }); A.rows = A.rows.filter(r => !(A.removed || []).includes(r.student_id)); A.removed = [];
+    A.rows.forEach(r => { if (r.unmark) { r.unmark = false; r.present0 = null; } if (r.present != null) { r.saved = true; r.present0 = r.present; } r.skip0 = r.skip; if (A.hasPlan && r.added && !r.in_group) { r.planned = true; r.saved = true; } }); A.rows = A.rows.filter(r => !(A.removed || []).includes(r.student_id)); A.removed = [];
     A.base = attSnap(); renderSheetRows(); loadAttGroups();
   } catch(e2) {
     err.textContent = /only save attendance for today/.test(e2.message) ? "אפשר לשמור נוכחות רק ביום השיעור." : (/fetch|network|Failed/i.test(e2.message) ? "אין חיבור לאינטרנט - הסימון שמור בטלפון. כשהקליטה תחזור, לוחצים שוב \"שמירה\"." : "השמירה נכשלה: " + e2.message);
@@ -5017,9 +5036,10 @@ $("shAddRes").addEventListener("click", (e) => {
   // המקצוע של הילד/ה: מהסטטוס ("נרשם מת. + אנג." ...) - מהחיפוש, או מרשימת התלמידים (מנהלים)
   const subj = regSubj(k.student_id, k.status);
   const r = { student_id: k.student_id, first_name: k.first_name, last_name: k.last_name, grade: k.grade, school: k.school, subject: subj, in_group: false, added: true, present: null, did_math: false, did_english: false, saved: false };
-  setPresent(r, true); A.rows.push(r);
+  // 5.19.30: נוסף/ה לשיעור = "אמור/ה להגיע" - בלי סימון נוכחות (מסמנים כשמגיע/ה). בלי קובץ 59 - נשאר הסימון הקודם (נוכח/ת)
+  if (!A.hasPlan) setPresent(r, true); A.rows.push(r);
   $("shAddQ").value = ""; $("shAddRes").innerHTML = ""; $("shAddPanel").hidden = true;
-  renderSheetRows(); toast(`${k.first_name} נוסף/ה לשיעור - לא לשכוח לשמור`);
+  attDirty(); renderSheetRows(); toast(`${k.first_name} נוסף/ה לשיעור${A.hasPlan ? " (בלי סימון נוכחות)" : ""} - לא לשכוח לשמור`);
 });
 async function loadHistory(sessionId, date){
   $("shHistList").innerHTML = "<li class='muted'>טוען...</li>";
