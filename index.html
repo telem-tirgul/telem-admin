@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.31">
+<meta name="app-version" content="5.19.32">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -338,6 +338,9 @@
   /* נוכחות: רקע ירקרק כדי להבדיל מלוח הקבוצות; לוח שבועי עם מצב סימון */
   body[data-view="att"]{ background:var(--att-bg); }
   .att-head{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
+  .reg-tabs a.rt-pay{ display:inline-flex; align-items:center; padding:6px 14px; border-radius:999px; font-weight:700; color:inherit; text-decoration:none; white-space:nowrap; }
+  .reg-tabs{ max-width:100%; overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none; } .reg-tabs > *{ flex:none; white-space:nowrap; }
+  .reg-tabs a.rt-pay:hover{ background:color-mix(in srgb, var(--accent) 8%, transparent); }
   /* 5.19.29: מסך אחד - קבוצות ונוכחות */
   .att-adm{ display:flex; gap:6px; flex-wrap:wrap; margin-inline-start:auto; align-self:center; }
   @media (max-width:760px){ .att-adm, .att-mode, .att-dsk{ display:none !important; } }
@@ -1373,7 +1376,7 @@
   }
   @media (max-width:760px){ .ws-selbar{ flex-wrap:nowrap; gap:8px; padding:8px 10px; bottom:8px; } .ws-selbar span{ font-size:14px; white-space:nowrap; } .ws-selbar .btn.primary{ flex:none; padding:8px 12px; font-size:14px; } #wsSelClr{ padding:6px 8px; font-size:12.5px; } }
   .ws-pg .cap{ padding:6px 8px 8px; font-size:13px; line-height:1.3; display:flex; gap:6px; } .ws-pg .cap b{ color:var(--accent); }
-  .ws-viewer{ position:fixed; inset:0; z-index:200; background:#161118; display:flex; flex-direction:column; }
+  .ws-viewer{ position:fixed; inset:0; z-index:200; background:#161118; display:flex; flex-direction:column; overscroll-behavior:contain; }
   .ws-vtop{ display:flex; align-items:center; gap:10px; padding:10px 14px; color:#fff; } .ws-vt{ flex:1; min-width:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .ws-x, .ws-nav{ background:rgba(255,255,255,.15); color:#fff; border:0; border-radius:12px; width:46px; height:44px; font-size:20px; cursor:pointer; } .ws-nav:disabled{ opacity:.3; }
   .ws-vimg{ flex:1; overflow:auto; display:flex; justify-content:center; align-items:flex-start; padding:4px 10px; -webkit-overflow-scrolling:touch; }
@@ -1416,6 +1419,7 @@
   #view-lead.ro #lgAddBtn, #view-lead.ro [data-chg]{ display:none !important; }
   #roster:not(.editing) [data-move]{ display:none; }
   .list-edit-on{ background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
+.wk-chg{display:flex;flex-direction:column;gap:2px;margin-bottom:3px;font-size:12px}.wk-chg span{border-radius:6px;padding:1px 6px;width:max-content;white-space:nowrap}.wk-chg .ad{background:#e3f1e6;color:#1d5a2c}.wk-chg .sk{background:#f7e3e1;color:#8a2a1f}
 </style>
 </head>
 <body>
@@ -1448,6 +1452,7 @@
       <button type="button" data-view="exams" data-admin data-ic="🗓️" data-sl="מרתונים">מרתונים</button>
       <button type="button" data-view="att" data-ic="✅" data-sl="נוכחות"><span class="lbl-a">קבוצות ונוכחות</span><span class="lbl-i">נוכחות</span></button>
       <button type="button" data-view="ws" data-ic="📚" data-sl="מאגר">מאגר תרגולים</button>
+      <button type="button" data-view="reg" data-admin data-ic="💳" data-sl="תשלומים"><span class="lbl-a">הרשמה ותשלומים</span><span class="lbl-i">תשלומים</span></button>
       <button type="button" data-view="reports" data-ic="📊" data-sl="דוחות">דוחות</button>
     </nav>
     <div class="who"><span id="whoEmail"></span>
@@ -1474,7 +1479,7 @@
           <div><label class="lbl" for="fCity">עיר</label><select id="fCity"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fSchool">בית ספר</label><select id="fSchool"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fGrade">שכבה</label><select id="fGrade"><option value="">הכול</option></select></div>
-          <div><label class="lbl" for="fAsg">שיבוץ</label><select id="fAsg"><option value="">הכול</option><option value="yes">משובצים</option><option value="no">לא משובצים</option><option value="one">בקבוצה אחת בלבד</option><option value="many">⚠ ביותר משתי קבוצות</option><option value="under">פחות מ-90 דק' בשבוע</option><option value="prop">שיבוץ מוצע - כולם</option><option value="prop_none">מוצע - טרם נשלחה הודעה</option><option value="prop_sent">מוצע - קיבלו הודעה ולא אישרו</option></select></div>
+          <div><label class="lbl" for="fAsg">שיבוץ</label><select id="fAsg"><option value="">הכול</option><option value="yes">משובצים</option><option value="no">לא משובצים</option><option value="one">בקבוצה אחת בלבד</option><option value="many">⚠ ביותר משתי קבוצות</option><option value="under">פחות מ-90 דק' בשבוע</option><option value="wkchg">נוכחות שונה מהשיבוץ השבוע</option><option value="prop">שיבוץ מוצע - כולם</option><option value="prop_none">מוצע - טרם נשלחה הודעה</option><option value="prop_sent">מוצע - קיבלו הודעה ולא אישרו</option></select></div>
           <div><label class="lbl" for="fSource">מקור ליד</label><select id="fSource"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fManager">מנהל</label><select id="fManager"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fFrom">עודכן מ-</label><input id="fFrom" type="date"></div>
@@ -1682,14 +1687,14 @@
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
     <section id="view-issues" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>דיווחים על בעיות</h1>
         <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-iss="open" aria-pressed="true">פתוחים</button><button type="button" data-iss="all" aria-pressed="false">הכול</button></div></div>
       <p class="muted" style="font-size:13.5px; margin:-4px 0 12px;">כל דיווח מ-🐞 בפס העליון. בסוף היום - "העתקה" ומדביקים ל-Claude, ואז "טופל".</p>
       <div id="issList"></div>
     </section>
     <section id="view-backup" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>גיבוי</h1></div>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
@@ -1709,9 +1714,8 @@
 
     <!-- ===== קישורי הרשמה (בהגדרות) ===== -->
     <section id="view-sched" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
-      <div class="page-head"><h1>טפסים והרשמה</h1></div>
-      <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה ושיבוץ"><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button></div>
+      <div class="page-head"><h1>הרשמה ותשלומים</h1></div>
+      <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה ושיבוץ"><button type="button" data-rt="links">קישורים</button><a class="rt-pay" href="payments.html#plans">הוראות קבע</a><a class="rt-pay" href="payments.html#failed">חיובים שנכשלו</a><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button><a class="rt-pay" href="payments.html#pending">ממתינים לתשלום</a><a class="rt-pay" href="payments.html#links">תשלום אישי</a><a class="rt-pay" href="payments.html#rules">חוקי חיוב</a></div>
       <div class="card" id="scGeneral" hidden></div>
       <div class="sc-wrap">
         <nav class="sc-cities" id="scCities" aria-label="בחירת עיר"></nav>
@@ -1723,9 +1727,8 @@
 
     <!-- ===== הרשמה (מנהלים): קישורים, ממתינים לאשראי, בקשות ביטול, טופסי התעניינות ===== -->
     <section id="view-reg" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
-      <div class="page-head"><h1>טפסים והרשמה</h1></div>
-      <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה ושיבוץ"><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button></div>
+      <div class="page-head"><h1>הרשמה ותשלומים</h1></div>
+      <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה ושיבוץ"><button type="button" data-rt="links">קישורים</button><a class="rt-pay" href="payments.html#plans">הוראות קבע</a><a class="rt-pay" href="payments.html#failed">חיובים שנכשלו</a><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button><a class="rt-pay" href="payments.html#pending">ממתינים לתשלום</a><a class="rt-pay" href="payments.html#links">תשלום אישי</a><a class="rt-pay" href="payments.html#rules">חוקי חיוב</a></div>
       <div class="sc-wrap">
         <nav class="sc-cities" id="rgCities" aria-label="בחירת עיר"></nav>
         <div class="sc-main" id="rgMain"></div>
@@ -1793,7 +1796,7 @@
 
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
     <section id="view-me" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>הפרטים שלי</h1></div>
       <div class="card me-card">
         <dl class="me-dl"><dt>שם</dt><dd id="meName"></dd><dt>אימייל</dt><dd id="meEmail" dir="ltr"></dd><dt>תפקיד</dt><dd id="meRole"></dd><dt>גרסת המערכת</dt><dd id="meVer" dir="ltr" style="text-align:right"></dd></dl>
@@ -1899,7 +1902,7 @@
 
     <!-- ===== צוות ומתרגלים ===== -->
     <section id="view-staff" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="reg" data-admin>טפסים והרשמה</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="issues" data-admin>דיווחים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>צוות ומתרגלים</h1></div>
       <div class="card" style="margin-bottom:14px;">
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
@@ -2244,6 +2247,9 @@ let currentView = "leads";
 // רענון (F5): חוזרים למסך שהיה פתוח (נשמר ב-history.state של הדפדפן), לא לדף הבית
 // (גם אחרי "רענון" מפס העדכון - שם המסך נשמר לפני הטעינה מחדש)
 let RESUME = (() => { try {
+  // 5.19.32: חזרה ממסך התשלומים (payments.html) ללשונית כאן: index.html#reg-links / #reg-cancel / #sched
+  const hm = (location.hash || "").match(/^#(reg|sched)(?:-(\w+))?$/);
+  if (hm) { if (hm[2]) store("telem_reg_tab", hm[2]); history.replaceState(null, "", location.pathname + location.search); return { telem: true, view: hm[1] }; }
   let st = history.state;
   if (!(st && st.telem)) { const v = sessionStorage.getItem("telem_resume") || sessionStorage.getItem("telem_last") || (keepOn() && auth ? store("telem_last_keep") : null); if (v) st = JSON.parse(v); }
   sessionStorage.removeItem("telem_resume");
@@ -2255,7 +2261,7 @@ function resumeView(force){
   if (!st || (!force && currentView !== "home")) return;
   window.dispatchEvent(new PopStateEvent("popstate", { state: st }));
 }
-const SETTINGS_VIEWS = ["staff","backup","issues","me","reg","sched"];   // "טפסים והרשמה" (קישורים, בקשות שיבוץ...) - בתוך ההגדרות
+const SETTINGS_VIEWS = ["staff","backup","issues","me"];   // 5.19.32: "הרשמה ותשלומים" - טאב בתפריט הראשי
 const INFO_VIEWS = [];   // "מידע למתרגלים" ו"חגים וחופשות" - בתפריט הקטן ⓘ ליד ההגדרות
 let DATA_READY = true, DATA_WAIT = null;
 function go(view){
@@ -2283,7 +2289,7 @@ function go(view){
   if (inst && view === "holidays") view = "info";
   if (SETTINGS_VIEWS.includes(view)) store(key, view);
   if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
-  const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.attk = "leads"; navOf.groups = "att"; navOf.attg = "att"; navOf.myschools = "schools";
+  const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.sched = "reg"; navOf.attk = "leads"; navOf.groups = "att"; navOf.attg = "att"; navOf.myschools = "schools";
   ["home","leads","lead","groups","att","sched","reg","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues","exams","attk","attg"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   { const cur = document.querySelector('.nav button[aria-current="page"]'); if ($("navCur")) $("navCur").textContent = cur ? (cur.querySelector(inst ? ".lbl-i" : ".lbl-a") || cur).textContent.replace("⚙", "").trim() : (view === "home" ? "תפריט" : ({ me: "הגדרות", staff: "הגדרות", backup: "הגדרות", issues: "הגדרות", info: "מידע למתרגלים", holidays: "חגים וחופשות" }[view] || "תפריט")); }
@@ -2370,7 +2376,7 @@ async function loadLists(){
   ]);
   L.statuses = st; L.sources = so; L.staffAll = sf; L.staff = sf.filter(x => x.role !== "instructor" && x.role !== "display"); L.schools = sc; L.levels = lv.map(x => x.name);
 }
-const ASG_Q = () => getAll("assignments", "select=student_id,status,arrival_time,personal_end,session:sessions!inner(day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")");
+const ASG_Q = () => getAll("assignments", "select=student_id,status,arrival_time,personal_end,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")");
 function setAsg(asg){
   L.asg = {}; L.prop = {}; asg.forEach(a => { if (!a.session) return; const m = a.status === "ממתין" ? L.prop : L.asg; (m[a.student_id] = m[a.student_id] || []).push(Object.assign({}, a.session, { arrival_time: a.arrival_time, personal_end: a.personal_end })); });
   Object.values(L.asg).forEach(v => v.sort((x, y) => DAY_ORDER[x.day] - DAY_ORDER[y.day] || String(x.start_time).localeCompare(String(y.start_time))));
@@ -2405,7 +2411,7 @@ async function loadLeads(){
     getAll("leads", "select=" + LEAD_SELECT + "&order=updated_at.desc,id.desc")
       .catch(e => /tracking/.test(String(e && e.message)) ? getAll("leads", "select=" + LEAD_SELECT.replace("tracking,", "") + "&order=updated_at.desc,id.desc") : Promise.reject(e)),
     getAll("notes", "select=id,lead_id,body,created_at&order=created_at"),
-    getAll("assignments", "select=student_id,status,arrival_time,personal_end,session:sessions!inner(day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")
+    getAll("assignments", "select=student_id,status,arrival_time,personal_end,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")
       .catch(() => getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")).catch(() => []),
     getAll("marathon_registrations", "select=student_id,status,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id").catch(() => [])
   ]);
@@ -2507,7 +2513,7 @@ function setupFilters(){
 $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 $("fRemindDate").addEventListener("change", () => { if ($("fRemindDate").value) $("fRemind").checked = true; });
 ["fSearch","fCity","fSchool","fGrade","fAsg","fSource","fManager","fFrom","fTo","fStar","fActive","fRemind","fRemindDate"].forEach(id =>
-  $(id).addEventListener(id === "fSearch" ? "input" : "change", () => { F.page = 0; saveLeadFilters(); renderLeads(); }));
+  $(id).addEventListener(id === "fSearch" ? "input" : "change", () => { if (id === "fAsg" && $("fAsg").value === "wkchg") { WC.map = null; WC.p = null; } F.page = 0; saveLeadFilters(); renderLeads(); }));
 $("clearFilters").addEventListener("click", () => {
   ["fSearch","fCity","fSchool","fGrade","fAsg","fSource","fManager","fFrom","fTo"].forEach(id => $(id).value = "");
   $("fStar").checked = false; $("fRemind").checked = false; $("fActive").checked = true;
@@ -2533,6 +2539,7 @@ function filtered(){
     if (fa === "yes" && !na) return false; if (fa === "no" && na) return false; if (fa === "one" && na !== 1) return false;
     if (fa === "many" && na <= 2) return false;   // 5.19.20
     if (fa === "under") { const m = weekMin(asgOf(l).map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))); if (m == null || m >= WEEK_MAX_MIN) return false; }
+    if (fa === "wkchg") { if (!WC.map) { loadWeekChg(); return false; } if (!WC.map.has(s.id)) return false; }   // 5.19.32
     if (fa === "prop" || fa === "prop_none" || fa === "prop_sent") { if (!propOf(l).length) return false;
       const st = propStage(s.id); if (fa === "prop_none" && st !== "none") return false; if (fa === "prop_sent" && st !== "sent") return false; }
     if (source && String(l.source_id) !== source) return false;
@@ -2565,6 +2572,29 @@ function classLabel(grade, num){
   return (g || "") + n;
 }
 const asgOf = (l) => (L.asg && L.asg[l.student.id]) || [];
+// 5.19.32: "נוכחות שונה מהשיבוץ השבוע" (א'-ש' של השבוע הנוכחי): נוסף/ה לשיעור של קבוצה אחרת, "לא מגיע/ה היום", או סומן/ה נוכח/ת בקבוצה שלא משובץ/ת אליה
+const WC = { map: null, p: null, err: null };
+function wkRange(){ let d = todayIL(); while (dayLetter(d) !== "א") d = addDays(d, -1); return [d, addDays(d, 6)]; }
+function loadWeekChg(){
+  if (WC.p) return WC.p;
+  const [a, b] = wkRange(), ses = "session:sessions(id,day,start_time,kind,location:locations(name))", rng = `&lesson_date=gte.${a}&lesson_date=lte.${b}`;
+  WC.p = Promise.all([getAll("attendance_plan", "select=student_id,session_id,lesson_date,kind," + ses + rng),
+                      getAll("attendance", "select=student_id,session_id,lesson_date," + ses + "&present=is.true" + rng)])
+    .then(([pl, at]) => {
+      const m = new Map(), put = (sid, x) => { if (!m.has(sid)) m.set(sid, []); m.get(sid).push(x); };
+      pl.forEach(r => put(r.student_id, { k: r.kind, d: r.lesson_date, s: r.session }));
+      at.forEach(r => { if (r.session && r.session.kind === "מרתון") return;
+        const mine = (L.asg && L.asg[r.student_id] || []).some(x => x.id === r.session_id);
+        if (mine || pl.some(z => z.student_id === r.student_id && z.session_id === r.session_id && z.lesson_date === r.lesson_date)) return;
+        put(r.student_id, { k: "add", d: r.lesson_date, s: r.session }); });
+      m.forEach(v => v.sort((x, y) => x.d.localeCompare(y.d)));
+      WC.map = m; renderLeads(); })
+    .catch(e => { WC.err = e; WC.map = new Map(); WC.p = null; toast("לא הצלחתי לטעון את הנוכחות של השבוע"); renderLeads(); });
+  return WC.p;
+}
+const wkChgHtml = (sid) => { const v = WC.map && WC.map.get(sid); if (!v) return "";
+  const t = (x) => (x.s ? x.s.day + "' " + String(x.s.start_time || "").slice(0, 5) + (x.s.location && x.s.location.name ? " " + x.s.location.name : "") : "") + " · " + fmtDM(x.d);
+  return `<span class="wk-chg">${v.map(x => `<span class="${x.k === "skip" ? "sk" : "ad"}" title="${esc((x.k === "skip" ? "לא הגיע/ה לקבוצה (חד פעמי): " : "נוסף/ה לשיעור: ") + t(x))}">${x.k === "skip" ? "−" : "+"} ${esc(t(x))}</span>`).join("")}</span>`; };
 const propOf = (l) => (L.prop && L.prop[l.student.id]) || [];
 // שלב השיבוץ המוצע: טרם נשלחה הודעה (אדום) / קיבל הודעה (כתום) / אישר (ירוק)
 const propStage = (sid) => { const n = (NTC.ok && NTC.map[sid]) || {}; return n.confirmed_at ? "ok" : n.notified_at ? "sent" : "none"; };
@@ -2607,7 +2637,7 @@ function renderLeads(){
         const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}${x.location && x.location.name ? `<em class="asg-loc"> · ${esc(x.location.name)}</em>` : ""}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
         const ov = a.length ? weekLoadCalc(a.map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))) : "";   // 5.19.20
-        return (ov ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : `<span class="asg-none">לא משובץ</span>`); })()}</td>
+        return ($("fAsg").value === "wkchg" ? wkChgHtml(s.id) : "") + (ov ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : `<span class="asg-none">לא משובץ</span>`); })()}</td>
       <td class="c-parent">${(() => { const fm = s.family || {}, nm = fm.parent1_first || fm.parent1_last || "", ph = fm.parent1_phone || "";   // שם פרטי + טלפון בשורה אחת
         return nm || ph ? `<span class="pn">${esc(nm)}</span>${nm && ph ? `<span class="sep"> · </span>` : ""}${ph ? `<a class="pp" dir="ltr" href="tel:${esc(ph)}" onclick="event.stopPropagation()">${esc(String(ph).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : ""}` : ""; })()}</td>
       <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
@@ -2615,7 +2645,7 @@ function renderLeads(){
     </tr>`;
   }).join("");
   $("leadsTbl").classList.toggle("locked", !LIST_EDIT);
-  $("leadsTbl").innerHTML = head + "<tbody>" + (rows || `<tr><td colspan="14" class="empty-state">אין לידים שמתאימים לסינון.</td></tr>`) + "</tbody>";
+  $("leadsTbl").innerHTML = head + "<tbody>" + (rows || `<tr><td colspan="14" class="empty-state">${$("fAsg").value === "wkchg" && !WC.map ? "טוען את הנוכחות של השבוע…" : "אין לידים שמתאימים לסינון."}</td></tr>`) + "</tbody>";
   $("leadsTbl").querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
     if (F.sort === th.dataset.sort) F.dir *= -1; else { F.sort = th.dataset.sort; F.dir = th.dataset.sort === "updated" ? -1 : 1; }
     saveLeadFilters(); renderLeads();
@@ -3705,8 +3735,8 @@ function exCalHtml(rows, today){
   // כל שנת הלימודים בגלילה אחת: מ-1.9 עד סוף השנה (או עד המבחן האחרון)
   const yEnd = G.yearEnd || "2027-06-30", firstEx = rows.reduce((m, e) => !m || e.exam_date < m ? e.exam_date : m, "");
   const y0 = [(Number(yEnd.slice(0, 4)) - 1) + "-09-01", firstEx].filter(Boolean).sort()[0], lastEx = rows.reduce((m, e) => e.exam_date > m ? e.exam_date : m, ""), y1 = [G.yearEnd || "2027-06-30", lastEx].sort().pop();
-  const exD = new Set(rows.map(e => e.exam_date));   // ימי שישי לא מוצגים - אלא אם יש בהם מבחן
-  const days = []; for (let iso = y0; iso <= y1; iso = addDays(iso, 1)) { const dl = dayLetter(iso); if (dl !== "ש" && (dl !== "ו" || exD.has(iso))) days.push({ iso, dl, d: Number(iso.slice(8, 10)), m: iso.slice(0, 7) }); }
+  const exD = new Set(rows.map(e => e.exam_date));   // כל ימי שישי מוצגים (מרתונים בשישי)
+  const days = []; for (let iso = y0; iso <= y1; iso = addDays(iso, 1)) { const dl = dayLetter(iso); if (dl !== "ש") days.push({ iso, dl, d: Number(iso.slice(8, 10)), m: iso.slice(0, 7) }); }
   const months = []; days.forEach(x => { const l = months[months.length - 1]; if (l && l.m === x.m) l.n++; else { months.push({ m: x.m, n: 1 }); x.first = true; } });
   // שורות: כל בית ספר + שכבה שיש להם מבחן כלשהו (גם בחודשים אחרים), לפי עיר
   const exCity = (e) => (e.school && e.school.city) || "";
@@ -4681,7 +4711,7 @@ function shGo(g){
   if (attChanged() && !window.confirm("יש סימון נוכחות שעוד לא נשמר. לעבור לקבוצה אחרת בלי לשמור? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הקבוצה)")) return;
   A.dirty = false; A.curG = g; openSheet(g.session_id);
 }
-async function openSheet(sessionId){
+async function openSheet(sessionId, retry){
   attFiltTo(true);
   $("shBack").innerHTML = A.fromGrp === sessionId ? "→ חזרה לחלון הקבוצה" : attSide() ? "✕ סגירה" : `→ חזרה<span class="lg-t"> לקבוצות</span>`;
   if (attSide()) { $("attList").hidden = false; $("attSheet").hidden = false; $("view-att").classList.add("att-side"); $("attSideBg").hidden = false; $("attSheet").scrollTop = 0; }
@@ -4722,7 +4752,10 @@ async function openSheet(sessionId){
     if (ME.role !== "instructor") loadHistory(sessionId, A.date);
     loadPrevSubj(sessionId);
   } catch(e) {
-    $("shRows").innerHTML = "<li class='err'>לא ניתן לטעון את רשימת הילדים.</li>";
+    // 5.19.32: אחרי חזרה מוואטסאפ / שליחה הטלפון לפעמים עוד לא מחובר - מנסים שוב לבד, ואם לא - כפתור "לנסות שוב"
+    if (!retry) { setTimeout(() => { if (currentView === "att" && !$("attSheet").hidden) openSheet(sessionId, true); }, 1500); return; }
+    $("shRows").innerHTML = "<li class='err'>לא ניתן לטעון את רשימת הילדים (אולי אין חיבור). <button type='button' class='btn small' id='shRetry'>לנסות שוב</button><div class='muted' style='font-size:11px;direction:ltr'>" + esc(String(e && e.message || "")).slice(0, 120) + "</div></li>";
+    const rb = $("shRetry"); if (rb) rb.onclick = () => openSheet(sessionId);
   }
 }
 // מקצוע לתצוגה: מהשיבוץ; לילד/ה שנוסף/ה לשיעור - לפי מה שנשמר (מת' / אנג' / שניהם)
@@ -5814,9 +5847,23 @@ function wsQuickRender(info, books, kinds){
   requestAnimationFrame(() => { const h = $("wsStick").offsetHeight, hq = box.offsetHeight; if (h && !document.body.classList.contains("ws-vopen")) document.documentElement.style.setProperty("--wsq", h + "px"); if (hq) document.documentElement.style.setProperty("--wsqv", (hq + 12) + "px"); });
 }
 // סגירת הדף הפתוח בלי "אחורה" (כשעוברים נושא מהפס העליון)
+// 5.19.32: נעילת גלילה כשדף פתוח - באייפון overflow:hidden על body לא מספיק: גלילה בדף הזיזה את כל המסך (גם התפריט) למעלה
+let WS_LOCK_Y = null;
+function wsLock(on){
+  const b = document.body, de = document.documentElement;
+  if (on) {
+    if (WS_LOCK_Y != null) return;
+    WS_LOCK_Y = window.scrollY || 0; window.scrollTo(0, 0);
+    de.style.overflow = "hidden"; b.style.overflow = "hidden"; b.style.position = "fixed"; b.style.top = "0"; b.style.left = "0"; b.style.right = "0"; b.style.width = "100%";
+  } else {
+    if (WS_LOCK_Y == null) { b.style.overflow = ""; return; }
+    de.style.overflow = ""; b.style.overflow = ""; b.style.position = ""; b.style.top = ""; b.style.left = ""; b.style.right = ""; b.style.width = "";
+    const y = WS_LOCK_Y; WS_LOCK_Y = null; window.scrollTo(0, y);
+  }
+}
 function wsViewerOff(){
   if ($("wsViewer").hidden) return;
-  $("wsViewer").hidden = true; document.body.style.overflow = ""; document.body.classList.remove("ws-vopen");
+  $("wsViewer").hidden = true; wsLock(false); document.body.classList.remove("ws-vopen");
   if (history.state && history.state.view === "ws" && history.state.viewer != null) { const st = Object.assign({}, history.state, { viewer: null }); history.replaceState(st, ""); }
 }
 // שליחת הדפים שנבחרו יחד: בטלפון - חלון השיתוף עם כל הקבצים (וואטסאפ...), במחשב - קובץ ZIP
@@ -5999,7 +6046,7 @@ async function wsOpen(i, fromPop){
   if (!fromPop) wsPush(i);
   wzReset();
   WS.file = null;
-  $("wsViewer").hidden = false; document.body.style.overflow = "hidden"; document.body.classList.add("ws-vopen");
+  $("wsViewer").hidden = false; wsLock(true); document.body.classList.add("ws-vopen");
   $("wsVTitle").textContent = (r.is_star ? "⭐ " : "") + (r.type === "answers" ? "פתרונות · " : r.page_no + " · ") + (r.title || "");
   $("wsStar").textContent = r.is_star ? "⭐" : "☆"; $("wsStar").classList.toggle("on", !!r.is_star);
   $("wsPrev").disabled = i <= 0; $("wsNext").disabled = i >= WS.list.length - 1;
@@ -6043,7 +6090,7 @@ function wzReset(){ WZ.s = 1; WZ.x = 0; WZ.y = 0; wzApply(); }
 function wsClose(fromPop){
   if (WS.starDirty) { WS.starDirty = false; setTimeout(() => { if (currentView === "ws") renderWs(); }, 50); }
   if (!fromPop && history.state && history.state.view === "ws" && history.state.viewer != null) { history.back(); return; }
-  $("wsViewer").hidden = true; document.body.style.overflow = ""; document.body.classList.remove("ws-vopen");
+  $("wsViewer").hidden = true; wsLock(false); document.body.classList.remove("ws-vopen");
 }
 
 $("wsClose").addEventListener("click", () => wsClose());
@@ -6741,7 +6788,7 @@ function renderSchedTbl(){
 // ======================================================================
 // הרשמה (מנהלים): קישורי הרשמה, ממתינים לאשראי, בקשות ביטול, טופס התעניינות
 // ======================================================================
-const RG = { tab: "links", city: store("telem_reg_city") || null, pay: null, can: null };
+const RG = { tab: ["links", "cancel", "pay"].includes(store("telem_reg_tab")) ? store("telem_reg_tab") : "links", city: store("telem_reg_city") || null, pay: null, can: null };
 // לשוניות "הרשמה ושיבוץ": בקשות שיבוץ = המסך של השיבוצים, השאר במסך ההרשמה
 function paintRegTabs(){
   const cur = currentView === "sched" ? "requests" : RG.tab;

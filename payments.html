@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>תלם - תשלומים והוראות קבע</title>
+<meta name="app-version" content="P1.0">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;700;800;900&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  /* אותם צבעים כמו מערכת הניהול (index.html) */
+  :root{
+    --bg:#F6F3EF; --paper:#FFFFFF; --ink:#2B2320; --ink-soft:#6B5F55; --border:#E5DDD3;
+    --accent:#5A1216; --accent-light:#8B1E23; --gold:#C9A45C; --muted:#F1ECE6; --side:#2E2220; --side-ink:#E9DED6;
+    --ok:#3F7D4F; --ok-bg:#E5F1E8; --warn:#B7791F; --warn-bg:#FBF0DC; --full:#B3423F; --full-bg:#FBE4E2; --info:#1E6FB8; --info-bg:#E3EEF9;
+    --font-display:'Heebo','Segoe UI',sans-serif; --font-body:'Assistant','Segoe UI',sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#17110F; --paper:#231B18; --ink:#F3ECE6; --ink-soft:#BBA99B; --border:#3E322C;
+      --accent:#E2707A; --accent-light:#EF8C94; --gold:#E3B765; --muted:#2E2420; --side:#0F0B0A; --side-ink:#D9CEC6;
+      --ok:#6CC082; --ok-bg:#1D3324; --warn:#E3B765; --warn-bg:#3a2c14; --full:#FF8A80; --full-bg:#3a1d20; --info:#7EB8EE; --info-bg:#16283a;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#17110F; --paper:#231B18; --ink:#F3ECE6; --ink-soft:#BBA99B; --border:#3E322C;
+    --accent:#E2707A; --accent-light:#EF8C94; --gold:#E3B765; --muted:#2E2420; --side:#0F0B0A; --side-ink:#D9CEC6;
+    --ok:#6CC082; --ok-bg:#1D3324; --warn:#E3B765; --warn-bg:#3a2c14; --full:#FF8A80; --full-bg:#3a1d20; --info:#7EB8EE; --info-bg:#16283a;
+    color-scheme: dark;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:14px; line-height:1.5; }
+  button, input, select, textarea{ font:inherit; color:inherit; }
+  h1,h2,h3{ font-family:var(--font-display); margin:0; }
+  [hidden]{ display:none !important; }
+  a{ color:var(--accent); }
+  .top{ background:var(--side); color:var(--side-ink); display:flex; align-items:center; gap:14px; padding:10px 20px; position:sticky; top:0; z-index:30; }
+  .top .brand{ font-family:var(--font-display); font-weight:900; font-size:18px; }
+  .top .sp{ margin-inline-start:auto; display:flex; gap:8px; align-items:center; }
+  .top a.btn{ background:transparent; color:var(--side-ink); border-color:rgba(255,255,255,.35); }
+  .wrap{ max-width:1280px; margin:0 auto; padding:18px 20px 60px; }
+  .btn{ display:inline-flex; align-items:center; gap:6px; border:1.5px solid var(--border); background:var(--paper); border-radius:8px; padding:7px 14px; font-weight:700; cursor:pointer; text-decoration:none; color:var(--ink); white-space:nowrap; }
+  .btn:hover{ border-color:var(--accent); }
+  .btn.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  .btn.small{ padding:4px 10px; font-size:13px; border-radius:7px; }
+  .btn.danger{ color:var(--full); border-color:color-mix(in srgb, var(--full) 45%, var(--border)); }
+  .btn:disabled{ opacity:.5; cursor:default; }
+  input[type=text], input[type=email], input[type=tel], input[type=number], input[type=search], input[type=date], select, textarea{
+    width:100%; font-size:14px; padding:7px 10px; border-radius:8px; border:1.5px solid var(--border); background:var(--paper); }
+  .lbl{ display:block; font-weight:700; font-size:12.5px; color:var(--ink-soft); margin-bottom:3px; }
+  .muted{ color:var(--ink-soft); }
+  .card{ background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:14px 16px; }
+  .demo{ background:var(--warn-bg); color:var(--warn); border:1px solid color-mix(in srgb, var(--warn) 40%, transparent); border-radius:10px; padding:8px 14px; font-weight:700; margin-bottom:14px; }
+  .page-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  .page-head h1{ font-size:24px; color:var(--accent); }
+  .tabs{ display:flex; gap:4px; flex-wrap:wrap; border-bottom:2px solid var(--border); margin-bottom:16px; }
+  .tabs button{ border:0; background:none; padding:9px 14px; font-weight:800; font-family:var(--font-display); color:var(--ink-soft); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; display:inline-flex; gap:6px; align-items:center; }
+  .tabs button[aria-selected="true"]{ color:var(--accent); border-bottom-color:var(--accent); }
+  .tabs a.tab-crm{ padding:9px 14px; font-weight:800; font-family:var(--font-display); color:var(--ink-soft); text-decoration:none; border-bottom:3px solid transparent; margin-bottom:-2px; }
+  .tabs a.tab-crm:hover{ color:var(--accent); }
+  .cnt{ background:var(--muted); color:var(--ink-soft); border-radius:999px; padding:0 7px; font-size:12px; }
+  .cnt.red{ background:var(--full); color:#fff; }
+  .filters{ display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-bottom:12px; }
+  .filters > div{ min-width:150px; }
+  .stats{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .stat{ background:var(--paper); border:1px solid var(--border); border-radius:10px; padding:6px 12px; display:flex; gap:6px; align-items:baseline; }
+  .stat b{ font-size:18px; font-family:var(--font-display); }
+  table.tbl{ width:100%; border-collapse:collapse; background:var(--paper); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .tbl th{ background:var(--muted); text-align:right; font-size:12.5px; color:var(--ink-soft); padding:8px 10px; font-weight:800; white-space:nowrap; }
+  .tbl td{ padding:9px 10px; border-top:1px solid var(--border); vertical-align:middle; }
+  .tbl tr.click{ cursor:pointer; } .tbl tr.click:hover td{ background:color-mix(in srgb, var(--accent) 5%, var(--paper)); }
+  .num{ text-align:left; direction:ltr; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .ltr{ direction:ltr; unicode-bidi:isolate; }
+  .chip{ display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:1px 9px; font-size:12.5px; font-weight:800; white-space:nowrap; }
+  .st-active{ background:var(--ok-bg); color:var(--ok); } .st-paused{ background:var(--muted); color:var(--ink-soft); }
+  .st-failed, .st-error{ background:var(--full-bg); color:var(--full); } .st-creating{ background:var(--info-bg); color:var(--info); }
+  .st-done{ background:var(--muted); color:var(--ink-soft); } .st-cancelled{ background:var(--muted); color:var(--ink-soft); text-decoration:line-through; }
+  .st-sent{ background:var(--info-bg); color:var(--info); } .st-opened{ background:var(--warn-bg); color:var(--warn); } .st-submitted{ background:var(--warn-bg); color:var(--warn); } .st-paid{ background:var(--ok-bg); color:var(--ok); }
+  .prog{ display:inline-flex; align-items:center; gap:6px; } .prog i{ display:inline-block; width:70px; height:6px; border-radius:6px; background:var(--muted); overflow:hidden; } .prog i b{ display:block; height:100%; background:var(--ok); }
+  .pend{ color:var(--info); font-size:12px; font-weight:700; }
+  .err{ color:var(--full); font-weight:700; }
+  .rows-card{ display:grid; gap:10px; }
+  .fc{ display:grid; grid-template-columns:1fr auto; gap:8px 16px; align-items:center; border-inline-start:4px solid var(--full); }
+  .fc .who{ font-weight:800; font-size:15px; } .fc .meta{ color:var(--ink-soft); font-size:13px; }
+  .fc .acts{ display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  .empty{ padding:24px; text-align:center; color:var(--ink-soft); }
+  /* חלון בצד (כמו חלון הקבוצה במערכת) */
+  .pnl-bg{ position:fixed; inset:0; background:rgba(20,14,12,.38); z-index:40; }
+  .pnl{ position:fixed; top:0; bottom:0; right:0; width:min(620px,100%); background:var(--paper); z-index:41; overflow-y:auto; box-shadow:-8px 0 24px rgba(0,0,0,.18); }
+  .pnl header{ display:flex; align-items:flex-start; gap:10px; padding:14px 18px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--paper); z-index:2; }
+  .pnl header h2{ font-size:20px; color:var(--accent); } .pnl header .x{ margin-inline-start:auto; }
+  .pnl .body{ padding:14px 18px 30px; display:grid; gap:14px; }
+  .kv{ display:grid; grid-template-columns:130px 1fr; gap:4px 12px; } .kv dt{ color:var(--ink-soft); font-weight:700; } .kv dd{ margin:0; }
+  .sec{ border:1px solid var(--border); border-radius:10px; padding:12px; } .sec h3{ font-size:15px; margin-bottom:8px; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; }
+  .note{ background:var(--muted); border-radius:8px; padding:8px 10px; font-size:13px; color:var(--ink-soft); }
+  .acts-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--side); color:#fff; padding:10px 18px; border-radius:10px; z-index:60; font-weight:700; }
+  .fld-row{ display:grid; grid-template-columns:150px 1fr auto; gap:8px; align-items:center; }
+  .chk{ display:inline-flex; gap:5px; align-items:center; font-size:13px; white-space:nowrap; }
+  details.day{ background:var(--paper); border:1px solid var(--border); border-radius:10px; padding:8px 12px; }
+  details.day summary{ cursor:pointer; font-weight:800; display:flex; gap:12px; flex-wrap:wrap; }
+  @media (max-width:760px){ .wrap{ padding:12px; } .tbl .hide-m{ display:none; } .fc{ grid-template-columns:1fr; } .fc .acts{ justify-content:flex-start; } .grid2, .kv{ grid-template-columns:1fr; } .fld-row{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="top"><span class="brand">תלם · הרשמה ותשלומים</span>
+  <span class="sp"><span id="who" class="muted" style="color:var(--side-ink)"></span><a class="btn small" href="index.html">→ חזרה למערכת</a></span></div>
+<div class="wrap">
+  <div id="demoBar" class="demo" hidden>תצוגה לדוגמה - הנתונים כאן מדומים (שמות ומספרים לא אמיתיים). המסך יציג נתונים אמיתיים אחרי התקנת חבילת איקרדיט (קובץ 62.2).</div>
+  <div id="gate" class="card" hidden></div>
+  <div id="app" hidden>
+    <div class="page-head"><h1>הרשמה ותשלומים</h1><span class="muted">הספק: איקרדיט (ריווחית). את החיובים החודשיים עושה איקרדיט - כאן רואים ומנהלים.</span></div>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div id="body"></div>
+  </div>
+</div>
+<div class="pnl-bg" id="pnlBg" hidden></div>
+<aside class="pnl" id="pnl" hidden></aside>
+<div class="toast" id="toast" hidden></div>
+<script>
+(function(){
+"use strict";
+const CONFIG = { supabaseUrl: "https://oulivucqbpmbavbavfvy.supabase.co", anonKey: "sb_publishable_M8wEF2-9fXMmX0U97nfENw_AfZw9wNz" };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const money = (n) => n == null || n === "" ? "" : "₪" + Number(n).toLocaleString("he-IL", { maximumFractionDigits: 2 });
+const dmy = (iso) => { if (!iso) return ""; const s = String(iso).slice(0, 10).split("-"); return s.length === 3 ? `${s[2]}.${s[1]}.${s[0].slice(2)}` : iso; };
+const todayIL = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jerusalem" }).format(new Date());
+const addDays = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return d.toISOString().slice(0, 10); };
+function toast(t){ const e = $("toast"); e.textContent = t; e.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => e.hidden = true, 3200); }
+function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch(e) { return null; } }
+const waLink = (phone, text) => { const d = String(phone || "").replace(/\D/g, ""); return /^0\d{8,9}$/.test(d) ? `https://wa.me/972${d.slice(1)}?text=${encodeURIComponent(text)}` : ""; };
+async function copy(t){ try { await navigator.clipboard.writeText(t); toast("הקישור הועתק"); } catch(e) { prompt("להעתקה:", t); } }
+
+// ---------- כניסה: אותה כניסה כמו במערכת (אותו אתר) ----------
+const AUTH_KEY = "telem_crm_session";
+let auth = null;
+try { auth = JSON.parse(sessionStorage.getItem(AUTH_KEY) || (store("telem_keep") === "1" ? store(AUTH_KEY) : null) || "null"); } catch(e) {}
+function headers(t){ const h = { "apikey": CONFIG.anonKey, "Content-Type": "application/json" }; if (t) h.Authorization = "Bearer " + t; return h; }
+async function token(){
+  if (!auth) return null;
+  if (auth.expires_at - 60 > Date.now() / 1000) return auth.access_token;
+  const res = await fetch(CONFIG.supabaseUrl + "/auth/v1/token?grant_type=refresh_token", { method: "POST", headers: headers(), body: JSON.stringify({ refresh_token: auth.refresh_token }) });
+  const d = await res.json().catch(() => null);
+  if (!res.ok || !d || !d.access_token) return null;
+  auth = Object.assign({}, auth, { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: d.expires_at || Math.floor(Date.now() / 1000) + 3600 });
+  const v = JSON.stringify(auth); try { sessionStorage.setItem(AUTH_KEY, v); } catch(e) {} if (store("telem_keep") === "1") store(AUTH_KEY, v);
+  return auth.access_token;
+}
+async function api(method, path, body){
+  const t = await token(); if (!t) { const e = new Error("not signed in"); e.status = 401; throw e; }
+  const res = await fetch(CONFIG.supabaseUrl + path, { method, headers: headers(t), body: body === undefined ? undefined : JSON.stringify(body) });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); const err = new Error(e.message || ("HTTP " + res.status)); err.status = res.status; err.code = e.code; throw err; }
+  if (res.status === 204) return null; const txt = await res.text(); return txt ? JSON.parse(txt) : null;
+}
+const rpc = (fn, args) => api("POST", "/rest/v1/rpc/" + fn, args || {});
+const get = (table, q) => api("GET", "/rest/v1/" + table + "?" + q);
+
+// ---------- מצב תצוגה לדוגמה (לפני התקנת 62.2, או ?demo=1) ----------
+let DEMO = /[?&]demo=1/.test(location.search);
+const D = (() => {
+  const t = todayIL(), m = (n) => addDays(t, n);
+  const plans = [
+    { id: "p1", student_id: 1, student_name: "יעל כהן", parent_name: "מיכל כהן", parent_phone: "0501234567", source: "register", description: "תרגול שבועי מתמטיקה - ראש העין", monthly_amount: 393, last_amount: 215, total_count: 8, charged_count: 1, next_charge_date: m(16), end_date: "2027-06-01", charge_day: 1, status: "active", card_last4: "1234", card_exp: "12/28", pending_update: false, open_missed: 0, synced_at: m(0) },
+    { id: "p2", student_id: 2, student_name: "איתי לוי", parent_name: "רונית לוי", parent_phone: "0529876543", source: "register", description: "תרגול שבועי מת' + אנג' - הוד השרון", monthly_amount: 560, last_amount: null, total_count: 8, charged_count: 1, next_charge_date: m(-4), end_date: "2027-06-01", charge_day: 10, status: "failed", status_note: "החיוב ב-" + dmy(m(-4)) + " לא התקבל", card_last4: "8812", card_exp: "03/27", pending_update: false, open_missed: 1, synced_at: m(0) },
+    { id: "p3", student_id: 3, student_name: "נועה אברהם", parent_name: "דנה אברהם", parent_phone: "0547654321", source: "pay_link", description: "תשלום אישי - תרגול אנגלית", monthly_amount: 290, last_amount: null, total_count: 6, charged_count: 2, next_charge_date: m(20), end_date: "2027-04-01", charge_day: 1, status: "paused", card_last4: "4410", card_exp: "07/27", pending_update: true, open_missed: 0, synced_at: m(-1) },
+    { id: "p4", student_id: 4, student_name: "עומר שלום", parent_name: "אורית שלום", parent_phone: "0533332211", source: "register", description: "תרגול שבועי מתמטיקה - כפר סבא", monthly_amount: 393, last_amount: 215, total_count: 8, charged_count: 0, next_charge_date: "2026-11-01", end_date: "2027-06-01", charge_day: 1, status: "creating", card_last4: "9001", card_exp: "01/29", pending_update: false, open_missed: 0, synced_at: null },
+    { id: "p5", student_id: 5, student_name: "תמר בן דוד", parent_name: "יוסי בן דוד", parent_phone: "0581112233", source: "register", description: "תרגול שבועי מתמטיקה - ראש העין", monthly_amount: 393, last_amount: 215, total_count: 8, charged_count: 8, next_charge_date: null, end_date: "2026-06-01", charge_day: 1, status: "done", card_last4: "5566", card_exp: "05/27", pending_update: false, open_missed: 0, synced_at: m(-30) }
+  ];
+  const charges = { p1: [{ id: 11, date: m(-14), amount: 511, status: "אושר", charge_no: null, document_url: "#", first_payment: true }],
+    p2: [{ id: 21, date: m(-34), amount: 678, status: "אושר", document_url: "#", first_payment: true }, { id: 22, date: m(-4), amount: 560, status: "נכשל", charge_no: 2, reason: "סירוב חברת האשראי", handled_at: null }],
+    p3: [{ id: 31, date: m(-60), amount: 290, status: "אושר", document_url: "#", first_payment: true }, { id: 32, date: m(-30), amount: 290, status: "אושר", charge_no: 2, document_url: "#" }] };
+  return {
+    plans, charges,
+    failed: [{ id: 22, plan_id: "p2", student_id: 2, student_name: "איתי לוי", parent_name: "רונית לוי", parent_phone: "0529876543", amount: 560, due_date: m(-4), charge_no: 2, total: 8, reason: "סירוב חברת האשראי", plan_status: "failed", pay_link: null }],
+    issues: [{ id: 41, created_at: m(-2) + "T10:20:00", amount: 511, status: "אושר", purpose: "registration", issue: "תשלום כפול - אותה הרשמה שולמה פעמיים", description: "הרשמה - יעל כהן", card_last4: "1234", transaction_id: "S-77812", parent_name: "מיכל כהן", parent_phone: "0501234567" }],
+    upcoming: plans.filter(p => p.status === "active" && p.next_charge_date).map(p => ({ plan_id: p.id, date: p.next_charge_date, amount: p.monthly_amount, student_name: p.student_name, parent_name: p.parent_name, parent_phone: p.parent_phone, card_last4: p.card_last4, card_exp: p.card_exp, charge_no: p.charged_count + 1, total: p.total_count, status: p.status })),
+    byDate: [{ date: m(-4), ok_count: 37, ok_sum: 15540, fail_count: 1, fail_sum: 560, rows: [{ id: 22, plan_id: "p2", amount: 560, status: "נכשל", student_name: "איתי לוי", reason: "סירוב חברת האשראי" }, { id: 23, plan_id: "p6", amount: 393, status: "אושר", student_name: "שירה מזרחי", document_url: "#" }] },
+             { date: m(-34), ok_count: 35, ok_sum: 14420, fail_count: 0, fail_sum: 0, rows: [] }],
+    pending: [{ kind: "registration", id: 501, student_name: "ליה פרץ", parent_name: "שרון פרץ", parent_phone: "0544445566", what: "תרגול שבועי מתמטיקה - ראש העין", amount: 511, monthly: 393, created_at: m(-1) },
+              { kind: "marathon", id: 77, student_name: "אדם גבאי", parent_name: "קרן גבאי", parent_phone: "0507778899", what: "מרתון מתמטיקה - בארי", amount: 295, created_at: m(-3) }],
+    links: [{ code: "demo1", url: "https://telem-tirgul.github.io/pay.html?c=demo1", created_at: m(-2) + "T09:00:00", created_by_name: "נועה", parent_name: "דנה אברהם", student_name: "נועה אברהם", description: "תשלום אישי - תרגול אנגלית", one_time_amount: 290, monthly_amount: 290, monthly_count: 5, status: "paid", paid_at: m(-2) + "T12:00:00", has_pdf: true, fields: {} },
+            { code: "demo2", url: "https://telem-tirgul.github.io/pay.html?c=demo2", created_at: m(0) + "T08:10:00", created_by_name: "נועה", parent_name: "", student_name: "", description: "שיעור פרטי - 3 מפגשים", one_time_amount: 450, monthly_amount: null, monthly_count: null, status: "opened", has_pdf: false, fields: { parent_phone: { value: "0521231234", required: false } } }],
+    rules: { charge_day: 1, june_offset: true, last_month: 6, alert_email: "telem.tr@gmail.com", note: "לפי מה שכתוב היום בטופס ההרשמה", updated_at: m(-1) + "T10:00:00" }
+  };
+})();
+// קריאה לשרת; במצב דוגמה - מהנתונים המדומים
+async function call(fn, args){
+  if (DEMO) return demoCall(fn, args);
+  return rpc(fn, args);
+}
+function demoCall(fn, a){
+  switch (fn) {
+    case "recurring_plans_list": return D.plans;
+    case "recurring_plan_charges": return D.charges[a.p_id] || [];
+    case "failed_charges_list": return D.failed.filter(x => !x.handled);
+    case "payment_issues_list": return D.issues.filter(x => !x.handled);
+    case "recurring_upcoming": return D.upcoming.filter(x => x.date <= a.p_until);
+    case "recurring_charges_by_date": return D.byDate;
+    case "pay_links_list": return D.links;
+    case "billing_rules_get": return D.rules;
+    case "billing_rules_save": Object.assign(D.rules, a.p); return D.rules;
+    case "recurring_plan_set_status": { const p = D.plans.find(x => x.id === a.p_id); p.status = a.p_status; p.pending_update = true; return { ok: true }; }
+    case "recurring_plan_set_next_date": { const p = D.plans.find(x => x.id === a.p_id); p.charge_day = Number(a.p_date.slice(8, 10)); p.pending_update = true; return { ok: true }; }
+    case "recurring_plan_update": { const p = D.plans.find(x => x.id === a.p_id); Object.assign(p, a.p); p.pending_update = true; return { ok: true }; }
+    case "charge_mark_handled": { [D.failed, D.issues].forEach(l => l.forEach(x => { if (x.id === a.p_id) x.handled = true; })); const p = D.plans.find(x => x.id === "p2"); if (a.p_id === 22) { p.status = "active"; p.open_missed = 0; } return { ok: true }; }
+    case "missed_charge_link": { const f = D.failed.find(x => x.id === a.p_id); f.pay_link = "https://telem-tirgul.github.io/pay.html?c=demo-missed"; return { url: f.pay_link }; }
+    case "pay_link_create": { const l = { code: "demo" + Date.now(), url: "https://telem-tirgul.github.io/pay.html?c=demo" + Date.now(), created_at: new Date().toISOString(), created_by_name: "נועה", parent_name: (a.p.fields && a.p.fields.parent_name && a.p.fields.parent_name.value) || "", student_name: "", description: a.p.description || "תשלום לתלם", one_time_amount: a.p.one_time_amount, monthly_amount: a.p.monthly ? a.p.monthly.amount : null, monthly_count: a.p.monthly ? a.p.monthly.count : null, status: "sent", fields: a.p.fields || {} }; D.links.unshift(l); return l; }
+    case "pay_link_cancel": { const l = D.links.find(x => x.code === a.p_code); l.status = "cancelled"; return { ok: true }; }
+    default: return null;
+  }
+}
+
+// ---------- מצב ----------
+const HASH_T = (location.hash || "").slice(1);
+const S = { tab: HASH_T || store("telem_pay_tab") || "plans", plans: [], failed: [], issues: [], q: "", st: "" };
+const TABS = [
+  ["plans", "הוראות קבע"], ["failed", "חיובים שנכשלו"], ["issues", "דורש טיפול"], ["dates", "חיובים לפי תאריך"],
+  ["pending", "ממתינים לתשלום"], ["links", "תשלום אישי"], ["rules", "חוקי חיוב"]
+];
+const PLAN_ST = { creating: "בהקמה", active: "פעילה", paused: "מושהית", failed: "חיוב לא התקבל", done: "הסתיימה", cancelled: "בוטלה", error: "לא הוקמה - לבדוק" };
+const LINK_ST = { sent: "נשלח", opened: "נפתח", submitted: "מולא - ממתין לתשלום", paid: "שולם", cancelled: "בוטל" };
+function paintTabs(){
+  const n = { failed: S.failed.length, issues: S.issues.length };
+  // אותן לשוניות כמו ב"הרשמה ותשלומים" במערכת: קישורים, בקשות ביטול ובקשות שיבוץ - שם (index.html)
+  const crm = (k, t) => `<a class="tab-crm" href="index.html#${k}">${t}</a>`;
+  $("tabs").innerHTML = crm("reg-links", "קישורים") + TABS.map(([k, t]) => `<button type="button" role="tab" data-t="${k}" aria-selected="${S.tab === k}">${t}${n[k] ? ` <span class="cnt red">${n[k]}</span>` : k === "plans" && S.plans.length ? ` <span class="cnt">${S.plans.filter(p => ["active", "failed", "paused", "creating"].includes(p.status)).length}</span>` : ""}</button>` + (k === "issues" ? crm("reg-cancel", "בקשות ביטול") + crm("sched", "בקשות שיבוץ") : "")).join("");
+  $("tabs").querySelectorAll("[data-t]").forEach(b => b.onclick = () => { S.tab = b.dataset.t; store("telem_pay_tab", S.tab); history.replaceState(null, "", "#" + S.tab); paintTabs(); render(); });
+}
+async function loadCounts(){
+  try { [S.plans, S.failed, S.issues] = await Promise.all([call("recurring_plans_list"), call("failed_charges_list"), call("payment_issues_list")]); }
+  catch(e) { if (!DEMO && (e.status === 404 || e.code === "PGRST202")) { DEMO = true; $("demoBar").hidden = false; return loadCounts(); } throw e; }
+  S.plans = S.plans || []; S.failed = S.failed || []; S.issues = S.issues || [];
+}
+async function render(){
+  const b = $("body"); b.innerHTML = "<div class='muted'>טוען...</div>";
+  try {
+    if (S.tab === "plans") await renderPlans(b);
+    else if (S.tab === "failed") renderFailed(b);
+    else if (S.tab === "issues") renderIssues(b);
+    else if (S.tab === "dates") await renderDates(b);
+    else if (S.tab === "pending") await renderPending(b);
+    else if (S.tab === "links") await renderLinks(b);
+    else if (S.tab === "rules") await renderRules(b);
+  } catch(e) { b.innerHTML = `<div class="card err">לא ניתן לטעון: ${esc(e.message)}</div>`; }
+}
+async function refresh(){ await loadCounts(); paintTabs(); await render(); }
+const stChip = (s) => `<span class="chip st-${esc(s)}">${esc(PLAN_ST[s] || s)}</span>`;
+const prog = (done, tot) => `<span class="prog"><i><b style="width:${tot ? Math.min(100, Math.round(done * 100 / tot)) : 0}%"></b></i><span class="num">${done}/${tot}</span></span>`;
+const card4 = (l4, exp) => l4 ? `<span dir="ltr" class="ltr">•••• ${esc(l4)}</span>${exp ? ` <span class="muted" dir="ltr">${esc(exp)}</span>` : ""}` : "";
+
+// ---------- 1. הוראות קבע ----------
+async function renderPlans(b){
+  const act = S.plans.filter(p => p.status === "active"), sum = act.reduce((s, p) => s + Number(p.monthly_amount || 0), 0);
+  const q = S.q.trim(), list = S.plans.filter(p => (!S.st || p.status === S.st) && (!q || [p.student_name, p.parent_name, p.parent_phone, p.description].join(" ").includes(q)));
+  b.innerHTML = `<div class="stats"><div class="stat"><b>${act.length}</b> פעילות</div><div class="stat"><b>${money(sum)}</b> בחודש (פעילות)</div>
+      <div class="stat"><b>${S.plans.filter(p => p.status === "paused").length}</b> מושהות</div><div class="stat" style="${S.failed.length ? "color:var(--full)" : ""}"><b>${S.plans.filter(p => p.status === "failed" || p.status === "error").length}</b> דורשות טיפול</div></div>
+    <div class="filters"><div style="min-width:240px"><label class="lbl" for="pq">חיפוש</label><input id="pq" type="search" placeholder="תלמיד/ה, הורה, טלפון..." value="${esc(S.q)}"></div>
+      <div><label class="lbl" for="pst">סטטוס</label><select id="pst"><option value="">הכול</option>${Object.entries(PLAN_ST).map(([k, t]) => `<option value="${k}" ${S.st === k ? "selected" : ""}>${t}</option>`).join("")}</select></div></div>
+    ${list.length ? `<table class="tbl"><thead><tr><th>תלמיד/ה</th><th class="hide-m">הורה</th><th class="hide-m">על מה</th><th>חודשי</th><th>חיובים</th><th>החיוב הבא</th><th class="hide-m">כרטיס</th><th>סטטוס</th></tr></thead><tbody>
+      ${list.map(p => `<tr class="click" data-p="${esc(p.id)}"><td><b>${esc(p.student_name || "")}</b></td>
+        <td class="hide-m">${esc(p.parent_name || "")}<div class="muted"><span dir="ltr">${esc(p.parent_phone || "")}</span></div></td><td class="hide-m muted">${esc(p.description || "")}</td>
+        <td class="num">${money(p.monthly_amount)}</td><td>${prog(p.charged_count || 0, p.total_count)}</td>
+        <td>${p.next_charge_date ? dmy(p.next_charge_date) : "<span class='muted'>—</span>"}</td><td class="hide-m">${card4(p.card_last4, p.card_exp)}</td>
+        <td>${stChip(p.status)}${p.pending_update ? `<div class="pend">⏳ נשלח לאיקרדיט</div>` : ""}${p.update_error ? `<div class="err" title="${esc(p.update_error)}">⚠ לא עודכן באיקרדיט</div>` : ""}</td></tr>`).join("")}</tbody></table>`
+      : `<div class="card empty">${S.plans.length ? "אין הוראות שמתאימות לסינון." : "עוד אין הוראות קבע. הן נוצרות לבד אחרי תשלום ראשון בטופס ההרשמה או בתשלום אישי."}</div>`}`;
+  $("pq").oninput = (e) => { S.q = e.target.value; const pos = e.target.selectionStart; renderPlans(b).then(() => { const i = $("pq"); i.focus(); i.setSelectionRange(pos, pos); }); };
+  $("pst").onchange = (e) => { S.st = e.target.value; renderPlans(b); };
+  b.querySelectorAll("[data-p]").forEach(tr => tr.onclick = () => openPlan(tr.dataset.p));
+}
+function pnlOpen(html){ $("pnl").innerHTML = html; $("pnl").hidden = false; $("pnlBg").hidden = false; $("pnl").scrollTop = 0; const x = $("pnl").querySelector(".x"); if (x) x.onclick = pnlClose; }
+function pnlClose(){ $("pnl").hidden = true; $("pnlBg").hidden = true; }
+$("pnlBg").onclick = pnlClose; document.addEventListener("keydown", e => { if (e.key === "Escape") pnlClose(); });
+async function openPlan(id){
+  const p = S.plans.find(x => x.id === id); if (!p) return;
+  pnlOpen(`<header><div><h2>${esc(p.student_name || "")}</h2><div class="muted">${esc(p.description || "")}</div></div><button class="btn small x" type="button">✕</button></header><div class="body"><div class="muted">טוען...</div></div>`);
+  let ch = []; try { ch = await call("recurring_plan_charges", { p_id: id }) || []; } catch(e) {}
+  const live = ["active", "paused", "failed"].includes(p.status) && p.status !== "creating";
+  const rem = p.total_count - (p.charged_count || 0);
+  $("pnl").querySelector(".body").innerHTML = `
+    <div class="acts-row">${stChip(p.status)}${p.pending_update ? `<span class="pend">⏳ השינוי נשלח לאיקרדיט (מתעדכן תוך כמה דקות)</span>` : ""}${p.status_note ? `<span class="err">${esc(p.status_note)}</span>` : ""}</div>
+    <dl class="kv"><dt>הורה</dt><dd>${esc(p.parent_name || "")} ${p.parent_phone ? `· <a class="ltr" href="tel:${esc(p.parent_phone)}">${esc(p.parent_phone)}</a>` : ""}</dd>
+      <dt>סכום חודשי</dt><dd><b>${money(p.monthly_amount)}</b>${p.last_amount ? ` · החיוב האחרון: ${money(p.last_amount)} (קיזוז)` : ""}</dd>
+      <dt>חיובים</dt><dd>${prog(p.charged_count || 0, p.total_count)} · נשארו ${rem}</dd>
+      <dt>החיוב הבא</dt><dd>${p.next_charge_date ? dmy(p.next_charge_date) : "—"} · יום ${p.charge_day} בכל חודש · עד ${dmy(p.end_date)}</dd>
+      <dt>כרטיס</dt><dd>${card4(p.card_last4, p.card_exp) || "—"}</dd><dt>מקור</dt><dd>${p.source === "pay_link" ? "תשלום אישי" : "טופס הרשמה"}</dd>
+      <dt>סונכרן</dt><dd class="muted">${p.synced_at ? dmy(p.synced_at) : "עוד לא"}</dd></dl>
+    ${p.status === "creating" ? `<div class="note">התשלום הראשון התקבל. הוראת הקבע מוקמת באיקרדיט אוטומטית (תוך כמה דקות).</div>` : ""}
+    ${p.status === "error" ? `<div class="note err">לא הצלחנו להקים את הוראת הקבע באיקרדיט. צריך להקים אותה ידנית בממשק של ריווחית, או לבטל כאן.</div>` : ""}
+    ${live ? `<div class="sec"><h3>פעולות</h3><div class="acts-row">
+        ${p.status === "paused" ? `<button class="btn small primary" data-a="active" type="button">▶ חידוש ההוראה</button>` : `<button class="btn small" data-a="paused" type="button">⏸ השהיה</button>`}
+        <button class="btn small danger" data-a="cancelled" type="button">ביטול ההוראה</button></div></div>
+      <div class="sec"><h3>יום החיוב בחודש</h3><div class="grid2"><div><label class="lbl" for="pDay">החיוב הבא יהיה בתאריך</label><input type="date" id="pDay" value="${esc(p.next_charge_date || "")}"></div>
+        <div style="align-self:end"><button class="btn small primary" id="pDaySave" type="button">שמירה</button></div></div>
+        <div class="note" style="margin-top:8px">באיקרדיט משנים את <b>היום בחודש</b> לכל החיובים הבאים (אי אפשר להזיז חיוב אחד בלבד). מספר החיובים נשמר. ימים 1-28.</div></div>
+      <div class="sec"><h3>סכום ומספר חיובים</h3><div class="grid2">
+        <div><label class="lbl" for="pAmt">סכום חודשי (₪)</label><input type="number" id="pAmt" min="1" max="5000" value="${esc(p.monthly_amount)}"></div>
+        <div><label class="lbl" for="pCnt">מספר חיובים (כולל שכבר עברו)</label><input type="number" id="pCnt" min="${(p.charged_count || 0) + 1}" max="24" value="${esc(p.total_count)}"></div>
+        <div><label class="lbl" for="pLast">החיוב האחרון (₪) - ריק = כמו החודשי</label><input type="number" id="pLast" min="1" max="5000" value="${esc(p.last_amount || "")}"></div>
+        <div style="align-self:end"><button class="btn small primary" id="pTermsSave" type="button">שמירה</button></div></div></div>` : ""}
+    <div class="sec"><h3>היסטוריית חיובים</h3>${ch.length ? `<table class="tbl"><thead><tr><th>תאריך</th><th>סכום</th><th>סטטוס</th><th>חשבונית</th></tr></thead><tbody>
+      ${ch.map(c => `<tr><td>${dmy(c.date)}${c.first_payment ? ` <span class="muted">(תשלום ראשון)</span>` : c.charge_no ? ` <span class="muted">(${c.charge_no}/${p.total_count})</span>` : ""}</td><td class="num">${money(c.amount)}</td>
+        <td>${c.status === "אושר" ? `<span class="chip st-active">שולם</span>` : `<span class="chip st-failed">${esc(c.status === "נכשל" ? "לא התקבל" : c.status)}</span>`}${c.reason ? `<div class="muted">${esc(c.reason)}</div>` : ""}${c.handled_at ? `<div class="muted">טופל${c.handled_note ? ": " + esc(c.handled_note) : ""}</div>` : ""}</td>
+        <td>${c.document_url ? `<a href="${esc(c.document_url)}" target="_blank" rel="noopener">חשבונית</a>` : ""}</td></tr>`).join("")}</tbody></table>` : `<div class="muted">אין עדיין חיובים.</div>`}</div>
+    <div class="note">החלפת כרטיס אשראי וחיוב מיידי - בממשק של ריווחית. השינוי יופיע כאן בסנכרון הבא (כל יום).</div>`;
+  const body = $("pnl").querySelector(".body");
+  body.querySelectorAll("[data-a]").forEach(btn => btn.onclick = async () => {
+    const st = btn.dataset.a;
+    if (st === "cancelled" && !confirm(`לבטל את הוראת הקבע של ${p.student_name}? החיובים הבאים לא יתבצעו. (אי אפשר לבטל את הביטול - צריך הוראה חדשה)`)) return;
+    if (st === "paused" && !confirm("להשהות? לא יהיו חיובים עד שמחדשים.")) return;
+    btn.disabled = true;
+    try { await call("recurring_plan_set_status", { p_id: id, p_status: st }); toast(st === "cancelled" ? "ההוראה בוטלה" : st === "paused" ? "ההוראה הושהתה" : "ההוראה חודשה"); await refresh(); openPlan(id); }
+    catch(e) { toast("לא נשמר: " + e.message); btn.disabled = false; }
+  });
+  const ds = $("pDaySave"); if (ds) ds.onclick = async () => {
+    const v = $("pDay").value; if (!v) return; if (Number(v.slice(8, 10)) > 28) { toast("אפשר יום 1-28 בלבד"); return; }
+    try { await call("recurring_plan_set_next_date", { p_id: id, p_date: v, p_all: true }); toast(`יום החיוב שונה ל-${Number(v.slice(8, 10))} בחודש`); await refresh(); openPlan(id); } catch(e) { toast("לא נשמר: " + e.message); }
+  };
+  const ts = $("pTermsSave"); if (ts) ts.onclick = async () => {
+    const pp = { monthly_amount: Number($("pAmt").value), total_count: Number($("pCnt").value), last_amount: $("pLast").value ? Number($("pLast").value) : "" };
+    if (!(pp.monthly_amount > 0) || !(pp.total_count > 0)) { toast("סכום ומספר חיובים - חובה"); return; }
+    try { await call("recurring_plan_update", { p_id: id, p: pp }); toast("נשמר - נשלח לאיקרדיט"); await refresh(); openPlan(id); } catch(e) { toast("לא נשמר: " + e.message); }
+  };
+}
+
+// ---------- 2. חיובים שלא התקבלו ----------
+function renderFailed(b){
+  b.innerHTML = `<div class="note" style="margin-bottom:12px">חיוב חודשי שאיקרדיט לא הצליחה לגבות. אפשר לשלוח להורה קישור תשלום, או לחייב בממשק של ריווחית ולסמן כאן "טופל". נשלח גם מייל ל-telem.tr@gmail.com.</div>` +
+    (S.failed.length ? `<div class="rows-card">${S.failed.map(f => { const wa = f.pay_link ? waLink(f.parent_phone, `שלום ${f.parent_name || ""}, החיוב החודשי בתלם (${dmy(f.due_date)}, ${money(f.amount)}) לא התקבל. אפשר לשלם כאן: ${f.pay_link}`) : "";
+      return `<div class="card fc"><div><div class="who">${esc(f.student_name || "")} · ${money(f.amount)}</div>
+        <div class="meta">חיוב ${f.charge_no || "?"}/${f.total || "?"} · היה אמור לרדת ב-${dmy(f.due_date)}${f.reason ? " · " + esc(f.reason) : ""}</div>
+        <div class="meta">${esc(f.parent_name || "")} ${f.parent_phone ? `· <a class="ltr" href="tel:${esc(f.parent_phone)}">${esc(f.parent_phone)}</a>` : ""}</div></div>
+        <div class="acts">${f.pay_link ? `<button class="btn small" data-copy="${esc(f.pay_link)}" type="button">העתקת הקישור</button>${wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ להורה</a>` : ""}`
+          : `<button class="btn small" data-link="${f.id}" type="button">קישור תשלום להורה</button>`}
+          <button class="btn small primary" data-done="${f.id}" type="button">✓ טופל</button><button class="btn small" data-plan="${esc(f.plan_id)}" type="button">ההוראה</button></div></div>`; }).join("")}</div>`
+      : `<div class="card empty">✓ אין חיובים שלא התקבלו.</div>`);
+  wireCommon(b);
+  b.querySelectorAll("[data-link]").forEach(x => x.onclick = async () => { x.disabled = true; try { const r = await call("missed_charge_link", { p_id: Number(x.dataset.link) }); await copy(r.url); await refresh(); } catch(e) { toast("לא נוצר: " + e.message); x.disabled = false; } });
+  b.querySelectorAll("[data-plan]").forEach(x => x.onclick = () => openPlan(x.dataset.plan));
+}
+function wireCommon(b){
+  b.querySelectorAll("[data-copy]").forEach(x => x.onclick = () => copy(x.dataset.copy));
+  b.querySelectorAll("[data-done]").forEach(x => x.onclick = async () => {
+    const note = prompt("מה נעשה? (למשל: חויב ידנית בריווחית / ההורה שילם בהעברה)", ""); if (note === null) return;
+    try { await call("charge_mark_handled", { p_id: Number(x.dataset.done), p_note: note }); toast("סומן כטופל"); await refresh(); } catch(e) { toast("לא נשמר: " + e.message); }
+  });
+}
+
+// ---------- 3. דורש טיפול ----------
+function renderIssues(b){
+  b.innerHTML = `<div class="note" style="margin-bottom:12px">תשלומים שהמערכת סימנה לבדיקה: תשלום כפול, סכום לא תואם, הוראת קבע שלא הוקמה. מטפלים בממשק של ריווחית (למשל זיכוי) ומסמנים "טופל".</div>` +
+    (S.issues.length ? `<div class="rows-card">${S.issues.map(x => `<div class="card fc" style="border-inline-start-color:var(--warn)"><div><div class="who">${esc(x.issue || "")}</div>
+        <div class="meta">${esc(x.description || "")} · ${money(x.amount)} · ${dmy(x.created_at)}${x.card_last4 ? " · " + card4(x.card_last4) : ""}${x.transaction_id ? ` · עסקה <span class="ltr">${esc(x.transaction_id)}</span>` : ""}</div>
+        <div class="meta">${esc(x.parent_name || "")} ${x.parent_phone ? `· <a class="ltr" href="tel:${esc(x.parent_phone)}">${esc(x.parent_phone)}</a>` : ""}</div></div>
+        <div class="acts"><button class="btn small primary" data-done="${x.id}" type="button">✓ טופל</button></div></div>`).join("")}</div>`
+      : `<div class="card empty">✓ אין תשלומים שדורשים טיפול.</div>`);
+  wireCommon(b);
+}
+
+// ---------- 4. חיובים לפי תאריך ----------
+async function renderDates(b){
+  const t = todayIL(), [up, past] = await Promise.all([call("recurring_upcoming", { p_until: addDays(t, 31) }), call("recurring_charges_by_date", { p_from: addDays(t, -92), p_to: t })]);
+  const upBy = {}; (up || []).forEach(u => (upBy[u.date] = upBy[u.date] || []).push(u));
+  b.innerHTML = `<h3 style="margin:0 0 8px">חיובים קרובים (חודש קדימה)</h3>
+    ${Object.keys(upBy).length ? Object.keys(upBy).sort().map(d => `<details class="day"><summary><span>${dmy(d)}</span><span>${upBy[d].length} חיובים</span><span class="num">${money(upBy[d].reduce((s, u) => s + Number(u.amount), 0))}</span></summary>
+      <table class="tbl" style="margin-top:8px"><tbody>${upBy[d].map(u => `<tr class="click" data-plan="${esc(u.plan_id)}"><td><b>${esc(u.student_name || "")}</b></td><td class="hide-m">${esc(u.parent_name || "")}</td><td class="num">${money(u.amount)}</td><td>${u.charge_no}/${u.total}</td><td class="hide-m">${card4(u.card_last4, u.card_exp)}</td></tr>`).join("")}</tbody></table></details>`).join("")
+      : `<div class="card empty">אין חיובים בחודש הקרוב.</div>`}
+    <h3 style="margin:18px 0 8px">חיובים שהיו (3 חודשים)</h3>
+    ${(past || []).length ? (past || []).map(x => `<details class="day"><summary><span>${dmy(x.date)}</span><span style="color:var(--ok)">✓ ${x.ok_count} · ${money(x.ok_sum)}</span>${x.fail_count ? `<span style="color:var(--full)">✗ ${x.fail_count} לא התקבלו · ${money(x.fail_sum)}</span>` : ""}</summary>
+      ${(x.rows || []).length ? `<table class="tbl" style="margin-top:8px"><tbody>${x.rows.map(r => `<tr class="click" data-plan="${esc(r.plan_id)}"><td><b>${esc(r.student_name || "")}</b></td><td class="num">${money(r.amount)}</td><td>${r.status === "אושר" ? `<span class="chip st-active">שולם</span>` : `<span class="chip st-failed">לא התקבל</span>`}${r.reason ? ` <span class="muted">${esc(r.reason)}</span>` : ""}${r.handled_note ? ` <span class="muted">· טופל: ${esc(r.handled_note)}</span>` : ""}</td><td>${r.document_url ? `<a href="${esc(r.document_url)}" target="_blank" rel="noopener">חשבונית</a>` : ""}</td></tr>`).join("")}</tbody></table>` : ""}</details>`).join("")
+      : `<div class="card empty">עוד לא היו חיובים חודשיים.</div>`}`;
+  b.querySelectorAll("[data-plan]").forEach(x => x.onclick = (e) => { if (e.target.closest("a")) return; openPlan(x.dataset.plan); });
+}
+
+// ---------- 5. ממתינים לתשלום ----------
+async function loadPending(){
+  if (DEMO) return D.pending;
+  const [en, mr] = await Promise.all([
+    get("enrollments", "select=id,created_at,first_charge_amount,monthly_amount,subject,city,student:students(first_name,last_name,family:families(parent1_first,parent1_last,parent1_phone))&status=eq." + encodeURIComponent("ממתין לתשלום") + "&order=created_at.desc").catch(() => []),
+    get("marathon_registrations", "select=id,created_at,amount,student:students(first_name,last_name,family:families(parent1_first,parent1_last,parent1_phone)),marathon:marathons(name)&status=eq." + encodeURIComponent("ממתין לתשלום") + "&order=created_at.desc").catch(() => [])]);
+  const nm = (s) => s ? [s.first_name, s.last_name].filter(Boolean).join(" ") : "", pf = (s) => (s && s.family) || {};
+  return en.map(e => ({ kind: "registration", id: e.id, created_at: e.created_at, student_name: nm(e.student), parent_name: [pf(e.student).parent1_first, pf(e.student).parent1_last].filter(Boolean).join(" "), parent_phone: pf(e.student).parent1_phone, what: ["הרשמה", e.subject, e.city].filter(Boolean).join(" · "), amount: e.first_charge_amount, monthly: e.monthly_amount }))
+    .concat(mr.map(r => ({ kind: "marathon", id: r.id, created_at: r.created_at, student_name: nm(r.student), parent_name: [pf(r.student).parent1_first, pf(r.student).parent1_last].filter(Boolean).join(" "), parent_phone: pf(r.student).parent1_phone, what: "מרתון" + (r.marathon ? " · " + r.marathon.name : ""), amount: r.amount })));
+}
+async function renderPending(b){
+  const list = await loadPending();
+  b.innerHTML = `<div class="note" style="margin-bottom:12px">הרשמות שנשלחו בלי תשלום (למשל "תשלום טלפוני"). שולחים להורה קישור תשלום - כשההורה משלם, ההרשמה עוברת ל"נרשם" לבד, ובהרשמה שבועית גם מוקמת הוראת הקבע.</div>` +
+    (list.length ? `<table class="tbl"><thead><tr><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>על מה</th><th>לתשלום</th><th class="hide-m">מתאריך</th><th></th></tr></thead><tbody>
+      ${list.map((x, i) => `<tr><td><b>${esc(x.student_name)}</b></td><td class="hide-m">${esc(x.parent_name || "")}<div class="muted"><span dir="ltr">${esc(x.parent_phone || "")}</span></div></td><td>${esc(x.what)}</td>
+        <td class="num">${money(x.amount)}${x.monthly ? `<div class="muted">ואז ${money(x.monthly)} בחודש</div>` : ""}</td><td class="hide-m">${dmy(x.created_at)}</td>
+        <td><button class="btn small primary" data-pl="${i}" type="button">קישור תשלום</button></td></tr>`).join("")}</tbody></table>`
+      : `<div class="card empty">✓ אין הרשמות שממתינות לתשלום.</div>`);
+  b.querySelectorAll("[data-pl]").forEach(x => x.onclick = async () => {
+    const it = list[Number(x.dataset.pl)]; x.disabled = true;
+    try { const r = await call("pay_link_create", { p: { order: { kind: it.kind, id: it.id }, description: it.what } }); await copy(r.url);
+      const wa = waLink(it.parent_phone, `שלום ${it.parent_name || ""}, לתשלום על ${it.what} של ${it.student_name} בתלם: ${r.url}`);
+      x.outerHTML = wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ להורה</a>` : `<span class="muted">הקישור הועתק</span>`; }
+    catch(e) { toast("לא נוצר: " + e.message); x.disabled = false; }
+  });
+}
+
+// ---------- 6. תשלום אישי ----------
+const FIELDS = [["parent_name", "שם ההורה"], ["parent_email", "אימייל"], ["parent_phone", "טלפון"], ["student_first", "שם התלמיד/ה"], ["student_last", "שם משפחה"],
+  ["city", "עיר"], ["school", "בית ספר"], ["grade", "שכבה"], ["class_num", "כיתה"], ["track", "מסלול"], ["subject", "מקצוע"]];
+async function renderLinks(b){
+  const list = await call("pay_links_list") || [];
+  b.innerHTML = `<div class="page-head"><button class="btn primary" id="lNew" type="button">+ טופס תשלום חדש</button><span class="muted">קישור אישי להורה: תשלום חד-פעמי, ואם צריך - גם הוראת קבע. ההורה ממלא, חותם ומשלם באיקרדיט.</span></div>
+    ${list.length ? `<table class="tbl"><thead><tr><th>נוצר</th><th>הורה / תלמיד/ה</th><th>על מה</th><th>סכום</th><th>סטטוס</th><th></th></tr></thead><tbody>
+      ${list.map(l => { const ph = l.fields && l.fields.parent_phone && l.fields.parent_phone.value, wa = waLink(ph, `שלום, קישור לתשלום בתלם: ${l.url}`);
+        return `<tr><td>${dmy(l.created_at)}<div class="muted">${esc(l.created_by_name || "")}</div></td><td>${esc(l.parent_name || "")}<div class="muted">${esc(l.student_name || "")}</div></td><td>${esc(l.description)}</td>
+        <td class="num">${money(l.one_time_amount)}${l.monthly_amount ? `<div class="muted" dir="rtl">ועוד ${l.monthly_count} × ${money(l.monthly_amount)} בחודש</div>` : ""}</td>
+        <td><span class="chip st-${esc(l.status)}">${esc(LINK_ST[l.status] || l.status)}</span></td>
+        <td><div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקה</button>${wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ</a>` : ""}<button class="btn small danger" data-cancel="${esc(l.code)}" type="button">ביטול</button>` : ""}
+          ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button">PDF חתום</button>` : ""}</div></td></tr>`; }).join("")}</tbody></table>`
+      : `<div class="card empty">עוד אין טפסי תשלום אישיים.</div>`}`;
+  wireCommon(b);
+  $("lNew").onclick = newLink;
+  b.querySelectorAll("[data-cancel]").forEach(x => x.onclick = async () => { if (!confirm("לבטל את הקישור? ההורה לא יוכל לשלם בו.")) return; try { await call("pay_link_cancel", { p_code: x.dataset.cancel }); toast("בוטל"); render(); } catch(e) { toast("לא בוטל: " + e.message); } });
+  b.querySelectorAll("[data-pdf]").forEach(x => x.onclick = async () => { if (DEMO) { toast("בתצוגה לדוגמה אין PDF"); return; } try { const d = await call("pay_link_pdf", { p_code: x.dataset.pdf }); if (!d) return; const a = document.createElement("a"); a.href = String(d).startsWith("data:") ? d : "data:application/pdf;base64," + d; a.download = "טופס-תשלום.pdf"; a.click(); } catch(e) { toast("לא ניתן להוריד"); } });
+}
+function newLink(){
+  pnlOpen(`<header><div><h2>טופס תשלום חדש</h2><div class="muted">נשלח להורה כקישור. מה שתמלאי כאן - נעול עבור ההורה.</div></div><button class="btn small x" type="button">✕</button></header>
+    <div class="body"><div class="sec"><h3>מה משלמים</h3><div class="grid2">
+      <div style="grid-column:1/-1"><label class="lbl" for="nDesc">תיאור (יופיע להורה ובחשבונית)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי - 3 מפגשים"></div>
+      <div><label class="lbl" for="nOnce">תשלום עכשיו (₪)</label><input type="number" id="nOnce" min="1" max="20000"></div><div></div>
+      <label class="chk" style="grid-column:1/-1"><input type="checkbox" id="nRec"> וגם הוראת קבע חודשית אחרי התשלום</label>
+      <div class="nrec" hidden><label class="lbl" for="nMAmt">סכום חודשי (₪)</label><input type="number" id="nMAmt" min="1" max="5000"></div>
+      <div class="nrec" hidden><label class="lbl" for="nMCnt">מספר חיובים חודשיים</label><input type="number" id="nMCnt" min="1" max="24"></div>
+      <div class="nrec" hidden><label class="lbl" for="nMFirst">החיוב החודשי הראשון</label><input type="date" id="nMFirst"></div></div></div>
+    <div class="sec"><h3>פרטים בטופס</h3><div class="muted" style="margin-bottom:8px">אפשר למלא מראש (ההורה לא יוכל לשנות), ולבחור מה חובה.</div>
+      ${FIELDS.map(([k, t]) => `<div class="fld-row" style="margin-bottom:6px"><label class="lbl" for="nf_${k}" style="margin:0">${t}</label><input type="text" id="nf_${k}" ${k === "parent_phone" ? 'dir="ltr"' : ""}><label class="chk"><input type="checkbox" id="nr_${k}" ${k === "parent_name" || k === "parent_email" ? "checked" : ""}> חובה</label></div>`).join("")}</div>
+    <div class="err" id="nErr"></div><div class="acts-row"><button class="btn primary" id="nSave" type="button">יצירת קישור</button><button class="btn" id="nCancel" type="button">ביטול</button></div></div>`);
+  $("nRec").onchange = () => document.querySelectorAll(".nrec").forEach(x => x.hidden = !$("nRec").checked);
+  $("nCancel").onclick = pnlClose;
+  $("nSave").onclick = async () => {
+    const once = Number($("nOnce").value), err = $("nErr"); err.textContent = "";
+    if (!$("nDesc").value.trim()) { err.textContent = "חסר תיאור."; return; }
+    if (!(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
+    const p = { description: $("nDesc").value.trim(), one_time_amount: once, fields: {} };
+    if ($("nRec").checked) { const a = Number($("nMAmt").value), c = Number($("nMCnt").value); if (!(a > 0) || !(c >= 1 && c <= 24)) { err.textContent = "בהוראת קבע: סכום חודשי ומספר חיובים (1-24)."; return; } p.monthly = { amount: a, count: c, first_date: $("nMFirst").value || "" }; }
+    FIELDS.forEach(([k]) => { p.fields[k] = { value: $("nf_" + k).value.trim(), required: $("nr_" + k).checked }; });
+    $("nSave").disabled = true;
+    try { const r = await call("pay_link_create", { p }); pnlClose(); await copy(r.url); render(); } catch(e) { err.textContent = "לא נוצר: " + e.message; $("nSave").disabled = false; }
+  };
+}
+
+// ---------- 7. חוקי חיוב ----------
+async function renderRules(b){
+  const r = await call("billing_rules_get") || {};
+  b.innerHTML = `<div class="card" style="max-width:720px"><div class="grid2">
+      <div><label class="lbl" for="rDay">יום החיוב החודשי (1-28)</label><input type="number" id="rDay" min="1" max="28" value="${esc(r.charge_day || 1)}"></div>
+      <div><label class="lbl" for="rLast">החודש האחרון בשנה</label><select id="rLast">${[5, 6, 7].map(m => `<option value="${m}" ${Number(r.last_month) === m ? "selected" : ""}>${["", "", "", "", "", "מאי", "יוני", "יולי"][m]}</option>`).join("")}</select></div>
+      <label class="chk" style="grid-column:1/-1"><input type="checkbox" id="rJune" ${r.june_offset ? "checked" : ""}> החיוב האחרון מקוזז (חומרי תרגול, ואם אין - דמי ההרשמה)</label>
+      <div style="grid-column:1/-1"><label class="lbl" for="rMail">לאן נשלחות התראות (חיוב שלא התקבל)</label><input type="email" id="rMail" dir="ltr" value="${esc(r.alert_email || "")}"></div>
+      <div style="grid-column:1/-1"><label class="lbl" for="rNote">הערות</label><textarea id="rNote" rows="3">${esc(r.note || "")}</textarea></div></div>
+    <div class="note" style="margin:10px 0">הטקסט בטופס ההרשמה צריך להתאים לחוקים כאן. חיוב יחסי למי שמצטרף באמצע חודש (Pro Rata) - יתווסף כשתגדירי את הכלל.</div>
+    <div class="acts-row"><button class="btn primary" id="rSave" type="button">שמירה</button><span class="muted">${r.updated_at ? "עודכן " + dmy(r.updated_at) : ""}</span></div></div>`;
+  $("rSave").onclick = async () => {
+    const d = Number($("rDay").value); if (!(d >= 1 && d <= 28)) { toast("יום 1-28"); return; }
+    try { await call("billing_rules_save", { p: { charge_day: d, last_month: Number($("rLast").value), june_offset: $("rJune").checked, alert_email: $("rMail").value.trim(), note: $("rNote").value } }); toast("החוקים נשמרו"); render(); } catch(e) { toast("לא נשמר: " + e.message); }
+  };
+}
+
+// ---------- התחלה ----------
+(async () => {
+  if (DEMO) $("demoBar").hidden = false;
+  if (!DEMO) {
+    if (!auth) { $("gate").hidden = false; $("gate").innerHTML = `צריך להיכנס למערכת קודם. <a href="index.html">למסך הכניסה ←</a> · <a href="?demo=1">תצוגה לדוגמה</a>`; return; }
+    try { const me = await rpc("my_role"); if (!me || me.role !== "admin") { $("gate").hidden = false; $("gate").textContent = "המסך הזה למנהלים בלבד."; return; } $("who").textContent = me.full_name || ""; }
+    catch(e) { $("gate").hidden = false; $("gate").innerHTML = `צריך להיכנס למערכת קודם. <a href="index.html">למסך הכניסה ←</a>`; return; }
+  } else $("who").textContent = "תצוגה לדוגמה";
+  $("app").hidden = false;
+  await loadCounts(); paintTabs(); render();
+})();
+})();
+</script>
+</body>
+</html>
