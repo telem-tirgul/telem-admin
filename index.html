@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.49">
+<meta name="app-version" content="5.19.50">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6227,9 +6227,10 @@ const WS_SEARCH_ORD = ["topic", "summary", "grammar", "unseen", "vocab", "genera
 // 5.19.24: טעינה מהירה - הרשימה נשמרת בטלפון/במחשב ומוצגת מיד; ברקע נטענת גרסה עדכנית ומתחלפת אם יש שינוי.
 // source_path (רק לייבוא מהמחשב) לא נטען כאן - נשלף רק בייבוא.
 const WS_CACHE = "telem_ws_cache_v1";
-const WSQ = "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,sort_order,uploaded,is_star&is_active=eq.true&order=book,kind,topic_no,sort_order";
+const WSQ = "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,sort_order,uploaded,is_star,file_at&is_active=eq.true&order=book,kind,topic_no,sort_order";
 const wsPrep = (rows) => { rows.forEach(r => { if (r.book === "ENG" && r.kind === "general" && WS_VOCAB.test(r.topic_name || "")) r.kind = "vocab"; }); wsApplySplit(rows); return rows; };
-const wsFetch = () => getAll("worksheets", WSQ).catch(e => /is_star/.test(String(e && e.message)) ? getAll("worksheets", WSQ.replace(",is_star", "")) : Promise.reject(e));
+// 5.19.50: file_at (קובץ 69) - אם עוד לא הורץ, טוענים בלעדיו
+const wsFetch = () => getAll("worksheets", WSQ).catch(e => /file_at|is_star/.test(String(e && e.message)) ? getAll("worksheets", WSQ.replace(",file_at", "")).catch(e2 => /is_star/.test(String(e2 && e2.message)) ? getAll("worksheets", WSQ.replace(",is_star,file_at", "")) : Promise.reject(e2)) : Promise.reject(e));
 async function loadWs(){
   if (WS.rows) { renderWs(); return; }
   let cached = null; try { cached = JSON.parse(store(WS_CACHE) || "null"); } catch(e) {}
@@ -6285,7 +6286,9 @@ async function wsSign(paths){
     const res = await api("POST", "/storage/v1/object/sign/worksheets", { expiresIn: 3600, paths: part });
     (res || []).forEach(r => { if (r.signedURL) WS.urls[r.path] = { url: CONFIG.supabaseUrl + "/storage/v1" + r.signedURL, exp: now + 3600 * 1000 }; });
   }
-  return (p) => WS.urls[p] ? WS.urls[p].url : "";
+  // 5.19.50: ?v=מתי עלה הקובץ - אחרי ייבוא הדפדפן טוען את התמונה החדשה (לא את השמורה)
+  const ver = new Map(); (WS.rows || []).forEach(r => { if (r.file_at) ver.set(r.storage_path, r.file_at); });
+  return (p) => WS.urls[p] ? WS.urls[p].url + (ver.has(p) ? "&v=" + encodeURIComponent(String(Date.parse(ver.get(p)) || ver.get(p))) : "") : "";
 }
 // סדר הספרים: לפי כיתה (7A, 8A, 8B...), אחר כך מתמטיקה – כללי, ובסוף אנגלית
 const wsBookRank = (b) => /^\d/.test(b) ? 0 : b === "GEN" ? 1 : b === "ENG" ? 3 : 2;
@@ -6302,7 +6305,7 @@ function wsTopics(kind){
 async function renderWs(){
   const books = wsBooks();
   if (!books.length) { $("wsTop").hidden = true; $("wsSide").hidden = true; $("wsBody").innerHTML = "<div class='card muted'>המאגר ריק.</div>"; return; }
-  $("wsTop").hidden = false; $("wsSide").hidden = !!WS.topic;   // שורת החיפוש תמיד, גם בתוך נושא
+  $("wsTop").hidden = false; $("wsSide").hidden = !!WS.topic && matchMedia("(max-width:760px)").matches;   // 5.19.50: במחשב הבחירה (מקצוע / כיתה / חלק) נשארת גם בתוך נושא, כמו בנייד   // שורת החיפוש תמיד, גם בתוך נושא
   if (!books.some(b => b[0] === WS.book)) WS.book = books[0][0];
   const kinds = [...new Set(WS.rows.filter(r => r.book === WS.book).map(r => r.kind))].sort((a, b) => WS_KIND_ORD.indexOf(a) - WS_KIND_ORD.indexOf(b));
   if (!kinds.includes(WS.kind)) WS.kind = kinds[0];
@@ -6328,7 +6331,7 @@ async function renderWs(){
   const warn = missing ? `<div class="ws-warn">${missing} דפים עוד לא הועלו${ME.role === "instructor" ? "." : " - \"ייבוא דפים מהמחשב\" למעלה."}</div>` : "";
   document.querySelector("#wsSide .ws-how").hidden = !!(WS.q || "").trim();
   if (!WS.topic && (WS.q || "").length >= 2) { $("wsSelBar").hidden = true; $("view-ws").classList.remove("ws-selmode", "ws-topic"); $("wsPick").hidden = true; $("wsKind").hidden = true; $("wsSide").hidden = true; $("wsBody").innerHTML = wsSearchHtml(); wsWireSearch(); return; }
-  $("wsPick").hidden = false; $("wsSide").hidden = !!WS.topic;
+  $("wsPick").hidden = false; $("wsSide").hidden = !!WS.topic && matchMedia("(max-width:760px)").matches;
   if (!WS.topic) { $("wsSelBar").hidden = true; $("view-ws").classList.remove("ws-selmode", "ws-topic"); }
   if (!WS.topic) {
     // הרשימה: נושאי "לפי נושא" (הסוג הראשון), ובסוף נושאים שיש רק בסוג אחר (למשל דפי סיכום בלי נושא מקביל)
@@ -6715,13 +6718,15 @@ $("wsSearchX").addEventListener("click", () => { $("wsSearch").value = ""; WS.q 
 $("wsPick").addEventListener("click", (e) => {
   const books = wsBooks().map(x => x[0]), first = (f) => books.find(b => { const r = WS.rows.find(x => x.book === b); return r && f(r); });
   const wk = e.target.closest("[data-wk]");
-  if (wk) { WS.kind = wk.dataset.wk; store("telem_ws_kind", WS.kind); renderWs(); return; }
+  // 5.19.50: בתוך נושא (במחשב) - יוצאים מהנושא לרשימת הנושאים של הבחירה החדשה (כמו בנייד)
+  const outTopic = () => { if (!WS.topic) return; wsViewerOff(); const was = WS.topic; WS.topic = null; if (was && WS.listKind && WS.book !== "ENG") WS.kind = WS.listKind; WS.tab = "page"; wsPush(); window.scrollTo(0, 0); };
+  if (wk) { outTopic(); WS.kind = wk.dataset.wk; store("telem_ws_kind", WS.kind); renderWs(); return; }
   const s = e.target.closest("[data-ws]"), g = e.target.closest("[data-wg]"), p = e.target.closest("[data-b]");
   let nb = null;
   if (s) nb = first(r => (r.book === "ENG" ? "eng" : "math") === s.dataset.ws);
   else if (g) { const suf = String(WS.book).slice(-1); nb = books.find(b => b !== "ENG" && b.slice(-1) === suf && (WS.rows.find(x => x.book === b) || {}).grade === g.dataset.wg) || first(r => r.book !== "ENG" && r.grade === g.dataset.wg); }
   else if (p) nb = p.dataset.b;
-  if (!nb) return; WS.book = nb; store("telem_ws_book", nb); renderWs();
+  if (!nb) return; outTopic(); WS.book = nb; store("telem_ws_book", nb); renderWs();
 });
 $("wsKind").addEventListener("click", (e) => { const b = e.target.closest("[data-k]"); if (!b) return; WS.kind = b.dataset.k; store("telem_ws_kind", WS.kind); renderWs(); });
 // אנדרואיד (סמסונג ועוד): הדפדפן לא מעתיק תמונות, ווטסאפ באנדרואיד לא מדביק תמונה - שולחים דרך "שיתוף"
@@ -6846,12 +6851,15 @@ $("wsFolder").addEventListener("change", async (e) => {
   if (!jobs.length) { msg.textContent = `לא נמצאו דפים מהרשימה בתיקייה שנבחרה (${files.length} תמונות). צריך לבחור את התיקייה הראשית של דפי התרגול.`; return; }
   $("wsFolder").disabled = true;
   let done = 0, failed = 0, okIds = [];
-  const flush = async () => { if (!okIds.length) return; const ids = okIds.splice(0); await patch("worksheets", "id=in.(" + ids.join(",") + ")", { uploaded: true }); ids.forEach(id => { const r = WS.rows.find(x => x.id === id); if (r) r.uploaded = true; }); };
+  const flush = async () => { if (!okIds.length) return; const ids = okIds.splice(0), at = new Date().toISOString(), q = "id=in.(" + ids.join(",") + ")";
+    // 5.19.50: file_at = מתי עלה (קובץ 69); אם עוד לא הורץ - רק uploaded
+    try { await patch("worksheets", q, { uploaded: true, file_at: at }); } catch(e) { if (!/file_at/.test(String(e && e.message))) throw e; await patch("worksheets", q, { uploaded: true }); }
+    ids.forEach(id => { const r = WS.rows.find(x => x.id === id); if (r) { r.uploaded = true; r.file_at = at; } }); };
   const t = await token();
   const one = async ({ r, f }) => {
     try {
       const res = await fetch(CONFIG.supabaseUrl + "/storage/v1/object/worksheets/" + r.storage_path.split("/").map(encodeURIComponent).join("/"), {
-        method: "POST", headers: { "apikey": CONFIG.anonKey, "Authorization": "Bearer " + t, "x-upsert": "true", "Content-Type": f.type || "image/png" }, body: f });
+        method: "POST", headers: { "apikey": CONFIG.anonKey, "Authorization": "Bearer " + t, "x-upsert": "true", "cache-control": "max-age=60", "Content-Type": f.type || "image/png" }, body: f });
       if (!res.ok) throw new Error("HTTP " + res.status);
       okIds.push(r.id);
     } catch(err) { failed++; }
