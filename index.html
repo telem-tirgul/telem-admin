@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.36">
+<meta name="app-version" content="5.19.37">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1512,6 +1512,7 @@
 /* 5.19.35: עמוד הקישורים - פס אחד קטן (סוג + עיר), עמודה אחת, הכפתורים תמיד באותו מקום */
 #rgMain{ display:block; }
 .mc-list{ display:grid; gap:10px; }
+.cal-ev.ev-empty{ background:repeating-linear-gradient(135deg, var(--paper) 0 6px, color-mix(in srgb, var(--ink-soft) 8%, var(--paper)) 6px 12px) !important; border:1.5px dashed var(--ink-soft) !important; opacity:.85; }
 .mc.cxl{ border-inline-start-color:var(--full, #b3423f); background:color-mix(in srgb, var(--full, #b3423f) 4%, var(--paper)); } .mc.cxl .mc-st{ color:var(--full, #b3423f); }
 .mc-ref{ border-top:1px dashed var(--border); margin-top:8px; padding-top:8px; display:grid; gap:6px; } .mc-ref-h{ display:flex; flex-wrap:wrap; gap:4px 12px; align-items:baseline; font-size:13.5px; }
 .mc-ref-r{ display:grid; grid-template-columns:minmax(120px,1fr) minmax(160px,1.4fr) auto auto; gap:6px 14px; align-items:center; font-size:13.5px; padding:4px 0; border-top:1px solid var(--border); } .mc-ref-r.done{ opacity:.7; }
@@ -3369,9 +3370,9 @@ async function openAsgEditor(studentId, a, cur, opts){
   const hm = (t) => String(t || "").slice(0, 5);
   const city = (a && a.session.city) || opts.city || (!opts.box && editing && editing.student.family && editing.student.family.city) || "";
   const taken = new Set(cur.filter(x => !a || x.id !== a.id).map(x => x.session.id));
-  // רק קבוצות אמיתיות: מקום אחד (לא משבצת כללית כמו "בארי/עומר") ושיש בה ילדים, או הקבוצה הנוכחית
+  // רק קבוצות אמיתיות: מקום אחד (לא משבצת כללית כמו "בארי/עומר"). 5.19.37: כולל קבוצה שוטפת ריקה (חדשה) - הלקוחה לא הצליחה לשבץ לקבוצה חדשה
   const list = LG_SESSIONS.filter(g => !taken.has(g.session_id) && !String(g.location || "").includes("/")
-      && ((g.assigned_count || 0) > 0 || (a && a.session.id === g.session_id)))
+      && ((g.assigned_count || 0) > 0 || (a && a.session.id === g.session_id) || (g.kind || "שוטף") === "שוטף"))   // 5.19.37: גם קבוצה חדשה שעוד אין בה ילדים
     .sort((x, y) => (x.city === city ? 0 : 1) - (y.city === city ? 0 : 1) || String(x.city).localeCompare(y.city) || (DAY_ORDER[x.day] ?? 9) - (DAY_ORDER[y.day] ?? 9) || String(x.start_time).localeCompare(String(y.start_time)) || String(x.location).localeCompare(y.location));
   const cities = [...new Set(list.map(g => g.city))];
   const curG = a ? LG_SESSIONS.find(g => g.session_id === a.session.id) : null;
@@ -4420,7 +4421,10 @@ async function openGroupEditor(se, preset){
       const want = [...box.querySelectorAll("[data-ins]:checked")].map(x => x.dataset.ins);
       for (const id of want.filter(x => !curIns.includes(x))) await insert("session_instructors", { session_id: sid, staff_id: id });
       for (const id of curIns.filter(x => !want.includes(x))) await del("session_instructors", "session_id=eq." + sid + "&staff_id=eq." + id);
-      LG_SESSIONS = null; toast(se ? "הקבוצה עודכנה" : "הקבוצה נוספה");
+      LG_SESSIONS = null;
+      // 5.19.37: קבוצה חדשה (עוד בלי ילדים) - מופיעה בתצוגת 👥 קבוצות (מסנן "הכול"); בנוכחות - אחרי ששובצו ילדים או מתרגל/ת
+      if (!se) toast("הקבוצה נוספה. בלוח היא מופיעה במסגרת מקווקוות עד ששובצו בה ילדים.");
+      else toast("הקבוצה עודכנה");
       await loadGroups();
       if (currentView === "schools") { closePanel(); loadSchools(); }
       else if (G.sessions.some(x => x.session_id === sid)) openPanel(sid); else closePanel();
@@ -4918,13 +4922,13 @@ function renderAttIns(all){
 }
 $("attIns").addEventListener("change", () => { A.ins = $("attIns").value; store("telem_att_ins", A.ins || null); loadAttGroups(); });
 // 5.19.29: מסך אחד - מצב נוכחות / קבוצות (מנהלים, במחשב) + סינונים משותפים
-A.mode = store("telem_att_mode") === "g" ? "g" : "a"; A.loc = ""; A.fill = store("telem_att_fill") || "full";
+A.mode = store("telem_att_mode") === "g" ? "g" : "a"; A.loc = ""; A.fill = "all";   // 5.19.37: תמיד כל הקבוצות (ריקות - במסגרת מקווקוות)
 try { A.kinds = JSON.parse(store("telem_att_kinds") || "null"); } catch(e) {} if (!Array.isArray(A.kinds) || !A.kinds.length) A.kinds = ["שוטף", "מרתון"];
 const attMode = () => (ME.role !== "instructor" && !isMobile() && A.mode === "g") ? "g" : "a";
 function paintAttMode(){
   document.querySelectorAll("[data-amode]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.amode === attMode())));
   document.querySelectorAll("[data-akind]").forEach(b => b.setAttribute("aria-pressed", String(A.kinds.includes(b.dataset.akind))));
-  $("attFill").hidden = attMode() !== "g"; $("attFill").value = A.fill;
+  $("attFill").hidden = true;
 }
 document.querySelectorAll("[data-amode]").forEach(b => b.onclick = () => { A.mode = b.dataset.amode; store("telem_att_mode", A.mode); loadAttGroups(); });
 document.querySelectorAll("[data-akind]").forEach(b => b.onclick = () => { const k = b.dataset.akind, n = A.kinds.includes(k) ? A.kinds.filter(x => x !== k) : A.kinds.concat(k);
@@ -4964,7 +4968,9 @@ async function loadAttWeek(){
   $("attWkNow").disabled = weekStart(today) === wk;
   $("attCal").innerHTML = "<div class='muted'>טוען...</div>";
   let lists; const MODE = attMode(); paintAttMode();
-  try { if (MODE === "g") { await ensureG(); lists = dates.map(attGroupsFromG); } else lists = await Promise.all(dates.map(d => rpc("attendance_groups", { p_date: d, p_city: null }))); }
+  try { if (MODE === "g") { await ensureG(); lists = dates.map(attGroupsFromG); } else lists = await Promise.all(dates.map(d => rpc("attendance_groups", { p_date: d, p_city: null })));
+    // 5.19.37: מנהלים - גם קבוצות ריקות (עוד בלי ילדים / מתרגל/ת) מופיעות בלוח הנוכחות, במסגרת מקווקוות; לחיצה = חלון הקבוצה
+    if (MODE !== "g" && ME.role !== "instructor") { try { await ensureG(); lists = lists.map((l, i) => (l || []).concat(attGroupsFromG(dates[i]).filter(x => x.kind !== "מרתון" && !(l || []).some(y => y.session_id === x.session_id)).map(x => Object.assign(x, { empty: true })))); } catch(e2) {} } }
   catch(e) { $("attCal").innerHTML = "<div class='card err'>לא ניתן לטעון את הקבוצות" + (e.status === 404 ? " (צריך להריץ את קובץ 16)." : ".") + "</div>"; return; }
   if (weekStart(A.date) !== wk) return;
   const hm = (t) => String(t || "").slice(0, 5), mins = (t) => { const [h, m] = hm(t).split(":").map(Number); return h * 60 + (m || 0); };
@@ -4974,7 +4980,7 @@ async function loadAttWeek(){
   // מצב: סומן / לא סומן (כבר עבר) / עתידי
   // לא התקיים (סימון מנהל/ת או חג/חופשה) - חיוור ולא נחשב "לא סומן"
   ev.forEach(x => { x.hf = lessonCx({ kind: x.g.kind, city: x.g.city, location: x.g.location }, x.date, x.g.cancelled, x.g.cancel_reason); });
-  ev.forEach(x => { x.st = x.g.marked ? "ok" : x.hf ? "hol" : (x.date < today || (x.date === today && now >= hm(x.g.end_time))) ? "miss" : "fut"; });
+  ev.forEach(x => { x.st = x.g.empty ? "empty" : x.g.marked ? "ok" : x.hf ? "hol" : (x.date < today || (x.date === today && now >= hm(x.g.end_time))) ? "miss" : "fut"; });
   const nOk = ev.filter(x => x.st === "ok").length, nMiss = ev.filter(x => x.st === "miss").length, nFut = ev.filter(x => x.st === "fut").length;
   if (MODE === "g") {
     const ids = new Set(ev.map(x => x.g.session_id)), kidsN = new Set((G.roster || []).filter(k => ids.has(k.session_id)).map(k => k.student_id)).size;
@@ -4994,7 +5000,7 @@ async function loadAttWeek(){
     const blocks = out.map(x => { const g = x.g, mar = g.kind === "מרתון";
       const narrow = x.w <= 50;   // כמה קבוצות זו לצד זו - תגית קטנה בלי טקסט
       const st = MODE === "g" ? "" : x.st === "ok" ? `<span class="att-st ok" title="סומן: ${g.marked_count} נוכחים מתוך ${g.kids}">✓${narrow ? "" : " " + g.marked_count + "/" + g.kids}</span>` : x.st === "miss" ? `<span class="att-st miss" title="לא סומן">${narrow ? "" : "לא סומן"}</span>` : "";
-      return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${x.st === "fut" && MODE !== "g" ? " fut" : ""}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.left}% + 2px); width:calc(${x.w}% - 4px);"
+      return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${g.empty || (!g.kids && g.kind !== "מרתון") ? " ev-empty" : ""}${x.st === "fut" && MODE !== "g" ? " fut" : ""}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.left}% + 2px); width:calc(${x.w}% - 4px);"
         title="${esc(g.location)} · ${esc(g.city)} · ${hm(g.start_time)}-${hm(g.end_time)}${g.room ? " · " + esc(g.room) : ""}${g.instructors ? " · " + esc(g.instructors) : ""}">
         ${ME.role !== "instructor" && MODE !== "g" ? `<span class="ev-ed" data-ged role="button" title="חלון הקבוצה (ילדים, מתרגלים, עריכה)" aria-label="חלון הקבוצה">✎</span>` : ""}<span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>${x.st === "hol" ? cxTag(x.hf, true) : ""}
         <span class="ev-time">${mar && g.time_label ? esc(g.time_label) + " · " : ""}${rng(hm(g.start_time), hm(g.end_time))} <span class="ev-n">${g.kids}${MODE === "g" && g.capacity ? "/" + g.capacity : ""} ילדים${MODE === "g" && g.prop ? ` · <b>${g.prop} מוצעים</b>` : ""}</span></span>
@@ -5003,7 +5009,7 @@ async function loadAttWeek(){
   }).join("");
   $("attCal").innerHTML = `<div class="tbl-wrap"><div class="cal-grid${CS.length > 2 ? " c3" : ""}" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${showDates.length}, minmax(${Math.max(130, CS.length * 78)}px, 1fr));">
     <div class="cal-col cal-times"><div class="cal-day"></div><div class="cal-body" style="height:${H}px">${hours}</div></div>${cols}</div></div>`;
-  $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = (e) => { if (MODE === "g" || e.target.closest("[data-ged]")) { grpEdit(Number(b.dataset.s)); return; } A.date = b.dataset.d; const x = ev.find(e => String(e.g.session_id) === b.dataset.s && e.date === b.dataset.d); A.curG = x ? x.g : null; openSheet(Number(b.dataset.s)); });
+  $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = (e) => { if (MODE === "g" || e.target.closest("[data-ged]") || b.classList.contains("ev-empty")) { grpEdit(Number(b.dataset.s)); return; } A.date = b.dataset.d; const x = ev.find(e => String(e.g.session_id) === b.dataset.s && e.date === b.dataset.d); A.curG = x ? x.g : null; openSheet(Number(b.dataset.s)); });
 }
 async function loadAttGroups(){
   loadExams();   // 5.19.29: ברקע - שדף הקבוצה ייפתח מהר
