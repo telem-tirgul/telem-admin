@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.48">
+<meta name="app-version" content="5.19.49">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -794,9 +794,9 @@
   .ex-cal{ min-width:100%; border-collapse:separate; border-spacing:0; font-size:12px; background:var(--paper); }
   .ex-cal th, .ex-cal td{ border-bottom:1px solid var(--border); border-inline-start:1px solid color-mix(in srgb, var(--border) 60%, transparent); padding:0; text-align:center; }
   .ex-cal thead th{ position:sticky; top:0; z-index:2; background:var(--paper); font-weight:700; }
-  .ex-cal thead tr:nth-child(2) th{ top:24px; } .ex-cal thead tr:nth-child(3) th{ top:46px; } .ex-cal th.dl{ height:22px; color:var(--ink-soft); font-weight:600; } .ex-cal th.dn{ height:22px; }
+  .ex-cal thead tr:nth-child(2) th{ top:34px; } .ex-cal thead tr:nth-child(3) th{ top:56px; } .ex-cal th.dl{ height:22px; color:var(--ink-soft); font-weight:600; } .ex-cal th.dn{ height:22px; }
   .ex-cal th.mo > span{ position:sticky; right:146px; } .ex-cal tr.ex-city td > span{ position:sticky; right:10px; }
-  .ex-cal th.mo{ height:24px; text-align:right; padding:0 8px; font-size:13px; font-weight:800; color:var(--accent); border-inline-start:3px solid var(--accent) !important; background:color-mix(in srgb, var(--gold) 14%, var(--paper)); }
+  .ex-cal th.mo{ height:34px; text-align:right; vertical-align:top; padding:3px 8px 0; line-height:17px; font-size:13px; font-weight:800; color:var(--accent); border-inline-start:3px solid var(--accent) !important; background:color-mix(in srgb, var(--gold) 14%, var(--paper)); }
   .ex-cal td.d, .ex-cal th.dl, .ex-cal th.dn{ min-width:26px; width:26px; max-width:26px; }
   .ex-cal td.d{ height:28px; font-size:9.5px; font-weight:700; letter-spacing:-.3px; overflow:hidden; white-space:nowrap; }
   .ex-cal .wk{ border-inline-start:2px solid color-mix(in srgb, var(--ink) 35%, transparent) !important; }
@@ -813,7 +813,8 @@
   .ex-cal td.fri:not(.ex):not(.mk):not(.sy):not(.sr):not(.ot):not(.m1c):not(.m2c):not(.st), .ex-cal th.fri,   /* 5.19.34: צבע האירוע מעל האפור של שישי */
  
   .ex-cal td.hol, .ex-cal th.hol{ background:color-mix(in srgb, var(--ink-soft) 18%, var(--paper)); }
-  .ex-cal .today:not(.ex):not(.mk):not(.sy):not(.sr):not(.ot):not(.m1c):not(.m2c):not(.st){ background:var(--today-bg, #F3EEFC) !important; } .ex-cal td.today.ex, .ex-cal td.today.mk{ box-shadow:inset 0 -3px 0 #8E6FD0; }
+  .ex-cal th.today{ background:var(--today-bg, #F3EEFC) !important; }   /* 5.19.49: "היום" צבוע רק למעלה (לא כל העמודה) + חץ מעל */
+  .ex-cal th.dl.today{ overflow:visible; } .ex-cal th.dl.today::before{ content:"▼"; position:absolute; top:-14px; left:0; right:0; text-align:center; font-size:12px; line-height:13px; color:#5B3FA0; z-index:4; pointer-events:none; }
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .ex-cal{ --today-bg:#2E2840; } }
   :root[data-theme="dark"] .ex-cal{ --today-bg:#2E2840; } .ex-cal th.today{ color:#5B3FA0; font-weight:800; }
   .gr-b{ display:inline-block; min-width:26px; padding:1px 4px; border-radius:9px; font-weight:800; background:var(--gb); color:var(--gi); }
@@ -1147,9 +1148,9 @@
   .ex-info{ font-size:13.5px; margin:-6px 0 10px; } .ex-warn{ color:#9A3B26; font-weight:700; margin-top:4px; }
   .ex-filters{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:10px; font-size:13.5px; } .ex-filters label{ display:inline-flex; gap:6px; align-items:center; } .ex-filters select{ width:auto; padding:4px 8px; } .ex-filters .chk{ padding-bottom:0; }
   .ex-form{ display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:10px; margin-bottom:12px; } .ex-f-wide{ grid-column:1 / -2; } .ex-f-btns{ display:flex; gap:8px; align-items:flex-end; }
-  .ex-tbl tr.past td{ opacity:.5; } .ex-tbl tr.mk td{ background:var(--bg-soft, #FAF8F5); } .ex-tbl .ex-k{ font-weight:700; } .ex-tbl .ex-mat{ font-size:13px; } .ex-tbl .ex-src{ font-size:12.5px; } .ex-tbl .ex-d{ white-space:nowrap; }
+  .ex-tbl tr.ex-past td{ opacity:.55; } .ex-tbl tr.mk td{ background:var(--bg-soft, #FAF8F5); } .ex-tbl .ex-k{ font-weight:700; } .ex-tbl .ex-mat{ font-size:13px; } .ex-tbl .ex-src{ font-size:12.5px; } .ex-tbl .ex-d{ white-space:nowrap; }
   .ex-cards{ display:flex; flex-direction:column; gap:8px; } .ex-card{ background:var(--card, #fff); border:1px solid var(--border); border-radius:12px; padding:10px 12px; display:flex; flex-direction:column; gap:4px; font-size:14.5px; }
-  .ex-card.past{ opacity:.55; } .ex-card.mk{ background:var(--bg-soft, #FAF8F5); font-size:13.5px; } .ex-card .ex-k{ font-weight:700; } .ex-c3{ font-size:13px; } .ex-c4{ display:flex; gap:6px; margin-top:4px; }
+  .ex-card.ex-past{ opacity:.55; } .ex-card.mk{ background:var(--bg-soft, #FAF8F5); font-size:13.5px; } .ex-card .ex-k{ font-weight:700; } .ex-c3{ font-size:13px; } .ex-c4{ display:flex; gap:6px; margin-top:4px; }
   @media (max-width:760px){ .ex-form{ grid-template-columns:1fr 1fr; } .ex-f-wide{ grid-column:1 / -1; } #exImpBtn{ display:none; } }
   .lead-log{ font-size:13px; display:flex; flex-direction:column; gap:6px; max-height:260px; overflow:auto; } .ll-row{ display:grid; grid-template-columns:150px 1fr; gap:4px 12px; border-bottom:1px solid var(--border); padding:4px 0 6px; } .ll-row .ll-when small{ display:block; } @media (max-width:560px){ .ll-row{ grid-template-columns:1fr; } } .ll-when{ color:var(--ink-soft); font-size:12px; }
   .sw-open{ font:inherit; font-size:12.5px; font-weight:800; border-radius:999px; padding:2px 10px; margin-inline-start:6px; cursor:pointer; border:1.5px solid var(--border); background:var(--paper); color:var(--ink-soft); }
@@ -1433,6 +1434,12 @@
   .list-edit-on{ background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
 .wk-chg{display:flex;flex-direction:column;gap:2px;margin-bottom:3px;font-size:12px}.wk-chg span{border-radius:6px;padding:1px 6px;width:max-content;white-space:nowrap}.wk-chg .ad{background:#e3f1e6;color:#1d5a2c}.wk-chg .sk{background:#f7e3e1;color:#8a2a1f}
 .ex-cal td.m1c{ background:#9FD3F5; color:#0B3D5E; cursor:pointer; font-weight:700; font-size:10px; } .ex-cal td.m2c{ background:#1F5FA8; color:#fff; cursor:pointer; font-weight:700; font-size:10px; }
+.ex-kc{ display:inline-flex; align-items:center; gap:6px; white-space:nowrap; } .ex-kc i{ width:12px; height:12px; border-radius:3px; display:inline-block; flex:0 0 auto; }
+.ex-range{ display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; } .ex-range label{ display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+@media (max-width:700px){ .ex-range{ display:flex; width:100%; flex-wrap:nowrap; gap:6px; } .ex-range label{ flex:1 1 40%; min-width:0; } .ex-range input[type=date]{ flex:1 1 auto; min-width:0; width:100%; padding:4px 4px; font-size:13.5px; } } .ex-range[hidden]{ display:none; } .ex-range input[type=date]{ padding:4px 8px; border-radius:10px; border:1px solid var(--border); font:inherit; font-size:14px; }
+.ex-kbar{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; } .ex-kbar button{ font:inherit; font-size:13.5px; border:1.5px solid var(--border); background:var(--paper); border-radius:999px; padding:4px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+.ex-kbar button[aria-pressed="true"]{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 8%, var(--paper)); font-weight:700; }
+.ex-tbl td{ white-space:nowrap; padding-top:6px; padding-bottom:6px; vertical-align:middle; } .ex-tbl td.ex-src{ max-width:200px; overflow:hidden; text-overflow:ellipsis; }
 .lg-m1{ background:#9FD3F5; } .lg-m2{ background:#1F5FA8; } .ex-cal td.ot{ background:#D9C8F0; color:#4A2C7A; cursor:pointer; font-size:10px; } .lg-ot{ background:#D9C8F0; }
 .ex-cal td.d[data-dd]:hover{ outline:2px solid var(--brand, #5a1a1a); outline-offset:-2px; cursor:pointer; } .ex-cal th[data-dd]{ cursor:pointer; }
 .hak-chip{ display:inline-block; background:#E3EEF9; color:#1E5C9A; border-radius:999px; padding:0 8px; font-size:12px; font-weight:700; margin-inline-start:4px; }
@@ -2100,8 +2107,8 @@ td.nowrap{ white-space:nowrap; }
         <label>עיר <select id="exCity"></select></label>
         <label>בית ספר <select id="exSch"></select></label>
         <label>שכבה <select id="exGrade"></select></label>
-        <label class="chk" id="exPastL"><input type="checkbox" id="exPast"> גם מבחנים שעברו</label>
-        <label class="chk"><input type="checkbox" id="exMk"> גם מועדי השלמה ושיפור ציון</label>
+        <span class="ex-range" id="exRangeL"><label>מתאריך <input type="date" id="exFrom"></label><label>עד <input type="date" id="exTo"></label></span>
+        <button type="button" class="clear-f" id="exRangeX" hidden>✕ ניקוי סינון</button>
       </div>
       <div id="exPal" class="ex-pal" data-admin hidden></div>
       <div id="exCal"></div>
@@ -3993,6 +4000,9 @@ async function loadLeadExams(l){
   box.innerHTML = stuH + list.map(e => `<div class="ex-row${EX_MAKEUP.test(e.kind) ? " mk" : ""}">${EX_MAKEUP.test(e.kind) ? `<b>${esc(fmtIso(e.exam_date))}</b>` : `<span class="ex-date${exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span>`} · ${esc(e.kind)}${e.topics ? `<div class="ex-topics">${esc(e.topics)}</div>` : ""}${e.material ? `<div class="muted">קובץ: ${esc(e.material)}</div>` : ""}</div>`).join("");
 }
 
+// 5.19.49 (הלקוחה): ברשימה - צבע הסוג (כמו במקרא), סינון לפי סוג בלחיצה, נושאים בחלון קטן, שורה אחת לכל מבחן
+const exKindCls = (k) => /^וידוא|^SMS מבית/.test(k) ? "lg-sy" : /^SMS/.test(k) ? "lg-sr" : /מפגש 1/.test(k) ? "lg-m1" : /מפגש 2/.test(k) ? "lg-m2" : /^מרתון/.test(k) ? "lg-m1" : /^אירוע/.test(k) ? "lg-ot" : /בוחן/.test(k) ? "lg-qz" : EX_MAKEUP.test(k) ? "lg-mk" : "lg-ex";
+const exKindChip = (k) => `<span class="ex-kc"><i class="${exKindCls(k)}"></i>${esc(k)}</span>`;
 async function renderExams(reload){
   const box = $("exList");
   if (reload || !EX.rows) { box.innerHTML = "<div class='empty-state'>טוען...</div>"; await loadExams(true);
@@ -4002,7 +4012,7 @@ async function renderExams(reload){
   $("exInfo").innerHTML = im ? `עודכן מהקובץ: <b>${esc(fmtDate(im.at))}</b> · ${esc(im.by_name || "")} · ${im.rows_in} שורות (מתוכן "חומר נלמד": ${EX.rows.filter(e => EX_STUDY.test(e.kind)).length})${im.unmatched ? `<div class="ex-warn">⚠ בתי ספר שלא זוהו במערכת: ${esc(im.unmatched)}</div>` : ""}` : "";
   EX.mode = EX.mode || store("telem_ex_mode") || "cal"; if (!EX.month) EX.month = todayIL().slice(0, 7);
   document.querySelectorAll("[data-exm]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.exm === EX.mode)));
-  const cal = EX.mode === "cal"; exPalRender(); $("exMk").closest("label").hidden = cal; $("exMonthNav").hidden = !cal; $("exPastL").hidden = cal; $("exCal").hidden = !cal; $("exList").hidden = cal;
+  const cal = EX.mode === "cal"; exPalRender(); $("exMonthNav").hidden = !cal; $("exRangeL").hidden = cal; $("exCal").hidden = !cal; if (cal) $("exRangeX").hidden = true; $("exList").hidden = cal;
   const exCity = (e) => (e.school && e.school.city) || "";
   const cities = CONFIG.cities.filter(c => EX.rows.some(e => exCity(e) === c));
   { const v = $("exCity").value; $("exCity").innerHTML = `<option value="">כל הערים</option>` + cities.map(c => `<option ${c === v ? "selected" : ""}>${esc(c)}</option>`).join(""); }
@@ -4011,43 +4021,54 @@ async function renderExams(reload){
   const grs = [...new Set(EX.rows.map(e => gradeKey(e.grade)))].sort((a, b) => GRADE_ORD.indexOf(a) - GRADE_ORD.indexOf(b));
   const keep = (sel, opts, all) => { const v = sel.value; sel.innerHTML = `<option value="">${all}</option>` + opts.map(o => `<option ${o === v ? "selected" : ""}>${esc(o)}</option>`).join(""); };
   keep($("exSch"), schs, "כל בתי הספר"); keep($("exGrade"), grs, "כל השכבות");
-  const t = todayIL(), fs = $("exSch").value, fg = $("exGrade").value, past = $("exPast").checked, mk = $("exMk").checked, adm = ME.role !== "instructor";
+  const t = todayIL(), fs = $("exSch").value, fg = $("exGrade").value, past = false, mk = false, adm = ME.role !== "instructor";
   const flt = (e) => (!fc || exCity(e) === fc) && (!fs || exSchName(e) === fs) && (!fg || gradeKey(e.grade) === fg);
   if (cal && EX.link && !EX.cxl) { EX.cxl = new Set(); try { (await get("sessions", "select=id,marathon:marathons!inner(cancelled_at)&kind=eq." + encodeURIComponent("מרתון") + "&marathon.cancelled_at=not.is.null")).forEach(x => EX.cxl.add(x.id)); } catch(e) {} }   // 5.19.36
   if (cal) { await loadHol(); if (!EX.scrollTo && document.querySelector(".ex-cal-wrap")) EX.scrollTo = exFirstVisible(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_CAL_HIDE.test(e.kind) && !EX_STUDY.test(e.kind) && flt(e) && exColored(exSchName(e))), t,
       (L.schools || []).filter(x => exColored(x.name) && (!fc || x.city === fc) && (!fs || x.name === fs))
         .flatMap(x => exGradesOf(x.name).filter(g => !fg || g === fg).map(g => ({ city: x.city, sch: x.name, gr: g })))); exFit(); exScrollTo(EX.scrollTo || exWeekStart(t), true, false); EX.scrollTo = null; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
-  const rows = EX.rows.filter(e => !EX_STUDY.test(e.kind) && (mk || !EX_MAKEUP.test(e.kind)) && (past || e.exam_date >= t) && flt(e));
+  // 5.19.49 (הלקוחה): סינון מתאריך-עד תאריך. "מתאריך" גובר על "גם מבחנים שעברו"
+  // ברירת מחדל: מהיום עד 20.6 של שנת הלימודים
+  const y20 = (Number(t.slice(0, 4)) + (Number(t.slice(5, 7)) >= 7 ? 1 : 0)) + "-06-20";
+  if (!EX.rangeInit) { EX.rangeInit = true; $("exFrom").value = t; $("exTo").value = y20; }
+  const dFrom = $("exFrom").value, dTo = $("exTo").value; $("exRangeX").hidden = dFrom === t && dTo === y20 && !fc && !fs && !fg && !EX.kf;   // "ניקוי סינון" - רק כשיש סינון פעיל
+  const rows0 = EX.rows.filter(e => !EX_STUDY.test(e.kind) && (mk || !EX_MAKEUP.test(e.kind)) && (dFrom ? e.exam_date >= dFrom : (past || e.exam_date >= t)) && (!dTo || e.exam_date <= dTo) && flt(e));
+  const kinds = [...new Set(rows0.map(e => e.kind))];
+  if (EX.kf && !kinds.includes(EX.kf)) EX.kf = "";
+  const rows = rows0.filter(e => !EX.kf || e.kind === EX.kf);
+  const kBar = kinds.length > 1 ? `<div class="ex-kbar" role="group" aria-label="סינון לפי סוג"><button type="button" data-kf="" aria-pressed="${!EX.kf}">הכל <span class="muted">${rows0.length}</span></button>${kinds.map(k => `<button type="button" data-kf="${esc(k)}" aria-pressed="${EX.kf === k}">${exKindChip(k)} <span class="muted">${rows0.filter(e => e.kind === k).length}</span></button>`).join("")}</div>` : "";
   // 📓 חומר שלומדים עכשיו: האחרון לכל בית ספר + שכבה
   const stMap = {}; EX.rows.filter(e => EX_STUDY.test(e.kind) && e.exam_date <= t && flt(e)).forEach(e => { stMap[schKey(exSchName(e)) + "|" + gradeKey(e.grade) + "|" + (e.class_num || "")] = e; });
   const studies = Object.values(stMap);
   let stH = studies.length ? `<div class="ex-study-box"><h3>📓 לומדים עכשיו</h3>${studies.map(e => `<button type="button" class="ex-st-item" data-ex="${e.id}">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> <span class="muted">· התקבל ${esc(fmtDM(e.exam_date))}</span>${studyAll(e).map(x => x.topics ? `<span class="ex-st-t">${esc(x.topics)}</span>` : "").join("")}</button>`).join("")}</div>` : "";
   // "לומדים עכשיו" - לא ברשימה (הלקוחה 11.10): מוצג בלוח, ביום שבו התקבל
   stH = "";
-  if (!rows.length) { box.innerHTML = stH + `<div class="empty-state">${EX.rows.length ? "אין מבחנים קרובים לפי הבחירה." : "עוד אין מבחנים במערכת."}</div>`; return; }
-  const dateTxt = (e) => `<span class="ex-date${EX_MAKEUP.test(e.kind) ? "" : exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span>`;
+  if (!rows.length) { box.innerHTML = stH + kBar + `<div class="empty-state">${EX.rows.length ? (dFrom || dTo ? "אין אירועים בתאריכים שנבחרו." : "אין מבחנים קרובים לפי הבחירה.") : "עוד אין מבחנים במערכת."}</div>`; return; }
+  const dateTxt = (e) => `<span class="ex-date">${esc(fmtIso(e.exam_date))}</span>`;   // 5.19.49 (הלקוחה): בלי צבע על התאריך - הצבע רק בעמודת הסוג
   const btns = (e) => adm && e.origin === "manual" ? `<button type="button" class="btn small" data-exed="${e.id}">✎ עריכה</button> <button type="button" class="btn small" data-exdel="${e.id}">מחיקה</button>` : "";
-  if (isMobile()) box.innerHTML = stH + `<div class="ex-cards">` + rows.map(e => `<div class="ex-card${e.exam_date < t ? " past" : ""}${EX_MAKEUP.test(e.kind) ? " mk" : ""}">
+  if (isMobile()) box.innerHTML = stH + kBar + `<div class="ex-cards">` + rows.map(e => `<div class="ex-card${e.exam_date < t ? " ex-past" : ""}${EX_MAKEUP.test(e.kind) ? " mk" : ""}">
       <div>${dateTxt(e)} <span class="muted">יום ${esc(DAY_FULL[dayLetter(e.exam_date)] || "")}</span></div>
-      <div class="ex-c2">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> · <span class="${EX_MAKEUP.test(e.kind) ? "muted" : "ex-k"}">${esc(e.kind)}</span></div>
+      <div class="ex-c2">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> · ${exKindChip(e.kind)}</div>
       ${e.topics ? `<div class="ex-c3 ex-topics">${esc(e.topics)}</div>` : ""}${e.material ? `<div class="muted ex-c3">קובץ: ${esc(e.material)}</div>` : ""}${btns(e) ? `<div class="ex-c4">${btns(e)}</div>` : ""}</div>`).join("") + `</div>`;
-  else box.innerHTML = stH + `<div class="tbl-wrap"><table class="tbl ex-tbl"><thead><tr><th>תאריך</th><th>בית ספר</th><th>שכבה</th><th>סוג</th><th>נושאים / חומר</th><th>מקור</th>${adm ? "<th></th>" : ""}</tr></thead><tbody>` +
+  else box.innerHTML = stH + kBar + `<div class="tbl-wrap"><table class="tbl ex-tbl"><thead><tr><th>תאריך</th><th>בית ספר</th><th>שכבה</th><th>סוג</th><th>נושאים / חומר</th><th>מקור</th>${adm ? "<th></th>" : ""}</tr></thead><tbody>` +
     rows.map(e => { const d = exDays(e.exam_date, t), mk = EX_MAKEUP.test(e.kind);
-      return `<tr class="${e.exam_date < t ? "past" : ""}${mk ? " mk" : ""}">
+      return `<tr class="${e.exam_date < t ? "ex-past" : ""}${mk ? " mk" : ""}">
       <td class="ex-d">${dateTxt(e)}<span class="muted"> יום ${esc(DAY_FULL[dayLetter(e.exam_date)] || "")}</span></td>
       <td>${scChip(exSchName(e))}${e.school && e.school.city ? ` <span class="muted">${esc(e.school.city)}</span>` : ""}</td>
       <td><b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b></td>
-      <td class="${mk ? "muted" : "ex-k"}">${esc(e.kind)}</td>
-      <td class="ex-mat">${e.topics ? `<div class="ex-topics">${esc(e.topics)}</div>` : ""}${e.material ? `<div class="muted">${esc(e.material)}</div>` : ""}</td>
+      <td>${exKindChip(e.kind)}</td>
+      <td class="ex-mat">${e.topics || e.material ? `<button type="button" class="btn small" data-extop="${e.id}">📄 נושאים</button>` : `<span class="muted">—</span>`}</td>
       <td class="muted ex-src">${esc(e.origin === "manual" ? "נוסף במערכת" + (e.updated_by ? " · " + e.updated_by : "") : e.source || "מהקובץ")}</td>
       ${adm ? `<td>${btns(e)}</td>` : ""}</tr>`; }).join("") + "</tbody></table></div>";
   box.querySelectorAll("[data-exed]").forEach(b => b.onclick = () => exOpenForm(EX.rows.find(x => x.id === Number(b.dataset.exed))));
+  box.querySelectorAll("[data-extop]").forEach(b => b.onclick = () => exShow(Number(b.dataset.extop)));
+  box.querySelectorAll("[data-kf]").forEach(b => b.onclick = () => { EX.kf = b.dataset.kf; renderExams(false); });
   box.querySelectorAll("[data-exdel]").forEach(b => b.onclick = async () => { const e = EX.rows.find(x => x.id === Number(b.dataset.exdel));
     if (!window.confirm(`למחוק את ה${e.kind} של ${exSchName(e)} ${gradeKey(e.grade)}' ב-${fmtIso(e.exam_date)}?`)) return;
     try { await del("school_exams", "id=eq." + e.id); toast("נמחק"); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } });
 }
-["exCity", "exSch", "exGrade", "exPast", "exMk"].forEach(id => $(id).addEventListener("change", () => { if (id === "exMk") store("telem_ex_mk", $("exMk").checked ? "1" : ""); renderExams(false); }));
-$("exMk").checked = store("telem_ex_mk") === "1";
+["exCity", "exSch", "exGrade", "exFrom", "exTo"].forEach(id => $(id).addEventListener("change", () => renderExams(false)));   // 5.19.49: בלי "גם שעברו" / "גם השלמה" (הלקוחה)
+$("exRangeX").addEventListener("click", () => { EX.rangeInit = false; EX.kf = ""; ["exCity", "exSch", "exGrade"].forEach(id => { $(id).value = ""; }); renderExams(false); });
 document.querySelectorAll("[data-exm]").forEach(b => b.addEventListener("click", () => { EX.mode = b.dataset.exm; store("telem_ex_mode", EX.mode); renderExams(false); }));
 const exMonthAdd = (m, n) => { const [y, mo] = m.split("-").map(Number), d = new Date(Date.UTC(y, mo - 1 + n, 1)); return d.toISOString().slice(0, 7); };
 // החודשים בגלילה אחת (כל השנה). הכפתורים גוללים לחודש הקודם / הבא / להיום
@@ -4114,7 +4135,7 @@ function exCalHtml(rows, today, extra){
   if (!list.length) return "<div class='empty-state'>אין מבחנים לפי הבחירה.</div>";   // (גם בלי מבחנים: אפשר להוסיף מ"+ אירוע")
   const holCell = (iso, city, sch) => { const h = holOn(iso, city || null, sch || null).filter(x => x.kind !== "note"); return h.length ? h[0].name : ""; };
   const wk = (x) => (x.dl === "א" ? " wk" : "") + (x.first ? " ms" : "") + (x.dl === "ו" ? " fri" : "");   // שישי - אפור כמו חג
-  const legend = `<div class="ex-legend"><span><i class="lg-ex"></i>מבחן / מבדק</span><span><i class="lg-qz"></i>בוחן</span><span><i class="lg-mk"></i>מועד השלמה / שיפור ציון</span><span><i class="lg-hol"></i>חג / חופשה</span><span><i class="lg-st">📓</i>לומדים עכשיו (התקבל)</span><span><i class="lg-sy"></i>SMS מבית הספר</span><span><i class="lg-sr"></i>SMS מתלם</span><span><i class="lg-ot"></i>אירוע אחר</span><span><i class="lg-m1"></i>מרתון - מפגש 1</span><span><i class="lg-m2"></i>מרתון - מפגש 2</span><span class="muted">לוחצים על משבצת ירוקה - רואים את הנושאים${ME.role !== "instructor" ? " · על יום ריק - בוחרים צבע ומוסיפים אירוע" : ""}</span></div>`;
+  const legend = `<div class="ex-legend"><span><i class="lg-ex"></i>מבחן / מבדק</span><span><i class="lg-qz"></i>בוחן</span><span><i class="lg-mk"></i>מועד השלמה / שיפור ציון</span><span><i class="lg-hol"></i>חג / חופשה</span><span><i class="lg-st">📓</i>לומדים עכשיו (התקבל)</span><span><i class="lg-sy"></i>וידוא קיום המבחן / SMS מבית הספר</span><span><i class="lg-sr"></i>SMS מתלם</span><span><i class="lg-ot"></i>אירוע אחר</span><span><i class="lg-m1"></i>מרתון - מפגש 1</span><span><i class="lg-m2"></i>מרתון - מפגש 2</span><span class="muted">לוחצים על משבצת ירוקה - רואים את הנושאים${ME.role !== "instructor" ? " · על יום ריק - בוחרים צבע ומוסיפים אירוע" : ""}</span></div>`;
   let html = `
     <div class="tbl-wrap ex-cal-wrap"><table class="ex-cal"><thead><tr><th class="sch" rowspan="3">בית ספר</th><th class="gr" rowspan="3">שכבה</th>${months.map(x => { const [yy, mm] = x.m.split("-").map(Number); return `<th class="mo" colspan="${x.n}"><span>${HE_MONTHS[mm - 1]} ${yy}</span></th>`; }).join("")}</tr>
     <tr>${days.map(x => `<th class="dl${wk(x)}${x.d === 1 || x.iso === days[0].iso ? " m1" : ""}${x.iso === today ? " today" : ""}${holCell(x.iso) ? " hol" : ""}">${x.dl}</th>`).join("")}</tr>
