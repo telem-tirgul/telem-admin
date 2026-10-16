@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.41">
+<meta name="app-version" content="5.19.42">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1481,6 +1481,7 @@
 .seg-mini{ display:inline-flex; flex-wrap:wrap; gap:4px; } .seg-mini button{ border:1px solid var(--border); background:#fff; border-radius:999px; padding:5px 12px; font:inherit; font-size:13px; font-weight:700; cursor:pointer; color:var(--ink); }
 .seg-mini button[aria-pressed="true"]{ background:var(--maroon,#5A1216); border-color:var(--maroon,#5A1216); color:#fff; } .seg-mini.kinds{ margin-bottom:10px; }
 .pay-q{ display:inline-flex; align-items:center; gap:3px; font-size:11.5px; font-weight:800; color:#8A5A12; background:#FBF1E2; border:1px solid #E8CFA0; border-radius:999px; padding:0 7px; margin-inline-start:4px; white-space:nowrap; } .pay-q[role=button]{ cursor:pointer; } .pay-q[role=button]:hover{ background:#F6E3C2; }
+.call-ph{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; white-space:nowrap; } td.acts{ white-space:nowrap; }
 .lp-box{ border:1px solid var(--border); border-radius:12px; padding:8px 12px; margin:8px 0; background:#fff; } .lp-box summary{ cursor:pointer; } .lp-tbl{ margin-top:8px; width:100%; } .lp-box .lp-scroll{ overflow-x:auto; } .lp-tbl a{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; }
 #payWrap a.inv{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; white-space:nowrap; } #payWrap a.inv:hover{ text-decoration:underline; }
 #payWrap .chip{ display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:1px 9px; font-size:12.5px; font-weight:800; white-space:nowrap; }
@@ -1609,6 +1610,7 @@
       <button type="button" data-view="ws" data-ic="📚" data-sl="מאגר">מאגר תרגולים</button>
       <button type="button" data-view="reg" data-admin data-ic="📝" data-sl="הרשמה">הרשמה</button>
       <button type="button" data-view="pay" data-admin data-ic="💳" data-sl="תשלומים">תשלומים <span class="payNavN"></span></button>
+      <button type="button" data-view="pay" data-pcall data-admin data-ic="📞" data-sl="להתקשר" title="הורים שבחרו תשלום טלפוני - להתקשר ולהסדיר תשלום">להתקשר <span class="callN"></span></button>
     </nav>
     <div class="who"><span id="whoEmail"></span>
       <button class="btn small ghost" id="bugBtn" type="button" title="דיווח על בעיה" aria-label="דיווח על בעיה">🐞</button>
@@ -2589,6 +2591,7 @@ async function loadLeads(){
     getAll("marathon_registrations", "select=id,student_id,session_id,status,payment_method,paid_at,amount,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id")
       .catch(() => getAll("marathon_registrations", "select=student_id,status,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id")).catch(() => [])
   ]);
+  callCount();
   L.pendReg = {}; if (ME.role !== "instructor") get("pending_phone_payments", "select=kind,order_id,student_id,first_name,last_name,what,amount&kind=eq.registration")
     .then(r => { L.pendReg = {}; r.forEach(x => { L.pendReg[x.student_id] = x; }); }).catch(() => {});
   L.mar = {}; mreg.forEach(r => (L.mar[r.student_id] = L.mar[r.student_id] || []).push(r));
@@ -3147,7 +3150,7 @@ async function renderTrack(l, editMode){
 const fmtMoney = (n) => n == null ? "" : Number(n).toLocaleString("he-IL") + " ₪";
 async function markPaid(x){
   if (!window.confirm(`לסמן ששולם: ${x.first_name} ${x.last_name || ""} · ${x.what || ""}${x.amount ? " · " + fmtMoney(x.amount) : ""}?`)) return false;
-  try { const r = await rpc("mark_paid", { p_kind: x.kind, p_order: x.order_id }); toast("נרשם ששולם · הסטטוס: " + (r && r.status || ""));
+  try { const r = await rpc("mark_paid", { p_kind: x.kind, p_order: x.order_id }); toast("נרשם ששולם · הסטטוס: " + (r && r.status || "")); callCount();
         loadLeads().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); return true; }
   catch(e) { toast("לא נשמר: " + e.message); return false; }
 }
@@ -4634,11 +4637,20 @@ function panelFor(title, sub){
 }
 $("exMarBtn").addEventListener("click", async () => { await ensureG(); $("mNewBtn").click(); });
 $("mNewBtn").addEventListener("click", () => { if (!G.hasKind) { toast("צריך להריץ קודם את קובץ 36"); return; } panelFor("מרתון חדש", G.city); openMarathonEditor(null); });
+// 5.19.42: מונה "להתקשר לתשלום" בתפריט הראשי (הורים שבחרו תשלום טלפוני ועוד לא שולם)
+let CALL_N = 0, BAD_N = 0;
+function callPaint(n){ CALL_N = n; document.querySelectorAll(".callN").forEach(e => e.innerHTML = n ? `<span class="nav-n">${n}</span>` : "");
+  const t = BAD_N + CALL_N; document.querySelectorAll('.payN[data-pn="bad"]').forEach(e => e.innerHTML = t ? `<span class="cnt red">${t}</span>` : ""); }
+async function callCount(){ if (ME.role === "instructor") return; try { const r = await get("pending_phone_payments", "select=order_id"); callPaint(r.length); } catch(e) {} }
+setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && ME.role && ME.role !== "instructor") callCount(); }, 5 * 60000);   // 5.19.42: המספר מתעדכן כל 5 דקות (למשל כשהורה שילם בקישור)
+document.querySelectorAll("[data-pcall]").forEach(b => b.addEventListener("click", () => { PT = "call"; store("telem_pay_tab", PT); if (currentView === "pay") renderPayView(); }));
 // 5.19.35: "תשלומים" - מסך נפרד מ"הרשמה" (הלקוחה: כל אחד משמש בזמן אחר)
 // 5.19.41: אותו מבנה תפריטים כמו בממשק של iCredit - תמונת מצב · דו"חות · הוראות קבע · דפי תשלום · הגדרות
 const PAY_MENU = [
   ["home", "תמונת מצב", [["home", "תמונת מצב"]]],
-  ["reports", "דו\"חות", [["tx-reg", "עסקאות - תרגולים שוטפים"], ["tx-mar", "עסקאות - מרתונים"], ["tx-pay", "עסקאות - תשלומים אישיים"], ["tx-all", "כל העסקאות"], ["failed", "חיובים שנכשלו"], ["issues", "דורש טיפול"]]],
+  // 5.19.42 (הלקוחה): "לטיפול" למעלה - להתקשר לתשלום, חיובים שנכשלו (חיובי הוראת קבע), דורש טיפול; "עסקאות" - קודם כל העסקאות
+  ["todo", "לטיפול", [["call", "📞 להתקשר לתשלום"], ["failed", "חיובים שנכשלו"], ["issues", "דורש טיפול"]]],
+  ["reports", "עסקאות", [["tx-all", "כל העסקאות"], ["tx-reg", "תרגולים שוטפים"], ["tx-mar", "מרתונים"], ["tx-pay", "תשלומים אישיים"]]],
   ["rec", "הוראות קבע", [["plans", "רשימת הוראות קבע"], ["upcoming", "הוראות קבע לחיוב"], ["bydate", "חיובי הוראות קבע"]]],
   ["pages", "דפי תשלום", [["links", "תשלום אישי"], ["pending", "ממתינים לתשלום"]]],
   ["set", "הגדרות", [["rules", "חוקי חיוב"]]]];
@@ -4647,10 +4659,12 @@ const PT_OLD = { all: "tx-reg", dates: "bydate" };
 let PT = (k => PT_KEYS.includes(k) ? k : "home")(PT_OLD[store("telem_pay_tab")] || store("telem_pay_tab"));
 const PN_OF = { failed: "failed", issues: "issues", plans: "plans" };
 function renderPayView(){
+  document.querySelectorAll('.nav button[data-view="pay"]').forEach(b => b.setAttribute("aria-current", String(currentView === "pay" && ((PT === "call") === b.hasAttribute("data-pcall"))) === "true" ? "page" : "false"));   // 5.19.42
   const grp = PAY_MENU.find(g => g[2].some(x => x[0] === PT)) || PAY_MENU[0];
-  $("payTop").innerHTML = PAY_MENU.map(g => `<button type="button" role="tab" data-pg="${g[0]}" aria-pressed="${g === grp}">${g[1]}${g[0] === "reports" ? ` <span class="payN" data-pn="bad"></span>` : g[0] === "rec" ? ` <span class="payN" data-pn="plans"></span>` : ""}</button>`).join("");
+  $("payTop").innerHTML = PAY_MENU.map(g => `<button type="button" role="tab" data-pg="${g[0]}" aria-pressed="${g === grp}">${g[1]}${g[0] === "todo" ? ` <span class="payN" data-pn="bad"></span>` : g[0] === "rec" ? ` <span class="payN" data-pn="plans"></span>` : ""}</button>`).join("");
   $("paySub2").hidden = grp[2].length < 2;
-  $("paySub2").innerHTML = grp[2].map(x => `<button type="button" role="tab" data-pt="${x[0]}" aria-selected="${x[0] === PT}">${x[1]}${PN_OF[x[0]] && x[0] !== "plans" ? ` <span class="payN" data-pn="${PN_OF[x[0]]}"></span>` : ""}</button>`).join("");
+  $("paySub2").innerHTML = grp[2].map(x => `<button type="button" role="tab" data-pt="${x[0]}" aria-selected="${x[0] === PT}">${x[1]}${x[0] === "call" ? ` <span class="callN"></span>` : PN_OF[x[0]] && x[0] !== "plans" ? ` <span class="payN" data-pn="${PN_OF[x[0]]}"></span>` : ""}</button>`).join("");
+  callPaint(CALL_N);
   $("payTop").querySelectorAll("[data-pg]").forEach(b => b.onclick = () => { const g = PAY_MENU.find(z => z[0] === b.dataset.pg); PT = g[2][0][0]; store("telem_pay_tab", PT); renderPayView(); });
   $("paySub2").querySelectorAll("[data-pt]").forEach(b => b.onclick = () => { PT = b.dataset.pt; store("telem_pay_tab", PT); renderPayView(); });
   PAY.show(PT);
@@ -7788,7 +7802,8 @@ const TABS = [
 const PLAN_ST = { creating: "בהקמה", active: "פעילה", paused: "מושהית", failed: "חיוב לא התקבל", done: "הסתיימה", cancelled: "בוטלה", error: "לא הוקמה - לבדוק" };
 const LINK_ST = { sent: "נשלח", opened: "נפתח", submitted: "מולא - ממתין לתשלום", paid: "שולם", cancelled: "בוטל" };
 function paintTabs(){
-  const n = { bad: S.failed.length + S.issues.length, failed: S.failed.length, issues: S.issues.length, plans: S.plans.filter(p => ["active", "failed", "paused", "creating"].includes(p.status)).length };
+  BAD_N = S.failed.length + S.issues.length;
+  const n = { bad: BAD_N + CALL_N, failed: S.failed.length, issues: S.issues.length, plans: S.plans.filter(p => ["active", "failed", "paused", "creating"].includes(p.status)).length };
   document.querySelectorAll(".payN").forEach(e => { const k = e.dataset.pn, v = n[k]; e.innerHTML = v ? `<span class="cnt${k === "plans" ? "" : " red"}">${v}</span>` : ""; });
   const bad = n.failed + n.issues; document.querySelectorAll(".payNavN").forEach(e => e.innerHTML = bad ? `<span class="nav-n">${bad}</span>` : "");
 }
@@ -7801,6 +7816,7 @@ async function render(){
   const b = $("payBody"); b.innerHTML = "<div class='muted'>טוען...</div>";
   try {
     if (S.tab === "home") await renderHome(b);
+    else if (S.tab === "call") await renderCall(b);
     else if (/^tx-/.test(S.tab)) { S.pk = S.tab.slice(3); await renderAll(b); }
     else if (S.tab === "upcoming") await renderDates(b, "up");
     else if (S.tab === "bydate") await renderDates(b, "past");
@@ -7818,6 +7834,33 @@ const stChip = (s) => `<span class="chip st-${esc(s)}">${esc(PLAN_ST[s] || s)}</
 const prog = (done, tot) => `<span class="prog"><i><b style="width:${tot ? Math.min(100, Math.round(done * 100 / tot)) : 0}%"></b></i><span class="num">${done}/${tot}</span></span>`;
 const card4 = (l4, exp) => l4 ? `<span dir="ltr" class="ltr">•••• ${esc(l4)}</span>${exp ? ` <span class="muted" dir="ltr">${esc(exp)}</span>` : ""}` : "";
 
+// ---------- להתקשר לתשלום (5.19.42) - הורים שבחרו "תשלום טלפוני": מתקשרים, גובים, ולוחצים "שולם" ----------
+async function loadCall(){
+  if (DEMO) return D.pending.map(x => ({ kind: x.kind, order_id: x.id, first_name: x.student_name, last_name: "", parent_first: x.parent_name, parent_phone: x.parent_phone, what: x.what, amount: x.amount, monthly_amount: x.monthly, created_at: x.created_at }));
+  return (await get("pending_phone_payments", "select=*&order=created_at")) || [];
+}
+async function renderCall(b){
+  let list; try { list = await loadCall(); } catch(e) { b.innerHTML = `<div class="card err">לא ניתן לטעון (צריך את קובץ 39).</div>`; return; }
+  callPaint(list.length);
+  const lead = (x) => x.lead_id ? L.leads.find(l => l.id === x.lead_id) : L.leads.find(l => l.student_id === x.student_id);
+  b.innerHTML = `<div class="note" style="margin-bottom:12px">הורים שבחרו בטופס <b>תשלום טלפוני</b>. מתקשרים, גובים (בריווחית / שולחים קישור תשלום), ולוחצים <b>"שולם"</b> - ההרשמה מאושרת והשם יורד מהרשימה. עד אז ליד הילד/ה בקבוצה ובנוכחות מופיע "❓ ממתין לתשלום".</div>` +
+    (list.length ? `<table class="tbl"><thead><tr><th>מתאריך</th><th>תלמיד/ה</th><th>הורה · טלפון</th><th>על מה</th><th>לתשלום</th><th></th></tr></thead><tbody>
+      ${list.map((x, i) => { const ld = lead(x), ph = String(x.parent_phone || "").replace(/\D/g, ""), nm = [x.first_name, x.last_name].filter(Boolean).join(" ");
+        return `<tr><td>${dmy(x.created_at)}<div class="muted">${Math.max(0, Math.round((Date.now() - new Date(x.created_at)) / 864e5))} ימים</div></td>
+        <td>${ld ? `<button type="button" class="name-link" data-lead="${ld.id}">${esc(nm)}</button>` : `<b>${esc(nm)}</b>`}${x.kind === "marathon" ? ` <span class="mar-tag">מרתון</span>` : ""}</td>
+        <td>${esc(x.parent_first || "")}${ph ? `<div><a class="call-ph" href="tel:${esc(ph)}" dir="ltr">📞 ${esc(x.parent_phone)}</a></div>` : ""}</td>
+        <td>${esc(x.what || "")}${x.kind !== "marathon" && x.subject ? `<div class="muted">${esc(x.subject)}</div>` : ""}</td>
+        <td class="num"><b>${money(x.amount)}</b>${x.monthly_amount ? `<div class="muted">ואז ${money(x.monthly_amount)} בחודש</div>` : ""}</td>
+        <td class="acts"><button class="btn small primary" data-cpaid="${i}" type="button">✔ שולם</button> <button class="btn small" data-cl="${i}" type="button">קישור תשלום</button>${ph && waLink(ph, "x") ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(waLink(ph, `שלום ${x.parent_first || ""}, כאן תלם - המרכז לשיעורי תרגול. לגבי ההרשמה של ${nm} (${x.what || ""}) - נשמח לתאם את התשלום.`))}">וואטסאפ</a>` : ""}</td></tr>`; }).join("")}</tbody></table>`
+      : `<div class="card empty">✓ אין הורים שמחכים לשיחה על תשלום.</div>`);
+  b.querySelectorAll("[data-lead]").forEach(x => x.onclick = () => openLead(Number(x.dataset.lead)));
+  b.querySelectorAll("[data-cpaid]").forEach(x => x.onclick = async () => { const it = list[Number(x.dataset.cpaid)]; x.disabled = true;
+    if (DEMO) { D.pending = D.pending.filter(z => !(z.kind === it.kind && z.id === it.order_id)); toast("סומן ששולם (דוגמה)"); renderCall(b); return; }
+    if (await markPaid(it)) { (L.mar[it.student_id] || []).forEach(z => { if (z.id === it.order_id && it.kind === "marathon") { z.paid_at = new Date().toISOString(); z.status = "שולם"; } }); if (it.kind === "registration" && L.pendReg) delete L.pendReg[it.student_id]; renderCall(b); } else x.disabled = false; });
+  b.querySelectorAll("[data-cl]").forEach(x => x.onclick = async () => { const it = list[Number(x.dataset.cl)]; x.disabled = true;
+    try { const r = await call("pay_link_create", { p: { order: { kind: it.kind, id: it.order_id }, description: it.what } }); await copy(r.url); x.outerHTML = `<span class="muted">הקישור הועתק</span>`; }
+    catch(e) { toast("לא נוצר: " + e.message); x.disabled = false; } });
+}
 // ---------- תמונת מצב (5.19.41) - כמו "תמונת מצב" ב-iCredit ----------
 async function renderHome(b){
   const t = todayIL(), m0 = t.slice(0, 8) + "01";
