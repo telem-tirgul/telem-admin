@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.34">
+<meta name="app-version" content="5.19.35">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -133,7 +133,7 @@
     #view-leads .filters > div:has(#fCity){ width:105px; } #view-leads .filters > div:has(#fGrade){ width:68px; }
     #view-leads .filters > div:has(#fFrom), #view-leads .filters > div:has(#fTo){ width:130px; }
     #view-leads .filters .lbl{ font-size:11.5px; margin-bottom:2px; }
-    #view-leads .filters :is(input, select), #view-leads .filters .multi > button{ height:34px; padding:4px 8px; font-size:13.5px; }
+    #view-leads .filters :is(input:not([type=checkbox]):not([type=radio]), select), #view-leads .filters .multi > button{ height:34px; padding:4px 8px; font-size:13.5px; }
     #view-leads .filters #fSearch{ padding-inline-start:32px; background-position:right 9px center; }   /* 5.19.28: זכוכית המגדלת לא על הטקסט */
     #view-leads .filters-chk{ margin-top:0; }
   }
@@ -1425,6 +1425,7 @@
 .ex-cal td.m1c{ background:#9FD3F5; color:#0B3D5E; cursor:pointer; font-weight:700; font-size:10px; } .ex-cal td.m2c{ background:#1F5FA8; color:#fff; cursor:pointer; font-weight:700; font-size:10px; }
 .lg-m1{ background:#9FD3F5; } .lg-m2{ background:#1F5FA8; } .ex-cal td.ot{ background:#D9C8F0; color:#4A2C7A; cursor:pointer; font-size:10px; } .lg-ot{ background:#D9C8F0; }
 .ex-cal td.d[data-dd]:hover{ outline:2px solid var(--brand, #5a1a1a); outline-offset:-2px; cursor:pointer; } .ex-cal th[data-dd]{ cursor:pointer; }
+.hak-chip{ display:inline-block; background:#E3EEF9; color:#1E5C9A; border-radius:999px; padding:0 8px; font-size:12px; font-weight:700; margin-inline-start:4px; }
 .ex-form-bg{ position:fixed; inset:0; background:rgba(20,14,12,.38); z-index:70; }
 #exForm.ex-form-pop{ position:fixed; z-index:71; top:50%; left:50%; transform:translate(-50%,-50%); width:min(480px, calc(100vw - 24px)); max-height:calc(100vh - 32px); overflow-y:auto;
   grid-template-columns:1fr 1fr; margin:0; box-shadow:0 12px 36px rgba(0,0,0,.25); }
@@ -1508,6 +1509,34 @@
 #payWrap details.day summary{ cursor:pointer; font-weight:800; display:flex; gap:12px; flex-wrap:wrap; }
 @media (max-width:760px){ #payWrap .wrap{ padding:12px; } #payWrap .tbl .hide-m{ display:none; } #payWrap .fc{ grid-template-columns:1fr; } #payWrap .fc .acts{ justify-content:flex-start; } #payWrap .grid2, #payWrap .kv{ grid-template-columns:1fr; } #payWrap .fld-row{ grid-template-columns:1fr; } }
 #payWrap{ font-size:14px; } #payWrap .pnl{ z-index:61; } #payWrap .pnl-bg{ z-index:60; }
+/* 5.19.35: עמוד הקישורים - פס אחד קטן (סוג + עיר), עמודה אחת, הכפתורים תמיד באותו מקום */
+#rgMain{ display:block; }
+.mc-list{ display:grid; gap:10px; }
+.mc{ border:1px solid var(--border); border-radius:12px; padding:10px 14px; background:var(--paper); border-inline-start:4px solid var(--ok, #3f7d4f); }
+.mc.closed{ border-inline-start-color:var(--border); }
+.mc-top{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; } .mc-name{ font-size:15.5px; }
+.mc-st{ font-size:12.5px; font-weight:700; color:var(--ok, #3f7d4f); } .mc.closed .mc-st{ color:var(--ink-soft); }
+.mc-acts{ margin-inline-start:auto; display:inline-flex; gap:4px; flex-wrap:wrap; }
+.mc-meet{ display:flex; flex-wrap:wrap; gap:4px 14px; font-size:13.5px; margin:6px 0 2px; } .mc-meet b{ color:var(--accent); font-weight:700; }
+.mc-facts{ font-size:13px; color:var(--ink-soft); margin-bottom:6px; }
+.mc-links{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; } .mc-links .lk2-l{ display:inline-block; }
+.mc-note{ font-size:12.5px; } .mc-int summary{ cursor:pointer; font-size:12.5px; color:var(--ink-soft); } .mc-int[open] summary{ margin-bottom:4px; }
+.ex-cal td.lnk{ box-shadow:inset 0 0 0 2px #0B3D5E; } .ex-pop-mar{ margin-top:8px; display:grid; gap:6px; font-size:14px; }
+.ex-f-time{ display:flex; gap:10px; } .ex-f-time > span{ flex:1; } .ex-f-time[hidden]{ display:none; }
+.rg-lk-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin:2px 0 12px; }
+.rg-lk-bar .rg-lk-seg{ display:inline-flex; gap:0; margin:0; border:1px solid var(--border); border-radius:999px; background:var(--paper); padding:2px; grid-template-columns:none; }
+.rg-lk-bar .rg-lk-seg button{ font-size:14px; font-weight:700; padding:5px 14px; border:0; border-radius:999px; box-shadow:none; background:none; white-space:nowrap; }
+.rg-lk-bar .rg-lk-seg button[aria-selected="true"]{ background:var(--accent); color:#fff; box-shadow:none; }
+.rg-lk-bar .rg-city-row{ display:inline-flex; align-items:center; gap:6px; margin:0; padding:0; border:0; flex-wrap:wrap; }
+.rg-lk-bar .rg-city-row button{ font-size:14px; font-weight:700; padding:4px 14px; border-radius:999px; border:1px solid var(--border); background:var(--paper); color:var(--ink); }
+.rg-lk-bar .rg-city-row button[aria-pressed="true"]{ background:color-mix(in srgb, var(--accent) 14%, var(--paper)); border-color:var(--accent); color:var(--accent); }
+#rgMain .rg-sec{ max-width:900px; }
+#rgMain .lk2-head, #rgMain .lk2-row{ grid-template-columns:minmax(150px, 240px) 200px 200px; justify-content:start; gap:6px 24px; }
+#rgMain .lk2-head span:not(:first-child){ text-align:start; } #rgMain .lk2-cell{ justify-content:flex-start; }
+#rgMain .lk-row{ grid-template-columns:minmax(150px, 240px) max-content; justify-content:start; gap:6px 28px; }
+#rgMain .lk-act{ text-align:start; width:auto; }
+.nav-n{ display:inline-block; background:var(--full, #b3423f); color:#fff; border-radius:999px; padding:0 6px; font-size:11px; line-height:16px; margin-inline-start:2px; }
+@media (max-width:760px){ #rgMain .lk2-row{ grid-template-columns:1fr; } #rgMain .lk-row{ grid-template-columns:1fr; } .rg-lk-bar{ gap:8px; } .rg-lk-bar .rg-lk-seg button{ padding:5px 10px; font-size:13.5px; } }
 </style>
 </head>
 <body>
@@ -1540,13 +1569,13 @@
       <button type="button" data-view="exams" data-admin data-ic="🗓️" data-sl="מרתונים">מרתונים</button>
       <button type="button" data-view="att" data-ic="✅" data-sl="נוכחות"><span class="lbl-a">קבוצות ונוכחות</span><span class="lbl-i">נוכחות</span></button>
       <button type="button" data-view="ws" data-ic="📚" data-sl="מאגר">מאגר תרגולים</button>
-      <button type="button" data-view="reg" data-admin data-ic="💳" data-sl="תשלומים"><span class="lbl-a">הרשמה ותשלומים</span><span class="lbl-i">תשלומים</span></button>
-      <button type="button" data-view="reports" data-ic="📊" data-sl="דוחות">דוחות</button>
+      <button type="button" data-view="reg" data-admin data-ic="📝" data-sl="הרשמה">הרשמה</button>
+      <button type="button" data-view="pay" data-admin data-ic="💳" data-sl="תשלומים">תשלומים <span class="payNavN"></span></button>
     </nav>
     <div class="who"><span id="whoEmail"></span>
       <button class="btn small ghost" id="bugBtn" type="button" title="דיווח על בעיה" aria-label="דיווח על בעיה">🐞</button>
       <div class="info-wrap"><button class="btn small ghost" id="infoBtn" type="button" title="מידע" aria-label="מידע" aria-haspopup="true" aria-expanded="false">ⓘ</button>
-        <div class="info-menu" id="infoMenu" hidden><button type="button" data-im="info">מידע למתרגלים</button><button type="button" data-im="holidays" data-admin>חגים וחופשות</button></div></div>
+        <div class="info-menu" id="infoMenu" hidden><button type="button" data-im="reports" data-admin>📊 דוחות</button><button type="button" data-im="info">מידע למתרגלים</button><button type="button" data-im="holidays" data-admin>חגים וחופשות</button></div></div>
       <button class="btn small ghost gear" id="gearBtn" type="button" title="הגדרות" aria-label="הגדרות">⚙</button>
       <button class="btn small ghost" id="logoutBtn" type="button">יציאה</button>
     </div>
@@ -1802,8 +1831,8 @@
 
     <!-- ===== קישורי הרשמה (בהגדרות) ===== -->
     <section id="view-sched" hidden>
-      <div class="page-head"><h1>הרשמה ותשלומים</h1></div>
-      <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה ושיבוץ"><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="pay_plans">הוראות קבע <span class="payN" data-pn="plans"></span></button><button type="button" data-rt="pay_failed">חיובים שנכשלו <span class="payN" data-pn="failed"></span></button><button type="button" data-rt="pay_issues">דורש טיפול <span class="payN" data-pn="issues"></span></button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button><button type="button" data-rt="pay_dates">חיובים לפי תאריך</button><button type="button" data-rt="pay_pending">ממתינים לתשלום</button><button type="button" data-rt="pay_links">תשלום אישי</button><button type="button" data-rt="pay_rules">חוקי חיוב</button></div>
+      <div class="page-head"><h1>הרשמה</h1></div>
+      <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה"><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button></div>
       <div class="card" id="scGeneral" hidden></div>
       <div class="sc-wrap">
         <nav class="sc-cities" id="scCities" aria-label="בחירת עיר"></nav>
@@ -1815,20 +1844,26 @@
 
     <!-- ===== הרשמה (מנהלים): קישורים, ממתינים לאשראי, בקשות ביטול, טופסי התעניינות ===== -->
     <section id="view-reg" hidden>
-      <div class="page-head"><h1>הרשמה ותשלומים</h1></div>
-      <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה ושיבוץ"><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="pay_plans">הוראות קבע <span class="payN" data-pn="plans"></span></button><button type="button" data-rt="pay_failed">חיובים שנכשלו <span class="payN" data-pn="failed"></span></button><button type="button" data-rt="pay_issues">דורש טיפול <span class="payN" data-pn="issues"></span></button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button><button type="button" data-rt="pay_dates">חיובים לפי תאריך</button><button type="button" data-rt="pay_pending">ממתינים לתשלום</button><button type="button" data-rt="pay_links">תשלום אישי</button><button type="button" data-rt="pay_rules">חוקי חיוב</button></div>
+      <div class="page-head"><h1>הרשמה</h1></div>
+      <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה"><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button></div>
       <div class="sc-wrap">
         <nav class="sc-cities" id="rgCities" aria-label="בחירת עיר"></nav>
         <div class="sc-main" id="rgMain"></div>
       </div>
-      <div id="payWrap" hidden>
+      <details id="lkBaseBox" style="margin-top:12px;"><summary class="muted">כתובת האתר (לקישורים)</summary><input id="lkBase" dir="ltr" style="margin-top:6px;"></details>
+    </section>
+
+    <!-- ===== תשלומים (5.19.35: מסך נפרד מההרשמה) ===== -->
+    <section id="view-pay" hidden>
+      <div class="page-head"><h1>תשלומים</h1></div>
+      <div class="gseg subnav reg-tabs pay-tabs" role="group" aria-label="תשלומים"><button type="button" data-pt="plans">הוראות קבע <span class="payN" data-pn="plans"></span></button><button type="button" data-pt="failed">חיובים שנכשלו <span class="payN" data-pn="failed"></span></button><button type="button" data-pt="issues">דורש טיפול <span class="payN" data-pn="issues"></span></button><button type="button" data-pt="dates">חיובים לפי תאריך</button><button type="button" data-pt="pending">ממתינים לתשלום</button><button type="button" data-pt="links">תשלום אישי</button><button type="button" data-pt="rules">חוקי חיוב</button></div>
+      <div id="payWrap">
         <div id="payDemo" class="demo" hidden>תצוגה לדוגמה - הנתונים כאן מדומים (שמות ומספרים לא אמיתיים). המסך יציג נתונים אמיתיים אחרי התקנת חבילת איקרדיט (קובץ 62.2).</div>
         <div class="muted pay-sub">הספק: איקרדיט (ריווחית). את החיובים החודשיים עושה איקרדיט - כאן רואים ומנהלים.</div>
         <div id="payBody"></div>
         <div class="pnl-bg" id="payPnlBg" hidden></div>
         <aside class="pnl" id="payPnl" hidden></aside>
       </div>
-      <details id="lkBaseBox" style="margin-top:12px;"><summary class="muted">כתובת האתר (לקישורים)</summary><input id="lkBase" dir="ltr" style="margin-top:6px;"></details>
     </section>
 
     <!-- ===== מידע (כל הצוות) ===== -->
@@ -2333,6 +2368,7 @@ const ICON = {
   att: '<path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
   ws: '<path d="M15 2H8a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M15 2v5h5"/><path d="M4 7v13a2 2 0 0 0 2 2h10"/>',
   reports: '<path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/>',
+  pay: '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
   info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
   schools: '<path d="M3 21h18"/><path d="M5 21V10l7-5 7 5v11"/><path d="M10 21v-5h4v5"/><path d="M9 12h.01M15 12h.01"/>'
 };
@@ -2345,8 +2381,8 @@ let currentView = "leads";
 // (גם אחרי "רענון" מפס העדכון - שם המסך נשמר לפני הטעינה מחדש)
 let RESUME = (() => { try {
   // 5.19.32: חזרה ממסך התשלומים (payments.html) ללשונית כאן: index.html#reg-links / #reg-cancel / #sched
-  const hm = (location.hash || "").match(/^#(reg|sched)(?:-(\w+))?$/);
-  if (hm) { if (hm[2]) store("telem_reg_tab", hm[2]); history.replaceState(null, "", location.pathname + location.search); return { telem: true, view: hm[1] }; }
+  const hm = (location.hash || "").match(/^#(reg|sched|pay)(?:-(\w+))?$/);
+  if (hm) { if (hm[2]) store(hm[1] === "pay" ? "telem_pay_tab" : "telem_reg_tab", hm[2]); history.replaceState(null, "", location.pathname + location.search); return { telem: true, view: hm[1] }; }
   let st = history.state;
   if (!(st && st.telem)) { const v = sessionStorage.getItem("telem_resume") || sessionStorage.getItem("telem_last") || (keepOn() && auth ? store("telem_last_keep") : null); if (v) st = JSON.parse(v); }
   sessionStorage.removeItem("telem_resume");
@@ -2378,7 +2414,7 @@ function go(view){
   const inst = ME.role === "instructor", key = inst ? "telem_settings_view_i" : "telem_settings_view";
   if (inst && !["att","ws","home","settings","me","myschools","info"].includes(view)) view = "home";
   if (view === "settings") { view = store(key) || ""; if (!SETTINGS_VIEWS.includes(view)) view = inst ? "me" : "staff"; }
-  $("infoMenu").hidden = true; $("infoBtn").setAttribute("aria-expanded", "false"); $("infoBtn").classList.toggle("on", view === "info" || view === "holidays");
+  $("infoMenu").hidden = true; $("infoBtn").setAttribute("aria-expanded", "false"); $("infoBtn").classList.toggle("on", view === "info" || view === "holidays" || view === "reports");
   if (inst && SETTINGS_VIEWS.includes(view)) view = "me";
   // בתי ספר והיסטוריה - תחת "מידע"
   if (inst && (view === "schools" || view === "history")) view = "myschools";
@@ -2387,7 +2423,7 @@ function go(view){
   if (SETTINGS_VIEWS.includes(view)) store(key, view);
   if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
   const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.sched = "reg"; navOf.attk = "leads"; navOf.groups = "att"; navOf.attg = "att"; navOf.myschools = "schools";
-  ["home","leads","lead","groups","att","sched","reg","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues","exams","attk","attg"].forEach(v => { $("view-" + v).hidden = v !== view; });
+  ["home","leads","lead","groups","att","sched","reg","pay","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues","exams","attk","attg"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   { const cur = document.querySelector('.nav button[aria-current="page"]'); if ($("navCur")) $("navCur").textContent = cur ? (cur.querySelector(inst ? ".lbl-i" : ".lbl-a") || cur).textContent.replace("⚙", "").trim() : (view === "home" ? "תפריט" : ({ me: "הגדרות", staff: "הגדרות", backup: "הגדרות", issues: "הגדרות", info: "מידע למתרגלים", holidays: "חגים וחופשות" }[view] || "תפריט")); }
   document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view || (b.dataset.sv === "reg" && view === "sched"))));
@@ -2395,6 +2431,7 @@ function go(view){
   if (view === "reports") loadReports();
   if (view === "sched") renderSched();
   if (view === "reg") renderReg();
+  if (view === "pay") renderPayView();
   if (view === "info") loadInfo();
   if (view === "history") loadHistoryView();
   if (view === "backup") showBackupInfo();
@@ -2559,6 +2596,11 @@ function marTag(st){
   return `<span class="mar-tag" title="${esc(m.map(x => (x.marathon ? [x.marathon.name, x.marathon.school, x.marathon.city].filter(Boolean).join(" · ") : "מרתון") + " · " + (x.status || "")).join("\n"))}">מרתון</span>`;
 }
 // אייקון קטן ליד הסטטוס - רשום/ה למרתון (הפרטים במעבר עכבר)
+// 5.19.35: 🏁 ליד ילד/ה שרשום/ה למרתון (נוכחות וחלון הקבוצה השוטפת) - רק לפי הרשמה בקישור המרתון
+function marFlag(sid){
+  const m = ((typeof L !== "undefined" && L.mar && L.mar[sid]) || []).filter(x => x.status !== "בוטל"); if (!m.length) return "";
+  return ` <span class="mar-ic" title="${esc("רשום/ה למרתון: " + m.map(x => x.marathon ? [x.marathon.name, x.marathon.school].filter(Boolean).join(" · ") : "מרתון").join(", "))}">🏁</span>`;
+}
 function marIcon(st){
   const m = (L.mar && L.mar[st.id]) || []; if (!m.length) return "";
   return `<span class="mar-ic" title="${esc("מרתון: " + m.map(x => (x.marathon ? [x.marathon.name, x.marathon.school, x.marathon.city].filter(Boolean).join(" · ") : "מרתון") + " · " + (x.status || "")).join("\n"))}">🏁</span>`;
@@ -3689,7 +3731,10 @@ const exEvtOf = (e) => !e ? "מבחן" : EX_EVT.test(e.kind) ? e.kind : EX_STUDY
 const schKey = (t) => String(t || "").replace(/["״׳'\s]/g, "");
 function loadExams(force){
   if (EX.p && !force) return EX.p;
-  EX.p = getAll("school_exams", "select=id,school_id,school_name,grade,class_num,subject,exam_date,kind,source,material,topics,origin,updated_by,school:schools(city,name)&order=exam_date,id")
+  const q = "select=id,school_id,school_name,grade,class_num,subject,exam_date,kind,source,material,topics,origin,updated_by,school:schools(city,name)&order=exam_date,id";
+  // 5.19.35: אחרי קובץ 65 - גם שעות מפגש המרתון והקישור לקבוצת המרתון
+  EX.p = getAll("school_exams", q.replace("updated_by,", "updated_by,start_time,end_time,session_id,")).then(r => { EX.link = true; return r; })
+    .catch(() => { EX.link = false; return getAll("school_exams", q); })
     .then(r => { EX.rows = r.sort((a, b) => a.exam_date.localeCompare(b.exam_date) || a.id - b.id); return r; }).catch(e => { EX.rows = []; EX.err = e; return []; });
   return EX.p;
 }
@@ -3702,7 +3747,9 @@ function exFor(school, city, grade, cls){
     && (!city || !e.school || !e.school.city || e.school.city === city)
     && (!e.class_num || String(e.class_num) === String(cls || "")) && (e.subject || "מתמטיקה") === "מתמטיקה");
 }
-const examsFor = (school, city, grade, cls, from) => exFor(school, city, grade, cls).filter(e => e.exam_date >= from && !EX_STUDY.test(e.kind) && !EX_EVT.test(e.kind));
+// 5.19.35: רק מבחנים אמיתיים (רשימה מותרת) - אירוע / SMS / מרתון / וידוא לא מוצגים אף פעם כ"מבחן" ליד ילד/ה
+const EX_IS_TEST = (k) => /מבחן|מבדק|בוחן|השלמה|שיפור/.test(k || "") && !EX_EVT.test(k || "") && !EX_STUDY.test(k || "");
+const examsFor = (school, city, grade, cls, from) => exFor(school, city, grade, cls).filter(e => e.exam_date >= from && EX_IS_TEST(e.kind));
 // החומר שלומדים עכשיו: השורה האחרונה מסוג "חומר נלמד" (עד היום)
 const studyFor = (school, city, grade, cls, today) => exFor(school, city, grade, cls).filter(e => EX_STUDY.test(e.kind) && e.exam_date <= today).pop() || null;
 // הודעה שממשיכה הודעה קודמת: כל הודעות "חומר נלמד" של אותו בית ספר + שכבה (+ כיתה) מהשבוע שלפני האחרונה - לפי הסדר
@@ -3732,11 +3779,16 @@ function exShow(id){
     <div class="muted">${st ? "התקבל " : "יום " + esc(DAY_FULL[dayLetter(e.exam_date)] || "") + " "}${esc(fmtIso(e.exam_date))}</div>
     ${st && studyAll(e).length > 1 ? studyTxt(studyAll(e), "ex-pop-t") : `${e.topics ? `<div class="ex-pop-t">${esc(e.topics)}</div>` : `<div class="muted ex-pop-t">${st ? "לא נכתבו נושאים." : "עוד לא התקבלו נושאים למבחן הזה."}</div>`}
     ${e.material || e.source ? `<div class="ex-pop-meta">${[e.material ? "<b>קובץ:</b> " + esc(e.material) : "", e.source ? "<b>מקור:</b> " + esc(e.source) : ""].filter(Boolean).join(" · ")}</div>` : ""}`}
+    ${exIsMar(e) && EX.link ? `<div class="ex-pop-mar">${e.start_time ? `🕒 <span dir="ltr">${esc(hm5(e.start_time))}–${esc(hm5(e.end_time))}</span>` : `<span class="muted">עוד אין שעות - ✎ עריכה</span>`}
+      ${ME.role === "instructor" ? "" : e.session_id ? `<div>🔗 מחובר לקישור הרשמה <button type="button" class="btn small primary" data-exkids>👥 נרשמים ונוכחות</button> <button type="button" class="btn small" data-exgomar>למרתונים ←</button></div>` : `<div><button type="button" class="btn small primary" data-exlink>🔗 יצירת קישור הרשמה</button> <span class="muted">לכל המפגשים של המרתון הזה (${exMarSeries(e).length})</span></div>`}</div>` : ""}
     ${ME.role !== "instructor" && e.origin === "manual" ? `<div class="ex-pop-btns"><button type="button" class="btn small primary" data-expedit>✎ עריכה / נושאים</button><button type="button" class="btn small" data-expdel>מחיקה</button></div>` : ""}</div>`;
   o.hidden = false;
   const eb = o.querySelector("[data-expedit]"); if (eb) eb.onclick = () => { o.hidden = true; if (currentView !== "exams") go("exams"); exOpenForm(e); };
-  const db = o.querySelector("[data-expdel]"); if (db) db.onclick = async () => { if (!confirm("למחוק את \"" + e.kind + "\" ב-" + fmtDM(e.exam_date) + "?")) return;
-    try { await del("school_exams", "id=eq." + e.id); o.hidden = true; toast("נמחק"); EX.scrollTo = exFirstVisible(); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } };
+  const lb = o.querySelector("[data-exlink]"); if (lb) lb.onclick = () => { o.hidden = true; exMakeLink(e); };
+  const kb2 = o.querySelector("[data-exkids]"); if (kb2) kb2.onclick = async () => { o.hidden = true; await ensureG(true); if (G.sessions.some(x => x.session_id === e.session_id)) openPanel(e.session_id); else toast("קבוצת המרתון לא נמצאה"); };
+  const gb = o.querySelector("[data-exgomar]"); if (gb) gb.onclick = () => { o.hidden = true; RG.tab = "links"; RG.lk = "mar"; store("telem_reg_lk", "mar"); RG.city = (e.school && e.school.city) || RG.city; store("telem_reg_tab", "links"); go("reg"); };
+  const db = o.querySelector("[data-expdel]"); if (db) db.onclick = async () => { if (!confirm("למחוק את \"" + e.kind + "\" ב-" + fmtDM(e.exam_date) + "?" + (e.session_id ? "\nהמפגש יימחק גם מקישור ההרשמה של המרתון." : ""))) return;
+    try { await del("school_exams", "id=eq." + e.id); if (e.session_id) await exSyncSession(e.session_id).catch(() => {}); o.hidden = true; toast("נמחק"); EX.scrollTo = exFirstVisible(); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } };
 }
 document.addEventListener("click", (ev) => { const b = ev.target.closest && ev.target.closest("[data-ex]"); if (!b) return; ev.preventDefault(); ev.stopPropagation(); exShow(Number(b.dataset.ex)); }, true);
 document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && $("exPop") && !$("exPop").hidden) $("exPop").hidden = true; });
@@ -3885,7 +3937,7 @@ function exCalHtml(rows, today, extra){
       const all = r.ex.filter(e => e.exam_date === x.iso), es = all.filter(e => !EX_STUDY.test(e.kind) && !EX_EVT.test(e.kind)), evt = all.find(e => EX_EVT.test(e.kind)), stu = all.find(e => EX_STUDY.test(e.kind)), h = holCell(x.iso, r.city, r.sch);
       if (es.length) { const e = es.find(z => !EX_MAKEUP.test(z.kind)) || es[0], mkc = EX_MAKEUP.test(e.kind);
         return `<td class="d${wk(x)} ${mkc ? "mk" : /בוחן/.test(e.kind) ? "ex qz" : "ex"}${x.iso === today ? " today" : ""}" data-ex="${e.id}" title="${esc(es.map(z => z.kind + (z.class_num ? " (" + r.gr + "'" + z.class_num + ")" : "") + (z.topics ? ": " + z.topics : "")).join("\n"))}">${esc(exShort(e.kind))}</td>`; }
-      if (evt && /^מרתון/.test(evt.kind)) { const n2 = /2/.test(evt.kind); return `<td class="d ${n2 ? "m2c" : "m1c"}${wk(x)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.topics ? ": " + evt.topics : ""))}">${n2 ? 2 : 1}</td>`; }
+      if (evt && /^מרתון/.test(evt.kind)) { const n2 = /2/.test(evt.kind); return `<td class="d ${n2 ? "m2c" : "m1c"}${evt.session_id ? " lnk" : ""}${wk(x)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.start_time ? " · " + hm5(evt.start_time) + "–" + hm5(evt.end_time) : "") + (evt.session_id ? " · יש קישור הרשמה" : "") + (evt.topics ? ": " + evt.topics : ""))}">${n2 ? 2 : 1}</td>`; }
       if (evt && /^וידוא/.test(evt.kind)) return `<td class="d sy vd${wk(x)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.topics ? ": " + evt.topics : ""))}">וידוא</td>`;   // 5.19.34: אדום = וידוא קיום המבחן
       if (evt) { const ot = /^אירוע/.test(evt.kind), tl = /תלם/.test(evt.kind); return `<td class="d ${ot ? "ot" : tl ? "sr" : "sy"}${wk(x)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc((ot ? "" : evt.kind) + (evt.topics ? (ot ? "" : ": ") + evt.topics : ot ? evt.kind : ""))}">${ot ? "★" : "SMS"}</td>`; }
       // "לומדים עכשיו" - הערה ביום שבו התקבל (נגיעה - הנושאים)
@@ -3905,11 +3957,13 @@ function exOpenForm(e, pre){
     <div><label class="lbl" for="exfDate">תאריך</label><input id="exfDate" type="date" required value="${esc(e ? e.exam_date : pre.date || "")}"></div>
     <div><label class="lbl" for="exfEvt">אירוע</label><select id="exfEvt">${EX_EVTS.map(k => `<option ${(e ? exEvtOf(e) : pre.evt || "מבחן") === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>
     <div id="exfKindBox"><label class="lbl" for="exfKind">סוג המבחן</label><select id="exfKind">${EX_TESTS.map(k => `<option ${(e ? e.kind : pre.kind) === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+    ${EX.link ? `<div id="exfTimeBox" class="ex-f-wide ex-f-time"><span><label class="lbl" for="exfSt">שעת התחלה</label><input id="exfSt" type="time" value="${esc(hm5(e && e.start_time))}"></span><span><label class="lbl" for="exfEn">שעת סיום</label><input id="exfEn" type="time" value="${esc(hm5(e && e.end_time))}"></span></div>` : ""}
     <div class="ex-f-wide"><label class="lbl" for="exfTop">נושאים</label><textarea id="exfTop" rows="2">${esc(e && e.topics || "")}</textarea></div>
     <div><label class="lbl" for="exfMat">שם קובץ (לא חובה)</label><input id="exfMat" type="text" value="${esc(e && e.material || "")}"></div>
     <div class="ex-f-btns"><button class="btn primary" type="submit">${e ? "שמירה" : "הוספה"}</button> <button class="btn" type="button" id="exfCancel">ביטול</button></div>`;
   $("exfCancel").onclick = exFormClose; $("exfX").onclick = exFormClose;
-  const kb = () => { $("exfKindBox").hidden = $("exfEvt").value !== "מבחן"; $("exfTop").previousElementSibling.textContent = $("exfEvt").value === "אירוע אחר" ? "מה האירוע" : "נושאים"; }; $("exfEvt").onchange = kb; kb();
+  if ($("exfSt")) $("exfSt").onchange = () => { if ($("exfSt").value && !$("exfEn").value) $("exfEn").value = addMin($("exfSt").value, 90); };
+  const kb = () => { $("exfKindBox").hidden = $("exfEvt").value !== "מבחן"; if ($("exfTimeBox")) $("exfTimeBox").hidden = !/^מרתון/.test($("exfEvt").value); $("exfTop").previousElementSibling.textContent = $("exfEvt").value === "אירוע אחר" ? "מה האירוע" : "נושאים"; }; $("exfEvt").onchange = kb; kb();
   (sid ? $("exfEvt") : $("exfSch")).focus();
 }
 // 5.19.34: הטופס - חלון קטן באמצע המסך
@@ -3918,6 +3972,50 @@ $("exFormBg").addEventListener("click", exFormClose);
 document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !$("exForm").hidden) exFormClose(); });
 $("exAddBtn").addEventListener("click", () => exOpenForm(null));
 // 5.19.33: לחיצה על יום ריק בלוח (או על התאריך למעלה) - תפריט: אירוע / SMS / מרתון
+// ======================================================================
+// 5.19.35: מפגשי מרתון בלוח <-> קבוצת המרתון (קישור ההרשמה). כל סדרת מפגשים = מרתון וקישור נפרד.
+// ======================================================================
+const exIsMar = (e) => /^מרתון/.test((e && e.kind) || "");
+const hm5 = (t) => t ? String(t).slice(0, 5) : "";
+const exKey = (e) => ((e.school && e.school.city) || "") + "|" + schKey(exSchName(e)) + "|" + gradeKey(e.grade);
+// הסדרה: מפגשי מרתון שעוד לא מקושרים, באותו בית ספר ושכבה, עם רווח של עד 21 יום ביניהם
+function exMarSeries(e){
+  const same = (EX.rows || []).filter(x => exIsMar(x) && !x.session_id && exKey(x) === exKey(e));
+  const set = [e]; let grew = true;
+  while (grew) { grew = false; same.forEach(x => { if (!set.includes(x) && set.some(y => Math.abs(exDays(x.exam_date, y.exam_date)) <= 21)) { set.push(x); grew = true; } }); }
+  return set.sort((a, b) => a.exam_date.localeCompare(b.exam_date));
+}
+// מהלוח לקבוצה: המפגשים של הקבוצה = האירועים המקושרים אליה
+async function exSyncSession(sid){
+  const ev = await get("school_exams", "select=exam_date,start_time,end_time&session_id=eq." + sid + "&order=exam_date"); if (!ev.length) return;
+  const se = (await get("sessions", "select=start_time,end_time&id=eq." + sid))[0] || {};
+  const ms = ev.map(x => ({ date: x.exam_date, start: hm5(x.start_time || se.start_time), end: hm5(x.end_time || se.end_time) }));
+  await patch("sessions", "id=eq." + sid, { meetings: ms, meeting_dates: ms.map(x => x.date), start_time: ms[0].start || null, end_time: ms[0].end || null });
+  G.loadedAt = 0; RG.mar = null;
+}
+// מהקבוצה ללוח: מפגש 1 / 2..., תאריכים ושעות; מפגש שנוסף - אירוע חדש; מפגש שירד - האירוע נמחק
+async function exSyncFromSession(sid, ms, m){
+  if (!EX.link) return;
+  const ev = await get("school_exams", "select=id,exam_date,grade,school_id,school_name&session_id=eq." + sid + "&order=exam_date");
+  if (!ev.length && !(m && m.grade)) return;
+  const so = ev[0] ? { id: ev[0].school_id, name: ev[0].school_name } : (L.schools || []).find(x => schKey(x.name) === schKey(m.school) && x.city === m.city);
+  if (!so) return;
+  const gr = ev[0] ? ev[0].grade : m.grade, list = ms.slice().sort((a, b) => a.date.localeCompare(b.date));
+  for (let i = 0; i < list.length; i++) {
+    const b = { exam_date: list[i].date, start_time: list[i].start || null, end_time: list[i].end || null, kind: i === 0 ? "מרתון - מפגש 1" : "מרתון - מפגש 2" };
+    if (ev[i]) await patch("school_exams", "id=eq." + ev[i].id, b);
+    else await insert("school_exams", Object.assign({ school_id: so.id, school_name: so.name, grade: gr, class_num: null, material: null, topics: null, origin: "manual", updated_by: null, session_id: sid }, b));
+  }
+  for (const x of ev.slice(list.length)) await del("school_exams", "id=eq." + x.id);
+  EX.rows = null; EX.p = null;
+}
+async function exMakeLink(e){
+  const ser = exMarSeries(e), city = (e.school && e.school.city) || "";
+  await ensureG(); if (!G.hasKind) { toast("צריך להריץ קודם את קובץ 36"); return; }
+  panelFor("קישור הרשמה למרתון", exSchName(e) + " · " + gradeKey(e.grade) + "'");
+  openMarathonEditor(null, false, { city, school: exSchName(e), grade: gradeKey(e.grade),
+    meets: ser.map(x => ({ date: x.exam_date, start: hm5(x.start_time), end: hm5(x.end_time) })), exIds: ser.map(x => ({ id: x.id, date: x.exam_date })) });
+}
 // 5.19.33: פס הצבעים למעלה - בוחרים צבע ואז לוחצים על יום (בלי צבע - נפתח תפריט)
 function exPalRender(){
   const b = $("exPal"); if (!b) return;
@@ -3933,8 +4031,15 @@ async function exQuick(td, x){
   if (!so || !row[2]) { exOpenForm(null, { sid: so ? so.id : "", gr: row[2], date: iso, evt: x[1], kind: x[3] }); return; }
   const kind = x[1] === "מבחן" ? (x[3] || "מבחן") : x[1] === "לומדים עכשיו" ? "חומר נלמד" : x[1];
   td.classList.add("busy");
-  try { await insert("school_exams", { school_id: so.id, school_name: so.name, grade: row[2], class_num: null, exam_date: iso, kind, material: null, topics: null, origin: "manual", updated_by: null });
-        toast(x[0] + " · " + fmtDM(iso) + " נוסף"); EX.scrollTo = exFirstVisible(); renderExams(true); }
+  const body = { school_id: so.id, school_name: so.name, grade: row[2], class_num: null, exam_date: iso, kind, material: null, topics: null, origin: "manual", updated_by: null };
+  let sid = null;
+  if (EX.link && /^מרתון/.test(kind)) {   // 5.19.35: מפגש ליד מרתון קיים (עד 21 יום) של אותו בית ספר ושכבה - נכנס לאותו קישור
+    const k = (row[0] || "") + "|" + schKey(row[1]) + "|" + row[2];
+    const near = (EX.rows || []).filter(z => exIsMar(z) && z.session_id && exKey(z) === k && Math.abs(exDays(z.exam_date, iso)) <= 21).sort((a, b) => Math.abs(exDays(a.exam_date, iso)) - Math.abs(exDays(b.exam_date, iso)));
+    if (near.length && new Set(near.map(z => z.session_id)).size === 1) { sid = near[0].session_id; Object.assign(body, { session_id: sid, start_time: near[0].start_time, end_time: near[0].end_time }); }
+  }
+  try { await insert("school_exams", body); if (sid) await exSyncSession(sid);
+        toast(x[0] + " · " + fmtDM(iso) + " נוסף" + (sid ? " (גם בקישור ההרשמה של המרתון)" : "")); EX.scrollTo = exFirstVisible(); renderExams(true); }
   catch(err) { td.classList.remove("busy"); toast("לא נשמר: " + err.message); }
 }
 // הצבעים - כמו במקרא של הלוח
@@ -3968,9 +4073,13 @@ $("exForm").addEventListener("submit", async (ev) => {
   const s = (L.schools || []).find(x => String(x.id) === $("exfSch").value);
   if (!s || !$("exfDate").value) { toast("חסרים בית ספר או תאריך"); return; }
   if ($("exfEvt").value === "אירוע אחר" && !$("exfTop").value.trim()) { toast("כתבו מה האירוע"); return; }
+  const isMarE = /^מרתון/.test($("exfEvt").value);
   const body = { school_id: s.id, school_name: s.name, grade: $("exfGr").value, class_num: $("exfCls").value.trim() || null, exam_date: $("exfDate").value,
                  kind: $("exfEvt").value === "מבחן" ? $("exfKind").value : $("exfEvt").value === "לומדים עכשיו" ? "חומר נלמד" : $("exfEvt").value, material: $("exfMat").value.trim() || null, topics: $("exfTop").value.trim() || null, origin: "manual", updated_by: null };
+  if ($("exfSt")) { body.start_time = isMarE && $("exfSt").value || null; body.end_time = isMarE && $("exfEn").value || null;
+    if (body.start_time && body.end_time && body.end_time <= body.start_time) { toast("שעת הסיום צריכה להיות אחרי שעת ההתחלה"); return; } }
   try { if (EX.edit) await patch("school_exams", "id=eq." + EX.edit.id, body); else await insert("school_exams", body);
+        if (EX.edit && EX.edit.session_id) await exSyncSession(EX.edit.session_id);   // 5.19.35: עדכון גם בקישור ההרשמה
         toast("נשמר"); exFormClose(); EX.scrollTo = exFirstVisible(); renderExams(true); }
   catch(err) { toast("לא נשמר: " + err.message); }
 });
@@ -4190,7 +4299,8 @@ function openPanel(id){
       <span class="prop-st ${st}">${PROP_ST[st]}</span></span><button type="button" class="btn small" data-prm="${k.id}">הסרה</button></div>
       <div class="meta">${subjChip(k.subject)} · כיתה ${esc(k.grade || "-")} · ${esc(k.school || "-")}${k.parent1_phone ? ` · ${esc(k.parent1_first || "הורה")}: ${esc(k.parent1_phone)}` : ""}</div>
       <div class="prop-chk"><label><input type="checkbox" data-pn="${k.id}" ${n.notified_at ? "checked" : ""}> קיבל/ה הודעה</label><label><input type="checkbox" data-pc="${k.id}"> אישר/ה – עובר/ת למשובצים</label></div></li>`; }).join(""));
-  if (mOf) { $("roster").insertAdjacentHTML("afterbegin", marBoxHtml(mOf)); wireMarBox($("roster"), mOf); }
+  if (mOf) { $("roster").insertAdjacentHTML("afterbegin", marBoxHtml(mOf)); wireMarBox($("roster"), mOf); marHakChips(id, kids); }
+  else kids.forEach(k => { const f = marFlag(k.student_id), sp = f && $("roster").querySelector(`li[data-aid="${k.id}"] .row-top > span`); if (sp) sp.insertAdjacentHTML("beforeend", f); });   // 5.19.35
   wireProp(se);
   $("roster").querySelectorAll("[data-move]").forEach(b => b.onclick = () => openMove(se, b.dataset.move));
   $("roster").querySelectorAll("[data-trk]").forEach(b => b.onclick = async () => { const k = kids.find(x => String(x.student_id) === b.dataset.trk); if (k && await editTracking(k.student_id, k.tracking)) openPanel(id); });
@@ -4406,6 +4516,14 @@ function openMarathonPanel(m){
   wireMarBox($("roster"), m);
   $("roster").querySelectorAll("[data-sid]").forEach(li => li.onclick = () => openPanel(Number(li.dataset.sid)));
 }
+// 5.19.35: ההקבצה שההורה בחר/ה בטופס - ליד השם בקבוצת מרתון
+async function marHakChips(sid, kids){
+  if (!kids.length) return;
+  let r = []; try { r = await get("marathon_registrations", "select=student_id,hakbatsa&session_id=eq." + sid + "&hakbatsa=not.is.null"); } catch(e) { return; }
+  if (G.panel !== sid) return;
+  r.forEach(x => { const k = kids.find(z => z.student_id === x.student_id); const li = k && $("roster").querySelector(`li[data-aid="${k.id}"] .row-top > span`);
+    if (li && !li.querySelector(".hak-chip")) li.insertAdjacentHTML("beforeend", ` <span class="hak-chip" title="הקבצה">${esc(x.hakbatsa)}</span>`); });
+}
 function panelFor(title, sub){
   G.panel = null; $("gEdit").hidden = true; $("gEdit").innerHTML = ""; $("roster").classList.remove("editing"); $("panelTitle").textContent = title; $("panelSub").textContent = sub || "";
   $("gEditBtn").hidden = true; $("panelAttBtn").hidden = true; $("roster").hidden = true; $("roster").innerHTML = "";
@@ -4413,6 +4531,18 @@ function panelFor(title, sub){
 }
 $("exMarBtn").addEventListener("click", async () => { await ensureG(); $("mNewBtn").click(); });
 $("mNewBtn").addEventListener("click", () => { if (!G.hasKind) { toast("צריך להריץ קודם את קובץ 36"); return; } panelFor("מרתון חדש", G.city); openMarathonEditor(null); });
+// 5.19.35: "תשלומים" - מסך נפרד מ"הרשמה" (הלקוחה: כל אחד משמש בזמן אחר)
+const PT_KEYS = ["plans", "failed", "issues", "dates", "pending", "links", "rules"];
+let PT = PT_KEYS.includes(store("telem_pay_tab")) ? store("telem_pay_tab") : "plans";
+function renderPayView(){
+  document.querySelectorAll("[data-pt]").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.pt === PT));
+    b.onclick = () => { PT = b.dataset.pt; store("telem_pay_tab", PT); renderPayView(); }; });
+  PAY.show(PT);
+}
+// 5.19.35: שכבה למרתון - העמודה קיימת רק אחרי קובץ 65
+const marHasGrade = (m) => EX.link === true || (m && "grade" in m) || (G.marathons || []).some(x => "grade" in x);
+// 5.19.35: הקבצה בטופס המרתון - העמודה קיימת רק אחרי קובץ 64
+const marHasHak = (m) => (m && "hakbatsa_options" in m) || (G.marathons || []).some(x => "hakbatsa_options" in x) || (RG.mar || []).some(x => "hakbatsa_options" in x);
 function openMarathonEditor(m, inPanel, pre){
   if (m && !inPanel) panelFor("עריכת מרתון", m.name);
   const box = $("gEdit"); box.hidden = false; pre = pre || {};
@@ -4421,18 +4551,21 @@ function openMarathonEditor(m, inPanel, pre){
     return "<option value=''>בחירה...</option>" + names.map(n => `<option ${n === cur ? "selected" : ""}>${esc(n)}</option>`).join(""); };
   box.innerHTML = `
     <div class="full lg-edit-h">${m ? "עריכת מרתון" : "מרתון חדש"}</div>
-    <div class="full"><label class="lbl">שם המרתון</label><input data-m="name" value="${esc(m ? m.name : "מרתון מתמטיקה")}"></div>
+    <div class="full"><label class="lbl">שם המרתון</label><input data-m="name" value="${esc(m ? m.name : "מרתון מתמטיקה" + (pre.grade ? " " + pre.grade + "'" : ""))}"></div>
     <div><label class="lbl">עיר</label><select data-m="city">${CONFIG.cities.map(c => `<option ${c === city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>
     <div><label class="lbl">בית ספר</label><select data-m="school">${schoolOpts(city, m ? m.school : pre.school)}</select></div>
+    ${marHasGrade(m) ? `<div><label class="lbl">שכבה</label><select data-m="grade"><option value="">—</option>${GRADE_ORD.slice(2).map(x => `<option value="${x}" ${(m ? m.grade : pre.grade) === x ? "selected" : ""}>${x}'</option>`).join("")}</select></div>` : ""}
     <div><label class="lbl">מחיר המרתון (₪)</label><input type="number" min="0" data-m="p1" value="${m ? Number(m.price_first) : ""}"></div>
     <div><label class="lbl">מחיר מוזל (₪)</label><input type="number" min="0" data-m="p2" value="${m && Number(m.price_repeat) !== Number(m.price_first) ? Number(m.price_repeat) : ""}"><div class="muted fhint">למי שכבר השתתף/ה במרתון השנה. לא חובה.</div></div>
     <label class="chk full"><input type="checkbox" data-m="open" ${m && m.is_open ? "checked" : ""}> פתוח להרשמה</label>
     <div class="muted fhint full" style="margin-top:-4px;">${m ? "כשמסמנים - הקישור עם התשלום עובד ומופיעות בו רק הקבוצות הפתוחות." : "מרתון חדש נשמר סגור: קודם יוצרים את כל הקבוצות והמפגשים, ורק אז פותחים להרשמה ושולחים קישור."}</div>
     <div class="full"><label class="lbl">הערות (פנימי)</label><input data-m="notes" value="${esc(m && m.notes || "")}"></div>
+    ${marHasHak(m) ? `<div class="full"><label class="lbl">אפשרויות הקבצה <span class="muted" style="font-weight:400">- אחת בכל שורה. בטופס ההרשמה ההורה בוחר/ת אחת (חובה). ריק = בלי שדה הקבצה.</span></label><textarea data-m="hak" rows="3" placeholder="הקבצה א'&#10;הקבצה ב'&#10;מצוינות">${esc(((m && m.hakbatsa_options) || []).join("\n"))}</textarea></div>` : ""}
     ${m ? "" : `<div class="full lg-edit-h" style="margin-top:6px;">הקבוצה הראשונה <span class="muted" style="font-weight:400; font-size:13px;">- חובה. עוד קבוצות מוסיפים אחר כך מחלון המרתון.</span></div>
     <div><label class="lbl">שם הקבוצה</label><input data-m="glabel" value="קבוצה א'"></div>
     <div><label class="lbl">מקסימום נרשמים</label><input type="number" min="1" data-m="gcap" value="15"></div>
-    <div class="full"><label class="lbl">המפגשים</label><div class="mar-dates" data-m="dates"><div class="dh"><span>תאריך</span><span>שעת התחלה</span><span>שעת סיום</span><span></span></div>${[{ date: pre.date || "" }, {}].map(x => meetRow(x)).join("")}</div>
+    <div><label class="lbl">משך כל מפגש (דקות)</label><input type="number" min="15" max="600" step="15" data-dur value="${marDurOf(pre.meets)}"><div class="muted fhint">שעת הסיום מתעדכנת לפי שעת ההתחלה. אפשר גם לשנות אותה ידנית.</div></div>
+    <div class="full"><label class="lbl">המפגשים</label><div class="mar-dates" data-m="dates"><div class="dh"><span>תאריך</span><span>שעת התחלה</span><span>שעת סיום</span><span></span></div>${(pre.meets && pre.meets.length ? pre.meets : [{ date: pre.date || "" }, {}]).map(x => meetRow(x)).join("")}</div>
       <button type="button" class="btn small" data-m="adddate" style="margin-top:6px;">+ מפגש</button></div>
     <div><label class="lbl">כיתה</label><input data-m="groom"></div>`}
     <div class="err full" data-m="err"></div>
@@ -4444,9 +4577,8 @@ function openMarathonEditor(m, inPanel, pre){
     const wireDates = () => box.querySelectorAll('[data-m="dates"] .d').forEach(row => {
       row.querySelector("[data-rmdate]").onclick = () => row.remove();
       const st = row.querySelector("[data-ms]"), en = row.querySelector("[data-me]");
-      st.onchange = () => { if (st.value && !en.value) en.value = addMin(st.value, 90); };
     });
-    wireDates();
+    wireDates(); wireMarDur(box);
     g("adddate").onclick = () => { const last = [...g("dates").querySelectorAll(".d")].pop();
       g("dates").insertAdjacentHTML("beforeend", meetRow({ date: "", start: last ? last.querySelector("[data-ms]").value : "", end: last ? last.querySelector("[data-me]").value : "" })); wireDates(); };
   }
@@ -4454,6 +4586,8 @@ function openMarathonEditor(m, inPanel, pre){
   g("save").onclick = async () => {
     const body = { name: g("name").value.trim(), city: g("city").value, school: g("school").value || null,
       price_first: Number(g("p1").value), price_repeat: Number(g("p2").value || g("p1").value), is_open: g("open").checked, notes: nn(g("notes").value) };
+    if (g("grade")) body.grade = g("grade").value || null;   // 5.19.35
+    if (g("hak")) { const hk = [...new Set(g("hak").value.split("\n").map(x => x.trim()).filter(Boolean))]; body.hakbatsa_options = hk.length ? hk : null; }   // 5.19.35
     // מחיר אחד = זה מחיר המרתון (נשמר גם כמחיר המוזל, ובטופס לא שואלים אם השתתף כבר)
     if (!body.name || !body.school || !(body.price_first > 0) || !(body.price_repeat > 0)) { g("err").textContent = "צריך שם, בית ספר ומחיר."; return; }
     // מרתון חדש: חייב קבוצה ראשונה עם תאריכים ושעות
@@ -4476,18 +4610,35 @@ function openMarathonEditor(m, inPanel, pre){
       if (m) await patch("marathons", "id=eq." + m.id, body);
       else {
         const nm = (await insert("marathons", Object.assign({ school_year: CONFIG.schoolYear }, body)))[0];
-        try { await insert("sessions", Object.assign({ marathon_id: nm.id }, grp)); }
+        let nsid;
+        try { nsid = (await insert("sessions", Object.assign({ marathon_id: nm.id }, grp)))[0].id; }
         catch(e2) { await del("marathons", "id=eq." + nm.id).catch(() => {}); throw e2; }   // בלי קבוצה - לא נשאר מרתון
+        // 5.19.35: נוצר מהלוח - מקשרים את מפגשי הלוח לקבוצה, ומיישרים (תאריכים, שעות, מפגש שנוסף/ירד)
+        try {
+          for (const x of (pre.exIds || []).filter(x => grp.meeting_dates.includes(x.date))) await patch("school_exams", "id=eq." + x.id, { session_id: nsid });
+          await exSyncFromSession(nsid, grp.meetings, Object.assign({}, body));
+        } catch(e3) { toast("המרתון נשמר, אבל הלוח לא עודכן: " + e3.message); }
       }
       toast(m ? "המרתון עודכן" : "המרתון נשמר (סגור להרשמה) עם הקבוצה הראשונה"); closePanel(); RG.mar = null; EX.mar = null;
       if (currentView === "exams") renderExams(false);
       if (fromReg) { RG.mar = null; G.marathons = null; renderReg(); return; }
+      if (pre.exIds) { G.marathons = null; G.loadedAt = 0; RG.tab = "links"; RG.lk = "mar"; store("telem_reg_lk", "mar"); RG.city = body.city; store("telem_reg_tab", "links");
+        toast("קישור ההרשמה נוצר (סגור להרשמה). כשמוכנים - \"פתיחה להרשמה\" ושולחים."); go("reg"); return; }   // 5.19.35: מהלוח - ישר לרשימת המרתונים
       G.city = body.city; store("telem_groups_city", G.city); if (G.kind === "שוטף") { G.kind = "all"; store("telem_groups_kind3", "all"); paintKind(); }
       await loadGroups();
       const saved = m ? G.marathons.find(x => x.id === m.id) : G.marathons.find(x => x.name === body.name && x.city === body.city && x.school === body.school);
       if (saved) openMarathonPanel(saved);
     } catch(e) { g("err").textContent = "השמירה נכשלה: " + e.message; g("save").disabled = false; }
   };
+}
+// 5.19.35: משך מפגש במרתון - לא קבוע על 90 דק'. שינוי שעת התחלה / משך -> שעת הסיום מתעדכנת (ואפשר לשנות ידנית)
+const marDurOf = (ms) => { const x = (ms || []).find(z => z.start && z.end); const d = x ? hmMin(String(x.end).slice(0, 5)) - hmMin(String(x.start).slice(0, 5)) : 0; return d > 0 ? d : 90; };
+function wireMarDur(root){
+  const dur = root.querySelector("[data-dur]"); if (!dur) return;
+  const mins = () => { const v = Number(dur.value); return v >= 5 ? v : 90; };
+  root.addEventListener("change", (ev) => { const st = ev.target.closest && ev.target.closest("[data-ms]"); if (!st || !st.value) return;
+    const en = st.closest(".d").querySelector("[data-me]"); en.value = addMin(st.value, mins()); });
+  dur.addEventListener("change", () => root.querySelectorAll(".mar-dates .d").forEach(r => { const st = r.querySelector("[data-ms]"), en = r.querySelector("[data-me]"); if (st.value) en.value = addMin(st.value, mins()); }));
 }
 const meetRow = (m) => `<div class="d"><input type="date" data-md value="${esc(m.date || "")}" aria-label="תאריך"><input type="time" data-ms value="${esc(String(m.start || "").slice(0, 5))}" aria-label="שעת התחלה"><input type="time" data-me value="${esc(String(m.end || "").slice(0, 5))}" aria-label="שעת סיום"><button type="button" class="btn small" data-rmdate>הסרה</button></div>`;
 async function openMarGroupEditor(m, se){
@@ -4506,6 +4657,7 @@ async function openMarGroupEditor(m, se){
     <div class="full lg-edit-h">${se ? "עריכת קבוצת מרתון" : "קבוצה חדשה · " + esc(m.name)}</div>
     <div><label class="lbl">שם הקבוצה</label><input data-g="label" value="${esc(se ? se.time_label : "קבוצה " + "אבגדהוזחטי".charAt(nOther) + "'")}"></div>
     <div><label class="lbl">מקום</label><select data-g="loc"><option value="">בחירה...</option>${locs.map(x => `<option value="${x.id}" ${curLoc && curLoc.id === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
+    <div><label class="lbl">משך כל מפגש (דקות)</label><input type="number" min="15" max="600" step="15" data-dur value="${marDurOf(meets)}"><div class="muted fhint">שעת הסיום מתעדכנת לפי שעת ההתחלה. אפשר גם לשנות אותה ידנית.</div></div>
     <div class="full"><label class="lbl">המפגשים</label><div class="mar-dates" data-g="dates"><div class="dh"><span>תאריך</span><span>שעת התחלה</span><span>שעת סיום</span><span></span></div>${meets.map(m => meetRow(m)).join("")}</div>
       <button type="button" class="btn small" data-g="adddate" style="margin-top:6px;">+ מפגש</button></div>
     <div><label class="lbl">כיתה</label><input data-g="room" value="${esc(se && se.room || "")}"></div>
@@ -4519,10 +4671,8 @@ async function openMarGroupEditor(m, se){
   const g = (k) => box.querySelector(`[data-g="${k}"]`);
   const wireDates = () => box.querySelectorAll(".mar-dates .d").forEach(row => {
     row.querySelector("[data-rmdate]").onclick = () => row.remove();
-    const st = row.querySelector("[data-ms]"), en = row.querySelector("[data-me]");
-    st.onchange = () => { if (st.value && !en.value) en.value = addMin(st.value, 90); };
   });
-  wireDates();
+  wireDates(); wireMarDur(box);
   g("adddate").onclick = () => { const last = [...g("dates").querySelectorAll(".d")].pop();
     g("dates").insertAdjacentHTML("beforeend", meetRow({ date: "", start: last ? last.querySelector("[data-ms]").value : "", end: last ? last.querySelector("[data-me]").value : "" })); wireDates(); };
   g("cancel").onclick = () => { if (se && !G.autoEdit) openPanel(se.session_id); else closePanelUser(); };   // 5.19.31: "ביטול" - סוגר וחוזר למקום שממנו באו
@@ -4542,6 +4692,7 @@ async function openMarGroupEditor(m, se){
       let sid;
       if (se) { await patch("sessions", "id=eq." + se.session_id, body); sid = se.session_id; }
       else { sid = (await insert("sessions", Object.assign({ city: m.city, school_year: CONFIG.schoolYear }, body)))[0].id; }
+      try { await exSyncFromSession(sid, ms, m); } catch(e4) { toast("הקבוצה נשמרה, אבל לוח המבחנים לא עודכן"); }   // 5.19.35
       const want = [...box.querySelectorAll("[data-ins]:checked")].map(x => x.dataset.ins);
       for (const id of want.filter(x => !curIns.includes(x))) await insert("session_instructors", { session_id: sid, staff_id: id });
       for (const id of curIns.filter(x => !want.includes(x))) await del("session_instructors", "session_id=eq." + sid + "&staff_id=eq." + id);
@@ -5083,7 +5234,7 @@ function renderSheetRows(){
     if (multiT && t != null && t !== prevT) { const n = A.rows.filter(x => shVisible(x) && attArr(x) === t).length;
       head = `<li class="att-sec att-tsec"><span>⏰ <bdi>${minHm(t)}</bdi>${t === attGrpStart() ? " · שעת הקבוצה" : ""}</span><span>${n === 1 ? "ילד/ה 1" : n + " ילדים"}</span></li>`; prevT = t; }
     return head + `<li data-i="${i}">${gradeBadge(r.grade, r.class_num)}
-    <div class="att-name"><b class="att-nm"><span${ME.role !== "instructor" && L.leads.some(l => l.student && l.student.id === r.student_id) ? ` class="att-kl" data-kl="${r.student_id}" role="button" tabindex="0" title="פרטים ושיבוצים"` : ""}>${esc(r.first_name)} ${esc(r.last_name || "")}</span>${ME.role !== "instructor" ? pastBadge({ id: r.student_id }) : ""}${dblStar(!!r.dbl_from || isDouble(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location, r.arrival_time, r.personal_end))}</b>
+    <div class="att-name"><b class="att-nm"><span${ME.role !== "instructor" && L.leads.some(l => l.student && l.student.id === r.student_id) ? ` class="att-kl" data-kl="${r.student_id}" role="button" tabindex="0" title="פרטים ושיבוצים"` : ""}>${esc(r.first_name)} ${esc(r.last_name || "")}</span>${ME.role !== "instructor" ? pastBadge({ id: r.student_id }) + (((G.sessions || []).find(x => x.session_id === A.sheet.session_id) || {}).kind === "מרתון" ? "" : marFlag(r.student_id)) : ""}${dblStar(!!r.dbl_from || isDouble(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location, r.arrival_time, r.personal_end))}</b>
       <span class="meta">${r.school ? `<span class="school-chip sch-sm ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${attPtHtml(r)}${subjGrp(rowSubj(r)) === 2 ? prevTag(r) : ""}${r.in_group ? (can && A.hasPlan ? ` <button type="button" class="skip-b" data-skip title="לא מגיע/ה היום - הסרה מהשיעור הזה בלבד (השיבוץ הקבוע לא משתנה)" aria-label="לא מגיע/ה היום">⊘<span class="skip-t"> לא היום</span></button>` : "") : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
       </div>
     <div class="att-ctl">
@@ -6976,7 +7127,7 @@ function renderSchedTbl(){
 // ======================================================================
 // הרשמה (מנהלים): קישורי הרשמה, ממתינים לאשראי, בקשות ביטול, טופס התעניינות
 // ======================================================================
-const RG = { tab: (["links", "cancel", "pay"].includes(store("telem_reg_tab")) || /^pay_/.test(store("telem_reg_tab") || "")) ? store("telem_reg_tab") : "links", city: store("telem_reg_city") || null, pay: null, can: null };
+const RG = { tab: ["links", "cancel", "pay"].includes(store("telem_reg_tab")) ? store("telem_reg_tab") : "links", city: store("telem_reg_city") || null, pay: null, can: null };
 // לשוניות "הרשמה ושיבוץ": בקשות שיבוץ = המסך של השיבוצים, השאר במסך ההרשמה
 function paintRegTabs(){
   const cur = currentView === "sched" ? "requests" : RG.tab;
@@ -6998,8 +7149,10 @@ async function renderRegMarathons(city){
   if (!RG.mar) {
     try {
       const [ms, ss] = await Promise.all([get("marathons", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&order=created_at"),
-        get("sessions", "select=marathon_id,meeting_dates&kind=eq." + encodeURIComponent("מרתון") + "&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).catch(() => [])]);
-      RG.mar = ms; RG.marN = {}; RG.marD = {};
+        get("sessions", "select=id,marathon_id,meeting_dates,meetings,start_time,end_time&kind=eq." + encodeURIComponent("מרתון") + "&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).catch(() => [])]);
+      RG.marK = {}; try { (await get("session_summary", "select=marathon_id,assigned_count&kind=eq." + encodeURIComponent("מרתון") + "&school_year=eq." + encodeURIComponent(CONFIG.schoolYear))).forEach(x => { RG.marK[x.marathon_id] = (RG.marK[x.marathon_id] || 0) + (x.assigned_count || 0); }); } catch(e) {}
+      RG.mar = ms; RG.marN = {}; RG.marD = {}; RG.marM = {};
+      ss.forEach(x => marMeetings(x).forEach(mt => { const a = (RG.marM[x.marathon_id] = RG.marM[x.marathon_id] || []); if (!a.some(z => z.date === mt.date && z.start === mt.start)) a.push(mt); }));
       ss.forEach(x => { RG.marN[x.marathon_id] = (RG.marN[x.marathon_id] || 0) + 1; (x.meeting_dates || []).forEach(d => (RG.marD[x.marathon_id] = RG.marD[x.marathon_id] || new Set()).add(d)); });
     } catch(e) { box.innerHTML = `<div class="err">${e.status === 404 ? "כדי לנהל מרתונים צריך להריץ את קובץ 36." : "לא ניתן לטעון את המרתונים."}</div>`; return; }
   }
@@ -7008,16 +7161,30 @@ async function renderRegMarathons(city){
   const datesOf = (id) => { const d = [...(RG.marD[id] || [])].sort(); return !d.length ? "" : d.length <= 3 ? d.map(dm).join(", ") : dm(d[0]) + "–" + dm(d[d.length - 1]); };
   const firstDate = (id) => [...(RG.marD[id] || [])].sort()[0] || "9999";
   const list = RG.mar.filter(m => m.city === city).sort((a, b) => firstDate(a.id).localeCompare(firstDate(b.id)));
-  box.innerHTML = `<div class="rg-sec-h"><h3>מרתונים · ${esc(city)}</h3><button type="button" class="btn small primary" id="rgMarNew">+ מרתון חדש</button></div>
-    ${list.length ? `<div class="lk2-head"><span></span><span>טופס התעניינות</span><span>טופס הרשמה</span></div>` + list.map(m => {
-      const n = RG.marN[m.id] || 0, one = Number(m.price_repeat) === Number(m.price_first) || !m.price_repeat, dts = datesOf(m.id);
+  // 5.19.35: כרטיס לכל מרתון (= שכבה אחת בבית ספר אחד): מפגשים עם שעות, מחיר, פתוח/סגור, וקישור ההרשמה
+  const dl = (d) => DAY_NAMES[dayLetter(d)] ? dayLetter(d) + "' " + dm(d) : dm(d);
+  box.innerHTML = `<div class="rg-sec-h"><h3>מרתונים · ${esc(city)} <small>כל מרתון = קישור הרשמה נפרד. יוצרים מלוח המבחנים (לחיצה על מפגש מרתון → 🔗) או כאן.</small></h3><button type="button" class="btn small primary" id="rgMarNew">+ מרתון חדש</button></div>
+    ${list.length ? `<div class="mc-list">` + list.map(m => {
+      const n = RG.marN[m.id] || 0, one = Number(m.price_repeat) === Number(m.price_first) || !m.price_repeat;
+      const mts = (RG.marM[m.id] || []).slice().sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
       const q = new URLSearchParams({ city: m.city }); if (m.school) q.set("school", m.school); q.set("tracks", "marathon"); if (m.code) q.set("m", m.code);
-      const extra0 = `<button type="button" class="btn small" data-rmedit="${m.id}" title="עריכת המרתון">✎</button>${n ? "" : `<button type="button" class="btn small danger" data-rmdel="${m.id}" title="מרתון בלי קבוצות - למחוק">מחיקה</button>`}`;
-      const name = `${m.school ? scChip(m.school) + " " : ""}${esc(m.name)}${dts ? ` <span class="mar-dates-t">${esc(dts)}</span>` : ""}<span class="lk2-x">${extra0}</span>
-        <small class="nw">${one ? Number(m.price_first) + " ₪" : Number(m.price_first) + " ₪ · חוזר " + Number(m.price_repeat) + " ₪"} · ${n ? n + " קבוצות" : `<b style="color:var(--full)">⚠ אין קבוצות</b>`}${m.is_open ? "" : " · סגור"}</small>`;
-      const where = m.name + (m.school ? " · " + m.school : "") + (dts ? " (" + dts + ")" : "");
-      return lk2Row(name, lkInterest(q), "התעניינות ב" + where + ": ", m.code ? lkMarCode(m.code) : "", "הרשמה ל" + where + ": "); }).join("")
+      const dts = datesOf(m.id), where = m.name + (m.school ? " · " + m.school : "") + (dts ? " (" + dts + ")" : "");
+      return `<div class="mc ${m.is_open ? "open" : "closed"}">
+        <div class="mc-top">${m.school ? scChip(m.school) : ""}<b class="mc-name">${esc(m.name)}</b>${m.grade ? `<span class="gr-b g-${esc(m.grade)}">${esc(m.grade)}'</span>` : ""}
+          <span class="mc-st">${m.is_open ? "● פתוח להרשמה" : "○ סגור להרשמה"}</span>
+          <span class="mc-acts"><button type="button" class="btn small ${m.is_open ? "" : "primary"}" data-rmopen="${m.id}">${m.is_open ? "סגירה להרשמה" : "פתיחה להרשמה"}</button><button type="button" class="btn small" data-rmedit="${m.id}" title="עריכת המרתון">✎</button>${n ? "" : `<button type="button" class="btn small danger" data-rmdel="${m.id}" title="מרתון בלי קבוצות - למחוק">מחיקה</button>`}</span></div>
+        <div class="mc-meet">${mts.length ? mts.map((x, i) => `<span><b>מפגש ${i + 1}</b> ${esc(dl(x.date))}${x.start ? ` · <span dir="ltr">${esc(x.start)}–${esc(x.end)}</span>` : ""}</span>`).join("") : `<span class="err">⚠ אין מפגשים</span>`}</div>
+        <div class="mc-facts">${one ? Number(m.price_first) + " ₪" : Number(m.price_first) + " ₪ · למי שכבר השתתף " + Number(m.price_repeat) + " ₪"} · ${n} ${n === 1 ? "קבוצה" : "קבוצות"} · <button type="button" class="btn small" data-rmkids="${m.id}">👥 ${RG.marK[m.id] || 0} נרשמים</button></div>
+        <div class="mc-links">${m.code ? lk2Btns("קישור הרשמה", lkMarCode(m.code), "הרשמה ל" + where + ": ") : ""}${m.is_open ? "" : `<span class="muted mc-note">הקישור יעבוד אחרי "פתיחה להרשמה"</span>`}
+          <details class="mc-int"><summary>טופס התעניינות</summary>${lk2Btns("התעניינות", lkInterest(q), "התעניינות ב" + where + ": ")}</details></div>
+      </div>`; }).join("") + `</div>`
       : `<div class="muted">אין מרתונים בעיר הזאת.</div>`}`;
+  box.querySelectorAll("[data-rmkids]").forEach(b => b.onclick = async () => { await ensureG(true); const m = (G.marathons || []).find(x => x.id === Number(b.dataset.rmkids)); if (m) openMarathonPanel(m); });
+  box.querySelectorAll("[data-rmopen]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmopen)), v = !m.is_open;
+    if (v && !window.confirm(`לפתוח את "${m.name}" להרשמה? מעכשיו הקישור עם התשלום יעבוד.`)) return;
+    b.disabled = true;
+    try { await patch("marathons", "id=eq." + m.id, { is_open: v }); m.is_open = v; G.marathons = null; toast(v ? "המרתון פתוח להרשמה" : "המרתון סגור להרשמה"); renderRegMarathons(city); }
+    catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   wireLk(box);
   box.querySelectorAll("[data-rmdel]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmdel));
     if (!window.confirm(`למחוק את "${m.name}"${m.school ? " · " + m.school : ""}? אין לו קבוצות.`)) return;
@@ -7029,10 +7196,6 @@ async function renderRegMarathons(city){
 async function renderReg(){
   if (!$("lkBase").value) $("lkBase").value = store("telem_site_url") || lkDefaultBase();
   paintRegTabs();
-  // 5.19.34: לשוניות התשלומים - באותו מסך
-  const isPay = /^pay_/.test(RG.tab);
-  $("payWrap").hidden = !isPay; $("rgMain").closest(".sc-wrap").hidden = isPay; $("lkBaseBox").hidden = isPay;
-  if (isPay) { PAY.show(RG.tab.slice(4)); return; }
   PAY.counts();
   if (RG.pay === null || RG.can === null) { $("rgMain").innerHTML = "<div class='card muted'>טוען...</div>"; await loadRegData();
     if (SCH.season === null) { try { SCH.season = (await get("scheduling_seasons", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)))[0] || null; } catch(e) {} } }
@@ -7053,7 +7216,8 @@ async function renderReg(){
     // שלושה חלקים: כללי · תרגולים שוטפים · מרתונים
     if (!["general", "regular", "mar"].includes(RG.lk)) RG.lk = store("telem_reg_lk") || "regular";
     const fmt = (d) => d ? new Date(d + "T00:00").toLocaleDateString("he-IL", { day: "numeric", month: "numeric" }) : "";
-    let h = `<div class="rg-lk-seg" role="tablist">${[["general", "כללי"], ["regular", "תרגולים שוטפים"], ["mar", "מרתונים"]].map(([k, t]) => `<button type="button" role="tab" data-lk="${k}" aria-selected="${RG.lk === k}">${t}</button>`).join("")}</div>`;
+    let h = `<div class="rg-lk-bar"><div class="rg-lk-seg" role="tablist">${[["general", "כללי"], ["regular", "תרגולים שוטפים"], ["mar", "מרתונים"]].map(([k, t]) => `<button type="button" role="tab" data-lk="${k}" aria-selected="${RG.lk === k}">${t}</button>`).join("")}</div>`
+      + (RG.lk === "general" ? "" : `<div class="rg-city-row" role="group" aria-label="עיר"><span class="muted">עיר:</span>${CONFIG.cities.map(c => `<button type="button" aria-pressed="${c === city}" data-rgc="${esc(c)}">${esc(c)}</button>`).join("")}</div>`) + `</div>`;
     if (RG.lk === "general") {
       const ush = lkFix(lkBase() + "shibutz.html"), sea = SCH.season;
       h += `<section class="rg-sec rg-general"><h3>קישורים כלליים <small>לכל הערים</small></h3>
@@ -7067,7 +7231,6 @@ async function renderReg(){
         try { await patch("scheduling_seasons", "school_year=eq." + encodeURIComponent(sea.school_year), { is_open: v }); sea.is_open = v; toast(v ? "טופס השיבוץ פתוח" : "טופס השיבוץ סגור"); renderReg(); }
         catch(e) { toast("לא נשמר: " + e.message); } };
     } else {
-      h += `<div class="rg-city-row" role="group" aria-label="עיר">${CONFIG.cities.map(c => `<button type="button" aria-pressed="${c === city}" data-rgc="${esc(c)}">${esc(c)}</button>`).join("")}</div>`;
       if (RG.lk === "regular") {
         if (REG_PRICES_DB === null) await loadRegPrices();
         const schools = LK.schools[city] || [], P = REG_PRICES[city] || {};
@@ -7416,6 +7579,7 @@ const LINK_ST = { sent: "נשלח", opened: "נפתח", submitted: "מולא - �
 function paintTabs(){
   const n = { failed: S.failed.length, issues: S.issues.length, plans: S.plans.filter(p => ["active", "failed", "paused", "creating"].includes(p.status)).length };
   document.querySelectorAll(".payN").forEach(e => { const k = e.dataset.pn, v = n[k]; e.innerHTML = v ? `<span class="cnt${k === "plans" ? "" : " red"}">${v}</span>` : ""; });
+  const bad = n.failed + n.issues; document.querySelectorAll(".payNavN").forEach(e => e.innerHTML = bad ? `<span class="nav-n">${bad}</span>` : "");
 }
 async function loadCounts(){
   try { [S.plans, S.failed, S.issues] = await Promise.all([call("recurring_plans_list"), call("failed_charges_list"), call("payment_issues_list")]); }
