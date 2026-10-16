@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.45">
+<meta name="app-version" content="5.19.47">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -83,6 +83,12 @@
   input[type=text], input[type=email], input[type=tel], input[type=password], input[type=search], input[type=date], input[type=datetime-local], select, textarea{
     width:100%; font-size:14px; padding:8px 10px; border-radius:8px; border:1.5px solid var(--border); background:var(--paper); }
   textarea{ resize:vertical; min-height:110px; }
+  /* 5.19.47 (הלקוחה): בהרשמה ובתשלומים - כל השדות באותו סגנון של הטפסים: פינות מעוגלות, רקע שמנת, מסגרת עדינה, לבן במילוי */
+  :is(#view-reg, #view-pay, #payPnl) :is(input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=file]):not([type=range]), select, textarea){
+    border-radius:12px; border:1.5px solid #E3DDD4; background-color:#FAF8F5; padding:9px 12px; font-size:14px; min-height:40px; box-sizing:border-box; }
+  :is(#view-reg, #view-pay, #payPnl) :is(input, select, textarea):focus{ background-color:#fff; border-color:var(--gold-deep, #C9A45C); box-shadow:0 0 0 3px rgba(90,18,22,.10); outline:none; }
+  :is(#view-reg, #view-pay, #payPnl) :is(input, select, textarea):disabled, :is(#view-reg, #view-pay, #payPnl) input[readonly]{ background-color:#fff; color:var(--ink); }
+  :is(#view-reg, #view-pay, #payPnl) textarea{ min-height:80px; }
   label.lbl.req::after{ content:" *"; color:#B3241F; font-weight:800; }
   label.lbl{ display:block; font-weight:700; font-size:13px; color:var(--ink-soft); margin-bottom:4px; }
 
@@ -1500,6 +1506,8 @@ td.nowrap{ white-space:nowrap; }
 .pay-q{ display:inline-flex; align-items:center; gap:3px; font-size:11.5px; font-weight:800; color:#8A5A12; background:#FBF1E2; border:1px solid #E8CFA0; border-radius:999px; padding:0 7px; margin-inline-start:4px; white-space:nowrap; } .pay-q[role=button]{ cursor:pointer; } .pay-q[role=button]:hover{ background:#F6E3C2; }
 .call-ph{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; white-space:nowrap; } td.acts{ white-space:nowrap; }
 .mar-kids-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0 6px; border-top:2px solid var(--border); margin-top:6px; list-style:none; } .mar-kids-h b{ font-size:16px; }
+.mar-g-btns{ display:inline-flex; gap:6px; flex-wrap:wrap; } .ms-name{ list-style:none; margin:6px 0 10px; } .ms-name input{ max-width:260px; }
+#marKids li.acts{ list-style:none; display:flex; gap:8px; margin-top:10px; }
 .mar-g-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; background:var(--muted); border-radius:10px; padding:8px 10px; margin:8px 0 4px; list-style:none; }
 .rg-all .all-grp{ font-weight:800; color:var(--ink-soft); font-size:13px; margin:14px 0 6px; } .rg-all .all-grp:first-of-type{ margin-top:4px; }
 .all-row{ display:grid; grid-template-columns:minmax(0,1fr) 110px auto; gap:10px; align-items:center; padding:9px 12px; border:1px solid var(--border); border-radius:12px; margin-bottom:6px; background:#fff; border-inline-start:5px solid #C9C2BA; }
@@ -4368,7 +4376,7 @@ function renderCal(list){
       return `<button type="button" class="cal-ev ${scCls(se.location)}${mar ? " ev-mar" : ""}${hf ? " hol-fade" : ""}" data-id="${se.session_id}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.left}% + 2px); width:calc(${x.w}% - 4px);"
         title="${mar ? "מרתון · " + esc(se.time_label) + " · " + fmtDM(x.date) + " · " : ""}${esc(se.location)} · ${esc(se.city)} · ${x.st}-${x.en}${se.room ? " · " + esc(se.room) : ""}${G.ins && G.ins[se.session_id] ? " · " + esc(G.ins[se.session_id].join(", ")) : ""}">
         <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(se.location)}</span>${hf ? cxTag(hf, true) : ""}
-        <span class="ev-time">${mar && se.time_label ? esc(se.time_label) + " · " : ""}${rng(x.st, x.en)} <span class="ev-n">${n} ילדים${prop ? ` · <b>${prop} מוצעים</b>` : ""}</span></span>
+        <span class="ev-time">${mar ? "🏁 מרתון · " + (se.time_label ? esc(se.time_label) + " · " : "") : ""}${rng(x.st, x.en)} <span class="ev-n">${n} ילדים${prop ? ` · <b>${prop} מוצעים</b>` : ""}</span></span>
         ${se.room ? `<span class="ev-meta">📍 ${esc(se.room)}</span>` : ""}</button>`;
     }).join("");
     return `<div class="cal-col"><div class="cal-day${weekDate(d) === t ? " today" : ""}">${DAY_NAMES[d]}<small>${fmtDM(weekDate(d))}</small>${holChips(dt) ? `<span class="hol-chips">${holChips(dt)}</span>` : ""}${calCityHead(CS)}</div><div class="cal-body${holColCls(dt)}" style="height:${H}px">${calSeps(CS)}${blocks}</div></div>`;
@@ -4709,7 +4717,7 @@ async function openMarathonPanel(m){
   R.innerHTML = `<li class="mar-kids-h"><b>👥 נרשמים (${total})</b>${m.code ? `<span class="mar-kids-lk">${lk2Btns("", lkMarCode(m.code), "הרשמה ל" + m.name + ": ")}</span>` : ""}</li>`
     + (gs.length ? gs.map(g => { const ks = kidsOf(g.session_id);
       return `<li class="mar-g-h"><div><b>${esc(g.time_label || "קבוצה")}</b> <span class="muted">${esc(marMeetings(g).map(x => fmtDM(x.date)).join(", "))} · ${ks.length}${g.capacity ? " / " + g.capacity : ""} ילדים</span></div>
-          <button type="button" class="btn small" data-matt="${g.session_id}">✓ נוכחות</button></li>`
+          <span class="mar-g-btns">${ks.length >= 2 ? `<button type="button" class="btn small" data-msplit="${g.session_id}" title="פיצול לשתי קבוצות (למשל לשתי כיתות)">✂ פיצול</button>` : ""}<button type="button" class="btn small" data-matt="${g.session_id}">✓ נוכחות</button></span></li>`
         + (ks.length ? ks.map(k => { const lead = L.leads.find(x => x.student_id === k.student_id);
           return `<li data-aid="${k.id}" data-sid="${g.session_id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}${payPendChip(k.student_id, g.session_id, true)}</span>
             <span class="ro-btns"><button type="button" class="btn small" data-mwd="${k.id}">פרישה מהמרתון</button></span></div>
@@ -4718,11 +4726,48 @@ async function openMarathonPanel(m){
   wireLk(R);
   R.querySelectorAll("[data-lead]").forEach(b => b.onclick = () => { closePanel(); openLead(Number(b.dataset.lead)); });
   R.querySelectorAll("[data-matt]").forEach(b => b.onclick = () => { const se = gs.find(x => x.session_id === Number(b.dataset.matt)); if (se) openAttFor(se); });
+  R.querySelectorAll("[data-msplit]").forEach(b => b.onclick = () => { const se = gs.find(x => x.session_id === Number(b.dataset.msplit)); if (se) marSplit(m, se, kidsOf(se.session_id), gs); });
   R.querySelectorAll("[data-mwd]").forEach(b => b.onclick = () => { const li = b.closest("li"), sid = Number(li.dataset.sid), k = kidsOf(sid).find(x => String(x.id) === b.dataset.mwd); if (k) marWithdraw(k, gs.find(x => x.session_id === sid), m); });
   // ההקבצה שנבחרה בטופס - ליד השם
   try { const hr = await get("marathon_registrations", "select=student_id,session_id,hakbatsa&marathon_id=eq." + m.id + "&hakbatsa=not.is.null");
     if (G.marPanel === m.id) hr.forEach(x => { const li = R.querySelector(`li.ro-k[data-sid="${x.session_id}"] .row-top > span`); const k = kidsOf(x.session_id).find(z => z.student_id === x.student_id);
       const sp = k && R.querySelector(`li[data-aid="${k.id}"] .row-top > span`); if (sp && !sp.querySelector(".hak-chip")) sp.insertAdjacentHTML("beforeend", ` <span class="hak-chip" title="הקבצה">${esc(x.hakbatsa)}</span>`); }); } catch(e) {}
+}
+// 5.19.47 (הלקוחה): פיצול קבוצת מרתון לשתי קבוצות (למשל יותר מ-20 ילדים - שתי כיתות).
+// הקבוצה החדשה: אותם מפגשים ושעות, סגורה להרשמה בטופס (ההורים רואים רק את הקבוצה המקורית). הילדים שעוברים - השיבוץ וההרשמה למרתון עוברים איתם.
+function marSplit(m, se, kids, gs){
+  const R = $("marKids"); if (!R) return;
+  const used = gs.map(x => x.time_label || ""), base = se.time_label || "קבוצה";
+  let nm = base + " 2"; for (let i = 2; used.includes(nm); i++) nm = base + " " + (i + 1);
+  const half = Math.ceil(kids.length / 2), move = new Set(kids.slice(half).map(k => k.id));
+  const paint = () => {
+    R.innerHTML = `<li class="mar-kids-h"><b>✂ פיצול ${esc(base)}</b></li>
+      <li class="meta">הקבוצה החדשה תקבל את אותם מפגשים ושעות, והיא לא תופיע בטופס ההרשמה. את הכיתה של כל מפגש אפשר לעדכן אחר כך בעריכת המרתון.</li>
+      <li class="ms-name"><label class="lbl" for="msName">שם הקבוצה החדשה</label><input id="msName" value="${esc(nm)}"></li>
+      <li class="mar-g-h"><div><b>${esc(base)}</b> <span class="muted">· ${kids.length - move.size} ילדים</span></div><div><b id="msNewT">${esc(nm)}</b> <span class="muted">· ${move.size} ילדים</span></div></li>
+      ${kids.map(k => `<li class="ro-k ms-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${esc(k.first_name)} ${esc(k.last_name || "")}</span>
+        <span class="sp-seg" role="group" aria-label="קבוצה"><button type="button" data-ms="${k.id}" data-to="0" aria-pressed="${!move.has(k.id)}">${esc(base)}</button><button type="button" data-ms="${k.id}" data-to="1" aria-pressed="${move.has(k.id)}">החדשה</button></span></div></div></li>`).join("")}
+      <li class="acts"><button type="button" class="btn primary" id="msSave">פיצול</button> <button type="button" class="btn" id="msCancel">ביטול</button></li>`;
+    $("msName").oninput = (e) => { nm = e.target.value; $("msNewT").textContent = nm || "הקבוצה החדשה"; };
+    R.querySelectorAll("[data-ms]").forEach(b => b.onclick = () => { const id = Number(b.dataset.ms); if (b.dataset.to === "1") move.add(id); else move.delete(id); paint(); });
+    $("msCancel").onclick = () => openMarathonPanel(m);
+    $("msSave").onclick = async () => {
+      const name = (nm || "").trim(); if (!name) { toast("חסר שם לקבוצה החדשה"); return; }
+      if (!move.size || move.size === kids.length) { toast("צריך להשאיר ילדים בשתי הקבוצות"); return; }
+      $("msSave").disabled = true;
+      try {
+        const src = (await get("sessions", "select=*&id=eq." + se.session_id))[0]; if (!src) throw new Error("הקבוצה לא נמצאה");
+        const body = {}; ["kind", "marathon_id", "meeting_dates", "meetings", "day", "location_id", "start_time", "end_time", "capacity", "city", "school_year", "room"].forEach(k => { if (k in src) body[k] = src[k]; });
+        body.time_label = name; body.is_open = false;
+        const nid = (await insert("sessions", body))[0].id;
+        const mv = kids.filter(k => move.has(k.id));
+        await patch("assignments", "id=in.(" + mv.map(k => k.id).join(",") + ")", { session_id: nid });
+        await patch("marathon_registrations", "session_id=eq." + se.session_id + "&student_id=in.(" + mv.map(k => k.student_id).join(",") + ")", { session_id: nid }).catch(() => {});
+        toast(`פוצל: ${mv.length} ילדים עברו ל${name}`); RG.mar = null; await loadGroups(); openMarathonPanel(m);
+      } catch(e) { $("msSave").disabled = false; toast("לא נשמר: " + e.message); }
+    };
+  };
+  paint();
 }
 // פרישה מהמרתון מתוך חלון המרתון (כמו בעריכת שיבוץ)
 async function marWithdraw(k, se, m){
@@ -5272,7 +5317,7 @@ async function loadAttWeek(){
       return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${g.empty || (!g.kids && g.kind !== "מרתון") ? " ev-empty" : ""}${x.st === "fut" && MODE !== "g" ? " fut" : ""}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.left}% + 2px); width:calc(${x.w}% - 4px);"
         title="${esc(g.location)} · ${esc(g.city)} · ${hm(g.start_time)}-${hm(g.end_time)}${g.room ? " · " + esc(g.room) : ""}${g.instructors ? " · " + esc(g.instructors) : ""}">
         ${ME.role !== "instructor" && MODE !== "g" ? `<span class="ev-ed" data-ged role="button" title="חלון הקבוצה (ילדים, מתרגלים, עריכה)" aria-label="חלון הקבוצה">✎</span>` : ""}<span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>${x.st === "hol" ? cxTag(x.hf, true) : ""}
-        <span class="ev-time">${mar && g.time_label ? esc(g.time_label) + " · " : ""}${rng(hm(g.start_time), hm(g.end_time))} <span class="ev-n">${g.kids}${MODE === "g" && g.capacity ? "/" + g.capacity : ""} ילדים${MODE === "g" && g.prop ? ` · <b>${g.prop} מוצעים</b>` : ""}</span></span>
+        <span class="ev-time">${mar ? "🏁 מרתון · " + (g.time_label ? esc(g.time_label) + " · " : "") : ""}${rng(hm(g.start_time), hm(g.end_time))} <span class="ev-n">${g.kids}${MODE === "g" && g.capacity ? "/" + g.capacity : ""} ילדים${MODE === "g" && g.prop ? ` · <b>${g.prop} מוצעים</b>` : ""}</span></span>
         ${MODE === "g" && g.instructors ? `<span class="ev-meta">👤 ${esc(g.instructors)}</span>` : ""}${g.room ? `<span class="ev-meta">📍 ${esc(g.room)}</span>` : ""}${st}</button>`; }).join("");
     return `<div class="cal-col"><div class="cal-day${d === today ? " today" : ""}">${DAY_NAMES[dayLetter(d)]}<small>${fmtDM(d)}</small>${holChips(d) ? `<span class="hol-chips">${holChips(d)}</span>` : ""}${calCityHead(CS)}</div><div class="cal-body${holColCls(d)}" style="height:${H}px">${calSeps(CS)}${blocks}</div></div>`;
   }).join("");
@@ -5300,7 +5345,7 @@ async function loadAttGroups(){
     const hm = (t) => String(t || "").slice(0, 5);
     A.groups.forEach(g => { g.cx = g.marked ? null : lessonCx({ kind: g.kind, city: g.city, location: g.location }, A.date, g.cancelled, g.cancel_reason); });
     const card = (g, showCity) => `<button type="button" class="att-group ${scCls(g.location)} ${g.marked ? "done" : ""}${g.cx ? " hol-fade" : ""}" data-s="${g.session_id}">
-      ${ME.role !== "instructor" ? `<span class="ev-ed" data-ged role="button" title="חלון הקבוצה (ילדים, מתרגלים, עריכה)" aria-label="חלון הקבוצה">✎</span>` : ""}<span class="t">${g.kind === "מרתון" ? esc(g.time_label) + `<span class="kind-tag">מרתון</span>` : rng(hm(g.start_time), hm(g.end_time))}</span>
+      ${ME.role !== "instructor" ? `<span class="ev-ed" data-ged role="button" title="חלון הקבוצה (ילדים, מתרגלים, עריכה)" aria-label="חלון הקבוצה">✎</span>` : ""}<span class="t">${g.kind === "מרתון" ? "🏁 מרתון · " + esc(g.time_label) + (g.start_time ? ` <span class="m">${rng(hm(g.start_time), hm(g.end_time))}</span>` : "") : rng(hm(g.start_time), hm(g.end_time))}</span>
       <span class="w">${scChip(g.location)}${showCity ? " · " + esc(g.city) : ""}</span><span class="ag-br"></span>${g.room ? `<span class="m">חדר: <b><bdi>${esc(g.room)}</bdi></b></span>` : ""}
       ${g.marked ? "" : `<span class="m kn">${g.kids} ילדים</span>`}${ME.role !== "instructor" && g.instructors ? `<span class="ag-ins">${esc(g.instructors)}</span>` : ""}
 
@@ -5358,7 +5403,7 @@ async function openSheet(sessionId, retry){
     if (!exReady) exP.then(() => { if (A.sheet && A.sheet.session_id === sessionId && !$("attSheet").hidden) renderSheetRows(); });
     A.sheet = sh;
     // 5.19.15: זוכרים את הקבוצה הפתוחה (עד סוף היום) - "נוכחות" בתפריט חוזר ישר אליה
-    store("telem_att_last", JSON.stringify({ sid: sessionId, date: A.date, day: todayIL(), label: [sh.location, sh.day ? "יום " + sh.day + "'" : "", sh.time_label].filter(Boolean).join(" · ") }));
+    store("telem_att_last", JSON.stringify({ sid: sessionId, date: A.date, day: todayIL(), label: [sh.location, sh.day ? "יום " + sh.day + "'" : "", (!sh.day && (A.groups || []).some(g => g.session_id === sessionId && g.kind === "מרתון") ? "מרתון · " : "") + sh.time_label].filter(Boolean).join(" · ") }));
     A.rows = sh.rows.map(r => ({ ...r, present: r.present == null ? null : r.present, did_math: !!r.did_math, did_english: !!r.did_english, saved: r.present != null || !!r.planned, present0: r.present == null ? null : r.present, skip: !!r.skip, skip0: !!r.skip }));
     A.hasPlan = sh.rows.some(r => "skip" in r);   // 5.19.29 (קובץ 59): "לא מגיע/ה היום" ו"אמור/ה להגיע"
     // ילד/ה שנוסף/ה לשיעור: המקצוע לפי ההרשמה שלו/ה (ומתקנים סימון ישן שנשמר רק מת' - נשמר בשמירה הבאה)
@@ -5366,11 +5411,16 @@ async function openSheet(sessionId, retry){
     A.rows.forEach(r => { const s = r.reg_status != null ? subjFromStatus(r.reg_status) : stSubjOf(r.student_id);
       if (s) r.subject = s; else if (!r.in_group && !r.subject) r.subject = regSubj(r.student_id, r.reg_status);
       if (r.subject && r.present && subjGrp(r.subject) !== 2) { const d = subjDefault(r.subject); r.did_math = d.m; r.did_english = d.e; } });
+    // 5.19.47: מרתון = מתמטיקה בלבד (גם לילד/ה שרשום/ה לשוטף במת' + אנג')
+    if (((A.groups || []).find(g => g.session_id === sessionId) || {}).kind === "מרתון" || (!sh.day && (G.sessions || []).some(x => x.session_id === sessionId && x.kind === "מרתון")))
+      A.rows.forEach(r => { r.subject = "מתמטיקה"; if (r.present) { r.did_math = true; r.did_english = false; } });
     A.rows.sort(attTimeSort);   // 5.19.20: לפי שעת ההגעה (שעה אישית, או שעת הקבוצה) ואז שם
     A.removed = [];
     A.splitView = "";   // פיצול לתת-קבוצות/חדרים - לא בשימוש (הלקוחה 11.10): תמיד כל הילדים
     $("shAddPanel").hidden = true; $("shAddQ").value = ""; $("shAddRes").innerHTML = ""; $("shAddBox").hidden = !sh.can_edit;
-    $("shTitle").textContent = `${sh.time_label} · ${sh.location}`;
+    // 5.19.47 (הלקוחה): בקבוצת מרתון - "מרתון" בשם הקבוצה
+    const gMar = (A.groups || []).find(g => g.session_id === sessionId), isMarSh = (gMar && gMar.kind === "מרתון") || (!sh.day && !!(G.sessions || []).find(x => x.session_id === sessionId && x.kind === "מרתון"));
+    $("shTitle").textContent = `${isMarSh ? "🏁 מרתון · " : ""}${sh.time_label} · ${sh.location}`;
     const mySp = null;
     $("shSub").innerHTML = `יום <b>${DAY_FULL[sh.day || dayLetter(sh.date)]}</b> · <b>${fmtIso(sh.date)}</b> · ${esc(sh.city)}${mySp ? ` · תת-קבוצה <b>${esc(mySp.name)}</b>` : ""}${(mySp && mySp.room) || sh.room ? ` · חדר <b><bdi>${esc((mySp && mySp.room) || sh.room)}</bdi></b>` : ""}`;
     $("shLocked").hidden = !!sh.can_edit;
@@ -8128,16 +8178,17 @@ async function renderPlans(b){
       <div class="stat"><b>${S.plans.filter(p => p.status === "paused").length}</b> מושהות</div><div class="stat" style="${S.failed.length ? "color:var(--full)" : ""}"><b>${S.plans.filter(p => p.status === "failed" || p.status === "error").length}</b> דורשות טיפול</div></div>
     <div class="filters"><div style="min-width:240px"><label class="lbl" for="pq">חיפוש</label><input id="pq" type="search" placeholder="תלמיד/ה, הורה, טלפון..." value="${esc(S.q)}"></div>
       <div><label class="lbl" for="pst">סטטוס</label><select id="pst"><option value="">הכול</option>${Object.entries(PLAN_ST).map(([k, t]) => `<option value="${k}" ${S.st === k ? "selected" : ""}>${t}</option>`).join("")}</select></div></div>
-    ${list.length ? `<table class="tbl"><thead><tr><th>תלמיד/ה</th><th class="hide-m">הורה</th><th class="hide-m">על מה</th><th>חודשי</th><th>חיובים</th><th>החיוב הבא</th><th class="hide-m">כרטיס</th><th>סטטוס</th></tr></thead><tbody>
-      ${list.map(p => `<tr class="click" data-p="${esc(p.id)}"><td><b>${esc(p.student_name || "")}</b></td>
+    ${list.length ? `<table class="tbl"><thead><tr><th>תלמיד/ה</th><th class="hide-m">הורה</th><th class="hide-m">על מה</th><th>חודשי</th><th>חיובים</th><th>החיוב הבא</th><th class="hide-m">כרטיס</th><th>סטטוס</th><th></th></tr></thead><tbody>
+      ${list.map(p => `<tr><td><b>${esc(p.student_name || "")}</b></td>
         <td class="hide-m">${esc(p.parent_name || "")}<div class="muted"><span dir="ltr">${esc(p.parent_phone || "")}</span></div></td><td class="hide-m muted">${esc(p.description || "")}</td>
         <td class="num">${money(p.monthly_amount)}</td><td>${prog(p.charged_count || 0, p.total_count)}</td>
         <td>${p.next_charge_date ? dmy(p.next_charge_date) : "<span class='muted'>—</span>"}</td><td class="hide-m">${card4(p.card_last4, p.card_exp)}</td>
-        <td>${stChip(p.status)}${p.pending_update ? `<div class="pend">⏳ נשלח לאיקרדיט</div>` : ""}${p.update_error ? `<div class="err" title="${esc(p.update_error)}">⚠ לא עודכן באיקרדיט</div>` : ""}</td></tr>`).join("")}</tbody></table>`
+        <td>${stChip(p.status)}${p.pending_update ? `<div class="pend">⏳ נשלח לאיקרדיט</div>` : ""}${p.update_error ? `<div class="err" title="${esc(p.update_error)}">⚠ לא עודכן באיקרדיט</div>` : ""}</td>
+        <td><button type="button" class="btn small" data-p="${esc(p.id)}">פרטים</button></td></tr>`).join("")}</tbody></table>`
       : `<div class="card empty">${S.plans.length ? "אין הוראות שמתאימות לסינון." : "עוד אין הוראות קבע. הן נוצרות לבד אחרי תשלום ראשון בטופס ההרשמה או בתשלום אישי."}</div>`}`;
   $("pq").oninput = (e) => { S.q = e.target.value; const pos = e.target.selectionStart; renderPlans(b).then(() => { const i = $("pq"); i.focus(); i.setSelectionRange(pos, pos); }); };
   $("pst").onchange = (e) => { S.st = e.target.value; renderPlans(b); };
-  b.querySelectorAll("[data-p]").forEach(tr => tr.onclick = () => openPlan(tr.dataset.p));
+  b.querySelectorAll("[data-p]").forEach(x => x.onclick = () => openPlan(x.dataset.p));   // 5.19.47: כפתור "פרטים" (לא כל השורה)
 }
 function pnlOpen(html){ $("payPnl").innerHTML = html; $("payPnl").hidden = false; $("payPnlBg").hidden = false; $("payPnl").scrollTop = 0; const x = $("payPnl").querySelector(".x"); if (x) x.onclick = pnlClose; }
 function pnlClose(){ $("payPnl").hidden = true; $("payPnlBg").hidden = true; }
@@ -8240,11 +8291,11 @@ async function renderDates(b, part){   // 5.19.41: "up" = הוראות קבע ל
   const upBy = {}; (up || []).forEach(u => (upBy[u.date] = upBy[u.date] || []).push(u));
   const H1 = `<h3 style="margin:0 0 8px">חיובים קרובים (חודש קדימה)</h3>
     ${Object.keys(upBy).length ? Object.keys(upBy).sort().map(d => `<details class="day"><summary><span>${dmy(d)}</span><span>${upBy[d].length} חיובים</span><span class="num">${money(upBy[d].reduce((s, u) => s + Number(u.amount), 0))}</span></summary>
-      <table class="tbl" style="margin-top:8px"><tbody>${upBy[d].map(u => `<tr class="click" data-plan="${esc(u.plan_id)}"><td><b>${esc(u.student_name || "")}</b></td><td class="hide-m">${esc(u.parent_name || "")}</td><td class="num">${money(u.amount)}</td><td>${u.charge_no}/${u.total}</td><td class="hide-m">${card4(u.card_last4, u.card_exp)}</td></tr>`).join("")}</tbody></table></details>`).join("")
+      <table class="tbl" style="margin-top:8px"><tbody>${upBy[d].map(u => `<tr><td><b>${esc(u.student_name || "")}</b></td><td class="hide-m">${esc(u.parent_name || "")}</td><td class="num">${money(u.amount)}</td><td>${u.charge_no}/${u.total}</td><td class="hide-m">${card4(u.card_last4, u.card_exp)}</td><td><button type="button" class="btn small" data-plan="${esc(u.plan_id)}">פרטים</button></td></tr>`).join("")}</tbody></table></details>`).join("")
       : `<div class="card empty">אין חיובים בחודש הקרוב.</div>`}`;
   const H2 = `<h3 style="margin:0 0 8px">חיובים שהיו (3 חודשים)</h3>
     ${(past || []).length ? (past || []).map(x => `<details class="day"><summary><span>${dmy(x.date)}</span><span style="color:var(--ok)">✓ ${x.ok_count} · ${money(x.ok_sum)}</span>${x.fail_count ? `<span style="color:var(--full)">✗ ${x.fail_count} לא התקבלו · ${money(x.fail_sum)}</span>` : ""}</summary>
-      ${(x.rows || []).length ? `<table class="tbl" style="margin-top:8px"><tbody>${x.rows.map(r => `<tr class="click" data-plan="${esc(r.plan_id)}"><td><b>${esc(r.student_name || "")}</b></td><td class="num">${money(r.amount)}</td><td>${r.status === "אושר" ? `<span class="chip st-active">שולם</span>` : `<span class="chip st-failed">לא התקבל</span>`}${r.reason ? ` <span class="muted">${esc(r.reason)}</span>` : ""}${r.handled_note ? ` <span class="muted">· טופל: ${esc(r.handled_note)}</span>` : ""}</td><td>${r.document_url ? `<a href="${esc(r.document_url)}" target="_blank" rel="noopener">חשבונית</a>` : ""}</td></tr>`).join("")}</tbody></table>` : ""}</details>`).join("")
+      ${(x.rows || []).length ? `<table class="tbl" style="margin-top:8px"><tbody>${x.rows.map(r => `<tr><td><b>${esc(r.student_name || "")}</b></td><td class="num">${money(r.amount)}</td><td>${r.status === "אושר" ? `<span class="chip st-active">שולם</span>` : `<span class="chip st-failed">לא התקבל</span>`}${r.reason ? ` <span class="muted">${esc(r.reason)}</span>` : ""}${r.handled_note ? ` <span class="muted">· טופל: ${esc(r.handled_note)}</span>` : ""}</td><td>${r.document_url ? `<a href="${esc(r.document_url)}" target="_blank" rel="noopener">חשבונית</a>` : ""}</td><td><button type="button" class="btn small" data-plan="${esc(r.plan_id)}">פרטים</button></td></tr>`).join("")}</tbody></table>` : ""}</details>`).join("")
       : `<div class="card empty">עוד לא היו חיובים חודשיים.</div>`}`;
   b.innerHTML = part === "up" ? H1 : part === "past" ? H2 : H1 + H2;
   b.querySelectorAll("[data-plan]").forEach(x => x.onclick = (e) => { if (e.target.closest("a")) return; openPlan(x.dataset.plan); });
@@ -8290,15 +8341,28 @@ async function renderLinks(b){
   const list = await call("pay_links_list") || [];
   b.innerHTML = `<div class="page-head"><button class="btn primary" id="lNew" type="button">+ טופס תשלום חדש</button><span class="muted">קישור אישי להורה: תשלום חד-פעמי, ואם צריך - גם הוראת קבע. ההורה ממלא, חותם ומשלם באיקרדיט.</span></div>
     ${list.length ? `<table class="tbl"><thead><tr><th>נוצר</th><th>הורה / תלמיד/ה</th><th>על מה</th><th>סכום</th><th>סטטוס</th><th></th></tr></thead><tbody>
-      ${list.map(l => { const ph = l.fields && l.fields.parent_phone && l.fields.parent_phone.value, wa = waLink(ph, `שלום, קישור לתשלום בתלם: ${l.url}`);
+      ${list.map((l, li) => { const ph = l.fields && l.fields.parent_phone && l.fields.parent_phone.value, wa = waLink(ph, `שלום, קישור לתשלום בתלם: ${l.url}`);
         return `<tr><td>${dmy(l.created_at)}<div class="muted">${esc(l.created_by_name || "")}</div></td><td>${esc(l.parent_name || "")}<div class="muted">${esc(l.student_name || "")}</div></td><td>${esc(l.description)}</td>
         <td class="num">${money(l.one_time_amount)}${l.monthly_amount ? `<div class="muted" dir="rtl">ועוד ${l.monthly_count} × ${money(l.monthly_amount)} בחודש</div>` : ""}</td>
         <td><span class="chip st-${esc(l.status)}">${esc(LINK_ST[l.status] || l.status)}</span></td>
         <td><div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקה</button>${wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ</a>` : ""}<button class="btn small danger" data-cancel="${esc(l.code)}" type="button">ביטול</button>` : ""}
-          ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button">PDF חתום</button>` : ""}</div></td></tr>`; }).join("")}</tbody></table>`
+          ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button">PDF חתום</button>` : ""}<button class="btn small" data-ldet="${li}" type="button">פרטים</button></div></td></tr>`; }).join("")}</tbody></table>`
       : `<div class="card empty">עוד אין טפסי תשלום אישיים.</div>`}`;
   wireCommon(b);
   $("lNew").onclick = newLink;
+  // 5.19.47: "פרטים" - חלון בצד עם כל פרטי הקישור (כמו בהוראות קבע)
+  b.querySelectorAll("[data-ldet]").forEach(x => x.onclick = () => { const l = list[Number(x.dataset.ldet)]; if (!l) return;
+    const lab = Object.fromEntries(FIELDS), fs = Object.entries(l.fields || {}).filter(([, v]) => v && (v.value || v.required));
+    pnlOpen(`<header><div><h2>${esc(l.description || "תשלום אישי")}</h2><div class="muted">${esc(l.parent_name || "")}${l.student_name ? " · " + esc(l.student_name) : ""}</div></div><button class="btn small x" type="button">✕</button></header>
+      <div class="body"><div class="sec"><h3>התשלום</h3><dl class="kv"><dt>סטטוס</dt><dd><span class="chip st-${esc(l.status)}">${esc(LINK_ST[l.status] || l.status)}</span></dd>
+        <dt>תשלום עכשיו</dt><dd>${money(l.one_time_amount)}</dd>${l.monthly_amount ? `<dt>הוראת קבע</dt><dd>${l.monthly_count} × ${money(l.monthly_amount)} בחודש</dd>` : ""}
+        <dt>נוצר</dt><dd>${dmy(l.created_at)}${l.created_by_name ? " · " + esc(l.created_by_name) : ""}</dd>${l.paid_at ? `<dt>שולם</dt><dd>${dmy(l.paid_at)}</dd>` : ""}
+        <dt>קישור</dt><dd dir="ltr" style="word-break:break-all">${esc(l.url || "")}</dd></dl></div>
+      <div class="sec"><h3>פרטים בטופס</h3>${fs.length ? `<dl class="kv">${fs.map(([k, v]) => `<dt>${esc(lab[k] || k)}</dt><dd>${v.value ? esc(v.value) : `<span class="muted">ההורה ממלא/ת${v.required ? " (חובה)" : ""}</span>`}</dd>`).join("")}</dl>` : `<div class="muted">אין שדות נעולים - ההורה ממלא/ת הכול.</div>`}</div>
+      <div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקת הקישור</button>` : ""}${l.has_pdf ? `<button class="btn small" data-pdf2="${esc(l.code)}" type="button">PDF חתום</button>` : ""}</div></div>`);
+    const P = $("payPnl"); P.querySelectorAll("[data-copy]").forEach(c => c.onclick = () => copy(c.dataset.copy));
+    P.querySelectorAll("[data-pdf2]").forEach(c => c.onclick = () => { const o = b.querySelector(`[data-pdf="${c.dataset.pdf2}"]`); if (o) o.click(); });
+  });
   b.querySelectorAll("[data-cancel]").forEach(x => x.onclick = async () => { if (!confirm("לבטל את הקישור? ההורה לא יוכל לשלם בו.")) return; try { await call("pay_link_cancel", { p_code: x.dataset.cancel }); toast("בוטל"); render(); } catch(e) { toast("לא בוטל: " + e.message); } });
   b.querySelectorAll("[data-pdf]").forEach(x => x.onclick = async () => { if (DEMO) { toast("בתצוגה לדוגמה אין PDF"); return; } try { const d = await call("pay_link_pdf", { p_code: x.dataset.pdf }); if (!d) return; const a = document.createElement("a"); a.href = String(d).startsWith("data:") ? d : "data:application/pdf;base64," + d; a.download = "טופס-תשלום.pdf"; a.click(); } catch(e) { toast("לא ניתן להוריד"); } });
 }
