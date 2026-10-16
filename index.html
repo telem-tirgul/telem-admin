@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.37">
+<meta name="app-version" content="5.19.38">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4575,7 +4575,7 @@ function openMarathonEditor(m, inPanel, pre){
     return "<option value=''>בחירה...</option>" + names.map(n => `<option ${n === cur ? "selected" : ""}>${esc(n)}</option>`).join(""); };
   box.innerHTML = `
     <div class="full lg-edit-h">${m ? "עריכת מרתון" : "מרתון חדש"}</div>
-    <div class="full"><label class="lbl">שם המרתון</label><input data-m="name" value="${esc(m ? m.name : "מרתון מתמטיקה" + (pre.grade ? " " + pre.grade + "'" : ""))}"></div>
+    <div class="full"><label class="lbl">שם המרתון</label><input data-m="name" value="${esc(m ? m.name : "מרתון מתמטיקה" + (pre.grade ? " שכבת " + pre.grade + "'" : "") + (pre.school ? " · " + pre.school : ""))}"></div>
     <div><label class="lbl">עיר</label><select data-m="city">${CONFIG.cities.map(c => `<option ${c === city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>
     <div><label class="lbl">בית ספר</label><select data-m="school">${schoolOpts(city, m ? m.school : pre.school)}</select></div>
     ${marHasGrade(m) ? `<div><label class="lbl">שכבה</label><select data-m="grade"><option value="">—</option>${GRADE_ORD.slice(2).map(x => `<option value="${x}" ${(m ? m.grade : pre.grade) === x ? "selected" : ""}>${x}'</option>`).join("")}</select></div>` : ""}
