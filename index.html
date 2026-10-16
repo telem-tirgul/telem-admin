@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.42">
+<meta name="app-version" content="5.19.43">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -535,7 +535,7 @@
   .sc-head h2{ font-size:22px; color:var(--accent); margin:0; }
   .lg-personal{ margin-top:4px; background:#fff8d6; border:1.5px solid #e9cf62; color:#5c4500; border-radius:8px; padding:3px 9px; font-size:14.5px; font-weight:700; display:inline-block; }
   .ptime{ display:inline-block; margin-inline-start:8px; background:#FFF4E5; color:#7A4B00; border-radius:6px; padding:1px 8px; font-size:13px; font-weight:700; }
-  .att-mini{ display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-bottom:1px dashed var(--border); }
+  .att-mini{ display:flex; justify-content:space-between; gap:8px; padding:6px 0; border-bottom:1px dashed var(--border); } .att-mini:last-child{ border-bottom:none; } #leadAtt .p{ color:var(--ok); font-weight:700; } #leadAtt .a{ color:var(--full); font-weight:700; }
   .att-mini .p{ font-weight:800; color:#4ea30c; } .att-mini .a{ font-weight:800; color:#c0392b; }
   .group .ins{ display:block; font-size:11.5px; opacity:.8; }
   .mob-days{ padding:4px 8px 10px !important; border:0 !important; }
@@ -1137,7 +1137,7 @@
   .ex-study-box{ background:#FBF7EE; border:1px solid #EFE3C6; border-radius:12px; padding:10px 12px; margin-bottom:12px; display:flex; flex-direction:column; gap:6px; } .ex-study-box h3{ margin:0; font-size:15.5px; color:var(--accent); }
   .ex-st-item{ text-align:start; background:#fff; border:1px solid var(--border); border-radius:10px; padding:6px 10px; cursor:pointer; font:inherit; font-size:14px; } .ex-st-t{ display:block; color:var(--ink-soft); font-size:13px; white-space:pre-line; margin-top:2px; }
   .ex-date{ font-weight:800; } .ex-date.soon, .ex-date.near{ border-radius:999px; padding:0 8px; } .ex-date.soon{ color:#fff; background:#B5523B; } .ex-date.near{ color:#8E3B28; background:#F6DCD3; }
-  .ex-row{ padding:5px 0; border-bottom:1px solid var(--border); } .ex-row.mk{ color:var(--ink-soft); font-size:12.5px; } .ex-row .ex-tag{ margin-inline-start:4px; }
+  .ex-row{ padding:7px 0; border-bottom:1px solid var(--border); line-height:1.55; } #leadExams .ex-row:last-child{ border-bottom:none; } #leadExams .ex-topics{ display:block; color:var(--ink-soft); margin-top:2px; } .ex-row.mk{ color:var(--ink-soft); font-size:12.5px; } .ex-row .ex-tag{ margin-inline-start:4px; }
   .ex-info{ font-size:13.5px; margin:-6px 0 10px; } .ex-warn{ color:#9A3B26; font-weight:700; margin-top:4px; }
   .ex-filters{ display:flex; gap:14px; flex-wrap:wrap; align-items:center; margin-bottom:10px; font-size:13.5px; } .ex-filters label{ display:inline-flex; gap:6px; align-items:center; } .ex-filters select{ width:auto; padding:4px 8px; } .ex-filters .chk{ padding-bottom:0; }
   .ex-form{ display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:10px; margin-bottom:12px; } .ex-f-wide{ grid-column:1 / -2; } .ex-f-btns{ display:flex; gap:8px; align-items:flex-end; }
@@ -3234,7 +3234,7 @@ async function loadNotes(leadId){
     const ns = await get("notes", "select=id,body,created_at,remind_at&lead_id=eq." + leadId + "&order=created_at.desc");
     const NSHOW = 2, ul = $("notesList");
     $("notesN").textContent = ns.length ? "(" + ns.length + ")" : "";
-    $("laNotes").textContent = ns.length ? fmtDate(ns[0].created_at) + " · " + String(ns[0].body || "").replace(/\s+/g, " ").slice(0, 150) : "אין הערות עדיין";
+    $("laNotes").textContent = ns.length ? "האחרונה " + fmtDate(ns[0].created_at) : "אין הערות עדיין";   // 5.19.42: תקציר קצר (הטקסט - בפתיחה)
     ul.innerHTML = ns.length ? ns.map((n, i) => `<li${i >= NSHOW ? ' class="n-old"' : ""}><span class="when">${esc(fmtDate(n.created_at))}</span>${esc(n.body)}</li>`).join("")
       + (ns.length > NSHOW ? `<li class="more-n"><button type="button" class="btn small" id="notesMore">עוד ${ns.length - NSHOW} הערות ▾</button></li>` : "") : "<li class='muted'>אין הערות עדיין.</li>";
     ul.classList.add("collapsed");
@@ -3280,12 +3280,14 @@ async function loadLeadLog(l){
   } catch(e) { box.innerHTML = `<span class="muted">${e.status === 404 || /change_log/.test(e.message) ? "יופיע אחרי הרצת קובץ 49." : "לא ניתן לטעון."}</span>`; }
 }
 async function loadLeadHist(l){
-  const box = $("leadHist"); box.textContent = "טוען...";
+  const box = $("leadHist"); delete box.dataset.sum; box.textContent = "טוען...";
   try {
     const rows = await get("student_history", "select=school_year,year_start,first_name,last_name,school,city,grade,status,source,message,notes,student_id,legacy_id" +
       "&or=(student_id.eq." + l.student.id + ",and(family_id.eq." + l.family_id + ",student_id.is.null))&order=year_start.desc");
     if (!rows.length) { box.textContent = "אין."; return; }
     box.classList.remove("muted");
+    { const own = rows.filter(h => h.student_id === l.student.id), sib = rows.length - own.length;   // 5.19.42: תקציר קצר
+      box.dataset.sum = (own.length ? `${own.length === 1 ? "שנה אחת" : own.length + " שנים"} · האחרונה ${hyLbl(own[0].school_year, own[0].year_start)}${own[0].status ? " (" + own[0].status + ")" : ""}` : "") + (sib ? (own.length ? " · " : "") + `אחים: ${sib}` : ""); }
     box.innerHTML = `<table class="hist-tbl"><tbody>${rows.map(h => { const sib = h.student_id !== l.student.id, more = [h.message, h.notes].filter(Boolean).join("\n\n");
       return `<tr class="${sib ? "sib-row" : ""}"><td style="white-space:nowrap"><b>${esc(hyLbl(h.school_year, h.year_start))}</b></td>
         <td>${sib ? esc(h.first_name + " " + (h.last_name || "")) + " (אח/ות)<br>" : ""}${esc([h.grade ? "כיתה " + h.grade : "", h.school].filter(Boolean).join(" · "))}</td>
@@ -3314,7 +3316,7 @@ function leadQuick(st, cur){
   box.innerHTML = sum + gs;
 }
 async function loadLeadGroups(studentId){
-  $("leadGroups").innerHTML = "<div class='muted'>טוען...</div>"; $("leadAtt").textContent = "";
+  $("leadGroups").innerHTML = "<div class='muted'>טוען...</div>"; delete $("leadAtt").dataset.sum; $("leadAtt").textContent = "";
   try {
     const AS_SEL = "select=id,subject,arrival_time,personal_end,status,session:sessions(id,day,time_label,start_time,end_time,room,city,school_year,%K%location:locations(name),session_instructors(staff(full_name)))&student_id=eq." + studentId;
     const as = await get("assignments", AS_SEL.replace("%K%", "kind,meeting_dates,")).catch(() => get("assignments", AS_SEL.replace("%K%", "")));
@@ -3359,6 +3361,7 @@ async function loadLeadGroups(studentId){
   } catch(e) { $("leadGroups").textContent = ""; }
   try {
     const at = await get("attendance", "select=lesson_date,present,did_math,did_english,session:sessions(day,time_label,location:locations(name))&student_id=eq." + studentId + "&order=lesson_date.desc&limit=12");
+    $("leadAtt").dataset.sum = at.length ? `האחרונה ${fmtDay(at[0].lesson_date)} · ${at[0].present ? "נוכח/ת" : "חסר/ה"} · ${at.filter(x => x.present).length} מתוך ${at.length} האחרונות` : "אין עדיין רישומי נוכחות";   // 5.19.42
     $("leadAtt").innerHTML = at.length ? at.map(x => `<div class="att-mini"><span>${esc(fmtDay(x.lesson_date))} · ${esc(x.session ? x.session.time_label + " " + (x.session.location ? x.session.location.name : "") : "")}</span>
       <span>${x.present ? `<span class="p">נוכח/ת</span>${x.did_math ? " · מת'" : ""}${x.did_english ? " · אנג'" : ""}` : `<span class="a">חסר/ה</span>`}</span></div>`).join("") : "אין עדיין רישומי נוכחות.";
   } catch(e) { $("leadAtt").textContent = ""; }
@@ -3466,7 +3469,7 @@ async function openAsgEditor(studentId, a, cur, opts){
     <label class="lbl">מקצוע</label>
     ${subj ? `<div class="lg-subj"><b>${esc(subj)}</b> <span class="muted">${stSubj ? "(לפי הסטטוס)" : enrSubj ? "(לפי ההרשמה)" : "(לפי השיבוץ הקיים)"}</span></div><input type="hidden" data-f="subject" value="${esc(subj)}">`
       : `<select data-f="subject"><option value="">בחירה...</option>${SUBJECTS.map(x => `<option>${x}</option>`).join("")}</select><div class="muted" style="font-size:12.5px;">לא ידוע במה הילד/ה נרשם/ה - בוחרים פעם אחת.</div>`}
-    ${a ? "" : `<label class="lbl">מצב</label><div class="lg-st"><label><input type="radio" name="lgSt" value="ממתין" checked> מוצע – ממתין לאישור</label><label><input type="radio" name="lgSt" value="משובץ"> משובץ (כבר אישר)</label></div>`}
+    ${a ? "" : `<label class="lbl">מצב</label><div class="lg-st"><label><input type="radio" name="lgSt" value="משובץ" checked> שיבוץ מאושר</label><label><input type="radio" name="lgSt" value="ממתין"> מוצע – ממתין לאישור</label></div>`}
     <label class="lbl">שעה אישית <span class="muted">(רק אם שונה משעת הקבוצה)</span></label>
     <div class="lg-times"><input type="time" data-f="from" value="${a && a.arrival_time ? hm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-f="to" value="${a && a.personal_end ? hm(a.personal_end) : ""}" aria-label="עד שעה"></div>
     <div class="err" data-f="err"></div>
@@ -3898,6 +3901,9 @@ async function loadLeadExams(l){
   const s = l.student, sch = schoolOf(s), t = todayIL();
   const list = examsFor(sch.name, sch.city, s.grade, s.class_num, t), stu = studyFor(sch.name, sch.city, s.grade, s.class_num, t);
   const stuH = stu ? `<div class="ex-row ex-study"><b>📓 לומדים עכשיו</b> <span class="muted">(התקבל ${esc(fmtDM(stu.exam_date))})</span>${studyAll(stu).length > 1 ? studyTxt(studyAll(stu), "ex-topics") : `${stu.topics ? `<div class="ex-topics">${esc(stu.topics)}</div>` : ""}${stu.material ? `<div class="muted">קובץ: ${esc(stu.material)}</div>` : ""}`}</div>` : "";
+  delete box.dataset.sum;
+  if (list.length) box.dataset.sum = `${list.length === 1 ? "מבחן אחד" : list.length + " מבחנים"} · הקרוב ${fmtIso(list[0].exam_date)} (${list[0].kind})`;   // 5.19.42
+  else box.dataset.sum = stu ? "📓 לומדים עכשיו" + (stu.topics ? ": " + String(stu.topics).slice(0, 60) : "") : (sch.name && s.grade ? "אין מבחנים קרובים ידועים" : "חסרים בית ספר או כיתה בכרטיס");
   if (!list.length) { box.innerHTML = stuH + `<span class="muted">${sch.name && s.grade ? "אין מבחנים קרובים ידועים ל" + esc(sch.name) + " שכבה " + esc(gradeKey(s.grade)) + "'." : "חסרים בית ספר או כיתה בכרטיס."}</span>`; return; }
   box.innerHTML = stuH + list.map(e => `<div class="ex-row${EX_MAKEUP.test(e.kind) ? " mk" : ""}">${EX_MAKEUP.test(e.kind) ? `<b>${esc(fmtIso(e.exam_date))}</b>` : `<span class="ex-date${exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span>`} · ${esc(e.kind)}${e.topics ? `<div class="ex-topics">${esc(e.topics)}</div>` : ""}${e.material ? `<div class="muted">קובץ: ${esc(e.material)}</div>` : ""}</div>`).join("");
 }
