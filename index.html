@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.35">
+<meta name="app-version" content="5.19.36">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4377,6 +4377,7 @@ async function openGroupEditor(se, preset){
   const kids = se ? (se.assigned_count || 0) : 0;
   box.innerHTML = `
     <div class="full lg-edit-h">${se ? "עריכת קבוצה" : "קבוצה חדשה · " + esc(city)}</div>
+    ${se ? "" : `<div><label class="lbl">עיר</label><select data-g="gcity">${CONFIG.cities.map(c => `<option ${c === city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>`}
     <div class="full"><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div>
     <div><label class="lbl">יום</label><select data-g="day">${DAYS.filter(d => d !== "ו").map(d => `<option value="${d}" ${se && se.day === d ? "selected" : ""}>${DAY_NAMES[d]}</option>`).join("")}</select></div>
     <div><label class="lbl">בית ספר</label><select data-g="loc">${se ? "" : "<option value=''>בחירה...</option>"}${locs.map(x => `<option value="${x.id}" ${curLoc && curLoc.id === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
@@ -4392,6 +4393,7 @@ async function openGroupEditor(se, preset){
       ${se && !String(se.location || "").includes("/") ? `<button type="button" class="btn small danger" data-g="del" ${kids ? `disabled title="אי אפשר למחוק קבוצה שיש בה ילדים"` : ""}>מחיקת קבוצה</button>` : ""}
       <button type="button" class="btn small" data-g="cancel">ביטול</button></div>`;
   const g = (k) => box.querySelector(`[data-g="${k}"]`);
+  if (g("gcity")) g("gcity").onchange = () => { $("panelSub").textContent = g("gcity").value; openGroupEditor(null, Object.assign({}, preset || {}, { city: g("gcity").value, location: null })); };   // 5.19.36
   g("start").onchange = () => { if (g("start").value && !g("end").value) g("end").value = addMin(g("start").value, 45); };
   // שינוי יום: אם "עד תאריך" היה המפגש האחרון של השנה - מתעדכן ליום החדש
   let prevDay = g("day").value;
@@ -4439,7 +4441,7 @@ function newGroup(preset){
 }
 $("gNewBtn").addEventListener("click", () => newGroup(null));
 // 5.19.29: כפתורי המנהלים במסך קבוצות ונוכחות
-$("attNewG").addEventListener("click", async () => { await ensureG(); newGroup(null); });
+$("attNewG").addEventListener("click", async () => { await ensureG(); newGroup({ city: A.city || (A.cities.length ? A.cities[0] : null) || G.city }); });   // 5.19.36: העיר שנבחרה בלוח
 $("attNewM").addEventListener("click", async () => { await ensureG(); $("mNewBtn").click(); });
 $("attRepBtn").addEventListener("click", () => go("attg"));
 $("arBackBtn").addEventListener("click", () => go("att"));
