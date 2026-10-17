@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.51">
+<meta name="app-version" content="5.19.52">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -574,6 +574,7 @@
   select.sch-sel{ background-color:var(--scb) !important; color:var(--sci) !important; -webkit-text-fill-color:var(--sci) !important; font-weight:800; border-radius:999px; }
   #leadForm.ro .lead-main select.sch-sel:disabled{ padding-inline-start:12px; width:auto; max-width:100%; }
   .asg-pill{ display:inline-flex; flex-wrap:wrap; gap:4px; }
+  .ws-lv{ font-style:normal; font-size:13px; white-space:nowrap; cursor:help; } .ws-lvleg{ font-size:12.5px; color:var(--ink-soft); margin:2px 0 6px; } .ws-lvleg i{ font-style:normal; }
   .ws-hard{ font-style:normal; font-size:11px; font-weight:800; color:#7a4b00; background:#fff1d6; border:1px solid #f0d49a; border-radius:999px; padding:0 6px; white-space:nowrap; }
   .asg-over{ display:inline-flex; align-items:center; justify-content:center; background:#fde2e1; color:#b42318; border:1px solid #f3b5b0; border-radius:999px; font-size:12px; font-weight:800; padding:0 6px; margin-inline-end:4px; vertical-align:middle; cursor:help; }
   .asg-pill > span{ display:inline-flex; align-items:center; gap:4px; font-size:12.5px; font-weight:700; white-space:nowrap; background:var(--scb, var(--ok-bg)); color:var(--sci, var(--ok)); border-radius:999px; padding:1px 8px; direction:rtl; }
@@ -6256,10 +6257,13 @@ const WS_SEARCH_ORD = ["topic", "summary", "grammar", "unseen", "vocab", "genera
 // 5.19.24: טעינה מהירה - הרשימה נשמרת בטלפון/במחשב ומוצגת מיד; ברקע נטענת גרסה עדכנית ומתחלפת אם יש שינוי.
 // source_path (רק לייבוא מהמחשב) לא נטען כאן - נשלף רק בייבוא.
 const WS_CACHE = "telem_ws_cache_v1";
-const WSQ = "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,sort_order,uploaded,is_star,file_at&is_active=eq.true&order=book,kind,topic_no,sort_order";
+const WSQ = "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,sort_order,uploaded,is_star,file_at,level,is_word&is_active=eq.true&order=book,kind,topic_no,sort_order";
 const wsPrep = (rows) => { rows.forEach(r => { if (r.book === "ENG" && r.kind === "general" && WS_VOCAB.test(r.topic_name || "")) r.kind = "vocab"; }); return rows; };
-// 5.19.50: file_at (קובץ 69) - אם עוד לא הורץ, טוענים בלעדיו
-const wsFetch = () => getAll("worksheets", WSQ).catch(e => /file_at|is_star/.test(String(e && e.message)) ? getAll("worksheets", WSQ.replace(",file_at", "")).catch(e2 => /is_star/.test(String(e2 && e2.message)) ? getAll("worksheets", WSQ.replace(",is_star,file_at", "")) : Promise.reject(e2)) : Promise.reject(e));
+// 5.19.52: עמודות שאולי עוד לא קיימות (is_star 55, file_at 69, level/is_word 86.1) - אם חסרה, טוענים בלעדיה
+const wsFetch = async () => { let q = WSQ;
+  for (let i = 0; i < 5; i++) { try { return await getAll("worksheets", q); }
+    catch(e) { const c = ["level", "is_word", "file_at", "is_star"].find(k => q.includes("," + k) && new RegExp("\\b" + k + "\\b").test(String(e && e.message))); if (!c) throw e; q = q.replace("," + c, ""); } }
+  return getAll("worksheets", q); };
 async function loadWs(){
   if (WS.rows) { renderWs(); return; }
   let cached = null; try { cached = JSON.parse(store(WS_CACHE) || "null"); } catch(e) {}
@@ -6287,6 +6291,10 @@ async function loadWs(){
 // 5.19.51: החלוקה לתתי-נושאים (WS_SPLIT) הועברה למסד (שיחת דפי התרגול) - כבר לא בקוד
 // דף "חשיבה" (חושבים / מעמיקים / אתגר / חשיבה בשם הדף) - תגית קטנה, כדי לראות מה בסיס ומה אתגר
 const WS_HARD = /חושבים|מעמיקים|אתגר|חשיבה/;
+// 5.19.52: רמת קושי מהמאגר (level 1/2/3) + 📖 שאלות מילוליות (is_word). בלי level - לפי שם הדף (WS_HARD) כמו קודם
+const WS_LVL = { 1: ["🟡", "בסיסי"], 2: ["🟣", "מתקדם"], 3: ["🧩", "אתגר"] };
+const wsLvl = (r) => { const l = WS_LVL[Number(r.level)] || (r.level == null && WS_HARD.test(r.title || "") ? WS_LVL[3] : null);
+  return (l ? ` <i class="ws-lv" title="${l[1]}">${l[0]}</i>` : "") + (r.is_word ? ` <i class="ws-lv" title="שאלות מילוליות">📖</i>` : ""); };
 // קישורים זמניים לתמונות (שעה), בקבוצות
 async function wsSign(paths){
   const now = Date.now(), need = paths.filter(p => !WS.urls[p] || WS.urls[p].exp < now + 60000);
@@ -6415,10 +6423,11 @@ async function renderWs(){
       return `<div class="ws-stars"><div class="ws-stars-h"><span>⭐ חשובים בנושא</span>${tiles.length > 1 ? `<button type="button" class="btn small" id="wsStAll">${wsMobile() ? "שליחת כולם" : "הורדת כולם"} (${st.length})</button>` : ""}</div>
         <div class="ws-stars-row">${tiles.join("")}</div></div>`; })()}
     ${canSel ? `<div class="ws-selhint">לחיצה ארוכה על דף - ${WS_SHARE ? "שליחה" : "העתקה"} בלי לפתוח אותו. לכל הדפים יחד - לחיצה ארוכה על שם ${list.some(r => r.sub) ? (WS.kind === "unseen" ? "היחידה" : "תת-הנושא") + " (או הנושא)" : "הנושא"}.</div>` : ""}
+    ${list.some(r => r.level != null || r.is_word) ? `<div class="ws-lvleg"><i>🟡</i> בסיסי · <i>🟣</i> מתקדם · <i>🧩</i> אתגר${list.some(r => r.is_word) ? " · <i>📖</i> שאלות מילוליות" : ""}</div>` : ""}
     ${WS.tab === "answers" ? `<div class="ws-warn">פתרונות - לשימוש הצוות. לשלוח לתלמיד רק אם החלטתם.</div>` : ""}`;
   WS.sign = sign;
   const card = (r, i) => `<div class="ws-pgw${WS.sel.has(r.storage_path) ? " sel" : ""}"><button type="button" class="ws-pg" data-i="${i}"><div class="th">${r.is_star ? `<span class="ws-pstar" title="דף חשוב">⭐</span>` : ""}${r.uploaded && sign(r.storage_path) ? `<img src="${esc(sign(r.storage_path))}" alt="" loading="lazy">` : "עוד לא הועלה"}</div>
-    <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}${r.type === "page" && WS_HARD.test(r.title || "") ? ` <i class="ws-hard" title="דף חשיבה / אתגר">🧩 אתגר</i>` : ""}</span></div></button></div>`;
+    <div class="cap"><b>${r.type === "answers" ? "" : esc(String(r.page_no)) }</b><span>${esc(r.title || "")}${r.type === "page" ? wsLvl(r) : ""}</span></div></button></div>`;
   // חלוקה לתת-נושאים / יחידות (אנסין: כל יחידה = קטע + שאלות + אוצר מילים) - כשיש
   const unitCls = WS.kind === "unseen" ? " ws-unit" : "";
   if ((WS.tab === "page" && WS.kind === "topic") || list.some(r => r.sub || r.chapter)) {
