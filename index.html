@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.50">
+<meta name="app-version" content="5.19.51">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1638,6 +1638,13 @@ td.nowrap{ white-space:nowrap; }
 #rgMain .lk-act{ text-align:start; width:auto; }
 .nav-n{ display:inline-block; background:var(--full, #b3423f); color:#fff; border-radius:999px; padding:0 6px; font-size:11px; line-height:16px; margin-inline-start:2px; }
 @media (max-width:760px){ #rgMain .lk2-row{ grid-template-columns:1fr; } #rgMain .lk-row{ grid-template-columns:1fr; } .rg-lk-bar{ gap:8px; } .rg-lk-bar .rg-lk-seg button{ padding:5px 10px; font-size:13.5px; } }
+.ui-dlg-bg{ position:fixed; inset:0; z-index:5000; background:rgba(30,20,15,.45); display:flex; align-items:center; justify-content:center; padding:16px; }
+.ui-dlg{ background:var(--paper, #fff); color:var(--ink, #222); border:1.5px solid var(--accent, #6B1E23); border-radius:16px; width:100%; max-width:440px; max-height:85vh; overflow:auto; padding:18px 18px 14px; box-shadow:0 14px 40px rgba(0,0,0,.25); direction:rtl; text-align:right; }
+.ui-dlg-t{ white-space:pre-line; font-size:16px; line-height:1.6; margin-bottom:14px; }
+.ui-dlg-in{ width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:10px 12px; border:1px solid var(--border, #ddd); border-radius:12px; margin-bottom:14px; background:var(--bg, #FAF8F5); color:inherit; resize:vertical; }
+.ui-dlg-b{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; } .ui-dlg-b .btn{ flex:0 1 130px; min-width:100px; min-height:46px; padding-inline:16px; font-size:16px; font-weight:700; justify-content:center; }   /* 5.19.51: כפתורים צרים יותר עם רווח ביניהם - שלא ילחצו בטעות */
+.ui-dlg-b .btn.danger{ background:#A1261F; border-color:#A1261F; color:#fff; }
+@media (max-width:760px){ .ui-dlg-bg{ align-items:flex-end; padding:0; } .ui-dlg{ max-width:none; border-radius:18px 18px 0 0; border-width:1.5px 0 0; padding:20px 16px calc(16px + env(safe-area-inset-bottom)); } }
 </style>
 </head>
 <body>
@@ -2498,6 +2505,28 @@ function resumeView(force){
 const SETTINGS_VIEWS = ["staff","backup","issues","me"];   // 5.19.32: "הרשמה ותשלומים" - טאב בתפריט הראשי
 const INFO_VIEWS = [];   // "מידע למתרגלים" ו"חגים וחופשות" - בתפריט הקטן ⓘ ליד ההגדרות
 let DATA_READY = true, DATA_WAIT = null;
+// 5.19.51 (הלקוחה): חלון אישור / שאלה של המערכת במקום חלונות הדפדפן (confirm / prompt) - נוח בנייד, באותו עיצוב
+function uiDialog(msg, o){ o = o || {};
+  return new Promise((resolve) => {
+    const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
+    const danger = o.danger != null ? o.danger : /למחוק|מחיקה|לבטל את|לסיים את הפיצול/.test(msg), ask = /^האם /.test(msg);
+    const okT = o.ok || (o.input ? "שמירה" : ask ? "כן" : danger ? (/למחוק/.test(msg) ? "מחיקה" : /לבטל/.test(msg) ? "כן, לבטל" : "כן") : "אישור"), noT = o.no || (ask ? "לא" : o.copy ? "סגירה" : "ביטול");
+    bg.innerHTML = `<div class="ui-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t"></div>${o.input ? `<${o.multi ? "textarea rows='3'" : "input type='text'"} class="ui-dlg-in"></${o.multi ? "textarea" : "input"}>` : ""}<div class="ui-dlg-b">${o.copy ? "" : `<button type="button" class="btn primary${danger ? " danger" : ""}" data-ok></button>`}<button type="button" class="btn" data-no></button></div></div>`;
+    bg.querySelector(".ui-dlg-t").textContent = msg; if (!o.copy) bg.querySelector("[data-ok]").textContent = okT; bg.querySelector("[data-no]").textContent = noT;
+    const inp = bg.querySelector(".ui-dlg-in"); if (inp) { inp.value = o.value != null ? o.value : ""; if (o.copy) inp.readOnly = true; }
+    const done = (v) => { document.removeEventListener("keydown", key, true); bg.remove(); resolve(v); };
+    const ok = () => done(o.input ? (inp ? inp.value : "") : true), no = () => done(o.input ? null : false);
+    const key = (ev) => { if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); no(); } else if (ev.key === "Enter" && !(inp && inp.tagName === "TEXTAREA") && !o.copy) { ev.preventDefault(); ev.stopPropagation(); ok(); } };
+    document.addEventListener("keydown", key, true);
+    if (!o.copy) bg.querySelector("[data-ok]").onclick = ok; bg.querySelector("[data-no]").onclick = no;
+    bg.addEventListener("click", (ev) => { if (ev.target === bg) no(); });
+    document.body.appendChild(bg);
+    setTimeout(() => { if (inp) { inp.focus(); inp.select(); } else (bg.querySelector("[data-ok]") || bg.querySelector("[data-no]")).focus(); }, 30);
+  });
+}
+const uiConfirm = (msg, o) => uiDialog(msg, o);
+const uiPrompt = (msg, value, o) => uiDialog(msg, Object.assign({ input: true, value, multi: true }, o || {}));
+const uiCopyBox = (t) => uiDialog("להעתקה: מסמנים את הטקסט ומעתיקים", { input: true, value: t, copy: true, multi: false });
 function go(view){
   if (view === "attk") { view = "attg"; AR.view = "kid"; }
   if (view === "groups") view = "att";   // 5.19.29: מסך הקבוצות אוחד עם הנוכחות   // 5.19.27: דוח נוכחות אחד (בקבוצות ונוכחות) - לפי ילד/ה או לפי קבוצה
@@ -3146,7 +3175,7 @@ async function weekLoadOk(studentId, changes){
   const after = rows.filter(a => !ids.has(a.id)).concat(changes.map(c => Object.assign({}, rows.find(a => a.id === c.id) || {}, c)));
   const er = weekLoadCalc(after);
   if (!er || weekLoadCalc(rows) === er) return true;   // לא חורג, או שזה המצב שכבר היה (לא מחמירים) - בלי לשאול
-  return window.confirm("⚠ מעל המגבלה השבועית: " + er + "\n\nלשמור בכל זאת? התלמיד/ה יסומן/ת ⚠ בטבלת התלמידים.");
+  return await uiConfirm("⚠ מעל המגבלה השבועית: " + er + "\n\nלשמור בכל זאת? התלמיד/ה יסומן/ת ⚠ בטבלת התלמידים.");
 }
 async function trackAsg(l){
   try {
@@ -3210,7 +3239,7 @@ async function renderTrack(l, editMode){
 // ---------- תשלום טלפוני: ממתין לאשראי + כפתור "שולם" ----------
 const fmtMoney = (n) => n == null ? "" : Number(n).toLocaleString("he-IL") + " ₪";
 async function markPaid(x){
-  if (!window.confirm(`לסמן ששולם: ${x.first_name} ${x.last_name || ""} · ${x.what || ""}${x.amount ? " · " + fmtMoney(x.amount) : ""}?`)) return false;
+  if (!await uiConfirm(`לסמן ששולם: ${x.first_name} ${x.last_name || ""} · ${x.what || ""}${x.amount ? " · " + fmtMoney(x.amount) : ""}?`)) return false;
   try { const r = await rpc("mark_paid", { p_kind: x.kind, p_order: x.order_id }); toast("נרשם ששולם · הסטטוס: " + (r && r.status || "")); callCount();
         loadLeads().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); return true; }
   catch(e) { toast("לא נשמר: " + e.message); return false; }
@@ -3293,7 +3322,7 @@ async function loadLeadCancel(l){
           const a = document.createElement("a"); a.href = r.pdf; a.download = "טופס ביטול - " + fnSafe((l.student.first_name || "") + " " + (l.student.last_name || "")) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
     catch(e) { toast("לא ניתן להוריד"); } });
   box.querySelectorAll("[data-capprove]").forEach(b => b.onclick = async () => {
-    if (!window.confirm("לאשר את הביטול? ההרשמה והשיבוצים של המקצוע יסומנו כבוטלו, והסטטוס יעבור ל\"פרש\".")) return;
+    if (!await uiConfirm("לאשר את הביטול? ההרשמה והשיבוצים של המקצוע יסומנו כבוטלו, והסטטוס יעבור ל\"פרש\".")) return;
     b.disabled = true;
     try { await rpc("approve_cancellation", { p_id: Number(b.dataset.capprove) }); toast("הביטול אושר - הסטטוס עבר ל\"פרש\"");
           await loadLeads(); const nl = L.leads.find(x => x.id === l.id);
@@ -3618,9 +3647,9 @@ async function openAsgEditor(studentId, a, cur, opts){
     let reg = null;
     if (isMar) { try { reg = (await get("marathon_registrations", "select=id,status,amount,paid_at,refunded_at&student_id=eq." + studentId + "&session_id=eq." + a.session.id + "&status=neq." + encodeURIComponent("בוטל") + "&order=id.desc&limit=1"))[0] || null; } catch(e) {} }
     const paid = reg && (reg.paid_at || reg.status === "שולם");
-    if (!window.confirm(isMar ? `${who} פורש/ת מ${what}?\n\nהשיבוץ יוסר וההרשמה למרתון תסומן "בוטל".${paid ? `\nההורה כבר שילם/ה${reg.amount ? " " + reg.amount + " ₪" : ""} - אם מחזירים כסף, ההחזר עצמו בריווחית.` : ""}\nהנוכחות שכבר נרשמה נשמרת.`
+    if (!await uiConfirm(isMar ? `${who} פורש/ת מ${what}?\n\nהשיבוץ יוסר וההרשמה למרתון תסומן "בוטל".${paid ? `\nההורה כבר שילם/ה${reg.amount ? " " + reg.amount + " ₪" : ""} - אם מחזירים כסף, ההחזר עצמו בריווחית.` : ""}\nהנוכחות שכבר נרשמה נשמרת.`
         : `להסיר את ${who} מהקבוצה של ${what}?\n\nהנוכחות שכבר נרשמה נשמרת.`)) return;
-    const refunded = paid && window.confirm(`האם כבר החזרת את הכסף (${reg.amount ? reg.amount + " ₪" : "התשלום"}) בריווחית?\n\nאישור = כן, לסמן "הוחזר". ביטול = עוד לא / לא מחזירים.`);
+    const refunded = paid && await uiConfirm(`האם כבר החזרת את הכסף (${reg.amount ? reg.amount + " ₪" : "התשלום"}) בריווחית?`, { ok: "כן, הוחזר", no: "עוד לא / לא מחזירים" });
     f("rm").disabled = true;
     try { await del("assignments", "id=eq." + a.id);
           if (reg) await patch("marathon_registrations", "id=eq." + reg.id, Object.assign({ status: "בוטל" }, refunded ? { refunded_at: new Date().toISOString(), refund_amount: Number(reg.amount) || null } : {})).catch(() => {});
@@ -3900,7 +3929,7 @@ async function renderHolidays(reload){
     catch(e) { toast("לא נשמר: " + e.message); el.value = h[f] || ""; }
   });
   T.querySelectorAll("[data-hdel]").forEach(b => b.onclick = async () => { const h = HOL.rows.find(x => x.id === Number(b.dataset.hdel));
-    if (!window.confirm(`למחוק את "${h.name}"?`)) return;
+    if (!await uiConfirm(`למחוק את "${h.name}"?`)) return;
     try { await del("days_off", "id=eq." + h.id); HOL.rows = HOL.rows.filter(x => x.id !== h.id); renderHolidays(false); toast("נמחק"); } catch(e) { toast("לא נמחק: " + e.message); } });
 }
 $("holAdd").addEventListener("click", async () => {
@@ -3980,7 +4009,7 @@ function exShow(id){
   const lb = o.querySelector("[data-exlink]"); if (lb) lb.onclick = () => { o.hidden = true; exMakeLink(e); };
   const kb2 = o.querySelector("[data-exkids]"); if (kb2) kb2.onclick = async () => { o.hidden = true; await ensureG(true); if (G.sessions.some(x => x.session_id === e.session_id)) openPanel(e.session_id); else toast("קבוצת המרתון לא נמצאה"); };
   const gb = o.querySelector("[data-exgomar]"); if (gb) gb.onclick = () => { o.hidden = true; RG.tab = "links"; RG.lk = "mar"; store("telem_reg_lk", "mar"); RG.city = (e.school && e.school.city) || RG.city; store("telem_reg_tab", "links"); go("reg"); };
-  const db = o.querySelector("[data-expdel]"); if (db) db.onclick = async () => { if (!confirm("למחוק את \"" + e.kind + "\" ב-" + fmtDM(e.exam_date) + "?" + (e.session_id ? "\nהמפגש יימחק גם מקישור ההרשמה של המרתון." : ""))) return;
+  const db = o.querySelector("[data-expdel]"); if (db) db.onclick = async () => { if (!await uiConfirm("למחוק את \"" + e.kind + "\" ב-" + fmtDM(e.exam_date) + "?" + (e.session_id ? "\nהמפגש יימחק גם מקישור ההרשמה של המרתון." : ""))) return;
     try { await del("school_exams", "id=eq." + e.id); if (e.session_id) await exSyncSession(e.session_id).catch(() => {}); o.hidden = true; toast("נמחק"); EX.scrollTo = exFirstVisible(); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } };
 }
 document.addEventListener("click", (ev) => { const b = ev.target.closest && ev.target.closest("[data-ex]"); if (!b) return; ev.preventDefault(); ev.stopPropagation(); exShow(Number(b.dataset.ex)); }, true);
@@ -4064,7 +4093,7 @@ async function renderExams(reload){
   box.querySelectorAll("[data-extop]").forEach(b => b.onclick = () => exShow(Number(b.dataset.extop)));
   box.querySelectorAll("[data-kf]").forEach(b => b.onclick = () => { EX.kf = b.dataset.kf; renderExams(false); });
   box.querySelectorAll("[data-exdel]").forEach(b => b.onclick = async () => { const e = EX.rows.find(x => x.id === Number(b.dataset.exdel));
-    if (!window.confirm(`למחוק את ה${e.kind} של ${exSchName(e)} ${gradeKey(e.grade)}' ב-${fmtIso(e.exam_date)}?`)) return;
+    if (!await uiConfirm(`למחוק את ה${e.kind} של ${exSchName(e)} ${gradeKey(e.grade)}' ב-${fmtIso(e.exam_date)}?`)) return;
     try { await del("school_exams", "id=eq." + e.id); toast("נמחק"); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } });
 }
 ["exCity", "exSch", "exGrade", "exFrom", "exTo"].forEach(id => $(id).addEventListener("change", () => renderExams(false)));   // 5.19.49: בלי "גם שעברו" / "גם השלמה" (הלקוחה)
@@ -4327,7 +4356,7 @@ $("exImpFile").addEventListener("change", async () => {
     if (!res.rows.length) { toast("לא נמצאו מבחנים בקובץ"); return; }
     // גיליון "חומר נלמד עכשיו" (אם יש)
     wb.SheetNames.filter(n => n.includes("חומר נלמד")).forEach(n => { res.rows.push(...exParseSheet(aoa(wb.Sheets[n]), true).rows); });
-    if (!window.confirm(`נמצאו ${res.rows.length} מבחנים בקובץ. להחליף את המבחנים שהגיעו מהקובץ? (מבחנים שהוספו ידנית נשארים)`)) return;
+    if (!await uiConfirm(`נמצאו ${res.rows.length} מבחנים בקובץ. להחליף את המבחנים שהגיעו מהקובץ? (מבחנים שהוספו ידנית נשארים)`)) return;
     const r = await rpc("import_school_exams", { p: res.rows });
     toast(`עודכנו ${r.rows} מבחנים` + (r.unmatched ? ` · לא זוהו: ${r.unmatched}` : "")); renderExams(true);
   } catch(err) { toast("הייבוא נכשל: " + err.message); }
@@ -4542,7 +4571,7 @@ function wireProp(se){
       toast(`${k.first_name} ${k.last_name || ""} אישר/ה - עבר/ה למשובצים`); await loadGroups(); openPanel(se.session_id); }
     catch(e) { cb.checked = false; cb.disabled = false; toast("לא נשמר: " + e.message); } });
   R.querySelectorAll("[data-prm]").forEach(b => b.onclick = async () => { const k = byId(b.dataset.prm);
-    if (!window.confirm(`להסיר את ההצעה של ${k.first_name} ${k.last_name || ""} מהקבוצה?`)) return;
+    if (!await uiConfirm(`להסיר את ההצעה של ${k.first_name} ${k.last_name || ""} מהקבוצה?`)) return;
     try { await del("assignments", "id=eq." + k.id); toast("ההצעה הוסרה"); await loadGroups(); openPanel(se.session_id); } catch(e) { toast("לא נמחק: " + e.message); } });
 }
 // מקצוע בצבע לפי קובץ הנרשמים: מתמטיקה ירוק, אנגלית צהוב, שניהם כחול
@@ -4626,7 +4655,7 @@ async function openGroupEditor(se, preset){
     } catch(e) { g("err").textContent = "השמירה נכשלה: " + e.message; g("save").disabled = false; }
   };
   if (g("del")) g("del").onclick = async () => {
-    if (!window.confirm(`למחוק את הקבוצה של ${se.location}, יום ${DAY_NAMES[se.day]} ${hm(se.start_time)}?`)) return;
+    if (!await uiConfirm(`למחוק את הקבוצה של ${se.location}, יום ${DAY_NAMES[se.day]} ${hm(se.start_time)}?`)) return;
     try { await del("sessions", "id=eq." + se.session_id); LG_SESSIONS = null; toast("הקבוצה נמחקה"); closePanel(); await loadGroups(); }
     catch(e) { g("err").textContent = /foreign key|23503/i.test(e.message + " " + (e.code || "")) ? "יש לקבוצה נוכחות שמורה ולכן אי אפשר למחוק אותה. אפשר לסמן אותה כסגורה להרשמה." : "המחיקה נכשלה: " + e.message; }
   };
@@ -4715,7 +4744,7 @@ function marBoxHtml(m){
 function wireMarBox(root, m){
   root.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
   root.querySelectorAll("[data-mopen]").forEach(b => b.onclick = async () => {
-    if (!confirm("לפתוח את \"" + m.name + "\" להרשמה? מעכשיו הקישור עם התשלום יעבוד.")) return;
+    if (!await uiConfirm("לפתוח את \"" + m.name + "\" להרשמה? מעכשיו הקישור עם התשלום יעבוד.")) return;
     b.disabled = true;
     try { await patch("marathons", "id=eq." + m.id, { is_open: true }); m.is_open = true; EX.mar = null; RG.mar = null; toast("המרתון פתוח להרשמה"); openMarathonPanel(m); if (currentView === "exams") renderExams(false); }
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
@@ -4800,8 +4829,8 @@ async function marWithdraw(k, se, m){
   const who = `${k.first_name} ${k.last_name || ""}`.trim();
   let reg = null; try { reg = (await get("marathon_registrations", "select=id,status,amount,paid_at&student_id=eq." + k.student_id + "&session_id=eq." + se.session_id + "&status=neq." + encodeURIComponent("בוטל") + "&order=id.desc&limit=1"))[0] || null; } catch(e) {}
   const paid = reg && (reg.paid_at || reg.status === "שולם");
-  if (!window.confirm(`${who} פורש/ת מ${m.name}?\n\nהשיבוץ יוסר וההרשמה למרתון תסומן "בוטל".${paid ? `\nההורה כבר שילם/ה${reg.amount ? " " + reg.amount + " ₪" : ""} - אם מחזירים כסף, ההחזר עצמו בריווחית.` : ""}`)) return;
-  const refunded = paid && window.confirm(`האם כבר החזרת את הכסף (${reg.amount ? reg.amount + " ₪" : "התשלום"}) בריווחית?\n\nאישור = כן, לסמן "הוחזר". ביטול = עוד לא / לא מחזירים.`);
+  if (!await uiConfirm(`${who} פורש/ת מ${m.name}?\n\nהשיבוץ יוסר וההרשמה למרתון תסומן "בוטל".${paid ? `\nההורה כבר שילם/ה${reg.amount ? " " + reg.amount + " ₪" : ""} - אם מחזירים כסף, ההחזר עצמו בריווחית.` : ""}`)) return;
+  const refunded = paid && await uiConfirm(`האם כבר החזרת את הכסף (${reg.amount ? reg.amount + " ₪" : "התשלום"}) בריווחית?`, { ok: "כן, הוחזר", no: "עוד לא / לא מחזירים" });
   try { await del("assignments", "id=eq." + k.id);
         if (reg) await patch("marathon_registrations", "id=eq." + reg.id, Object.assign({ status: "בוטל" }, refunded ? { refunded_at: new Date().toISOString(), refund_amount: Number(reg.amount) || null } : {})).catch(() => {});
         toast("סומן: פרש/ה מהמרתון"); RG.mar = null; await loadGroups(); openMarathonPanel(m); }
@@ -4955,7 +4984,7 @@ function openMarathonEditor(m, inPanel, pre){
     const sig = (x) => JSON.stringify([x.label, x.cap, x.room || "", x.meets.map(z => [z.date, z.start, z.end, z.room || ""])]);
     const meetsChanged = (x) => !x.orig || JSON.stringify(JSON.parse(x.orig)[3].map(z => z.slice(0, 3))) !== JSON.stringify(x.meets.map(z => [z.date, z.start, z.end]));
     if (m) { const ch = GRPS.filter(x => x.id && x.kids && meetsChanged(x));
-      if (ch.length && !window.confirm(`ב${ch.map(x => x.label).join(", ")} כבר יש נרשמים.\nלשנות את מועדי המפגשים? כדאי לעדכן את ההורים בעצמך (המערכת לא שולחת הודעה).`)) return; }
+      if (ch.length && !await uiConfirm(`ב${ch.map(x => x.label).join(", ")} כבר יש נרשמים.\nלשנות את מועדי המפגשים? כדאי לעדכן את ההורים בעצמך (המערכת לא שולחת הודעה).`)) return; }
     // מקום (בית הספר) לקבוצות חדשות
     if (!G.locs) { try { G.locs = await get("locations", "select=id,city,name,color_class"); } catch(e) { G.locs = []; } }
     const loc0 = (GRPS.find(x => x.loc) || {}).loc || (G.locs.find(x => x.city === body.city && x.name === body.school) || {}).id;
@@ -5065,7 +5094,7 @@ async function openMarGroupEditor(m, se){
   };
   if (g("del")) g("del").onclick = async () => {
     if (G.sessions.filter(x => x.marathon_id === m.id).length <= 1) { g("err").textContent = "זו הקבוצה היחידה של המרתון. למרתון חייבת להיות לפחות קבוצה אחת - כדי לוותר עליו מוחקים את המרתון (בהרשמה ושיבוץ)."; return; }
-    if (!window.confirm(`למחוק את ${se.time_label} של ${m.name}?`)) return;
+    if (!await uiConfirm(`למחוק את ${se.time_label} של ${m.name}?`)) return;
     try { await del("sessions", "id=eq." + se.session_id); LG_SESSIONS = null; toast("הקבוצה נמחקה"); closePanel(); await loadGroups(); }
     catch(e) { g("err").textContent = /foreign key|23503/i.test(e.message + " " + (e.code || "")) ? "יש לקבוצה נוכחות שמורה ולכן אי אפשר למחוק אותה. אפשר לסמן אותה כסגורה להרשמה." : "המחיקה נכשלה: " + e.message; }
   };
@@ -5116,7 +5145,7 @@ async function loadPanelSplits(se){
   $("roster").querySelectorAll("[data-spedit]").forEach(b => b.onclick = () => openSplitEditor(se, sets[b.dataset.spedit]));
   $("roster").querySelectorAll("[data-spend]").forEach(b => b.onclick = async () => {
     const g = sets[b.dataset.spend], future = g[0].date_from > t;
-    if (!window.confirm(future ? "למחוק את הפיצול?" : "לסיים את הפיצול? מהיום הקבוצה חוזרת להיות אחת.")) return;
+    if (!await uiConfirm(future ? "למחוק את הפיצול?" : "לסיים את הפיצול? מהיום הקבוצה חוזרת להיות אחת.")) return;
     try { const ids = g.map(s => s.id).join(",");
           if (future) await del("session_splits", "id=in.(" + ids + ")"); else await patch("session_splits", "id=in.(" + ids + ")", { date_to: addDays(t, -1) < g[0].date_from ? g[0].date_from : addDays(t, -1) });
           toast(future ? "הפיצול נמחק" : "הפיצול הסתיים"); openPanel(se.session_id); }
@@ -5411,9 +5440,9 @@ async function shNavFill(sid){
     nav.hidden = false;
   } catch(e) {}
 }
-function shGo(g){
+async function shGo(g){
   if (!g) return;
-  if (attChanged() && !window.confirm("יש סימון נוכחות שעוד לא נשמר. לעבור לקבוצה אחרת בלי לשמור? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הקבוצה)")) return;
+  if (attChanged() && !await uiConfirm("יש סימון נוכחות שעוד לא נשמר. לעבור לקבוצה אחרת בלי לשמור? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הקבוצה)")) return;
   A.dirty = false; A.curG = g; openSheet(g.session_id);
 }
 async function openSheet(sessionId, retry){
@@ -5492,7 +5521,7 @@ const SUBJ_GRP_T = ["מתמטיקה", "אנגלית", "מתמטיקה + אנגל
 // דף הנוכחות: רשימה אחת לפי א"ב של השם הפרטי (בלי חלוקה למקצועות - קל למצוא ילד). המקצוע מסומן ליד השם.
 // הערת מעקב לתלמיד/ה (students.tracking) - מחלון הקבוצה ומדף הנוכחות (מנהלים). מופיעה ב-📌 בכל המקומות.
 async function editTracking(studentId, cur){
-  const v0 = window.prompt("הערת מעקב (מופיעה עם 📌 בנוכחות, בקבוצה ובטבלת התלמידים). ריק = מחיקה:", cur || "");
+  const v0 = await uiPrompt("הערת מעקב (מופיעה עם 📌 בנוכחות, בקבוצה ובטבלת התלמידים). ריק = מחיקה:", cur || "");
   if (v0 === null) return null;
   const v = v0.trim() || null;
   if (v === (cur || null)) return null;
@@ -5724,11 +5753,11 @@ $("shRows").addEventListener("change", (e) => {
 ["shExtra", "shNotes"].forEach(id => $(id).addEventListener("input", attDirty));
 $("shAll").addEventListener("click", () => { A.rows.filter(shVisible).forEach(r => { if (r.present == null) setPresent(r, true); }); attDirty(); renderSheetRows(); });
 $("shGroup").addEventListener("click", async () => {
-  if (attChanged() && !window.confirm("יש סימונים שלא נשמרו. לעבור בכל זאת? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הנוכחות)")) return;
+  if (attChanged() && !await uiConfirm("יש סימונים שלא נשמרו. לעבור בכל זאת? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הנוכחות)")) return;
   G.fromAtt = A.sheet ? { sid: A.sheet.session_id, date: A.sheet.date || A.date } : null; A.fromGrp = null; if (A.sheet) grpEdit(A.sheet.session_id);
 });
-$("shBack").addEventListener("click", () => {
-  if (attChanged() && !window.confirm("יש סימון נוכחות שעוד לא נשמר. לצאת בלי לשמור?")) return;
+$("shBack").addEventListener("click", async () => {
+  if (attChanged() && !await uiConfirm("יש סימון נוכחות שעוד לא נשמר. לצאת בלי לשמור?")) return;
   attDraftClear(); store("telem_att_last", null);
   // 5.19.27: באו מחלון הקבוצה ("✓ נוכחות") - "חזרה" חוזרת לחלון הקבוצה
   if (A.fromGrp && A.sheet && A.fromGrp === A.sheet.session_id) { const sid = A.fromGrp; A.fromGrp = null; showAttList(); loadAttGroups(); grpEdit(sid); return; }
@@ -6228,7 +6257,7 @@ const WS_SEARCH_ORD = ["topic", "summary", "grammar", "unseen", "vocab", "genera
 // source_path (רק לייבוא מהמחשב) לא נטען כאן - נשלף רק בייבוא.
 const WS_CACHE = "telem_ws_cache_v1";
 const WSQ = "select=id,book,book_label,grade,part,kind,topic_no,topic_name,chapters,chapter,sub,page_no,type,title,storage_path,sort_order,uploaded,is_star,file_at&is_active=eq.true&order=book,kind,topic_no,sort_order";
-const wsPrep = (rows) => { rows.forEach(r => { if (r.book === "ENG" && r.kind === "general" && WS_VOCAB.test(r.topic_name || "")) r.kind = "vocab"; }); wsApplySplit(rows); return rows; };
+const wsPrep = (rows) => { rows.forEach(r => { if (r.book === "ENG" && r.kind === "general" && WS_VOCAB.test(r.topic_name || "")) r.kind = "vocab"; }); return rows; };
 // 5.19.50: file_at (קובץ 69) - אם עוד לא הורץ, טוענים בלעדיו
 const wsFetch = () => getAll("worksheets", WSQ).catch(e => /file_at|is_star/.test(String(e && e.message)) ? getAll("worksheets", WSQ.replace(",file_at", "")).catch(e2 => /is_star/.test(String(e2 && e2.message)) ? getAll("worksheets", WSQ.replace(",is_star,file_at", "")) : Promise.reject(e2)) : Promise.reject(e));
 async function loadWs(){
@@ -6255,27 +6284,7 @@ async function loadWs(){
   WS.rows = wsPrep(fresh); WS.partial = false;
   if (!shown || (currentView === "ws" && !document.body.classList.contains("ws-vopen") && !(WS.sel && WS.sel.size))) renderWs();
 }
-// 5.19.20: נושאים גדולים בלי חלוקה (17-30 דפים ברצף) - חלוקה לתתי-נושאים בתצוגה בלבד (לפי שמות הדפים; בלי שינוי במסד).
-// [מדף, שם תת-הנושא] - כל קבוצה מתחילה בדף הזה ועד תחילת הבאה. דף שכבר יש לו תת-נושא במסד - לא נוגעים.
-const WS_SPLIT = {
-  "8A|topic|01": [[1, "יחס"], [4, "חלוקה ביחס"], [9, "פרופורציה"], [14, "שאלות מילוליות"], [16, "יחס ישר ויחס הפוך"], [20, "קנה מידה"]],
-  "8A|topic|02": [[1, "יחס ישר"], [4, "השיפוע"], [9, "משוואת ישר"], [15, "חיוביות ושליליות"], [18, "מצבים מהחיים"], [21, "אי-שוויונות"], [24, "שטחים"]],
-  "8A|topic|03": [[1, "צורות חופפות"], [4, "צ.ז.צ"], [8, "ז.צ.ז"], [12, "בניית משולשים"], [15, "צ.צ.צ"], [18, "כתיבת הוכחות"], [22, "תיכונים"]],
-  "8A|topic|04": [[1, "היכרות"], [4, "זוויות הבסיס"], [8, "המשפט ההפוך"], [11, "קטע אחד – שלושה תפקידים"], [15, "המשפטים ההפוכים"], [18, "משולש שווה-צלעות"], [21, "הוכחות"]],
-  "8A|topic|05": [[1, "מה זה אחוז"], [5, "ערך האחוז"], [9, "מציאת הכמות השלמה"], [12, "מציאת האחוז"], [15, "הנחות, מע\"מ והגדלה"], [19, "שינוי באחוזים"], [23, "שינויים רצופים וריבית"]],
-  "8A|topic|06": [[1, "משוואות עם סוגריים"], [5, "משוואות מיוחדות"], [8, "משוואות עם שברים"], [12, "נעלם במכנה"], [15, "שאלות מילוליות"], [19, "דרך, מהירות וזמן"]],
-  "8A|topic|07": [[1, "פתיחת סוגריים"], [5, "נוסחאות הכפל המקוצר"], [9, "פירוק לגורמים"], [12, "שבר אלגברי ותחום הצבה"], [15, "צמצום"], [19, "חיבור וחיסור שברים אלגבריים"], [23, "כפל וחילוק שברים אלגבריים"]],
-  "8B|topic|08": [[1, "דיאגרמות"], [4, "שכיחות יחסית"], [7, "השכיח"], [10, "ממוצע"], [14, "חציון"]],
-  "8B|topic|09": [[1, "ודאי, אפשרי, בלתי אפשרי"], [4, "חישוב הסתברות"], [8, "שכיחות יחסית וניסוי"], [11, "תכונות ההסתברות"]],
-  "8B|topic|10": [[1, "הגדלה, הקטנה ויחס דמיון"], [4, "צלעות וזוויות מתאימות"], [8, "משפט הדמיון ז.ז"], [12, "מצולעים דומים"]],
-  "8B|topic|11": [[1, "פתרון משוואה וגרף"], [4, "פתרון גרפי"], [8, "שיטת ההצבה"], [12, "שיטת החיבור והחיסור"], [16, "שאלות מילוליות"]],
-  "8B|topic|12": [[1, "שורשים וקבוצות מספרים"], [7, "משפט פיתגורס"], [11, "המשפט ההפוך"], [14, "חפיפה יתר-ניצב"], [17, "פיתגורס בתיבה"]],
-  "8B|topic|13": [[1, "מכירים את הגליל"], [4, "עיגול – חזרה"], [7, "שטח מעטפת ושטח פנים"], [11, "נפח הגליל"], [15, "גליל ותיבה"]]
-};
-function wsApplySplit(rows){
-  rows.forEach(r => { const sp = WS_SPLIT[r.book + "|" + r.kind + "|" + r.topic_no]; if (!sp || r.sub || r.type !== "page") return;
-    const pg = Number(r.page_no); let nm = null; sp.forEach(([from, name]) => { if (pg >= from) nm = name; }); if (nm) { r.sub = nm; r.sub_view = true; } });
-}
+// 5.19.51: החלוקה לתתי-נושאים (WS_SPLIT) הועברה למסד (שיחת דפי התרגול) - כבר לא בקוד
 // דף "חשיבה" (חושבים / מעמיקים / אתגר / חשיבה בשם הדף) - תגית קטנה, כדי לראות מה בסיס ומה אתגר
 const WS_HARD = /חושבים|מעמיקים|אתגר|חשיבה/;
 // קישורים זמניים לתמונות (שעה), בקבוצות
@@ -6338,6 +6347,8 @@ async function renderWs(){
     if (!kindOut) WS.kind = kinds[0];
     const tops = wsTopics(WS.kind).map(t => Object.assign(t, { kind: WS.kind }));
     if (!kindOut) kinds.slice(1).forEach(k => wsTopics(k).forEach(t => { if (!wsMatch(t, kinds[0], k)) tops.push(Object.assign(t, { kind: k })); }));
+    // 5.19.51 (הלקוחה): אנגלית - לשונית עם נושא אחד בלבד (למשל "מילים") - הדפים מיד, בלי תיקייה באמצע
+    if (kindOut && tops.length === 1) { WS.listY = 0; WS.listKind = WS.kind; WS.topic = tops[0].no; WS.tab = "page"; return renderWs(); }
     // 5.19.16: ⭐ חשובים של כל הספר/החלק (מתחת לסינון והחיפוש) - נושא שלם / יחידה / דף, שליחה ישירה
     const stTops = tops.map(t => ({ t, rows: t.pages.filter(r => r.uploaded) })).filter(x => x.rows.some(r => r.is_star));
     const stFirst = []; stTops.forEach(x => { x.rows.filter(r => r.is_star).forEach(r => stFirst.push(r.storage_path)); });
@@ -6386,7 +6397,7 @@ async function renderWs(){
   const allIn = (g) => { const rs = grpRows(g); return rs.length && rs.every(r => WS.sel.has(r.storage_path)) && WS.sel.size === rs.length; };
   const canSel = list.some(r => r.uploaded);
   // 5.19.9: שליחת יחידה / תת-נושא / נושא שלם - לחיצה ארוכה על השם (בלי מצב "בחירה"). דף בודד - מתוך הדף הפתוח.
-  let html = `<div class="ws-bar"><h2 class="${allIn("all") ? "on" : ""}" ${canSel ? `data-gsel="all"` : ""}><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}${list.some(r => r.is_star) ? " ⭐" : ""}</h2>${ME.role !== "instructor" ? `<button type="button" class="btn small ws-tstar${list.length && list.every(r => r.is_star) ? " on" : ""}" id="wsTStar" title="סימון כל הנושא כחשוב">${list.length && list.every(r => r.is_star) ? "⭐ חשוב" : "☆ חשוב"}</button>` : ""}<button type="button" class="btn small ws-back2" id="wsBack" title="חזרה לכל הנושאים">→ חזרה<span class="lg-t"> לנושאים</span></button></div>
+  let html = `<div class="ws-bar"><h2 class="${allIn("all") ? "on" : ""}" ${canSel ? `data-gsel="all"` : ""}><span class="ws-bar-sub">${esc(((WS.rows.find(r => r.book === WS.book) || {}).book_label) || "")} · נושא ${esc(String(Number(t.no) || t.no))}</span>${esc(t.name)}${list.some(r => r.is_star) ? " ⭐" : ""}</h2>${ME.role !== "instructor" ? `<button type="button" class="btn small ws-tstar${list.length && list.every(r => r.is_star) ? " on" : ""}" id="wsTStar" title="סימון כל הנושא כחשוב">${list.length && list.every(r => r.is_star) ? "⭐ חשוב" : "☆ חשוב"}</button>` : ""}${WS.book === "ENG" && wsTopics(WS.kind).length === 1 ? "" : `<button type="button" class="btn small ws-back2" id="wsBack" title="חזרה לכל הנושאים">→ חזרה<span class="lg-t"> לנושאים</span></button>`}</div>
     <div class="ws-sw">${kSeg}${t.answers.length ? `<div class="ws-tabs" role="tablist"><button type="button" role="tab" data-tab="page" aria-selected="${WS.tab === "page"}">דפים <small>${t.pages.length}</small></button><button type="button" role="tab" data-tab="answers" aria-selected="${WS.tab === "answers"}">פתרונות <small>${t.answers.length}</small></button></div>` : ""}</div>
     ${(() => { const st = list.map((r, i) => ({ r, i })).filter(x => x.r.is_star && x.r.uploaded); if (!st.length) return "";
       // 5.19.15: תת-נושא / יחידה שכולה חשובה - כרטיס אחד (שולח את כל הדפים שלה), ולא דף-דף. כל הנושא חשוב - כרטיס אחד לנושא.
@@ -6446,7 +6457,7 @@ async function renderWs(){
       if (await wsSetStar(rs, on)) { toast(on ? "סומן כחשוב ⭐" : "הסימון הוסר"); renderWs(); } };
   });
   if ($("wsTStar")) $("wsTStar").onclick = async () => { const on = !(list.length && list.every(r => r.is_star)); if (await wsSetStar(list, on)) { toast(on ? "כל הנושא סומן כחשוב ⭐" : "הסימון הוסר מהנושא"); renderWs(); } };
-  $("wsBack").onclick = () => { if (history.state && history.state.view === "ws" && history.state.ws && history.state.ws.topic) { history.back(); return; } WS.topic = null; if (WS.listKind) WS.kind = WS.listKind; renderWs(); };
+  if ($("wsBack")) $("wsBack").onclick = () => { if (history.state && history.state.view === "ws" && history.state.ws && history.state.ws.topic) { history.back(); return; } WS.topic = null; if (WS.listKind) WS.kind = WS.listKind; renderWs(); };
   $("wsBody").querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { WS.tab = b.dataset.tab; renderWs(); });
   $("wsBody").querySelectorAll("[data-kin]").forEach(b => b.onclick = () => { const [k, no] = b.dataset.kin.split("|"); if (k === WS.kind) return;
     WS.kind = k; WS.topic = no; WS.tab = "page"; store("telem_ws_kind", k); wsReplace(); renderWs(); });
@@ -7581,7 +7592,7 @@ async function renderRegMarathons(city){   // city = "*" - כל הערים יח�
       : `<div class="muted">${ALL ? "אין מרתונים השנה." : "אין מרתונים בעיר הזאת."} יוצרים מרתון בלוח המבחנים (טאב "מרתונים").</div>`}`;
   box.querySelectorAll("[data-rmkids]").forEach(b => b.onclick = async () => { await ensureG(true); const m = (G.marathons || []).find(x => x.id === Number(b.dataset.rmkids)); if (m) openMarathonPanel(m); });
   box.querySelectorAll("[data-rmcxl]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmcxl));
-    const why = window.prompt(`"${m.name}"${m.school ? " · " + m.school : ""} לא יתקיים.\nהמרתון ייסגר להרשמה, ומי שלא שילם יסומן "בוטל". למי ששילם תופיע רשימת החזרים.\n\nסיבה (לא חובה):`, "אין מספיק נרשמים");
+    const why = await uiPrompt(`"${m.name}"${m.school ? " · " + m.school : ""} לא יתקיים.\nהמרתון ייסגר להרשמה, ומי שלא שילם יסומן "בוטל". למי ששילם תופיע רשימת החזרים.\n\nסיבה (לא חובה):`, "אין מספיק נרשמים", { ok: "אישור - לא יתקיים", danger: true, multi: false });
     if (why === null) return;
     b.disabled = true;
     try { await patch("marathons", "id=eq." + m.id, { is_open: false, cancelled_at: new Date().toISOString(), cancel_reason: why.trim() || null });
@@ -7589,22 +7600,22 @@ async function renderRegMarathons(city){   // city = "*" - כל הערים יח�
           toast("המרתון סומן: לא יתקיים"); RG.mar = null; G.marathons = null; EX.cxl = null; renderRegMarathons(city); }
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   box.querySelectorAll("[data-rmundo]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmundo));
-    if (!window.confirm(`להחזיר את "${m.name}" למצב רגיל (מתקיים)? הוא יישאר סגור להרשמה עד שתפתחי. מי שסומן "בוטל" נשאר מבוטל.`)) return;
+    if (!await uiConfirm(`להחזיר את "${m.name}" למצב רגיל (מתקיים)? הוא יישאר סגור להרשמה עד שתפתחי. מי שסומן "בוטל" נשאר מבוטל.`)) return;
     try { await patch("marathons", "id=eq." + m.id, { cancelled_at: null, cancel_reason: null }); toast("המרתון מתקיים"); RG.mar = null; G.marathons = null; EX.cxl = null; renderRegMarathons(city); }
     catch(e) { toast("לא נשמר: " + e.message); } });
   box.querySelectorAll("[data-rref]").forEach(b => b.onclick = async () => {
-    if (!window.confirm("לסמן שהכסף הוחזר? (את ההחזר עצמו עושים בריווחית)")) return;
+    if (!await uiConfirm("לסמן שהכסף הוחזר? (את ההחזר עצמו עושים בריווחית)")) return;
     b.disabled = true;
     try { await patch("marathon_registrations", "id=eq." + b.dataset.rref, { refunded_at: new Date().toISOString(), refund_amount: Number(b.dataset.ramt) || null, status: "בוטל" }); toast("סומן: הוחזר"); RG.mar = null; renderRegMarathons(city); }
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   box.querySelectorAll("[data-rmopen]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmopen)), v = !m.is_open;
-    if (v && !window.confirm(`לפתוח את "${m.name}" להרשמה? מעכשיו הקישור עם התשלום יעבוד.`)) return;
+    if (v && !await uiConfirm(`לפתוח את "${m.name}" להרשמה? מעכשיו הקישור עם התשלום יעבוד.`)) return;
     b.disabled = true;
     try { await patch("marathons", "id=eq." + m.id, { is_open: v }); m.is_open = v; G.marathons = null; toast(v ? "המרתון פתוח להרשמה" : "המרתון סגור להרשמה"); renderRegMarathons(city); }
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   wireLk(box);
   box.querySelectorAll("[data-rmdel]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmdel));
-    if (!window.confirm(`למחוק את "${m.name}"${m.school ? " · " + m.school : ""}?\nהקישור יפסיק לעבוד והקבוצות שלו יימחקו. המפגשים בלוח המבחנים נשארים (בלי קישור).`)) return;
+    if (!await uiConfirm(`למחוק את "${m.name}"${m.school ? " · " + m.school : ""}?\nהקישור יפסיק לעבוד והקבוצות שלו יימחקו. המפגשים בלוח המבחנים נשארים (בלי קישור).`)) return;
     try { await del("sessions", "marathon_id=eq." + m.id + "&kind=eq." + encodeURIComponent("מרתון")); await del("marathons", "id=eq." + m.id); EX.rows = null; EX.p = null; G.loadedAt = 0; toast("המרתון נמחק"); RG.mar = null; G.marathons = null; renderReg(); }
     catch(e) { toast(/foreign key|23503/i.test(e.message + " " + (e.code || "")) ? "יש למרתון הזה נרשמים - אי אפשר למחוק. אפשר לסגור אותו להרשמה." : "המחיקה נכשלה: " + e.message); } });
   box.querySelectorAll("[data-rmedit]").forEach(b => b.onclick = async () => { await ensureG(true); const m = (G.marathons || []).find(x => x.id === Number(b.dataset.rmedit)) || RG.mar.find(x => x.id === Number(b.dataset.rmedit)); openMarathonPanel(m); });   // 5.19.44: אותו חלון בכל מקום
@@ -7673,7 +7684,7 @@ async function renderReg(){
         const k = b.dataset.tg;
         if (k === "sch") {
           const v = !sea.is_open;
-          if (!window.confirm(v ? "לפתוח את טופס השיבוץ? מי שייכנס לקישור יוכל לשלוח בקשת שיבוץ." : "לסגור את טופס השיבוץ? מי שייכנס לקישור יראה: \"השיבוצים לשנה זו הסתיימו, נתראה בשנה הבאה\".")) return;
+          if (!await uiConfirm(v ? "לפתוח את טופס השיבוץ? מי שייכנס לקישור יוכל לשלוח בקשת שיבוץ." : "לסגור את טופס השיבוץ? מי שייכנס לקישור יראה: \"השיבוצים לשנה זו הסתיימו, נתראה בשנה הבאה\".")) return;
           b.disabled = true;
           try { await patch("scheduling_seasons", "school_year=eq." + encodeURIComponent(sea.school_year), { is_open: v }); sea.is_open = v; toast(v ? "טופס השיבוץ פתוח" : "טופס השיבוץ סגור"); renderReg(); }
           catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); }
@@ -7681,7 +7692,7 @@ async function renderReg(){
         }
         if (k === "int" || k.startsWith("reg:")) {
           const city = k.slice(4), v = k === "int" ? !intOpen() : !regOpen(city), what = k === "int" ? "טופס ההתעניינות" : "טופס ההרשמה ב" + city;
-          if (!window.confirm(v ? `לפתוח את ${what}?` : `לסגור את ${what}? מי שייכנס לקישור יראה שההרשמה כרגע סגורה, עם הטלפון שלנו.`)) return;
+          if (!await uiConfirm(v ? `לפתוח את ${what}?` : `לסגור את ${what}? מי שייכנס לקישור יראה שההרשמה כרגע סגורה, עם הטלפון שלנו.`)) return;
           b.disabled = true;
           try { const q = "school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + (k === "int" ? "" : "&city=eq." + encodeURIComponent(city));
                 await patch("reg_prices", q, k === "int" ? { interest_open: v } : { register_open: v });
@@ -7691,7 +7702,7 @@ async function renderReg(){
           return;
         }
         const m = (marsAll || []).find(x => "m" + x.id === k); if (!m) return; const v = !m.is_open;
-        if (!window.confirm(v ? `לפתוח את "${m.name}" להרשמה? מעכשיו הקישור עם התשלום יעבוד.` : `לסגור את "${m.name}" להרשמה? מי שייכנס לקישור יראה שההרשמה סגורה.`)) return;
+        if (!await uiConfirm(v ? `לפתוח את "${m.name}" להרשמה? מעכשיו הקישור עם התשלום יעבוד.` : `לסגור את "${m.name}" להרשמה? מי שייכנס לקישור יראה שההרשמה סגורה.`)) return;
         b.disabled = true;
         try { await patch("marathons", "id=eq." + m.id, { is_open: v }); m.is_open = v; if (RG.mar && RG.mar !== marsAll) { const r = RG.mar.find(x => x.id === m.id); if (r) r.is_open = v; } G.marathons = null; toast(v ? "המרתון פתוח להרשמה" : "המרתון סגור להרשמה"); renderReg(); }
         catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); }
@@ -7705,7 +7716,7 @@ async function renderReg(){
       // טופס השיבוץ: פתוח/סגור (כשסגור - בטופס רק "השיבוצים לשנה זו הסתיימו")
       if ($("schOpen")) $("schOpen").onclick = async () => {
         const v = !sea.is_open;
-        if (!window.confirm(v ? "לפתוח את טופס השיבוץ? מי שייכנס לקישור יוכל לשלוח בקשת שיבוץ." : "לסגור את טופס השיבוץ? מי שייכנס לקישור יראה: \"השיבוצים לשנה זו הסתיימו, נתראה בשנה הבאה\".")) return;
+        if (!await uiConfirm(v ? "לפתוח את טופס השיבוץ? מי שייכנס לקישור יוכל לשלוח בקשת שיבוץ." : "לסגור את טופס השיבוץ? מי שייכנס לקישור יראה: \"השיבוצים לשנה זו הסתיימו, נתראה בשנה הבאה\".")) return;
         try { await patch("scheduling_seasons", "school_year=eq." + encodeURIComponent(sea.school_year), { is_open: v }); sea.is_open = v; toast(v ? "טופס השיבוץ פתוח" : "טופס השיבוץ סגור"); renderReg(); }
         catch(e) { toast("לא נשמר: " + e.message); } };
     } else {
@@ -7770,7 +7781,7 @@ async function renderReg(){
             const a = document.createElement("a"); a.href = r.pdf; a.download = "טופס ביטול - " + fnSafe(((r.student || {}).first_name || "") + " " + ((r.student || {}).last_name || "")) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
       catch(e) { toast("לא ניתן להוריד"); } });
     M.querySelectorAll("[data-approve]").forEach(b => b.onclick = async () => {
-      if (!window.confirm("לאשר את הביטול? ההרשמה למקצוע תסומן כבוטלה והסטטוס יעבור ל\"פרש\".")) return;
+      if (!await uiConfirm("לאשר את הביטול? ההרשמה למקצוע תסומן כבוטלה והסטטוס יעבור ל\"פרש\".")) return;
       b.disabled = true;
       try { await rpc("approve_cancellation", { p_id: Number(b.dataset.approve) }); toast("הביטול אושר"); RG.can = null; loadLeads().catch(() => {}); renderReg(); }
       catch(e) { toast("לא נשמר: " + e.message); b.disabled = false; } });
@@ -7835,7 +7846,7 @@ $("infoAdd").addEventListener("click", async () => {
         INF.cur = r[0].id; await loadInfo(); $("infoEditBtn").click(); }
   catch(e) { $("infoErr").textContent = "לא נוסף: " + e.message; }
 });
-async function copyText(t, msg){ try { await navigator.clipboard.writeText(t); toast(msg || "הקישור הועתק"); } catch(e) { prompt("להעתקה:", t); } }
+async function copyText(t, msg){ try { await navigator.clipboard.writeText(t); toast(msg || "הקישור הועתק"); } catch(e) { uiCopyBox(t); } }
 if (/telem-admin/i.test(store("telem_site_url") || "")) store("telem_site_url", "");
 $("lkBase").value = store("telem_site_url") || "";
 $("lkBase").addEventListener("change", () => { store("telem_site_url", $("lkBase").value.trim()); if (currentView === "sched") renderSched(); if (currentView === "reg") renderReg(); });
@@ -7990,7 +8001,7 @@ const PAY = (() => {
 const money = (n) => n == null || n === "" ? "" : "₪" + Number(n).toLocaleString("he-IL", { maximumFractionDigits: 2 });
 const dmy = (iso) => { if (!iso) return ""; const s = String(iso).slice(0, 10).split("-"); return s.length === 3 ? `${s[2]}.${s[1]}.${s[0].slice(2)}` : iso; };
 const waLink = (phone, text) => { const d = String(phone || "").replace(/\D/g, ""); return /^0\d{8,9}$/.test(d) ? `https://wa.me/972${d.slice(1)}?text=${encodeURIComponent(text)}` : ""; };
-async function copy(t){ try { await navigator.clipboard.writeText(t); toast("הקישור הועתק"); } catch(e) { prompt("להעתקה:", t); } }
+async function copy(t){ try { await navigator.clipboard.writeText(t); toast("הקישור הועתק"); } catch(e) { uiCopyBox(t); } }
 // ---------- מצב תצוגה לדוגמה (לפני התקנת 62.2, או ?demo=1) ----------
 let DEMO = /[?&]demo=1/.test(location.search);
 const D = (() => {
@@ -8300,8 +8311,8 @@ async function openPlan(id){
   const body = $("payPnl").querySelector(".body");
   body.querySelectorAll("[data-a]").forEach(btn => btn.onclick = async () => {
     const st = btn.dataset.a;
-    if (st === "cancelled" && !confirm(`לבטל את הוראת הקבע של ${p.student_name}? החיובים הבאים לא יתבצעו. (אי אפשר לבטל את הביטול - צריך הוראה חדשה)`)) return;
-    if (st === "paused" && !confirm("להשהות? לא יהיו חיובים עד שמחדשים.")) return;
+    if (st === "cancelled" && !await uiConfirm(`לבטל את הוראת הקבע של ${p.student_name}? החיובים הבאים לא יתבצעו. (אי אפשר לבטל את הביטול - צריך הוראה חדשה)`)) return;
+    if (st === "paused" && !await uiConfirm("להשהות? לא יהיו חיובים עד שמחדשים.")) return;
     btn.disabled = true;
     try { await call("recurring_plan_set_status", { p_id: id, p_status: st }); toast(st === "cancelled" ? "ההוראה בוטלה" : st === "paused" ? "ההוראה הושהתה" : "ההוראה חודשה"); await refresh(); openPlan(id); }
     catch(e) { toast("לא נשמר: " + e.message); btn.disabled = false; }
@@ -8339,7 +8350,7 @@ function renderFailed(b){
 function wireCommon(b){
   b.querySelectorAll("[data-copy]").forEach(x => x.onclick = () => copy(x.dataset.copy));
   b.querySelectorAll("[data-done]").forEach(x => x.onclick = async () => {
-    const note = prompt("מה נעשה? (למשל: חויב ידנית בריווחית / ההורה שילם בהעברה)", ""); if (note === null) return;
+    const note = await uiPrompt("מה נעשה? (למשל: חויב ידנית בריווחית / ההורה שילם בהעברה)", ""); if (note === null) return;
     try { await call("charge_mark_handled", { p_id: Number(x.dataset.done), p_note: note }); toast("סומן כטופל"); await refresh(); } catch(e) { toast("לא נשמר: " + e.message); }
   });
 }
@@ -8435,7 +8446,7 @@ async function renderLinks(b){
     const P = $("payPnl"); P.querySelectorAll("[data-copy]").forEach(c => c.onclick = () => copy(c.dataset.copy));
     P.querySelectorAll("[data-pdf2]").forEach(c => c.onclick = () => { const o = b.querySelector(`[data-pdf="${c.dataset.pdf2}"]`); if (o) o.click(); });
   });
-  b.querySelectorAll("[data-cancel]").forEach(x => x.onclick = async () => { if (!confirm("לבטל את הקישור? ההורה לא יוכל לשלם בו.")) return; try { await call("pay_link_cancel", { p_code: x.dataset.cancel }); toast("בוטל"); render(); } catch(e) { toast("לא בוטל: " + e.message); } });
+  b.querySelectorAll("[data-cancel]").forEach(x => x.onclick = async () => { if (!await uiConfirm("לבטל את הקישור? ההורה לא יוכל לשלם בו.")) return; try { await call("pay_link_cancel", { p_code: x.dataset.cancel }); toast("בוטל"); render(); } catch(e) { toast("לא בוטל: " + e.message); } });
   b.querySelectorAll("[data-pdf]").forEach(x => x.onclick = async () => { if (DEMO) { toast("בתצוגה לדוגמה אין PDF"); return; } try { const d = await call("pay_link_pdf", { p_code: x.dataset.pdf }); if (!d) return; const a = document.createElement("a"); a.href = String(d).startsWith("data:") ? d : "data:application/pdf;base64," + d; const lq = list.find(z => z.code === x.dataset.pdf) || {}; a.download = "טופס תשלום - " + fnSafe(lq.parent_name || lq.student_name || "") + ".pdf"; a.click(); } catch(e) { toast("לא ניתן להוריד"); } });
 }
 function newLink(){
@@ -8513,7 +8524,7 @@ async function renderRules(b){
     const readCo = () => { const o = {}; CONFIG.cities.forEach(c => o[c] = []); b.querySelectorAll("[data-off]").forEach(x => { if (x.checked) o[x.dataset.off].push(x.dataset.ok); }); return o; };
     b.querySelectorAll("[data-off]").forEach(x => x.onchange = () => { readRules(); Object.assign(co, readCo()); paint(); });
     b.querySelectorAll("[data-add]").forEach(x => x.onclick = () => { readRules(); Object.assign(co, readCo()); rules.push(x.dataset.add === "late_join" ? { type: "late_join", active: true, city: "", from_day: 20, percent: 50, apply: "last", note: "לברר: מאיזה תשלום להוריד" } : { type: "text", active: true, city: "", text: "" }); paint(); });
-    b.querySelectorAll("[data-del]").forEach(x => x.onclick = () => { if (!confirm("למחוק את החוק?")) return; readRules(); Object.assign(co, readCo()); rules.splice(Number(x.dataset.del), 1); paint(); });
+    b.querySelectorAll("[data-del]").forEach(x => x.onclick = async () => { if (!await uiConfirm("למחוק את החוק?")) return; readRules(); Object.assign(co, readCo()); rules.splice(Number(x.dataset.del), 1); paint(); });
     $("rSave").onclick = async () => {
       const d = Number($("rDay").value); if (!(d >= 1 && d <= 28)) { toast("יום 1-28"); return; }
       readRules(); const offs = readCo();
