@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.61">
+<meta name="app-version" content="5.19.62">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1499,7 +1499,7 @@
 #payWrap .tbl tr.click:hover td{ background:color-mix(in srgb, var(--accent) 5%, var(--paper)); }
 #payWrap .num{ text-align:left; direction:ltr; font-variant-numeric:tabular-nums; white-space:nowrap; }
 #payWrap .ltr{ direction:ltr; unicode-bidi:isolate; }
-#payWrap .kchip.k-reg{ background:#C6E0E4; color:#123F48; } #payWrap .kchip.k-mon{ background:#F1F8F9; color:#3C7C86; box-shadow:inset 0 0 0 1px #CFE3E6; } #payWrap .kchip.k-mar{ background:#E4E7EB; color:#3E4651; } #payWrap .kchip.k-pay{ background:#ECE9E4; color:#544D44; }   /* 5.19.45 (הלקוחה): פטרול לשוטפים, פחם למרתון, אבן לאישי - שונה מהמקצועות, המסלולים ובתי הספר */
+#payWrap .kchip.k-reg{ background:#C6E0E4; color:#123F48; } #payWrap .kchip.k-mon{ background:#E7E1F1; color:#4B3A72; }   /* 5.19.62 (נועה): הוראת קבע בסגול - שונה מהתשלום הראשון */ #payWrap .kchip.k-mar{ background:#E4E7EB; color:#3E4651; } #payWrap .kchip.k-pay{ background:#ECE9E4; color:#544D44; }   /* 5.19.45 (הלקוחה): פטרול לשוטפים, פחם למרתון, אבן לאישי - שונה מהמקצועות, המסלולים ובתי הספר */
 .pay-all-f{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:8px; } .pay-all-f input[type=date]{ width:auto; } .pay-all-f #pq2{ flex:1 1 220px; min-width:180px; } .pay-all-f select{ width:auto; }
 .ph2{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; } .ph-card{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:16px 18px; box-shadow:0 1px 2px rgba(60,20,10,.04), 0 6px 18px rgba(60,20,10,.05); }
 .ph-card h3{ margin:0 0 10px; font-size:16px; } .ph-todo, .ph-wide{ grid-column:1 / -1; } .ph-todo.hot{ border-color:#E3B4B2; background:linear-gradient(180deg,#FFF7F6,#fff); }
@@ -3101,8 +3101,10 @@ $("leadsTbl").addEventListener("change", async (e) => {
   // סטטוס - משנים ישר מהטבלה (בלי "עריכה ברשימה")
   const tr = e.target.closest("tr"), l = L.leads.find(x => String(x.id) === tr.dataset.id);
   const v = e.target.value ? Number(e.target.value) : null;
+  const old0 = l.status_id;
   try { await patch("leads", "id=eq." + l.id, { status_id: v }); l.status_id = v; l.updated_at = new Date().toISOString();
-        paintStatus(e.target, v); toast(`הסטטוס של ${l.student.first_name} ${l.student.last_name || ""} עודכן ל"${statusName(v) || "ללא"}"`); }
+        paintStatus(e.target, v); toast(`הסטטוס של ${l.student.first_name} ${l.student.last_name || ""} עודכן ל"${statusName(v) || "ללא"}"`);
+        planWarn(l.student.id, [l.student.first_name, l.student.last_name].filter(Boolean).join(" "), old0, v); }
   catch(err) { toast("לא נשמר: " + err.message); e.target.value = l.status_id || ""; }
 });
 
@@ -3398,6 +3400,18 @@ async function txPdf(r, l){
 }
 const fnSafe = (t) => String(t || "").replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();   // 5.19.48: שמות קבצים בעברית
 const txPdfBtn = (i) => `<button type="button" class="btn small tx-pdf" data-txpdf="${i}" title="הטופס החתום (PDF)">📄 טופס חתום</button>`;   // 5.19.57: לא ghost (נראה חלש על רקע בהיר)
+// 5.19.62 (נועה): ילד/ה עם הוראת קבע שעבר/ה לסטטוס שאינו "נרשם..." (למשל "פרש") - תזכורת + מעבר לתשלומים שלו/ה
+async function planWarn(sid, name, oldSt, newSt){
+  try {
+    if (!sid || ME.role === "instructor" || Number(oldSt || 0) === Number(newSt || 0)) return;
+    if (statusName(newSt).startsWith("נרשם")) return;
+    const plans = (await rpc("recurring_plans_list") || []).filter(p => Number(p.student_id) === Number(sid) && ["active", "paused", "failed", "creating"].includes(p.status));
+    if (!plans.length) return;
+    const p = plans[0], amt = p.monthly_amount ? ` (${Number(p.monthly_amount).toLocaleString("he-IL")} ₪ לחודש)` : "";
+    const msg = `ל${name || "תלמיד/ה זה/ו"} יש ${plans.length > 1 ? plans.length + " הוראות קבע פעילות" : "הוראת קבע פעילה" + amt}.\nהסטטוס נשמר ("${statusName(newSt) || "ללא"}"), אבל ההוראה ממשיכה לחייב עד שעוצרים אותה.`;
+    if (await uiConfirm(msg, { ok: "לתשלומים של " + (String(name || "").split(" ")[0] || "התלמיד/ה") + " ←", no: "סגירה", danger: false })) payOpenKid(sid, name);
+  } catch(e) {}
+}
 // 5.19.41: תשלומים בכרטיס התלמיד/ה (קובץ 62.3: student_payments) - שורה מתקפלת עם קישור לכל חשבונית. למנהלים בלבד.
 async function loadLeadPayments(l){
   const box = $("leadPayments"); if (!box || ME.role === "instructor") return;
@@ -3928,6 +3942,7 @@ $("leadForm").addEventListener("submit", async (e) => {
     setLeadDirty(false);
     if (navAfter) navAfter();
     else if (andBack) leadBack(); else openLead(leadId);
+    if (editing) planWarn(editing.student.id, [student.first_name, student.last_name].filter(Boolean).join(" "), editing.status_id, lead.status_id);
   } catch(e2) {
     err.textContent = e2.code === "23505" ? "יש כבר ליד לתלמיד/ה הזה/ו." : "השמירה נכשלה: " + e2.message;
   }
