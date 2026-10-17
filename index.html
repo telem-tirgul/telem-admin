@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.64">
+<meta name="app-version" content="5.19.65">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1581,7 +1581,7 @@ td.nowrap{ white-space:nowrap; }
 table.deals td.c-todo{ white-space:nowrap; } .lp-dx{ margin-top:10px; } .lp-dx .dx-pay .lp-st{ margin:0; }
 .only-m{ display:none; } @media (max-width:760px){ .only-m{ display:inline; } } tr.deal-r{ cursor:pointer; } tr.deal-r.dx-open > td{ background:#FBF7F2; border-bottom-color:transparent; border-top:2px solid #B89F8A; } tr.deal-r.dx-open > td:first-child{ border-inline-start:2px solid #B89F8A; } tr.deal-r.dx-open > td:last-child{ border-inline-end:2px solid #B89F8A; }
 tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px solid #B89F8A !important; border-top:0 !important; } tr.dx-row + tr.deal-r > td{ border-top:8px solid transparent; }
-.dx-bar{ display:flex; justify-content:flex-end; gap:8px; margin:-4px 0 6px; }
+.dx-bar{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin:-4px 0 8px; } .dx-bar-b{ display:flex; gap:8px; }
 .dx{ display:flex; flex-direction:column; gap:4px; } .only-m-blk{ display:none !important; } @media (max-width:760px){ .only-m-blk{ display:flex !important; } } .dx-info{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; font-size:13.5px; color:#4a423b; } .dx-info .tx-pdf{ margin-inline-start:auto; }
 .dx-pay{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; background:#fff; border:1px solid #E6DDD3; border-radius:10px; padding:4px 10px; font-size:13.5px; min-height:32px; } .dx-pay .btn.small{ padding-block:3px; } .dx-pay.bad{ border-color:#EBC4C0; background:#FFFBFA; }
 .dx-d{ min-width:92px; color:#4a423b; } .dx-k{ color:#6b6159; min-width:70px; } .dx-why{ color:#A33A35; font-size:13px; } .dx-acts{ display:flex; gap:6px; flex-wrap:wrap; margin-inline-start:auto; } .dx-ref{ flex-basis:100%; }
@@ -8601,10 +8601,8 @@ async function renderAll(b){
       <div><label class="lbl" for="pps">סטטוס</label><select id="pps"><option value="">הכול</option><option value="אושר" ${S.ps === "אושר" ? "selected" : ""}>שולם</option><option value="נכשל" ${S.ps === "נכשל" ? "selected" : ""}>לא התקבל</option><option value="todo" ${S.ps === "todo" ? "selected" : ""}>⚠ לטיפול${nTodo ? " (" + nTodo + ")" : ""}</option><option value="ref" ${S.ps === "ref" ? "selected" : ""}>↩ זוכה</option></select></div>
       <div class="pf-x"><button type="button" class="btn small" id="pXls">⬇ אקסל</button></div></div>
     ${S.kid ? `<div class="kid-flt">מוצגים רק התשלומים של <b>${esc(S.kid.name || "")}</b>${leadOfSid(S.kid.id) ? ` <button type="button" class="name-link" data-lead="${leadOfSid(S.kid.id).id}">לכרטיס התלמיד/ה ←</button>` : ""}<button type="button" class="btn small" id="kidX">✕ כל התשלומים</button></div>` : ""}
-    <div class="muted" style="margin:-4px 0 8px">${(S.kid || q.length >= 2) && qf !== S.pf ? `החיפוש מתחילת שנת הלימודים (${dmy(qf)} עד ${dmy(qt)}).` : `${dmy(qf)} עד ${dmy(qt)}`} · הוראות קבע פעילות מוצגות תמיד.</div>
-    <div class="stats"><div class="stat"><b>${money(sum) || "₪0"}</b> התקבל בתקופה</div><div class="stat"><b>${list.length}</b> עסקאות</div>
-      <div class="stat"><b>${list.filter(d => d.group === "plan" && d.plan && ["active", "failed", "paused", "creating"].includes(d.plan.status)).length}</b> הוראות קבע פעילות</div>${nTodo ? `<div class="stat" style="color:#A33A35"><b>${nTodo}</b> לטיפול</div>` : ""}</div>
-    ${list.length ? `<div class="dx-bar"><button type="button" class="btn small" id="dxAllO">▾ פתיחת כל השורות</button><button type="button" class="btn small" id="dxAllC">▴ סגירת כל השורות</button></div><table class="tbl pay-all deals"><thead><tr><th class="c-todo" aria-label="פתיחה / לטיפול"></th><th>תאריך</th><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>סוג</th><th class="hide-m c-desc">פירוט</th><th class="c-amt">סכום</th><th>סטטוס</th></tr></thead><tbody>
+    <!-- 5.19.65 (נועה): בלי שורת הסיכומים - יש בתמונת המצב -->
+    <div class="dx-bar"><span class="muted">${(S.kid || q.length >= 2) && qf !== S.pf ? `החיפוש מתחילת שנת הלימודים (${dmy(qf)} עד ${dmy(qt)}).` : `${dmy(qf)} עד ${dmy(qt)}`} · הוראות קבע פעילות מוצגות תמיד.</span>${list.length ? `<span class="dx-bar-b"><button type="button" class="btn small" id="dxAllO">▾ פתיחת כל השורות</button><button type="button" class="btn small" id="dxAllC">▴ סגירת כל השורות</button></span>` : ""}</div>${list.length ? `<table class="tbl pay-all deals"><thead><tr><th class="c-todo" aria-label="פתיחה / לטיפול"></th><th>תאריך</th><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>סוג</th><th class="hide-m c-desc">פירוט</th><th class="c-amt">סכום</th><th>סטטוס</th></tr></thead><tbody>
       ${list.map((d, i) => `<tr class="deal-r${d.todo ? " tr-todo" : ""}" data-dr="${i}"><td class="c-todo"><button type="button" class="dx-tg" aria-expanded="false" aria-label="פירוט"></button>${d.todo ? `<span class="todo-ic" title="${esc(d.todo)}">⚠</span>` : ""}</td>
         <td class="nowrap">${dmy(d.date)}${String(d.date || "").length > 10 ? `<div class="muted">${esc(new Date(d.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</div>` : ""}</td>
         <td>${d.leadId ? `<button type="button" class="name-link" data-lead="${d.leadId}">${esc(d.name)}</button>` : `<b>${esc(d.name)}</b>`}</td>
