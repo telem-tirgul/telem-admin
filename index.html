@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.52">
+<meta name="app-version" content="5.19.56">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1114,6 +1114,15 @@
   .rg-lk-seg + .rg-city-row button[aria-pressed="true"]{ background:color-mix(in srgb, var(--accent) 14%, var(--paper)); border-color:var(--accent); color:var(--accent); }
   .rg-school{ display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-soft); } .rg-school select{ width:auto; padding:4px 8px; font-size:13.5px; }
   .lk2-head, .lk2-row{ display:grid; grid-template-columns:minmax(0,1fr) 200px 200px; gap:6px 14px; align-items:center; }
+  .lk2-cell.has-sw{ flex-wrap:wrap; row-gap:5px; } .lk2-sw{ display:flex; gap:6px; align-items:center; margin-inline-start:10px; padding-inline-start:10px; border-inline-start:1px solid var(--border); }
+  /* 5.19.55: יש מקום במסך - כל עמודה בשורה אחת (קישורים + פתוח/סגור), רחבה יותר */
+  @media (min-width:1101px){ #rgMain .lk-gen:has(.has-sw){ grid-template-columns:minmax(150px, 240px) 420px; gap:6px 30px; } #rgMain .lk2-cell.has-sw{ flex-wrap:nowrap; justify-content:flex-start; }
+    #rgMain #rgTrk .lk2-head, #rgMain #rgTrk .lk2-row{ grid-template-columns:minmax(150px, 240px) 330px 330px; gap:6px 40px; } #rgTrk .lk2-sw .btn{ min-width:104px; justify-content:center; } #rgTrk .lk2-head span:not(:first-child){ text-align:start; } }
+  .lk2-swrow{ background:color-mix(in srgb, var(--gold, #C9A45C) 8%, var(--paper)); border-top:1.5px solid var(--border); border-radius:0 0 10px 10px; } .lk2-swrow .lk-name small{ display:block; font-size:12px; }
+  .lk2-swrow .lk2-sw{ margin:0; padding:0; border:0; flex-wrap:wrap; justify-content:center; row-gap:4px; }
+  @media (max-width:1100px){ .lk2-sw{ flex-basis:100%; justify-content:center; margin:0; padding:0; border:0; } }
+  .sw-st{ font-size:12.5px; font-weight:700; color:var(--ink-soft); white-space:nowrap; } .sw-st.on{ color:var(--ok, #3f7d4f); }
+  @media (max-width:760px){ .lk2-sw{ justify-content:flex-start; } .lk2-head:has(+ .lk2-row .has-sw), .lk2-row:has(.has-sw), .lk-gen:has(.has-sw){ grid-template-columns:1fr; } }
   .lk2-cell{ justify-content:center; }
   .lk2-head{ font-size:12.5px; font-weight:700; color:var(--ink-soft); padding:6px 0 2px; } .lk2-head span:not(:first-child){ text-align:center; }
   .lk2-row{ padding:7px 0; border-top:1px solid var(--border); }
@@ -1643,9 +1652,26 @@ td.nowrap{ white-space:nowrap; }
 .ui-dlg{ background:var(--paper, #fff); color:var(--ink, #222); border:1.5px solid var(--accent, #6B1E23); border-radius:16px; width:100%; max-width:440px; max-height:85vh; overflow:auto; padding:18px 18px 14px; box-shadow:0 14px 40px rgba(0,0,0,.25); direction:rtl; text-align:right; }
 .ui-dlg-t{ white-space:pre-line; font-size:16px; line-height:1.6; margin-bottom:14px; }
 .ui-dlg-in{ width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:10px 12px; border:1px solid var(--border, #ddd); border-radius:12px; margin-bottom:14px; background:var(--bg, #FAF8F5); color:inherit; resize:vertical; }
-.ui-dlg-b{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; } .ui-dlg-b .btn{ flex:0 1 130px; min-width:100px; min-height:46px; padding-inline:16px; font-size:16px; font-weight:700; justify-content:center; }   /* 5.19.51: כפתורים צרים יותר עם רווח ביניהם - שלא ילחצו בטעות */
+.ui-dlg-b{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; } .ui-dlg-b .btn{ flex:0 0 auto; min-width:120px; white-space:nowrap; min-height:46px; padding-inline:16px; font-size:16px; font-weight:700; justify-content:center; }   /* 5.19.51: כפתורים צרים יותר עם רווח ביניהם - שלא ילחצו בטעות */
 .ui-dlg-b .btn.danger{ background:#A1261F; border-color:#A1261F; color:#fff; }
 @media (max-width:760px){ .ui-dlg-bg{ align-items:flex-end; padding:0; } .ui-dlg{ max-width:none; border-radius:18px 18px 0 0; border-width:1.5px 0 0; padding:20px 16px calc(16px + env(safe-area-inset-bottom)); } }
+
+/* 5.19.56: תיבת הודעות מהטפסים - במחשב כל הודעה בשורה אחת */
+.ib-bell{ position:relative; font-size:16px; overflow:visible !important; } .ib-bell #inboxN b{ position:absolute; top:-7px; inset-inline-end:-7px; background:#C0392B; color:#fff; border-radius:999px; font-size:11px; min-width:18px; height:18px; display:grid; place-items:center; padding:0 4px; font-weight:800; }
+.ib-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.ib-seg{ display:inline-flex; gap:4px; background:var(--paper); border:1px solid var(--border); border-radius:999px; padding:3px; } .ib-seg button{ border:0; background:none; font:inherit; font-size:13.5px; font-weight:700; padding:5px 12px; border-radius:999px; cursor:pointer; color:var(--ink-soft); } .ib-seg button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
+.ib-list{ background:var(--paper); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+.ib-row{ display:grid; grid-template-columns:28px 120px minmax(110px, 170px) minmax(0, 1fr) auto 92px auto; gap:4px 12px; align-items:center; padding:7px 12px; border-top:1px solid var(--border); border-inline-start:3px solid transparent; font-size:14px; }
+.ib-row:first-child{ border-top:0; } .ib-row.new{ border-inline-start-color:var(--accent); } .ib-row.warn{ border-inline-start-color:#C9554F; } .ib-row.seen, .ib-row.handled{ color:var(--ink-soft); }
+.ib-ic{ font-size:16px; text-align:center; } .ib-k{ font-weight:700; white-space:nowrap; font-size:13px; color:var(--ink-soft); } .ib-n{ font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ib-w{ color:var(--ink-soft); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .ib-tags{ display:flex; gap:4px; white-space:nowrap; }
+.ib-tag{ font:inherit; font-size:11.5px; font-weight:800; border-radius:999px; padding:1px 8px; border:0; } button.ib-tag{ cursor:pointer; }
+.t-new{ background:#E6F2E9; color:#2F6B3F; } .t-old{ background:#EEE9E3; color:#5C5148; } .t-p2{ background:#E3EEF6; color:#24577A; } .t-warn{ background:#FBE3E1; color:#A1322B; }
+.ib-time{ font-size:12.5px; color:var(--ink-soft); white-space:nowrap; text-align:end; } .ib-acts{ display:flex; gap:6px; justify-content:flex-end; white-space:nowrap; } .ib-acts .btn{ padding:3px 9px; } .ib-acts .muted{ font-size:12.5px; }
+.ib-diff{ grid-column:3 / -1; margin:4px 0 2px; border:1px solid #F1D3CF; border-radius:10px; overflow:hidden; font-size:13px; } .ib-diff table{ width:100%; border-collapse:collapse; } .ib-diff th{ background:#FBEDEB; color:#8E2B28; font-weight:800; text-align:right; padding:4px 10px; font-size:12px; } .ib-diff td{ padding:4px 10px; border-top:1px solid #F5E1DE; } .ib-diff td.f{ font-weight:700; width:20%; } .ib-diff .nw{ color:#A1322B; font-weight:800; } .ib-diff td:last-child{ text-align:end; width:1%; white-space:nowrap; }
+.ib-toast{ position:fixed; bottom:18px; inset-inline-start:18px; z-index:300; background:#2B2320; color:#fff; border-radius:14px; padding:10px 14px; box-shadow:0 10px 30px rgba(0,0,0,.25); font-size:14px; display:flex; gap:10px; align-items:center; max-width:440px; } .ib-toast[hidden]{ display:none; } .ib-toast b{ color:#F1D9A6; } .ib-toast button{ background:#fff; color:#2B2320; border:0; border-radius:999px; font:inherit; font-weight:800; font-size:12.5px; padding:4px 10px; cursor:pointer; white-space:nowrap; } .ib-toast button.x{ background:none; color:#fff; padding:2px 4px; }
+@media (max-width:900px){ .ib-row{ grid-template-columns:28px 1fr auto; } .ib-k{ display:none; } .ib-n{ grid-column:2; } .ib-time{ grid-column:3; grid-row:1; } .ib-w{ grid-column:2 / -1; white-space:normal; } .ib-tags{ grid-column:2 / -1; flex-wrap:wrap; } .ib-acts{ grid-column:2 / -1; justify-content:flex-start; } .ib-diff{ grid-column:1 / -1; } .ib-toast{ inset-inline:12px; bottom:12px; max-width:none; } }
+.lp-ic{ display:inline-block; line-height:1; font-size:.92em; vertical-align:-.1em; }   /* 5.19.56: אייקון מיושר עם הטקסט */
 </style>
 </head>
 <body>
@@ -1686,6 +1712,7 @@ td.nowrap{ white-space:nowrap; }
       <div class="info-wrap"><button class="btn small ghost" id="infoBtn" type="button" title="מידע" aria-label="מידע" aria-haspopup="true" aria-expanded="false">ⓘ</button>
         <div class="info-menu" id="infoMenu" hidden><button type="button" data-im="reports" data-admin>📊 דוחות</button><button type="button" data-im="info">מידע למתרגלים</button><button type="button" data-im="holidays" data-admin>חגים וחופשות</button></div></div>
       <button class="btn small ghost gear" id="gearBtn" type="button" title="הגדרות" aria-label="הגדרות">⚙</button>
+      <button class="btn small ghost ib-bell" id="inboxBtn" type="button" data-admin hidden title="הודעות מהטפסים" aria-label="הודעות מהטפסים">📥<span id="inboxN"></span></button>
       <button class="btn small ghost" id="logoutBtn" type="button">יציאה</button>
     </div>
   </aside>
@@ -2098,6 +2125,12 @@ td.nowrap{ white-space:nowrap; }
       <div class="ar-host" id="arHostG"></div>
     </section>
     <!-- ===== מבחנים בבתי הספר (קובץ 50) ===== -->
+    <section id="view-inbox" hidden>
+      <div class="page-head"><h1>הודעות מהטפסים</h1></div>
+      <div class="ib-bar"><div class="ib-seg" role="group" aria-label="סינון"><button type="button" data-ibf="new">חדשות</button><button type="button" data-ibf="warn">⚠ לא תואמות</button><button type="button" data-ibf="all">הכל</button></div>
+        <button type="button" class="btn small" id="ibAllSeen">סימון הכל כנקרא</button></div>
+      <div id="ibList"><div class="muted">טוען…</div></div>
+    </section>
     <section id="view-exams" hidden>
       <div class="page-head"><h1>מרתונים · לוח מבחנים</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;" data-admin>
@@ -2554,7 +2587,7 @@ function go(view){
   if (SETTINGS_VIEWS.includes(view)) store(key, view);
   if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
   const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.sched = "reg"; navOf.attk = "leads"; navOf.groups = "att"; navOf.attg = "att"; navOf.myschools = "schools";
-  ["home","leads","lead","groups","att","sched","reg","pay","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues","exams","attk","attg"].forEach(v => { $("view-" + v).hidden = v !== view; });
+  ["home","leads","lead","groups","att","sched","reg","pay","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues","exams","attk","attg","inbox"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   { const cur = document.querySelector('.nav button[aria-current="page"]'); if ($("navCur")) $("navCur").textContent = cur ? (cur.querySelector(inst ? ".lbl-i" : ".lbl-a") || cur).textContent.replace("⚙", "").trim() : (view === "home" ? "תפריט" : ({ me: "הגדרות", staff: "הגדרות", backup: "הגדרות", issues: "הגדרות", info: "מידע למתרגלים", holidays: "חגים וחופשות" }[view] || "תפריט")); }
   document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view || (b.dataset.sv === "reg" && view === "sched"))));
@@ -2578,6 +2611,7 @@ function go(view){
   if (view === "schools") loadSchools();
   if (view === "holidays") renderHolidays(true);
   if (view === "exams") renderExams(true);
+  if (view === "inbox") renderInbox(true);
   if (view === "attk" || view === "attg") { $("arHostG").appendChild($("attReport")); $("attReport").hidden = false;
     // 5.19.19: הדוח עולה מיד (בלי "הצגה"): כל הערים, מ-1.9 עד היום; אחר כך מסננים
     initAttReport().then(() => { repAtt(); if (!AR.raw) { arDefaultRange(); showAttReport(); } }); if (AR.raw) renderAttReport(); }
@@ -2682,7 +2716,7 @@ async function loadLeads(){
     getAll("marathon_registrations", "select=id,student_id,session_id,status,payment_method,paid_at,amount,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id")
       .catch(() => getAll("marathon_registrations", "select=student_id,status,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id")).catch(() => [])
   ]);
-  callCount();
+  callCount(); inboxPoll(true);
   L.pendReg = {}; if (ME.role !== "instructor") get("pending_phone_payments", "select=kind,order_id,student_id,first_name,last_name,what,amount&kind=eq.registration")
     .then(r => { L.pendReg = {}; r.forEach(x => { L.pendReg[x.student_id] = x; }); }).catch(() => {});
   L.mar = {}; mreg.forEach(r => (L.mar[r.student_id] = L.mar[r.student_id] || []).push(r));
@@ -3291,7 +3325,7 @@ async function loadLeadPayments(l){
   rows.sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const ok = rows.filter(r => r.status === "אושר"), sum = ok.reduce((s, r) => s + Number(r.amount || 0), 0), last = rows[0];
   const dm = (d) => fmtDM(String(d).slice(0, 10)) + "." + String(d).slice(2, 4);
-  box.innerHTML = `<details class="lp-box"><summary><b>💳 תשלומים</b> <span class="muted">${ok.length} · סה"כ ${fmtMoney(sum)} · האחרון ${esc(dm(last.date))} (${fmtMoney(last.amount)})</span></summary>
+  box.innerHTML = `<details class="lp-box"><summary><b><span class="lp-ic" aria-hidden="true">💳</span> תשלומים</b> <span class="muted">${ok.length} · סה"כ ${fmtMoney(sum)} · האחרון ${esc(dm(last.date))} (${fmtMoney(last.amount)})</span></summary>
     <div class="lp-scroll"><table class="tbl lp-tbl"><thead><tr><th>תאריך</th><th>על מה</th><th>סכום</th><th>חשבונית</th><th>טופס</th><th></th></tr></thead><tbody>${rows.map((r, i) => `<tr><td>${esc(dm(r.date))}</td>
       <td>${esc(r.kind || "")}${r.description ? `<div class="muted">${esc(r.description)}</div>` : ""}</td><td class="num"><b>${fmtMoney(r.amount)}</b></td>
       <td>${/^https:\/\//.test(r.document_url || "") ? `<a href="${esc(r.document_url)}" target="_blank" rel="noopener">${esc(r.document_number || "חשבונית")} ↗</a>` : esc(r.document_number || "—")}</td>
@@ -3650,7 +3684,7 @@ async function openAsgEditor(studentId, a, cur, opts){
     const paid = reg && (reg.paid_at || reg.status === "שולם");
     if (!await uiConfirm(isMar ? `${who} פורש/ת מ${what}?\n\nהשיבוץ יוסר וההרשמה למרתון תסומן "בוטל".${paid ? `\nההורה כבר שילם/ה${reg.amount ? " " + reg.amount + " ₪" : ""} - אם מחזירים כסף, ההחזר עצמו בריווחית.` : ""}\nהנוכחות שכבר נרשמה נשמרת.`
         : `להסיר את ${who} מהקבוצה של ${what}?\n\nהנוכחות שכבר נרשמה נשמרת.`)) return;
-    const refunded = paid && await uiConfirm(`האם כבר החזרת את הכסף (${reg.amount ? reg.amount + " ₪" : "התשלום"}) בריווחית?`, { ok: "כן, הוחזר", no: "עוד לא / לא מחזירים" });
+    const refunded = paid && await uiConfirm(`האם כבר החזרת את הכסף (${reg.amount ? reg.amount + " ₪" : "התשלום"}) בריווחית?`, { ok: "כן, הוחזר", no: "עוד לא" });
     f("rm").disabled = true;
     try { await del("assignments", "id=eq." + a.id);
           if (reg) await patch("marathon_registrations", "id=eq." + reg.id, Object.assign({ status: "בוטל" }, refunded ? { refunded_at: new Date().toISOString(), refund_amount: Number(reg.amount) || null } : {})).catch(() => {});
@@ -4831,7 +4865,7 @@ async function marWithdraw(k, se, m){
   let reg = null; try { reg = (await get("marathon_registrations", "select=id,status,amount,paid_at&student_id=eq." + k.student_id + "&session_id=eq." + se.session_id + "&status=neq." + encodeURIComponent("בוטל") + "&order=id.desc&limit=1"))[0] || null; } catch(e) {}
   const paid = reg && (reg.paid_at || reg.status === "שולם");
   if (!await uiConfirm(`${who} פורש/ת מ${m.name}?\n\nהשיבוץ יוסר וההרשמה למרתון תסומן "בוטל".${paid ? `\nההורה כבר שילם/ה${reg.amount ? " " + reg.amount + " ₪" : ""} - אם מחזירים כסף, ההחזר עצמו בריווחית.` : ""}`)) return;
-  const refunded = paid && await uiConfirm(`האם כבר החזרת את הכסף (${reg.amount ? reg.amount + " ₪" : "התשלום"}) בריווחית?`, { ok: "כן, הוחזר", no: "עוד לא / לא מחזירים" });
+  const refunded = paid && await uiConfirm(`האם כבר החזרת את הכסף (${reg.amount ? reg.amount + " ₪" : "התשלום"}) בריווחית?`, { ok: "כן, הוחזר", no: "עוד לא" });
   try { await del("assignments", "id=eq." + k.id);
         if (reg) await patch("marathon_registrations", "id=eq." + reg.id, Object.assign({ status: "בוטל" }, refunded ? { refunded_at: new Date().toISOString(), refund_amount: Number(reg.amount) || null } : {})).catch(() => {});
         toast("סומן: פרש/ה מהמרתון"); RG.mar = null; await loadGroups(); openMarathonPanel(m); }
@@ -4860,6 +4894,92 @@ function callPaint(n){ CALL_N = n; document.querySelectorAll(".callN").forEach(e
 async function callCount(){ if (ME.role === "instructor") return; try { const r = await get("pending_phone_payments", "select=order_id"); callPaint(r.length); } catch(e) {}
   try { if (typeof PAY !== "undefined") PAY.counts(); } catch(e) {} }   // 5.19.44: גם חיובים שנכשלו ודורש טיפול - כבר מההתחלה
 setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && ME.role && ME.role !== "instructor") callCount(); }, 5 * 60000);   // 5.19.42: המספר מתעדכן כל 5 דקות (למשל כשהורה שילם בקישור)
+// ===== 5.19.56: תיבת הודעות מהטפסים (קובץ 71) =====
+// כל טופס שנשלח (הרשמה, מרתון, התעניינות, בקשת שיבוץ, ביטול חתום, תשלום אישי) = שורה. פרטים שלא תואמים (issues) - משיחת התשלומים
+const IB = { rows: null, f: "new", ok: true, lastMax: Number(store("telem_ib_max") || 0), names: {}, mars: {} };
+const IB_KIND = { registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"] };
+const IB_FLAG = { new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"] };
+const ibWarn = (r) => (r.issues || []).length > 0 || (r.flags || []).includes("mismatch");
+function ibPaint(n){ const b = $("inboxN"); if (b) b.innerHTML = n ? `<b>${n > 99 ? "99+" : n}</b>` : ""; }
+async function inboxPoll(first){
+  if (!ME || ME.role === "instructor" || !IB.ok) return;
+  let rows; try { rows = await get("form_inbox", "select=id,kind,student_id,flags,issues,data,created_at&status=eq.new&order=id.desc&limit=100"); }
+  catch(e) { if (e.status === 404 || /form_inbox|42P01|PGRST205/i.test(String(e.message) + (e.code || ""))) { IB.ok = false; $("inboxBtn").hidden = true; } return; }
+  $("inboxBtn").hidden = false; ibPaint(rows.length);
+  const max = rows.reduce((m, r) => Math.max(m, r.id), 0);
+  if (!first && max > IB.lastMax) {   // הודעה קטנה על מה שהגיע מאז הבדיקה הקודמת
+    const fresh = rows.filter(r => r.id > IB.lastMax); await ibNames(fresh);
+    const r = fresh[0], k = IB_KIND[r.kind] || ["📥", r.kind], more = fresh.length > 1 ? ` (+${fresh.length - 1})` : "";
+    ibToast(`${k[0]} <b>${esc(k[1])}:</b> ${esc(ibName(r))}${ibWarn(r) ? " · ⚠ פרטים לא תואמים" : ""}${more}`);
+  }
+  if (max > IB.lastMax) { IB.lastMax = max; store("telem_ib_max", String(max)); }
+  if (currentView === "inbox" && !first) renderInbox(true);
+}
+setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && ME.role && ME.role !== "instructor") inboxPoll(false); }, 60000);
+function ibToast(html){
+  let t = $("ibToast"); if (!t) { t = document.createElement("div"); t.id = "ibToast"; t.className = "ib-toast"; document.body.appendChild(t); }
+  t.innerHTML = `<span>📥 ${html}</span><button type="button">לצפייה</button><button type="button" class="x" aria-label="סגירה">✕</button>`; t.hidden = false;
+  t.querySelector("button").onclick = () => { t.hidden = true; go("inbox"); }; t.querySelector(".x").onclick = () => { t.hidden = true; };
+  clearTimeout(ibToast._t); ibToast._t = setTimeout(() => { t.hidden = true; }, 9000);
+}
+// שמות התלמידים (מהרשימה שכבר טעונה, ואם חסר - שליפה) ושמות המרתונים
+async function ibNames(rows){
+  const need = [...new Set(rows.map(r => r.student_id).filter(id => id && !IB.names[id]))];
+  need.forEach(id => { const l = (L.leads || []).find(x => x.student_id === id); if (l && l.student) IB.names[id] = l.student; });
+  const miss = need.filter(id => !IB.names[id]);
+  if (miss.length) { try { (await get("students", "select=id,first_name,last_name,grade,class_num&id=in.(" + miss.join(",") + ")")).forEach(x => IB.names[x.id] = x); } catch(e) {} }
+  const mids = [...new Set(rows.map(r => r.data && r.data.marathon_id).filter(id => id && !IB.mars[id]))];
+  if (mids.length) { try { (await get("marathons", "select=id,name,school&id=in.(" + mids.join(",") + ")")).forEach(m => IB.mars[m.id] = m); } catch(e) {} }
+}
+function ibName(r){ const s = IB.names[r.student_id], d = r.data || {};
+  if (s) return ((s.first_name || "") + " " + (s.last_name || "")).trim();
+  return ((d.student_first || d.first_name || d.student_name || "") + " " + (d.student_last || d.last_name || "")).trim() || (d.parent_name || d.parent_first || "") || "—"; }
+function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x) => x != null && x !== "" ? Number(x) + " ₪" : "";
+  const bits = r.kind === "marathon" ? [m ? m.name : "", d.status, amt(d.amount)]
+    : r.kind === "registration" ? [d.city, d.subject, d.track ? (typeof TRACK_T === "function" ? TRACK_T(d.track) : d.track) : "", amt(d.first_charge_amount)]
+    : r.kind === "cancel" ? [d.school, d.subject, d.reason ? "סיבה: " + d.reason : ""]
+    : r.kind === "pay_link" ? [d.description, amt(d.one_time_amount)]
+    : [d.city, d.school, d.grade, d.parent_phone || d.phone];
+  return bits.filter(Boolean).map(String).join(" · "); }
+async function renderInbox(reload){
+  const box = $("ibList");
+  document.querySelectorAll("[data-ibf]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ibf === IB.f)));
+  if (reload || !IB.rows) { try { IB.rows = await get("form_inbox", "select=*&order=id.desc&limit=300"); } catch(e) { box.innerHTML = `<div class="err">${IB.ok ? "לא נטען: " + esc(e.message) : "כדי להשתמש בתיבת ההודעות צריך להריץ את קובץ 71."}</div>`; return; } await ibNames(IB.rows); }
+  const nNew = IB.rows.filter(r => r.status === "new").length, nWarn = IB.rows.filter(r => ibWarn(r) && r.status !== "handled").length; ibPaint(nNew);
+  document.querySelector('[data-ibf="new"]').textContent = "חדשות " + nNew; document.querySelector('[data-ibf="warn"]').textContent = "⚠ לא תואמות " + nWarn;
+  const rows = IB.rows.filter(r => IB.f === "all" ? true : IB.f === "warn" ? ibWarn(r) && r.status !== "handled" : r.status === "new");
+  if (!rows.length) { box.innerHTML = `<div class="empty-state">${IB.f === "new" ? "אין הודעות חדשות." : "אין הודעות."}</div>`; return; }
+  const when = (iso) => { const d = new Date(iso), t = todayIL(), dd = d.toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" }), hh = d.toLocaleTimeString("he-IL", { timeZone: "Asia/Jerusalem", hour: "2-digit", minute: "2-digit" });
+    return (dd === t ? "היום" : dd === addDays(t, -1) ? "אתמול" : fmtDM(dd)) + " " + hh; };
+  box.innerHTML = `<div class="ib-list">` + rows.map(r => { const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = r.issues || [];
+    const tags = (r.flags || []).filter(f => IB_FLAG[f]).map(f => `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
+      + (w ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}">⚠ ${iss.length ? iss.length + " " : ""}לא תואם ▾</button>` : "");
+    return `<div class="ib-row ${r.status}${w ? " warn" : ""}" data-ib="${r.id}">
+      <span class="ib-ic" title="${esc(k[1])}">${k[0]}</span><span class="ib-k">${esc(k[1])}</span>
+      <span class="ib-n">${lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : esc(ibName(r))}</span>
+      <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
+      <span class="ib-time">${esc(when(r.created_at))}</span>
+      <span class="ib-acts">${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${r.id}">✓ נקרא</button>` : ""}${w && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
+      ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
+    </div>`; }).join("") + `</div>`;
+  box.querySelectorAll("[data-ibl]").forEach(a => a.onclick = () => openLead(Number(a.dataset.ibl)));
+  box.querySelectorAll("[data-ibx]").forEach(b => b.onclick = () => { const d = $("ibd" + b.dataset.ibx); if (d) d.hidden = !d.hidden; });
+  box.querySelectorAll("[data-ibs]").forEach(b => b.onclick = async () => { const [st, id] = b.dataset.ibs.split(":"); b.disabled = true;
+    try { await patch("form_inbox", "id=eq." + id, st === "handled" ? { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "" } : { status: "seen" });
+          const r = IB.rows.find(x => x.id === Number(id)); if (r) r.status = st; renderInbox(false); }
+    catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
+  box.querySelectorAll("[data-ibu]").forEach(b => b.onclick = async () => { const [id, i] = b.dataset.ibu.split(":").map(Number), r = IB.rows.find(x => x.id === id), x = r && (r.issues || [])[i]; if (!x) return;
+    if (!await uiConfirm(`לעדכן ${x.label || x.field} ל"${x.form}" (במקום "${x.ours ?? ""}")?`)) return;
+    b.disabled = true;
+    try { await patch(x.table, "id=eq." + x.row_id, { [x.column]: x.form }); x.applied = true;
+          await patch("form_inbox", "id=eq." + id, { note: ((r.note ? r.note + " · " : "") + "עודכן: " + (x.label || x.field)) }); r.note = (r.note ? r.note + " · " : "") + "עודכן: " + (x.label || x.field);
+          toast("עודכן"); b.replaceWith(Object.assign(document.createElement("span"), { className: "muted", textContent: "✓ עודכן" })); loadLeads().catch(() => {}); }
+    catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
+}
+document.querySelectorAll("[data-ibf]").forEach(b => b.addEventListener("click", () => { IB.f = b.dataset.ibf; renderInbox(false); }));
+$("ibAllSeen").addEventListener("click", async () => { const ids = (IB.rows || []).filter(r => r.status === "new").map(r => r.id); if (!ids.length) return;
+  try { await patch("form_inbox", "id=in.(" + ids.join(",") + ")", { status: "seen" }); IB.rows.forEach(r => { if (r.status === "new") r.status = "seen"; }); renderInbox(false); } catch(e) { toast("לא נשמר: " + e.message); } });
+$("inboxBtn").addEventListener("click", () => go("inbox"));
 // 5.19.35: "תשלומים" - מסך נפרד מ"הרשמה" (הלקוחה: כל אחד משמש בזמן אחר)
 // 5.19.41: אותו מבנה תפריטים כמו בממשק של iCredit - תמונת מצב · דו"חות · הוראות קבע · דפי תשלום · הגדרות
 const PAY_MENU = [
@@ -7403,12 +7523,46 @@ const lkShib = (city) => lkFix(lkBase() + "shibutz.html?" + new URLSearchParams(
 const lkMar = (city, school) => lkFix(lkBase() + "marathon.html?" + new URLSearchParams({ city, school }).toString());
 // שורת קישור קצרה: שם · הקישור בתיבה מתגלגלת · העתקה / וואטסאפ / תצוגה
 // 5.19.35: קישורים כלליים - כמו שאר השורות: שם מימין, הכפתורים באותה עמודה (בלי תיבת כתובת)
-const genRow = (name, u, msg) => `<div class="lk2-row lk-gen"><div class="lk-name">${name}</div>${lk2Btns("", u, msg)}</div>`;
+// 5.19.55 (הלקוחה): פתוח/סגור לטופס ההתעניינות ולטופס ההרשמה (לעיר) - גם בלשוניות "כללי" ו"תרגולים שוטפים", לא רק ב"הכל"
+const rpHas68 = () => (REG_PRICES_DB || []).some(r => "register_open" in r);
+const rpRow = (c) => (REG_PRICES_DB || []).find(r => r.city === c);
+const rpRegOpen = (c) => { const r = rpRow(c); return !r || r.register_open !== false; };
+const rpIntOpen = () => !(REG_PRICES_DB || []).length || (REG_PRICES_DB || []).some(r => r.interest_open !== false);
+// כמו במרתונים: סטטוס "● פתוח להרשמה" + כפתור "סגירה להרשמה" / "פתיחה להרשמה"
+const swBtn = (k, open) => `<span class="lk2-sw"><button type="button" class="btn small${open ? "" : " primary"}" data-swf="${esc(k)}">${open ? "סגירה להרשמה" : "פתיחה להרשמה"}</button></span>`;
+// 5.19.56 (קובץ 72): גם לכל מסלול בנפרד. מפתחות: int (התעניינות - כל הערים), intc:עיר, reg:עיר, intt:עיר|מסלול, regt:עיר|מסלול
+const rpHas72 = () => (REG_PRICES_DB || []).some(r => "register_closed_tracks" in r);
+const rpIntCityOpen = (c) => { const r = rpRow(c); return !r || r.interest_open !== false; };
+const rpTrkOpen = (kind, c, t) => { const r = rpRow(c); if (!r) return true; const cityOpen = kind === "reg" ? r.register_open !== false : r.interest_open !== false;
+  return cityOpen && !((kind === "reg" ? r.register_closed_tracks : r.interest_closed_tracks) || []).includes(t); };
+async function regFormToggle(k){
+  const [typ, rest] = [k.split(":")[0], k.slice(k.indexOf(":") + 1)], [city, trk] = rest.split("|"), trkT = trk ? TRACK_T(trk) : "";
+  const isInt = typ === "int" || typ === "intc" || typ === "intt", form = isInt ? "טופס ההתעניינות" : "טופס ההרשמה";
+  const cur = typ === "int" ? rpIntOpen() : typ === "intc" ? rpIntCityOpen(city) : typ === "reg" ? rpRegOpen(city) : rpTrkOpen(isInt ? "int" : "reg", city, trk), v = !cur;
+  const what = form + (typ === "int" ? " (כל הערים)" : " ב" + city) + (trk ? " · " + trkT : "");
+  if (!await uiConfirm(v ? `לפתוח את ${what}?` : `לסגור את ${what}? מי שייכנס לקישור יראה שההרשמה כרגע סגורה, עם הטלפון שלנו.`)) return false;
+  const yq = "school_year=eq." + encodeURIComponent(CONFIG.schoolYear), cq = yq + "&city=eq." + encodeURIComponent(city || "");
+  try {
+    if (typ === "int") { await patch("reg_prices", yq, { interest_open: v }); (REG_PRICES_DB || []).forEach(r => r.interest_open = v); }
+    else if (typ === "intc" || typ === "reg") { const col = typ === "reg" ? "register_open" : "interest_open"; await patch("reg_prices", cq, { [col]: v }); const r = rpRow(city); if (r) r[col] = v; }
+    else {
+      const r = rpRow(city), col = isInt ? "interest_closed_tracks" : "register_closed_tracks", cityCol = isInt ? "interest_open" : "register_open"; if (!r) throw new Error("אין הגדרות לעיר");
+      let closed = (r[col] || []).filter(x => x !== trk), body;
+      if (!v) closed.push(trk);
+      if (v && r[cityCol] === false) { closed = LK.tracks.map(x => x.v).filter(x => x !== trk); body = { [cityCol]: true, [col]: closed }; }   // העיר הייתה סגורה - פותחים רק את המסלול הזה
+      else body = { [col]: closed };
+      await patch("reg_prices", cq, body); Object.assign(r, body);
+    }
+    toast(what + (v ? " פתוח" : " סגור")); renderReg(); return true;
+  } catch(e) { toast("לא נשמר: " + e.message); return false; }
+}
+const wireSwf = (box) => box && box.querySelectorAll("[data-swf]").forEach(b => b.onclick = async () => { b.disabled = true; if (!(await regFormToggle(b.dataset.swf))) b.disabled = false; });
+const genRow = (name, u, msg, sw) => `<div class="lk2-row lk-gen"><div class="lk-name">${name}</div>${lk2Btns("", u, msg, sw)}</div>`;
 const lkRow = (name, u, msg, extra) => `<div class="lk-row"><span class="lk-name">${name}</span><input class="lk-in" readonly dir="ltr" value="${esc(u || "")}" aria-label="קישור" onfocus="this.select()">
   <span class="lk-ic">${extra || ""}<button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a></span></div>`;
 // שני קישורים באותה שורה (התעניינות + הרשמה) - בלי תיבת הקישור, רק הכפתורים
-const lk2Btns = (label, u, msg) => `<span class="lk2-cell"><span class="lk2-l">${label}</span><button type="button" class="btn small" data-copy="${esc(u)}" title="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a></span>`;
-const lk2Row = (name, u1, m1, u2, m2, extra) => `<div class="lk2-row"><div class="lk-name">${name}${extra ? `<span class="lk2-x">${extra}</span>` : ""}</div>${lk2Btns("התעניינות", u1, m1)}${lk2Btns("הרשמה", u2, m2)}</div>`;
+const lk2Btns = (label, u, msg, sw) => `<span class="lk2-cell${sw ? " has-sw" : ""}"><span class="lk2-l">${label}</span><button type="button" class="btn small" data-copy="${esc(u)}" title="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a>${sw || ""}</span>`;
+const lk2Row = (name, u1, m1, u2, m2, extra, sw1, sw2) => `<div class="lk2-row"><div class="lk-name">${name}${extra ? `<span class="lk2-x">${extra}</span>` : ""}</div>${lk2Btns("התעניינות", u1, m1, sw1)}${lk2Btns("הרשמה", u2, m2, sw2)}</div>`;
 const wireLk = (root) => root.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
 // מחירים לכל עיר - מהטבלה reg_prices (קובץ 44). אם עוד לא הורץ - המחירים שכתובים בטפסים.
 const REG_PRICES_FALLBACK = {
@@ -7683,7 +7837,7 @@ async function renderReg(){
         ${row("טופס שיבוץ", "לכל הערים", !!(sea && sea.is_open), lkFix(lkBase() + "shibutz.html"), "טופס השיבוץ של תלם: ", "", sea && sea.is_open !== undefined ? "sch" : "")}
         ${row("טופס התעניינות", "לכל הערים", intOpen(), lkInterest(null), "טופס התעניינות - תלם: ", "", has68 ? "int" : "")}
         <div class="all-grp">הרשמה לתרגולים השוטפים</div>
-        ${CONFIG.cities.map(c => row("טופס הרשמה · " + esc(c), "כל המסלולים", regOpen(c), lkReg(c, ""), "טופס ההרשמה לתלם - " + c + ": ", "", has68 && prRow(c) ? "reg:" + c : "")).join("")}
+        ${CONFIG.cities.map(c => row("טופס הרשמה · " + esc(c), rpHas72() && prRow(c) && regOpen(c) ? `${LK.tracks.filter(x => rpTrkOpen("reg", c, x.v)).length} מתוך ${LK.tracks.length} מסלולים פתוחים` : "כל המסלולים", regOpen(c), lkReg(c, ""), "טופס ההרשמה לתלם - " + c + ": ", "", has68 && prRow(c) ? "reg:" + c : "")).join("")}
         <div class="all-grp">מרתונים</div>
         ${mars.length ? mars.map(mRow).join("") : `<div class="muted">${marsP.length ? "אין מרתונים קרובים." : "אין מרתונים."}</div>`}
         ${marsP.length ? `<details class="mc-past"><summary>מרתונים שעברו (${marsP.length})</summary>${marsP.map(mRow).join("")}</details>` : ""}
@@ -7717,11 +7871,12 @@ async function renderReg(){
         catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); }
       });
     } else if (RG.lk === "general") {
+      if (REG_PRICES_DB === null) { try { await loadRegPrices(); } catch(e) {} }
       const ush = lkFix(lkBase() + "shibutz.html"), sea = SCH.season;
       h += `<section class="rg-sec rg-general"><h3>קישורים כלליים <small>לכל הערים</small></h3>
-        ${genRow("טופס שיבוץ" + (sea && sea.is_open !== undefined ? ` <button type="button" class="sw-open ${sea.is_open ? "on" : ""}" id="schOpen" title="פתיחה/סגירה של טופס השיבוץ">${sea.is_open ? "● פתוח" : "○ סגור"}</button>` : ""), ush, "טופס השיבוץ של תלם: ")}
-        ${genRow("טופס התעניינות", lkInterest(null), "טופס התעניינות - תלם: ")}</section>`;
-      M.innerHTML = h;
+        ${genRow("טופס שיבוץ", ush, "טופס השיבוץ של תלם: ", sea && sea.is_open !== undefined ? `<span class="lk2-sw"><button type="button" class="btn small${sea.is_open ? "" : " primary"}" id="schOpen">${sea.is_open ? "סגירה להרשמה" : "פתיחה להרשמה"}</button></span>` : "")}
+        ${genRow("טופס התעניינות", lkInterest(null), "טופס התעניינות - תלם: ", rpHas68() ? swBtn("int", rpIntOpen()) : "")}</section>`;
+      M.innerHTML = h; wireSwf(M);
       // טופס השיבוץ: פתוח/סגור (כשסגור - בטופס רק "השיבוצים לשנה זו הסתיימו")
       if ($("schOpen")) $("schOpen").onclick = async () => {
         const v = !sea.is_open;
@@ -7744,10 +7899,14 @@ async function renderReg(){
         const paintTrk = () => {
           const sch = $("inSchool").value, iq = (tr) => { const q = new URLSearchParams({ city }); if (sch) q.set("school", sch); if (tr) q.set("tracks", tr); return q; };
           const im = "טופס התעניינות - תלם " + city + ": ", rm = "טופס ההרשמה לתלם - " + city + ": ";
+          // 5.19.56 (הלקוחה): כל טופס בנפרד - "כל המסלולים" = כל הטופס בעיר; שורת מסלול = רק המסלול (קובץ 72)
+          const on68 = rpHas68() && rpRow(city), on72 = on68 && rpHas72();
+          const swAll1 = on68 ? swBtn("intc:" + city, rpIntCityOpen(city)) : "", swAll2 = on68 ? swBtn("reg:" + city, rpRegOpen(city)) : "";
+          const swT = (kind, t) => on72 ? swBtn((kind === "reg" ? "regt:" : "intt:") + city + "|" + t, rpTrkOpen(kind, city, t)) : "";
           $("rgTrk").innerHTML = `<div class="lk2-head"><span></span><span>טופס התעניינות</span><span>טופס הרשמה</span></div>` +
-            lk2Row("כל המסלולים", lkInterest(iq("")), im, lkReg(city, ""), rm) +
-            LK.tracks.map(x => lk2Row(`<span class="trk" style="background:${x.c}"></span>${esc(x.t)}`, lkInterest(iq(x.v)), im, lkReg(city, x.v), rm)).join("");
-          wireLk($("rgTrk"));
+            lk2Row("כל המסלולים" + (on68 ? `<small class="muted">כל הטופס בעיר</small>` : ""), lkInterest(iq("")), im, lkReg(city, ""), rm, "", swAll1, swAll2) +
+            LK.tracks.map(x => lk2Row(`<span class="trk" style="background:${x.c}"></span>${esc(x.t)}`, lkInterest(iq(x.v)), im, lkReg(city, x.v), rm, "", swT("int", x.v), swT("reg", x.v))).join("");
+          wireLk($("rgTrk")); wireSwf($("rgTrk"));
         };
         $("inSchool").onchange = paintTrk; paintTrk();
         $("rgPriceEdit").onclick = () => { if (REG_PRICES_DB === false) { toast("כדי לערוך מחירים צריך להריץ את קובץ 44"); return; } openPriceEditor(city); };
