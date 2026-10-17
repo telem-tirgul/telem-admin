@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.56">
+<meta name="app-version" content="5.19.57">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1536,7 +1536,17 @@ td.nowrap{ white-space:nowrap; }
 .all-row .all-tg{ margin:0; justify-self:start; white-space:nowrap; }
 .all-st{ font-weight:800; font-size:13.5px; white-space:nowrap; } .all-st.on{ color:var(--ok); } .all-st.off{ color:var(--ink-soft); }
 @media (max-width:760px){ .all-row{ grid-template-columns:1fr auto; } .all-row .all-l{ grid-column:1 / -1; } }
-.lp-box{ border:1px solid var(--border); border-radius:12px; padding:8px 12px; margin:8px 0; background:#fff; } .lp-box summary{ cursor:pointer; } .lp-tbl{ margin-top:8px; width:100%; } .lp-box .lp-scroll{ overflow-x:auto; } .lp-tbl a{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; }
+.lp-box{ border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin:8px 0; background:#fff; } .lp-box summary{ cursor:pointer; display:flex; align-items:center; gap:10px; flex-wrap:wrap; } .lp-sum{ color:#6b6259; font-size:.95em; }
+.lp-list{ list-style:none; margin:10px 0 2px; padding:0; display:flex; flex-direction:column; gap:8px; }
+.lp-row{ display:grid; grid-template-columns:1fr auto; gap:4px 14px; padding:10px 12px; border:1px solid #EEE7DF; border-radius:10px; background:#FCFAF7; }
+.lp-row.lp-bad{ background:#FDF4F3; border-color:#F0D3D0; }
+.lp-main b{ font-size:1em; } .lp-desc{ color:#4a423b; font-size:.93em; margin-top:1px; } .lp-meta{ color:#8a8077; font-size:.86em; margin-top:3px; } .lp-why{ color:#A33A35; font-size:.88em; margin-top:4px; }
+.lp-side{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; } .lp-amt{ font-size:1.12em; white-space:nowrap; }
+.lp-st{ display:inline-block; font-size:.8em; font-weight:700; padding:2px 9px; border-radius:999px; white-space:nowrap; } .lp-st.ok{ background:#E6F2E8; color:#2E6B3A; } .lp-st.no{ background:#F8E1DF; color:#A33A35; }
+.lp-acts{ grid-column:1 / -1; display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding-top:8px; margin-top:4px; border-top:1px dashed #E6DDD3; }
+.lp-doc{ font-weight:700; color:var(--maroon,#5A1216); text-decoration:none; font-size:.92em; } .lp-doc:hover{ text-decoration:underline; }
+.lp-acts .tx-pdf{ margin-inline-start:auto; white-space:nowrap; }
+@media (min-width:760px){ .lp-row{ grid-template-columns:1fr auto 120px; align-items:center; padding:9px 14px; } .lp-row .lp-acts{ grid-column:2; grid-row:1; border:0; padding:0; margin:0; gap:14px; } .lp-row .lp-side{ grid-column:3; grid-row:1; } .lp-acts .tx-pdf{ margin:0; } }
 #payWrap a.inv{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; white-space:nowrap; } #payWrap a.inv:hover{ text-decoration:underline; }
 #payWrap .chip{ display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:1px 9px; font-size:12.5px; font-weight:800; white-space:nowrap; }
 #payWrap .st-active{ background:var(--ok-bg); color:var(--ok); }
@@ -3315,7 +3325,7 @@ async function txPdf(r, l){
   dl(g[0].pdf, (mar ? "טופס הרשמה למרתון - " : "טופס הרשמה - ") + fnSafe(((st && st.first_name) || "") + " " + ((st && st.last_name) || "")) + " - " + fmtDM(String(pick.signed_at || "").slice(0, 10)) + ".pdf");
 }
 const fnSafe = (t) => String(t || "").replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();   // 5.19.48: שמות קבצים בעברית
-const txPdfBtn = (i) => `<button type="button" class="btn small ghost tx-pdf" data-txpdf="${i}" title="הטופס החתום (PDF)">📄 טופס</button>`;
+const txPdfBtn = (i) => `<button type="button" class="btn small tx-pdf" data-txpdf="${i}" title="הטופס החתום (PDF)">📄 טופס חתום</button>`;   // 5.19.57: לא ghost (נראה חלש על רקע בהיר)
 // 5.19.41: תשלומים בכרטיס התלמיד/ה (קובץ 62.3: student_payments) - שורה מתקפלת עם קישור לכל חשבונית. למנהלים בלבד.
 async function loadLeadPayments(l){
   const box = $("leadPayments"); if (!box || ME.role === "instructor") return;
@@ -3325,12 +3335,17 @@ async function loadLeadPayments(l){
   rows.sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const ok = rows.filter(r => r.status === "אושר"), sum = ok.reduce((s, r) => s + Number(r.amount || 0), 0), last = rows[0];
   const dm = (d) => fmtDM(String(d).slice(0, 10)) + "." + String(d).slice(2, 4);
-  box.innerHTML = `<details class="lp-box"><summary><b><span class="lp-ic" aria-hidden="true">💳</span> תשלומים</b> <span class="muted">${ok.length} · סה"כ ${fmtMoney(sum)} · האחרון ${esc(dm(last.date))} (${fmtMoney(last.amount)})</span></summary>
-    <div class="lp-scroll"><table class="tbl lp-tbl"><thead><tr><th>תאריך</th><th>על מה</th><th>סכום</th><th>חשבונית</th><th>טופס</th><th></th></tr></thead><tbody>${rows.map((r, i) => `<tr><td>${esc(dm(r.date))}</td>
-      <td>${esc(r.kind || "")}${r.description ? `<div class="muted">${esc(r.description)}</div>` : ""}</td><td class="num"><b>${fmtMoney(r.amount)}</b></td>
-      <td>${/^https:\/\//.test(r.document_url || "") ? `<a href="${esc(r.document_url)}" target="_blank" rel="noopener">${esc(r.document_number || "חשבונית")} ↗</a>` : esc(r.document_number || "—")}</td>
-      <td>${r.status === "אושר" ? txPdfBtn(i) : ""}</td>
-      <td>${r.status === "אושר" ? `<span class="ok-txt">שולם</span>` : `<span class="err">לא התקבל</span>`}${r.issue ? `<div class="err">⚠ ${esc(r.issue)}</div>` : ""}</td></tr>`).join("")}</tbody></table></div></details>`;
+  // 5.19.57: עיצוב חדש - שורה לכל תשלום (על מה + תאריך מימין, סכום וסטטוס משמאל, חשבונית וטופס למטה)
+  const bad = rows.filter(r => r.status !== "אושר").length;
+  const lpRow = (r, i) => { const okr = r.status === "אושר";
+    const doc = /^https:\/\//.test(r.document_url || "") ? `<a class="lp-doc" href="${esc(r.document_url)}" target="_blank" rel="noopener">🧾 חשבונית ${esc(r.document_number || "")} ↗</a>` : (r.document_number ? `<span class="muted">🧾 חשבונית ${esc(r.document_number)}</span>` : "");
+    const meta = [esc(dm(r.date)), r.charge_no ? `חיוב ${esc(String(r.charge_no))}` : "", r.card_last4 ? `<span dir="ltr">•••• ${esc(r.card_last4)}</span>` : ""].filter(Boolean).join(" · ");
+    return `<li class="lp-row${okr ? "" : " lp-bad"}"><div class="lp-main"><b>${esc(r.kind || "תשלום")}</b>${r.description ? `<div class="lp-desc">${esc(r.description)}</div>` : ""}<div class="lp-meta">${meta}</div>
+        ${!okr && (r.reason || r.issue) ? `<div class="lp-why">⚠ ${esc(r.reason || r.issue)}</div>` : ""}</div>
+      <div class="lp-side"><b class="lp-amt">${fmtMoney(r.amount)}</b><span class="lp-st ${okr ? "ok" : "no"}">${okr ? "✓ שולם" : "לא התקבל"}</span></div>
+      ${okr ? `<div class="lp-acts">${doc}${txPdfBtn(i)}</div>` : ""}</li>`; };
+  box.innerHTML = `<details class="lp-box"><summary><b><span class="lp-ic" aria-hidden="true">💳</span> תשלומים</b> <span class="lp-sum">${ok.length} שולמו · סה"כ <b>${fmtMoney(sum)}</b></span>${bad ? ` <span class="lp-st no">${bad} לא התקבל</span>` : ""}</summary>
+    <ul class="lp-list">${rows.map(lpRow).join("")}</ul></details>`;
   box.querySelectorAll("[data-txpdf]").forEach(b => b.onclick = async () => { b.disabled = true; try { await txPdf(rows[Number(b.dataset.txpdf)], l); } catch(e) { toast("לא ניתן להוריד: " + e.message); } b.disabled = false; });
 }
 // ---------- טופס ביטול: מכינים כאן, ההורה רק חותם/ת ----------
@@ -4912,10 +4927,11 @@ async function inboxPoll(first){
     const r = fresh[0], k = IB_KIND[r.kind] || ["📥", r.kind], more = fresh.length > 1 ? ` (+${fresh.length - 1})` : "";
     ibToast(`${k[0]} <b>${esc(k[1])}:</b> ${esc(ibName(r))}${ibWarn(r) ? " · ⚠ פרטים לא תואמים" : ""}${more}`);
   }
+  if (!first && max > IB.lastMax) setTimeout(() => liveRefresh(0), 300);   // 5.19.57: הודעה חדשה - המסך הפתוח מתעדכן מיד
   if (max > IB.lastMax) { IB.lastMax = max; store("telem_ib_max", String(max)); }
   if (currentView === "inbox" && !first) renderInbox(true);
 }
-setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && ME.role && ME.role !== "instructor") inboxPoll(false); }, 60000);
+setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && ME.role && ME.role !== "instructor") inboxPoll(false); }, 30000);   // 5.19.57: כל 30 שניות (היה דקה)
 function ibToast(html){
   let t = $("ibToast"); if (!t) { t = document.createElement("div"); t.id = "ibToast"; t.className = "ib-toast"; document.body.appendChild(t); }
   t.innerHTML = `<span>📥 ${html}</span><button type="button">לצפייה</button><button type="button" class="x" aria-label="סגירה">✕</button>`; t.hidden = false;
@@ -7941,7 +7957,7 @@ async function renderReg(){
           <td><b style="color:${x.status === "נחתם" ? "var(--full)" : "inherit"}">${esc(CAN_ST[x.status] || x.status)}</b></td><td>${esc(x.reason || "")}</td>
           <td class="muted" style="font-size:12.5px">${esc(fmtDate(x.signed_at || x.created_at))}</td>
           <td>${x.status === "נשלח" ? `<button type="button" class="btn small" data-copy="${esc(lkCancel(x.token))}">העתקת הקישור</button>`
-              : x.status === "נחתם" ? `<div style="display:flex; gap:6px;"><button type="button" class="btn small" data-pdf="${x.id}">PDF חתום</button><button type="button" class="btn small primary" data-approve="${x.id}">אישור ביטול</button></div>` : ""}</td></tr>`; }).join("") : "<tr><td colspan='6' class='empty-state'>אין בקשות ביטול.</td></tr>"}</tbody></table></div>`}</div>`;
+              : x.status === "נחתם" ? `<div style="display:flex; gap:6px;"><button type="button" class="btn small" data-pdf="${x.id}">📄 טופס חתום</button><button type="button" class="btn small primary" data-approve="${x.id}">אישור ביטול</button></div>` : ""}</td></tr>`; }).join("") : "<tr><td colspan='6' class='empty-state'>אין בקשות ביטול.</td></tr>"}</tbody></table></div>`}</div>`;
     M.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
     M.querySelectorAll("[data-pdf]").forEach(b => b.onclick = async () => {
       try { const r = (await get("cancellation_requests", "select=pdf,student:students(first_name,last_name)&id=eq." + b.dataset.pdf))[0];
@@ -8116,6 +8132,8 @@ function updSafe(){
   if (typeof LEAD_DIRTY !== "undefined" && LEAD_DIRTY && currentView === "lead") return false;   // כרטיס עם שינויים שלא נשמרו
   if ([...document.querySelectorAll(".panel-bg")].some(x => !x.hidden)) return false;
   if (!$("panel").hidden) return false;
+  if (document.querySelector(".ui-dlg-bg")) return false;   // 5.19.57: חלון שאלה פתוח
+  if ($("payPnl") && !$("payPnl").hidden) return false;   // חלון פרטים בתשלומים
   if (attChanged()) return false;   // באמצע סימון נוכחות שלא נשמר
   return true;
 }
@@ -8135,10 +8153,10 @@ async function checkUpdate(){
 $("updBtn").addEventListener("click", updReload);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") checkUpdate(); else updTry(); });
 setInterval(checkUpdate, 60 * 60 * 1000);
-// ---------- עדכון נתונים אוטומטי: כל 3 דקות (וכשחוזרים ללשונית) - כדי לראות שינויים שאחרים עשו ----------
+// ---------- עדכון נתונים אוטומטי: כל דקה (וכשחוזרים ללשונית) - כדי לראות שינויים שאחרים עשו ----------
 // רק כשבטוח: לא באמצע הקלדה / עריכה / חלון פתוח / נוכחות שלא נשמרה. כרטיס תלמיד פתוח - לא מתעדכן (שלא יידרסו שינויים).
 const LIVE_ON = true;   // הודלק 12.10 (הלקוחה). כרטיס תלמיד פתוח / עריכה / נוכחות שלא נשמרה - לא נוגעים
-const LIVE_MS = 3 * 60 * 1000; let LIVE_LAST = Date.now(), LIVE_BUSY = false;
+const LIVE_MS = 60 * 1000; let LIVE_LAST = Date.now(), LIVE_BUSY = false;   // 5.19.57: כל דקה (היה 3 דקות) - הלקוחה: עם תיבת ההודעות צריך שהמסכים יתעדכנו מהר יותר
 async function liveRefresh(minGap){
   if (!LIVE_ON || LIVE_BUSY || !auth || $("appView").hidden || document.visibilityState !== "visible" || !DATA_READY) return;
   if (Date.now() - LIVE_LAST < (minGap == null ? LIVE_MS : minGap)) return;
@@ -8152,11 +8170,14 @@ async function liveRefresh(minGap){
     else if (v === "reports") await loadReports();
     else if (v === "schools") await loadSchools();
     else if (v === "home" || v === "lead") { await loadLeadsDelta(); }   // ברקע - שהרשימה תהיה עדכנית כשחוזרים אליה
+    else if (v === "pay") { if ($("payPnl").hidden && typeof PAY !== "undefined") await PAY.refresh(); }   // 5.19.57: גם מסכי התשלומים
+    else if (v === "reg") { await loadRegData(); if (currentView === "reg" && updSafe()) await renderReg(); }   // 5.19.57: גם הרשמה (קישורים, ביטולים, ממתינים)
+    if (ME && ME.role !== "instructor") { callCount(); if (v !== "pay" && typeof PAY !== "undefined") PAY.refresh(true); }   // המונים בתפריט
     if (currentView === v) window.scrollTo(0, y);
   } catch(e) {} finally { LIVE_BUSY = false; }
 }
-setInterval(() => liveRefresh(), 30000);
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") liveRefresh(60000); });
+setInterval(() => liveRefresh(), 15000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { liveRefresh(15000); if (ME && ME.role !== "instructor") inboxPoll(false); } });
 setInterval(updTry, 15000);
 if (sstore("telem_updated")) { sstore("telem_updated", null); setTimeout(() => toast("המערכת עודכנה לגרסה החדשה"), 800); }
 checkUpdate();
@@ -8253,8 +8274,8 @@ async function loadCounts(){
   catch(e) { if (!DEMO && (e.status === 404 || e.code === "PGRST202")) { DEMO = true; $("payDemo").hidden = false; return loadCounts(); } throw e; }
   S.plans = S.plans || []; S.failed = S.failed || []; S.issues = S.issues || [];
 }
-async function render(){
-  const b = $("payBody"); b.innerHTML = "<div class='muted'>טוען...</div>";
+async function render(silent){
+  const b = $("payBody"); if (!silent) b.innerHTML = "<div class='muted'>טוען...</div>";   // 5.19.57: ברענון אוטומטי - בלי "טוען..." (לא מהבהב)
   try {
     if (S.tab === "home") await renderHome(b);
     else if (S.tab === "call") await renderCall(b);
@@ -8284,7 +8305,7 @@ async function renderCall(b){
   let list; try { list = await loadCall(); } catch(e) { b.innerHTML = `<div class="card err">לא ניתן לטעון (צריך את קובץ 39).</div>`; return; }
   callPaint(list.length);
   const lead = (x) => x.lead_id ? L.leads.find(l => l.id === x.lead_id) : L.leads.find(l => l.student_id === x.student_id);
-  b.innerHTML = `<div class="note" style="margin-bottom:12px">הורים שבחרו בטופס <b>תשלום טלפוני</b>. מתקשרים, גובים (בריווחית / שולחים קישור תשלום), ולוחצים <b>"שולם"</b> - ההרשמה מאושרת והשם יורד מהרשימה. עד אז ליד הילד/ה בקבוצה ובנוכחות מופיע "❓ ממתין לתשלום".</div>` +
+  b.innerHTML = `<div class="note" style="margin-bottom:12px">הורים שבחרו בטופס <b>תשלום טלפוני</b>. מתקשרים ולוחצים <b>"⌨️ הזנת כרטיס עכשיו"</b> - מקלידים את פרטי הכרטיס בטופס, וכשהתשלום עובר ההרשמה מתעדכנת לבד. אפשר גם לשלוח להורה קישור. רק אם גביתם ישירות בריווחית - לוחצים <b>"שולם"</b>. ההרשמה מאושרת והשם יורד מהרשימה. עד אז ליד הילד/ה בקבוצה ובנוכחות מופיע "❓ ממתין לתשלום".</div>` +
     (list.length ? `<table class="tbl"><thead><tr><th>מתאריך</th><th>תלמיד/ה</th><th>הורה · טלפון</th><th>על מה</th><th>לתשלום</th><th></th></tr></thead><tbody>
       ${list.map((x, i) => { const ld = lead(x), ph = String(x.parent_phone || "").replace(/\D/g, ""), nm = [x.first_name, x.last_name].filter(Boolean).join(" ");
         return `<tr><td>${dmy(x.created_at)}<div class="muted">${Math.max(0, Math.round((Date.now() - new Date(x.created_at)) / 864e5))} ימים</div></td>
@@ -8292,15 +8313,18 @@ async function renderCall(b){
         <td class="nowrap">${esc(x.parent_first || "")}${ph ? ` · <a class="call-ph" href="tel:${esc(ph)}"><span dir="ltr">${esc(x.parent_phone)}</span> 📞</a>` : ""}</td>
         <td>${esc(x.what || "")}${x.kind !== "marathon" && x.subject ? `<div class="muted">${esc(x.subject)}</div>` : ""}</td>
         <td class="num"><b>${money(x.amount)}</b>${x.monthly_amount ? `<div class="muted">ואז ${money(x.monthly_amount)} בחודש</div>` : ""}</td>
-        <td class="acts"><button class="btn small primary" data-cpaid="${i}" type="button">✔ שולם</button> <button class="btn small" data-cl="${i}" type="button">קישור תשלום</button>${ph && waLink(ph, "x") ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(waLink(ph, `שלום ${x.parent_first || ""}, כאן תלם - המרכז לשיעורי תרגול. לגבי ההרשמה של ${nm} (${x.what || ""}) - נשמח לתאם את התשלום.`))}">וואטסאפ</a>` : ""}</td></tr>`; }).join("")}</tbody></table>`
+        <td class="acts"><button class="btn small primary" data-cpaid="${i}" type="button">✔ שולם</button> <button class="btn small" data-cl="${i}" type="button" title="יוצר קישור תשלום ומעתיק אותו - לשליחה להורה">🔗 העתקת קישור להורה</button> <button class="btn small" data-cnow="${i}" type="button" title="פותח את טופס התשלום בחלון חדש - מקלידים את פרטי הכרטיס בזמן השיחה">⌨️ הזנת כרטיס עכשיו</button>${ph && waLink(ph, "x") ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(waLink(ph, `שלום ${x.parent_first || ""}, כאן תלם - המרכז לשיעורי תרגול. לגבי ההרשמה של ${nm} (${x.what || ""}) - נשמח לתאם את התשלום.`))}">וואטסאפ</a>` : ""}</td></tr>`; }).join("")}</tbody></table>`
       : `<div class="card empty">✓ אין הורים שמחכים לשיחה על תשלום.</div>`);
   b.querySelectorAll("[data-lead]").forEach(x => x.onclick = () => openLead(Number(x.dataset.lead)));
   b.querySelectorAll("[data-cpaid]").forEach(x => x.onclick = async () => { const it = list[Number(x.dataset.cpaid)]; x.disabled = true;
     if (DEMO) { D.pending = D.pending.filter(z => !(z.kind === it.kind && z.id === it.order_id)); toast("סומן ששולם (דוגמה)"); renderCall(b); return; }
     if (await markPaid(it)) { (L.mar[it.student_id] || []).forEach(z => { if (z.id === it.order_id && it.kind === "marathon") { z.paid_at = new Date().toISOString(); z.status = "שולם"; } }); if (it.kind === "registration" && L.pendReg) delete L.pendReg[it.student_id]; renderCall(b); } else x.disabled = false; });
-  b.querySelectorAll("[data-cl]").forEach(x => x.onclick = async () => { const it = list[Number(x.dataset.cl)]; x.disabled = true;
-    try { const r = await call("pay_link_create", { p: { order: { kind: it.kind, id: it.order_id }, description: it.what } }); await copy(r.url); x.outerHTML = `<span class="muted">הקישור הועתק</span>`; }
+  // 5.19.57: קישור אחד לכל שורה - גם להעתקה וגם להזנת הכרטיס בטלפון (לא יוצרים שניים)
+  const clUrl = {}, clGet = async (i) => { if (!clUrl[i]) { const it = list[i]; const r = await call("pay_link_create", { p: { order: { kind: it.kind, id: it.order_id }, description: it.what } }); clUrl[i] = r.url; } return clUrl[i]; };
+  b.querySelectorAll("[data-cl]").forEach(x => x.onclick = async () => { x.disabled = true;
+    try { await copy(await clGet(Number(x.dataset.cl))); x.outerHTML = `<span class="muted">✓ הקישור הועתק</span>`; }
     catch(e) { toast("לא נוצר: " + e.message); x.disabled = false; } });
+  b.querySelectorAll("[data-cnow]").forEach(x => x.onclick = () => payNowOpen(x, () => clGet(Number(x.dataset.cnow))));
 }
 // ---------- תמונת מצב (5.19.41) - כמו "תמונת מצב" ב-iCredit ----------
 async function renderHome(b){   // 5.19.44: תמונת מצב מעוצבת - לטיפול למעלה, התקבל החודש עם פילוח, הוראות קבע, תשלומים אחרונים
@@ -8380,7 +8404,7 @@ async function renderAll(b){
     <div class="stats"><div class="stat"><b>${money(sum) || "₪0"}</b> התקבל</div><div class="stat"><b>${ok.length}</b> תשלומים</div>
       ${PK.filter(k => byK[k]).map(k => `<div class="stat">${kChip(k)} <b>${money(byK[k])}</b></div>`).join("")}
       ${list.length - ok.length ? `<div class="stat"><span class="chip kchip k-bad">לא התקבלו</span> <b>${list.length - ok.length}</b></div>` : ""}</div>
-    ${list.length ? `<table class="tbl pay-all"><thead><tr><th>תאריך</th><th>תלמיד/ה</th><th>סוג</th><th class="hide-m">על מה</th><th>סכום</th><th>חשבונית</th><th>טופס</th><th class="hide-m">כרטיס</th><th class="hide-m">אישור</th><th>סטטוס</th></tr></thead><tbody>
+    ${list.length ? `<table class="tbl pay-all"><thead><tr><th>תאריך</th><th>תלמיד/ה</th><th>סוג</th><th class="hide-m">על מה</th><th>סכום</th><th>חשבונית</th><th>טופס חתום</th><th class="hide-m">כרטיס</th><th class="hide-m">אישור</th><th>סטטוס</th></tr></thead><tbody>
       ${list.map((r, i) => { const ld = lead(r); return `<tr><td>${dmy(r.date)}${String(r.date || "").length > 10 ? `<div class="muted">${esc(new Date(r.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</div>` : ""}</td>
         <td>${ld ? `<button type="button" class="name-link" data-lead="${ld.id}">${esc(r.student_name || "")}</button>` : `<b>${esc(r.student_name || "")}</b>`}${r.parent_name ? `<div class="muted par1">${esc(r.parent_name)}</div>` : ""}</td>
         <td>${kChip(r.kind)}${r.charge_no ? `<div class="muted">חיוב ${esc(r.charge_no)}</div>` : ""}</td><td class="hide-m muted">${esc(r.description || "")}</td>
@@ -8562,17 +8586,28 @@ async function loadPending(){
   return en.map(e => ({ kind: "registration", id: e.id, created_at: e.created_at, student_id: (e.student || {}).id, student_name: nm(e.student), parent_name: [pf(e.student).parent1_first, pf(e.student).parent1_last].filter(Boolean).join(" "), parent_phone: pf(e.student).parent1_phone, what: ["הרשמה", e.subject, e.city].filter(Boolean).join(" · "), amount: e.first_charge_amount, monthly: e.monthly_amount }))
     .concat(mr.map(r => ({ kind: "marathon", id: r.id, created_at: r.created_at, student_id: (r.student || {}).id, student_name: nm(r.student), parent_name: [pf(r.student).parent1_first, pf(r.student).parent1_last].filter(Boolean).join(" "), parent_phone: pf(r.student).parent1_phone, what: "מרתון" + (r.marathon ? " · " + r.marathon.name : ""), amount: r.amount })));
 }
+// 5.19.57: "הזנת כרטיס עכשיו" - פותח את טופס התשלום שלנו (pay.html) בחלון חדש. משם עוברים לעמוד התשלום המאובטח של איקרדיט (לא לממשק של ריווחית).
+// החלון נפתח מיד בלחיצה (אחרת הדפדפן חוסם), והכתובת נכנסת כשהקישור מוכן. כשמשלמים - ההרשמה מסומנת "שולם" לבד.
+async function payNowOpen(btn, getUrl){
+  const w = window.open("", "_blank"); btn.disabled = true;
+  try { const u = await getUrl(); if (!/^https:\/\//.test(u)) throw new Error("קישור לא תקין");
+    if (w) { w.opener = null; w.location.href = u; } else { await copy(u); toast("הדפדפן חסם את החלון - הקישור הועתק, מדביקים בכתובת"); }
+    btn.outerHTML = `<span class="muted">✓ נפתח בחלון חדש</span>`; }
+  catch(e) { if (w) w.close(); toast("לא נוצר: " + e.message); btn.disabled = false; }
+}
 async function renderPending(b){
   const list = await loadPending();
   b.innerHTML = `<div class="note" style="margin-bottom:12px">הרשמות שנשלחו בלי תשלום (למשל "תשלום טלפוני"). שולחים להורה קישור תשלום - כשההורה משלם, ההרשמה עוברת ל"נרשם" לבד, ובהרשמה שבועית גם מוקמת הוראת הקבע.</div>` +
     (list.length ? `<table class="tbl"><thead><tr><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>על מה</th><th>לתשלום</th><th class="hide-m">מתאריך</th><th></th></tr></thead><tbody>
       ${list.map((x, i) => `<tr><td>${stuCell(x.student_name, x.student_id)}</td><td class="hide-m">${parCell(x.parent_name, x.parent_phone)}</td><td>${esc(x.what)}</td>
         <td class="num">${money(x.amount)}${x.monthly ? `<div class="muted">ואז ${money(x.monthly)} בחודש</div>` : ""}</td><td class="hide-m">${dmy(x.created_at)}</td>
-        <td><button class="btn small primary" data-pl="${i}" type="button">קישור תשלום</button></td></tr>`).join("")}</tbody></table>`
+        <td><div class="acts-row"><button class="btn small primary" data-pl="${i}" type="button" title="יוצר קישור תשלום ומעתיק אותו - לשליחה להורה">🔗 העתקת קישור להורה</button><button class="btn small" data-pnow="${i}" type="button" title="פותח את טופס התשלום בחלון חדש - מקלידים את פרטי הכרטיס בזמן השיחה">⌨️ הזנת כרטיס עכשיו</button></div></td></tr>`).join("")}</tbody></table>`
       : `<div class="card empty">✓ אין הרשמות שממתינות לתשלום.</div>`);
+  const plUrl = {}, plGet = async (i) => { if (!plUrl[i]) { const it = list[i]; const r = await call("pay_link_create", { p: { order: { kind: it.kind, id: it.id }, description: it.what } }); plUrl[i] = r.url; } return plUrl[i]; };
+  b.querySelectorAll("[data-pnow]").forEach(x => x.onclick = () => payNowOpen(x, () => plGet(Number(x.dataset.pnow))));
   b.querySelectorAll("[data-pl]").forEach(x => x.onclick = async () => {
     const it = list[Number(x.dataset.pl)]; x.disabled = true;
-    try { const r = await call("pay_link_create", { p: { order: { kind: it.kind, id: it.id }, description: it.what } }); await copy(r.url);
+    try { const r = { url: await plGet(Number(x.dataset.pl)) }; await copy(r.url);
       const wa = waLink(it.parent_phone, `שלום ${it.parent_name || ""}, לתשלום על ${it.what} של ${it.student_name} בתלם: ${r.url}`);
       x.outerHTML = wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ להורה</a>` : `<span class="muted">הקישור הועתק</span>`; }
     catch(e) { toast("לא נוצר: " + e.message); x.disabled = false; }
@@ -8597,7 +8632,7 @@ async function renderLinks(b){
         <td class="num">${money(l.one_time_amount)}${l.monthly_amount ? `<div class="muted" dir="rtl">ועוד ${l.monthly_count} × ${money(l.monthly_amount)} בחודש</div>` : ""}</td>
         <td><span class="chip st-${esc(l.status)}">${esc(LINK_ST[l.status] || l.status)}</span></td>
         <td><div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקה</button>${wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ</a>` : ""}<button class="btn small danger" data-cancel="${esc(l.code)}" type="button">ביטול</button>` : ""}
-          ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button">PDF חתום</button>` : ""}<button class="btn small" data-ldet="${li}" type="button">פרטים</button></div></td></tr>`; }).join("")}</tbody></table>`
+          ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button">📄 טופס חתום</button>` : ""}<button class="btn small" data-ldet="${li}" type="button">פרטים</button></div></td></tr>`; }).join("")}</tbody></table>`
       : `<div class="card empty">עוד אין טפסי תשלום אישיים.</div>`}`;
   wireCommon(b);
   $("lNew").onclick = newLink;
@@ -8610,7 +8645,7 @@ async function renderLinks(b){
         <dt>נוצר</dt><dd>${dmy(l.created_at)}${l.created_by_name ? " · " + esc(l.created_by_name) : ""}</dd>${l.paid_at ? `<dt>שולם</dt><dd>${dmy(l.paid_at)}</dd>` : ""}
         <dt>קישור</dt><dd dir="ltr" style="word-break:break-all">${esc(l.url || "")}</dd></dl></div>
       <div class="sec"><h3>פרטים בטופס</h3>${fs.length ? `<dl class="kv">${fs.map(([k, v]) => `<dt>${esc(lab[k] || k)}</dt><dd>${v.value ? esc(v.value) : `<span class="muted">ההורה ממלא/ת${v.required ? " (חובה)" : ""}</span>`}</dd>`).join("")}</dl>` : `<div class="muted">אין שדות נעולים - ההורה ממלא/ת הכול.</div>`}</div>
-      <div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקת הקישור</button>` : ""}${l.has_pdf ? `<button class="btn small" data-pdf2="${esc(l.code)}" type="button">PDF חתום</button>` : ""}</div></div>`);
+      <div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקת הקישור</button>` : ""}${l.has_pdf ? `<button class="btn small" data-pdf2="${esc(l.code)}" type="button">📄 טופס חתום</button>` : ""}</div></div>`);
     const P = $("payPnl"); P.querySelectorAll("[data-copy]").forEach(c => c.onclick = () => copy(c.dataset.copy));
     P.querySelectorAll("[data-pdf2]").forEach(c => c.onclick = () => { const o = b.querySelector(`[data-pdf="${c.dataset.pdf2}"]`); if (o) o.click(); });
   });
@@ -8718,7 +8753,13 @@ async function show(tab){
   paintTabs(); await render();
 }
 async function counts(){ if (started) return; try { await loadCounts(); started = true; paintTabs(); } catch(e) {} }
-return { show, counts };
+// 5.19.57: רענון אוטומטי (liveRefresh) - נתונים חדשים, והמסך מצויר מחדש רק אם בטוח (לא בחוקי חיוב / טופס חדש / חלון פתוח)
+async function refresh(onlyCounts){
+  try { await loadCounts(); started = true; paintTabs(); } catch(e) { return; }
+  if (onlyCounts || currentView !== "pay" || !updSafe() || ["rules"].includes(S.tab)) return;
+  await render(true);
+}
+return { show, counts, refresh };
 })();
 
 })();
