@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.60">
+<meta name="app-version" content="5.19.61">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1568,7 +1568,10 @@ td.nowrap{ white-space:nowrap; }
 #rgMain .rg3 .lk2-cell{ gap:4px !important; flex-wrap:nowrap; } #rgMain .rg3 .lk2-cell .btn.small{ padding:4px 9px; } #rgMain .rg3 th, #rgMain .rg3 td{ padding:9px 10px; }
 @media (max-width:1180px){ #rgMain .rg3 .lk2-cell{ flex-wrap:wrap; } }
 .rg3 tr.rg3-lk th, .rg3 tr.rg3-lk td{ background:#FCFAF7; }
+.deals td.c-amt, .deals th.c-amt{ text-align:center !important; white-space:nowrap; } .deals .c-desc{ max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13.5px; }
+.deals .k-sub{ font-size:12.5px; margin-top:2px; } .deals .call-ph{ font-size:13px; color:var(--maroon,#5A1216); text-decoration:none; font-weight:700; }
 .deals .plus{ color:#a89c90; margin:0 2px; } .deals .st2{ margin-top:4px; }
+.dl-h2{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; } .dl-card{ font-size:12.5px !important; } .dl-inv{ font-size:13px; font-weight:700; color:var(--maroon,#5A1216); text-decoration:none; } .dl-inv:hover{ text-decoration:underline; }
 .dl-who{ display:flex; gap:14px; flex-wrap:wrap; margin-top:4px; font-size:14px; color:#4a423b; } .dl-who a{ font-weight:700; color:var(--maroon,#5A1216); text-decoration:none; }
 #payPnl h2 .name-link{ font-size:inherit; font-weight:800; }
 .dl-top{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; padding-bottom:12px; margin-bottom:12px; border-bottom:1px solid #EEE7DF; }
@@ -1602,6 +1605,7 @@ td.nowrap{ white-space:nowrap; }
 #payWrap .br-rule-h select{ height:36px !important; min-height:36px !important; padding:0 10px !important; line-height:normal; min-width:130px; }
 #payWrap .br-wrap textarea{ width:100%; min-height:64px; border-radius:10px; padding:8px 10px; box-sizing:border-box; font:inherit; font-size:14.5px; }
 #payWrap .br-wrap > .note{ margin:0 !important; }
+#payWrap .pl-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; } #payWrap .pl-head #lNew{ margin-inline-start:auto; }   /* כפתור "+ חדש" תמיד משמאל */
 .pay-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .pay-kid{ position:relative; flex:0 1 380px; min-width:240px; } .pay-kid input{ width:100%; padding-inline-start:34px !important; border-radius:999px !important; }
 .pay-kid .pk-ic{ position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%); opacity:.6; pointer-events:none; }
@@ -5100,10 +5104,10 @@ const PAY_MENU = [
   // 5.19.58 (הלקוחה): הוראות קבע עברו מתחת ל"עסקאות" (לשונית אחת; בתוכה: רשימה / לחיוב בקרוב / חיובים שבוצעו)
   // 5.19.59 (הלקוחה): עסקאות - מסך אחד; סוג (שוטפים / מרתונים / אישיים) בסינון. בלי לשונית הוראות קבע (ניהול ההוראה - מתוך "פרטים").
   ["reports", "עסקאות", [["tx-all", "עסקאות"]]],
-  ["pages", "דפי תשלום", [["links", "תשלום אישי"], ["pending", "ממתינים לתשלום"]]],
+  ["pages", "דפי תשלום", [["links", "תשלום אישי"]]],   // 5.19.61: "ממתינים לתשלום" ירד - בעסקאות (📞 ממתין לתשלום)
   ["set", "הגדרות", [["rules", "חוקי חיוב"]]]];
-const PT_TODO = { call: 1, failed: 1, issues: 1 };   // לשוניות "לטיפול" הישנות -> עסקאות עם סינון לטיפול
-const PT_IN = { call: "tx-all", failed: "tx-all", issues: "tx-all", upcoming: "tx-all", bydate: "tx-all", plans: "tx-all", "tx-reg": "tx-all", "tx-mar": "tx-all", "tx-pay": "tx-all" };   // מסכים ישנים (קישורים מתמונת המצב)
+const PT_TODO = { call: 1, failed: 1, issues: 1, pending: 1 };   // לשוניות "לטיפול" הישנות -> עסקאות עם סינון לטיפול
+const PT_IN = { pending: "tx-all", call: "tx-all", failed: "tx-all", issues: "tx-all", upcoming: "tx-all", bydate: "tx-all", plans: "tx-all", "tx-reg": "tx-all", "tx-mar": "tx-all", "tx-pay": "tx-all" };   // מסכים ישנים (קישורים מתמונת המצב)
 const PT_KEYS = PAY_MENU.flatMap(g => g[2].map(x => x[0])).concat(Object.keys(PT_IN));
 const PT_OLD = { all: "tx-reg", dates: "bydate" };
 let PT = (k => PT_KEYS.includes(k) ? k : "home")(PT_OLD[store("telem_pay_tab")] || store("telem_pay_tab"));
@@ -8532,35 +8536,35 @@ async function renderAll(b){
   try { S.callList = await loadCall(); callPaint(S.callList.length); } catch(e) { S.callList = []; }
   const deals = buildDeals(rows, qf, qt, ibOpen);
   const qn = q.replace(/[\s\-]/g, "");
-  const list = deals.filter(d => (S.pk === "all" || d.group === S.pk) && (!S.pm || (S.pm === "plan" ? !!d.plan : !d.plan))
+  if (!["all", "first", "plan", "mar", "pay"].includes(S.pk)) S.pk = "all";
+  const list = deals.filter(d => (S.pk === "all" || d.group === S.pk)
     && (!S.ps || (S.ps === "todo" ? !!d.todo : S.ps === "ref" ? d.pays.some(r => r.refund_status) : S.ps === "נכשל" ? d.pays.some(r => r.status === "נכשל") || (d.plan && ["failed", "error"].includes(d.plan.status)) : d.pays.length && d.pays.every(r => r.status === "אושר")))
     && (!q || d.text.includes(q) || (qn.length >= 3 && /^\d+$/.test(qn) && d.phone.replace(/\D/g, "").includes(qn))));
   const inRng = (r) => { const x = String(r.date || "").slice(0, 10); return x >= qf && x <= qt; };
   const okP = list.flatMap(d => d.pays).filter(r => r.status === "אושר" && inRng(r)), sum = okP.reduce((a, r) => a + Number(r.amount || 0), 0);
   const nTodo = deals.filter(d => (S.pk === "all" || d.group === S.pk) && d.todo).length;
   const RNG = [["month", "החודש"], ["prev", "החודש הקודם"], ["30", "30 הימים האחרונים"], ["year", "מתחילת שנת הלימודים"], ["", "טווח תאריכים אחר..."]];
-  const KINDS = [["all", "כל הסוגים"], ["reg", "תרגולים שוטפים"], ["mar", "מרתונים"], ["pay", "תשלומים אישיים"]];
+  const KINDS = [["all", "כל הסוגים"], ["first", "תשלום ראשון (הרשמה)"], ["plan", "הוראות קבע"], ["mar", "מרתונים"], ["pay", "תשלומים אישיים"]];
   b.innerHTML = `<div class="filters pay-flt">
       <div class="pf-q"><label class="lbl" for="pq2">חיפוש</label><input id="pq2" type="search" placeholder="שם הילד/ה, הורה, טלפון, חשבונית, אישור..." value="${esc(q)}"></div>
       <div><label class="lbl" for="pkF">סוג</label><select id="pkF">${KINDS.map(([k, t]) => `<option value="${k}" ${S.pk === k ? "selected" : ""}>${t}</option>`).join("")}</select></div>
-      <div><label class="lbl" for="pmF">אופן תשלום</label><select id="pmF"><option value="">הכול</option><option value="plan" ${S.pm === "plan" ? "selected" : ""}>עם הוראת קבע</option><option value="one" ${S.pm === "one" ? "selected" : ""}>חד-פעמי בלבד</option></select></div>
       <div><label class="lbl" for="pRng">תקופה</label><select id="pRng">${RNG.map(([k, t]) => `<option value="${k}" ${S.pr === k ? "selected" : ""}>${t}</option>`).join("")}</select></div>
       ${S.pr ? "" : `<div><label class="lbl" for="pFrom">מתאריך</label><input type="date" id="pFrom" value="${esc(S.pf)}"></div><div><label class="lbl" for="pTo">עד</label><input type="date" id="pTo" value="${esc(S.pt)}"></div>`}
       <div><label class="lbl" for="pps">סטטוס</label><select id="pps"><option value="">הכול</option><option value="אושר" ${S.ps === "אושר" ? "selected" : ""}>שולם</option><option value="נכשל" ${S.ps === "נכשל" ? "selected" : ""}>לא התקבל</option><option value="todo" ${S.ps === "todo" ? "selected" : ""}>⚠ לטיפול${nTodo ? " (" + nTodo + ")" : ""}</option><option value="ref" ${S.ps === "ref" ? "selected" : ""}>↩ זוכה</option></select></div>
       <div class="pf-x"><button type="button" class="btn small" id="pXls">⬇ אקסל</button></div></div>
     <div class="muted" style="margin:-4px 0 8px">${q.length >= 2 && qf !== S.pf ? `החיפוש מתחילת שנת הלימודים (${dmy(qf)} עד ${dmy(qt)}).` : `${dmy(qf)} עד ${dmy(qt)}`} · הוראות קבע פעילות מוצגות תמיד.</div>
     <div class="stats"><div class="stat"><b>${money(sum) || "₪0"}</b> התקבל בתקופה</div><div class="stat"><b>${list.length}</b> עסקאות</div>
-      <div class="stat"><b>${list.filter(d => d.plan && ["active", "failed", "paused", "creating"].includes(d.plan.status)).length}</b> הוראות קבע פעילות</div>${nTodo ? `<div class="stat" style="color:#A33A35"><b>${nTodo}</b> לטיפול</div>` : ""}</div>
-    ${list.length ? `<table class="tbl pay-all deals"><thead><tr><th class="c-todo" aria-label="לטיפול"></th><th>תאריך</th><th>תלמיד/ה</th><th>סוג</th><th class="hide-m">על מה</th><th>סכום</th><th>סטטוס</th><th></th></tr></thead><tbody>
+      <div class="stat"><b>${list.filter(d => d.group === "plan" && d.plan && ["active", "failed", "paused", "creating"].includes(d.plan.status)).length}</b> הוראות קבע פעילות</div>${nTodo ? `<div class="stat" style="color:#A33A35"><b>${nTodo}</b> לטיפול</div>` : ""}</div>
+    ${list.length ? `<table class="tbl pay-all deals"><thead><tr><th class="c-todo" aria-label="לטיפול"></th><th>תאריך</th><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>סוג</th><th class="hide-m c-desc">פירוט</th><th class="c-amt">סכום</th><th>סטטוס</th><th></th></tr></thead><tbody>
       ${list.map((d, i) => `<tr class="${d.todo ? "tr-todo" : ""}"><td class="c-todo">${d.todo ? `<span class="todo-ic" title="${esc(d.todo)}">⚠</span>` : ""}</td>
-        <td class="nowrap">${dmy(d.date)}</td>
-        <td>${d.leadId ? `<button type="button" class="name-link" data-lead="${d.leadId}">${esc(d.name)}</button>` : `<b>${esc(d.name)}</b>`}${d.parent ? `<div class="muted par1">${esc(d.parent)}</div>` : ""}</td>
-        <td>${d.kindHtml}</td><td class="hide-m muted">${esc(d.desc)}</td><td class="num">${d.amountHtml}</td><td>${d.statusHtml}</td>
+        <td class="nowrap">${dmy(d.date)}${String(d.date || "").length > 10 ? `<div class="muted">${esc(new Date(d.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</div>` : ""}</td>
+        <td>${d.leadId ? `<button type="button" class="name-link" data-lead="${d.leadId}">${esc(d.name)}</button>` : `<b>${esc(d.name)}</b>`}</td>
+        <td class="hide-m">${esc(d.parent || "")}${d.phone ? `<div><a class="call-ph" href="tel:${esc(String(d.phone).replace(/[^\d+]/g, ""))}" dir="ltr">${esc(d.phone)}</a></div>` : ""}</td>
+        <td>${d.kindHtml}</td><td class="hide-m muted c-desc" title="${esc(d.desc)}">${esc(d.desc)}</td><td class="c-amt">${d.amountHtml}</td><td>${d.statusHtml}</td>
         <td><button type="button" class="btn small" data-deal="${i}">פרטים</button></td></tr>`).join("")}</tbody></table>`
       : `<div class="card empty">${deals.length ? "אין עסקאות שמתאימות לסינון." : "אין עסקאות בטווח הזה."}</div>`}`;
   const again = () => renderAll(b);
   $("pkF").onchange = (e) => { S.pk = e.target.value; again(); };
-  $("pmF").onchange = (e) => { S.pm = e.target.value; again(); };
   $("pRng").onchange = (e) => { S.pr = e.target.value; if (S.pr) [S.pf, S.pt] = payRange(S.pr); again(); };
   if ($("pFrom")) { $("pFrom").onchange = (e) => { S.pf = e.target.value || S.pf; again(); }; $("pTo").onchange = (e) => { S.pt = e.target.value || S.pt; again(); }; }
   $("pps").onchange = (e) => { S.ps = e.target.value; again(); };
@@ -8595,22 +8599,23 @@ function buildDeals(rows, qf, qt, ibOpen){
     deals.push(o); };
   const planHtml = (p) => `${stChip(p.status)} <span class="muted">${p.charged_count || 0}/${p.total_count || "?"}</span>`;
   // 5.19.60 (הלקוחה): עמודת הסוג = כמו בסינון (תרגולים שוטפים / מרתון / תשלום אישי); מבנה התשלום בשורה קטנה מתחת
-  const GK = { reg: ["k-reg", "תרגולים שוטפים"], mar: ["k-mar", "מרתון"], pay: ["k-pay", "תשלום אישי"] };
+  const GK = { first: ["k-reg", "תשלום ראשון"], plan: ["k-mon", "הוראת קבע"], mar: ["k-mar", "מרתון"], pay: ["k-pay", "תשלום אישי"] };
   const kindH = (g, sub) => `<span class="chip kchip ${GK[g][0]}">${GK[g][1]}</span>${sub ? `<div class="muted k-sub">${sub}</div>` : ""}`;
-  rows.filter(r => r.kind === "הרשמה - תשלום ראשון").forEach(r => { const p = planFor(r); if (p) used.add(p.id);
-    const ch = p ? (byPlan[p.id] || []) : [];
-    mk({ group: "reg", date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, plan: p, pays: [r].concat(ch), desc: r.description || (p && p.description) || "",
-      kindTxt: "תרגולים שוטפים", kindHtml: kindH("reg", p ? "תשלום ראשון + הוראת קבע" : "תשלום ראשון"),
-      amountHtml: `<b>${money(r.amount)}</b>${p ? `<div class="muted">+ ${money(p.monthly_amount)} לחודש</div>` : ""}`, statusHtml: stPay(r) + (p ? `<div class="st2">${planHtml(p)}</div>` : "") }); });
-  plans.filter(p => !used.has(p.id) && (live(p) || (byPlan[p.id] || []).length || (d10(p.created_at) >= qf && d10(p.created_at) <= qt))).forEach(p => { used.add(p.id);
-    const ch = byPlan[p.id] || [];
-    mk({ group: "reg", date: p.created_at || (ch[0] && ch[0].date), student_id: p.student_id, name: p.student_name, parent: p.parent_name, phone: p.parent_phone, plan: p, pays: ch, desc: p.description || "",
-      kindTxt: "תרגולים שוטפים", kindHtml: kindH("reg", "הוראת קבע"), amountHtml: `<b>${money(p.monthly_amount)}</b> <span class="muted">לחודש</span>`, statusHtml: planHtml(p) + (ch.some(r => r.status === "נכשל") ? ` <span class="chip st-failed">חיוב לא התקבל</span>` : "") }); });
+  // 5.19.61 (הלקוחה): תשלום ראשון והוראת הקבע - שתי שורות נפרדות (בפרטים רואים את שתיהן יחד)
+  const firstOf = {};
+  rows.filter(r => r.kind === "הרשמה - תשלום ראשון").forEach(r => { const p = planFor(r); if (p) { used.add(p.id); firstOf[p.id] = r; }
+    mk({ group: "first", date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, plan: p, pays: [r], desc: r.description || (p && p.description) || "",
+      kindTxt: "תשלום ראשון", kindHtml: kindH("first", p ? "יש הוראת קבע" : ""), amountHtml: `<b>${money(r.amount)}</b>`, statusHtml: stPay(r) }); });
+  const planRow = (p) => { const ch = byPlan[p.id] || [];
+    mk({ group: "plan", date: p.created_at || (ch[0] && ch[0].date), student_id: p.student_id, name: p.student_name, parent: p.parent_name, phone: p.parent_phone, plan: p, first: firstOf[p.id] || null, pays: ch, desc: p.description || "",
+      kindTxt: "הוראת קבע", kindHtml: kindH("plan", ""), amountHtml: `<b>${money(p.monthly_amount)}</b><div class="muted">לחודש</div>`, statusHtml: planHtml(p) + (p.status !== "failed" && ch.some(r => r.status === "נכשל") ? `<div class="st2"><span class="chip st-failed">חיוב לא התקבל</span></div>` : "") }); };
+  plans.filter(p => used.has(p.id)).forEach(planRow);
+  plans.filter(p => !used.has(p.id) && (live(p) || (byPlan[p.id] || []).length || (d10(p.created_at) >= qf && d10(p.created_at) <= qt))).forEach(p => { used.add(p.id); planRow(p); });
   rows.filter(r => r.kind !== "הרשמה - תשלום ראשון" && !(r.plan_id && used.has(r.plan_id))).forEach(r => {
-    mk({ group: r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : "reg", date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, pays: [r], desc: r.description || "",
-      kindTxt: (GK[r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : "reg"])[1], kindHtml: kindH(r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : "reg", r.kind === "חיוב חודשי" ? "חיוב חודשי" : ""), amountHtml: `<b>${money(r.amount)}</b>`, statusHtml: stPay(r) }); });
+    mk({ group: r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" ? "plan" : "first", date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, pays: [r], desc: r.description || "",
+      kindTxt: (GK[r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" ? "plan" : "first"])[1], kindHtml: kindH(r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" ? "plan" : "first", r.kind === "חיוב חודשי" ? "חיוב " + (r.charge_no || "") : ""), amountHtml: `<b>${money(r.amount)}</b>`, statusHtml: stPay(r) }); });
   // הרשמות בתשלום טלפוני שעוד לא שולמו ("להתקשר לתשלום")
-  (S.callList || []).forEach(x => { const g = x.kind === "marathon" ? "mar" : "reg";
+  (S.callList || []).forEach(x => { const g = x.kind === "marathon" ? "mar" : "first";
     mk({ group: g, date: x.created_at, student_id: x.student_id, name: [x.first_name, x.last_name].filter(Boolean).join(" "), parent: x.parent_first || "", phone: x.parent_phone || "", pending: x, pays: [], desc: x.what || "",
       kindTxt: GK[g][1], kindHtml: kindH(g, "תשלום טלפוני"), amountHtml: `<b>${money(x.amount)}</b>${x.monthly_amount ? `<div class="muted">+ ${money(x.monthly_amount)} לחודש</div>` : ""}`, statusHtml: `<span class="chip st-paused">📞 ממתין לתשלום</span>` });
     deals[deals.length - 1].todo = "להתקשר לתשלום (בחרו תשלום טלפוני)"; });
@@ -8621,7 +8626,7 @@ async function dealDetails(d){
   const r1 = d.first, p = d.plan, tel = String(d.phone || "").replace(/[^\d+]/g, "");
   const secOne = (r) => { const fail = S.failed.find(f => f.id === r.id), iss = S.issues.find(f => f.id === r.id), td = payTodo(r, {});
     const tm = String(r.date || "").length > 10 ? " · " + new Date(r.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
-    return `<details class="dl-sec" ${td ? "open" : ""}><summary><span class="dl-t">${kChip(r.kind)}</span><span class="dl-a">${money(r.amount)}</span>${stPay(r)}<span class="muted dl-d">${dmy(r.date)}</span>${td ? `<span class="todo-ic" title="${esc(td)}">⚠</span>` : ""}</summary>
+    return `<details class="dl-sec" ${td ? "open" : ""}><summary><span class="dl-t">${kChip(r.kind)}</span><span class="dl-a">${money(r.amount)}</span>${stPay(r)}${/^https:\/\//.test(r.document_url || "") ? `<a class="dl-inv" href="${esc(r.document_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🧾 חשבונית ${esc(r.document_number || "")} ↗</a>` : ""}<span class="muted dl-d">${dmy(r.date)}</span>${td ? `<span class="todo-ic" title="${esc(td)}">⚠</span>` : ""}</summary>
       <div class="dl-body">${td ? `<div class="tx-todo">⚠ ${esc(td)}${r.reason ? " · " + esc(r.reason) : ""}</div>` : r.reason ? `<div class="tx-todo">סיבה: ${esc(r.reason)}</div>` : ""}
       <table class="dl-kv"><tr><th>תאריך</th><td>${dmy(r.date)}${tm}</td></tr>${r.description ? `<tr><th>על מה</th><td>${esc(r.description)}</td></tr>` : ""}${r.card_last4 ? `<tr><th>כרטיס</th><td>${card4(r.card_last4)}</td></tr>` : ""}${r.approval ? `<tr><th>מספר אישור</th><td><span dir="ltr">${esc(r.approval)}</span></td></tr>` : ""}<tr><th>חשבונית</th><td>${/^https:\/\//.test(r.document_url || "") || r.document_number ? invLink(r) : "<span class='muted'>אין</span>"}</td></tr></table>
       <div class="tx-acts">${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי</button>` : ""}</div>
@@ -8629,16 +8634,16 @@ async function dealDetails(d){
   const secPlan = (p) => `<details class="dl-sec" ${["failed", "error"].includes(p.status) ? "open" : ""} id="dlPlan"><summary><span class="dl-t"><span class="chip kchip k-mon">הוראת קבע</span></span><span class="dl-a">${money(p.monthly_amount)} <small class="muted">לחודש</small></span>${stChip(p.status)}<span class="muted dl-d">${p.charged_count || 0}/${p.total_count || "?"} חיובים${p.next_charge_date ? " · הבא " + dmy(p.next_charge_date) : ""}</span></summary>
       <div class="dl-body"><div class="muted dl-load">טוען חיובים…</div>
       <div class="tx-acts"><button type="button" class="btn small" id="dlPlanBtn">🔁 ניהול ההוראה - השהיה / ביטול / שינוי יום וסכום</button></div></div></details>`;
-  const pays1 = d.pays.filter(r => r.kind !== "חיוב חודשי");
+  const pays1 = d.pays.filter(r => r.kind !== "חיוב חודשי"); if (d.first && !pays1.includes(d.first)) pays1.unshift(d.first);   // שורת הוראת קבע - מציגים גם את התשלום הראשון שלה
   const docR = r1 || pays1[0] || null;
-  pnlOpen(`<header><div><h2>${d.leadId ? `<button type="button" class="name-link" data-lead2="${d.leadId}">${esc(d.name)}</button>` : esc(d.name)}</h2>
+  pnlOpen(`<header><div><h2 class="dl-h2">${d.leadId ? `<button type="button" class="name-link" data-lead2="${d.leadId}">${esc(d.name)}</button><button type="button" class="btn small dl-card" data-lead2="${d.leadId}">לכרטיס התלמיד/ה ←</button>` : esc(d.name)}</h2>
       <div class="dl-who">${d.parent ? `<span>הורה: <b>${esc(d.parent)}</b></span>` : ""}${tel ? `<a href="tel:${esc(tel)}" dir="ltr">${esc(d.phone)}</a>` : ""}</div></div><button class="btn small x" type="button">✕</button></header>
     <div class="body">
-    <div class="dl-top"><span class="dl-kind">${d.kindHtml}</span><div class="tx-acts">${docR && docR.status === "אושר" ? `<button type="button" class="btn small tx-pdf" id="dlPdf">📄 טופס חתום</button>` : ""}${docR && /^https:\/\//.test(docR.document_url || "") ? `<a class="btn small" href="${esc(docR.document_url)}" target="_blank" rel="noopener">🧾 חשבונית ↗</a>` : ""}${d.leadId ? `<button type="button" class="btn small" data-lead2="${d.leadId}">לכרטיס התלמיד/ה ←</button>` : ""}</div></div>
+    <div class="dl-top"><span class="dl-kind">${d.kindHtml}</span><div class="tx-acts">${docR && docR.status === "אושר" ? `<button type="button" class="btn small tx-pdf" id="dlPdf">📄 טופס חתום</button>` : ""}</div></div>
     ${d.todo ? `<div class="tx-todo">⚠ ${esc(d.todo)}</div>` : ""}
     ${d.pending ? `<details class="dl-sec" open><summary><span class="dl-t"><span class="chip st-paused">📞 תשלום טלפוני</span></span><span class="dl-a">${money(d.pending.amount)}</span>${d.pending.monthly_amount ? `<span class="muted">+ ${money(d.pending.monthly_amount)} לחודש</span>` : ""}<span class="muted dl-d">נשלח ${dmy(d.pending.created_at)}</span></summary>
       <div class="dl-body"><div class="muted" style="margin-bottom:8px">${esc(d.pending.what || "")} - ההורה בחר/ה תשלום טלפוני. מתקשרים, ואז:</div>
-      <div class="tx-acts"><button type="button" class="btn small primary" id="dlNow">⌨️ הזנת כרטיס עכשיו</button><button type="button" class="btn small" id="dlLink">🔗 העתקת קישור להורה</button>${tel ? `<a class="btn small" href="tel:${esc(tel)}">📞 חיוג</a>` : ""}<button type="button" class="btn small" id="dlPaid">✔ שולם (גביתי בריווחית)</button></div></div></details>` : ""}
+      <div class="tx-acts"><button type="button" class="btn small primary" id="dlNow">⌨️ הזנת כרטיס עכשיו</button><button type="button" class="btn small" id="dlLink">🔗 העתקת קישור להורה</button><button type="button" class="btn small" id="dlPaid">✔ שולם (גביתי בריווחית)</button></div></div></details>` : ""}
     ${pays1.map(secOne).join("")}
     ${p ? secPlan(p) : ""}
     ${!p && d.pays.filter(r => r.kind === "חיוב חודשי").map(secOne).join("") || ""}
@@ -8898,7 +8903,7 @@ const FIELD_SECS = [
 ];
 async function renderLinks(b){
   const list = await call("pay_links_list") || [];
-  b.innerHTML = `<div class="page-head"><button class="btn primary" id="lNew" type="button">+ טופס תשלום חדש</button><span class="muted">קישור אישי להורה: תשלום חד-פעמי, ואם צריך - גם הוראת קבע. ההורה ממלא, חותם ומשלם באיקרדיט.</span></div>
+  b.innerHTML = `<div class="page-head pl-head"><span class="muted">קישור אישי להורה: תשלום חד-פעמי, ואם צריך - גם הוראת קבע. ההורה ממלא, חותם ומשלם באיקרדיט.</span><button class="btn primary" id="lNew" type="button">+ טופס תשלום חדש</button></div>
     ${list.length ? `<table class="tbl"><thead><tr><th>נוצר</th><th>הורה / תלמיד/ה</th><th>על מה</th><th>סכום</th><th>סטטוס</th><th></th></tr></thead><tbody>
       ${list.map((l, li) => { const ph = l.fields && l.fields.parent_phone && l.fields.parent_phone.value, wa = waLink(ph, `שלום, קישור לתשלום בתלם: ${l.url}`);
         return `<tr><td>${dmy(l.created_at)}<div class="muted">${esc(l.created_by_name || "")}</div></td><td><span class="par1">${esc(l.parent_name || "")}${l.parent_name && l.student_name ? " · " : ""}</span>${l.student_name ? stuCell(l.student_name, l.student_id) : ""}</td><td>${esc(l.description)}</td>
