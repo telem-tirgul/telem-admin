@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.73">
+<meta name="app-version" content="5.19.74">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -478,6 +478,10 @@
   /* צוות */
   .st-form{ display:grid; grid-template-columns:2fr 1.5fr 1.3fr auto; gap:10px; align-items:end; }
   @media (max-width:760px){ .st-form{ grid-template-columns:1fr; } }
+  /* 5.19.74: צוות - כותרת "משתמש חדש / עריכה: שם" עם שמירה/ביטול בשורת הכותרת (מחשב); בנייד הכפתורים בסוף הטופס */
+  .st-fh{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; font-size:16.5px; } .st-act{ display:flex; gap:6px; }
+  #stForm{ grid-template-columns:2fr 1.5fr 1.3fr 1.5fr; } #stForm .st-btm{ display:none; }
+  @media (max-width:760px){ .st-act{ display:none; } #stForm{ grid-template-columns:1fr; } #stForm .st-btm{ display:block; } }
   .st-sessions{ margin-top:10px; display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:6px 14px; }
   .st-sessions h4{ grid-column:1/-1; margin:10px 0 2px; color:var(--accent); }
   .st-sessions label{ display:flex; gap:8px; align-items:center; padding:5px 6px; border-radius:6px; cursor:pointer; font-size:14px; }
@@ -1463,6 +1467,14 @@
   grid-template-columns:1fr 1fr; margin:0; box-shadow:0 12px 36px rgba(0,0,0,.25); }
 #exForm.ex-form-pop[hidden]{ display:none; } #exForm.ex-form-pop textarea{ min-height:56px; height:56px; } #exForm.ex-form-pop{ gap:8px 10px; padding:14px 16px; } #exForm .ex-fp-h{ grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; font-size:16px; }
 #exForm.ex-form-pop .ex-f-wide, #exForm.ex-form-pop .ex-f-btns{ grid-column:1 / -1; } #exForm.ex-form-pop .ex-f-btns{ justify-content:flex-start; }
+/* 5.19.74: חלון האירוע - במחשב הכפתורים בשורת הכותרת; בנייד פס דק קבוע בתחתית החלון (מחיקה באדום מימין) */
+#exForm .ex-fp-t{ display:flex; align-items:center; gap:10px; } #exForm .ex-fp-act{ display:flex; gap:6px; }
+#exForm.ex-form-pop .ex-f-btns{ display:none; }
+@media (max-width:760px){
+  #exForm .ex-fp-act, #exForm .ex-fp-t [data-exfdel]{ display:none; }
+  #exForm.ex-form-pop .ex-f-btns{ display:flex; gap:6px; position:sticky; bottom:-14px; margin:4px -16px -14px; padding:8px 16px; background:#fff; border-top:1px solid var(--border); z-index:2; }
+  #exForm.ex-form-pop .ex-f-btns [data-exfdel]{ order:-1; margin-inline-end:auto; }
+}
 .ex-pop-btns{ display:flex; gap:8px; margin-top:10px; } .ex-cal td.busy{ background:#eee !important; }
 .ex-pal{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:4px 0 8px; } .ex-pal[hidden]{ display:none; } .ex-pal-l{ font-weight:700; font-size:14px; }
 .ex-pal button{ display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border, #ddd); background:#fff; border-radius:999px; padding:4px 10px; font:inherit; font-size:13px; cursor:pointer; }
@@ -2208,7 +2220,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <div class="card info-card" id="infoBody"></div>
       <div class="card" id="infoEdit" hidden>
         <div class="lg-edit-h">עריכת דף מידע</div>
-        <label class="lbl" for="infoTitle">כותרת</label><input id="infoTitle">
+        <label class="lbl" for="infoTitle">כותרת</label><input id="infoTitle" type="text">
         <label class="lbl" for="infoText" style="margin-top:8px;">תוכן <span class="muted" style="font-weight:400">(שורה שמתחילה ב-## היא כותרת, שורה שמתחילה ב-* היא נקודה ברשימה)</span></label>
         <textarea id="infoText" style="min-height:420px; font-size:15px; line-height:1.6;"></textarea>
         <div class="err" id="infoErr"></div>
@@ -2389,6 +2401,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <div class="page-head"><h1>צוות ומתרגלים</h1></div>
       <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="card" style="margin-bottom:14px;">
+        <div class="st-fh"><b id="stFT">משתמש חדש</b><span class="st-act"><button class="btn small primary" type="submit" form="stForm">שמירה</button><button class="btn small" type="button" data-stcancel hidden>ביטול</button></span></div>
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
           <b>משתמש חדש:</b> אימייל, שם ותפקיד. אפשר לכתוב סיסמה ראשונית ולמסור אותה, או להשאיר ריק - ואז נשלחת הזמנה במייל לבחירת סיסמה.
           <b>משתמש קיים:</b> אותו טופס מעדכן שם ותפקיד. מתרגל/ת רואה רק נוכחות, מאגר תרגולים ובתי הספר שלו/ה.
@@ -2399,7 +2412,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
           <div><label class="lbl" for="stName">שם</label><input id="stName" type="text" required></div>
           <div><label class="lbl" for="stRole">תפקיד</label><select id="stRole"><option value="instructor">מתרגל/ת</option><option value="admin">מנהל/ת (גישה מלאה)</option><option value="display">לתצוגה בלבד (בלי גישה)</option></select></div>
           <div class="st-login"><label class="lbl" for="stPass">סיסמה ראשונית (רק למשתמש חדש)</label><input id="stPass" type="text" dir="ltr" autocomplete="off" placeholder="ריק = הזמנה במייל"></div>
-          <div><button class="btn primary" type="submit">שמירה</button> <button class="btn" type="button" id="stCancel" hidden>ביטול</button></div>
+          <div class="st-btm"><button class="btn primary" type="submit">שמירה</button> <button class="btn" type="button" data-stcancel hidden>ביטול</button></div>
         </form>
         <div class="err" id="stErr"></div>
       </div>
@@ -4603,7 +4616,8 @@ const exShort = (k) => /מיפוי/.test(k) ? "מיפוי" : /השלמה/.test(k
 function exOpenForm(e, pre){
   const f = $("exForm"); EX.edit = e || null; f.hidden = false; $("exFormBg").hidden = false; pre = pre || {};
   const sid = e ? e.school_id : pre.sid || "";
-  f.innerHTML = `<div class="ex-fp-h"><b>${e ? "עריכת אירוע" : "אירוע חדש"}</b><button type="button" class="kp-x" id="exfX" aria-label="סגירה">✕</button></div>
+  const canDel = e && e.origin === "manual" && ME.role !== "instructor";   // 5.19.74: כלל הכפתורים - שמירה/ביטול בשורת הכותרת, מחיקה ליד הכותרת; בנייד פס דק למטה
+  f.innerHTML = `<div class="ex-fp-h"><span class="ex-fp-t"><b>${e ? "עריכת אירוע" : "אירוע חדש"}</b>${canDel ? `<button type="button" class="btn small danger" data-exfdel>מחיקה</button>` : ""}</span><span class="ex-fp-act"><button class="btn small primary" type="submit">שמירה</button><button class="btn small" type="button" data-exfcancel>ביטול</button></span></div>
     <div><label class="lbl" for="exfSch">בית ספר</label><select id="exfSch" required><option value="">בחר</option>${(L.schools || []).map(s => `<option value="${s.id}" ${s.id === sid ? "selected" : ""}>${esc(s.name + " · " + s.city)}</option>`).join("")}</select></div>
     <div><label class="lbl" for="exfGr">שכבה</label><select id="exfGr" required>${GRADE_ORD.slice(2).map(g => `<option value="${g}" ${(e ? gradeKey(e.grade) : pre.gr) === g ? "selected" : ""}>${g}'</option>`).join("")}</select></div>
     <div><label class="lbl" for="exfCls">כיתה (לא חובה)</label><input id="exfCls" type="text" inputmode="numeric" placeholder="כל השכבה" value="${esc(e && e.class_num || "")}"></div>
@@ -4613,8 +4627,10 @@ function exOpenForm(e, pre){
     ${EX.link ? `<div id="exfTimeBox" class="ex-f-wide ex-f-time"><span><label class="lbl" for="exfSt">שעת התחלה</label><input id="exfSt" type="time" value="${esc(hm5(e && e.start_time))}"></span><span><label class="lbl" for="exfEn">שעת סיום</label><input id="exfEn" type="time" value="${esc(hm5(e && e.end_time))}"></span></div>` : ""}
     <div class="ex-f-wide"><label class="lbl" for="exfTop">נושאים</label><textarea id="exfTop" rows="2">${esc(e && e.topics || "")}</textarea></div>
     <div><label class="lbl" for="exfMat">שם קובץ (לא חובה)</label><input id="exfMat" type="text" value="${esc(e && e.material || "")}"></div>
-    <div class="ex-f-btns"><button class="btn primary" type="submit">שמירה</button> <button class="btn" type="button" id="exfCancel">ביטול</button></div>`;
-  $("exfCancel").onclick = exFormClose; $("exfX").onclick = exFormClose;
+    <div class="ex-f-btns"><button class="btn small primary" type="submit">שמירה</button><button class="btn small" type="button" data-exfcancel>ביטול</button>${canDel ? `<button type="button" class="btn small danger" data-exfdel>מחיקה</button>` : ""}</div>`;
+  f.querySelectorAll("[data-exfcancel]").forEach(b => b.onclick = exFormClose);
+  f.querySelectorAll("[data-exfdel]").forEach(b => b.onclick = async () => {
+    try { if (!await exDelEvent(e, "\"" + e.kind + "\" ב-" + fmtDM(e.exam_date))) return; exFormClose(); toast("נמחק"); EX.scrollTo = exFirstVisible(); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } });
   if ($("exfSt")) $("exfSt").onchange = () => { if ($("exfSt").value && !$("exfEn").value) $("exfEn").value = addMin($("exfSt").value, 90); };
   const kb = () => { $("exfKindBox").hidden = $("exfEvt").value !== "מבחן"; if ($("exfTimeBox")) $("exfTimeBox").hidden = !/^מרתון/.test($("exfEvt").value); $("exfTop").previousElementSibling.textContent = $("exfEvt").value === "אירוע אחר" ? "מה האירוע" : "נושאים"; }; $("exfEvt").onchange = kb; kb();
   (sid ? $("exfEvt") : $("exfSch")).focus();
@@ -6481,17 +6497,18 @@ function stFill(u, upgrade){
   $("stRole").value = upgrade ? "instructor" : u.role;
   // משתמש עם התחברות לא הופך ל"לתצוגה בלבד"
   $("stRole").querySelector('option[value="display"]').disabled = u.role !== "display";
-  stRoleUi(); $("stCancel").hidden = false;
-  (upgrade ? $("stEmail") : $("stName")).focus();
+  stRoleUi(); document.querySelectorAll("[data-stcancel]").forEach(b => b.hidden = false); $("stFT").textContent = upgrade ? "המרה למשתמש: " + u.full_name : "עריכה: " + u.full_name;
+  { const hb = (document.querySelector("aside") || { getBoundingClientRect: () => ({ bottom: 0 }) }).getBoundingClientRect().bottom; window.scrollTo(0, Math.max(0, scrollY + $("stFT").getBoundingClientRect().top - Math.max(0, hb) - 12)); }
+  (upgrade ? $("stEmail") : $("stName")).focus({ preventScroll: true });
 }
-function stReset(){ S.disp = null; $("stForm").reset(); $("stRole").querySelector('option[value="display"]').disabled = false; $("stCancel").hidden = true; stRoleUi(); }
+function stReset(){ S.disp = null; $("stForm").reset(); $("stRole").querySelector('option[value="display"]').disabled = false; document.querySelectorAll("[data-stcancel]").forEach(b => b.hidden = true); $("stFT").textContent = "משתמש חדש"; stRoleUi(); }
 function stRoleUi(){
   const d = $("stRole").value === "display";
   document.querySelectorAll("#stForm .st-login").forEach(x => x.hidden = d);
   $("stEmail").required = !d;
 }
 $("stRole").addEventListener("change", stRoleUi);
-$("stCancel").addEventListener("click", stReset);
+document.querySelectorAll("[data-stcancel]").forEach(b => b.addEventListener("click", stReset));
 async function stAfterSave(email){
   if (S.disp) { try { await rpc("merge_display_staff", { p_display_id: S.disp, p_email: email }); } catch(e) {} }
   stReset(); loadStaff();
