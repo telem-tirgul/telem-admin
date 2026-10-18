@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.70">
+<meta name="app-version" content="5.19.71">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -753,7 +753,7 @@
   .ar-tiles{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; } .ar-tiles .tile{ min-width:0; padding:8px 14px; }
   .ar-sum-grid{ grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); } .ar-sum-grid .card{ max-height:300px; overflow:auto; margin:0; }
   @media (max-width:760px){ .ar-tiles{ grid-template-columns:1fr 1fr; } .ar-sum-grid{ grid-template-columns:minmax(0, 1fr); } }
-  .ar-filters > .ar-q{ width:160px; } .ar-filters > .ar-q input{ width:100%; }
+  .ar-filters > .ar-q{ width:160px; order:-1; } .ar-filters > .ar-q input{ width:100%; }   /* 5.19.71: החיפוש ראשון (מימין) */
   @media (max-width:700px){ .ar-filters > .ar-q{ width:100% !important; } }
   .ar-kid{ display:flex; align-items:center; gap:6px; flex-wrap:nowrap; white-space:nowrap; } .ar-kid .ar-gr{ font-size:12px; font-weight:800; color:var(--ink-soft, #666); white-space:nowrap; }
   .ar-tbl mark, .ar-kcal mark{ background:#ffe58a; color:inherit; padding:0; }
@@ -1303,7 +1303,7 @@
   }
   /* 5.19.23: מחשב - בחירת מקצוע / כיתה / חלק בשורה אחת ליד החיפוש, והתוצאות על כל רוחב הדף */
   @media (min-width:900px){
-    #wsTop{ display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-bottom:14px; } #wsTop .ws-search{ flex:1 1 340px; margin:0; order:2; } #wsTop .ws-side{ order:1; }   /* הבחירה מימין, החיפוש משמאל */
+    #wsTop{ display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin-bottom:14px; } #wsTop .ws-search{ flex:1 1 340px; margin:0; order:1; } #wsTop .ws-side{ order:2; }   /* 5.19.71: החיפוש מימין (כלל עקביות) */
     #wsTop .ws-side{ position:static; background:none; border:0; padding:0; border-radius:0; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
     #wsTop .ws-side .ws-pick{ flex-direction:row; align-items:center; gap:8px; margin:0; flex-wrap:wrap; }
     #wsTop .ws-side .ws-seg button{ flex:none; padding:0 14px !important; }
@@ -1832,8 +1832,11 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
 /* 5.19.70: כותרות האזורים בכרטיס - אותו מראה (תשלומים / סטטוס ומעקב / פרטים נוספים), תשלומים ופרטים נוספים נפתחים בחץ */
 #view-lead .lead-main :is(fieldset.sec > legend, .sec-d > summary, .lp-box > summary > b){ font-family:var(--font-display); font-size:15px !important; font-weight:700; color:var(--accent); }
-#view-lead .lead-main .lp-box{ border:0; border-top:1px solid var(--border); border-radius:0; background:none; padding:10px 0 4px; margin:12px 0 0; }
-#view-lead .lead-main .sec-d{ border-top:1px solid var(--border); padding:10px 0 4px; margin-top:12px; }
+/* 5.19.71 (נועה): כל אזור במסגרת - כשהוא סגור נראה כשורה מכווצת */
+#view-lead .lead-main :is(.lp-box, .sec-d){ border:1px solid var(--border); border-radius:12px; background:#fff; padding:10px 14px; margin:10px 0 0; }
+#view-lead .lead-main .sec-d[open]{ padding-bottom:14px; }
+#view-lead .side-remind{ margin:10px 0 14px; } #view-lead .side-remind .lbl{ font-size:13px; font-weight:700; color:#6B5F55; margin-bottom:4px; display:block; }
+#view-lead .side-remind input{ flex:1; min-width:0; height:40px; border-radius:8px; border:1px solid #E5DDD3; padding:6px 10px; } #view-lead .side-remind .btn{ height:40px; }
 #view-lead .lead-main .sec-d > summary{ cursor:pointer; list-style:none; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 #view-lead .lead-main .sec-d > summary::-webkit-details-marker{ display:none; }
 #view-lead .lead-main .sec-d > summary::before{ content:"◂"; color:var(--ink-soft); font-size:12px; width:10px; flex:none; transition:transform .15s; }
@@ -1983,7 +1986,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
             </fieldset>
             <div id="leadPay" class="lead-pay"></div><div id="leadPayments"></div>
 
-            <fieldset class="sec"><legend>סטטוס ומעקב</legend>
+            <details class="sec-d" id="statusBox" open><summary>סטטוס ומעקב</summary>
               <div class="form-grid">
                 <div><label class="lbl" for="lfStatus">סטטוס</label><select id="lfStatus"></select></div>
                 <div><label class="lbl" for="lfTopic">נושא</label><select id="lfTopic"><option>ליד</option><option>מתעניין</option><option>נרשם</option></select></div>
@@ -1994,7 +1997,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div><label class="lbl" for="sMath">רמה מתמטיקה</label><select id="sMath"></select></div>
                 <div class="msg-cell"><label class="lbl" for="lfMessage">הודעה <span class="muted" style="font-weight:400;">(מטופס האתר)</span></label><textarea id="lfMessage" aria-label="הודעה"></textarea></div>
               </div>
-            </fieldset>
+            </details>
             <!-- 5.19.70 (נועה): פרטים נוספים - נפתח בחץ, כמו התשלומים -->
             <details class="sec-d" id="moreBox"><summary>פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(משותף לכל האחים: הורה 2, טלפון בית, כתובת)</span></summary>
               <div class="form-grid">
@@ -2006,11 +2009,6 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div><label class="lbl" for="fAddr">כתובת</label><input id="fAddr" type="text"></div>
               </div>
             </details>
-            <!-- 5.19.70 (נועה): תזכורת - שדה פנימי שלנו, למטה -->
-            <div class="sec-remind form-grid">
-                <div><label class="lbl" for="lfRemind">תזכורת</label>
-                  <div style="display:flex; gap:6px;"><input id="lfRemind" type="datetime-local"><button class="btn small" type="button" id="clearRemind">ביטול</button></div></div>
-            </div>
             <div class="meta-line" id="leadMeta"></div>
             <div class="err" id="leadErr"></div>
             <div class="actions" id="leadActions">
@@ -2022,6 +2020,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
           <div class="card">
             <div class="track-box tb-side" id="trackBox" hidden></div>
+            <!-- 5.19.71 (נועה): תזכורת - שדה פנימי שלנו, בצד מתחת למעקב -->
+            <div class="side-remind"><label class="lbl" for="lfRemind">⏰ תזכורת</label>
+              <div style="display:flex; gap:6px;"><input id="lfRemind" type="datetime-local"><button class="btn small" type="button" id="clearRemind">ניקוי</button></div></div>
             <h3 class="side-h" style="margin-top:4px;">שיבוץ לקבוצות</h3>
             <div id="leadGroups"></div>
           </div>
@@ -2050,7 +2051,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <section id="view-att" hidden>
       <div id="attList">
         <div class="page-head att-head"><h1>קבוצות ונוכחות</h1><span class="gseg att-mode" data-admin role="group" aria-label="מצב"><button type="button" data-amode="a">✓ נוכחות</button><button type="button" data-amode="g">👥 קבוצות</button></span><div id="attSum" class="att-sum"></div>
-          <div class="att-adm" data-admin><button type="button" class="btn small primary" id="attNewG">+ קבוצה חדשה</button><button type="button" class="btn small primary" id="attNewM" hidden>+ מרתון חדש</button><button type="button" class="btn small" id="attRepBtn">📊 דוח נוכחות</button></div></div>
+          <div class="att-adm" data-admin><button type="button" class="btn small" id="attRepBtn">📊 דוח נוכחות</button><button type="button" class="btn small primary" id="attNewM" hidden>+ מרתון חדש</button><button type="button" class="btn small primary" id="attNewG">+ קבוצה חדשה</button></div></div>
         <div id="attMark">
         <div class="att-stick">
         <div class="att-date card">
@@ -2130,8 +2131,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <!-- 5.19.66: הדיווחים עברו למסך ההודעות (📥) -->
     </section>
     <section id="view-backup" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>גיבוי</h1></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
         <p class="muted" style="font-size:13.5px; margin:0 0 10px;">כל הטבלאות בקובץ אחד. כדאי לשמור עותק גם בדרייב. הקובץ כולל טלפונים ופרטים אישיים - לא לשלוח הלאה.</p>
@@ -2188,15 +2189,16 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== מידע (כל הצוות) ===== -->
     <section id="view-info" hidden>
-      <div class="page-head"><h1>מידע למתרגלים</h1><button class="btn small" type="button" id="infoEditBtn" data-admin>✎ עריכה</button></div>
+      <div class="page-head"><h1>מידע למתרגלים</h1><div style="display:flex; gap:8px;"><button class="btn small" type="button" id="infoEditBtn" data-admin>✎ עריכה</button><button class="btn small primary" type="button" id="infoAdd" data-admin>+ דף מידע חדש</button></div></div>
       <div class="gseg subnav" role="group" aria-label="דפי מידע" id="infoTabs"></div>
       <div class="card info-card" id="infoBody"></div>
       <div class="card" id="infoEdit" hidden>
+        <div class="lg-edit-h">עריכת דף מידע</div>
         <label class="lbl" for="infoTitle">כותרת</label><input id="infoTitle">
         <label class="lbl" for="infoText" style="margin-top:8px;">תוכן <span class="muted" style="font-weight:400">(שורה שמתחילה ב-## היא כותרת, שורה שמתחילה ב-* היא נקודה ברשימה)</span></label>
         <textarea id="infoText" style="min-height:420px; font-size:15px; line-height:1.6;"></textarea>
         <div class="err" id="infoErr"></div>
-        <div class="actions"><button class="btn primary" type="button" id="infoSave">שמירה</button><button class="btn" type="button" id="infoAdd">+ דף מידע חדש</button><button class="btn" type="button" id="infoCancel">ביטול</button></div>
+        <div class="actions lg-btns"><button class="btn primary" type="button" id="infoSave">שמירה</button><button class="btn" type="button" id="infoCancel">ביטול</button></div>
       </div>
     </section>
 
@@ -2246,8 +2248,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
     <section id="view-me" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>הפרטים שלי</h1></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="card me-card">
         <dl class="me-dl"><dt>שם</dt><dd id="meName"></dd><dt>אימייל</dt><dd id="meEmail" dir="ltr"></dd><dt>תפקיד</dt><dd id="meRole"></dd><dt>גרסת המערכת</dt><dd id="meVer" dir="ltr" style="text-align:right"></dd></dl>
         <button class="btn" type="button" id="mePwBtn">שינוי סיסמה</button>
@@ -2370,20 +2372,20 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== צוות ומתרגלים ===== -->
     <section id="view-staff" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="page-head"><h1>צוות ומתרגלים</h1></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="card" style="margin-bottom:14px;">
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
           <b>משתמש חדש:</b> אימייל, שם ותפקיד. אפשר לכתוב סיסמה ראשונית ולמסור אותה, או להשאיר ריק - ואז נשלחת הזמנה במייל לבחירת סיסמה.
           <b>משתמש קיים:</b> אותו טופס מעדכן שם ותפקיד. מתרגל/ת רואה רק נוכחות, מאגר תרגולים ובתי הספר שלו/ה.
-          <b>לתצוגה בלבד:</b> רק שם, בלי אימייל ובלי סיסמה. לא יכול/ה להתחבר - רק מופיע/ה בקבוצות. "הפוך למשתמש" נותן גישה בהמשך, והקבוצות נשמרות.
+          <b>לתצוגה בלבד:</b> רק שם, בלי אימייל ובלי סיסמה. לא יכול/ה להתחבר - רק מופיע/ה בקבוצות. "המרה למשתמש" נותן גישה בהמשך, והקבוצות נשמרות.
         </div>
         <form id="stForm" class="st-form">
           <div class="st-login"><label class="lbl" for="stEmail">אימייל</label><input id="stEmail" type="email" required dir="ltr"></div>
           <div><label class="lbl" for="stName">שם</label><input id="stName" type="text" required></div>
           <div><label class="lbl" for="stRole">תפקיד</label><select id="stRole"><option value="instructor">מתרגל/ת</option><option value="admin">מנהל/ת (גישה מלאה)</option><option value="display">לתצוגה בלבד (בלי גישה)</option></select></div>
           <div class="st-login"><label class="lbl" for="stPass">סיסמה ראשונית (רק למשתמש חדש)</label><input id="stPass" type="text" dir="ltr" autocomplete="off" placeholder="ריק = הזמנה במייל"></div>
-          <div><button class="btn primary" type="submit">הוספה / עדכון</button> <button class="btn" type="button" id="stCancel" hidden>ביטול</button></div>
+          <div><button class="btn primary" type="submit">שמירה</button> <button class="btn" type="button" id="stCancel" hidden>ביטול</button></div>
         </form>
         <div class="err" id="stErr"></div>
       </div>
@@ -2402,9 +2404,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <div class="page-head"><h1>קבוצות</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
           <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-gmode="board">לוח</button><button type="button" data-gmode="table">טבלה</button></div>
-          <button class="btn small primary" type="button" id="gNewBtn">+ קבוצה חדשה</button>
-          <button class="btn small primary" type="button" id="mNewBtn" hidden>+ מרתון חדש</button>
           <button class="btn small" type="button" id="groupsReload">רענון</button>
+          <button class="btn small primary" type="button" id="mNewBtn" hidden>+ מרתון חדש</button>
+          <button class="btn small primary" type="button" id="gNewBtn">+ קבוצה חדשה</button>
         </div></div>
       <div class="controls">
         <div class="tabs" role="tablist" id="cityTabs"></div>
@@ -2427,7 +2429,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 <div class="panel-bg" id="panelBg" hidden></div>
 <aside class="panel" id="panel" hidden aria-label="פרטי קבוצה">
   <header><div><h3 id="panelTitle"></h3><div class="muted" id="panelSub"></div></div>
-    <div style="display:flex; gap:6px; align-items:flex-start;"><button class="btn small" id="panelAttBtn" type="button">✓ נוכחות</button><button class="btn small" id="gEditBtn" type="button">✎ עריכת קבוצה</button><button class="kp-x" id="panelClose" type="button" aria-label="סגירה" title="סגירה">✕</button></div></header>
+    <div style="display:flex; gap:6px; align-items:flex-start;"><button class="btn small" id="gEditBtn" type="button">✎ עריכה</button><button class="btn small" id="panelAttBtn" type="button">✓ נוכחות</button><button class="kp-x" id="panelClose" type="button" aria-label="סגירה" title="סגירה">✕</button></div></header>
   <div class="g-edit" id="gEdit" hidden></div>
   <ul class="roster" id="roster"></ul>
 </aside>
@@ -3831,8 +3833,8 @@ async function loadLeadGroups(studentId){
           <dt>מתרגל/ת</dt><dd>${ins ? esc(ins) : "<span class='muted'>לא שויך</span>"}</dd>
           ${se.room ? `<dt>כיתה</dt><dd class="room"><bdi>${esc(se.room)}</bdi></dd>` : ""}
         </dl>
-        <div class="lg-btns"><button type="button" class="btn small" data-gs="${se.id}" data-city="${esc(se.city)}">בלוח הקבוצות ←</button>
-          <button type="button" class="btn small" data-chg="${a.id}">✎ שינוי שיבוץ</button></div>
+        <div class="lg-btns"><button type="button" class="btn small" data-chg="${a.id}">✎ שינוי שיבוץ</button>
+          <button type="button" class="btn small" data-gs="${se.id}" data-city="${esc(se.city)}">בלוח הקבוצות ←</button></div>
         <div class="lg-edit" data-ed="${a.id}" hidden></div></div>`;
     }).join("") : "<div class='muted'>לא משובץ/ת לקבוצה השנה.</div>";
     // שיבוץ מוצע: קיבל/ה הודעה -> אישר/ה (ואז השיבוץ הופך ל"משובץ")
@@ -4303,7 +4305,7 @@ async function renderHolidays(reload){
       <td><select data-f="kind" class="hol-k hol-k-${h.kind}">${Object.entries({ holiday: "חג", vacation: "חופשה", note: "יום ציון" }).map(([k, t]) => `<option value="${k}" ${k === h.kind ? "selected" : ""}>${t}</option>`).join("")}</select></td>
       <td><select data-f="city"><option value="">כל הערים</option>${CONFIG.cities.map(c => `<option ${c === h.city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></td>
       <td><input data-f="school" value="${esc(h.school || "")}" placeholder="כל בתי הספר"></td>
-      <td><button type="button" class="btn small" data-hdel="${h.id}">מחיקה</button></td></tr>`).join("") : "<tr><td colspan='7' class='empty-state'>אין ימים מיוחדים.</td></tr>") + "</tbody>";
+      <td><button type="button" class="btn small danger" data-hdel="${h.id}">מחיקה</button></td></tr>`).join("") : "<tr><td colspan='7' class='empty-state'>אין ימים מיוחדים.</td></tr>") + "</tbody>";
   T.querySelectorAll("[data-f]").forEach(el => el.onchange = async () => {
     const id = Number(el.closest("tr").dataset.h), f = el.dataset.f, h = HOL.rows.find(x => x.id === id);
     const v = el.type === "checkbox" ? el.checked : (el.value.trim() || null);
@@ -4387,7 +4389,7 @@ function exShow(id){
     ${e.material || e.source ? `<div class="ex-pop-meta">${[e.material ? "<b>קובץ:</b> " + esc(e.material) : "", e.source ? "<b>מקור:</b> " + esc(e.source) : ""].filter(Boolean).join(" · ")}</div>` : ""}`}
     ${exIsMar(e) && EX.link ? `<div class="ex-pop-mar">${e.start_time ? `🕒 <span dir="ltr">${esc(hm5(e.start_time))}–${esc(hm5(e.end_time))}</span>` : `<span class="muted">עוד אין שעות - ✎ עריכה</span>`}
       ${ME.role === "instructor" ? "" : e.session_id ? `<div>🔗 מחובר לקישור הרשמה <button type="button" class="btn small primary" data-exkids>👥 נרשמים ונוכחות</button> <button type="button" class="btn small" data-exgomar>למרתונים ←</button></div>` : `<div><button type="button" class="btn small primary" data-exlink>🔗 יצירת קישור הרשמה</button> <span class="muted">לכל המפגשים של המרתון הזה (${exMarSeries(e).length})</span></div>`}</div>` : ""}
-    ${ME.role !== "instructor" && e.origin === "manual" ? `<div class="ex-pop-btns"><button type="button" class="btn small primary" data-expedit>✎ עריכה / נושאים</button><button type="button" class="btn small" data-expdel>מחיקה</button></div>` : ""}</div>`;
+    ${ME.role !== "instructor" && e.origin === "manual" ? `<div class="ex-pop-btns"><button type="button" class="btn small primary" data-expedit>✎ עריכה / נושאים</button><button type="button" class="btn small danger" data-expdel>מחיקה</button></div>` : ""}</div>`;
   o.hidden = false;
   const eb = o.querySelector("[data-expedit]"); if (eb) eb.onclick = () => { o.hidden = true; if (currentView !== "exams") go("exams"); exOpenForm(e); };
   const lb = o.querySelector("[data-exlink]"); if (lb) lb.onclick = () => { o.hidden = true; exMakeLink(e); };
@@ -4458,7 +4460,7 @@ async function renderExams(reload){
   stH = "";
   if (!rows.length) { box.innerHTML = stH + kBar + `<div class="empty-state">${EX.rows.length ? (dFrom || dTo ? "אין אירועים בתאריכים שנבחרו." : "אין מבחנים קרובים לפי הבחירה.") : "עוד אין מבחנים במערכת."}</div>`; return; }
   const dateTxt = (e) => `<span class="ex-date">${esc(fmtIso(e.exam_date))}</span>`;   // 5.19.49 (הלקוחה): בלי צבע על התאריך - הצבע רק בעמודת הסוג
-  const btns = (e) => adm && e.origin === "manual" ? `<button type="button" class="btn small" data-exed="${e.id}">✎ עריכה</button> <button type="button" class="btn small" data-exdel="${e.id}">מחיקה</button>` : "";
+  const btns = (e) => adm && e.origin === "manual" ? `<button type="button" class="btn small" data-exed="${e.id}">✎ עריכה</button> <button type="button" class="btn small danger" data-exdel="${e.id}">מחיקה</button>` : "";
   if (isMobile()) box.innerHTML = stH + kBar + `<div class="ex-cards">` + rows.map(e => `<div class="ex-card${e.exam_date < t ? " ex-past" : ""}${EX_MAKEUP.test(e.kind) ? " mk" : ""}">
       <div>${dateTxt(e)} <span class="muted">יום ${esc(DAY_FULL[dayLetter(e.exam_date)] || "")}</span></div>
       <div class="ex-c2">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> · ${exKindChip(e.kind)}</div>
@@ -4583,7 +4585,7 @@ function exOpenForm(e, pre){
     ${EX.link ? `<div id="exfTimeBox" class="ex-f-wide ex-f-time"><span><label class="lbl" for="exfSt">שעת התחלה</label><input id="exfSt" type="time" value="${esc(hm5(e && e.start_time))}"></span><span><label class="lbl" for="exfEn">שעת סיום</label><input id="exfEn" type="time" value="${esc(hm5(e && e.end_time))}"></span></div>` : ""}
     <div class="ex-f-wide"><label class="lbl" for="exfTop">נושאים</label><textarea id="exfTop" rows="2">${esc(e && e.topics || "")}</textarea></div>
     <div><label class="lbl" for="exfMat">שם קובץ (לא חובה)</label><input id="exfMat" type="text" value="${esc(e && e.material || "")}"></div>
-    <div class="ex-f-btns"><button class="btn primary" type="submit">${e ? "שמירה" : "הוספה"}</button> <button class="btn" type="button" id="exfCancel">ביטול</button></div>`;
+    <div class="ex-f-btns"><button class="btn primary" type="submit">שמירה</button> <button class="btn" type="button" id="exfCancel">ביטול</button></div>`;
   $("exfCancel").onclick = exFormClose; $("exfX").onclick = exFormClose;
   if ($("exfSt")) $("exfSt").onchange = () => { if ($("exfSt").value && !$("exfEn").value) $("exfEn").value = addMin($("exfSt").value, 90); };
   const kb = () => { $("exfKindBox").hidden = $("exfEvt").value !== "מבחן"; if ($("exfTimeBox")) $("exfTimeBox").hidden = !/^מרתון/.test($("exfEvt").value); $("exfTop").previousElementSibling.textContent = $("exfEvt").value === "אירוע אחר" ? "מה האירוע" : "נושאים"; }; $("exfEvt").onchange = kb; kb();
@@ -5429,14 +5431,14 @@ function lgTopSync(root){
     if (ex) { const tt = [...ex.querySelectorAll("button")].map(x => x.textContent.trim()); row.querySelectorAll("button").forEach(b => { if (tt.includes(b.textContent.trim())) b.classList.add("lg-dup"); }); return; }
     const top = document.createElement("div"); top.className = "full lg-btns lg-top";
     // 5.19.66 (נועה): כפתורי מחיקה - גם למעלה, באותה שורה, בצד השני (ימין), כדי שלא ילחצו בטעות
-    [...row.querySelectorAll("button")].filter(b => /שמירה|ביטול|הוספה|יצירה|יצירת|מחיקה|מחיקת/.test(b.textContent)).sort((a, b) => /מחיק/.test(b.textContent) - /מחיק/.test(a.textContent)).forEach(b => {
-      const c = document.createElement("button"); c.type = "button"; c.className = b.className + (/מחיק/.test(b.textContent) ? " lg-del" : ""); c.textContent = b.textContent.trim();
+    [...row.querySelectorAll("button")].filter(b => /^(שמירה|ביטול|הוספה|יצירה|יצירת|מחיקה|מחיקת|הסרה מה|פרישה מה)/.test(b.textContent.trim())).sort((a, b) => /מחיק|^הסרה מה|^פרישה מה/.test(b.textContent.trim()) - /מחיק|^הסרה מה|^פרישה מה/.test(a.textContent.trim())).forEach(b => {
+      const c = document.createElement("button"); c.type = "button"; c.className = b.className + (/מחיק|^הסרה מה|^פרישה מה/.test(b.textContent.trim()) ? " lg-del" : ""); c.textContent = b.textContent.trim();
       if (b.disabled) { c.disabled = true; if (b.title) c.title = b.title; }
       const t = c.textContent;
       c.onclick = (e) => { e.preventDefault(); const cur = [...host.querySelectorAll(":scope > .lg-btns:not(.lg-top) button, .lg-btns:not(.lg-top) button")].find(x => x.textContent.trim() === t) || b; if (!cur.disabled) cur.click(); };
       top.appendChild(c); });
     // 5.19.70 (נועה): במחשב - הכפתורים בשורת הכותרת של החלון (בלי שורה נוספת שדוחפת את התוכן). בנייד - הפס התחתון (CSS)
-    row.querySelectorAll("button").forEach(b => { if (/מחיק/.test(b.textContent)) b.classList.add("lg-delsrc"); });
+    row.querySelectorAll("button").forEach(b => { if (/מחיק|^הסרה מה|^פרישה מה/.test(b.textContent.trim())) b.classList.add("lg-delsrc"); });
     const hd = host.querySelector(":scope > .lg-edit-h");
     if (top.children.length && hd) { top.classList.add("lg-in-h"); hd.classList.add("lg-h-row"); hd.appendChild(top); row.querySelectorAll("button").forEach(b => { if ([...top.children].some(c => c.textContent === b.textContent.trim())) b.classList.add("lg-dup"); }); }
     else if (top.children.length) { host.insertBefore(top, host.firstChild); row.querySelectorAll("button").forEach(b => { if ([...top.children].some(c => c.textContent === b.textContent.trim())) b.classList.add("lg-dup"); }); }
@@ -5744,8 +5746,7 @@ async function openSplitEditor(se, set){
       return head + `<li class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>
         <span class="sp-seg" role="group" aria-label="תת-קבוצה">${subs.map((s, i) => `<button type="button" data-kid="${k.student_id}" data-to="${i}" aria-pressed="${(memberOf[k.student_id] || 0) === i}">${esc(subName(i))}</button>`).join("")}</span></div>
         <div class="meta">${k.school ? `<span class="school-chip sch-sm ${scCls(k.school)}">${esc(k.school)}</span>` : ""}</div></div></li>`; }).join("");
-    box.innerHTML = `<div class="full sp-top"><div class="lg-edit-h">${set ? "עריכת פיצול" : "פיצול לתת-קבוצות"}</div>
-        <div class="sp-btns"><button type="button" class="btn small primary" data-spsave>שמירה</button><button type="button" class="btn small" data-spcancel>ביטול</button></div></div>
+    box.innerHTML = `<div class="full lg-edit-h">${set ? "עריכת פיצול" : "פיצול לתת-קבוצות"}</div>
       <div class="full sp-when">
         <label class="chk"><input type="radio" name="spDur" value="once" ${once ? "checked" : ""}> רק בתאריך</label>
         <label class="chk"><input type="radio" name="spDur" value="on" ${once ? "" : "checked"}> מתאריך והלאה</label>
@@ -6418,10 +6419,10 @@ function renderStaff(){
     S.users.map(u => `<tr class="st-row"><td><b>${esc(u.full_name)}</b></td><td dir="ltr" style="text-align:right">${u.email ? esc(u.email) : `<span class="muted">—</span>`}</td>
       <td><span class="role-badge ${u.role}">${u.role === "admin" ? "מנהל/ת" : u.role === "display" ? "לתצוגה בלבד" : "מתרגל/ת"}</span></td>
       <td>${S.links.filter(l => l.staff_id === u.id).length || "-"}</td>
-      <td style="white-space:nowrap"><button class="btn small" type="button" data-asg="${u.id}">שיוך קבוצות</button>
-        <button class="btn small" type="button" data-edit="${u.id}">✎ עריכה</button>
-        ${u.role === "display" ? `<button class="btn small" type="button" data-up="${u.id}">הפוך למשתמש</button>` : ""}
-        ${u.email === auth.email ? "" : `<button class="btn small" type="button" data-rm="${u.id}">הסרה</button>`}</td></tr>`).join("") + "</tbody>";
+      <td style="white-space:nowrap"><button class="btn small" type="button" data-edit="${u.id}">✎ עריכה</button>
+        <button class="btn small" type="button" data-asg="${u.id}">שיוך קבוצות</button>
+        ${u.role === "display" ? `<button class="btn small" type="button" data-up="${u.id}">המרה למשתמש</button>` : ""}
+        ${u.email === auth.email ? "" : `<button class="btn small danger" type="button" data-rm="${u.id}">הסרה</button>`}</td></tr>`).join("") + "</tbody>";
   $("stTbl").querySelectorAll("[data-asg]").forEach(b => b.onclick = () => openAssign(b.dataset.asg));
   $("stTbl").querySelectorAll("[data-edit]").forEach(b => b.onclick = () => stFill(S.users.find(x => x.id === b.dataset.edit), false));
   $("stTbl").querySelectorAll("[data-up]").forEach(b => b.onclick = () => stFill(S.users.find(x => x.id === b.dataset.up), true));
@@ -8450,14 +8451,14 @@ function renderInfo(){
   $("infoTabs").querySelectorAll("[data-ip]").forEach(b => b.onclick = () => { INF.cur = b.dataset.ip; store("telem_info_page", INF.cur); renderInfo(); });
   const pg = ps.find(x => String(x.id) === String(INF.cur));
   $("infoBody").innerHTML = INF.err ? `<div class="err">${INF.err}</div>` : pg ? `<h2 style="font-size:24px;">${esc(pg.title)}</h2>` + mdLite(pg.body) + (pg.updated_at ? `<div class="muted" style="font-size:12.5px; margin-top:14px;">עודכן: ${esc(fmtDate(pg.updated_at))}</div>` : "") : "<div class='muted'>אין עדיין דפי מידע.</div>";
-  $("infoEditBtn").hidden = !!INF.err || ME.role === "instructor";
+  $("infoEditBtn").hidden = !!INF.err || ME.role === "instructor"; $("infoAdd").hidden = $("infoEditBtn").hidden;
 }
 $("infoEditBtn").addEventListener("click", () => {
   const pg = (INF.pages || []).find(x => String(x.id) === String(INF.cur));
   $("infoTitle").value = pg ? pg.title : "מידע למתרגלים"; $("infoText").value = pg ? pg.body : ""; $("infoErr").textContent = "";
-  $("infoEdit").hidden = false; $("infoBody").hidden = true; $("infoText").focus();
+  $("infoEdit").hidden = false; $("infoBody").hidden = true; $("infoEditBtn").hidden = true; $("infoAdd").hidden = true; $("infoText").focus();
 });
-$("infoCancel").addEventListener("click", () => { $("infoEdit").hidden = true; $("infoBody").hidden = false; });
+$("infoCancel").addEventListener("click", () => { $("infoEdit").hidden = true; $("infoBody").hidden = false; renderInfo(); });
 $("infoSave").addEventListener("click", async () => {
   const title = $("infoTitle").value.trim(), body = $("infoText").value;
   if (!title) { $("infoErr").textContent = "צריך כותרת."; return; }
@@ -8474,7 +8475,7 @@ $("infoAdd").addEventListener("click", async () => {
   try { const n = (INF.pages || []).reduce((m, x) => Math.max(m, x.sort_order || 0), 0) + 1;
         const r = await insert("info_pages", { slug: "p" + Date.now(), title: "דף מידע חדש", body: "", sort_order: n });
         INF.cur = r[0].id; await loadInfo(); $("infoEditBtn").click(); }
-  catch(e) { $("infoErr").textContent = "לא נוסף: " + e.message; }
+  catch(e) { toast("לא נוסף: " + e.message); }
 });
 async function copyText(t, msg){ try { await navigator.clipboard.writeText(t); toast(msg || "הקישור הועתק"); } catch(e) { uiCopyBox(t); } }
 if (/telem-admin/i.test(store("telem_site_url") || "")) store("telem_site_url", "");
@@ -8857,7 +8858,7 @@ async function renderAll(b){
       <div><label class="lbl" for="pRng">תקופה</label><select id="pRng">${RNG.map(([k, t]) => `<option value="${k}" ${S.pr === k ? "selected" : ""}>${t}</option>`).join("")}</select></div>
       ${S.pr ? "" : `<div><label class="lbl" for="pFrom">מתאריך</label><input type="date" id="pFrom" value="${esc(S.pf)}"></div><div><label class="lbl" for="pTo">עד</label><input type="date" id="pTo" value="${esc(S.pt)}"></div>`}
       <div><label class="lbl" for="pps">סטטוס</label><select id="pps"><option value="">הכול</option><option value="אושר" ${S.ps === "אושר" ? "selected" : ""}>שולם</option><option value="נכשל" ${S.ps === "נכשל" ? "selected" : ""}>לא התקבל</option><option value="todo" ${S.ps === "todo" ? "selected" : ""}>⚠ לטיפול${nTodo ? " (" + nTodo + ")" : ""}</option><option value="ref" ${S.ps === "ref" ? "selected" : ""}>↩ זוכה</option></select></div>
-      <div class="pf-x"><button type="button" class="btn small" id="pXls">⬇ אקסל</button></div></div>
+      <div class="pf-x"><button type="button" class="btn small" id="pXls">הורדה לאקסל</button></div></div>
     ${S.kid ? `<div class="kid-flt">מוצגים רק התשלומים של <b>${esc(S.kid.name || "")}</b>${leadOfSid(S.kid.id) ? ` <button type="button" class="name-link" data-lead="${leadOfSid(S.kid.id).id}">לכרטיס התלמיד/ה ←</button>` : ""}<button type="button" class="btn small" id="kidX">✕ כל התשלומים</button></div>` : ""}
     <!-- 5.19.65 (נועה): בלי שורת הסיכומים - יש בתמונת המצב -->
     <div class="dx-bar"><span class="muted">${(S.kid || q.length >= 2) && qf !== S.pf ? `החיפוש מתחילת שנת הלימודים (${dmy(qf)} עד ${dmy(qt)}).` : `${dmy(qf)} עד ${dmy(qt)}`} · הוראות קבע פעילות מוצגות תמיד.</span>${list.length ? `<span class="dx-bar-b"><button type="button" class="btn small" id="dxAllO">▾ פתיחת כל השורות</button><button type="button" class="btn small" id="dxAllC">▴ סגירת כל השורות</button></span>` : ""}</div>${list.length ? `<table class="tbl pay-all deals"><thead><tr><th class="c-todo" aria-label="פתיחה / לטיפול"></th><th>תאריך</th><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>סוג</th><th class="hide-m c-desc">פירוט</th><th class="c-amt">סכום</th><th>סטטוס</th></tr></thead><tbody>
@@ -9116,7 +9117,8 @@ async function openPlan(id, first){
     ${p.status_note ? `<div class="tx-todo">${esc(p.status_note)}</div>` : ""}
     ${p.status === "creating" ? `<div class="note">התשלום הראשון התקבל. ההוראה מוקמת באיקרדיט אוטומטית (תוך כמה דקות).</div>` : ""}
     ${p.status === "error" ? `<div class="note err">ההוראה לא הוקמה באיקרדיט. צריך להקים אותה ידנית בריווחית, או לבטל כאן.</div>` : ""}
-    ${live ? `<div class="tx-acts pl-acts">
+    ${live ? `<div class="muted pl-hint" style="margin:6px 0 4px">שינויים בהוראת הקבע (סכום, יום חיוב, כרטיס, השהיה, ביטול) – בריווחית. מתעדכן כאן כל בוקר.</div>` : ""}
+    ${false && live ? `<div class="tx-acts pl-acts">
         ${p.status === "paused" ? `<button class="btn small primary" data-a="active" type="button">▶ חידוש</button>` : `<button class="btn small" data-a="paused" type="button">⏸ השהיה</button>`}
         <button class="btn small" type="button" data-ed="pEdDay">📅 יום החיוב</button><button class="btn small" type="button" data-ed="pEdAmt">₪ סכום וחיובים</button>
         <button class="btn small danger" data-a="cancelled" type="button">ביטול ההוראה</button></div>
@@ -9275,7 +9277,7 @@ async function renderLinks(b){
         return `<tr><td>${dmy(l.created_at)}<div class="muted">${esc(l.created_by_name || "")}</div></td><td><span class="par1">${esc(l.parent_name || "")}${l.parent_name && l.student_name ? " · " : ""}</span>${l.student_name ? stuCell(l.student_name, l.student_id) : ""}</td><td>${esc(l.description)}</td>
         <td class="num">${money(l.one_time_amount)}${l.monthly_amount ? `<div class="muted" dir="rtl">ועוד ${money(l.monthly_amount)} בחודש · ${l.monthly_count} תשלומים</div>` : ""}</td>
         <td><span class="chip st-${esc(l.status)}">${esc(LINK_ST[l.status] || l.status)}</span></td>
-        <td><div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקה</button>${wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ</a>` : ""}<button class="btn small danger" data-cancel="${esc(l.code)}" type="button">ביטול</button>` : ""}
+        <td><div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקה</button>${wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ</a>` : ""}<button class="btn small danger" data-cancel="${esc(l.code)}" type="button">ביטול הקישור</button>` : ""}
           ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button">📄 טופס חתום</button>` : ""}<button class="btn small" data-ldet="${li}" type="button">פרטים</button></div></td></tr>`; }).join("")}</tbody></table>`
       : `<div class="card empty">עוד אין טפסי תשלום אישיים.</div>`}`;
   wireCommon(b);
@@ -9367,7 +9369,7 @@ async function renderRules(b){
     <div class="acts-row" style="margin:8px 0 4px"><button class="btn small" type="button" data-add="late_join">+ הצטרפות מאוחרת בחודש</button><button class="btn small" type="button" data-add="text">+ חוק אחר</button></div>
     </section><section class="br-sec"><h3 class="br-h">הערות</h3><textarea id="rNote" rows="2" placeholder="הערות פנימיות (לא מופיעות להורים)">${esc(r.note || "")}</textarea></section>
     <div class="note" style="margin:10px 0">החיוב עצמו מחושב בשרת של איקרדיט ובטופס ההרשמה - שינוי כאן נכנס לתוקף אחרי שהם מעודכנים לקרוא את החוקים (בצ'אט איקרדיט). הטקסט בטופס ההרשמה צריך להתאים.${saved ? "" : " <b>עדיין לא נשמרו חוקים לפי עיר.</b>"}</div>
-    <div class="acts-row lg-btns"><button class="btn primary" id="rSave" type="button">שמירה</button><span class="muted">${r.updated_at ? "עודכן " + dmy(r.updated_at) : ""}</span></div></div>`;   // 5.19.59: מסך מסודר - כרטיס לכל חלק, שדות קומפקטיים
+    <div class="muted" style="font-size:12.5px">${r.updated_at ? "עודכן " + dmy(r.updated_at) : ""}</div><div class="acts-row lg-btns"><button class="btn primary" id="rSave" type="button">שמירה</button></div></div>`;   // 5.19.59: מסך מסודר - כרטיס לכל חלק, שדות קומפקטיים
     const readRules = () => { b.querySelectorAll(".br-rule").forEach(el => { const x = rules[Number(el.dataset.i)]; el.querySelectorAll("[data-k]").forEach(f => { const k = f.dataset.k; x[k] = f.type === "checkbox" ? f.checked : f.type === "number" ? Number(f.value) : f.value; }); }); };
     const readCo = () => { const o = {}; CONFIG.cities.forEach(c => o[c] = []); b.querySelectorAll("[data-off]").forEach(x => { if (x.checked) o[x.dataset.off].push(x.dataset.ok); }); return o; };
     b.querySelectorAll("[data-off]").forEach(x => x.onchange = () => { readRules(); Object.assign(co, readCo()); paint(); });
