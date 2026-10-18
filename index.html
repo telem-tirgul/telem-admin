@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.66">
+<meta name="app-version" content="5.19.67">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3443,7 +3443,7 @@ async function planWarn(sid, name, oldSt, newSt){
   try {
     if (!sid || ME.role === "instructor" || Number(oldSt || 0) === Number(newSt || 0)) return;
     if (statusName(newSt).startsWith("נרשם")) return;
-    const plans = (await rpc("recurring_plans_list") || []).filter(p => Number(p.student_id) === Number(sid) && ["active", "paused", "failed", "creating"].includes(p.status));
+    const plans = (await rpc("recurring_plans_list") || []).filter(p => Number(p.student_id) === Number(sid) && ["active", "failed", "creating"].includes(p.status));   // 5.19.67: מושהית = כבר נעצרה בריווחית (גם ביטול שם נקלט כ"מושהית") - בלי תזכורת
     if (!plans.length) return;
     const p = plans[0], amt = p.monthly_amount ? ` (${Number(p.monthly_amount).toLocaleString("he-IL")} ₪ לחודש)` : "";
     const msg = `ל${name || "תלמיד/ה זה/ו"} יש ${plans.length > 1 ? plans.length + " הוראות קבע פעילות" : "הוראת קבע פעילה" + amt}.\nהסטטוס נשמר ("${statusName(newSt) || "ללא"}"), אבל ההוראה ממשיכה לחייב.\nכדי לעצור אותה – לבטל או להשהות את ההוראה בריווחית.`;
@@ -5174,8 +5174,8 @@ const IB = { rows: null, f: "new", ok: true, lastMax: Number(store("telem_ib_max
 const IB_KIND = { registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"] };   // 5.19.58: payment - אירועי תשלום (icredit-18)
 const IB_FLAG = { new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"],
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], plan_paused: ["t-old", "הוראת קבע הושהתה"],
-  plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"] };
-const IB_WARN_F = ["mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
+  plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], lead_status_check: ["t-warn", "לבדוק סטטוס"] };
+const IB_WARN_F = ["mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check", "plan_last_check"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
 const ibWarn = (r) => (r.issues || []).length > 0 || (r.flags || []).some(f => IB_WARN_F.includes(f));
 function ibPaint(n){ const b = $("inboxN"); if (b) b.innerHTML = n ? `<b>${n > 99 ? "99+" : n}</b>` : ""; }
 async function inboxPoll(first){
