@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.71">
+<meta name="app-version" content="5.19.72">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -104,7 +104,7 @@
   #leadForm.ro .lead-main :is(input, select, textarea):disabled{ background:transparent; border-color:transparent; box-shadow:none; opacity:1; color:var(--ink); -webkit-text-fill-color:var(--ink); cursor:default; padding-inline-start:0; appearance:none; -webkit-appearance:none; resize:none; }
   #leadForm.ro .lead-main select.status-big:disabled{ padding-inline-start:10px; }
   #leadForm.ro .lead-main :is(button.switch, button.star):disabled{ opacity:1; cursor:default; }
-  #leadForm.ro #clearRemind{ display:none; }
+  #leadForm.ro .lead-main #clearRemind{ display:none; }
   .page-head h1{ font-size:24px; color:var(--accent); font-weight:900; }
   .muted{ color:var(--ink-soft); }
 
@@ -294,7 +294,7 @@
   @media (max-width:960px){ .lead-cols{ grid-template-columns:1fr; } }
   /* 5.19.23: בנייד - כרטיס התלמיד נפתח לצפייה: הפרטים בקצרה למעלה, הטופס מוסתר עד "✎ עריכה" */
   @media (max-width:760px){
-    #view-lead.lc-view .lead-quick .lq-sum{ display:flex; } #view-lead.lc-view #leadSub{ display:none; } #view-lead.lc-view .lead-main{ display:none; }
+    #view-lead.lc-view .lead-quick .lq-sum{ display:flex; } #view-lead.lc-view #leadSub{ display:none; } #view-lead.lc-view .lead-main :is(.toggles, .key-box, #editBanner, .meta-line){ display:none; } #view-lead.lc-view .lead-main{ padding-top:2px; } #view-lead.lc-view .lead-cols > .card:not(.lead-main){ order:-1; }   /* 5.19.72 (נועה): בצפייה בנייד - מעקב ותזכורת מעל התשלומים */   /* 5.19.72 (נועה): בצפייה בנייד - גם תשלומים, סטטוס ומעקב ופרטים נוספים (הפרטים העיקריים כבר בסיכום למעלה) */
     #view-lead.lc-view .lead-quick{ background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:10px 12px; gap:8px; }
     #view-lead.lc-view #leadEditBtn{ order:-1; }
     /* 5.19.23: כפתורי עריכה / חזרה - למעלה משמאל, ליד השם (כמו בשאר המסכים) */
@@ -304,7 +304,7 @@
     #view-lead .page-head > div:last-child{ grid-column:2; grid-row:1 / span 2; align-self:start; flex-wrap:nowrap !important; gap:6px !important; }
     #view-lead .page-head > div:last-child .btn{ padding:6px 10px; font-size:13.5px; }
     #view-lead #leadSub, #view-lead #leadQuick{ grid-column:1 / -1; }
-    #view-lead.lc-view #leadGroups, #view-lead.lc-view #trackBox + .side-h{ display:none; }   /* השיבוצים כבר למעלה; הרשימה המלאה (לשינוי) - בעריכה */
+    #view-lead.lc-view #leadGroups, #view-lead.lc-view #trackBox ~ .side-h{ display:none; }   /* השיבוצים כבר למעלה; הרשימה המלאה (לשינוי) - בעריכה */
   }
   .notes-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; max-height:560px; overflow:auto; }
   /* 5.19.14: הערה חדשה - שורה קטנה שמתרחבת; רשימת הערות מקופלת (2 אחרונות + "עוד") */
@@ -1556,6 +1556,7 @@ td.nowrap{ white-space:nowrap; }
 .lg-edit-h.lg-h-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 .lg-edit-h > .lg-top.lg-in-h{ position:static; flex:1 1 auto; margin:0; padding:0; border:0; background:none !important; display:flex; gap:6px; justify-content:flex-end; font-weight:400; }
 .lg-edit-h > .lg-top.lg-in-h .lg-del{ margin-inline-end:auto; }
+.lg-top.lg-in-ph{ position:static; margin:0 8px; padding:0; border:0; background:none !important; display:flex; gap:6px; align-self:center; }
 /* בנייד - פס דק קבוע בתחתית החלון: שמירה/ביטול משמאל, מחיקה מימין; כפתורים קטנים, לא על כל הרוחב */
 @media (max-width:760px){
   .lg-top{ display:none !important; } .lg-btns .lg-dup{ display:inline-flex !important; }
@@ -1817,16 +1818,19 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   #view-lead .lead-main .key-grid > div:has(#sSchool){ flex:1.2 1 104px; }
   #view-lead .lead-main .key-grid > div:has(#sGrade){ flex:0 0 76px; } #view-lead .lead-main .key-grid > div:has(#sClass){ flex:0 0 52px; }
   #view-lead .lead-main .key-grid > div:has(#fCityIn){ flex:.8 1 76px; }
+  #view-lead .lead-main .key-grid > div:has(#lfStatus){ flex:1.4 1 150px; } #view-lead .lead-main .key-grid > div:has(#lfSource){ flex:1 1 110px; }
+  #view-lead .lead-main #studentBox .form-grid > div:has(#sSchool){ flex:1.5 1 150px; } #view-lead .lead-main #studentBox .form-grid > div:has(#sGrade){ flex:0 0 80px; } #view-lead .lead-main #studentBox .form-grid > div:has(#sClass){ flex:0 0 60px; } #view-lead .lead-main #studentBox .form-grid > div:has(#fCityIn){ flex:1 1 100px; } #view-lead .lead-main #studentBox .form-grid > div:is(:has(#sEng), :has(#sMath)){ flex:1 1 120px; }
   #view-lead .lead-main .key-grid > div:is(:has(#p1First), :has(#p1Last)){ flex:1 1 110px; } #view-lead .lead-main .key-grid > div:has(#p1Phone){ flex:1.6 1 230px; } #view-lead .lead-main .key-grid > div:has(#p1Email){ flex:1.4 1 170px; }
 }
 #view-lead .lead-main :is(.form-grid, .key-grid) textarea{ min-height:40px; font-size:14.5px; padding:8px 10px; border-radius:8px; border:1px solid #E5DDD3; background:#fff; }
 #view-lead .lead-main .phone-row .btn, #view-lead .lead-main #clearRemind{ display:inline-flex; align-items:center; height:40px; padding:0 12px !important; font-size:13px !important; }
 #view-lead .lead-main .field.invalid :is(input, select){ border-color:var(--full) !important; }
+#view-lead .lead-main :is(.form-grid, .key-grid) > div[hidden]{ display:none !important; }
 #view-lead .lead-main.dirty :is(.form-grid, .key-grid) :is(input, select, textarea){ border-color:color-mix(in srgb, var(--gold) 55%, #E5DDD3); }
 #leadForm.ro #view-lead .lead-main :is(input, select):disabled, #leadForm.ro .lead-main :is(input, select):disabled{ background:#FAF8F5; }
 @media (max-width:960px){
   #view-lead .lead-main :is(.form-grid, .key-grid){ display:grid !important; grid-template-columns:repeat(2, minmax(0,1fr)) !important; }
-  #view-lead .lead-main .key-grid > div:is(:has(#sSchool), :has(#p1Phone), :has(#p1Email), :has(#sPhone), :has(#sEmail)),
+  #view-lead .lead-main .key-grid > div:is(:has(#p1Phone), :has(#p1Email), :has(#sPhone), :has(#sEmail)),
   #view-lead .lead-main .form-grid > div:is(:has(#lfStatus), :has(#lfRemind), .msg-cell, :has(#fAddr), :has(#sEmail), :has(#p2Email)){ grid-column:1 / -1; }
 }
 
@@ -1835,7 +1839,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 /* 5.19.71 (נועה): כל אזור במסגרת - כשהוא סגור נראה כשורה מכווצת */
 #view-lead .lead-main :is(.lp-box, .sec-d){ border:1px solid var(--border); border-radius:12px; background:#fff; padding:10px 14px; margin:10px 0 0; }
 #view-lead .lead-main .sec-d[open]{ padding-bottom:14px; }
-#view-lead .side-remind{ margin:10px 0 14px; } #view-lead .side-remind .lbl{ font-size:13px; font-weight:700; color:#6B5F55; margin-bottom:4px; display:block; }
+#view-lead .lead-main .sub-h{ font-weight:700; color:#6B5F55; font-size:13.5px; margin:14px 0 6px; border-top:1px dashed #E6DDD3; padding-top:10px; }
+#view-lead .side-remind select{ width:100%; height:40px; border-radius:8px; border:1px solid #E5DDD3; padding:6px 10px; background:#fff; }
+#view-lead .side-remind{ margin:16px 0 8px; padding-top:12px; border-top:1px dashed #E6DDD3; } #view-lead .side-remind .lbl{ font-size:13px; font-weight:700; color:#6B5F55; margin-bottom:4px; display:block; }
 #view-lead .side-remind input{ flex:1; min-width:0; height:40px; border-radius:8px; border:1px solid #E5DDD3; padding:6px 10px; } #view-lead .side-remind .btn{ height:40px; }
 #view-lead .lead-main .sec-d > summary{ cursor:pointer; list-style:none; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
 #view-lead .lead-main .sec-d > summary::-webkit-details-marker{ display:none; }
@@ -1950,8 +1956,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn primary" type="button" id="leadEditBtn" hidden>✎ עריכה</button>
           <button class="btn" type="button" id="leadMergeBtn" data-admin hidden title="איחוד עם כרטיס כפול">🔀 איחוד</button>
-          <button class="btn" type="button" data-back title="חזרה">→ חזרה</button>
           <button class="btn primary lead-top-b" type="button" id="leadSaveTop">שמירה</button><button class="btn lead-top-b" type="button" id="leadCancelTop">ביטול</button>
+          <button class="btn" type="button" data-back title="חזרה">→ חזרה</button><!-- 5.19.72 (נועה): "חזרה" - הכי שמאלי -->
         </div>
       </div>
       <form id="leadForm" novalidate>
@@ -1971,35 +1977,32 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div><label class="lbl" for="sLast">שם משפחה</label><input id="sLast" class="big" type="text"></div>
                 <div class="field"><label class="lbl" for="sPhone">טלפון תלמיד/ה</label><input id="sPhone" class="big" type="tel" inputmode="numeric"></div>
                 <div><label class="lbl" for="sEmail">אימייל תלמיד/ה</label><input id="sEmail" type="email" dir="ltr"></div>
-                <div><label class="lbl" for="sSchool">בית ספר</label><select id="sSchool"></select></div>
-                <div><label class="lbl" for="sGrade">שכבה</label><select id="sGrade"></select></div>
-                <div class="field"><label class="lbl" for="sClass">כיתה</label><input id="sClass" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]*" data-ph="מס'"></div>
-                <div><label class="lbl" for="fCityIn">עיר</label><input id="fCityIn" type="text"></div>
+                <div><label class="lbl" for="lfStatus">סטטוס</label><select id="lfStatus"></select></div>
+                <div><label class="lbl" for="lfSource">מקור ליד</label><select id="lfSource"></select></div>
                 <div class="kg-br" aria-hidden="true"></div><!-- 5.19.70 (נועה): שורה 1 - התלמיד/ה, שורה 2 - ההורה -->
                 <div class="field"><label class="lbl req" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
                 <div><label class="lbl" for="p1Last">משפחה (הורה)</label><input id="p1Last" class="big" type="text"></div>
                 <div class="field"><label class="lbl" for="p1Phone">טלפון הורה</label>
-                  <div class="phone-row"><input id="p1Phone" class="big" type="tel" inputmode="numeric"><a id="p1Call" class="btn small" href="#" hidden>חיוג</a><a id="p1Wa" class="btn small" href="#" target="_blank" rel="noopener" hidden>וואטסאפ</a></div></div>
+                  <div class="phone-row"><input id="p1Phone" class="big" type="tel" inputmode="numeric"><a id="p1Wa" class="btn small" href="#" target="_blank" rel="noopener" hidden>וואטסאפ</a></div></div>
                 <div><label class="lbl" for="p1Email">אימייל הורה</label><input id="p1Email" class="big" type="email" dir="ltr"></div>
               </div>
               <div id="siblings" class="sibs"></div>
             </fieldset>
-            <div id="leadPay" class="lead-pay"></div><div id="leadPayments"></div>
 
-            <details class="sec-d" id="statusBox" open><summary>סטטוס ומעקב</summary>
+            <!-- 5.19.72 (נועה): פרטי התלמיד - מתחת לפרטים העיקריים (הסטטוס ומקור הליד עלו לפרטים העיקריים) -->
+            <details class="sec-d" id="studentBox" open><summary>פרטי התלמיד/ה</summary>
               <div class="form-grid">
-                <div><label class="lbl" for="lfStatus">סטטוס</label><select id="lfStatus"></select></div>
-                <div><label class="lbl" for="lfTopic">נושא</label><select id="lfTopic"><option>ליד</option><option>מתעניין</option><option>נרשם</option></select></div>
-                <div><label class="lbl" for="lfSource">מקור ליד</label><select id="lfSource"></select></div>
-                <div><label class="lbl" for="lfManager">מנהל</label><select id="lfManager"></select></div>
-                <div><label class="lbl" for="lfFilledBy" title="ממלא/ת הטופס">ממלא/ת</label><select id="lfFilledBy"><option>הורה</option><option>תלמיד</option></select></div>
+                <div><label class="lbl" for="sSchool">בית ספר</label><select id="sSchool"></select></div>
+                <div><label class="lbl" for="sGrade">שכבה</label><select id="sGrade"></select></div>
+                <div class="field"><label class="lbl" for="sClass">כיתה</label><input id="sClass" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]*" data-ph="מס'"></div>
+                <div><label class="lbl" for="fCityIn">עיר</label><input id="fCityIn" type="text" list="fCityList" autocomplete="off"><datalist id="fCityList"></datalist></div>
                 <div><label class="lbl" for="sEng">רמה אנגלית</label><select id="sEng"></select></div>
                 <div><label class="lbl" for="sMath">רמה מתמטיקה</label><select id="sMath"></select></div>
-                <div class="msg-cell"><label class="lbl" for="lfMessage">הודעה <span class="muted" style="font-weight:400;">(מטופס האתר)</span></label><textarea id="lfMessage" aria-label="הודעה"></textarea></div>
               </div>
             </details>
+            <div id="leadPay" class="lead-pay"></div><div id="leadPayments"></div>
             <!-- 5.19.70 (נועה): פרטים נוספים - נפתח בחץ, כמו התשלומים -->
-            <details class="sec-d" id="moreBox"><summary>פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(משותף לכל האחים: הורה 2, טלפון בית, כתובת)</span></summary>
+            <details class="sec-d" id="moreBox"><summary>פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(הורה 2, טלפון בית, כתובת · ממלא/ת, נושא והודעה מטופס ההתעניינות)</span></summary>
               <div class="form-grid">
                 <div><label class="lbl" for="p2First">שם פרטי הורה 2</label><input id="p2First" type="text"></div>
                 <div><label class="lbl" for="p2Last">משפחה (הורה 2)</label><input id="p2Last" type="text"></div>
@@ -2007,6 +2010,12 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div><label class="lbl" for="p2Email">אימייל הורה 2</label><input id="p2Email" type="email"></div>
                 <div><label class="lbl" for="fHome">טלפון בית</label><input id="fHome" type="tel" inputmode="numeric"></div>
                 <div><label class="lbl" for="fAddr">כתובת</label><input id="fAddr" type="text"></div>
+              </div>
+              <div class="sub-h">מטופס ההתעניינות</div>
+              <div class="form-grid">
+                <div><label class="lbl" for="lfFilledBy" title="ממלא/ת הטופס">ממלא/ת</label><select id="lfFilledBy"><option>הורה</option><option>תלמיד</option></select></div>
+                <div><label class="lbl" for="lfTopic">נושא</label><select id="lfTopic"><option>ליד</option><option>מתעניין</option><option>נרשם</option></select></div>
+                <div class="msg-cell"><label class="lbl" for="lfMessage">הודעה</label><textarea id="lfMessage" aria-label="הודעה"></textarea></div>
               </div>
             </details>
             <div class="meta-line" id="leadMeta"></div>
@@ -2020,12 +2029,13 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
           <div class="card">
             <div class="track-box tb-side" id="trackBox" hidden></div>
-            <!-- 5.19.71 (נועה): תזכורת - שדה פנימי שלנו, בצד מתחת למעקב -->
-            <div class="side-remind"><label class="lbl" for="lfRemind">⏰ תזכורת</label>
-              <div style="display:flex; gap:6px;"><input id="lfRemind" type="datetime-local"><button class="btn small" type="button" id="clearRemind">ניקוי</button></div></div>
             <h3 class="side-h" style="margin-top:4px;">שיבוץ לקבוצות</h3>
             <div id="leadGroups"></div>
-          </div>
+            <!-- 5.19.71 (נועה): תזכורת - שדה פנימי שלנו, בצד מתחת לשיבוץ (5.19.72) -->
+            <div class="side-remind"><label class="lbl" for="lfRemind">⏰ תזכורת</label>
+              <div style="display:flex; gap:6px;"><input id="lfRemind" type="datetime-local"><button class="btn small" type="button" id="clearRemind">ניקוי</button></div>
+              <label class="lbl" for="lfManager" style="margin-top:10px">מנהל</label><select id="lfManager"></select></div>
+                      </div>
         </div>
         <!-- 5.19.18: הערות והיסטוריה - שורות מקופלות (שורה עם תקציר, נפתחת בלחיצה), מתחת לכרטיס, לכל הרוחב -->
         <div class="card lead-acc" id="leadAcc">
@@ -3304,13 +3314,26 @@ let editing = null;   // הליד הפתוח (null = ליד חדש)
 function setSwitch(id, on){ const b = $(id); b.classList.toggle("on", !!on); b.setAttribute("aria-pressed", !!on); }
 ["lfActive","lfMailing","lfCustomer"].forEach(id => $(id).addEventListener("click", () => setSwitch(id, !$(id).classList.contains("on"))));
 $("lfStar").addEventListener("click", () => { const on = !$("lfStar").classList.contains("on"); $("lfStar").classList.toggle("on", on); $("lfStar").setAttribute("aria-pressed", on); });
-$("clearRemind").addEventListener("click", () => { $("lfRemind").value = ""; });
+$("clearRemind").addEventListener("click", () => { $("lfRemind").value = ""; $("lfRemind").dispatchEvent(new Event("change", { bubbles: true })); });
+// 5.19.72 (נועה): מנהל - ליד התזכורת; בצפייה (נייד) נשמר מיד
+$("lfManager").addEventListener("change", async () => {
+  if (!$("view-lead").classList.contains("lc-view") || !editing || !editing.id) return;
+  const v = $("lfManager").value || null;
+  try { await patch("leads", "id=eq." + editing.id, { manager_id: v }); editing.manager_id = v; const l = (L.leads || []).find(x => x.id === editing.id); if (l) l.manager_id = v; setLeadDirty(false); toast("נשמר"); }
+  catch(e) { toast("לא נשמר: " + e.message); } });
+// 5.19.72 (נועה): בצפייה (נייד) - התזכורת נשמרת מיד, בלי "עריכה"
+$("lfRemind").addEventListener("change", async () => {
+  if (!$("view-lead").classList.contains("lc-view") || !editing || !editing.id) return;
+  const v = $("lfRemind").value ? new Date($("lfRemind").value).toISOString() : null;
+  try { await patch("leads", "id=eq." + editing.id, { remind_at: v }); editing.remind_at = v; const l = (L.leads || []).find(x => x.id === editing.id); if (l) l.remind_at = v; setLeadDirty(false); toast(v ? "התזכורת נשמרה" : "התזכורת נמחקה"); }
+  catch(e) { toast("התזכורת לא נשמרה: " + e.message); } });
 const toLocalInput = (iso) => { if (!iso) return ""; const d = new Date(iso); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
 
 function fillLeadSelects(l){
   fillSelect($("lfStatus"), L.statuses.filter(s => s.is_active || (l && s.id === l.status_id)).map(s => ({v:s.id, t:s.name})), "בחר");
   fillSelect($("lfSource"), L.sources.filter(s => s.is_active || (l && s.id === l.source_id)).map(s => ({v:s.id, t:s.name})), "בחר");
   fillSelect($("lfManager"), L.staff.map(s => ({v:s.id, t:s.full_name})), "ללא");
+  $("fCityList").innerHTML = CONFIG.cities.map(c => `<option value="${esc(c)}"></option>`).join("");   // 5.19.72: עיר - מרשימה או הקלדה
   fillSelect($("sSchool"), L.schools.map(s => ({v:s.id, t:s.name + " · " + s.city})), "בחר");
   fillSelect($("sGrade"), GRADES.map(g => ({v:g, t:g})), "בחר");
   fillSelect($("sEng"), L.levels.map(x => ({v:x, t:x})), "בחר");
@@ -3354,7 +3377,7 @@ function openLead(id){
   Object.keys(vals).forEach(k => { const el = $(k); el.value = vals[k] == null ? "" : vals[k];
     if (el.tagName === "SELECT" && vals[k] && el.value !== String(vals[k])) { el.insertAdjacentHTML("beforeend", `<option value="${esc(vals[k])}">${esc(vals[k])}</option>`); el.value = vals[k]; } });
   document.querySelectorAll("#leadForm .field").forEach(x => x.classList.remove("invalid"));
-  if ($("moreBox")) $("moreBox").open = ["p2First","p2Last","p2Phone","p2Email","fHome","fAddr"].some(k => vals[k]);   // 5.19.70: נפתח לבד כשיש בו משהו
+  if ($("moreBox")) $("moreBox").open = ["p2First","p2Last","p2Phone","p2Email","fHome","fAddr"].some(k => vals[k]) || !!$("lfMessage").value.trim();   // 5.19.70: נפתח לבד כשיש בו משהו
   $("leadErr").textContent = "";
   updateLeadHead();
   $("leadMeta").innerHTML = l ? `<span>מספר ליד: ${esc(l.legacy_user_id || "#" + l.id)}</span><span>נוצר: ${esc(fmtDate(l.created_at))}</span><span>עודכן: ${esc(fmtDate(lastUpdate(l)))}</span>` : "";
@@ -3387,8 +3410,8 @@ function updateLeadHead(){
   const sel = $("sSchool"); sel.className = schObj ? scCls(schObj.name) + " sch-sel" : "";
   $("leadSub").innerHTML = parts.join(" &nbsp;|&nbsp; ");
   const ok = /^0\d{8,9}$/.test(ph);
-  $("p1Call").hidden = !ok; $("p1Wa").hidden = !ok;
-  if (ok) { $("p1Call").href = "tel:" + ph; $("p1Wa").href = "https://wa.me/972" + ph.slice(1); }
+  $("p1Wa").hidden = !ok;
+  if (ok) { $("p1Wa").href = "https://wa.me/972" + ph.slice(1); }
 }
 ["sFirst","sLast","p1First","p1Last","p1Phone","sSchool","sGrade"].forEach(id => $(id).addEventListener(id.startsWith("sS") || id === "sGrade" ? "change" : "input", updateLeadHead));
 
@@ -4033,7 +4056,7 @@ async function openAsgEditor(studentId, a, cur, opts){
   };
 }
 const isMobile = () => window.matchMedia("(max-width:760px)").matches;
-const rng = (a, b) => `<span dir="ltr" style="unicode-bidi:isolate; white-space:nowrap">${esc(a)}–${esc(b)}</span>`;
+const rng = (a, b) => !a && !b ? "" : `<span dir="ltr" style="unicode-bidi:isolate; white-space:nowrap">${esc(a)}${b ? "–" + esc(b) : ""}</span>`;   // 5.19.72: מפגש בלי שעות - ריק
 const addMin = (hhmm, m) => { const [h, mi] = String(hhmm).split(":").map(Number); const t = h * 60 + mi + m; return String(Math.floor(t / 60)).padStart(2, "0") + ":" + String(t % 60).padStart(2, "0"); };
 let _wasMobile = null;
 window.addEventListener("resize", () => { const m = isMobile(); if (m !== _wasMobile) { _wasMobile = m; if (currentView === "groups" && G.sessions.length) renderGrid(); } });
@@ -4101,7 +4124,8 @@ function setLeadEdit(on){
   card.classList.toggle("editing", on); $("leadForm").classList.toggle("ro", !on); $("view-lead").classList.toggle("ro", !on);
   card.querySelectorAll("input, select, textarea, button.switch, button.star, #clearRemind").forEach(el => { if (!el.closest("#siblings")) el.disabled = !on; });
   $("leadEditBtn").hidden = on; $("leadActions").hidden = !on; $("view-lead").classList.toggle("lc-view", !on); $("editBanner").hidden = !LEAD_DIRTY;
-  $("lfRemind").style.visibility = (!on && !$("lfRemind").value) ? "hidden" : "";
+  // 5.19.72 (נועה): התזכורת תמיד מופיעה (גם בצפייה בנייד - אפשר לקבוע בלי "עריכה")
+   // 5.19.72: בצפייה בלי תזכורת - בלי שטח ריק
   $("lfMessage").closest(".msg-cell").hidden = !on && !$("lfMessage").value.trim();
   card.querySelectorAll("input:not([type=datetime-local])").forEach(el => { if (!el.closest("#siblings")) el.placeholder = on ? (el.dataset.ph || "") : "—"; });
 }
@@ -5426,7 +5450,8 @@ function payKidWire(){
 function lgTopSync(root){
   (root || document).querySelectorAll(".lg-btns:not(.lg-top)").forEach(row => {
     const host = row.parentElement; if (!host) return;
-    const ex = host.querySelector(":scope > .lg-top, :scope > .lg-edit-h > .lg-top");
+    const pnlH = host.querySelector(":scope > .lg-edit-h") ? null : (host.closest("#payPnl") || {}).querySelector ? host.closest("#payPnl").querySelector(":scope header, header") : null;   // 5.19.72: חלון בצד בלי כותרת עריכה - הכפתורים בשורת הכותרת של החלון
+    const ex = host.querySelector(":scope > .lg-top, :scope > .lg-edit-h > .lg-top") || (pnlH && pnlH.querySelector(".lg-top"));
     // 5.19.66 (נועה): בלי כפתור שמירה כפול - הכפתורים שיש למעלה מוסתרים למטה (נשארים רק כמו "מחיקה")
     if (ex) { const tt = [...ex.querySelectorAll("button")].map(x => x.textContent.trim()); row.querySelectorAll("button").forEach(b => { if (tt.includes(b.textContent.trim())) b.classList.add("lg-dup"); }); return; }
     const top = document.createElement("div"); top.className = "full lg-btns lg-top";
@@ -5440,7 +5465,8 @@ function lgTopSync(root){
     // 5.19.70 (נועה): במחשב - הכפתורים בשורת הכותרת של החלון (בלי שורה נוספת שדוחפת את התוכן). בנייד - הפס התחתון (CSS)
     row.querySelectorAll("button").forEach(b => { if (/מחיק|^הסרה מה|^פרישה מה/.test(b.textContent.trim())) b.classList.add("lg-delsrc"); });
     const hd = host.querySelector(":scope > .lg-edit-h");
-    if (top.children.length && hd) { top.classList.add("lg-in-h"); hd.classList.add("lg-h-row"); hd.appendChild(top); row.querySelectorAll("button").forEach(b => { if ([...top.children].some(c => c.textContent === b.textContent.trim())) b.classList.add("lg-dup"); }); }
+    if (top.children.length && !hd && pnlH) { top.classList.add("lg-in-h", "lg-in-ph"); pnlH.insertBefore(top, pnlH.lastElementChild); row.querySelectorAll("button").forEach(b => { if ([...top.children].some(c => c.textContent === b.textContent.trim())) b.classList.add("lg-dup"); }); }
+    else if (top.children.length && hd) { top.classList.add("lg-in-h"); hd.classList.add("lg-h-row"); hd.appendChild(top); row.querySelectorAll("button").forEach(b => { if ([...top.children].some(c => c.textContent === b.textContent.trim())) b.classList.add("lg-dup"); }); }
     else if (top.children.length) { host.insertBefore(top, host.firstChild); row.querySelectorAll("button").forEach(b => { if ([...top.children].some(c => c.textContent === b.textContent.trim())) b.classList.add("lg-dup"); }); }
   });
 }
@@ -5548,9 +5574,10 @@ function openMarathonEditor(m, inPanel, pre){
     for (const x of GRPS) {
       const nm = x.label || "קבוצה";
       if (!x.label) { g("err").textContent = "לכל קבוצה צריך שם."; return; }
-      if (!x.meets.length) { g("err").textContent = `ב${nm} צריך לפחות מפגש אחד עם תאריך ושעות.`; return; }
-      if (x.meets.some(z => !z.date || !z.start || !z.end)) { g("err").textContent = `ב${nm}: בכל מפגש צריך תאריך, שעת התחלה ושעת סיום.`; return; }
-      if (x.meets.some(z => z.end <= z.start)) { g("err").textContent = `ב${nm}: שעת הסיום צריכה להיות אחרי שעת ההתחלה.`; return; }
+      // 5.19.72 (נועה): חובה לפחות תאריך אחד; שעות - לא חובה
+      if (!x.meets.length) { g("err").textContent = `ב${nm} צריך לפחות מפגש אחד עם תאריך.`; return; }
+      if (x.meets.some(z => !z.date)) { g("err").textContent = `ב${nm}: בכל מפגש צריך תאריך (השעות לא חובה).`; return; }
+      if (x.meets.some(z => z.start && z.end && z.end <= z.start)) { g("err").textContent = `ב${nm}: שעת הסיום צריכה להיות אחרי שעת ההתחלה.`; return; }
       if (new Set(x.meets.map(z => z.date)).size !== x.meets.length) { g("err").textContent = `ב${nm} יש שני מפגשים באותו תאריך.`; return; }
     }
     if (new Set(GRPS.map(x => x.label)).size !== GRPS.length) { g("err").textContent = "יש שתי קבוצות עם אותו שם."; return; }
@@ -5562,7 +5589,7 @@ function openMarathonEditor(m, inPanel, pre){
     if (!G.locs) { try { G.locs = await get("locations", "select=id,city,name,color_class"); } catch(e) { G.locs = []; } }
     const loc0 = (GRPS.find(x => x.loc) || {}).loc || (G.locs.find(x => x.city === body.city && x.name === body.school) || {}).id;
     if (GRPS.some(x => !x.id) && !loc0) { g("err").textContent = "לבית הספר הזה עוד אין מקום במערכת. מוסיפים אותו כקבוצה רגילה קודם, או בוחרים בית ספר אחר."; return; }
-    const sBody = (x) => ({ time_label: x.label, capacity: x.cap, room: nn(x.room), meeting_dates: x.meets.map(z => z.date), meetings: x.meets, start_time: x.meets[0].start, end_time: x.meets[0].end });
+    const sBody = (x) => ({ time_label: x.label, capacity: x.cap, room: nn(x.room), meeting_dates: x.meets.map(z => z.date), meetings: x.meets, start_time: (x.meets.find(z => z.start) || {}).start || null, end_time: (x.meets.find(z => z.end) || {}).end || null });
     g("save").disabled = true;
     try {
       let mid = m && m.id, created = null;
@@ -5592,7 +5619,7 @@ function openMarathonEditor(m, inPanel, pre){
       await loadGroups();
       const saved = m ? G.marathons.find(x => x.id === m.id) : G.marathons.find(x => x.name === body.name && x.city === body.city && x.school === body.school);
       if (saved) openMarathonPanel(saved);
-    } catch(e) { g("err").textContent = /meetings/.test(e.message) ? "צריך להריץ קודם את קובץ 37." : "השמירה נכשלה: " + e.message; g("save").disabled = false; }
+    } catch(e) { g("err").textContent = /meetings/.test(e.message) ? "צריך להריץ קודם את קובץ 37." : /(start|end)_time/.test(e.message) ? "כדי לשמור מפגש בלי שעות צריך להריץ קודם את קובץ 79." : "השמירה נכשלה: " + e.message; g("save").disabled = false; }
   };
 }
 // 5.19.35: משך מפגש במרתון - לא קבוע על 90 דק'. שינוי שעת התחלה / משך -> שעת הסיום מתעדכנת (ואפשר לשנות ידנית)
@@ -5647,10 +5674,10 @@ async function openMarGroupEditor(m, se){
       .filter(x => x.date || x.start || x.end).sort((a, b) => a.date.localeCompare(b.date));
     const locId = Number(g("loc").value), label = g("label").value.trim();
     if (!label || !locId || !ms.length) { g("err").textContent = "צריך שם קבוצה, מקום ולפחות מפגש אחד."; return; }
-    if (ms.some(x => !x.date || !x.start || !x.end)) { g("err").textContent = "בכל מפגש צריך תאריך, שעת התחלה ושעת סיום."; return; }
-    if (ms.some(x => x.end <= x.start)) { g("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
+    if (ms.some(x => !x.date)) { g("err").textContent = "בכל מפגש צריך תאריך (השעות לא חובה)."; return; }   // 5.19.72
+    if (ms.some(x => x.start && x.end && x.end <= x.start)) { g("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
     if (new Set(ms.map(x => x.date)).size !== ms.length) { g("err").textContent = "יש שני מפגשים באותו תאריך."; return; }
-    const st = ms[0].start, en = ms[0].end;
+    const st = (ms.find(x => x.start) || {}).start || null, en = (ms.find(x => x.end) || {}).end || null;
     const body = { kind: "מרתון", marathon_id: m.id, meeting_dates: ms.map(x => x.date), meetings: ms, day: null, location_id: locId, start_time: st, end_time: en, time_label: label,
       room: se ? (se.room || null) : null, capacity: g("cap").value === "" ? null : Number(g("cap").value), is_open: g("open").checked };
     g("save").disabled = true;
@@ -5663,7 +5690,7 @@ async function openMarGroupEditor(m, se){
       for (const id of want.filter(x => !curIns.includes(x))) await insert("session_instructors", { session_id: sid, staff_id: id });
       for (const id of curIns.filter(x => !want.includes(x))) await del("session_instructors", "session_id=eq." + sid + "&staff_id=eq." + id);
       LG_SESSIONS = null; toast(se ? "הקבוצה עודכנה" : "הקבוצה נוספה"); closePanel(); await loadGroups();
-    } catch(e) { g("err").textContent = /meetings/.test(e.message) ? "צריך להריץ קודם את קובץ 37." : "השמירה נכשלה: " + e.message; g("save").disabled = false; }
+    } catch(e) { g("err").textContent = /meetings/.test(e.message) ? "צריך להריץ קודם את קובץ 37." : /(start|end)_time/.test(e.message) ? "כדי לשמור מפגש בלי שעות צריך להריץ קודם את קובץ 79." : "השמירה נכשלה: " + e.message; g("save").disabled = false; }
   };
   if (g("del")) g("del").onclick = async () => {
     if (G.sessions.filter(x => x.marathon_id === m.id).length <= 1) { g("err").textContent = "זו הקבוצה היחידה של המרתון. למרתון חייבת להיות לפחות קבוצה אחת - כדי לוותר עליו מוחקים את המרתון (בהרשמה ושיבוץ)."; return; }
@@ -9355,7 +9382,7 @@ async function renderRules(b){
       : `<textarea data-k="text" rows="2" placeholder="תיאור החוק">${esc(x.text || "")}</textarea>
     <input type="text" data-k="note" placeholder="הערה (למשל: לברר)" value="${esc(x.note || "")}">`}</div>`;   // 5.19.69 (נועה): ההערה בשורה של "ההפרש יורד מ"
   const paint = () => {
-    b.innerHTML = `<div class="br-wrap"><section class="br-sec"><h3 class="br-h">כללי</h3><div class="br-gen">
+    b.innerHTML = `<div class="br-wrap"><div class="lg-edit-h br-title">חוקי חיוב</div><section class="br-sec"><h3 class="br-h">כללי</h3><div class="br-gen">
       <div><label class="lbl" for="rDay">יום החיוב החודשי (1-28)</label><input type="number" id="rDay" min="1" max="28" value="${esc(r.charge_day || 1)}"></div>
       <div><label class="lbl" for="rLast">החודש האחרון בשנה</label><select id="rLast">${[5, 6, 7].map(m => `<option value="${m}" ${Number(r.last_month || 6) === m ? "selected" : ""}>${["", "", "", "", "", "מאי", "יוני", "יולי"][m]}</option>`).join("")}</select></div>
       <div class="br-mail"><label class="lbl" for="rMail">לאן נשלחות התראות (חיוב שלא התקבל)</label><input type="email" id="rMail" dir="ltr" value="${esc(r.alert_email || "")}" placeholder="telem.tr@gmail.com"></div></div></section>
