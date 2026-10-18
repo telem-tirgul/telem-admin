@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.72">
+<meta name="app-version" content="5.19.73">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -424,6 +424,7 @@
     .att-rows li[data-i] .att-name{ flex:1 1 0 !important; min-width:0; }
     .att-rows li[data-i] .att-ctl{ display:grid !important; grid-template-columns:150px auto; align-items:center; justify-items:end; gap:10px; flex:none; margin-inline-start:auto; }
     .att-rows li[data-i] .att-ctl > :first-child:last-child{ grid-column:2; }
+    .att-name b.att-nm{ flex-wrap:wrap; row-gap:3px; } .att-nm > span:first-child{ white-space:nowrap; }   /* 5.19.73: השם לא נשבר; התגיות יורדות שורה */
   }
   .room-empty{ color:#B03A2E; font-weight:700; white-space:nowrap; } .room-empty u{ text-decoration:none; border-bottom:1.5px dashed currentColor; display:inline-block; min-width:28px; }
   .btn.trk-btn{ padding:4px 7px; } .btn.trk-btn:not(.on){ opacity:.55; filter:grayscale(1); } .ro-btns{ display:inline-flex; gap:4px; } .att-nm .dbl-star{ margin-inline-start:auto; margin-inline-end:0; font-size:1.45em; line-height:1; color:#E0A100; text-shadow:0 0 1px #9a6d00; }
@@ -464,7 +465,7 @@
   .seg button + button{ border-inline-start:1.5px solid var(--border); }
   .seg button.on.yes{ background:#4ea30c; color:#fff; }
   .seg button.on.no{ background:#c0392b; color:#fff; }
-  #shCount .c-yes{ color:#3d8a06; } #shCount .c-no{ color:#c0392b; }
+  #shCount .c-yes, #shTopCnt .c-yes{ color:#3d8a06; } #shCount .c-no, #shTopCnt .c-no{ color:#c0392b; } #shTopCnt{ font-size:15px; display:block !important; } #shTopCnt > *{ white-space:nowrap; } @media (max-width:760px){ #shTopCnt{ font-size:14px; } } #shTopCnt .c-un{ color:var(--ink-soft); }
   .subj{ display:inline-flex; align-items:center; gap:5px; font-size:14px; font-weight:600; padding:6px 8px; border-radius:8px; background:var(--muted); cursor:pointer; }
   .subj input{ width:18px; height:18px; }
   .subj.off{ opacity:.4; }
@@ -1052,6 +1053,8 @@
     .att-group{ padding:8px 10px; border-radius:10px; display:flex !important; flex-direction:row !important; flex-wrap:wrap; align-items:baseline; gap:2px 10px; }
     .att-group > span{ flex:none; }
     .att-group > .ag-br{ display:block; flex-basis:100%; height:0; }   /* החדר תמיד בשורה השנייה */
+    .att-group > .ag-st{ margin-inline-start:auto; text-align:end; white-space:nowrap; }   /* 5.19.73: הסטטוס תמיד בקצה השמאלי */
+    .att-group .ag-ins{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:45%; }
     .att-group .t{ font-size:16px; } .att-group .w{ font-size:14px; } .att-group .m, .att-group .ok{ font-size:12.5px; }
     .att-rows li{ display:flex !important; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:7px 2px; }
     .att-name{ flex:1 1 40%; min-width:0; margin:0; }
@@ -2101,8 +2104,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         <div id="shFilt"></div>
         <div class="sh-stick">
         <div class="sh-head">
-          <div class="sh-h1row"><div class="sh-tbox"><h1 id="shTitle"></h1><div id="shTopCnt" class="sh-topcnt"></div></div>
+          <div class="sh-h1row"><div class="sh-tbox"><h1 id="shTitle"></h1></div>
             <div class="sh-top-btns"><button class="btn small" type="button" id="shGroup" data-admin title="חלון הקבוצה: הילדים, העברה, מתרגלים ועריכת פרטי הקבוצה">👥 <span class="lg-t">חלון ה</span>קבוצה</button><button class="btn small" type="button" id="shBack">→ חזרה<span class="lg-t"> לקבוצות</span></button></div></div>
+        <div id="shTopCnt" class="sh-topcnt"></div><!-- 5.19.73: שורה מלאה מתחת לכותרת -->
         </div>
         <div class="sh-nav" id="shNav" hidden><button type="button" class="btn" id="shPrevG"></button><button type="button" class="btn" id="shNextG"></button></div>
         </div>
@@ -6001,9 +6005,8 @@ async function loadAttGroups(){
     const card = (g, showCity) => `<button type="button" class="att-group ${scCls(g.location)} ${g.marked ? "done" : ""}${g.cx ? " hol-fade" : ""}" data-s="${g.session_id}">
       ${ME.role !== "instructor" ? `<span class="ev-ed" data-ged role="button" title="חלון הקבוצה (ילדים, מתרגלים, עריכה)" aria-label="חלון הקבוצה">✎</span>` : ""}<span class="t">${g.kind === "מרתון" ? "🏁 מרתון · " + esc(g.time_label) + (g.start_time ? ` <span class="m">${rng(hm(g.start_time), hm(g.end_time))}</span>` : "") : rng(hm(g.start_time), hm(g.end_time))}</span>
       <span class="w">${scChip(g.location)}${showCity ? " · " + esc(g.city) : ""}</span><span class="ag-br"></span>${g.room ? `<span class="m">חדר: <b><bdi>${esc(g.room)}</bdi></b></span>` : ""}
-      ${g.marked ? "" : `<span class="m kn">${g.kids} ילדים</span>`}${ME.role !== "instructor" && g.instructors ? `<span class="ag-ins">${esc(g.instructors)}</span>` : ""}
-
-      ${g.marked ? `<span class="ok">✓ סומן · <b>${g.marked_count}</b> נוכחים מתוך ${g.kids}</span>` : g.cx ? cxTag(g.cx) : `<span class="m">טרם סומן</span>`}</button>`;
+      ${ME.role !== "instructor" && g.instructors ? `<span class="ag-ins">${esc(g.instructors)}</span>` : ""}
+      <span class="ag-st">${g.marked ? `<span class="ok">✓ סומן · <b>${g.marked_count}</b> נוכחים מתוך ${g.kids}</span>` : `<span class="m kn">${g.kids} ילדים</span> · ${g.cx ? cxTag(g.cx) : `<span class="m">טרם סומן</span>`}`}</span></button>`;   // 5.19.73 (נועה): הסטטוס תמיד באותו מקום - בצד שמאל
     if (ME.role === "instructor" || isMobile()) {
       $("attGroups").className = "att-groups";
       $("attGroups").innerHTML = A.groups.map(g => card(g, ME.role !== "instructor")).join("");
@@ -6254,11 +6257,11 @@ function renderSheetRows(){
 }
 function updateCount(){
   const rows = A.rows.filter(shVisible), p = rows.filter(r => r.present === true).length, x = rows.filter(r => r.present === false).length, n = rows.filter(r => r.present == null).length;
-  $("shCount").innerHTML = `<b class="c-yes">${p} נוכחים</b> · <b class="c-no">${x} חסרים</b>` + (n ? ` · ${n} לא סומנו` : "");
-  // 5.19.29: בנייד - למעלה, כמה נוכחים מתוך כמה (כמו בכרטיס הקבוצה)
-  $("shTopCnt").innerHTML = `<b class="c-yes">${p}</b> נוכחים מתוך <b>${rows.length}</b>` + (x ? ` · <b class="c-no">${x}</b> חסרים` : "");
+  // 5.19.73 (נועה): מקום אחד ברור לכמה ילדים / נוכחים / חסרים / לא סומנו - למעלה, בצבעים (היה בשלושה מקומות)
   const nSk = A.rows.filter(r => r.skip).length;
-  $("shTotal").innerHTML = `<b>${A.rows.length - nSk}</b> ילדים בשיעור` + (nSk ? ` · ${nSk} לא מגיעים היום` : "") + (A.splitView && rows.length !== A.rows.length - nSk ? ` · ${rows.length} בתת-הקבוצה המוצגת` : "");
+  $("shTopCnt").innerHTML = `<span><b>${rows.length}</b> ילדים</span> · <b class="c-yes">${p} נוכחים</b> · <b class="c-no">${x} חסרים</b>` + (n ? ` · <span class="c-un">${n} לא סומנו</span>` : "");
+  $("shCount").innerHTML = "";
+  $("shTotal").innerHTML = (nSk ? `${nSk} לא מגיעים היום` : "") + (A.splitView && rows.length !== A.rows.length - nSk ? `${nSk ? " · " : ""}${rows.length} בתת-הקבוצה המוצגת` : "");
 }
 // טיוטת נוכחות: כל סימון נשמר גם בטלפון עצמו, כך שאם השמירה נכשלה (אין קליטה), הדף התרענן או יצאו מהמערכת - הסימון לא הולך לאיבוד
 const attDraftKey = () => A.sheet ? "telem_att_draft_" + A.sheet.session_id + "_" + A.sheet.date : "";
