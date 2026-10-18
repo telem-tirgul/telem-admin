@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.67">
+<meta name="app-version" content="5.19.68">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1639,7 +1639,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .kid-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:6px; } .kid-head h2{ margin:0; }
 .kid-h{ margin:16px 0 8px; font-size:1.05em; color:var(--maroon,#5A1216); }
 .pl-seg{ margin:0 0 12px; }
-.lp-regs{ margin:10px 0 2px; border-top:1px dashed #E6DDD3; padding-top:8px; } .lp-plan .lp-st{ flex:0 0 auto; } .lp-regs-h{ font-weight:700; font-size:.92em; color:#6b6259; margin-bottom:6px; } .lp-reg{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0; flex-wrap:wrap; }
+.lp-regs{ margin:10px 0 2px; border-top:1px dashed #E6DDD3; padding-top:8px; } .lp-plan .lp-st{ flex:0 0 auto; } .lp-plan-e{ display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; } .lp-regs-h{ font-weight:700; font-size:.92em; color:#6b6259; margin-bottom:6px; } .lp-reg{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0; flex-wrap:wrap; }
 .lp-more{ margin-top:10px; display:flex; justify-content:flex-end; }
 @media (min-width:760px){ .lp-row{ grid-template-columns:1fr auto 120px; align-items:center; padding:9px 14px; } .lp-row .lp-acts{ grid-column:2; grid-row:1; border:0; padding:0; margin:0; gap:14px; } .lp-row .lp-side{ grid-column:3; grid-row:1; } .lp-acts .tx-pdf{ margin:0; } }
 #payWrap a.inv{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; white-space:nowrap; } #payWrap a.inv:hover{ text-decoration:underline; }
@@ -3468,6 +3468,9 @@ function dupFind(st, fam, exceptSid){
     if (myPh && dupPh(s.phone) === myPh) why.push("אותו נייד ילד/ה");
     if (myLast && dupNm(s.last_name) === myLast && pFn.length && [f.parent1_first, f.parent2_first].some(x => pFn.includes(dupNm(dupW1(x))))) why.push("אותו שם משפחה ושם הורה");
     if (pPh.length && [f.parent1_phone, f.parent2_phone].map(dupPh).some(x => x && pPh.includes(x))) why.push("אותו טלפון הורה");
+    // 5.19.68 (נועה): ילד שכתב טלפון של הורה כנייד שלו, או להפך - כל טלפון מול כל טלפון
+    if (!why.length) { const mine = [myPh].concat(pPh).filter(Boolean), theirs = [s.phone, f.parent1_phone, f.parent2_phone].map(dupPh).filter(Boolean);
+      if (mine.some(x => theirs.includes(x))) why.push("אותו מספר טלפון (אולי התחלף בין ילד להורה)"); }
     if (why.length) { seen.add(s.id); out.push({ lead: l, why }); } });
   return out;
 }
@@ -3547,7 +3550,7 @@ async function loadLeadPayments(l){
   const regHtml = paidRegs.length ? `<div class="lp-regs"><div class="lp-regs-h">הרשמות שסומנו כשולמו</div>${paidRegs.map((x, i) => `<div class="lp-reg"><span>${esc(x.what)}${x.at ? ` <span class="muted">· ${esc(dm(x.at))}</span>` : ""}</span><button type="button" class="btn small" data-unpaid="${i}" title="לסימון שנעשה בטעות - חוזר ל&quot;ממתין לתשלום&quot;">↩ ביטול "שולם"</button></div>`).join("")}</div>` : "";
   const PST = { creating: "בהקמה", active: "פעילה", paused: "מושהית", failed: "חיוב לא התקבל", done: "הסתיימה", cancelled: "בוטלה", error: "לא הוקמה" };
   const planHtml = plans.length ? `<div class="lp-regs"><div class="lp-regs-h">הוראות קבע <span class="muted" style="font-weight:400">· שינויים, השהיה וביטול – בריווחית</span></div>${plans.map(p => { const rem = Math.max(0, (p.total_count || 0) - (p.charged_count || 0));
-      return `<div class="lp-reg lp-plan"><span><b>${fmtMoney(p.monthly_amount)}</b> לחודש · ${p.charged_count || 0}/${p.total_count || "?"} חיובים${["active", "paused", "failed"].includes(p.status) && p.next_charge_date && rem ? ` · הבא ${esc(dm(p.next_charge_date))} · נשארו ${rem}` : ""}${p.card_last4 ? ` · <span dir="ltr">•••• ${esc(p.card_last4)}</span>` : ""}${p.description ? `<div class="muted">${esc(p.description)}</div>` : ""}</span><span class="lp-st ${["active", "done"].includes(p.status) ? "ok" : p.status === "paused" ? "" : "no"}">${esc(PST[p.status] || p.status)}</span></div>`; }).join("")}</div>` : "";
+      return `<div class="lp-reg lp-plan"><span><b>${fmtMoney(p.monthly_amount)}</b> לחודש · ${p.charged_count || 0}/${p.total_count || "?"} חיובים${["active", "paused", "failed"].includes(p.status) && p.next_charge_date && rem ? ` · הבא ${esc(dm(p.next_charge_date))} · נשארו ${rem}` : ""}${p.card_last4 ? ` · <span dir="ltr">•••• ${esc(p.card_last4)}</span>` : ""}${p.description ? `<div class="muted">${esc(p.description)}</div>` : ""}${planMarked(p) ? `<div class="muted">${planMarkInfo(p)}</div>` : ""}</span><span class="lp-plan-e"><span class="lp-st ${["active", "done"].includes(p.status) ? "ok" : p.status === "paused" ? "" : "no"}">${esc(PST[p.status] || p.status)}</span>${planMarkBtns(p, "lpcx")}</span></div>`; }).join("")}</div>` : "";
   const pendHtml = pend.length ? `<div class="lp-regs"><div class="lp-regs-h">📞 ממתין לתשלום טלפוני</div>${pend.map(x => `<div class="lp-reg"><span>${esc(x.what || "")}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">+ ${fmtMoney(x.monthly_amount)} לחודש</span>` : ""}</span></div>`).join("")}</div>` : "";
   box.innerHTML = `<details class="lp-box"${LP_OPEN ? " open" : ""}><summary><b><span class="lp-ic" aria-hidden="true">💳</span> תשלומים</b> <span class="lp-sum">${ok.length} שולמו · סה"כ <b>${fmtMoney(sum)}</b></span>${bad ? ` <span class="lp-st no">${bad} לא התקבל</span>` : ""}</summary>
     ${pendHtml}${planHtml}${rows.length ? `<div class="dx lp-dx">${rows.map(lpRow).join("")}</div>` : ""}${regHtml}</details>`;
@@ -3561,8 +3564,26 @@ async function loadLeadPayments(l){
     catch(e) { const m = String(e.message || "");
       toast(/has real payment/.test(m) ? "יש תשלום אמיתי מאיקרדיט להרשמה הזו - אי אפשר לבטל. להחזר כסף - זיכוי בריווחית." : /has recurring plan/.test(m) ? "יש הוראת קבע פעילה להרשמה - קודם מבטלים את הוראת הקבע." : (e.status === 404 || /PGRST202|mark_unpaid/.test(m)) ? "צריך להריץ קודם את icredit-18 (שיחת התשלומים)." : "לא בוטל: " + m);
       b.disabled = false; } });
+  box.querySelectorAll("[data-lpcx]").forEach((b, i) => { const p = plans.filter(x => planCanMark(x) || planMarked(x))[i]; if (!p) return;   // 5.19.68: סימון "בוטלה"
+    b.onclick = async () => { b.disabled = true; const ok = b.dataset.lpcx === "mark" ? await planMarkCancel(p, l.student ? l.student.first_name : "") : await planUnmarkCancel(p);
+      if (ok) { LP_OPEN = true; loadLeadPayments(l); } else b.disabled = false; }; });
   box.querySelectorAll("[data-txpdf]").forEach(b => b.onclick = async () => { b.disabled = true; try { await txPdf(rows[Number(b.dataset.txpdf)], l); } catch(e) { toast("לא ניתן להוריד: " + e.message); } b.disabled = false; });
 }
+// 5.19.68 (תש-07, icredit-23): סימון ידני "בוטלה" להוראה מושהית - בריווחית ביטול נראה כמו השהיה. לא שולח כלום לריווחית.
+const planMarked = (p) => !!(p && p.cancel_marked_at);
+const planCanMark = (p) => !!p && !planMarked(p) && (p.can_mark_cancelled != null ? !!p.can_mark_cancelled : p.status === "paused");
+const planMarkInfo = (p) => planMarked(p) ? `סומנה "בוטלה"${p.cancel_marked_by ? " ע\"י " + esc(p.cancel_marked_by) : ""} · ${esc(fmtDM(String(p.cancel_marked_at).slice(0, 10)))}${p.cancel_note ? " · " + esc(p.cancel_note) : ""}` : "";
+const planErr = (e) => { const m = String(e.message || ""); return /plan not paused/.test(m) ? "אפשר לסמן רק הוראה מושהית" : /not marked/.test(m) ? "ההוראה לא מסומנת" : (e.status === 404 || /PGRST202|recurring_plan_(un)?mark/.test(m)) ? "צריך להריץ קודם את icredit-23 (שיחת התשלומים)" : "לא נשמר: " + m; };
+async function planMarkCancel(p, name){
+  const note = await uiPrompt(`לסמן שהוראת הקבע${name ? " של " + name : ""} בוטלה?\nזה סימון אצלנו בלבד. בריווחית ההוראה כבר כבויה.\n\nהערה (לא חובה):`, "", { ok: "סימון: בוטלה", multi: false });
+  if (note == null) return false;
+  try { await rpc("recurring_plan_mark_cancelled", { p_id: p.id, p_note: String(note).trim() || null }); toast('סומנה "בוטלה"'); return true; }
+  catch(e) { toast(planErr(e)); return false; } }
+async function planUnmarkCancel(p){
+  if (!await uiConfirm('לבטל את הסימון "בוטלה"?\nההוראה תחזור ל"מושהית".')) return false;
+  try { await rpc("recurring_plan_unmark_cancelled", { p_id: p.id }); toast('הסימון "בוטלה" בוטל'); return true; }
+  catch(e) { toast(planErr(e)); return false; } }
+const planMarkBtns = (p, attr) => ME && ME.role === "admin" ? (planCanMark(p) ? `<button type="button" class="btn small" data-${attr}="mark">✕ סימון: בוטלה</button>` : planMarked(p) ? `<button type="button" class="btn small" data-${attr}="unmark">ביטול הסימון</button>` : "") : "";
 // ---------- טופס ביטול: מכינים כאן, ההורה רק חותם/ת ----------
 const TRACK_T = (v) => (LK.tracks.find(x => x.v === v) || {}).t || v || "";
 const CAN_ST = { "נשלח": "נשלח להורה - ממתין לחתימה", "נחתם": "נחתם - ממתין לאישור", "אושר": "אושר", "בוטל": "בוטל" };
@@ -5174,8 +5195,8 @@ const IB = { rows: null, f: "new", ok: true, lastMax: Number(store("telem_ib_max
 const IB_KIND = { registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"] };   // 5.19.58: payment - אירועי תשלום (icredit-18)
 const IB_FLAG = { new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"],
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], plan_paused: ["t-old", "הוראת קבע הושהתה"],
-  plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], lead_status_check: ["t-warn", "לבדוק סטטוס"] };
-const IB_WARN_F = ["mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check", "plan_last_check"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
+  plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"] };
+const IB_WARN_F = ["mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check", "plan_last_check", "plan_reactivated"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
 const ibWarn = (r) => (r.issues || []).length > 0 || (r.flags || []).some(f => IB_WARN_F.includes(f));
 function ibPaint(n){ const b = $("inboxN"); if (b) b.innerHTML = n ? `<b>${n > 99 ? "99+" : n}</b>` : ""; }
 async function inboxPoll(first){
@@ -5223,7 +5244,10 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
 async function renderInbox(reload){
   const box = $("ibList");
   document.querySelectorAll("[data-ibf]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ibf === IB.f)));
-  if (reload || !IB.rows) { try { IB.rows = await get("form_inbox", "select=*&order=id.desc&limit=300"); } catch(e) { box.innerHTML = `<div class="err">${IB.ok ? "לא נטען: " + esc(e.message) : "כדי להשתמש בתיבת ההודעות צריך להריץ את קובץ 71."}</div>`; return; } await ibNames(IB.rows); }
+  if (reload || !IB.rows) { try { IB.rows = await get("form_inbox", "select=*&order=id.desc&limit=300"); } catch(e) { box.innerHTML = `<div class="err">${IB.ok ? "לא נטען: " + esc(e.message) : "כדי להשתמש בתיבת ההודעות צריך להריץ את קובץ 71."}</div>`; return; } await ibNames(IB.rows);
+    IB.plans = {};   // 5.19.68: הוראות קבע שהושהו - לכפתור "סימון: בוטלה"
+    if (ME.role === "admin" && IB.rows.some(r => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused"))) { try { ((await rpc("recurring_plans_list")) || []).forEach(p => IB.plans[p.id] = p); } catch(e) {} } }
+  const ibPlan = (r) => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused") ? (IB.plans || {})[r.ref_id] : null;
   const nNew = IB.rows.filter(r => r.status === "new").length, nWarn = IB.rows.filter(r => ibWarn(r) && r.status !== "handled").length; ibPaint(nNew);
   document.querySelector('[data-ibf="new"]').textContent = "חדשות " + nNew; document.querySelector('[data-ibf="warn"]').textContent = "⚠ לא תואמות " + nWarn;
   const rows = IB.rows.filter(r => IB.f === "all" ? true : IB.f === "warn" ? ibWarn(r) && r.status !== "handled" : r.status === "new");
@@ -5238,12 +5262,14 @@ async function renderInbox(reload){
       <span class="ib-n">${lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : esc(ibName(r))}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
       <span class="ib-time">${esc(when(r.created_at))}</span>
-      <span class="ib-acts">${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${r.id}">✓ נקרא</button>` : ""}${w && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
+      <span class="ib-acts">${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${r.id}">✓ נקרא</button>` : ""}${w && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
       ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>`;
   box.querySelectorAll("[data-ibl]").forEach(a => a.onclick = () => openLead(Number(a.dataset.ibl)));
   box.querySelectorAll("[data-ibx]").forEach(b => b.onclick = () => { const d = $("ibd" + b.dataset.ibx); if (d) d.hidden = !d.hidden; });
-  box.querySelectorAll("[data-ibm]").forEach(b => b.onclick = () => mergeDlg(Number(b.dataset.ibm)));   // 5.19.66: כפילות אפשרית - איחוד מכאן
+  box.querySelectorAll("[data-ibm]").forEach(b => b.onclick = () => mergeDlg(Number(b.dataset.ibm)));
+  box.querySelectorAll("[data-ibcx]").forEach(b => b.onclick = async () => { const p = (IB.plans || {})[b.dataset.ibcx]; if (!p) return; b.disabled = true;   // 5.19.68: סימון "בוטלה" מההודעה
+    const r = IB.rows.find(x => x.ref_id === b.dataset.ibcx); if (await planMarkCancel(p, r ? ibName(r) : "")) { p.cancel_marked_at = new Date().toISOString(); renderInbox(false); } else b.disabled = false; });   // 5.19.66: כפילות אפשרית - איחוד מכאן
   box.querySelectorAll("[data-ibs]").forEach(b => b.onclick = async () => { const [st, id] = b.dataset.ibs.split(":"); b.disabled = true;
     try { await patch("form_inbox", "id=eq." + id, st === "handled" ? { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "" } : { status: "seen" });
           const r = IB.rows.find(x => x.id === Number(id)); if (r) r.status = st; renderInbox(false); }
@@ -8846,7 +8872,8 @@ function dealExpand(d){
     ${d.pending ? `<div class="dx-pay bad"><span class="chip st-paused">📞 תשלום טלפוני</span><b>${money(d.pending.amount)}</b>${d.pending.monthly_amount ? `<span class="muted">+ ${money(d.pending.monthly_amount)} לחודש</span>` : ""}<span class="muted">${esc(d.pending.what || "")}</span>
       <span class="dx-acts"><button type="button" class="btn small primary" data-dxnow="1">⌨️ הזנת כרטיס עכשיו</button><button type="button" class="btn small" data-dxlink="1">🔗 העתקת קישור להורה</button><button type="button" class="btn small" data-dxpaid="1">✔ שולם (גביתי בריווחית)</button></span></div>` : ""}
     ${pays.map(line).join("")}
-    ${live ? `<div class="dx-plan muted">שינויים בהוראת הקבע (סכום, יום חיוב, כרטיס, השהיה, ביטול) – בריווחית. מתעדכן כאן כל בוקר.</div>` : ""}
+    ${live ? `<div class="dx-plan muted">שינויים בהוראת הקבע (סכום, יום חיוב, כרטיס, השהיה, ביטול) – בריווחית. מתעדכן כאן כל בוקר.${p.status === "paused" ? " בוטלה בריווחית? אפשר לסמן כאן:" : ""}${planMarkBtns(p, "dxcx")}</div>` : ""}
+    ${p && d.group === "plan" && planMarked(p) ? `<div class="dx-plan"><span class="muted">${planMarkInfo(p)}</span>${planMarkBtns(p, "dxcx")}</div>` : ""}
   </div>`;
 }
 function wireExpand(box, d, reload){
@@ -8858,6 +8885,8 @@ function wireExpand(box, d, reload){
     box.querySelector("[data-dxnow]").onclick = (e) => payNowOpen(e.currentTarget, getLk);
     box.querySelector("[data-dxlink]").onclick = async (e) => { const t = e.currentTarget; t.disabled = true; try { await copy((await getLk()).url); toast("הקישור הועתק"); } catch(er) { toast("לא נוצר: " + er.message); } t.disabled = false; };
     box.querySelector("[data-dxpaid]").onclick = async () => { if (await markPaid(x)) reload(); }; }
+  box.querySelectorAll("[data-dxcx]").forEach(b => b.onclick = async () => { b.disabled = true;   // 5.19.68: סימון "בוטלה"
+    const ok = b.dataset.dxcx === "mark" ? await planMarkCancel(p, p.student_name || d.name) : await planUnmarkCancel(p); if (ok) reload(); else b.disabled = false; });
   box.querySelectorAll("[data-dxst]").forEach(btn => btn.onclick = async () => { const st = btn.dataset.dxst;
     if (st === "cancelled" && !await uiConfirm(`לבטל את הוראת הקבע של ${p.student_name || d.name}? החיובים הבאים לא יתבצעו. (אי אפשר לבטל את הביטול - צריך הוראה חדשה)`)) return;
     if (st === "paused" && !await uiConfirm("להשהות? לא יהיו חיובים עד שמחדשים.")) return;
