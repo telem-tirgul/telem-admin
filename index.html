@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.68">
+<meta name="app-version" content="5.19.69">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1630,6 +1630,13 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 #payWrap .br-rule-h select{ height:36px !important; min-height:36px !important; padding:0 10px !important; line-height:normal; min-width:130px; }
 #payWrap .br-wrap textarea{ width:100%; min-height:64px; border-radius:10px; padding:8px 10px; box-sizing:border-box; font:inherit; font-size:14.5px; }
 #payWrap .br-wrap > .note{ margin:0 !important; }
+/* 5.19.69 (תש-11, נועה): "חוקים נוספים" - שדות קטנים בתוך המשפט. הכלל הכללי של #view-pay (פינות 12, ריפוד 9/12, גובה 40) גבר עד עכשיו */
+#view-pay #payWrap .br-rule :is(input[type=number], input[type=text], select){ min-height:32px !important; height:32px !important; padding:2px 8px !important; border-radius:8px !important; font-size:14px !important; }
+#view-pay #payWrap .br-rule input[type=number]{ width:58px !important; text-align:center; margin:0 4px; }
+#view-pay #payWrap .br-rule select{ width:auto !important; min-width:0 !important; padding-inline-end:26px !important; }
+#view-pay #payWrap .br-rule input[type=text]{ max-width:420px; justify-self:start !important; }
+#view-pay #payWrap .br-rule .br-sent{ line-height:2.3; } #view-pay #payWrap .br-rule .br-sent input.br-note-in{ display:inline-block; width:260px; max-width:100%; margin-inline-start:12px; vertical-align:middle; }
+#view-pay #payWrap .br-rule .btn.danger{ padding:4px 12px; min-height:32px; }
 #payWrap .pl-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; } #payWrap .pl-head #lNew{ margin-inline-start:auto; }   /* כפתור "+ חדש" תמיד משמאל */
 .pay-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
 .pay-kid{ position:relative; flex:0 1 380px; min-width:240px; } .pay-kid input{ width:100%; padding-inline-start:34px !important; border-radius:999px !important; }
@@ -1766,6 +1773,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
 /* 5.19.56: תיבת הודעות מהטפסים - במחשב כל הודעה בשורה אחת */
 .ib-bell{ position:relative; font-size:16px; overflow:visible !important; } .ib-bell #inboxN b{ position:absolute; top:-7px; inset-inline-end:-7px; background:#C0392B; color:#fff; border-radius:999px; font-size:11px; min-width:18px; height:18px; display:grid; place-items:center; padding:0 4px; font-weight:800; }
+.ib-filters{ display:flex; align-items:center; gap:8px 12px; flex-wrap:wrap; } .ib-bar [hidden]{ display:none !important; }
 .ib-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
 .ib-seg{ display:inline-flex; gap:4px; background:var(--paper); border:1px solid var(--border); border-radius:999px; padding:3px; } .ib-seg button{ border:0; background:none; font:inherit; font-size:13.5px; font-weight:700; padding:5px 12px; border-radius:999px; cursor:pointer; color:var(--ink-soft); } .ib-seg button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
 .ib-list{ background:var(--paper); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
@@ -1820,7 +1828,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <div class="info-wrap"><button class="btn small ghost" id="infoBtn" type="button" title="מידע" aria-label="מידע" aria-haspopup="true" aria-expanded="false">ⓘ</button>
         <div class="info-menu" id="infoMenu" hidden><button type="button" data-im="reports" data-admin>📊 דוחות</button><button type="button" data-im="info">מידע למתרגלים</button><button type="button" data-im="holidays" data-admin>חגים וחופשות</button></div></div>
       <button class="btn small ghost gear" id="gearBtn" type="button" title="הגדרות" aria-label="הגדרות">⚙</button>
-      <button class="btn small ghost ib-bell" id="inboxBtn" type="button" data-admin hidden title="הודעות מהטפסים" aria-label="הודעות מהטפסים">📥<span id="inboxN"></span></button>
+      <button class="btn small ghost ib-bell" id="inboxBtn" type="button" data-admin hidden title="התראות" aria-label="התראות">📥<span id="inboxN"></span></button>
       <button class="btn small ghost" id="logoutBtn" type="button">יציאה</button>
     </div>
   </aside>
@@ -2234,16 +2242,17 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     </section>
     <!-- ===== מבחנים בבתי הספר (קובץ 50) ===== -->
     <section id="view-inbox" hidden>
-      <div class="page-head"><h1>הודעות</h1>
-        <div class="gseg" role="group" aria-label="סוג"><button type="button" data-ibt="forms">📥 מהטפסים <span id="ibTabN"></span></button><button type="button" data-ibt="iss">🐞 דיווחים על בעיות <span id="issTabN"></span></button></div></div>
+      <div class="page-head"><h1>התראות</h1></div>
+      <!-- 5.19.69 (נועה): הסוג מתחת לכותרת, ולידו הסינון: הכל · חדשות · לא תואמות -->
+      <div class="ib-bar"><div class="ib-filters">
+        <div class="gseg" role="group" aria-label="סוג"><button type="button" data-ibt="forms">📥 מהטפסים <span id="ibTabN"></span></button><button type="button" data-ibt="iss">🐞 דיווחים על בעיות <span id="issTabN"></span></button></div>
+        <div class="ib-seg ib-f-forms" role="group" aria-label="סינון"><button type="button" data-ibf="all">הכל</button><button type="button" data-ibf="new">חדשות</button><button type="button" data-ibf="warn">⚠ לא תואמות</button></div>
+        <div class="gseg ib-f-iss" role="group" aria-label="תצוגה" hidden><button type="button" data-iss="all" aria-pressed="false">הכול</button><button type="button" data-iss="open" aria-pressed="true">פתוחים</button></div></div>
+        <button type="button" class="btn small ib-f-forms" id="ibAllSeen">סימון הכל כנקרא</button></div>
       <div id="ibForms">
-      <div class="ib-bar"><div class="ib-seg" role="group" aria-label="סינון"><button type="button" data-ibf="new">חדשות</button><button type="button" data-ibf="warn">⚠ לא תואמות</button><button type="button" data-ibf="all">הכל</button></div>
-        <button type="button" class="btn small" id="ibAllSeen">סימון הכל כנקרא</button></div>
       <div id="ibList"><div class="muted">טוען…</div></div>
       </div>
       <div id="ibIss" hidden>
-      <div class="ib-bar">
-        <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-iss="open" aria-pressed="true">פתוחים</button><button type="button" data-iss="all" aria-pressed="false">הכול</button></div></div>
       <p class="muted" style="font-size:13.5px; margin:-4px 0 12px;">כל דיווח מ-🐞 בפס העליון. בסוף היום - "העתקה" ומדביקים ל-Claude, ואז "טופל".</p>
       <div id="issList"></div>
       </div>
@@ -5290,6 +5299,7 @@ $("inboxBtn").addEventListener("click", () => go("inbox"));
 function ibTab(t){ IB_TAB = t === "iss" ? "iss" : "forms";
   document.querySelectorAll("[data-ibt]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ibt === IB_TAB)));
   $("ibForms").hidden = IB_TAB !== "forms"; $("ibIss").hidden = IB_TAB !== "iss";
+  document.querySelectorAll(".ib-f-forms").forEach(x => x.hidden = IB_TAB !== "forms"); document.querySelectorAll(".ib-f-iss").forEach(x => x.hidden = IB_TAB !== "iss");
   if (IB_TAB === "iss") loadIssues(); else renderInbox(true);
   issCount(); }
 async function issCount(){ try { const r = await get("problem_reports", "select=id&resolved_at=is.null&limit=200"); const n = r.length; $("issTabN").innerHTML = n ? `<b class="cnt red">${n}</b>` : ""; } catch(e) {} }
@@ -9249,9 +9259,10 @@ async function renderRules(b){
       <button type="button" class="btn small danger" data-del="${i}">מחיקה</button></div>
     ${x.type === "late_join" ? `<div class="br-sent">מי ששולח/ת טופס הרשמה מה-<input type="number" data-k="from_day" min="2" max="31" value="${esc(x.from_day || 20)}"> בחודש ואילך - משלם/ת על
       <input type="number" data-k="percent" min="0" max="100" value="${esc(x.percent == null ? 50 : x.percent)}">% מהחודש (במקום חודש מלא).
-      <br>ההפרש יורד מ: <select data-k="apply"><option value="last" ${x.apply !== "first" ? "selected" : ""}>החיוב האחרון</option><option value="first" ${x.apply === "first" ? "selected" : ""}>התשלום הראשון (בהרשמה)</option></select></div>`
-      : `<textarea data-k="text" rows="2" placeholder="תיאור החוק">${esc(x.text || "")}</textarea>`}
-    <input type="text" data-k="note" placeholder="הערה (למשל: לברר)" value="${esc(x.note || "")}"></div>`;
+      <br>ההפרש יורד מ: <select data-k="apply"><option value="last" ${x.apply !== "first" ? "selected" : ""}>החיוב האחרון</option><option value="first" ${x.apply === "first" ? "selected" : ""}>התשלום הראשון (בהרשמה)</option></select>
+      <input type="text" class="br-note-in" data-k="note" placeholder="הערה (למשל: לברר)" value="${esc(x.note || "")}"></div>`
+      : `<textarea data-k="text" rows="2" placeholder="תיאור החוק">${esc(x.text || "")}</textarea>
+    <input type="text" data-k="note" placeholder="הערה (למשל: לברר)" value="${esc(x.note || "")}">`}</div>`;   // 5.19.69 (נועה): ההערה בשורה של "ההפרש יורד מ"
   const paint = () => {
     b.innerHTML = `<div class="br-wrap"><section class="br-sec"><h3 class="br-h">כללי</h3><div class="br-gen">
       <div><label class="lbl" for="rDay">יום החיוב החודשי (1-28)</label><input type="number" id="rDay" min="1" max="28" value="${esc(r.charge_day || 1)}"></div>
