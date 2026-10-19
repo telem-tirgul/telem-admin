@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.85">
+<meta name="app-version" content="5.19.86">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2009,6 +2009,19 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   .att-filt .gseg button{ min-height:31px; height:31px !important; padding-block:0 !important; }
   .rg-lk-bar .rg-lk-seg button:not([aria-selected="true"]), .ib-seg button:not([aria-pressed="true"]):not(.on){ color:var(--ink-soft) !important; }
   @media (max-width:760px){ #attDate, .att-date-row > input{ height:40px !important; border-radius:8px !important; border:1px solid #D9CFC2 !important; } }
+  /* 5.19.86 (נועה): נייד – פחות גובה. מסך תלמידים: שורת חיפוש אחת, "סינון נוסף" משמאל לחיפוש, בלי מסגרת ובלי כותרת "חיפוש חופשי" */
+  @media (max-width:760px){
+    #view-leads .filters-card:not(.open){ display:flex; align-items:center; gap:8px; padding:0 !important; background:none !important; border:0 !important; box-shadow:none !important; margin-bottom:10px !important; }
+    #view-leads .filters-card:not(.open) > #filtersToggle{ order:2; flex:none; margin:0 !important; height:40px; min-height:40px; padding-block:0 !important; display:inline-flex; align-items:center; white-space:nowrap; box-sizing:border-box; }
+    #view-leads .filters-card:not(.open) > .filters{ order:1; flex:1 1 auto; min-width:0; display:block; margin:0 !important; }
+    #view-leads .filters-card:not(.open) .filters .wide > label{ display:none; }
+    #view-leads .filters-card:not(.open) #fSearch{ height:40px !important; min-height:40px !important; font-size:16px !important; }
+  }
+  /* 5.19.86: כפתורי הרשימה בנייד – אייקונים בשורת הכותרת */
+  #leadsTools.lt-head{ gap:6px !important; margin-inline-start:auto; }
+  #leadsTools.lt-head #reloadBtn{ display:none; }   /* 5.19.86 (נועה): הרשימה מתעדכנת לבד כל דקה – בנייד בלי רענון */
+  #leadsTools.lt-head .bt{ display:none; } #leadsTools.lt-head .btn{ min-width:34px; justify-content:center; padding-inline:8px; }
+  #view-leads .page-head:has(#leadsTools.lt-head){ flex-wrap:nowrap; } #view-leads .page-head:has(#leadsTools.lt-head) h1{ margin-inline-end:auto; }
   .clear-f{ white-space:nowrap; }
 </style>
 </head>
@@ -2084,10 +2097,10 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       </div>
       <div class="toolbar">
         <div style="display:flex; align-items:center; flex-wrap:wrap;"><div class="muted" id="countLine"></div><button type="button" class="clear-f" id="clearFilters" hidden>✕ ניקוי סינון</button><button type="button" class="hh-jump" id="histJump" hidden></button></div>
-        <div style="display:flex; gap:8px;">
-          <button class="btn small" type="button" id="listEditBtn" title="שינוי סטטוס, פעיל וכוכב ישירות ברשימה">✎ עריכה ברשימה</button>
-          <button class="btn small" type="button" id="exportBtn">הורדה לאקסל</button>
-          <button class="btn small" type="button" id="reloadBtn">רענון</button>
+        <div style="display:flex; gap:8px;" id="leadsTools">
+          <button class="btn small" type="button" id="listEditBtn" title="שינוי סטטוס, פעיל וכוכב ישירות ברשימה"><span class="ic">✎</span><span class="bt"> עריכה ברשימה</span></button>
+          <button class="btn small" type="button" id="exportBtn" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>
+          <button class="btn small" type="button" id="reloadBtn" title="רענון"><span class="ic">↻</span><span class="bt"> רענון</span></button>
         </div>
       </div>
       <div class="tbl-wrap"><table class="tbl" id="leadsTbl"></table></div>
@@ -3364,7 +3377,7 @@ $("reloadBtn").addEventListener("click", async () => { await loadLeads(); render
 let LIST_EDIT = false;
 function setListEdit(on){
   LIST_EDIT = !!on; $("listEditBtn").classList.toggle("list-edit-on", LIST_EDIT);
-  $("listEditBtn").textContent = LIST_EDIT ? "✓ סיום עריכה" : "✎ עריכה ברשימה";
+  $("listEditBtn").innerHTML = LIST_EDIT ? '<span class="ic">✓</span><span class="bt"> סיום עריכה</span>' : '<span class="ic">✎</span><span class="bt"> עריכה ברשימה</span>';
   if (currentView === "leads") renderLeads();
 }
 $("listEditBtn").addEventListener("click", () => setListEdit(!LIST_EDIT));
@@ -4293,6 +4306,12 @@ function setLeadEdit(on){
 }
 $("sClass").addEventListener("input", () => { const v = $("sClass").value.replace(/\D/g, "").slice(0, 2); if (v !== $("sClass").value) $("sClass").value = v; });
 $("leadEditBtn").addEventListener("click", () => { setLeadEdit(true); const k = document.querySelector("#leadForm .lead-main"); if (k) k.scrollIntoView({ block: "start" }); });
+// 5.19.86 (נועה): נייד – כפתורי הרשימה (עריכה ברשימה / אקסל / רענון) עוברים לשורת הכותרת, ליד "+ ליד חדש", כאייקונים קטנים
+(function(){ const mq = matchMedia("(max-width:760px)"), tools = $("leadsTools"), bar = tools && tools.parentNode, head = $("addLeadBtn") && $("addLeadBtn").parentNode;
+  if (!tools || !head) return;
+  const place = () => { if (mq.matches) { if (tools.parentNode !== head) head.insertBefore(tools, $("addLeadBtn")); tools.classList.add("lt-head"); }
+    else { if (tools.parentNode !== bar) bar.appendChild(tools); tools.classList.remove("lt-head"); } };
+  place(); mq.addEventListener ? mq.addEventListener("change", place) : mq.addListener(place); })();
 $("leadMergeBtn").addEventListener("click", () => { if (editing) mergeDlg(editing.student_id); });
 $("leadSaveTop").addEventListener("click", () => { const f = $("leadForm"); if (f.requestSubmit) f.requestSubmit(f.querySelector('#leadActions button[type=submit]:not([data-and-back])')); else f.querySelector("#leadActions button[type=submit]").click(); });   // 5.19.58
 $("leadCancelTop").addEventListener("click", () => $("leadCancel").click());
