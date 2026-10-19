@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.80">
+<meta name="app-version" content="5.19.81">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -91,6 +91,8 @@
   :is(#view-reg, #view-pay, #payPnl) textarea{ min-height:80px; }
   label.lbl.req::after{ content:" *"; color:#B3241F; font-weight:800; }
   label.lbl{ display:block; font-weight:700; font-size:13px; color:var(--ink-soft); margin-bottom:4px; }
+  /* 5.19.81 (נועה, אפשרות 3): שם השדה מעל השדה, צמוד אליו ומיושר לטקסט שבתוכו - בכל המסכים, במחשב ובנייד */
+  :is(label, span, div).lbl{ margin-bottom:3px !important; padding-inline-start:5px; line-height:1.25; }
 
   .card{ background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:16px; }
   .page-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
@@ -98,6 +100,9 @@
   .filters-card{ background:color-mix(in srgb, var(--accent) 3%, var(--paper)); }
   #fSearch{ font-size:16px; padding:10px 38px 10px 12px; background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238a7a6e' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat right 11px center; }
   /* כרטיס תלמיד */
+  /* 5.19.81 (נועה): הבדל ברור - נוכחות (מה קרה בשיעור) מול קבוצה (הגדרה קבועה, מעכשיו והלאה) */
+  .kind-tag{ display:inline-block; font-size:12px; font-weight:700; border-radius:999px; padding:2px 10px; margin-bottom:4px; }
+  .kind-tag.kt-att{ background:#E6F2DC; color:#2f6e05; border:1px solid #b9d9a0; } .kind-tag.kt-grp{ background:#E3EEF9; color:#1E5C9A; border:1px solid #b8d0ea; }
   .card-tag{ display:inline-block; font-size:12px; font-weight:700; letter-spacing:.3px; color:var(--paper); background:var(--accent); border-radius:999px; padding:2px 10px; margin-bottom:4px; }
   .lead-main.dirty{ background:color-mix(in srgb, var(--gold) 10%, var(--paper)); outline:2px solid var(--gold); outline-offset:-1px; }
   .edit-banner{ background:var(--gold); color:#2B2320; font-weight:700; border-radius:8px; padding:7px 12px; margin-bottom:12px; }
@@ -126,6 +131,14 @@
   @media (min-width:761px){ #leadsTbl td.c-status select.status{ width:auto; field-sizing:content; min-width:110px; max-width:190px; } }
   /* 5.19.79 (מראה אחיד): הסינון בלוח המבחנים ובדוחות - שדות בסגנון של שאר המערכת */
   :is(.ex-filters, #view-reports) select, #repCity{ height:34px; min-height:34px; border-radius:10px; border:1.5px solid #E3DDD4; background-color:#FAF8F5; padding:4px 10px; font-size:13.5px; box-sizing:border-box; }
+  /* 5.19.81: אייפון (Safari) - שדות תאריך/שעה יצאו גבוהים ורחבים מהתא. בלי העיצוב של iOS, באותו גובה ורוחב כמו שאר השדות */
+  @supports (-webkit-touch-callout: none){
+    input[type=date], input[type=time], input[type=datetime-local]{ -webkit-appearance:none; appearance:none; min-width:0; max-width:100%; width:100%; display:block; box-sizing:border-box; height:40px; min-height:40px; line-height:20px; text-align:start; background-color:var(--paper, #fff); }
+    input[type=date]::-webkit-date-and-time-value, input[type=time]::-webkit-date-and-time-value, input[type=datetime-local]::-webkit-date-and-time-value{ text-align:start; margin:0; min-height:20px; }
+    .g-edit .g-fields > *, .form-grid > *{ min-width:0; }
+  }
+  .cal-ev .ev-n.ev-ac{ display:block; white-space:normal; font-size:11.5px; line-height:1.25; } .cal-ev .ev-n.ev-ac::before{ content:none; } .cal-ev .ev-ac b{ white-space:nowrap; }
+  .cal-ev .ev-ac .c-yes{ color:#2f6e05; } .cal-ev .ev-ac .c-no{ color:#B03A2E; }
   .filters > *{ min-width:0; } .filters input, .filters select{ min-width:0; max-width:100%; box-sizing:border-box; }
   tr.h-row{ cursor:pointer; } tr.h-row:hover td{ background:var(--muted); } .h-more{ color:var(--ink-soft); font-size:11px; } tr.h-row.open .h-more{ display:inline-block; transform:rotate(180deg); }
   tr.h-det td{ background:color-mix(in srgb, var(--accent) 4%, var(--paper)); } .h-dl{ display:grid; grid-template-columns:max-content 1fr; gap:4px 14px; margin:2px 0; font-size:13.5px; } .h-dl dt{ color:var(--ink-soft); } .h-dl dd{ margin:0; white-space:pre-wrap; }
@@ -145,7 +158,7 @@
     #view-leads .filters .lbl{ font-size:11.5px; margin-bottom:2px; }
     #view-leads .filters :is(input:not([type=checkbox]):not([type=radio]), select), #view-leads .filters .multi > button{ height:40px; padding:6px 12px; font-size:14px; border-radius:12px; border:1.5px solid #E3DDD4; background-color:#FAF8F5; box-sizing:border-box; }
     #view-leads .filters :is(input, select):focus, #view-leads .filters .multi > button:focus{ background-color:#fff; border-color:var(--gold-deep, #C9A45C); box-shadow:0 0 0 3px rgba(90,18,22,.10); outline:none; }
-    #view-leads .filters .lbl{ font-size:13px !important; margin-bottom:4px !important; }
+    #view-leads .filters .lbl{ font-size:13px !important; }
     #view-leads .filters-chk{ height:40px !important; }
     #view-leads .filters #fSearch{ padding-inline-start:32px; background-position:right 9px center; }   /* 5.19.28: זכוכית המגדלת לא על הטקסט */
     #view-leads .filters-chk{ margin-top:0; }
@@ -644,6 +657,9 @@
   .pt-x{ border:0; background:none; color:#B03A2E; font:inherit; font-size:12px; font-weight:700; cursor:pointer; padding:0 2px 0 0; margin-inline-start:4px; line-height:1; } .pt-x:hover{ text-decoration:underline; }
   .pt-x.pt-x-l{ white-space:nowrap; padding:4px 6px; }
   #roster li.ro-tsec{ display:flex; justify-content:space-between; align-items:center; background:var(--muted); font-weight:800; padding:6px 10px; border-radius:8px; margin-top:8px; border:0; } #roster li.ro-tsec span:last-child{ color:var(--ink-soft); font-size:13px; font-weight:700; }
+  .g-edit .g-det > summary .g-note{ font-family:var(--font-body); font-size:12.5px; font-weight:400; }
+  .g-edit .g-ro{ display:flex; flex-direction:column; gap:2px; min-width:0; } .g-edit .g-ro b{ font-weight:600; font-size:14.5px; overflow-wrap:anywhere; }
+  .g-edit.g-viewmode{ background:transparent; padding-bottom:8px; }
   .g-edit .g-fields{ display:grid; grid-template-columns:1fr 1fr; gap:8px 10px; margin-top:8px; } .g-edit .g-fields > *{ min-width:0; }
   @media (min-width:761px){ .g-edit.g3 .g-fields{ grid-template-columns:repeat(3, minmax(0,1fr)); } } .g-edit .g-chk:not(.full){ align-self:end; min-height:40px; display:flex; align-items:center; gap:6px; }   /* 5.19.75: "פתוחה להרשמה" בשורה עם השדות */
   .g-edit > *{ min-width:0; } .g-edit input:not([type=checkbox]), .g-edit select{ width:100%; box-sizing:border-box; }
@@ -845,7 +861,7 @@
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .ex-cal{ --today-bg:#2E2840; } }
   :root[data-theme="dark"] .ex-cal{ --today-bg:#2E2840; } .ex-cal th.today{ color:#5B3FA0; font-weight:800; }
   .gr-b{ display:inline-block; min-width:26px; padding:1px 4px; border-radius:9px; font-weight:800; background:var(--gb); color:var(--gi); }
-  #leadsTbl .c-parent{ white-space:nowrap; font-size:13px; } #leadsTbl .c-parent .pn{ display:inline; } #leadsTbl .c-parent .sep{ color:var(--ink-soft); } #leadsTbl .c-parent .pp{ color:var(--ink-soft); font-size:12.5px; text-decoration:none; }
+  #leadsTbl .c-parent{ white-space:nowrap; font-size:14.5px; min-width:190px; } #leadsTbl .c-parent .pn{ display:inline; } #leadsTbl .c-parent .sep{ color:var(--ink-soft); } #leadsTbl .c-parent .pp{ color:var(--ink); font-size:14.5px; text-decoration:none; }   /* 5.19.81 (נועה): שם ההורה והטלפון בגדול יותר */
   #leadsTbl .c-rem{ text-align:center; } #leadsTbl .asg-none{ white-space:nowrap; } #leadsTbl td.c-upd{ white-space:nowrap; font-size:12.5px; }
   #leadsTbl .src-sel{ font:inherit; font-size:13px; border:1px solid transparent; background-color:transparent; padding:3px 2px; width:112px; max-width:112px; border-radius:6px; cursor:pointer; color:var(--ink); }
   #leadsTbl .src-sel:hover, #leadsTbl .src-sel:focus{ border-color:var(--border); background-color:var(--paper); } .rem-ic{ font-size:15px; opacity:.55; cursor:help; } .rem-ic.due{ opacity:1; filter:drop-shadow(0 0 2px #e53935); }
@@ -2149,7 +2165,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       </div>
       <div class="att-side-bg" id="attSideBg" hidden></div>
       <div id="attSheet" hidden>
-        <div class="sh-kicker">✓ נוכחות</div>
+        <div class="sh-kicker"><span class="kind-tag kt-att">✓ נוכחות בפועל – השיעור הזה</span></div>
         <div id="shFilt"></div>
         <div class="sh-stick">
         <div class="sh-head">
@@ -2492,7 +2508,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
 <div class="panel-bg" id="panelBg" hidden></div>
 <aside class="panel" id="panel" hidden aria-label="פרטי קבוצה">
-  <header><div><h3 id="panelTitle"></h3><div class="muted" id="panelSub"></div></div>
+  <header><div><span class="kind-tag kt-grp">👥 קבוצה – הגדרה קבועה</span><h3 id="panelTitle"></h3><div class="muted" id="panelSub"></div></div>
     <div style="display:flex; gap:6px; align-items:flex-start;"><button class="btn small" id="gEditBtn" type="button">✎ עריכה</button><button class="btn small" id="panelAttBtn" type="button">✓ נוכחות</button><button class="kp-x" id="panelClose" type="button" aria-label="סגירה" title="סגירה">✕</button></div></header>
   <div class="g-edit" id="gEdit" hidden></div>
   <ul class="roster" id="roster"></ul>
@@ -4131,7 +4147,7 @@ $("filtersToggle").addEventListener("click", () => { const c = document.querySel
 let G_LOADING = null;
 async function ensureG(force){ if (force || !G.loaded || Date.now() - (G.loadedAt || 0) > 60000) { G_LOADING = G_LOADING || loadGroups().then(() => { G.loaded = true; }).finally(() => { G_LOADING = null; }); await G_LOADING; } }
 // 5.19.31: נפתח ישר במצב עריכה (בלי ללחוץ שוב "עריכת קבוצה")
-async function grpEdit(sid){ await ensureG(); if (G.sessions.some(x => x.session_id === sid)) { G.autoEdit = true; openPanel(sid); } else toast("הקבוצה לא נמצאה"); }
+async function grpEdit(sid){ await ensureG(); if (G.sessions.some(x => x.session_id === sid)) { G.autoEdit = false; openPanel(sid); } else toast("הקבוצה לא נמצאה"); }   // 5.19.81 (נועה): נפתח בתצוגה - פרטי הקבוצה לקריאה; עורכים רק ב"✎ עריכה"
 function openGroupOnBoard(sessionId, city){ grpEdit(sessionId); }
 $("addLeadBtn").addEventListener("click", () => openLead(null));
 // 5.19.18: תקציר לכל שורה מקופלת - השורה הראשונה של התוכן (מתעדכן כשהתוכן נטען)
@@ -5057,6 +5073,7 @@ function openPanel(id){
     $("panelAttBtn").onclick = () => { if (back && currentView === "att" && !$("attSheet").hidden) closePanelUser(); else openAttFor(se); }; }
   // פיצול לתת-קבוצות - הוסר מהלוח (הלקוחה 12.10, לא בשימוש בנוכחות). הקוד נשאר: loadPanelSplits(se)
   loadPanelSchool(se);
+  gViewDetails(se, mOf);
   $("panel").hidden = false; $("panelBg").hidden = false; $("panelClose").focus();
   if (G.autoEdit && !$("gEditBtn").hidden) $("gEditBtn").click();   // 5.19.31: החלון נשאר במצב עריכה גם אחרי פעולה (העברה, אישור, שמירה)
 }
@@ -5108,6 +5125,22 @@ function insPickWire(id){
   add.onchange = () => { const c = cbs.find(x => x.dataset.ins === add.value); if (c) c.checked = true; paint(); };
   paint();
 }
+// 5.19.81 (נועה): בחלון הקבוצה - פרטי הקבוצה לקריאה (באותה מסגרת כמו בעריכה); עורכים ב"✎ עריכה" שבכותרת
+function gViewDetails(se, mOf){
+  if (ME.role === "instructor") return;
+  const box = $("gEdit"), hm = (t) => String(t || "").slice(0, 5), ins = (G.ins && G.ins[se.session_id]) || [];
+  const cell = (l, v) => `<div class="g-ro"><span class="lbl">${l}</span><b>${v || "<span class='muted'>—</span>"}</b></div>`;
+  const cells = mOf ? [cell("שם הקבוצה", esc(se.time_label)), cell("מקום", esc(se.location)), cell("מקסימום נרשמים", se.capacity != null ? se.capacity : ""),
+      `<div class="g-ro full"><span class="lbl">המפגשים</span><b>${marMeetings(se).map(meetTxt).join("<br>")}</b></div>`]
+    : [cell("בית ספר", esc(se.location)), cell("יום", esc(DAY_NAMES[se.day] || "")), cell("כיתה", esc(se.room ? roomTxt(se.room) : "")),
+       cell("שעות", `<bdi>${rng(hm(se.start_time), hm(se.end_time))}</bdi>`), cell("מקסימום ילדים", se.capacity != null ? se.capacity : "ללא הגבלה"),
+       cell("תאריכים", se.date_from || se.date_to ? `${se.date_from ? fmtDM(se.date_from) : ""}–${se.date_to ? fmtDM(se.date_to) : ""}` : "")];
+  box.hidden = false; box.classList.add("g3", "g-viewmode");
+  box.innerHTML = `<details class="full g-det" ${store("telem_gdet_closed") === "1" ? "" : "open"}><summary>פרטי הקבוצה</summary><div class="g-fields">
+    <div class="g-ro full"><span class="lbl">מתרגלים</span><b>${ins.length ? esc(ins.join(", ")) : "<span class='muted'>אין מתרגל/ת</span>"}</b></div>
+    ${cells.join("")}${cell("הרשמה", se.is_open === false ? "סגורה" : "פתוחה")}</div></details>`;
+  const det = box.querySelector(".g-det"); det.addEventListener("toggle", () => store("telem_gdet_closed", det.open ? "" : "1"));
+}
 // 5.19.77 (נועה): הכפתורים בשורה האחרונה של המסגרת (לא בשורה נפרדת); כשהמסגרת סגורה - מתחת לה
 function gBtnsInFrame(box){
   const det = box.querySelector(":scope > .g-det"), cell = det && det.querySelector(".g-btn-cell"), row = box.querySelector(":scope > .lg-btns, .g-btn-cell > .lg-btns");
@@ -5119,7 +5152,7 @@ function gBtnsInFrame(box){
   det.addEventListener("toggle", place); place();
 }
 async function openGroupEditor(se, preset){
-  const box = $("gEdit"); box.hidden = false; box.classList.add("g3"); box.innerHTML = "<div class='muted full'>טוען...</div>";   // 5.19.75 (נועה): 3 שדות בשורה
+  const box = $("gEdit"); box.hidden = false; box.classList.remove("g-viewmode"); box.classList.add("g3"); box.innerHTML = "<div class='muted full'>טוען...</div>";   // 5.19.75 (נועה): 3 שדות בשורה
   try { STAFF_ALL = await get("staff", "select=id,full_name,role&order=full_name"); } catch(e) { STAFF_ALL = STAFF_ALL || []; }
   let curIns = [];
   if (se) { try { curIns = (await get("session_instructors", "select=staff_id&session_id=eq." + se.session_id)).map(x => x.staff_id); } catch(e) {} }
@@ -5130,7 +5163,7 @@ async function openGroupEditor(se, preset){
   const kids = se ? (se.assigned_count || 0) : 0;
   box.innerHTML = `
     <div class="full lg-edit-h">${se ? "עריכת קבוצה" : "קבוצה חדשה · " + esc(city)}</div>
-    <details class="full g-det" open><summary>פרטי הקבוצה</summary><div class="g-fields">
+    <details class="full g-det" open><summary>פרטי הקבוצה <span class="muted g-note">· שינוי כאן חל מהיום והלאה, לא על נוכחות שכבר נשמרה</span></summary><div class="g-fields">
     ${se ? "" : `<div><label class="lbl">עיר</label><select data-g="gcity">${CONFIG.cities.map(c => `<option ${c === city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>`}
     <div class="full g-ins-row"><div><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div><label class="chk g-chk"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label></div>
     <div><label class="lbl">בית ספר</label><select data-g="loc">${se ? "" : "<option value=''>בחירה...</option>"}${locs.map(x => `<option value="${x.id}" ${curLoc && curLoc.id === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
@@ -5728,7 +5761,7 @@ const meetRow = (m) => `<div class="d"><input type="date" data-md value="${esc(m
 const meetRead = (r) => { const o = { date: r.querySelector("[data-md]").value, start: r.querySelector("[data-ms]").value, end: r.querySelector("[data-me]").value }, rm = r.querySelector("[data-mr]"); if (rm && rm.value.trim()) o.room = rm.value.trim(); return o; };
 const roomTxt = (r) => !r ? "" : /^(כיתה|חדר|אולם|מעבדה|ספרייה)/.test(String(r).trim()) ? String(r).trim() : "כיתה " + String(r).trim();
 async function openMarGroupEditor(m, se){
-  const box = $("gEdit"); box.hidden = false; box.classList.add("g3"); box.innerHTML = "<div class='muted full'>טוען...</div>";
+  const box = $("gEdit"); box.hidden = false; box.classList.remove("g-viewmode"); box.classList.add("g3"); box.innerHTML = "<div class='muted full'>טוען...</div>";
   if (!m) { box.innerHTML = "<div class='err full'>המרתון לא נמצא.</div>"; return; }
   try { STAFF_ALL = await get("staff", "select=id,full_name,role&order=full_name"); } catch(e) { STAFF_ALL = STAFF_ALL || []; }
   let curIns = [];
@@ -6044,6 +6077,9 @@ async function loadAttWeek(){
   // לא התקיים (סימון מנהל/ת או חג/חופשה) - חיוור ולא נחשב "לא סומן"
   ev.forEach(x => { x.hf = lessonCx({ kind: x.g.kind, city: x.g.city, location: x.g.location }, x.date, x.g.cancelled, x.g.cancel_reason); });
   ev.forEach(x => { x.st = x.g.empty ? "empty" : x.g.marked ? "ok" : x.hf ? "hol" : (x.date < today || (x.date === today && now >= hm(x.g.end_time))) ? "miss" : "fut"; });
+  // 5.19.81 (נועה): בקבוצות שסומנה בהן נוכחות - כמה נוכחים וכמה חסרים (לא כמה ילדים בקבוצה)
+  const AC = {}; if (MODE !== "g" && ev.some(x => x.st === "ok")) { try { (await get("attendance", `select=session_id,lesson_date,present&lesson_date=gte.${dates[0]}&lesson_date=lte.${dates[5]}`)).forEach(a => { const k = a.session_id + "|" + a.lesson_date; const c = AC[k] = AC[k] || { p: 0, x: 0 }; if (a.present === true) c.p++; else if (a.present === false) c.x++; }); } catch(e) {} }
+  ev.forEach(x => { x.ac = AC[x.g.session_id + "|" + x.date] || null; });
   const nOk = ev.filter(x => x.st === "ok").length, nMiss = ev.filter(x => x.st === "miss").length, nFut = ev.filter(x => x.st === "fut").length;
   if (MODE === "g") {
     const ids = new Set(ev.map(x => x.g.session_id)), kidsN = new Set((G.roster || []).filter(k => ids.has(k.session_id)).map(k => k.student_id)).size;
@@ -6062,11 +6098,11 @@ async function loadAttWeek(){
     const out = calLayout(ev.filter(x => x.date === d), x => x.g.city, CS);
     const blocks = out.map(x => { const g = x.g, mar = g.kind === "מרתון";
       const narrow = x.w <= 50;   // כמה קבוצות זו לצד זו - תגית קטנה בלי טקסט
-      const st = MODE === "g" ? "" : x.st === "ok" ? `<span class="att-st ok" title="סומן: ${g.marked_count} נוכחים מתוך ${g.kids}">✓${narrow ? "" : " " + g.marked_count + "/" + g.kids}</span>` : x.st === "miss" ? `<span class="att-st miss" title="לא סומן">${narrow ? "" : "לא סומן"}</span>` : "";
+      const st = MODE === "g" ? "" : x.st === "ok" ? `<span class="att-st ok" title="סומנה נוכחות">✓${narrow ? "" : " סומן"}</span>` : x.st === "miss" ? `<span class="att-st miss" title="לא סומן">${narrow ? "" : "לא סומן"}</span>` : "";
       return `<button type="button" class="cal-ev ${scCls(g.location)}${mar ? " ev-mar" : ""}${g.empty || (!g.kids && g.kind !== "מרתון") ? " ev-empty" : ""}${x.st === "fut" && MODE !== "g" ? " fut" : ""}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}" data-d="${d}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.left}% + 2px); width:calc(${x.w}% - 4px);"
         title="${esc(g.location)} · ${esc(g.city)} · ${hm(g.start_time)}-${hm(g.end_time)}${g.room ? " · " + esc(g.room) : ""}${g.instructors ? " · " + esc(g.instructors) : ""}">
         ${ME.role !== "instructor" && MODE !== "g" ? `<span class="ev-ed" data-ged role="button" title="חלון הקבוצה (ילדים, מתרגלים, עריכה)" aria-label="חלון הקבוצה">✎</span>` : ""}<span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>${x.st === "hol" ? cxTag(x.hf, true) : ""}
-        <span class="ev-time">${mar ? "🏁 מרתון · " + (g.time_label ? esc(g.time_label) + " · " : "") : ""}${rng(hm(g.start_time), hm(g.end_time))} <span class="ev-n">${g.kids}${MODE === "g" && g.capacity ? "/" + g.capacity : ""} ילדים${MODE === "g" && g.prop ? ` · <b>${g.prop} מוצעים</b>` : ""}</span></span>
+        <span class="ev-time">${mar ? "🏁 מרתון · " + (g.time_label ? esc(g.time_label) + " · " : "") : ""}${rng(hm(g.start_time), hm(g.end_time))} ${x.st === "ok" && MODE !== "g" ? `<span class="ev-n ev-ac"><b class="c-yes">${x.ac ? x.ac.p : g.marked_count} נוכחים</b> · <b class="c-no">${x.ac ? x.ac.x : Math.max(0, g.kids - g.marked_count)} חסרים</b></span>` : `<span class="ev-n">${g.kids}${MODE === "g" && g.capacity ? "/" + g.capacity : ""} ילדים${MODE === "g" && g.prop ? ` · <b>${g.prop} מוצעים</b>` : ""}</span>`}</span>
         ${MODE === "g" && g.instructors ? `<span class="ev-meta">👤 ${esc(g.instructors)}</span>` : ""}${g.room ? `<span class="ev-meta">📍 ${esc(g.room)}</span>` : ""}${st}</button>`; }).join("");
     return `<div class="cal-col"><div class="cal-day${d === today ? " today" : ""}">${DAY_NAMES[dayLetter(d)]}<small>${fmtDM(d)}</small>${holChips(d) ? `<span class="hol-chips">${holChips(d)}</span>` : ""}${calCityHead(CS)}</div><div class="cal-body${holColCls(d)}" style="height:${H}px">${calSeps(CS)}${blocks}</div></div>`;
   }).join("");
@@ -6363,7 +6399,7 @@ function attDirty(){
     rows: A.rows.map(r => ({ id: r.student_id, p: r.present, m: r.did_math, e: r.did_english, s: !!r.skip })), removed: A.removed || [] }));
 }
 // האם שונה משהו מאז הטעינה / השמירה האחרונה (רק אז שואלים לפני יציאה)
-function attSnap(){ return JSON.stringify({ r: (A.rows || []).map(r => [r.student_id, r.present, !!r.did_math, !!r.did_english, !!r.skip]), n: ($("shNotes") || {}).value || "", rm: A.removed || [] }); }
+function attSnap(){ return JSON.stringify({ r: (A.rows || []).map(r => [r.student_id, r.present, !!r.did_math, !!r.did_english, !!r.skip]).sort((a, b) => String(a[0]).localeCompare(String(b[0]))), n: ($("shNotes") || {}).value || "", rm: A.removed || [] }); }
 const attChanged = () => !!(A.sheet && A.sheet.can_edit && A.base != null && !$("attSheet").hidden && attSnap() !== A.base);
 function attLast(){ try { const m = JSON.parse(store("telem_att_last") || "null"); return m && m.day === todayIL() && m.sid ? m : null; } catch(e) { return null; } }
 function attDraftClear(){ if (A.sheet) store(attDraftKey(), null); A.dirty = false; }
@@ -6487,7 +6523,10 @@ $("shAddQ").addEventListener("input", () => {
   shAddT = setTimeout(async () => {
     res.innerHTML = "<li class='muted'>מחפש...</li>";
     try {
-      const list = (await rpc("attendance_find_student", { p_session: A.sheet.session_id, p_q: q })).filter(k => !A.rows.some(r => r.student_id === k.student_id));
+      // 5.19.81 (נועה, קובץ 80): בשיעור שכבר היה - אפשר להוסיף גם ילד/ה שנכנס/ה לקבוצה רק אחרי השיעור (נרשם/ה למחרת)
+      let list; try { list = await rpc("attendance_find_student", { p_session: A.sheet.session_id, p_q: q, p_date: A.sheet.date }); }
+      catch(e1) { if (e1.status === 404 || e1.code === "PGRST202") list = await rpc("attendance_find_student", { p_session: A.sheet.session_id, p_q: q }); else throw e1; }
+      list = list.filter(k => !A.rows.some(r => r.student_id === k.student_id));
       if ($("shAddQ").value.trim() !== q) return;
       const firstOther = list.findIndex(k => k.same_city === false);
       res.innerHTML = list.length ? list.map((k, i) => (i === firstOther ? `<li class="muted" style="font-size:12.5px; padding:8px 4px 2px;">מערים אחרות:</li>` : "") +
@@ -6506,7 +6545,18 @@ $("shAddRes").addEventListener("click", (e) => {
   // 5.19.30: נוסף/ה לשיעור = "אמור/ה להגיע" - בלי סימון נוכחות (מסמנים כשמגיע/ה). בלי קובץ 59 - נשאר הסימון הקודם (נוכח/ת)
   if (!A.hasPlan) setPresent(r, true); A.rows.push(r);
   $("shAddQ").value = ""; $("shAddRes").innerHTML = ""; $("shAddPanel").hidden = true;
-  attDirty(); renderSheetRows(); toast(`${k.first_name} נוסף/ה לשיעור${A.hasPlan ? " (בלי סימון נוכחות)" : ""} - לא לשכוח לשמור`);
+  if (!A.hasPlan) { attDirty(); renderSheetRows(); toast(`${k.first_name} נוסף/ה לשיעור - לא לשכוח לשמור`); return; }
+  // 5.19.81 (נועה): הוספת ילד/ה לשיעור נשמרת מיד, לבד - בלי לשמור את שאר הסימונים בדף (הם נשארים כמו שהם, לשמירה רגילה)
+  renderSheetRows();
+  (async () => { let base = null; try { base = JSON.parse(A.base || "null"); } catch(e) {}
+    try {
+      await rpc("save_attendance", { p_session: A.sheet.session_id, p_date: A.sheet.date, p_rows: [{ student_id: r.student_id, present: null, did_math: false, did_english: false, plan: "add" }], p_extra: "", p_notes: base ? base.n : $("shNotes").value });
+      r.planned = true; r.saved = true;
+      if (base) { base.r.push([r.student_id, null, false, false, false]); base.r.sort((a, b) => String(a[0]).localeCompare(String(b[0]))); A.base = JSON.stringify(base); }
+      if (attSnap() === A.base) attDraftClear(); else attDirty();
+      renderSheetRows(); toast(`${k.first_name} נוסף/ה לשיעור ונשמר/ה`); loadAttGroups();
+    } catch(e2) { attDirty(); toast(`${k.first_name} נוסף/ה לרשימה, אבל לא נשמר/ה - לשמור עם "שמירה"`); }
+  })();
 });
 async function loadHistory(sessionId, date){
   $("shHistList").innerHTML = "<li class='muted'>טוען...</li>";
