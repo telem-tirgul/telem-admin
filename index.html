@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.74">
+<meta name="app-version" content="5.19.75">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -480,8 +480,8 @@
   @media (max-width:760px){ .st-form{ grid-template-columns:1fr; } }
   /* 5.19.74: צוות - כותרת "משתמש חדש / עריכה: שם" עם שמירה/ביטול בשורת הכותרת (מחשב); בנייד הכפתורים בסוף הטופס */
   .st-fh{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; font-size:16.5px; } .st-act{ display:flex; gap:6px; }
-  #stForm{ grid-template-columns:2fr 1.5fr 1.3fr 1.5fr; } #stForm .st-btm{ display:none; }
-  @media (max-width:760px){ .st-act{ display:none; } #stForm{ grid-template-columns:1fr; } #stForm .st-btm{ display:block; } }
+  #stForm{ grid-template-columns:2fr 1.5fr 1.3fr 1.5fr; } #stForm .st-btm{ grid-column:1 / -1; display:flex; gap:6px; justify-content:flex-end; } .st-act{ display:none; }   /* 5.19.75: הכפתורים בסוף הטופס גם במחשב */
+  @media (max-width:760px){ #stForm{ grid-template-columns:1fr; } }
   .st-sessions{ margin-top:10px; display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:6px 14px; }
   .st-sessions h4{ grid-column:1/-1; margin:10px 0 2px; color:var(--accent); }
   .st-sessions label{ display:flex; gap:8px; align-items:center; padding:5px 6px; border-radius:6px; cursor:pointer; font-size:14px; }
@@ -627,6 +627,18 @@
   @media (min-width:761px){ .g-edit.g3{ grid-template-columns:repeat(3, minmax(0,1fr)); } }   /* 5.19.66: עריכת מרתון - 3 שדות בשורה */
   .g-edit{ padding:12px 18px 16px; border-bottom:1px solid var(--border); background:color-mix(in srgb, var(--gold) 10%, var(--paper)); display:grid; grid-template-columns:1fr 1fr; gap:8px 10px; overflow-y:auto; }
   .g-edit .full{ grid-column:1 / -1; }
+  /* 5.19.75 (נועה): פרטי הקבוצה במסגרת נפתחת (כמו בכרטיס התלמיד), 3 שדות בשורה במחשב */
+  .g-edit .g-det{ border:1px solid var(--border); border-radius:12px; background:#fff; padding:8px 12px; }
+  .g-edit .g-det[open]{ padding-bottom:12px; }
+  .g-edit .g-det > summary{ cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px; font-family:var(--font-display); font-size:15px; font-weight:700; color:var(--accent); }
+  .g-edit .g-det > summary::-webkit-details-marker{ display:none; }
+  .g-edit .g-det > summary::before{ content:"◂"; color:var(--ink-soft); font-size:12px; width:10px; transition:transform .15s; }
+  .g-edit .g-det[open] > summary::before{ transform:rotate(-90deg); }
+  .pt-x{ border:0; background:none; color:#B03A2E; font:inherit; font-size:12px; font-weight:700; cursor:pointer; padding:0 2px 0 0; margin-inline-start:4px; line-height:1; } .pt-x:hover{ text-decoration:underline; }
+  .pt-x.pt-x-l{ white-space:nowrap; padding:4px 6px; }
+  #roster li.ro-tsec{ display:flex; justify-content:space-between; align-items:center; background:var(--muted); font-weight:800; padding:6px 10px; border-radius:8px; margin-top:8px; border:0; } #roster li.ro-tsec span:last-child{ color:var(--ink-soft); font-size:13px; font-weight:700; }
+  .g-edit .g-fields{ display:grid; grid-template-columns:1fr 1fr; gap:8px 10px; margin-top:8px; } .g-edit .g-fields > *{ min-width:0; }
+  @media (min-width:761px){ .g-edit.g3 .g-fields{ grid-template-columns:repeat(3, minmax(0,1fr)); } } .g-edit .g-chk:not(.full){ align-self:end; min-height:40px; display:flex; align-items:center; gap:6px; }   /* 5.19.75: "פתוחה להרשמה" בשורה עם השדות */
   .g-edit > *{ min-width:0; } .g-edit input:not([type=checkbox]), .g-edit select{ width:100%; box-sizing:border-box; }
   .g-edit input:not([type=checkbox]):not([type=radio]), .g-edit select{ height:40px; font-size:14px; padding:6px 10px; border-radius:8px; border:1.5px solid var(--border); background:var(--paper); font-family:inherit; color:var(--ink); }
   .g-edit .ins-list{ display:flex; flex-wrap:wrap; gap:6px 14px; }
@@ -1469,8 +1481,7 @@
 #exForm.ex-form-pop .ex-f-wide, #exForm.ex-form-pop .ex-f-btns{ grid-column:1 / -1; } #exForm.ex-form-pop .ex-f-btns{ justify-content:flex-start; }
 /* 5.19.74: חלון האירוע - במחשב הכפתורים בשורת הכותרת; בנייד פס דק קבוע בתחתית החלון (מחיקה באדום מימין) */
 #exForm .ex-fp-t{ display:flex; align-items:center; gap:10px; } #exForm .ex-fp-act{ display:flex; gap:6px; }
-#exForm.ex-form-pop .ex-f-btns{ display:none; }
-@media (max-width:760px){
+@media all{   /* 5.19.75: גם במחשב - פס בתחתית החלון */
   #exForm .ex-fp-act, #exForm .ex-fp-t [data-exfdel]{ display:none; }
   #exForm.ex-form-pop .ex-f-btns{ display:flex; gap:6px; position:sticky; bottom:-14px; margin:4px -16px -14px; padding:8px 16px; background:#fff; border-top:1px solid var(--border); z-index:2; }
   #exForm.ex-form-pop .ex-f-btns [data-exfdel]{ order:-1; margin-inline-end:auto; }
@@ -1572,8 +1583,8 @@ td.nowrap{ white-space:nowrap; }
 .lg-edit-h > .lg-top.lg-in-h{ position:static; flex:1 1 auto; margin:0; padding:0; border:0; background:none !important; display:flex; gap:6px; justify-content:flex-end; font-weight:400; }
 .lg-edit-h > .lg-top.lg-in-h .lg-del{ margin-inline-end:auto; }
 .lg-top.lg-in-ph{ position:static; margin:0 8px; padding:0; border:0; background:none !important; display:flex; gap:6px; align-self:center; }
-/* בנייד - פס דק קבוע בתחתית החלון: שמירה/ביטול משמאל, מחיקה מימין; כפתורים קטנים, לא על כל הרוחב */
-@media (max-width:760px){
+/* 5.19.75 (נועה): במחשב ובנייד אותו דבר - פס דק קבוע בתחתית החלון: שמירה/ביטול משמאל, מחיקה מימין; כפתורים קטנים, לא על כל הרוחב */
+@media all{
   .lg-top{ display:none !important; } .lg-btns .lg-dup{ display:inline-flex !important; }
   .lg-btns:not(.lg-top){ display:flex !important; position:sticky; bottom:0; z-index:6; gap:6px; justify-content:flex-end; align-items:center; flex-wrap:nowrap;
     background:var(--paper, #fff); padding:6px 0 calc(6px + env(safe-area-inset-bottom)); margin-top:6px; border-top:1px dashed #E6DDD3; }
@@ -1867,9 +1878,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 #view-lead .lead-main .sec-remind{ margin-bottom:10px; margin-top:12px; border-top:1px solid var(--border); padding-top:10px; }
 #view-lead .lead-main .sec-remind > div{ flex:0 1 320px !important; max-width:360px; }
 @media (min-width:961px){ #view-lead .lead-main .key-grid > div:has(#sEmail){ flex:1.3 1 118px; } }
-/* כפתורים: במחשב - רק למעלה (שמירה/ביטול משמאל); בנייד - פס דק קבוע למטה */
-@media (min-width:761px){ #leadActions{ display:none !important; } }
-@media (max-width:760px){
+/* 5.19.75 (נועה): כפתורים - במחשב ובנייד פס דק קבוע למטה */
+@media all{
   .lead-top-b{ display:none !important; }
   #leadActions:not([hidden]){ display:flex !important; position:sticky; bottom:0; z-index:6; gap:6px; justify-content:flex-end; flex-wrap:nowrap; background:var(--paper, #fff); padding:6px 0 calc(6px + env(safe-area-inset-bottom)); margin-top:6px; border-top:1px dashed #E6DDD3; }
   #leadActions .btn{ flex:0 0 auto !important; width:auto !important; padding:6px 14px !important; min-height:34px; font-size:14px !important; }
@@ -3492,9 +3502,10 @@ async function renderTrack(l, editMode){
     <textarea id="tbText" maxlength="2000">${esc(txt)}</textarea>
     ${asg.length ? `<div class="tb-pts"><div class="lbl">⏰ שעה אישית <span class="muted" style="font-weight:400">(רק אם שונה משעת הקבוצה)</span></div>
       ${asg.map(a => `<div class="tb-pt-row" data-aid="${a.id}"><span>${tbGrp(a)} <span class="muted">(${rng(tbHm(a.session.start_time), tbHm(a.session.end_time))})</span></span>
-        <span class="lg-times"><input type="time" data-pf value="${a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time) ? tbHm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-pt value="${a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time) ? tbHm(a.personal_end) : ""}" aria-label="עד שעה"></span></div>`).join("")}</div>` : ""}
+        <span class="lg-times"><input type="time" data-pf value="${a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time) ? tbHm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-pt value="${a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time) ? tbHm(a.personal_end) : ""}" aria-label="עד שעה"><button type="button" class="pt-x pt-x-l" data-ptclr title="ביטול השעה האישית">✕ ביטול</button></span></div>`).join("")}</div>` : ""}
     <div class="err" id="tbErr"></div>
     <div style="display:flex; gap:6px; margin-top:6px;"><button type="button" class="btn small primary" id="tbSave">שמירה</button><button type="button" class="btn small" id="tbCancel">ביטול</button></div>`;
+  box.querySelectorAll(".tb-pt-row [data-ptclr]").forEach(b => b.onclick = () => { const r = b.closest(".tb-pt-row"); r.querySelector("[data-pf]").value = ""; r.querySelector("[data-pt]").value = ""; });   // 5.19.75
   box.querySelectorAll(".tb-pt-row [data-pf]").forEach(inp => inp.onchange = () => { const t = inp.closest(".tb-pt-row").querySelector("[data-pt]"); t.value = inp.value ? addMin(inp.value, 45) : ""; });
   $("tbText").focus();
   $("tbCancel").onclick = () => renderTrack(l);
@@ -4005,12 +4016,13 @@ async function openAsgEditor(studentId, a, cur, opts){
       : `<select data-f="subject"><option value="">בחירה...</option>${SUBJECTS.map(x => `<option>${x}</option>`).join("")}</select><div class="muted" style="font-size:12.5px;">לא ידוע במה הילד/ה נרשם/ה - בוחרים פעם אחת.</div>`}
     ${a ? "" : `<label class="lbl">מצב</label><div class="lg-st"><label><input type="radio" name="lgSt" value="משובץ" checked> שיבוץ מאושר</label><label><input type="radio" name="lgSt" value="ממתין"> מוצע – ממתין לאישור</label></div>`}
     <label class="lbl">שעה אישית <span class="muted">(רק אם שונה משעת הקבוצה)</span></label>
-    <div class="lg-times"><input type="time" data-f="from" value="${a && a.arrival_time ? hm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-f="to" value="${a && a.personal_end ? hm(a.personal_end) : ""}" aria-label="עד שעה"></div>
+    <div class="lg-times"><input type="time" data-f="from" value="${a && a.arrival_time ? hm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-f="to" value="${a && a.personal_end ? hm(a.personal_end) : ""}" aria-label="עד שעה"><button type="button" class="pt-x pt-x-l" data-ptclr title="ביטול השעה האישית">✕ ביטול</button></div>
     <div class="err" data-f="err"></div>
     <div class="lg-btns"><button type="button" class="btn small primary" data-f="save">שמירה</button>
       ${a ? `<button type="button" class="btn small danger" data-f="rm">${a.session && a.session.kind === "מרתון" ? "פרישה מהמרתון" : "הסרה מהקבוצה"}</button>` : ""}
       <button type="button" class="btn small" data-f="cancel">ביטול</button></div>`;
   const f = (k) => box.querySelector(`[data-f="${k}"]`);
+  box.querySelectorAll("[data-ptclr]").forEach(b => b.onclick = () => { f("from").value = ""; f("to").value = ""; });   // 5.19.75
   // בחירה מדורגת: עיר -> יום -> בית ספר -> הקבוצה (שעה)
   const P = (k) => box.querySelector(`[data-p="${k}"]`);
   const fillPick = (keepSel) => {
@@ -4040,6 +4052,8 @@ async function openAsgEditor(studentId, a, cur, opts){
     const g = LG_SESSIONS.find(x => x.session_id === sid);
     let from = f("from").value || null, to = f("to").value || null;
     if (from && g && from === hm(g.start_time)) { from = null; to = null; }
+    // 5.19.75 (נועה): עברו לקבוצה אחרת ולא נגעו בשעה האישית - היא מתבטלת
+    if (a && a.session && sid !== a.session.id && (f("from").value || "") === (a.arrival_time ? hm(a.arrival_time) : "") && (f("to").value || "") === (a.personal_end ? hm(a.personal_end) : "")) { from = null; to = null; }
     if (!from) to = null; else if (!to) to = addMin(from, 45);
     if (from && to && to <= from) { f("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
     // אם שינו את הסטטוס בכרטיס אחרי שנפתח החלון - לוקחים את המקצוע מהסטטוס העדכני
@@ -4960,7 +4974,10 @@ function openPanel(id){
   if (se.kind === "מרתון") { const mm = (G.marathons || []).find(m => m.id === se.marathon_id); if (mm) { openMarathonPanel(mm); return; } }   // 5.19.44
   G.panel = id; $("gEdit").hidden = true; $("gEdit").innerHTML = ""; $("gEditBtn").hidden = false; $("roster").hidden = false; $("roster").classList.remove("editing");
   // אותו מיון כמו בדף הנוכחות: מתמטיקה, אנגלית, מתמטיקה+אנגלית; בתוך כל מקצוע לפי שכבה, כיתה ושם
-  const kids = G.roster.filter(k => k.session_id === id).sort(attSort);   // כמו בנוכחות: רשימה אחת לפי שם פרטי, המקצוע ליד כל ילד/ה
+  // 5.19.75 (נועה): כמו בנוכחות - לפי שעת ההגעה (שעה אישית, אחרת שעת הקבוצה) ואז שם פרטי; כותרת שעה כשיש יותר משעה אחת
+  const roT = (k) => { const t = hmMin(k.arrival_time); return t != null ? t : hmMin(se.start_time); };
+  const kids = G.roster.filter(k => k.session_id === id).sort((a, b) => (roT(a) ?? 9999) - (roT(b) ?? 9999) || attSort(a, b));
+  const roMulti = se.kind !== "מרתון" && new Set(kids.map(roT).filter(t => t != null)).size > 1; let roPrevT = null;
   const mOf = se.kind === "מרתון" ? (G.marathons || []).find(m => m.id === se.marathon_id) : null;
   $("panelTitle").textContent = mOf ? `${mOf.name} · ${se.time_label}` : `${se.location} · יום ${DAY_NAMES[se.day]}`;
   const nProp = (G.prop || []).filter(k => k.session_id === id).length;
@@ -4973,11 +4990,12 @@ function openPanel(id){
   $("roster").innerHTML = kids.length ? kids.map(k => {
     const arr = (k.arrival_time || "").slice(0, 5);
     const lead = L.leads.find(x => x.student_id === k.student_id);
-    const head = "";   // כמו בנוכחות: בלי חלוקה למקצועות
+    let head = "";   // כמו בנוכחות: בלי חלוקה למקצועות; כותרת לפי שעת הגעה
+    { const t = roT(k); if (roMulti && t != null && t !== roPrevT) { const n = kids.filter(x => roT(x) === t).length; head = `<li class="ro-sec ro-tsec"><span>⏰ <bdi>${minHm(t)}</bdi>${t === hmMin(se.start_time) ? " · שעת הקבוצה" : ""}</span> <span>${n === 1 ? "ילד/ה 1" : n + " ילדים"}</span></li>`; roPrevT = t; } }
     const dbl = se.kind !== "מרתון" && isDouble(k.student_id, se.day, se.location, k.arrival_time, k.personal_end);
     return head + `<li data-aid="${k.id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}${ME.role !== "instructor" ? pastBadge({ id: k.student_id }) : ""} ${dblStar(dbl)}${subjMini(k.subject)}
       ${(() => { const dr = dbl ? dblRange(k.student_id, se.day, se.location) : null;
-        return dr ? `<span class="tag diff">שיעור כפול ${rng(dr[0], dr[1])}</span>` : arr && arr !== start ? `<span class="tag diff">שעה אישית ${rng(arr, (k.personal_end || "").slice(0, 5) || addMin(arr, 45))}</span>` : ""; })()}${k.status && k.status !== "משובץ" ? `<span class="tag">${esc(k.status)}</span>` : ""}</span>
+        return dr ? `<span class="tag diff">שיעור כפול ${rng(dr[0], dr[1])}</span>` : arr && arr !== start ? `<span class="tag diff">שעה אישית ${rng(arr, (k.personal_end || "").slice(0, 5) || addMin(arr, 45))}${ME.role !== "instructor" ? `<button type="button" class="pt-x" data-ptx="${k.id}" title="ביטול השעה האישית" aria-label="ביטול השעה האישית">✕</button>` : ""}</span>` : ""; })()}${k.status && k.status !== "משובץ" ? `<span class="tag">${esc(k.status)}</span>` : ""}</span>
       <span class="ro-btns"><button type="button" class="btn small trk-btn${k.tracking ? " on" : ""}" data-trk="${k.student_id}" title="הערת מעקב">📌</button> <button type="button" class="btn small" data-move="${k.id}">העברה</button></span></div>
       <div class="meta">${k.school ? `<span class="school-chip sch-sm ${scCls(k.school)}">${esc(k.school)}</span>` : ""}${kidExTag(k, se.city, todayIL())}${k.parent1_phone ? ` · ${esc(k.parent1_first || "הורה")}: ${esc(k.parent1_phone)}` : ""}</div>
       ${realNote(k.note) ? `<div class="meta">${esc(k.note)}</div>` : ""}${k.tracking ? `<div class="meta ro-track">📌 ${esc(k.tracking)}</div>` : ""}<div class="move-box" hidden></div></div></li>`;
@@ -4995,6 +5013,10 @@ function openPanel(id){
   else kids.forEach(k => { const f = marFlag(k.student_id), sp = f && $("roster").querySelector(`li[data-aid="${k.id}"] .row-top > span`); if (sp) sp.insertAdjacentHTML("beforeend", f); });   // 5.19.35
   wireProp(se);
   $("roster").querySelectorAll("[data-move]").forEach(b => b.onclick = () => openMove(se, b.dataset.move));
+  // 5.19.75 (נועה): ביטול שעה אישית בלחיצה (למשל אחרי העברה לקבוצה אחרת)
+  $("roster").querySelectorAll("[data-ptx]").forEach(b => b.onclick = async (ev) => { ev.stopPropagation(); const k = kids.find(x => String(x.id) === b.dataset.ptx); if (!k) return;
+    if (!await uiConfirm(`לבטל את השעה האישית של ${k.first_name}? יגיע/תגיע בשעת הקבוצה (${start}).`)) return;
+    try { await patch("assignments", "id=eq." + k.id, { arrival_time: null, personal_end: null }); toast("השעה האישית בוטלה"); await loadGroups(); openPanel(id); } catch(e) { toast("לא נשמר: " + e.message); } });
   $("roster").querySelectorAll("[data-trk]").forEach(b => b.onclick = async () => { const k = kids.find(x => String(x.student_id) === b.dataset.trk); if (k && await editTracking(k.student_id, k.tracking)) openPanel(id); });
   $("roster").querySelectorAll("[data-lead]").forEach(b => b.onclick = () => { closePanel(); openLead(Number(b.dataset.lead)); });
   { const back = G.fromAtt && G.fromAtt.sid === se.session_id;   // 5.19.27: מעבר חלק - חזרה לאותו דף נוכחות
@@ -5054,7 +5076,7 @@ function insPickWire(id){
   paint();
 }
 async function openGroupEditor(se, preset){
-  const box = $("gEdit"); box.hidden = false; box.classList.remove("g3"); box.innerHTML = "<div class='muted full'>טוען...</div>";
+  const box = $("gEdit"); box.hidden = false; box.classList.add("g3"); box.innerHTML = "<div class='muted full'>טוען...</div>";   // 5.19.75 (נועה): 3 שדות בשורה
   try { STAFF_ALL = await get("staff", "select=id,full_name,role&order=full_name"); } catch(e) { STAFF_ALL = STAFF_ALL || []; }
   let curIns = [];
   if (se) { try { curIns = (await get("session_instructors", "select=staff_id&session_id=eq." + se.session_id)).map(x => x.staff_id); } catch(e) {} }
@@ -5065,17 +5087,19 @@ async function openGroupEditor(se, preset){
   const kids = se ? (se.assigned_count || 0) : 0;
   box.innerHTML = `
     <div class="full lg-edit-h">${se ? "עריכת קבוצה" : "קבוצה חדשה · " + esc(city)}</div>
+    <details class="full g-det" open><summary>פרטי הקבוצה</summary><div class="g-fields">
     ${se ? "" : `<div><label class="lbl">עיר</label><select data-g="gcity">${CONFIG.cities.map(c => `<option ${c === city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>`}
     <div class="full"><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div>
-    <div><label class="lbl">יום</label><select data-g="day">${DAYS.filter(d => d !== "ו").map(d => `<option value="${d}" ${se && se.day === d ? "selected" : ""}>${DAY_NAMES[d]}</option>`).join("")}</select></div>
     <div><label class="lbl">בית ספר</label><select data-g="loc">${se ? "" : "<option value=''>בחירה...</option>"}${locs.map(x => `<option value="${x.id}" ${curLoc && curLoc.id === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
+    <div><label class="lbl">יום</label><select data-g="day">${DAYS.filter(d => d !== "ו").map(d => `<option value="${d}" ${se && se.day === d ? "selected" : ""}>${DAY_NAMES[d]}</option>`).join("")}</select></div>
+    <div><label class="lbl">כיתה</label><input data-g="room" value="${esc(se && se.room || "")}" placeholder="למשל ח1"></div>
     <div><label class="lbl">שעת התחלה</label><input type="time" data-g="start" value="${se ? hm(se.start_time) : ""}"></div>
     <div><label class="lbl">שעת סיום</label><input type="time" data-g="end" value="${se ? hm(se.end_time) : ""}"></div>
-    <div><label class="lbl">כיתה</label><input data-g="room" value="${esc(se && se.room || "")}" placeholder="למשל ח1"></div>
     <div><label class="lbl">מקסימום ילדים</label><input type="number" min="0" data-g="cap" value="${se && se.capacity != null ? se.capacity : ""}" placeholder="ללא הגבלה"></div>
     <div><label class="lbl">מתאריך</label><input type="date" data-g="from" value="${esc(se ? (se.date_from || "") : todayIL())}"></div>
     <div><label class="lbl">עד תאריך <span class="muted" style="font-weight:400">(המפגש האחרון)</span></label><input type="date" data-g="to" value="${esc(se ? (se.date_to || lastMeeting(se.day, G.yearEnd)) : lastMeeting(DAYS[0], G.yearEnd))}"></div>
-    <label class="chk full"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
+    <label class="chk g-chk${se ? "" : " full"}"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
+    </div></details>
     <div class="err full" data-g="err"></div>
     <div class="full lg-btns"><button type="button" class="btn small primary" data-g="save">שמירה</button>
       ${se && !String(se.location || "").includes("/") ? `<button type="button" class="btn small danger" data-g="del" ${kids ? `disabled title="אי אפשר למחוק קבוצה שיש בה ילדים"` : ""}>מחיקת קבוצה</button>` : ""}
@@ -5163,9 +5187,10 @@ function openMove(se, aid){
   box.querySelector("[data-go]").onclick = async (ev) => {
     const target = Number(box.querySelector("select").value), kid = G.roster.find(k => String(k.id) === String(aid)), to = G.sessions.find(x => x.session_id === target);
     ev.target.disabled = true;
-    if (to.kind !== "מרתון" && !(await weekLoadOk(kid.student_id, [{ id: kid.id, session: Object.assign({ id: target, school_year: CONFIG.schoolYear }, to) }]))) { ev.target.disabled = false; return; }
-    try { await patch("assignments", "id=eq." + aid, { session_id: target }); await loadGroups(); openPanel(G.panel);
-          toast(`${kid.first_name} ${kid.last_name || ""} הועבר/ה ל${to.kind === "מרתון" ? to.time_label : "יום " + DAY_NAMES[to.day] + " " + to.time_label} · ${to.location}`); }
+    if (to.kind !== "מרתון" && !(await weekLoadOk(kid.student_id, [{ id: kid.id, session: Object.assign({ id: target, school_year: CONFIG.schoolYear }, to), arrival_time: null, personal_end: null }]))) { ev.target.disabled = false; return; }
+    // 5.19.75 (נועה): העברה לקבוצה אחרת מבטלת את השעה האישית (בקבוצה החדשה מגדירים מחדש אם צריך)
+    try { await patch("assignments", "id=eq." + aid, { session_id: target, arrival_time: null, personal_end: null }); await loadGroups(); openPanel(G.panel);
+          toast(`${kid.first_name} ${kid.last_name || ""} הועבר/ה ל${to.kind === "מרתון" ? to.time_label : "יום " + DAY_NAMES[to.day] + " " + to.time_label} · ${to.location}${kid.arrival_time && String(kid.arrival_time).slice(0, 5) !== String(se.start_time || "").slice(0, 5) ? " · השעה האישית בוטלה" : ""}`); }
     catch(err) { ev.target.disabled = false; box.querySelector(".err").textContent = err.status === 409 ? "הילד/ה כבר בקבוצה הזאת." : "ההעברה לא נשמרה."; }
   };
 }
@@ -5656,7 +5681,7 @@ const meetRow = (m) => `<div class="d"><input type="date" data-md value="${esc(m
 const meetRead = (r) => { const o = { date: r.querySelector("[data-md]").value, start: r.querySelector("[data-ms]").value, end: r.querySelector("[data-me]").value }, rm = r.querySelector("[data-mr]"); if (rm && rm.value.trim()) o.room = rm.value.trim(); return o; };
 const roomTxt = (r) => !r ? "" : /^(כיתה|חדר|אולם|מעבדה|ספרייה)/.test(String(r).trim()) ? String(r).trim() : "כיתה " + String(r).trim();
 async function openMarGroupEditor(m, se){
-  const box = $("gEdit"); box.hidden = false; box.classList.remove("g3"); box.innerHTML = "<div class='muted full'>טוען...</div>";
+  const box = $("gEdit"); box.hidden = false; box.classList.add("g3"); box.innerHTML = "<div class='muted full'>טוען...</div>";
   if (!m) { box.innerHTML = "<div class='err full'>המרתון לא נמצא.</div>"; return; }
   try { STAFF_ALL = await get("staff", "select=id,full_name,role&order=full_name"); } catch(e) { STAFF_ALL = STAFF_ALL || []; }
   let curIns = [];
@@ -5669,14 +5694,16 @@ async function openMarGroupEditor(m, se){
   const kids = se ? (se.assigned_count || 0) : 0;
   box.innerHTML = `
     <div class="full lg-edit-h">${se ? "עריכת קבוצת מרתון" : "קבוצה חדשה · " + esc(m.name)}</div>
+    <details class="full g-det" open><summary>פרטי הקבוצה</summary><div class="g-fields">
     <div><label class="lbl">שם הקבוצה</label><input data-g="label" value="${esc(se ? se.time_label : "קבוצה " + "אבגדהוזחטי".charAt(nOther) + "'")}"></div>
     <div><label class="lbl">מקום</label><select data-g="loc"><option value="">בחירה...</option>${locs.map(x => `<option value="${x.id}" ${curLoc && curLoc.id === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
     <div><label class="lbl">משך כל מפגש (דקות)</label><input type="number" min="15" max="600" step="15" data-dur value="${marDurOf(meets)}"><div class="muted fhint">שעת הסיום מתעדכנת לפי שעת ההתחלה. אפשר גם לשנות אותה ידנית.</div></div>
     <div class="full"><label class="lbl">המפגשים</label><div class="mar-dates" data-g="dates"><div class="dh"><span>תאריך</span><span>שעת התחלה</span><span>שעת סיום</span><span>כיתה</span><span></span></div>${meets.map(m => meetRow(m)).join("")}</div>
       <button type="button" class="btn small" data-g="adddate" style="margin-top:6px;">+ מפגש</button></div>
     <div><label class="lbl">מקסימום נרשמים</label><input type="number" min="1" data-g="cap" value="${se && se.capacity != null ? se.capacity : 15}"></div>
-    <label class="chk full"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
+    <label class="chk g-chk"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
     <div class="full"><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div>
+    </div></details>
     <div class="err full" data-g="err"></div>
     <div class="full lg-btns"><button type="button" class="btn small primary" data-g="save">שמירה</button>
       ${se ? `<button type="button" class="btn small danger" data-g="del" ${kids ? `disabled title="אי אפשר למחוק קבוצה שיש בה נרשמים"` : ""}>מחיקת קבוצה</button>` : ""}
