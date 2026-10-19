@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.79">
+<meta name="app-version" content="5.19.80">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2328,7 +2328,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== דוחות (מנהלים בלבד) ===== -->
     <section id="view-history" hidden>
       <div class="page-head"><h1>תלמידים - שנים קודמות</h1>
-        <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-hv="search" aria-pressed="true">חיפוש ילדים</button><button type="button" data-hv="sum">סיכום לפי שנים</button></div></div>
+        <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-hv="search" aria-pressed="true">חיפוש ילדים</button><button type="button" data-hv="sum">סיכום לפי שנים</button></div><button class="btn small" type="button" id="hvBack">→ חזרה</button></div>
       <div id="hvSearch">
         <div class="card filters-card" style="margin-bottom:12px;"><div class="filters" style="margin-bottom:0;">
           <div class="wide"><label class="lbl" for="hSearch">חיפוש</label><input id="hSearch" type="search" placeholder="שם, טלפון, הורה, בית ספר..."></div>
@@ -8019,11 +8019,13 @@ async function paintHistHits(list){
   const n = [...kids.values()].filter(g => !g.some(h => h.student_id && shown.has(h.student_id))).length;
   if (!n) return;
   btn.hidden = false; btn.textContent = `נמצאו עוד ${n} בשנים קודמות ←`;
-  btn.onclick = () => { $("hSearch").value = $("fSearch").value; H.view = "search"; H.page = 0; go("history"); };
+  btn.onclick = () => { $("hSearch").value = $("fSearch").value; H.view = "search"; H.page = 0; H.from = currentView || "leads"; go("history"); };
 }
 
 // "תשפ"ז 26-27"
 const hyLbl = (sy, ys) => ys ? `${sy || ""} ${String(ys % 100).padStart(2, "0")}-${String((Number(ys) + 1) % 100).padStart(2, "0")}` : (sy || "");
+// 5.19.80 (נועה): יציאה בחזרה מ"שנים קודמות" - למסך שממנו הגיעו (בדרך כלל רשימת התלמידים, עם החיפוש)
+document.getElementById("hvBack").addEventListener("click", () => go(H.from || "leads"));
 async function loadHistoryView(){
   document.querySelectorAll("[data-hv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.hv === H.view)));
   $("hvSearch").hidden = H.view !== "search"; $("hvSum").hidden = H.view !== "sum";
