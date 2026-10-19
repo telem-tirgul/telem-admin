@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.82">
+<meta name="app-version" content="5.19.83">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -85,9 +85,8 @@
   textarea{ resize:vertical; min-height:110px; }
   /* 5.19.47 (הלקוחה): בהרשמה ובתשלומים - כל השדות באותו סגנון של הטפסים: פינות מעוגלות, רקע שמנת, מסגרת עדינה, לבן במילוי */
   :is(#view-reg, #view-pay, #payPnl) :is(input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=file]):not([type=range]), select, textarea){
-    border-radius:12px; border:1.5px solid #E3DDD4; background-color:#FAF8F5; padding:9px 12px; font-size:14px; min-height:40px; box-sizing:border-box; }
-  :is(#view-reg, #view-pay, #payPnl) :is(input, select, textarea):focus{ background-color:#fff; border-color:var(--gold-deep, #C9A45C); box-shadow:0 0 0 3px rgba(90,18,22,.10); outline:none; }
-  :is(#view-reg, #view-pay, #payPnl) :is(input, select, textarea):disabled, :is(#view-reg, #view-pay, #payPnl) input[readonly]{ background-color:#fff; color:var(--ink); }
+    min-height:40px; box-sizing:border-box; }   /* 5.19.83 (נועה): שדות עריכה לבנים כמו בכל המערכת; הרקע השמנת – רק בסינון */
+  
   :is(#view-reg, #view-pay, #payPnl) textarea{ min-height:80px; }
   label.lbl.req::after{ content:" *"; color:#B3241F; font-weight:800; }
   label.lbl{ display:block; font-weight:700; font-size:13px; color:var(--ink-soft); margin-bottom:4px; }
@@ -1936,6 +1935,43 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   #leadActions .btn{ flex:0 0 auto !important; width:auto !important; padding:6px 14px !important; min-height:34px; font-size:14px !important; }
   #leadActions [data-and-back]{ display:none !important; }
 }
+
+  /* ===== 5.19.83 (נועה): מראה אחיד בכל המסכים (חוץ ממאגר התרגולים) =====
+     סינון: שדות 40px, פינות 12, רקע שמנת, שם השדה מעל השדה. עריכה: שדות לבנים, 40px, פינות 8.
+     לשוניות: מתג מעוגל אחד (כמו "לוח חודשי | רשימה"). כותרות בתוך מסגרות: 16px בורדו. */
+  :is(.filters, .pay-all-f, .ex-filters, .ar-filters, .att-filt, .sc-tools, .g-filters) :is(input:not([type=checkbox]):not([type=radio]):not([type=button]), select), #repCity, .filters .multi > button{
+    height:40px !important; min-height:40px !important; padding:6px 12px !important; font-size:14px !important; font-weight:400; border-radius:12px !important; border:1.5px solid #E3DDD4 !important; background-color:#FAF8F5 !important; color:var(--ink) !important; box-shadow:none !important; box-sizing:border-box; }
+  :is(.filters, .pay-all-f, .ex-filters, .ar-filters, .att-filt, .sc-tools, .g-filters) select, #repCity{ padding-inline-end:30px !important; }
+  :is(.filters, .pay-all-f, .ex-filters, .ar-filters, .att-filt, .sc-tools, .g-filters) :is(input, select):focus, #repCity:focus{ background-color:#fff !important; border-color:var(--gold-deep, #C9A45C) !important; box-shadow:0 0 0 3px rgba(90,18,22,.10) !important; outline:none; }
+  .filters-chk .remind-f input[type=date]{ height:40px !important; padding:6px 12px !important; font-size:14px !important; border-radius:12px !important; border:1.5px solid #E3DDD4 !important; background-color:#FAF8F5 !important; }
+  .att-filt #attIns{ font-weight:400; }
+  /* לוח מבחנים: שם השדה מעל השדה, כמו בשאר המסכים */
+  .ex-filters{ align-items:flex-end; gap:8px 10px; }
+  .ex-filters label, .ex-filters .ex-range{ display:inline-flex; flex-direction:column; align-items:stretch; gap:3px; font-weight:700; font-size:13px; color:var(--ink-soft); padding-inline-start:5px; }
+  .ex-filters .ex-range{ flex-direction:row; align-items:flex-end; gap:10px; padding:0; }
+  .ex-filters label > :is(select, input){ font-weight:400; margin-inline-start:-5px; min-width:120px; }
+  .ex-filters .clear-f{ align-self:center; }
+  /* דוח נוכחות: בלי פס בורדו מעל – מסגרת רגילה */
+  .ar-filters{ border-top:1px solid var(--border) !important; background:var(--paper) !important; }
+  .ar-filters select, .ar-filters input:not([type=checkbox]), .ar-rng .gseg button, .ar-filters .ar-btns .btn{ height:40px !important; }
+  /* לשוניות: הכול באותו מתג מעוגל */
+  .tabs{ border-radius:999px; padding:0; gap:0; overflow:hidden; display:inline-flex; }
+  .tabs .tab{ border-radius:0; padding:5px 14px; font-size:14px; min-height:31px; }
+  .reg-tabs button, .reg-tabs a.rt-pay{ font-size:14px !important; padding:5px 14px !important; }
+  @media (max-width:760px){ .att-filt #attCities{ display:flex; } }
+  /* כותרות בתוך מסגרות */
+  :is(#view-reports, #view-pay, #view-reg) .card h2, #view-pay h2, #view-reports h2, #view-backup .rep-h, #view-lead .side-h{ font-size:16px !important; font-weight:700 !important; color:var(--accent) !important; }
+  /* כפתורים קטנים: אותו גודל בכל המסכים */
+  #payWrap .btn.small{ padding:5px 10px; font-size:12.5px; border-radius:8px; }
+  @media (max-width:760px){ #attMark .att-date-row > .btn:not(.today-btn), .att-date-row > .btn{ height:36px !important; font-size:16px !important; font-weight:700 !important; min-width:48px; } }
+  .att-filt #attIns{ background-color:#FAF8F5 !important; border:1.5px solid #E3DDD4 !important; color:var(--ink) !important; }
+  .att-filt #attIns:focus{ background-color:#fff !important; border-color:var(--gold-deep, #C9A45C) !important; }
+  /* שדות עריכה: לבן, 40px, פינות 8 – גם בחוקי החיוב, בצוות ובשדה בלי סוג */
+  input:not([type]){ width:100%; font-size:14px; padding:8px 10px; border-radius:8px; border:1.5px solid var(--border); background:var(--paper); min-height:40px; box-sizing:border-box; }
+  #payWrap .br-wrap :is(input[type=number], input[type=text], input[type=email], select, textarea){ border-radius:8px; font-size:14px; }
+  #payWrap .br-wrap :is(input[type=number], input[type=text], input[type=email], select){ height:40px; min-height:40px; }
+  #stForm :is(input:not([type=checkbox]), select){ height:40px; min-height:40px; box-sizing:border-box; }
+  .clear-f{ white-space:nowrap; }
 </style>
 </head>
 <body>
