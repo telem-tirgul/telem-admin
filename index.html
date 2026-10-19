@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.86">
+<meta name="app-version" content="5.19.87">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2019,7 +2019,6 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   }
   /* 5.19.86: כפתורי הרשימה בנייד – אייקונים בשורת הכותרת */
   #leadsTools.lt-head{ gap:6px !important; margin-inline-start:auto; }
-  #leadsTools.lt-head #reloadBtn{ display:none; }   /* 5.19.86 (נועה): הרשימה מתעדכנת לבד כל דקה – בנייד בלי רענון */
   #leadsTools.lt-head .bt{ display:none; } #leadsTools.lt-head .btn{ min-width:34px; justify-content:center; padding-inline:8px; }
   #view-leads .page-head:has(#leadsTools.lt-head){ flex-wrap:nowrap; } #view-leads .page-head:has(#leadsTools.lt-head) h1{ margin-inline-end:auto; }
   .clear-f{ white-space:nowrap; }
@@ -2100,7 +2099,6 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         <div style="display:flex; gap:8px;" id="leadsTools">
           <button class="btn small" type="button" id="listEditBtn" title="שינוי סטטוס, פעיל וכוכב ישירות ברשימה"><span class="ic">✎</span><span class="bt"> עריכה ברשימה</span></button>
           <button class="btn small" type="button" id="exportBtn" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>
-          <button class="btn small" type="button" id="reloadBtn" title="רענון"><span class="ic">↻</span><span class="bt"> רענון</span></button>
         </div>
       </div>
       <div class="tbl-wrap"><table class="tbl" id="leadsTbl"></table></div>
@@ -3062,12 +3060,29 @@ async function loadLeadsDelta(){
     ASG_Q().catch(() => null),
     get("notes", "select=id,lead_id,body,created_at&created_at=gt." + q + "&order=created_at&limit=1000").catch(() => [])
   ]);
-  ch.filter(l => l.student).forEach(l => { const i = L.leads.findIndex(x => x.id === l.id); if (i >= 0) L.leads[i] = l; else L.leads.unshift(l); });
-  if (asg) setAsg(asg);
-  notes.forEach(n => { const arr = (L.notes[n.lead_id] = L.notes[n.lead_id] || []); if (!arr.some(x => x.id === n.id)) { arr.push(n); L.notesCount[n.lead_id] = arr.length; } });
+  // 5.19.87 (נועה): סופרים רק שינוי אמיתי - בלי שינוי לא מציירים מחדש את הטבלה (שלא "יקפוץ" כל דקה)
+  let real = 0;
+  ch.filter(l => l.student).forEach(l => { const i = L.leads.findIndex(x => x.id === l.id);
+    if (i >= 0) { if (JSON.stringify(L.leads[i]) !== JSON.stringify(l)) { L.leads[i] = l; real++; } } else { L.leads.unshift(l); real++; } });
+  // 5.19.87 (נועה): גם כרטיסים שנמחקו או אוחדו (במכשיר אחר / אצל מישהו אחר) יורדים מהרשימה לבד - בלי כפתור רענון
+  let gone = 0;
+  try {
+    const ids = await getAll("leads", "select=id,student_id&student_id=not.is.null&order=id");
+    if (ids.length) {
+      const now = new Map(ids.map(x => [x.id, x.student_id])), moved = [];
+      const before = L.leads.length;
+      L.leads = L.leads.filter(l => now.has(l.id));
+      gone = before - L.leads.length;
+      L.leads.forEach(l => { if (now.get(l.id) !== l.student_id) moved.push(l.id); });
+      if (moved.length) { const fr = await get("leads", "select=" + LEAD_SELECT + "&id=in.(" + moved.slice(0, 200).join(",") + ")");
+        fr.filter(l => l.student).forEach(l => { const i = L.leads.findIndex(x => x.id === l.id); if (i >= 0) L.leads[i] = l; }); gone += fr.length; }
+    }
+  } catch(e) {}
+  if (asg) { const sig = JSON.stringify(asg); if (sig !== L.asgSig) { if (L.asgSig) real++; L.asgSig = sig; setAsg(asg); } }
+  notes.forEach(n => { const arr = (L.notes[n.lead_id] = L.notes[n.lead_id] || []); if (!arr.some(x => x.id === n.id)) { arr.push(n); L.notesCount[n.lead_id] = arr.length; real++; } });
   await loadNotices();
   L.loadedAt = t0;
-  return ch.length || notes.length;
+  return real + gone;
 }
 async function loadLeads(){
   $("countLine").textContent = "טוען...";
@@ -3095,7 +3110,7 @@ async function loadLeads(){
   L.mar = {}; mreg.forEach(r => (L.mar[r.student_id] = L.mar[r.student_id] || []).push(r));
   await loadNotices();
   // משובצים ב-L.asg, שיבוצים מוצעים ("ממתין") ב-L.prop
-  setAsg(asg);
+  setAsg(asg); L.asgSig = null;
   L.leads = leads.filter(l => l.student);
   L.loadedAt = t0; L.fullAt = t0;
   L.notesCount = {}; L.notes = {}; notes.forEach(n => { L.notesCount[n.lead_id] = (L.notesCount[n.lead_id] || 0) + 1; (L.notes[n.lead_id] = L.notes[n.lead_id] || []).push(n); });
@@ -3371,7 +3386,7 @@ function renderLeads(){
 }
 $("prevPage").addEventListener("click", () => { F.page--; renderLeads(); });
 $("nextPage").addEventListener("click", () => { F.page++; renderLeads(); });
-$("reloadBtn").addEventListener("click", async () => { await loadLeads(); renderLeads(); });
+// 5.19.87 (נועה): בלי כפתור רענון - הרשימה מתעדכנת לבד כל דקה, כולל כרטיסים שנמחקו או אוחדו
 
 // מצב עריכה ברשימה: עד שלוחצים "✎ עריכה ברשימה" אי אפשר לשנות סטטוס / פעיל / כוכב (מונע שינויים בטעות)
 let LIST_EDIT = false;
@@ -8876,13 +8891,24 @@ setInterval(checkUpdate, 60 * 60 * 1000);
 // רק כשבטוח: לא באמצע הקלדה / עריכה / חלון פתוח / נוכחות שלא נשמרה. כרטיס תלמיד פתוח - לא מתעדכן (שלא יידרסו שינויים).
 const LIVE_ON = true;   // הודלק 12.10 (הלקוחה). כרטיס תלמיד פתוח / עריכה / נוכחות שלא נשמרה - לא נוגעים
 const LIVE_MS = 60 * 1000; let LIVE_LAST = Date.now(), LIVE_BUSY = false;   // 5.19.57: כל דקה (היה 3 דקות) - הלקוחה: עם תיבת ההודעות צריך שהמסכים יתעדכנו מהר יותר
+// 5.19.87: ברענון האוטומטי - השורה שמסתכלים עליה נשארת בדיוק באותו מקום במסך (גם כשנעלם/נוסף כרטיס מעליה)
+function leadsKeepRow(fn){
+  // השורות שרואים עכשיו במסך - אחרי העדכון נצמדים לראשונה מהן שעדיין קיימת (אם בדיוק היא נמחקה - לבאה אחריה)
+  const seen = [...document.querySelectorAll("#view-leads [data-id]")].map(r => [r.dataset.id, r.getBoundingClientRect()])
+    .filter(([, b]) => b.height > 0 && b.bottom > 60 && b.top < innerHeight).map(([id, b]) => [id, b.top]);
+  fn();
+  for (const [id, top] of seen) {
+    const b = document.querySelector('#view-leads [data-id="' + CSS.escape(id) + '"]');
+    if (b) { window.scrollBy(0, b.getBoundingClientRect().top - top); return; }
+  }
+}
 async function liveRefresh(minGap){
   if (!LIVE_ON || LIVE_BUSY || !auth || $("appView").hidden || document.visibilityState !== "visible" || !DATA_READY) return;
   if (Date.now() - LIVE_LAST < (minGap == null ? LIVE_MS : minGap)) return;
   if (!updSafe() || UPD_NEW) return;
   LIVE_BUSY = true; LIVE_LAST = Date.now(); const y = window.scrollY, v = currentView;
   try {
-    if (v === "leads") { const n = await loadLeadsDelta(); if (currentView === "leads" && updSafe()) renderLeads(); }
+    if (v === "leads") { const n = await loadLeadsDelta(); if (n !== 0 && currentView === "leads" && updSafe()) leadsKeepRow(renderLeads); }   // 5.19.87: מציירים רק כשבאמת השתנה משהו
     else if (v === "groups") await loadGroups();
     else if (v === "att") { if ($("attSheet").hidden) await loadAttGroups(); }
     else if (v === "exams") await renderExams(true);
@@ -8892,7 +8918,7 @@ async function liveRefresh(minGap){
     else if (v === "pay") { if ($("payPnl").hidden && typeof PAY !== "undefined") await PAY.refresh(); }   // 5.19.57: גם מסכי התשלומים
     else if (v === "reg") { await loadRegData(); if (currentView === "reg" && updSafe()) await renderReg(); }   // 5.19.57: גם הרשמה (קישורים, ביטולים, ממתינים)
     if (ME && ME.role !== "instructor") { callCount(); if (v !== "pay" && typeof PAY !== "undefined") PAY.refresh(true); }   // המונים בתפריט
-    if (currentView === v) window.scrollTo(0, y);
+    if (currentView === v && v !== "leads") window.scrollTo(0, y);
   } catch(e) {} finally { LIVE_BUSY = false; }
 }
 setInterval(() => liveRefresh(), 15000);
