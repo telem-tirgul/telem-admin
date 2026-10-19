@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.76">
+<meta name="app-version" content="5.19.78">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1478,7 +1478,7 @@
 #exForm.ex-form-pop{ position:fixed; z-index:71; top:50%; left:50%; transform:translate(-50%,-50%); width:min(480px, calc(100vw - 24px)); max-height:calc(100vh - 32px); overflow-y:auto;
   grid-template-columns:1fr 1fr; margin:0; box-shadow:0 12px 36px rgba(0,0,0,.25); }
 #exForm.ex-form-pop[hidden]{ display:none; } #exForm.ex-form-pop textarea{ min-height:56px; height:56px; } #exForm.ex-form-pop{ gap:8px 10px; padding:14px 16px; } #exForm .ex-fp-h{ grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; font-size:16px; }
-#exForm.ex-form-pop .ex-f-wide, #exForm.ex-form-pop .ex-f-btns{ grid-column:1 / -1; } #exForm.ex-form-pop .ex-f-btns{ justify-content:flex-start; }
+#exForm.ex-form-pop .ex-f-wide{ grid-column:1 / -1; } #exForm.ex-form-pop .ex-f-btns{ justify-content:flex-start; }
 /* 5.19.74: חלון האירוע - במחשב הכפתורים בשורת הכותרת; בנייד פס דק קבוע בתחתית החלון (מחיקה באדום מימין) */
 #exForm .ex-fp-t{ display:flex; align-items:center; gap:10px; } #exForm .ex-fp-act{ display:flex; gap:6px; }
 @media all{   /* 5.19.75: גם במחשב - פס בתחתית החלון */
@@ -1564,7 +1564,9 @@ td.nowrap{ white-space:nowrap; }
 .all-row .all-tg{ margin:0; justify-self:start; white-space:nowrap; }
 .all-st{ font-weight:800; font-size:13.5px; white-space:nowrap; } .all-st.on{ color:var(--ok); } .all-st.off{ color:var(--ink-soft); }
 @media (max-width:760px){ .all-row{ grid-template-columns:1fr auto; } .all-row .all-l{ grid-column:1 / -1; } }
-.sc-hak{ display:flex; flex-wrap:wrap; gap:6px; } .sc-head.lg-h-row h2{ margin:0; }
+.sc-hak{ display:flex; flex-wrap:wrap; gap:6px; } /* 5.19.77 (נועה): הקבצות - במחשב שורה לכל הקבצה, בנייד רשימה עם פסיקים */
+.sc-hak-l{ list-style:none; margin:4px 0 0; padding:0; line-height:1.7; } .sc-hak-c{ display:none; line-height:1.6; }
+@media (max-width:760px){ .sc-hak-l{ display:none; } .sc-hak-c{ display:block; } } .sc-head.lg-h-row h2{ margin:0; }
 .lp-box{ border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin:8px 0; background:#fff; } .lp-box summary{ cursor:pointer; display:flex; align-items:center; gap:10px; flex-wrap:wrap; } .lp-sum{ color:#6b6259; font-size:.95em; }
 .lp-list{ list-style:none; margin:10px 0 2px; padding:0; display:flex; flex-direction:column; gap:8px; }
 .lp-row{ display:grid; grid-template-columns:1fr auto; gap:4px 14px; padding:10px 12px; border:1px solid #EEE7DF; border-radius:10px; background:#FCFAF7; }
@@ -1596,6 +1598,17 @@ td.nowrap{ white-space:nowrap; }
   .lg-btns:not(.lg-top), #leadActions:not([hidden]){ position:static !important; border-top:0 !important; background:none !important; padding:4px 0 0 !important; margin-top:10px !important; }
   #exForm.ex-form-pop .ex-f-btns{ position:static; border-top:0; background:none; margin:6px 0 0; padding:0; }
 }
+/* 5.19.77 (נועה): הכפתורים בשורה האחרונה של המסגרת / הטופס - לא בשורה נפרדת */
+.g-edit .g-ins-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:10px; flex-wrap:wrap; } .g-edit .g-ins-row .g-chk{ min-height:40px; }
+.g-edit .g-btn-cell{ align-self:end; min-width:0; } .g-edit .g-btn-cell:empty{ display:none; }
+.g-edit .g-btn-cell > .lg-btns{ margin:0 !important; padding:0 !important; flex-wrap:nowrap; justify-content:flex-end; min-height:40px; align-items:center; }
+.g-edit > .lg-btns{ grid-column:1 / -1; } .g-edit > .lg-edit-h.g-h-del{ display:flex; align-items:center; gap:10px; } .g-edit > .lg-edit-h.g-h-del > .btn{ font-weight:600; }
+.g-edit .g-btn-cell > .lg-btns > .btn{ padding:6px 12px !important; } @media (max-width:760px){ .g-edit .g-btn-cell{ grid-column:1 / -1; } }
+#exForm.ex-form-pop .ex-f-btns{ align-self:end; grid-column:auto; margin:0 !important; justify-content:flex-end; flex-wrap:nowrap; }
+.lead-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:8px; }
+.lead-foot > #leadActions:not([hidden]){ margin:0 !important; padding:0 !important; }
+#stForm{ grid-template-columns:2fr 1.5fr 1.3fr 1.5fr auto !important; } #stForm .st-btm{ grid-column:auto !important; align-self:end; }
+@media (max-width:760px){ #stForm{ grid-template-columns:1fr !important; } #stForm .st-btm{ grid-column:1 / -1 !important; } }
 /* 5.19.76 (נועה): "שמירה" הכי שמאלית, "ביטול" מימין לה, "מחיקה" באדום בצד ימין */
 :is(.lg-btns:not(.lg-top), #leadActions, #exForm .ex-f-btns, #stForm .st-btm) > .primary{ order:9; }
 #leadEditBtn:not([hidden]) ~ .lead-top-b{ display:none; }
@@ -2050,13 +2063,13 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div class="msg-cell"><label class="lbl" for="lfMessage">הודעה</label><textarea id="lfMessage" aria-label="הודעה"></textarea></div>
               </div>
             </details>
-            <div class="meta-line" id="leadMeta"></div>
             <div class="err" id="leadErr"></div>
+            <div class="lead-foot"><div class="meta-line" id="leadMeta"></div>
             <div class="actions" id="leadActions">
               <button class="btn primary" type="submit">שמירה</button>
               <button class="btn" type="submit" data-and-back="1">שמירה וחזרה לרשימה</button>
               <button class="btn" type="button" id="leadCancel">ביטול</button>
-            </div>
+            </div></div>
           </div>
 
           <div class="card">
@@ -5082,6 +5095,16 @@ function insPickWire(id){
   add.onchange = () => { const c = cbs.find(x => x.dataset.ins === add.value); if (c) c.checked = true; paint(); };
   paint();
 }
+// 5.19.77 (נועה): הכפתורים בשורה האחרונה של המסגרת (לא בשורה נפרדת); כשהמסגרת סגורה - מתחת לה
+function gBtnsInFrame(box){
+  const det = box.querySelector(":scope > .g-det"), cell = det && det.querySelector(".g-btn-cell"), row = box.querySelector(":scope > .lg-btns, .g-btn-cell > .lg-btns");
+  if (!det || !cell || !row) return;
+  // מחיקה - ליד הכותרת (בשורה האחרונה אין לה מקום)
+  const del = row.querySelector(".lg-delsrc, [data-g=del]"), hd = box.querySelector(":scope > .lg-edit-h");
+  if (del && hd) { hd.classList.add("lg-h-row", "g-h-del"); hd.appendChild(del); }
+  const place = () => { if (det.open) cell.appendChild(row); else det.after(row); };
+  det.addEventListener("toggle", place); place();
+}
 async function openGroupEditor(se, preset){
   const box = $("gEdit"); box.hidden = false; box.classList.add("g3"); box.innerHTML = "<div class='muted full'>טוען...</div>";   // 5.19.75 (נועה): 3 שדות בשורה
   try { STAFF_ALL = await get("staff", "select=id,full_name,role&order=full_name"); } catch(e) { STAFF_ALL = STAFF_ALL || []; }
@@ -5096,7 +5119,7 @@ async function openGroupEditor(se, preset){
     <div class="full lg-edit-h">${se ? "עריכת קבוצה" : "קבוצה חדשה · " + esc(city)}</div>
     <details class="full g-det" open><summary>פרטי הקבוצה</summary><div class="g-fields">
     ${se ? "" : `<div><label class="lbl">עיר</label><select data-g="gcity">${CONFIG.cities.map(c => `<option ${c === city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>`}
-    <div class="full"><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div>
+    <div class="full g-ins-row"><div><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div><label class="chk g-chk"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label></div>
     <div><label class="lbl">בית ספר</label><select data-g="loc">${se ? "" : "<option value=''>בחירה...</option>"}${locs.map(x => `<option value="${x.id}" ${curLoc && curLoc.id === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
     <div><label class="lbl">יום</label><select data-g="day">${DAYS.filter(d => d !== "ו").map(d => `<option value="${d}" ${se && se.day === d ? "selected" : ""}>${DAY_NAMES[d]}</option>`).join("")}</select></div>
     <div><label class="lbl">כיתה</label><input data-g="room" value="${esc(se && se.room || "")}" placeholder="למשל ח1"></div>
@@ -5105,13 +5128,14 @@ async function openGroupEditor(se, preset){
     <div><label class="lbl">מקסימום ילדים</label><input type="number" min="0" data-g="cap" value="${se && se.capacity != null ? se.capacity : ""}" placeholder="ללא הגבלה"></div>
     <div><label class="lbl">מתאריך</label><input type="date" data-g="from" value="${esc(se ? (se.date_from || "") : todayIL())}"></div>
     <div><label class="lbl">עד תאריך <span class="muted" style="font-weight:400">(המפגש האחרון)</span></label><input type="date" data-g="to" value="${esc(se ? (se.date_to || lastMeeting(se.day, G.yearEnd)) : lastMeeting(DAYS[0], G.yearEnd))}"></div>
-    <label class="chk g-chk${se ? "" : " full"}"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
+    <div class="g-btn-cell"></div>
     </div></details>
     <div class="err full" data-g="err"></div>
     <div class="full lg-btns"><button type="button" class="btn small primary" data-g="save">שמירה</button>
-      ${se && !String(se.location || "").includes("/") ? `<button type="button" class="btn small danger" data-g="del" ${kids ? `disabled title="אי אפשר למחוק קבוצה שיש בה ילדים"` : ""}>מחיקת קבוצה</button>` : ""}
+      ${se && !String(se.location || "").includes("/") ? `<button type="button" class="btn small danger" data-g="del" ${kids ? `disabled title="אי אפשר למחוק קבוצה שיש בה ילדים"` : ""}>מחיקה</button>` : ""}
       <button type="button" class="btn small" data-g="cancel">ביטול</button></div>`;
   const g = (k) => box.querySelector(`[data-g="${k}"]`);
+  gBtnsInFrame(box);
   if (g("gcity")) g("gcity").onchange = () => { $("panelSub").textContent = g("gcity").value; openGroupEditor(null, Object.assign({}, preset || {}, { city: g("gcity").value, location: null })); };   // 5.19.36
   g("start").onchange = () => { if (g("start").value && !g("end").value) g("end").value = addMin(g("start").value, 45); };
   // שינוי יום: אם "עד תאריך" היה המפגש האחרון של השנה - מתעדכן ליום החדש
@@ -5500,6 +5524,9 @@ function payKidWire(){
 // 5.19.58 (הלקוחה): שמירה / ביטול גם למעלה משמאל - בכרטיס התלמיד ובכל חלון עריכה (קבוצה, מרתון, מפגש...), בלי לגלול למטה.
 // כפתורי השורה התחתונה (.lg-btns) משוכפלים לראש הטופס; לחיצה למעלה = לחיצה על הכפתור המקורי.
 function lgTopSync(root){
+  // 5.19.77 (נועה): אין יותר כפתורים למעלה - רק מסמנים את כפתורי המחיקה (מימין, באדום)
+  (root || document).querySelectorAll(".lg-btns:not(.lg-top) button:not(.lg-delsrc)").forEach(b => { if (/מחיק|^הסרה מה|^פרישה מה/.test(b.textContent.trim())) b.classList.add("lg-delsrc"); });
+  return;
   (root || document).querySelectorAll(".lg-btns:not(.lg-top)").forEach(row => {
     const host = row.parentElement; if (!host) return;
     const pnlH = host.querySelector(":scope > .lg-edit-h") ? null : (host.closest("#payPnl") || {}).querySelector ? host.closest("#payPnl").querySelector(":scope header, header") : null;   // 5.19.72: חלון בצד בלי כותרת עריכה - הכפתורים בשורת הכותרת של החלון
@@ -5707,15 +5734,16 @@ async function openMarGroupEditor(m, se){
     <div><label class="lbl">משך כל מפגש (דקות)</label><input type="number" min="15" max="600" step="15" data-dur value="${marDurOf(meets)}"><div class="muted fhint">שעת הסיום מתעדכנת לפי שעת ההתחלה. אפשר גם לשנות אותה ידנית.</div></div>
     <div class="full"><label class="lbl">המפגשים</label><div class="mar-dates" data-g="dates"><div class="dh"><span>תאריך</span><span>שעת התחלה</span><span>שעת סיום</span><span>כיתה</span><span></span></div>${meets.map(m => meetRow(m)).join("")}</div>
       <button type="button" class="btn small" data-g="adddate" style="margin-top:6px;">+ מפגש</button></div>
+    <div class="full"><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div>
     <div><label class="lbl">מקסימום נרשמים</label><input type="number" min="1" data-g="cap" value="${se && se.capacity != null ? se.capacity : 15}"></div>
     <label class="chk g-chk"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
-    <div class="full"><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div>
+    <div class="g-btn-cell"></div>
     </div></details>
     <div class="err full" data-g="err"></div>
     <div class="full lg-btns"><button type="button" class="btn small primary" data-g="save">שמירה</button>
-      ${se ? `<button type="button" class="btn small danger" data-g="del" ${kids ? `disabled title="אי אפשר למחוק קבוצה שיש בה נרשמים"` : ""}>מחיקת קבוצה</button>` : ""}
+      ${se ? `<button type="button" class="btn small danger" data-g="del" ${kids ? `disabled title="אי אפשר למחוק קבוצה שיש בה נרשמים"` : ""}>מחיקה</button>` : ""}
       <button type="button" class="btn small" data-g="cancel">ביטול</button></div>`;
-  const g = (k) => box.querySelector(`[data-g="${k}"]`);
+  const g = (k) => box.querySelector(`[data-g="${k}"]`); gBtnsInFrame(box);
   const wireDates = () => box.querySelectorAll(".mar-dates .d").forEach(row => {
     row.querySelector("[data-rmdate]").onclick = () => row.remove();
   });
@@ -6695,7 +6723,7 @@ function renderSchools(){
           <div><h3>כיתות</h3>${txt(x.rooms)}</div>
           <div><h3>לוח צלצולים</h3>${bellsH}</div>
           <div><h3>אנשי קשר</h3>${contH}</div>
-          <div><h3>הקבצות</h3>${(x.hakbatsa_options || []).length ? `<div class="sc-hak">${x.hakbatsa_options.map(h => `<span class="chip">${esc(h)}</span>`).join("")}</div>` : `<span class='muted'>לא הוגדר – בטפסים מופיעה רשימת ברירת המחדל</span>`}</div>
+          <div><h3>הקבצות</h3>${(x.hakbatsa_options || []).length ? `<ul class="sc-hak-l">${x.hakbatsa_options.map(h => `<li>${esc(h)}</li>`).join("")}</ul><div class="sc-hak-c">${x.hakbatsa_options.map(esc).join(", ")}</div>` : `<span class='muted'>לא הוגדר – בטפסים מופיעה רשימת ברירת המחדל</span>`}</div>
         </div>
         <div class="meta-line">עודכן: ${esc(fmtDate(x.updated_at))}</div></details>`;
     $("scBody").querySelectorAll(".sc-groups tr[data-sid]").forEach(tr => tr.onclick = () => openGroupOnBoard(Number(tr.dataset.sid), x.city));
