@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.81">
+<meta name="app-version" content="5.19.82">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1635,6 +1635,14 @@ td.nowrap{ white-space:nowrap; }
 /* 5.19.76 (נועה): "שמירה" הכי שמאלית, "ביטול" מימין לה, "מחיקה" באדום בצד ימין */
 :is(.lg-btns:not(.lg-top), #leadActions, #exForm .ex-f-btns, #stForm .st-btm) > .primary{ order:9; }
 #leadEditBtn:not([hidden]) ~ .lead-top-b{ display:none; }
+/* 5.19.82 (נועה): חץ ברור ויפה יותר במסגרות שנפתחות - עיגול בהיר עם חץ בצבע הראשי; סגור = שמאלה, פתוח = למטה */
+:is(.la-row, .g-edit .g-det, .lp-box, #view-lead .lead-main .sec-d, .dl-sec) > summary::before, .dx-tg::before{
+  content:"" !important; display:inline-block; flex:none; width:22px !important; height:22px; border-radius:50%; vertical-align:middle;
+  background:color-mix(in srgb, var(--accent) 9%, #fff) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M14.5 6.5L9 12l5.5 5.5' fill='none' stroke='%235A1216' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 15px no-repeat;
+  border:1px solid color-mix(in srgb, var(--accent) 18%, #fff); transform:none; transition:transform .2s, background-color .2s; }
+:is(.la-row, .g-edit .g-det, .lp-box, #view-lead .lead-main .sec-d, .dl-sec)[open] > summary::before, .dx-tg[aria-expanded="true"]::before{ transform:rotate(-90deg) !important; }
+:is(.la-row, .g-edit .g-det, .lp-box, #view-lead .lead-main .sec-d, .dl-sec) > summary:hover::before, .dx-tg:hover::before{ background-color:color-mix(in srgb, var(--accent) 16%, #fff); }
+.dx-tg{ width:24px !important; }
 .rg3-wrap{ overflow-x:auto; } .rg3{ border-collapse:collapse; width:100%; min-width:640px; background:var(--paper,#fff); }
 .rg3 th, .rg3 td{ padding:9px 12px; border-bottom:1px solid var(--border); text-align:start; vertical-align:top; }
 .rg3 thead th{ font-size:15px; color:var(--maroon,#5A1216); white-space:nowrap; } .rg3 thead th .btn{ margin-inline-start:10px; }
@@ -2042,7 +2050,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
             <fieldset class="key-box"><legend>פרטים עיקריים</legend>
               <div class="key-grid">
                 <div class="field"><label class="lbl req" for="sFirst">שם פרטי</label><input id="sFirst" class="big" type="text" required></div>
-                <div><label class="lbl" for="sLast">שם משפחה</label><input id="sLast" class="big" type="text"></div>
+                <div class="field"><label class="lbl req" for="sLast">שם משפחה</label><input id="sLast" class="big" type="text" required></div>
                 <div class="field"><label class="lbl" for="sPhone">טלפון תלמיד/ה</label><input id="sPhone" class="big" type="tel" inputmode="numeric"></div>
                 <div><label class="lbl" for="sEmail">אימייל תלמיד/ה</label><input id="sEmail" type="email" dir="ltr"></div>
                 <div><label class="lbl" for="lfStatus">סטטוס</label><select id="lfStatus"></select></div>
@@ -2050,7 +2058,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div class="kg-br" aria-hidden="true"></div><!-- 5.19.70 (נועה): שורה 1 - התלמיד/ה, שורה 2 - ההורה -->
                 <div class="field"><label class="lbl req" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
                 <div><label class="lbl" for="p1Last">משפחה (הורה)</label><input id="p1Last" class="big" type="text"></div>
-                <div class="field"><label class="lbl" for="p1Phone">טלפון הורה</label>
+                <div class="field"><label class="lbl req" for="p1Phone">טלפון הורה</label>
                   <div class="phone-row"><input id="p1Phone" class="big" type="tel" inputmode="numeric"><a id="p1Wa" class="btn small" href="#" target="_blank" rel="noopener" hidden>וואטסאפ</a></div></div>
                 <div><label class="lbl" for="p1Email">אימייל הורה</label><input id="p1Email" class="big" type="email" dir="ltr"></div>
               </div>
@@ -4221,13 +4229,14 @@ $("leadForm").addEventListener("submit", async (e) => {
   const navAfter = LEAD_NAV_AFTER; LEAD_NAV_AFTER = null;   // אם השמירה נכשלת - נשארים בכרטיס
   const err = $("leadErr"); err.textContent = "";
   let ok = true;
-  ["sFirst","p1First"].forEach(id => { const bad = !$(id).value.trim(); $(id).closest(".field").classList.toggle("invalid", bad); if (bad) ok = false; });
-  if (!validPhone("p1Phone", false)) ok = false;
+  // 5.19.82 (נועה): חובה - שם פרטי, שם משפחה, שם הורה, טלפון הורה
+  ["sFirst","sLast","p1First"].forEach(id => { const bad = !$(id).value.trim(); $(id).closest(".field").classList.toggle("invalid", bad); if (bad) ok = false; });
+  if (!validPhone("p1Phone", true)) ok = false;
   if (!validPhone("p2Phone", false)) ok = false;
   if (!validPhone("sPhone", false)) ok = false;
   { const c = $("sClass").value.trim(), bad = c !== "" && !/^[0-9]{1,2}$/.test(c); $("sClass").closest(".field").classList.toggle("invalid", bad);
     if (bad) { err.textContent = "מספר כיתה - רק מספר (למשל 3), בלי אות השכבה."; return; } }
-  if (!ok) { err.textContent = "יש לתקן את השדות המסומנים: שם תלמיד, שם הורה 1 וטלפון הורה תקין (10 ספרות, מתחיל ב-0)."; return; }
+  if (!ok) { err.textContent = "יש למלא את השדות עם הכוכבית: שם פרטי, שם משפחה, שם הורה וטלפון הורה תקין (מתחיל ב-0)."; return; }
 
   const school = L.schools.find(x => String(x.id) === $("sSchool").value);
   const family = { parent1_first: nn($("p1First").value), parent1_last: nn($("p1Last").value), parent1_phone: nn(digits($("p1Phone").value)), parent1_email: nn($("p1Email").value),
