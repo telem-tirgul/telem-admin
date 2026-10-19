@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.78">
+<meta name="app-version" content="5.19.79">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,7 +95,7 @@
   .card{ background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:16px; }
   .page-head{ display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
   /* רשימת הלידים - מראה שונה מכרטיס התלמיד */
-  .filters-card{ background:color-mix(in srgb, var(--accent) 5%, var(--paper)); border-top:3px solid var(--accent); }
+  .filters-card{ background:color-mix(in srgb, var(--accent) 3%, var(--paper)); }
   #fSearch{ font-size:16px; padding:10px 38px 10px 12px; background:var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238a7a6e' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") no-repeat right 11px center; }
   /* כרטיס תלמיד */
   .card-tag{ display:inline-block; font-size:12px; font-weight:700; letter-spacing:.3px; color:var(--paper); background:var(--accent); border-radius:999px; padding:2px 10px; margin-bottom:4px; }
@@ -122,6 +122,10 @@
   .ok-txt{ color:var(--ok); }
   .filters-foot{ display:flex; justify-content:flex-end; }
   .filters-chk{ display:flex; flex-wrap:wrap; gap:6px 18px; align-items:center; margin-top:-4px; } .filters-chk .chk{ padding-bottom:0; font-size:13.5px; } .filters-chk .remind-f input[type=date]{ flex:none; width:auto; padding:4px 8px; font-size:13px; }
+  #leadsTbl td.c-status select.status{ height:30px; min-height:30px; padding:2px 10px; border-radius:999px; font-weight:700; font-size:13px; }
+  @media (min-width:761px){ #leadsTbl td.c-status select.status{ width:auto; field-sizing:content; min-width:110px; max-width:190px; } }
+  /* 5.19.79 (מראה אחיד): הסינון בלוח המבחנים ובדוחות - שדות בסגנון של שאר המערכת */
+  :is(.ex-filters, #view-reports) select, #repCity{ height:34px; min-height:34px; border-radius:10px; border:1.5px solid #E3DDD4; background-color:#FAF8F5; padding:4px 10px; font-size:13.5px; box-sizing:border-box; }
   .filters > *{ min-width:0; } .filters input, .filters select{ min-width:0; max-width:100%; box-sizing:border-box; }
   tr.h-row{ cursor:pointer; } tr.h-row:hover td{ background:var(--muted); } .h-more{ color:var(--ink-soft); font-size:11px; } tr.h-row.open .h-more{ display:inline-block; transform:rotate(180deg); }
   tr.h-det td{ background:color-mix(in srgb, var(--accent) 4%, var(--paper)); } .h-dl{ display:grid; grid-template-columns:max-content 1fr; gap:4px 14px; margin:2px 0; font-size:13.5px; } .h-dl dt{ color:var(--ink-soft); } .h-dl dd{ margin:0; white-space:pre-wrap; }
@@ -130,16 +134,19 @@
   .filters .wide{ grid-column:span 2; }
   /* 5.19.16: עמוד התלמידים במחשב - סינון קומפקטי: כל שדה ברוחב שמתאים לו, הכול בשורה-שתיים */
   @media (min-width:761px){
-    #view-leads .filters-card{ padding:10px 12px; display:flex; flex-wrap:wrap; gap:6px 8px; align-items:flex-end; }
+    #view-leads .filters-card{ padding:0; display:flex; flex-wrap:wrap; gap:8px 8px; align-items:flex-end; background:none; border:0; box-shadow:none; }   /* 5.19.79: בלי מסגרת – כמו הסינון בתשלומים */
     #view-leads .filters{ display:contents; }
     #view-leads .filters-chk{ flex:0 0 auto; gap:4px 14px; height:34px; margin-inline-start:8px; }
     #view-leads .filters > div{ flex:0 0 auto; width:130px; }
-    #view-leads .filters > div{ width:118px; } #view-leads .filters > div.wide{ width:210px; }
+    #view-leads .filters > div{ width:118px; } #view-leads .filters > div.wide{ width:260px; }
     #view-leads .filters > div:has(#fStatus){ width:175px; } #view-leads .filters > div:has(#fSchool){ width:145px; }
-    #view-leads .filters > div:has(#fCity){ width:105px; } #view-leads .filters > div:has(#fGrade){ width:68px; }
-    #view-leads .filters > div:has(#fFrom), #view-leads .filters > div:has(#fTo){ width:130px; }
+    #view-leads .filters > div:has(#fCity){ width:110px; } #view-leads .filters > div:has(#fGrade){ width:84px; }
+    #view-leads .filters > div:has(#fFrom), #view-leads .filters > div:has(#fTo){ width:150px; } #view-leads #fRemindDate{ width:150px; }
     #view-leads .filters .lbl{ font-size:11.5px; margin-bottom:2px; }
-    #view-leads .filters :is(input:not([type=checkbox]):not([type=radio]), select), #view-leads .filters .multi > button{ height:34px; padding:4px 8px; font-size:13.5px; }
+    #view-leads .filters :is(input:not([type=checkbox]):not([type=radio]), select), #view-leads .filters .multi > button{ height:40px; padding:6px 12px; font-size:14px; border-radius:12px; border:1.5px solid #E3DDD4; background-color:#FAF8F5; box-sizing:border-box; }
+    #view-leads .filters :is(input, select):focus, #view-leads .filters .multi > button:focus{ background-color:#fff; border-color:var(--gold-deep, #C9A45C); box-shadow:0 0 0 3px rgba(90,18,22,.10); outline:none; }
+    #view-leads .filters .lbl{ font-size:13px !important; margin-bottom:4px !important; }
+    #view-leads .filters-chk{ height:40px !important; }
     #view-leads .filters #fSearch{ padding-inline-start:32px; background-position:right 9px center; }   /* 5.19.28: זכוכית המגדלת לא על הטקסט */
     #view-leads .filters-chk{ margin-top:0; }
   }
@@ -1955,7 +1962,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <section id="view-leads" hidden>
       <div class="page-head">
         <h1>תלמידים</h1>
-        <button class="btn primary" type="button" id="addLeadBtn">+ ליד חדש</button>
+        <button class="btn small primary" type="button" id="addLeadBtn">+ ליד חדש</button>
       </div>
       <div class="card filters-card" style="margin-bottom:14px;">
         <button type="button" class="btn small mob-only" id="filtersToggle" style="margin-bottom:8px;">סינון נוסף ▾</button>
@@ -2985,11 +2992,17 @@ async function loadLeads(){
 const statusName = (id) => (L.statuses.find(s => s.id === id) || {}).name || "";
 // צבע הסטטוס (עמודה color בטבלת lead_statuses). טקסט לבן על רקע הצבע.
 const statusColor = (id) => (L.statuses.find(s => s.id === id) || {}).color || "";
+// 5.19.79 (נועה): צבעי הסטטוס המלאים נשארים; הטקסט כהה או לבן לפי הרקע (שיהיה קריא)
+const txtOn = (c) => { const m = String(c || "").trim().match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i); if (!m) return "#fff";
+  let h = m[1]; if (h.length === 3) h = h.split("").map(x => x + x).join("");
+  const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.36 ? "#2B1A12" : "#fff"; };
+const stSoft = (c) => c ? `background:${c}; color:${txtOn(c)}; -webkit-text-fill-color:${txtOn(c)}; border-color:transparent;` : "";
 function paintStatus(sel, id){
   const c = statusColor(id);
-  sel.style.background = c || ""; sel.style.color = c ? "#fff" : ""; sel.style.webkitTextFillColor = c ? "#fff" : ""; sel.style.borderColor = c ? "transparent" : "";
+  sel.style.cssText = sel.style.cssText.replace(/(background|color|-webkit-text-fill-color|border(-color)?)\s*:[^;]*;?/g, "") + stSoft(c);
 }
-const optStyle = (x) => x.color ? ` style="background:${x.color}; color:#fff;"` : "";
+const optStyle = (x) => x.color ? ` style="background:${x.color}; color:${txtOn(x.color)};"` : "";
 const sourceName = (id) => (L.sources.find(s => s.id === id) || {}).name || "";
 const staffName = (id) => ((L.staffAll || L.staff).find(s => s.id === id) || {}).full_name || "";
 const schoolOf = (st) => { const s = L.schools.find(x => x.id === st.school_id); return s ? s : { name: st.school || "", city: "" }; };
@@ -3221,7 +3234,7 @@ function renderLeads(){
       <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
       <td class="c-act"><button type="button" class="switch ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}"></button></td>
       <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
-      <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff; border-color:transparent;"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select>${marIcon(s)}</td>
+      <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="${stSoft(statusColor(l.status_id))}"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select>${marIcon(s)}</td>
       <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
       <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" title="${esc(ns.length ? ns.slice(-3).reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n").slice(0, 600) + (ns.length > 3 ? "\n(ועוד " + (ns.length - 3) + " - לחיצה לכל ההערות)" : "") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
       <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}</td>
@@ -3412,7 +3425,7 @@ function openLead(id){
   $("lfTopic").value = (l && l.topic) || "ליד";
   $("lfStatus").value = (l && l.status_id) || (L.statuses.find(x => x.name === "חדש") || {}).id || "";
   $("lfStatus").classList.add("status-big"); paintStatus($("lfStatus"), Number($("lfStatus").value));
-  [...$("lfStatus").options].forEach(o => { const c = statusColor(Number(o.value)); if (c) { o.style.background = c; o.style.color = "#fff"; } else { o.style.background = "#fff"; o.style.color = "#222"; } });
+  [...$("lfStatus").options].forEach(o => { const c = statusColor(Number(o.value)); if (c) { o.style.background = c; o.style.color = txtOn(c); } else { o.style.background = "#fff"; o.style.color = "#222"; } });
   $("lfSource").value = (l && l.source_id) || "";
   $("lfManager").value = (l && l.manager_id) || "";
   $("lfFilledBy").value = (l && l.filled_by) || "הורה";
@@ -9380,7 +9393,7 @@ const FIELD_SECS = [
 ];
 async function renderLinks(b){
   const list = await call("pay_links_list") || [];
-  b.innerHTML = `<div class="page-head pl-head"><span class="muted">קישור אישי להורה: תשלום חד-פעמי, ואם צריך - גם הוראת קבע. ההורה ממלא, חותם ומשלם באיקרדיט.</span><button class="btn primary" id="lNew" type="button">+ טופס תשלום חדש</button></div>
+  b.innerHTML = `<div class="page-head pl-head"><span class="muted">קישור אישי להורה: תשלום חד-פעמי, ואם צריך - גם הוראת קבע. ההורה ממלא, חותם ומשלם באיקרדיט.</span><button class="btn small primary" id="lNew" type="button">+ טופס תשלום חדש</button></div>
     ${list.length ? `<table class="tbl"><thead><tr><th>נוצר</th><th>הורה / תלמיד/ה</th><th>על מה</th><th>סכום</th><th>סטטוס</th><th></th></tr></thead><tbody>
       ${list.map((l, li) => { const ph = l.fields && l.fields.parent_phone && l.fields.parent_phone.value, wa = waLink(ph, `שלום, קישור לתשלום בתלם: ${l.url}`);
         return `<tr><td>${dmy(l.created_at)}<div class="muted">${esc(l.created_by_name || "")}</div></td><td><span class="par1">${esc(l.parent_name || "")}${l.parent_name && l.student_name ? " · " : ""}</span>${l.student_name ? stuCell(l.student_name, l.student_id) : ""}</td><td>${esc(l.description)}</td>
