@@ -2029,6 +2029,12 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   @media (max-width:760px){ #leadsBar{ margin:2px 0 4px; } }
   #view-leads .page-head:has(#leadsTools.lt-head){ flex-wrap:nowrap; } #view-leads .page-head:has(#leadsTools.lt-head) h1{ margin-inline-end:auto; }
   .clear-f{ white-space:nowrap; }
+  /* 5.19.88 (נועה 21.10): המשבצת בצבע האירוע, שם בית הספר בצבע של בית הספר (כמו בשאר המסכים) */
+  @media (max-width:760px){
+    .exm-wb{ display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px 2px !important; }
+    .exm-wb b.school-chip{ font-size:10px !important; padding:1px 5px !important; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; line-height:1.35; }
+    .exm-wb > span{ font-size:10px; font-weight:700; } .exm-wb.lg-m2 > span{ color:#fff; }
+  }
   @media (max-width:760px){
     .exm-sel{ width:100%; height:40px; margin:0 0 8px; border-radius:12px; border:1.5px solid #E3DDD4; background:#FAF8F5; padding:0 12px; font:inherit; font-size:15px; }
     .exm-wb.school-chip{ display:flex; flex-direction:column; align-items:center; gap:0; padding:3px 2px 3px; border-radius:7px; font-size:10.5px; line-height:1.2; position:relative; overflow:hidden; white-space:normal; max-width:none; }
@@ -4924,7 +4930,7 @@ function exMobile(){
       let days = [0, 1, 2, 3, 4, 5, 6].map(i => addDays(w0, i)); if (!ofDay(days[6]).length) days = days.slice(0, 6);
       h += `<div class="exm-wk"><button type="button" class="btn small" data-exmw="-7">→</button><b>${fmtDM(days[0])} – ${fmtDM(days[days.length - 1])}</b>${isNow ? "" : `<button type="button" class="btn small" data-exmw="0">השבוע</button>`}<button type="button" class="btn small" data-exmw="7">←</button></div>`;
       h += `<div class="exm-wg" style="grid-template-columns:repeat(${days.length},minmax(0,1fr))">` + days.map(d => `<div class="exm-wh${d === t ? " today" : ""}"><span>${dayLetter(d)}'</span><b>${Number(d.slice(8, 10))}</b></div>`).join("")
-        + days.map(d => `<div class="exm-wc${d === t ? " today" : ""}${d < t ? " exm-past" : ""}${d === EX.mDay ? " sel" : ""}" data-exmd="${d}">${ofDay(d).map(e => `<button type="button" class="exm-wb school-chip ${scCls(exSchName(e))}${e.id === EX.mEv ? " on" : ""}" data-exme="${e.id}" data-exmd="${d}" title="${esc(e.kind + " · " + exSchName(e))}"><i class="${exKindCls(e.kind)}"></i><b>${esc(short(exSchName(e)))}</b><span>${esc(gradeKey(e.grade))}'${/מפגש\s*\d/.test(e.kind) ? " · מ" + (String(e.kind).match(/מפגש\s*(\d+)/) || [])[1] : ""}</span></button>`).join("")}</div>`).join("") + `</div>`;
+        + days.map(d => `<div class="exm-wc${d === t ? " today" : ""}${d < t ? " exm-past" : ""}${d === EX.mDay ? " sel" : ""}" data-exmd="${d}">${ofDay(d).map(e => `<button type="button" class="exm-wb ${exKindCls(e.kind)}${e.id === EX.mEv ? " on" : ""}" data-exme="${e.id}" data-exmd="${d}" title="${esc(e.kind + " · " + exSchName(e))}"><b class="school-chip ${scCls(exSchName(e))}">${esc(short(exSchName(e)))}</b><span>${esc(gradeKey(e.grade))}'${/מפגש\s*\d/.test(e.kind) ? " · מ" + (String(e.kind).match(/מפגש\s*(\d+)/) || [])[1] : ""}</span></button>`).join("")}</div>`).join("") + `</div>`;
       if (!EX.mDay || !days.includes(EX.mDay)) EX.mDay = days.includes(t) ? t : (days.find(d => ofDay(d).length) || days[0]);
       h += exmDayList(EX.mDay);
     } else {
