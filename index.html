@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.94">
+<meta name="app-version" content="5.19.95">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1844,6 +1844,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .mc-lk{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .mc-lk-t{ font-size:13px; font-weight:700; color:var(--ink-soft); } .mc-links .lk2-l{ display:none !important; }
 @media (max-width:760px){ .mc-links{ grid-template-columns:1fr; } } .mc-int summary{ cursor:pointer; font-size:12.5px; color:var(--ink-soft); } .mc-int[open] summary{ margin-bottom:4px; }
 .ex-cal td.lnk{ box-shadow:inset 0 0 0 2px #0B3D5E; }
+.ex-cal tr.ex-col td{ height:20px !important; padding-block:0 !important; opacity:.75; } .ex-cal tr.ex-col .school-chip{ font-size:11px; padding:1px 8px; } .ex-cal tr.ex-emp .school-chip{ opacity:.8; }
+.ex-colb{ border:0; background:none; padding:0; cursor:pointer; display:inline-flex; align-items:center; gap:4px; font:inherit; } .ex-colb i{ font-style:normal; font-size:10px; color:var(--ink-soft); } .ex-nod{ font-size:10.5px; white-space:nowrap; }
 .ex-cal td.mrf{ box-shadow:inset 0 2.5px 0 #111, inset 0 -2.5px 0 #111 !important; } .ex-cal td.mrf.mrs{ box-shadow:inset 0 2.5px 0 #111, inset 0 -2.5px 0 #111, inset -2.5px 0 0 #111 !important; } .ex-cal td.mrf.mre{ box-shadow:inset 0 2.5px 0 #111, inset 0 -2.5px 0 #111, inset 2.5px 0 0 #111 !important; } .ex-cal td.mrf.mrs.mre{ box-shadow:inset 0 0 0 2.5px #111 !important; }
 .ex-cal th.mo{ font-size:19px !important; font-weight:900 !important; height:40px !important; line-height:38px !important; padding-top:0 !important; color:#5A1018 !important; background:#F8F2E7 !important; letter-spacing:.2px; }
 .ex-cal th.mo > span{ background:inherit; padding:0 10px; border-radius:8px; }   /* 5.19.94 (נועה): שם החודש גדול וברור, נשאר גלוי בזמן גלילה */
@@ -4908,11 +4910,13 @@ async function renderExams(reload){
   const cal = EX.mode === "cal"; exPalRender(); $("exMonthNav").hidden = !cal; $("exRangeL").hidden = cal; $("exCal").hidden = !cal; if (cal) $("exRangeX").hidden = true; $("exList").hidden = cal;
   const exCity = (e) => (e.school && e.school.city) || "";
   const cities = CONFIG.cities.filter(c => EX.rows.some(e => exCity(e) === c));
-  { const v = $("exCity").value; $("exCity").innerHTML = `<option value="">כל הערים</option>` + cities.map(c => `<option ${c === v ? "selected" : ""}>${esc(c)}</option>`).join(""); }
+  // 5.19.95 (נועה): הסינון (עיר / בית ספר / שכבה) נשמר – גם אחרי עדכון גרסה / רענון
+  if (!EX.fS) { try { EX.fS = JSON.parse(store("telem_ex_f") || "{}") || {}; } catch(e) { EX.fS = {}; } }
+  { const v = $("exCity").value || EX.fS.c || ""; $("exCity").innerHTML = `<option value="">כל הערים</option>` + cities.map(c => `<option ${c === v ? "selected" : ""}>${esc(c)}</option>`).join(""); }
   const fc = $("exCity").value;
   const schs = [...new Set(EX.rows.filter(e => !fc || exCity(e) === fc).map(exSchName))].sort((a, b) => a.localeCompare(b, "he"));
   const grs = [...new Set(EX.rows.map(e => gradeKey(e.grade)).filter(Boolean))].sort((a, b) => GRADE_ORD.indexOf(a) - GRADE_ORD.indexOf(b));
-  const keep = (sel, opts, all) => { const v = sel.value; sel.innerHTML = `<option value="">${all}</option>` + opts.map(o => `<option ${o === v ? "selected" : ""}>${esc(o)}</option>`).join(""); };
+  const keep = (sel, opts, all) => { const v = sel.value || EX.fS[sel.id === "exSch" ? "s" : "g"] || ""; sel.innerHTML = `<option value="">${all}</option>` + opts.map(o => `<option ${o === v ? "selected" : ""}>${esc(o)}</option>`).join(""); };
   keep($("exSch"), schs, "כל בתי הספר"); keep($("exGrade"), grs, "כל השכבות");
   const t = todayIL(), fs = $("exSch").value, fg = $("exGrade").value, past = false, mk = false, adm = ME.role !== "instructor";
   const flt = (e) => (!fc || exCity(e) === fc) && (!fs || exSchName(e) === fs) && (!fg || gradeKey(e.grade) === fg);
@@ -4961,8 +4965,8 @@ async function renderExams(reload){
   box.querySelectorAll("[data-exdel]").forEach(b => b.onclick = async () => { const e = EX.rows.find(x => x.id === Number(b.dataset.exdel));
     try { if (!await exDelEvent(e, `ה${e.kind} של ${exSchName(e)} ${gradeKey(e.grade)}' ב-${fmtIso(e.exam_date)}`)) return; toast("נמחק"); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } });
 }
-["exCity", "exSch", "exGrade", "exFrom", "exTo"].forEach(id => $(id).addEventListener("change", () => renderExams(false)));   // 5.19.49: בלי "גם שעברו" / "גם השלמה" (הלקוחה)
-$("exRangeX").addEventListener("click", () => { EX.rangeInit = false; EX.kf = ""; ["exCity", "exSch", "exGrade"].forEach(id => { $(id).value = ""; }); renderExams(false); });
+["exCity", "exSch", "exGrade", "exFrom", "exTo"].forEach(id => $(id).addEventListener("change", () => { EX.fS = { c: $("exCity").value, s: $("exSch").value, g: $("exGrade").value }; store("telem_ex_f", JSON.stringify(EX.fS)); renderExams(false); }));   // 5.19.49: בלי "גם שעברו" / "גם השלמה" (הלקוחה)
+$("exRangeX").addEventListener("click", () => { EX.rangeInit = false; EX.kf = ""; EX.fS = {}; store("telem_ex_f", "{}"); ["exCity", "exSch", "exGrade"].forEach(id => { $(id).value = ""; }); renderExams(false); });
 document.querySelectorAll("[data-exm]").forEach(b => b.addEventListener("click", () => { EX.mode = b.dataset.exm; store("telem_ex_mode", EX.mode); renderExams(false); }));
 const exMonthAdd = (m, n) => { const [y, mo] = m.split("-").map(Number), d = new Date(Date.UTC(y, mo - 1 + n, 1)); return d.toISOString().slice(0, 7); };
 // החודשים בגלילה אחת (כל השנה). הכפתורים גוללים לחודש הקודם / הבא / להיום
@@ -5127,7 +5131,12 @@ function exCalHtml(rows, today, extra){
   extra.forEach(x => { if (![...keyMap.values()].some(r => r.city === x.city && schKey(r.sch) === schKey(x.sch) && (!x.gr || r.gr === x.gr))) keyMap.set(x.city + "|" + x.sch + "|" + x.gr, { city: x.city, sch: x.sch, gr: x.gr, ex: [] }); });
   const grIdx = (r) => r.gr ? GRADE_ORD.indexOf(r.gr) : 999;
   const schRank = (n) => { const i = EX_SCH_ORDER.indexOf(String(n || "").replace(/״/g, '"').trim()); return i < 0 ? 99 : i; };
-  const list = [...keyMap.values()].sort((a, b) => cityRank(a.city) - cityRank(b.city) || schRank(a.sch) - schRank(b.sch) || a.sch.localeCompare(b.sch, "he") || grIdx(a) - grIdx(b));
+  // 5.19.95 (נועה): בית ספר בלי שום מידע – בסוף העיר שלו, מכווץ לשורה אחת דקה (לחיצה על השם פותחת את השכבות)
+  EX.expSch = EX.expSch || new Set();
+  const skey = (r) => r.city + "|" + schKey(r.sch), hasData = new Set([...keyMap.values()].filter(r => r.ex.length).map(skey));
+  const empt = (r) => !hasData.has(skey(r));
+  for (const [k, r] of [...keyMap.entries()]) if (empt(r) && !EX.expSch.has(skey(r))) { keyMap.delete(k); keyMap.set(skey(r) + "|~", { city: r.city, sch: r.sch, gr: "", ex: [], col: true }); }
+  const list = [...keyMap.values()].sort((a, b) => cityRank(a.city) - cityRank(b.city) || (empt(a) - empt(b)) || schRank(a.sch) - schRank(b.sch) || a.sch.localeCompare(b.sch, "he") || grIdx(a) - grIdx(b));
   if (!list.length) return "<div class='empty-state'>אין מבחנים לפי הבחירה.</div>";   // (גם בלי מבחנים: אפשר להוסיף מ"+ אירוע")
   const holCell = (iso, city, sch) => { const h = holOn(iso, city || null, sch || null).filter(x => x.kind !== "note"); return h.length ? h[0].name : ""; };
   const wk = (x) => (x.dl === "א" ? " wk" : "") + (x.first ? " ms" : "") + (x.dl === "ו" ? " fri" : "") + (x.alt ? " malt" : "");   // שישי - אפור כמו חג
@@ -5142,7 +5151,8 @@ function exCalHtml(rows, today, extra){
     const first = i === 0 || list[i - 1].sch !== r.sch || list[i - 1].city !== r.city, span = first ? list.filter(x => x.sch === r.sch && x.city === r.city).length : 0;
     // 5.19.90 (נועה): מרתון שרץ (יש לו קישור הרשמה) – מסגרת שחורה סביב כל הימים מהמפגש הראשון עד האחרון
     const mrs = exRunRange(r.ex), frm = (iso) => { const z = mrs.find(z => iso >= z[0] && iso <= z[1]); return z ? " mrf" + (iso === z[0] ? " mrs" : "") + (iso === z[1] ? " mre" : "") : ""; };
-    html += `<tr class="${first ? "first" : ""}" data-row="${esc(r.city)}|${esc(r.sch)}|${esc(r.gr)}">${first ? `<td class="sch" rowspan="${span}">${scChip(r.sch)}</td>` : ""}<td class="gr">${r.gr ? `<span class="gr-b g-${esc(r.gr)}">${esc(r.gr)}'</span>` : `<span class="muted">—</span>`}</td>` + days.map(x => {
+    const em = empt(r);
+    html += `<tr class="${first ? "first" : ""}${r.col ? " ex-col" : em ? " ex-emp" : ""}" data-row="${esc(r.city)}|${esc(r.sch)}|${esc(r.gr)}">${first ? `<td class="sch" rowspan="${span}">${em ? `<button type="button" class="ex-colb" data-exexp="${esc(skey(r))}" title="${r.col ? "פתיחת השכבות (להוספת אירוע)" : "כיווץ"}">${scChip(r.sch)}<i>${r.col ? "▾" : "▴"}</i></button>` : scChip(r.sch)}</td>` : ""}<td class="gr">${r.col ? `<span class="muted ex-nod">אין מידע</span>` : r.gr ? `<span class="gr-b g-${esc(r.gr)}">${esc(r.gr)}'</span>` : `<span class="muted">—</span>`}</td>` + days.map(x => {
       const all = r.ex.filter(e => e.exam_date === x.iso), es = all.filter(e => !EX_STUDY.test(e.kind) && !EX_EVT.test(e.kind)), evt = all.find(e => EX_EVT.test(e.kind)), stu = all.find(e => EX_STUDY.test(e.kind)), h = holCell(x.iso, r.city, r.sch);
       if (es.length) { const e = es.find(z => !EX_MAKEUP.test(z.kind)) || es[0], mkc = EX_MAKEUP.test(e.kind);
         return `<td class="d${wk(x)}${frm(x.iso)} ${mkc ? "mk" : /בוחן/.test(e.kind) ? "ex qz" : /מבדק/.test(e.kind) ? "ex bd" : "ex"}${x.iso === today ? " today" : ""}" data-ex="${e.id}" title="${esc(es.map(z => z.kind + (z.class_num ? " (" + r.gr + "'" + z.class_num + ")" : "") + (z.topics ? ": " + z.topics : "")).join("\n"))}">${esc(exShort(e.kind))}</td>`; }
@@ -5179,6 +5189,13 @@ function exOpenForm(e, pre){
   (sid ? $("exfEvt") : $("exfSch")).focus();
 }
 // 5.19.34: הטופס - חלון קטן באמצע המסך
+// 5.19.95: בית ספר מכווץ – לחיצה על השם או על יום בשורה פותחת את השכבות שלו
+document.addEventListener("click", (ev) => { const b = ev.target.closest && (ev.target.closest("[data-exexp]") || ev.target.closest("tr.ex-col td"));
+  if (!b || !$("exCal") || !$("exCal").contains(b)) return;
+  ev.preventDefault(); ev.stopPropagation();
+  const tr = b.closest("tr"), k = b.dataset.exexp || (tr && tr.querySelector("[data-exexp]") && tr.querySelector("[data-exexp]").dataset.exexp); if (!k) return;
+  EX.expSch = EX.expSch || new Set(); if (EX.expSch.has(k)) EX.expSch.delete(k); else EX.expSch.add(k);
+  EX.scrollTo = exFirstVisible(); renderExams(false); }, true);
 function exFormClose(){ $("exForm").hidden = true; $("exForm").innerHTML = ""; $("exFormBg").hidden = true; }
 $("exFormBg").addEventListener("click", exFormClose);
 document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && !$("exForm").hidden) exFormClose(); });
