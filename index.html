@@ -2334,7 +2334,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
               <label><button type="button" class="switch" id="lfMailing" aria-pressed="false"></button> דיוור</label>
               <label><button type="button" class="switch" id="lfCustomer" aria-pressed="false"></button> לקוח</label>
               <!-- 5.19.90 (נועה): שורת ניהול – תזכורת ומנהל באותה שורה, משמאל, בקטן (נשמרים מיד) -->
-              <span class="tg-mng"><span class="tg-f" title="תזכורת"><label for="lfRemind">⏰</label><input id="lfRemind" type="datetime-local" aria-label="תזכורת"><button class="tg-x" type="button" id="clearRemind" title="ניקוי התזכורת" aria-label="ניקוי התזכורת">✕</button></span>
+              <span class="tg-mng"><span class="tg-f" title="תזכורת"><label for="lfRemind">⏰ תזכורת</label><input id="lfRemind" type="datetime-local" aria-label="תזכורת"><button class="tg-x" type="button" id="clearRemind" title="ניקוי התזכורת" aria-label="ניקוי התזכורת">✕</button></span>
                 <span class="tg-f"><label for="lfManager">מנהל</label><select id="lfManager"></select></span></span>
             </div>
             <!-- פרטים עיקריים: שם הילד, הורה, טלפון -->
@@ -5014,6 +5014,8 @@ function exMobile(){
   const el = $("exCal"), t = todayIL();
   const exCity = (e) => (e.school && e.school.city) || "";
   const evs = EX.rows.filter(e => !EX_STUDY.test(e.kind));
+  const runR = {}; evs.forEach(e => { const k = exSchName(e) + "|" + gradeKey(e.grade); (runR[k] = runR[k] || []).push(e); }); Object.keys(runR).forEach(k => { runR[k] = exRunRange(runR[k]); });
+  const exInRun = (e) => (runR[exSchName(e) + "|" + gradeKey(e.grade)] || []).some(([a, b]) => e.exam_date >= a && e.exam_date <= b);
   const schOf = (c) => (L.schools || []).filter(x => exColored(x.name) && (!c || x.city === c)).map(x => x.name).sort((a, b) => a.localeCompare(b, "he"));
   const cities = CONFIG.cities.filter(c => schOf(c).length);
   EX.mTab = EX.mTab === "mar" ? "mar" : "week";
@@ -5048,7 +5050,7 @@ function exMobile(){
       let days = [0, 1, 2, 3, 4, 5, 6].map(i => addDays(w0, i)); if (!ofDay(days[6]).length) days = days.slice(0, 6);
       h += `<div class="exm-wk"><button type="button" class="btn small" data-exmw="-7">→</button><b>${(() => { const a = days[0], z = days[days.length - 1], mn = (d) => HE_MONTHS[Number(d.slice(5, 7)) - 1]; return a.slice(0, 7) === z.slice(0, 7) ? `${mn(a)} ${a.slice(0, 4)}<small dir="ltr">${Number(a.slice(8, 10))}–${Number(z.slice(8, 10))}</small>` : `${mn(a)}–${mn(z)} ${z.slice(0, 4)}<small dir="ltr">${fmtDM(a)} – ${fmtDM(z)}</small>`; })()}</b>${isNow ? "" : `<button type="button" class="btn small" data-exmw="0">השבוע</button>`}<button type="button" class="btn small" data-exmw="7">←</button></div>`;
       h += `<div class="exm-wg" style="grid-template-columns:repeat(${days.length},minmax(0,1fr))">` + days.map(d => `<div class="exm-wh${d === t ? " today" : ""}"><span>${dayLetter(d)}'</span><b>${Number(d.slice(8, 10))}</b></div>`).join("")
-        + days.map(d => `<div class="exm-wc${d === t ? " today" : ""}${d < t ? " exm-past" : ""}${d === EX.mDay ? " sel" : ""}" data-exmd="${d}">${ofDay(d).map(e => `<button type="button" class="exm-wb${e.id === EX.mEv ? " on" : ""}${exIsMar(e) && e.session_id && !(EX.cxl && EX.cxl.has(e.session_id)) ? " exm-run" : ""}" data-exme="${e.id}" data-exmd="${d}" title="${esc(e.kind + " · " + exSchName(e))}"><b class="school-chip ${scCls(exSchName(e))}">${esc(short(exSchName(e)))}</b><em class="exm-k ${exKindCls(e.kind)}">${esc(exmKindShort(e.kind))} ${esc(gradeKey(e.grade))}'</em></button>`).join("")}</div>`).join("") + `</div>`;
+        + days.map(d => `<div class="exm-wc${d === t ? " today" : ""}${d < t ? " exm-past" : ""}${d === EX.mDay ? " sel" : ""}" data-exmd="${d}">${ofDay(d).map(e => `<button type="button" class="exm-wb${e.id === EX.mEv ? " on" : ""}${exInRun(e) ? " exm-run" : ""}" data-exme="${e.id}" data-exmd="${d}" title="${esc(e.kind + " · " + exSchName(e))}"><b class="school-chip ${scCls(exSchName(e))}">${esc(short(exSchName(e)))}</b><em class="exm-k ${exKindCls(e.kind)}">${esc(exmKindShort(e.kind))} ${esc(gradeKey(e.grade))}'</em></button>`).join("")}</div>`).join("") + `</div>`;
       if (!EX.mDay || !days.includes(EX.mDay)) EX.mDay = days.includes(t) ? t : (days.find(d => ofDay(d).length) || days[0]);
       h += exmDayList(EX.mDay);
     } else {
@@ -5094,6 +5096,15 @@ function exMobile(){
   { const sel = el.querySelector("#exmCitySel"); if (sel) sel.onchange = () => { EX.mScC = sel.value; EX.mScS = ""; exMobile(); }; }
 }
 
+// 5.19.90 (נועה): מרתון שרץ (יש קישור) – המסגרת כוללת גם את ה-SMS / וידוא שלפניו ואת המבחן שהוא לקראתו
+function exRunRange(list){   // list = האירועים של בית ספר + שכבה אחד → [[מ, עד], ...]
+  const mr = {}; list.forEach(e => { if (exIsMar(e) && e.session_id && !(EX.cxl && EX.cxl.has(e.session_id))) { const z = mr[e.session_id] = mr[e.session_id] || [e.exam_date, e.exam_date]; if (e.exam_date < z[0]) z[0] = e.exam_date; if (e.exam_date > z[1]) z[1] = e.exam_date; } });
+  return Object.values(mr).map(([a, b]) => {
+    const test = list.filter(e => EX_IS_TEST(e.kind) && e.exam_date >= b && e.exam_date <= addDays(b, 30)).map(e => e.exam_date).sort()[0];
+    const prevTest = list.filter(e => EX_IS_TEST(e.kind) && e.exam_date < a).map(e => e.exam_date).sort().pop() || "";
+    const sms = list.filter(e => /^SMS|^וידוא/.test(e.kind) && e.exam_date < a && e.exam_date >= addDays(a, -21) && e.exam_date > prevTest).map(e => e.exam_date).sort()[0];
+    return [sms || a, test || b]; });
+}
 function exCalHtml(rows, today, extra){
   extra = extra || [];
   // כל שנת הלימודים בגלילה אחת: מ-1.9 עד סוף השנה (או עד המבחן האחרון)
@@ -5125,8 +5136,7 @@ function exCalHtml(rows, today, extra){
     if (r.city !== city) { city = r.city; html += `<tr class="ex-city"><td colspan="${days.length + 2}"><span>${esc(city || "בלי עיר")}</span></td></tr>`; }
     const first = i === 0 || list[i - 1].sch !== r.sch || list[i - 1].city !== r.city, span = first ? list.filter(x => x.sch === r.sch && x.city === r.city).length : 0;
     // 5.19.90 (נועה): מרתון שרץ (יש לו קישור הרשמה) – מסגרת שחורה סביב כל הימים מהמפגש הראשון עד האחרון
-    const mr = {}; r.ex.forEach(e => { if (exIsMar(e) && e.session_id && !(EX.cxl && EX.cxl.has(e.session_id))) { const z = mr[e.session_id] = mr[e.session_id] || [e.exam_date, e.exam_date]; if (e.exam_date < z[0]) z[0] = e.exam_date; if (e.exam_date > z[1]) z[1] = e.exam_date; } });
-    const mrs = Object.values(mr), frm = (iso) => { const z = mrs.find(z => iso >= z[0] && iso <= z[1]); return z ? " mrf" + (iso === z[0] ? " mrs" : "") + (iso === z[1] ? " mre" : "") : ""; };
+    const mrs = exRunRange(r.ex), frm = (iso) => { const z = mrs.find(z => iso >= z[0] && iso <= z[1]); return z ? " mrf" + (iso === z[0] ? " mrs" : "") + (iso === z[1] ? " mre" : "") : ""; };
     html += `<tr class="${first ? "first" : ""}" data-row="${esc(r.city)}|${esc(r.sch)}|${esc(r.gr)}">${first ? `<td class="sch" rowspan="${span}">${scChip(r.sch)}</td>` : ""}<td class="gr">${r.gr ? `<span class="gr-b g-${esc(r.gr)}">${esc(r.gr)}'</span>` : `<span class="muted">—</span>`}</td>` + days.map(x => {
       const all = r.ex.filter(e => e.exam_date === x.iso), es = all.filter(e => !EX_STUDY.test(e.kind) && !EX_EVT.test(e.kind)), evt = all.find(e => EX_EVT.test(e.kind)), stu = all.find(e => EX_STUDY.test(e.kind)), h = holCell(x.iso, r.city, r.sch);
       if (es.length) { const e = es.find(z => !EX_MAKEUP.test(z.kind)) || es[0], mkc = EX_MAKEUP.test(e.kind);
