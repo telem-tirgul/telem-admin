@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.88">
+<meta name="app-version" content="5.19.89">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2029,6 +2029,32 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   @media (max-width:760px){ #leadsBar{ margin:2px 0 4px; } }
   #view-leads .page-head:has(#leadsTools.lt-head){ flex-wrap:nowrap; } #view-leads .page-head:has(#leadsTools.lt-head) h1{ margin-inline-end:auto; }
   .clear-f{ white-space:nowrap; }
+  /* 5.19.89 (נועה: "סינון נוסף נמרח על כל המסך"): בנייד – הסינון הפתוח קומפקטי: חיפוש + "פחות ▴" בשורה אחת, 2 שדות בשורה בלי כותרות (השם בתוך השדה), גובה מוגבל עם גלילה, ולא נדבק למעלה */
+  @media (max-width:760px){
+    #view-leads .filters-card.open{ position:static !important; display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; }
+    #view-leads .filters-card.open > #filtersToggle{ order:2; flex:none; height:40px; min-height:40px; margin:0 !important; padding-block:0 !important; display:inline-flex; align-items:center; }
+    #view-leads .filters-card.open > .filters{ order:3; flex:1 1 100%; display:grid !important; grid-template-columns:1fr 1fr !important; gap:6px 8px !important; max-height:46vh; overflow-y:auto; margin:0 !important; padding:2px; }
+    #view-leads .filters-card.open > .filters-chk{ order:4; flex:1 1 100%; height:auto !important; gap:4px 12px !important; margin:0 !important; }
+    #view-leads .filters-card.open .filters > .wide{ display:none; }   /* החיפוש עובר לשורה העליונה */
+    #view-leads .filters-card.open > .lt-search{ order:1; flex:1 1 0; min-width:0; } #view-leads .filters-card.open > .lt-search > .lbl{ display:none; }
+    #view-leads .filters-card.open .filters > div:has(#fManager){ order:19; grid-column:1 / -1; } #view-leads .filters-card.open .filters > div:has(#fFrom){ order:20; } #view-leads .filters-card.open .filters > div:has(#fTo){ order:21; }
+    #view-leads .filters-card.open .filters > div > .lbl{ display:none; }
+    #view-leads .filters-card.open .filters > div:has(input[type=date]) > .lbl{ display:block; font-size:11px; margin:0 0 -2px; }
+    #view-leads .filters-card.open .filters :is(select, input, .multi > button){ height:36px !important; min-height:36px !important; font-size:13.5px !important; }
+  }
+  /* 5.19.88 (נועה: "עריכת הקבוצה לא מסודרת"): מסגרת אחת בלי פתיחה/סגירה, שני חלקים עם כותרות קטנות, כפתורים בשורה האחרונה, מחיקה ליד הכותרת */
+  .g-edit .g-det.ge-flat > summary{ display:none !important; }
+  .g-edit .g-det.ge-flat{ padding:6px 14px 14px !important; }
+  .g-edit .g-det.ge-flat .g-fields{ margin-top:0; }
+  .g-edit .ge-st{ font-weight:800; font-size:13px; color:var(--accent); margin:8px 0 -2px; padding-top:8px; border-top:1px dashed #E6DDD3; } .g-edit .g-fields > .ge-st:first-child{ border-top:0; padding-top:0; margin-top:4px; }
+  .g-edit .ge-note{ font-size:12.5px; margin:-6px 0 2px; }
+  @media (max-width:760px){ .g-edit .ge-gap{ display:none; }
+    /* בנייד – זוגות הגיוניים: בית ספר+יום, התחלה+סיום, מתאריך+עד, כיתה+(עיר בקבוצה חדשה) */
+    .g-edit .ge-flat .g-fields > :has([data-g="room"]){ order:7; } .g-edit .ge-flat .g-fields > :has([data-g="gcity"]){ order:8; }
+    .g-edit .ge-flat .g-fields > :is(.ge-st:nth-of-type(n+2), :has(.ins-pick), :has([data-g="cap"]), .g-chk, .g-btn-cell){ order:20; }
+    .g-edit .ge-flat .g-fields > .ge-st ~ .ge-st{ order:19; }
+  }
+  @media (min-width:761px){ .g-edit:not(.g3) .ge-gap{ display:none; } }
   /* 5.19.88 (נועה 21.10): חצי עליון בצבע בית הספר, חצי תחתון בצבע האירוע */
   @media (max-width:760px){
     #exCal .exm-wb{ padding:0 !important; gap:0 !important; border:1px solid #DCD3C7 !important; border-radius:7px !important; overflow:hidden; }
@@ -4490,6 +4516,18 @@ $("leadEditBtn").addEventListener("click", () => { setLeadEdit(true); const k = 
     else if (meta.parentNode !== chk) chk.appendChild(meta);
     bar.hidden = !bar.querySelector("*:not(:empty)") && !mq.matches; };
   place(); mq.addEventListener ? mq.addEventListener("change", place) : mq.addListener(place); })();
+// 5.19.89 (נועה): בנייד הסינון בלי כותרות – שם השדה בתוך השדה ("עיר: הכול")
+(function(){ const mq = matchMedia("(max-width:760px)"), sels = ["fCity", "fSchool", "fGrade", "fAsg", "fManager"].map(id => $(id)).filter(Boolean);
+  const lblOf = (sel) => { const l = sel.parentNode.querySelector(".lbl"); return l ? l.textContent.trim() : ""; };
+  const paint = () => sels.forEach(sel => { const o = sel.options[0]; if (!o) return; const base = o.dataset.base || o.textContent.replace(/^[^:]+:\s*/, ""); o.dataset.base = base; o.textContent = mq.matches ? lblOf(sel) + ": " + base : base; });
+  sels.forEach(sel => new MutationObserver(() => { const o = sel.options[0]; if (o && mq.matches && !/:/.test(o.textContent)) paint(); }).observe(sel, { childList: true }));
+  paint(); mq.addEventListener ? mq.addEventListener("change", paint) : mq.addListener(paint);
+  // החיפוש עובר לשורה של "פחות ▴" כשהסינון פתוח בנייד
+  const card = document.querySelector("#view-leads .filters-card"), wide = $("fSearch") && $("fSearch").closest(".wide");
+  if (card && wide) { const home = wide.parentNode, nxt = wide.nextSibling;
+    const place = () => { const up = mq.matches && card.classList.contains("open"); if (up && wide.parentNode !== card) { wide.classList.add("lt-search"); card.insertBefore(wide, card.firstChild); } else if (!up && wide.parentNode === card) { wide.classList.remove("lt-search"); home.insertBefore(wide, nxt); } };
+    new MutationObserver(place).observe(card, { attributes: true, attributeFilter: ["class"] }); mq.addEventListener ? mq.addEventListener("change", place) : mq.addListener(place); place(); }
+})();
 $("leadMergeBtn").addEventListener("click", () => { if (editing) mergeDlg(editing.student_id); });
 $("leadSaveTop").addEventListener("click", () => { const f = $("leadForm"); if (f.requestSubmit) f.requestSubmit(f.querySelector('#leadActions button[type=submit]:not([data-and-back])')); else f.querySelector("#leadActions button[type=submit]").click(); });   // 5.19.58
 $("leadCancelTop").addEventListener("click", () => $("leadCancel").click());
@@ -5547,17 +5585,23 @@ async function openGroupEditor(se, preset){
   const kids = se ? (se.assigned_count || 0) : 0;
   box.innerHTML = `
     <div class="full lg-edit-h">${se ? "עריכת קבוצה" : "קבוצה חדשה · " + esc(city)}</div>
-    <details class="full g-det" open><summary>פרטי הקבוצה <span class="muted g-note">· שינוי כאן חל מהיום והלאה, לא על נוכחות שכבר נשמרה</span></summary><div class="g-fields">
+    <div class="full muted ge-note">שינוי כאן חל מהיום והלאה – לא על נוכחות שכבר נשמרה.</div>
+    <details class="full g-det ge-flat" open><summary>פרטי הקבוצה</summary><div class="g-fields">
+    <div class="full ge-st">מתי ואיפה</div>
     ${se ? "" : `<div><label class="lbl">עיר</label><select data-g="gcity">${CONFIG.cities.map(c => `<option ${c === city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>`}
-    <div class="full g-ins-row"><div><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div><label class="chk g-chk"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label></div>
     <div><label class="lbl">בית ספר</label><select data-g="loc">${se ? "" : "<option value=''>בחירה...</option>"}${locs.map(x => `<option value="${x.id}" ${curLoc && curLoc.id === x.id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></div>
     <div><label class="lbl">יום</label><select data-g="day">${DAYS.filter(d => d !== "ו").map(d => `<option value="${d}" ${se && se.day === d ? "selected" : ""}>${DAY_NAMES[d]}</option>`).join("")}</select></div>
     <div><label class="lbl">כיתה</label><input data-g="room" value="${esc(se && se.room || "")}" placeholder="למשל ח1"></div>
     <div><label class="lbl">שעת התחלה</label><input type="time" data-g="start" value="${se ? hm(se.start_time) : ""}"></div>
     <div><label class="lbl">שעת סיום</label><input type="time" data-g="end" value="${se ? hm(se.end_time) : ""}"></div>
-    <div><label class="lbl">מקסימום ילדים</label><input type="number" min="0" data-g="cap" value="${se && se.capacity != null ? se.capacity : ""}" placeholder="ללא הגבלה"></div>
+    <div class="ge-gap"></div>
     <div><label class="lbl">מתאריך</label><input type="date" data-g="from" value="${esc(se ? (se.date_from || "") : todayIL())}"></div>
     <div><label class="lbl">עד תאריך <span class="muted" style="font-weight:400">(המפגש האחרון)</span></label><input type="date" data-g="to" value="${esc(se ? (se.date_to || lastMeeting(se.day, G.yearEnd)) : lastMeeting(DAYS[0], G.yearEnd))}"></div>
+    <div class="ge-gap"></div>
+    <div class="full ge-st">מתרגלים והרשמה</div>
+    <div class="full"><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div>
+    <div><label class="lbl">מקסימום ילדים</label><input type="number" min="0" data-g="cap" value="${se && se.capacity != null ? se.capacity : ""}" placeholder="ללא הגבלה"></div>
+    <label class="chk g-chk"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
     <div class="g-btn-cell"></div>
     </div></details>
     <div class="err full" data-g="err"></div>
