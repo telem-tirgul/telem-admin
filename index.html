@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.95">
+<meta name="app-version" content="5.19.96">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4902,6 +4902,12 @@ async function renderExams(reload){
   const box = $("exList");
   if (reload || !EX.rows) { if (!LIVE_QUIET || !EX.rows) box.innerHTML = "<div class='empty-state'>טוען...</div>"; await loadExams(true);
     try { const r = await get("exam_imports", "select=at,rows_in,unmatched,by_name&order=id.desc&limit=1"); EX.imp = r[0] || null; } catch(e) { EX.imp = null; } }
+  // 5.19.96 (נועה: "הלוח זז ימינה ושמאלה כל כמה שניות"): בעדכון האוטומטי – אם שום דבר לא השתנה לא מציירים מחדש,
+  // ואם השתנה – הגלילה נשמרת בדיוק (בפיקסלים), בלי ליישר מחדש לפי תאריך
+  const sig = JSON.stringify(EX.rows) + "|" + JSON.stringify(EX.imp);
+  if (LIVE_QUIET && EX.sig === sig && document.querySelector("#exCal .ex-cal-wrap, #exCal .exm")) return;
+  EX.sig = sig;
+  { const w0 = document.querySelector(".ex-cal-wrap"); EX.keepSL = LIVE_QUIET && w0 ? w0.scrollLeft : null; }
   if (EX.err && !EX.rows.length) { box.innerHTML = `<div class="empty-state">${EX.err.status === 404 || /school_exams/.test(EX.err.message || "") ? "צריך להריץ את קובץ 50." : "לא ניתן לטעון."}</div>`; return; }
   const im = EX.imp;
   $("exInfo").innerHTML = im ? `עודכן מהקובץ: <b>${esc(fmtDate(im.at))}</b> · ${esc(im.by_name || "")} · ${im.rows_in} שורות (מתוכן "חומר נלמד": ${EX.rows.filter(e => EX_STUDY.test(e.kind)).length})${im.unmatched ? `<div class="ex-warn">⚠ בתי ספר שלא זוהו במערכת: ${esc(im.unmatched)}</div>` : ""}` : "";
@@ -4925,7 +4931,7 @@ async function renderExams(reload){
   if (cal && isMobile()) { exMobile(); $("exMonthNav").hidden = true; box.innerHTML = ""; return; }   // 5.19.88 (נועה): בנייד – בית ספר ← שכבה ← ציר זמן עד המבחן
   if (cal) { await loadHol(); if (!EX.scrollTo && !EX.goToday && document.querySelector(".ex-cal-wrap")) EX.scrollTo = exFirstVisible(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_CAL_HIDE.test(e.kind) && !EX_STUDY.test(e.kind) && flt(e) && exColored(exSchName(e))), t,
       (L.schools || []).filter(x => exColored(x.name) && (!fc || x.city === fc) && (!fs || x.name === fs))
-        .flatMap(x => exGradesOf(x.name).filter(g => !fg || g === fg).map(g => ({ city: x.city, sch: x.name, gr: g })))); exFit(); exScrollTo(EX.scrollTo || exWeekStart(t), true, false); EX.scrollTo = null; EX.goToday = false; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
+        .flatMap(x => exGradesOf(x.name).filter(g => !fg || g === fg).map(g => ({ city: x.city, sch: x.name, gr: g })))); exFit(); { const w1 = document.querySelector(".ex-cal-wrap"); if (EX.keepSL != null && w1 && !EX.goToday) w1.scrollLeft = EX.keepSL; else exScrollTo(EX.scrollTo || exWeekStart(t), true, false); } EX.keepSL = null; EX.scrollTo = null; EX.goToday = false; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
   // 5.19.49 (הלקוחה): סינון מתאריך-עד תאריך. "מתאריך" גובר על "גם מבחנים שעברו"
   // ברירת מחדל: מהיום עד 20.6 של שנת הלימודים
   const y20 = (Number(t.slice(0, 4)) + (Number(t.slice(5, 7)) >= 7 ? 1 : 0)) + "-06-20";
