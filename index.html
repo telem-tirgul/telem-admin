@@ -9402,6 +9402,11 @@ async function liveRefresh(minGap){
   // 5.19.88 (נועה: "הקבוצות מתרפרשות כל הזמן"): עדכון שקט - בלי "טוען..." באמצע, הגובה נשמר בזמן הציור, ושומרים גם את הגלילה בתוך המסך (לוח השבוע וכו')
   LIVE_QUIET = true;
   const root = $("view-" + v), inner = root ? [...root.querySelectorAll("[id]")].filter(e => e.scrollTop || e.scrollLeft).map(e => [e.id, e.scrollTop, e.scrollLeft]) : [];
+  // 5.19.96 (נועה): בלי "ריפרוש" נראה בשום מסך – שומרים גם גלילה של אזורים בלי id (טבלאות רחבות, רשימות) ואת מה שפתוח (details), לפי המקום שלהם במסך
+  const pathOf = (e) => { const p = []; for (let x = e; x && x !== root; x = x.parentElement) p.unshift([...x.parentElement.children].indexOf(x)); return p.join("."); };
+  const byPath = (p) => { let x = root; for (const i of p.split(".")) { x = x && x.children[Number(i)]; } return x; };
+  const inner2 = root ? [...root.querySelectorAll("*:not([id])")].filter(e => e.scrollTop || e.scrollLeft).map(e => [pathOf(e), e.scrollTop, e.scrollLeft, e.className]) : [];
+  const opened = root ? [...root.querySelectorAll("details")].map(d => [pathOf(d), d.open]) : [];
   if (root && v !== "leads") root.style.minHeight = root.offsetHeight + "px";
   try {
     if (v === "leads") { const n = await loadLeadsDelta(); if (n !== 0 && currentView === "leads" && updSafe()) leadsKeepRow(renderLeads); }   // 5.19.87: מציירים רק כשבאמת השתנה משהו
@@ -9417,6 +9422,10 @@ async function liveRefresh(minGap){
     if (ME && ME.role !== "instructor") { callCount(); if (v !== "pay" && typeof PAY !== "undefined") PAY.refresh(true); }   // המונים בתפריט
     if (currentView === v && v !== "leads") window.scrollTo(0, y);
     inner.forEach(([id, t, l]) => { const e = document.getElementById(id); if (e) { e.scrollTop = t; e.scrollLeft = l; } });
+    if (currentView === v) {
+      inner2.forEach(([p, t, l, c]) => { const e = byPath(p); if (e && e.className === c) { e.scrollTop = t; e.scrollLeft = l; } });
+      opened.forEach(([p, o]) => { const d = byPath(p); if (d && d.tagName === "DETAILS" && d.open !== o) d.open = o; });
+    }
   } catch(e) {} finally { LIVE_BUSY = false; LIVE_QUIET = false; if (root) root.style.minHeight = ""; }
 }
 setInterval(() => liveRefresh(), 15000);
