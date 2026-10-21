@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.89">
+<meta name="app-version" content="5.19.90">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -828,6 +828,7 @@
   label.f-on{ color:var(--accent); font-weight:800; }
   /* לוח מבחנים חודשי */
   .ex-modebar{ display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; margin:4px 0 10px; }
+  .ex-modebar .ex-filters{ margin:0; margin-inline-start:auto; gap:8px; } .ex-modebar .ex-filters > label{ font-size:0; gap:0; } .ex-modebar .ex-filters select{ font-size:13.5px; } .ex-modebar .ex-range label{ font-size:13px; gap:6px; }   /* 5.19.90 (נועה): הסינון באותה שורה */
   .ex-monthnav{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; } @media (max-width: 700px){ .ex-monthnav b{ min-width:0; } .ex-monthnav .btn{ padding:0 8px; } } .ex-monthnav b{ min-width:110px; text-align:center; font-size:16px; }
   .ex-legend{ display:flex; flex-wrap:wrap; gap:6px 16px; align-items:center; font-size:13px; margin:6px 0 8px; }
   .ex-legend i{ display:inline-block; width:16px; height:12px; border-radius:3px; margin-inline-end:5px; vertical-align:-1px; border:1px solid var(--border); }
@@ -1500,7 +1501,8 @@
 #exForm.ex-form-pop{ position:fixed; z-index:71; top:50%; left:50%; transform:translate(-50%,-50%); width:min(480px, calc(100vw - 24px)); max-height:calc(100vh - 32px); overflow-y:auto;
   grid-template-columns:1fr 1fr; margin:0; box-shadow:0 12px 36px rgba(0,0,0,.25); }
 #exForm.ex-form-pop[hidden]{ display:none; } #exForm.ex-form-pop textarea{ min-height:56px; height:56px; } #exForm.ex-form-pop{ gap:8px 10px; padding:14px 16px; } #exForm .ex-fp-h{ grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; font-size:16px; }
-#exForm.ex-form-pop .ex-f-wide{ grid-column:1 / -1; } #exForm.ex-form-pop .ex-f-btns{ justify-content:flex-start; }
+#exForm.ex-form-pop .ex-f-wide{ grid-column:1 / -1; }
+#exForm .ex-f-btns .btn{ height:32px; min-height:32px; padding:0 14px; font-size:13.5px; line-height:1; box-sizing:border-box; border-width:1px; }   /* 5.19.90 (נועה): שמירה / ביטול / מחיקה – אותו גודל */ #exForm.ex-form-pop .ex-f-btns{ justify-content:flex-start; }
 /* 5.19.74: חלון האירוע - במחשב הכפתורים בשורת הכותרת; בנייד פס דק קבוע בתחתית החלון (מחיקה באדום מימין) */
 #exForm .ex-fp-t{ display:flex; align-items:center; gap:10px; } #exForm .ex-fp-act{ display:flex; gap:6px; }
 @media all{   /* 5.19.75: גם במחשב - פס בתחתית החלון */
@@ -1508,7 +1510,12 @@
   #exForm.ex-form-pop .ex-f-btns{ display:flex; gap:6px; position:sticky; bottom:-14px; margin:4px -16px -14px; padding:8px 16px; background:#fff; border-top:1px solid var(--border); z-index:2; }
   #exForm.ex-form-pop .ex-f-btns [data-exfdel]{ order:-1; margin-inline-end:auto; }
 }
-.ex-pop-btns{ display:flex; gap:8px; margin-top:10px; } .ex-cal td.busy{ background:#eee !important; }
+.ex-pop-btns{ display:flex; gap:8px; margin-top:10px; }
+.ex-grps{ display:flex; flex-direction:column; gap:6px; margin-top:2px; } .ex-grp{ display:flex; flex-direction:column; gap:1px; border-inline-start:3px solid var(--gold-deep, #C9A45C); padding-inline-start:8px; } .ex-grp b{ font-size:13px; color:var(--accent); } .ex-grp span{ white-space:normal; }
+.ex-mp{ max-width:480px; } .ex-mp .ex-pop-btns{ justify-content:flex-end; flex-wrap:wrap; } .ex-mp-st{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:14px; }
+.ex-mp-lk{ background:#F6F3EE; border:1px solid var(--border); border-radius:10px; padding:8px 10px; display:flex; flex-direction:column; gap:4px; } .ex-mp-lk > div{ display:flex; gap:8px; align-items:center; justify-content:space-between; } .ex-mp-lk a{ font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; color:var(--accent); }
+.ex-mp-ms{ display:flex; flex-direction:column; gap:6px; } .ex-mp-m{ border:1px solid var(--border); border-radius:10px; padding:8px 10px; display:flex; flex-direction:column; gap:4px; } .ex-mp-mh{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:14.5px; } .ex-mp-mh i{ width:12px; height:12px; border-radius:3px; display:inline-block; }
+.ex-mp-t{ font-size:13.5px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; } .ex-mp-no{ color:#B42318; font-weight:700; } .ex-cal td.busy{ background:#eee !important; }
 .ex-pal{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:4px 0 8px; } .ex-pal[hidden]{ display:none; } .ex-pal-l{ font-weight:700; font-size:14px; }
 .ex-pal button{ display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border, #ddd); background:#fff; border-radius:999px; padding:4px 10px; font:inherit; font-size:13px; cursor:pointer; }
 .ex-pal button i{ display:inline-block; width:16px; height:14px; border-radius:4px; font-style:normal; font-size:11px; line-height:14px; text-align:center; }
@@ -1835,7 +1842,11 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .mc-note{ font-size:12.5px; } .mc-links{ display:grid; grid-template-columns:repeat(2, max-content); gap:6px 32px; align-items:center; }
 .mc-lk{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .mc-lk-t{ font-size:13px; font-weight:700; color:var(--ink-soft); } .mc-links .lk2-l{ display:none !important; }
 @media (max-width:760px){ .mc-links{ grid-template-columns:1fr; } } .mc-int summary{ cursor:pointer; font-size:12.5px; color:var(--ink-soft); } .mc-int[open] summary{ margin-bottom:4px; }
-.ex-cal td.lnk{ box-shadow:inset 0 0 0 2px #0B3D5E; } .ex-pop-mar{ margin-top:8px; display:grid; gap:6px; font-size:14px; }
+.ex-cal td.lnk{ box-shadow:inset 0 0 0 2px #0B3D5E; }
+.ex-cal td.mrf{ box-shadow:inset 0 2.5px 0 #111, inset 0 -2.5px 0 #111 !important; } .ex-cal td.mrf.mrs{ box-shadow:inset 0 2.5px 0 #111, inset 0 -2.5px 0 #111, inset -2.5px 0 0 #111 !important; } .ex-cal td.mrf.mre{ box-shadow:inset 0 2.5px 0 #111, inset 0 -2.5px 0 #111, inset 2.5px 0 0 #111 !important; } .ex-cal td.mrf.mrs.mre{ box-shadow:inset 0 0 0 2.5px #111 !important; }
+.ex-cal th.mo{ font-size:15.5px !important; height:36px !important; line-height:30px !important; padding-top:0 !important; color:#5A1018 !important; }
+.ex-cal th.mo.malt, .ex-cal th.dl.malt, .ex-cal th.dn.malt{ background:color-mix(in srgb, #3B6FB6 11%, var(--paper)) !important; } .ex-cal td.d.malt:not(.ex):not(.mk):not(.sy):not(.sr):not(.ot):not(.m1c):not(.m2c):not(.st):not(.hol):not(.fri){ background:color-mix(in srgb, #3B6FB6 5%, var(--paper)); }
+.ex-cal th.mo.mnow > span::after{ content:" · החודש"; font-size:12px; font-weight:700; color:var(--ink-soft); } .ex-pop-mar{ margin-top:8px; display:grid; gap:6px; font-size:14px; }
 .ex-f-time{ display:flex; gap:10px; } .ex-f-time > span{ flex:1; } .ex-f-time[hidden]{ display:none; }
 .rg-lk-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin:2px 0 12px; }
 .rg-lk-bar .rg-lk-seg{ display:inline-flex; gap:0; margin:0; border:1px solid var(--border); border-radius:999px; background:var(--paper); padding:2px; grid-template-columns:none; }
@@ -1916,6 +1927,10 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 #view-lead .lead-main :is(.lp-box, .sec-d){ border:1px solid var(--border); border-radius:12px; background:#fff; padding:10px 14px; margin:10px 0 0; }
 #view-lead .lead-main .sec-d[open]{ padding-bottom:14px; }
 #view-lead .lead-main .sub-h{ font-weight:700; color:#6B5F55; font-size:13.5px; margin:14px 0 6px; border-top:1px dashed #E6DDD3; padding-top:10px; }
+.toggles .tg-mng{ margin-inline-start:auto; display:flex; gap:10px; align-items:center; flex-wrap:wrap; } .tg-mng .tg-f{ display:inline-flex; gap:4px; align-items:center; font-size:12.5px; font-weight:700; color:var(--ink-soft); }
+.tg-mng .tg-f label{ display:inline; cursor:default; font-size:12.5px; } .tg-mng input, .tg-mng select{ height:28px !important; min-height:28px !important; font-size:12.5px !important; padding:2px 6px !important; border-radius:8px; border:1px solid #E5DDD3; background:#fff; width:auto; } .tg-mng select{ padding-inline-end:22px !important; max-width:120px; }
+.tg-mng .tg-x{ border:0; background:none; color:var(--ink-soft); cursor:pointer; font-size:12px; padding:0 2px; } .tg-mng input:placeholder-shown + .tg-x{ visibility:hidden; }
+#view-lead.lc-view .lead-main .toggles{ display:flex !important; margin-bottom:6px; } #view-lead.lc-view .lead-main .toggles > label{ display:none; } @media (max-width:760px){ .toggles .tg-mng{ margin-inline-start:0; width:100%; justify-content:flex-end; } }
 #view-lead .side-remind select{ width:100%; height:40px; border-radius:8px; border:1px solid #E5DDD3; padding:6px 10px; background:#fff; }
 #view-lead .side-remind{ margin:16px 0 8px; padding-top:12px; border-top:1px dashed #E6DDD3; } #view-lead .side-remind .lbl{ font-size:13px; font-weight:700; color:#6B5F55; margin-bottom:4px; display:block; }
 #view-lead .side-remind input{ flex:1; min-width:0; height:40px; border-radius:8px; border:1px solid #E5DDD3; padding:6px 10px; } #view-lead .side-remind .btn{ height:40px; }
@@ -2029,6 +2044,14 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   @media (max-width:760px){ #leadsBar{ margin:2px 0 4px; } }
   #view-leads .page-head:has(#leadsTools.lt-head){ flex-wrap:nowrap; } #view-leads .page-head:has(#leadsTools.lt-head) h1{ margin-inline-end:auto; }
   .clear-f{ white-space:nowrap; }
+  /* 5.19.90: התראת "מול הקבוצה הקבועה" */
+  .ib-gd{ border-top:1px solid var(--border); padding:10px 12px; display:flex; flex-direction:column; gap:6px; } .ib-gd.new{ background:#FFFDF6; } .ib-gd.handled{ opacity:.7; }
+  .ib-gd-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .ib-gd-n{ font-size:15px; } .ib-gd-h .ib-time{ margin-inline-start:auto; }
+  .ib-gd-b{ display:flex; flex-direction:column; gap:4px; padding-inline-start:30px; } .ib-gd-l{ display:flex; gap:8px; align-items:baseline; font-size:13.5px; } .ib-gd-k{ flex:none; width:128px; color:var(--ink-soft); font-weight:700; } .ib-gd-v{ display:flex; flex-wrap:wrap; gap:4px 6px; align-items:center; }
+  .ib-gd-v .asg-pill > span{ font-size:12.5px; padding:2px 9px; }
+  .ib-gd-fx{ display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; margin-inline-end:8px; } .ib-gd-w{ font-size:11.5px; color:var(--ink-soft); padding-inline-start:4px; } .ib-gd-x{ font-size:12.5px; color:var(--ink-soft); }
+  .ib-gd-a{ display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; padding-inline-start:30px; }
+  @media (max-width:760px){ .ib-gd-b, .ib-gd-a{ padding-inline-start:0; } .ib-gd-l{ flex-direction:column; align-items:flex-start; gap:2px; } .ib-gd-k{ width:auto; } }
   /* 5.19.89 (נועה: "סינון נוסף נמרח על כל המסך"): בנייד – הסינון הפתוח קומפקטי: חיפוש + "פחות ▴" בשורה אחת, 2 שדות בשורה בלי כותרות (השם בתוך השדה), גובה מוגבל עם גלילה, ולא נדבק למעלה */
   @media (max-width:760px){
     #view-leads .filters-card.open{ position:static !important; display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; }
@@ -2107,11 +2130,14 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     .exm-dots{ display:flex; gap:2px; font-size:9px; line-height:1; color:var(--ink-soft); } .exm-dots i{ width:7px; height:7px; border-radius:50%; display:block; }
   }
   @media (max-width:760px){
-    .exm-wk{ display:flex; align-items:center; gap:8px; margin:4px 0 6px; } .exm-wk b{ flex:1; text-align:center; font-size:14.5px; }
+    .exm-wk{ display:flex; align-items:center; gap:8px; margin:4px 0 6px; } .exm-wk b{ flex:1; text-align:center; font-size:16px; color:#5A1018; display:flex; flex-direction:column; line-height:1.15; } .exm-wk b small{ font-size:12px; font-weight:600; color:var(--ink-soft); }
+    #exCal .exm-wb.exm-run{ outline:2.5px solid #111; outline-offset:-1px; }
     .exm-day{ margin-bottom:4px; } .exm-day.today .exm-dh{ color:#6A4BB0; } .exm-day.exm-past{ opacity:.6; } .exm-none{ font-size:12.5px; margin:0 4px 6px; }
   }
   @media (max-width:760px){
-    .exm-tabs{ display:flex; width:100%; margin-bottom:8px; } .exm-tabs button{ flex:1; }
+    .exm-tabs{ display:flex; width:100%; margin-bottom:8px; } .exm-tabs button{ flex:1; padding-inline:4px; }
+    .exm-frow{ display:flex; gap:8px; margin-bottom:8px; } .exm-frow .exm-sel{ flex:1; min-width:0; margin:0; height:38px; font-size:14px; } .exm-frow .exm-sel:disabled{ opacity:.5; }
+    #view-exams.exm-on .ex-modebar{ display:none; }
     .exm-dh{ font-weight:800; font-size:13.5px; color:var(--accent); margin:12px 0 4px; } .exm-dh.past{ color:var(--ink-soft); }
     .exm-it, .exm-mar{ display:flex; align-items:flex-start; gap:10px; width:100%; text-align:start; background:#fff; border:1px solid #E6DDD3; border-radius:12px; padding:8px 12px; margin:0 0 6px; font:inherit; color:var(--ink); }
     .exm-it > i, .exm-mar > i{ flex:none; width:12px; height:12px; border-radius:50%; margin-top:5px; }
@@ -2307,6 +2333,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
               <label><button type="button" class="star" id="lfStar" aria-pressed="false">★</button> כוכב</label>
               <label><button type="button" class="switch" id="lfMailing" aria-pressed="false"></button> דיוור</label>
               <label><button type="button" class="switch" id="lfCustomer" aria-pressed="false"></button> לקוח</label>
+              <!-- 5.19.90 (נועה): שורת ניהול – תזכורת ומנהל באותה שורה, משמאל, בקטן (נשמרים מיד) -->
+              <span class="tg-mng"><span class="tg-f" title="תזכורת"><label for="lfRemind">⏰</label><input id="lfRemind" type="datetime-local" aria-label="תזכורת"><button class="tg-x" type="button" id="clearRemind" title="ניקוי התזכורת" aria-label="ניקוי התזכורת">✕</button></span>
+                <span class="tg-f"><label for="lfManager">מנהל</label><select id="lfManager"></select></span></span>
             </div>
             <!-- פרטים עיקריים: שם הילד, הורה, טלפון -->
             <fieldset class="key-box"><legend>פרטים עיקריים</legend>
@@ -2369,10 +2398,6 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
             <div class="track-box tb-side" id="trackBox" hidden></div>
             <h3 class="side-h" style="margin-top:4px;">שיבוץ לקבוצות</h3>
             <div id="leadGroups"></div>
-            <!-- 5.19.71 (נועה): תזכורת - שדה פנימי שלנו, בצד מתחת לשיבוץ (5.19.72) -->
-            <div class="side-remind"><label class="lbl" for="lfRemind">⏰ תזכורת</label>
-              <div style="display:flex; gap:6px;"><input id="lfRemind" type="datetime-local"><button class="btn small" type="button" id="clearRemind">ניקוי</button></div>
-              <label class="lbl" for="lfManager" style="margin-top:10px">מנהל</label><select id="lfManager"></select></div>
                       </div>
         </div>
         <!-- 5.19.18: הערות והיסטוריה - שורות מקופלות (שורה עם תקציר, נפתחת בלחיצה), מתחת לכרטיס, לכל הרוחב -->
@@ -2686,9 +2711,6 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <div class="ex-modebar">
         <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-exm="cal">לוח חודשי</button><button type="button" data-exm="list">רשימה</button></div>
         <div class="ex-monthnav" id="exMonthNav"><button type="button" class="btn small" id="exMPrev" hidden>→ חודש קודם</button><b id="exMLbl"></b><button type="button" class="btn small" id="exMNow">היום</button><button type="button" class="btn small" id="exMNext" hidden>חודש הבא ←</button></div>
-      </div>
-      <div id="exFormBg" class="ex-form-bg" hidden></div>
-      <form id="exForm" class="card ex-form ex-form-pop" role="dialog" aria-modal="true" hidden></form>
       <div class="ex-filters">
         <label>עיר <select id="exCity"></select></label>
         <label>בית ספר <select id="exSch"></select></label>
@@ -2696,6 +2718,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         <span class="ex-range" id="exRangeL"><label>מתאריך <input type="date" id="exFrom"></label><label>עד <input type="date" id="exTo"></label></span>
         <button type="button" class="clear-f" id="exRangeX" hidden>✕ ניקוי סינון</button>
       </div>
+      </div>
+      <div id="exFormBg" class="ex-form-bg" hidden></div>
+      <form id="exForm" class="card ex-form ex-form-pop" role="dialog" aria-modal="true" hidden></form>
       <div id="exPal" class="ex-pal" data-admin hidden></div>
       <div id="exCal"></div>
       <div id="exList"></div>
@@ -3691,7 +3716,7 @@ $("lfManager").addEventListener("change", async () => {
   try { await patch("leads", "id=eq." + editing.id, { manager_id: v }); editing.manager_id = v; const l = (L.leads || []).find(x => x.id === editing.id); if (l) l.manager_id = v; setLeadDirty(false); toast("נשמר"); }
   catch(e) { toast("לא נשמר: " + e.message); } });
 // 5.19.72 (נועה): בצפייה (נייד) - התזכורת נשמרת מיד, בלי "עריכה"
-$("lfRemind").addEventListener("change", async () => {
+$("lfRemind").addEventListener("change", async () => { $("clearRemind").hidden = !$("lfRemind").value;
   if (!$("view-lead").classList.contains("lc-view") || !editing || !editing.id) return;
   const v = $("lfRemind").value ? new Date($("lfRemind").value).toISOString() : null;
   try { await patch("leads", "id=eq." + editing.id, { remind_at: v }); editing.remind_at = v; const l = (L.leads || []).find(x => x.id === editing.id); if (l) l.remind_at = v; setLeadDirty(false); toast(v ? "התזכורת נשמרה" : "התזכורת נמחקה"); }
@@ -3738,7 +3763,7 @@ function openLead(id){
   $("lfSource").value = (l && l.source_id) || "";
   $("lfManager").value = (l && l.manager_id) || "";
   $("lfFilledBy").value = (l && l.filled_by) || "הורה";
-  $("lfRemind").value = toLocalInput(l && l.remind_at);
+  $("lfRemind").value = toLocalInput(l && l.remind_at); $("clearRemind").hidden = !$("lfRemind").value;
   $("lfMessage").value = (l && l.message) || "";
   const vals = { sFirst: s.first_name, sLast: s.last_name, sPhone: s.phone, sEmail: s.email, sSchool: s.school_id, sGrade: s.grade, sClass: s.class_num,
     sEng: s.english_level, sMath: s.math_level, p1First: f.parent1_first, p1Last: f.parent1_last, p1Phone: f.parent1_phone, p1Email: f.parent1_email,
@@ -4783,6 +4808,11 @@ const studyFor = (school, city, grade, cls, today) => exFor(school, city, grade,
 // הודעה שממשיכה הודעה קודמת: כל הודעות "חומר נלמד" של אותו בית ספר + שכבה (+ כיתה) מהשבוע שלפני האחרונה - לפי הסדר
 const studyAll = (e) => !e ? [] : (EX.rows || []).filter(x => EX_STUDY.test(x.kind) && schKey(exSchName(x)) === schKey(exSchName(e)) && gradeKey(x.grade) === gradeKey(e.grade)
   && String(x.class_num || "") === String(e.class_num || "") && x.exam_date <= e.exam_date && x.exam_date >= addDays(e.exam_date, -7));
+// 5.19.90 (נועה): חומר למבחן – כותרת לכל הקבצה (שורה / "הקבצה X:" בתוך הטקסט)
+const exTopicsHtml = (t) => { t = String(t || "").trim(); if (!t) return "";
+  const parts = t.split(/\n+|(?=(?:^|[.;]\s*|\s)הקבצה\s+[^\s:]+(?:\s+[^\s:]+)?\s*:)/).map(x => x.replace(/^[\s.;]+/, "").trim()).filter(Boolean);
+  if (parts.length < 2 && !/^הקבצה\s/.test(t)) return esc(t);
+  return `<span class="ex-grps">${parts.map(x => { const m = x.match(/^(הקבצה\s+[^:]{1,20}):\s*(.*)$/s); return m ? `<span class="ex-grp"><b>${esc(m[1])}</b><span>${esc(m[2])}</span></span>` : `<span class="ex-grp"><span>${esc(x)}</span></span>`; }).join("")}</span>`; };
 const studyTxt = (arr, cls) => arr.map(x => `<div class="${cls}">${arr.length > 1 ? `<span class="muted">${esc(fmtDM(x.exam_date))}${x.source ? " · <b>מקור:</b> " + esc(x.source) : ""}:</span> ` : ""}${x.topics ? esc(x.topics) : "<span class='muted'>לא נכתבו נושאים.</span>"}${x.material ? `<div class="ex-pop-meta" style="margin-top:2px"><b>קובץ:</b> ${esc(x.material)}</div>` : ""}</div>`).join("");
 const nextExam = (school, city, grade, cls, from) => examsFor(school, city, grade, cls, from).find(e => !EX_MAKEUP.test(e.kind));
 const exDays = (iso, from) => Math.round((Date.parse(iso + "T12:00:00Z") - Date.parse(from + "T12:00:00Z")) / 864e5);
@@ -4800,14 +4830,14 @@ const kidExTag = (k, city, from) => subjGrp(k.subject) === 1 ? "" : exTag(nextEx
 function exShow(id){
   const e = (EX.rows || []).find(x => x.id === id); if (!e) return;
   if (exIsMar(e) && e.session_id && ME.role !== "instructor") { (async () => { await ensureG(true); const se = G.sessions.find(x => x.session_id === e.session_id), mm = se && (G.marathons || []).find(m => m.id === se.marathon_id);   // 5.19.44: ישר לחלון המרתון
-    if (mm) openMarathonPanel(mm); else toast("קבוצת המרתון לא נמצאה"); })(); return; }
+    if (mm) exMarPop(e, mm); else toast("קבוצת המרתון לא נמצאה"); })(); return; }
   const st = EX_STUDY.test(e.kind);
   let o = $("exPop"); if (!o) { o = document.createElement("div"); o.id = "exPop"; o.className = "ex-pop"; document.body.appendChild(o);
     o.addEventListener("click", (ev) => { if (ev.target === o || ev.target.closest("[data-expclose]")) o.hidden = true; }); }
   o.innerHTML = `<div class="ex-pop-box" role="dialog" aria-modal="true">
     <div class="ex-pop-h"><b>${st ? "📓 לומדים עכשיו" : "📝 " + esc(e.kind)} · ${esc(exSchName(e))} ${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b><button type="button" class="kp-x" data-expclose aria-label="סגירה" title="סגירה">✕</button></div>
     <div class="muted">${st ? "התקבל " : "יום " + esc(DAY_FULL[dayLetter(e.exam_date)] || "") + " "}${esc(fmtIso(e.exam_date))}</div>
-    ${st && studyAll(e).length > 1 ? studyTxt(studyAll(e), "ex-pop-t") : `${e.topics ? `<div class="ex-pop-t">${esc(e.topics)}</div>` : `<div class="muted ex-pop-t">${st ? "לא נכתבו נושאים." : "עוד לא התקבלו נושאים למבחן הזה."}</div>`}
+    ${st && studyAll(e).length > 1 ? studyTxt(studyAll(e), "ex-pop-t") : `${e.topics ? `<div class="ex-pop-t">${exTopicsHtml(e.topics)}</div>` : `<div class="muted ex-pop-t">${st ? "לא נכתבו נושאים." : "עוד לא התקבלו נושאים למבחן הזה."}</div>`}
     ${e.material || e.source ? `<div class="ex-pop-meta">${[e.material ? "<b>קובץ:</b> " + esc(e.material) : "", e.source ? "<b>מקור:</b> " + esc(e.source) : ""].filter(Boolean).join(" · ")}</div>` : ""}`}
     ${exIsMar(e) && EX.link ? `<div class="ex-pop-mar">${e.start_time ? `🕒 <span dir="ltr">${esc(hm5(e.start_time))}–${esc(hm5(e.end_time))}</span>` : `<span class="muted">עוד אין שעות - ✎ עריכה</span>`}
       ${ME.role === "instructor" ? "" : e.session_id ? `<div>🔗 מחובר לקישור הרשמה <button type="button" class="btn small primary" data-exkids>👥 נרשמים ונוכחות</button> <button type="button" class="btn small" data-exgomar>למרתונים ←</button></div>` : `<div><button type="button" class="btn small primary" data-exlink>🔗 יצירת קישור הרשמה</button> <span class="muted">לכל המפגשים של המרתון הזה (${exMarSeries(e).length})</span></div>`}</div>` : ""}
@@ -4819,6 +4849,29 @@ function exShow(id){
   const gb = o.querySelector("[data-exgomar]"); if (gb) gb.onclick = () => { o.hidden = true; RG.tab = "links"; RG.lk = "mar"; store("telem_reg_lk", "mar"); RG.city = (e.school && e.school.city) || RG.city; store("telem_reg_tab", "links"); go("reg"); };
   const db = o.querySelector("[data-expdel]"); if (db) db.onclick = async () => {
     try { if (!await exDelEvent(e, "\"" + e.kind + "\" ב-" + fmtDM(e.exam_date))) return; o.hidden = true; toast("נמחק"); EX.scrollTo = exFirstVisible(); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } };
+}
+// 5.19.90 (נועה): מרתון שרץ – חלון סיכום קודם (קישור הרשמה, המפגשים והנושאים, נרשמים), ומשם עריכה
+function exMarPop(e, mm){
+  let o = $("exPop"); if (!o) { o = document.createElement("div"); o.id = "exPop"; o.className = "ex-pop"; document.body.appendChild(o);
+    o.addEventListener("click", (ev) => { if (ev.target === o || ev.target.closest("[data-expclose]")) o.hidden = true; }); }
+  const sids = (G.sessions || []).filter(x => x.marathon_id === mm.id).map(x => x.session_id);
+  const mts = (EX.rows || []).filter(x => exIsMar(x) && sids.includes(x.session_id)).sort((a, b) => a.exam_date.localeCompare(b.exam_date) || String(a.start_time || "").localeCompare(String(b.start_time || "")));
+  const kids = (G.sessions || []).filter(x => x.marathon_id === mm.id).reduce((n, x) => n + (x.assigned_count || 0), 0);
+  const url = mm.code ? lkMarCode(mm.code) : "", nt = nextExam(exSchName(e), (e.school && e.school.city) || "", e.grade, e.class_num, (mts[mts.length - 1] || e).exam_date);
+  o.innerHTML = `<div class="ex-pop-box ex-mp" role="dialog" aria-modal="true">
+    <div class="ex-pop-h"><b>🏃 ${esc(mm.name || "מרתון")} · ${esc(exSchName(e))} ${esc(gradeKey(e.grade))}'</b><button type="button" class="kp-x" data-expclose aria-label="סגירה" title="סגירה">✕</button></div>
+    <div class="ex-mp-st"><span class="ib-tag ${mm.is_open ? "t-new" : "t-old"}">${mm.is_open ? "פתוח להרשמה" : "סגור להרשמה"}</span><span>👥 ${kids} נרשמים</span>${nt ? `<span class="muted">לקראת ${esc(nt.kind)} ב-${esc(fmtDM(nt.exam_date))}</span>` : ""}</div>
+    ${url ? `<div class="ex-mp-lk"><span class="lbl">קישור להרשמה</span><div><a href="${esc(url)}" target="_blank" rel="noopener" dir="ltr">${esc(url.replace(/^https?:\/\//, ""))}</a><button type="button" class="btn small" data-mpcopy>העתקה</button></div></div>` : `<div class="muted">אין עדיין קישור הרשמה.</div>`}
+    <div class="ex-mp-ms">${mts.map(x => { const n = (String(x.kind).match(/מפגש\s*(\d+)/) || [])[1];
+      return `<div class="ex-mp-m"><div class="ex-mp-mh"><i class="${exKindCls(x.kind)}"></i><b>${n ? "מפגש " + n : esc(x.kind)}</b><span>יום ${esc(DAY_FULL[dayLetter(x.exam_date)] || dayLetter(x.exam_date))} ${esc(fmtDM(x.exam_date))}</span>${x.start_time ? `<span dir="ltr" class="muted">${esc(hm5(x.start_time))}${x.end_time ? "–" + esc(hm5(x.end_time)) : ""}</span>` : ""}</div>
+        <div class="ex-mp-t">${x.topics ? exTopicsHtml(x.topics) : `<span class="ex-mp-no">אין נושאים</span> <button type="button" class="btn small" data-mptop="${x.id}">✎ לעדכן נושאים</button>`}</div></div>`; }).join("") || `<div class="muted">אין מפגשים בלוח.</div>`}</div>
+    <div class="ex-pop-btns"><button type="button" class="btn small" data-mpkids>👥 נרשמים ונוכחות</button><button type="button" class="btn small primary" data-mpedit>✎ עריכת המרתון</button></div></div>`;
+  o.hidden = false;
+  const q = (sel, fn) => { const b = o.querySelector(sel); if (b) b.onclick = fn; };
+  q("[data-mpcopy]", () => copyText(url));
+  q("[data-mpedit]", () => { o.hidden = true; openMarathonPanel(mm); });
+  q("[data-mpkids]", () => { o.hidden = true; openPanel(e.session_id); });
+  o.querySelectorAll("[data-mptop]").forEach(b => b.onclick = () => { const x = (EX.rows || []).find(z => z.id === Number(b.dataset.mptop)); o.hidden = true; if (currentView !== "exams") go("exams"); exOpenForm(x); });
 }
 document.addEventListener("click", (ev) => { const b = ev.target.closest && ev.target.closest("[data-ex]"); if (!b) return; ev.preventDefault(); ev.stopPropagation(); exShow(Number(b.dataset.ex)); }, true);
 document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && $("exPop") && !$("exPop").hidden) $("exPop").hidden = true; });
@@ -4834,7 +4887,7 @@ async function loadLeadExams(l){
   if (list.length) box.dataset.sum = `${list.length === 1 ? "מבחן אחד" : list.length + " מבחנים"} · הקרוב ${fmtIso(list[0].exam_date)} (${list[0].kind})`;   // 5.19.42
   else box.dataset.sum = stu ? "📓 לומדים עכשיו" + (stu.topics ? ": " + String(stu.topics).slice(0, 60) : "") : (sch.name && s.grade ? "אין מבחנים קרובים ידועים" : "חסרים בית ספר או כיתה בכרטיס");
   if (!list.length) { box.innerHTML = stuH + `<span class="muted">${sch.name && s.grade ? "אין מבחנים קרובים ידועים ל" + esc(sch.name) + " שכבה " + esc(gradeKey(s.grade)) + "'." : "חסרים בית ספר או כיתה בכרטיס."}</span>`; return; }
-  box.innerHTML = stuH + list.map(e => `<div class="ex-row${EX_MAKEUP.test(e.kind) ? " mk" : ""}">${EX_MAKEUP.test(e.kind) ? `<b>${esc(fmtIso(e.exam_date))}</b>` : `<span class="ex-date${exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span>`} · ${esc(e.kind)}${e.topics ? `<div class="ex-topics">${esc(e.topics)}</div>` : ""}${e.material ? `<div class="muted">קובץ: ${esc(e.material)}</div>` : ""}</div>`).join("");
+  box.innerHTML = stuH + list.map(e => `<div class="ex-row${EX_MAKEUP.test(e.kind) ? " mk" : ""}">${EX_MAKEUP.test(e.kind) ? `<b>${esc(fmtIso(e.exam_date))}</b>` : `<span class="ex-date${exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span>`} · ${esc(e.kind)}${e.topics ? `<div class="ex-topics">${exTopicsHtml(e.topics)}</div>` : ""}${e.material ? `<div class="muted">קובץ: ${esc(e.material)}</div>` : ""}</div>`).join("");
 }
 
 // 5.19.49 (הלקוחה): ברשימה - צבע הסוג (כמו במקרא), סינון לפי סוג בלחיצה, נושאים בחלון קטן, שורה אחת לכל מבחן
@@ -4855,7 +4908,7 @@ async function renderExams(reload){
   { const v = $("exCity").value; $("exCity").innerHTML = `<option value="">כל הערים</option>` + cities.map(c => `<option ${c === v ? "selected" : ""}>${esc(c)}</option>`).join(""); }
   const fc = $("exCity").value;
   const schs = [...new Set(EX.rows.filter(e => !fc || exCity(e) === fc).map(exSchName))].sort((a, b) => a.localeCompare(b, "he"));
-  const grs = [...new Set(EX.rows.map(e => gradeKey(e.grade)))].sort((a, b) => GRADE_ORD.indexOf(a) - GRADE_ORD.indexOf(b));
+  const grs = [...new Set(EX.rows.map(e => gradeKey(e.grade)).filter(Boolean))].sort((a, b) => GRADE_ORD.indexOf(a) - GRADE_ORD.indexOf(b));
   const keep = (sel, opts, all) => { const v = sel.value; sel.innerHTML = `<option value="">${all}</option>` + opts.map(o => `<option ${o === v ? "selected" : ""}>${esc(o)}</option>`).join(""); };
   keep($("exSch"), schs, "כל בתי הספר"); keep($("exGrade"), grs, "כל השכבות");
   const t = todayIL(), fs = $("exSch").value, fg = $("exGrade").value, past = false, mk = false, adm = ME.role !== "instructor";
@@ -4888,7 +4941,7 @@ async function renderExams(reload){
   if (isMobile()) box.innerHTML = stH + kBar + `<div class="ex-cards">` + rows.map(e => `<div class="ex-card${e.exam_date < t ? " ex-past" : ""}${EX_MAKEUP.test(e.kind) ? " mk" : ""}">
       <div>${dateTxt(e)} <span class="muted">יום ${esc(DAY_FULL[dayLetter(e.exam_date)] || "")}</span></div>
       <div class="ex-c2">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> · ${exKindChip(e.kind)}</div>
-      ${e.topics ? `<div class="ex-c3 ex-topics">${esc(e.topics)}</div>` : ""}${e.material ? `<div class="muted ex-c3">קובץ: ${esc(e.material)}</div>` : ""}${btns(e) ? `<div class="ex-c4">${btns(e)}</div>` : ""}</div>`).join("") + `</div>`;
+      ${e.topics ? `<div class="ex-c3 ex-topics">${exTopicsHtml(e.topics)}</div>` : ""}${e.material ? `<div class="muted ex-c3">קובץ: ${esc(e.material)}</div>` : ""}${btns(e) ? `<div class="ex-c4">${btns(e)}</div>` : ""}</div>`).join("") + `</div>`;
   else box.innerHTML = stH + kBar + `<div class="tbl-wrap"><table class="tbl ex-tbl"><thead><tr><th>תאריך</th><th>בית ספר</th><th>שכבה</th><th>סוג</th><th>נושאים / חומר</th><th>מקור</th>${adm ? "<th></th>" : ""}</tr></thead><tbody>` +
     rows.map(e => { const d = exDays(e.exam_date, t), mk = EX_MAKEUP.test(e.kind);
       return `<tr class="${e.exam_date < t ? "ex-past" : ""}${mk ? " mk" : ""}">
@@ -4970,31 +5023,32 @@ function exMobile(){
   const legend = `<div class="exm-leg">${[["lg-ex", "מבחן"], ["lg-sy", "וידוא קיום"], ["lg-sr", "SMS"], ["lg-m1", "מרתון 1"], ["lg-m2", "מרתון 2"], ["lg-ot", "אחר"]].map(([c, l]) => `<span><i class="${c}"></i>${l}</span>`).join("")}</div>`;
   const nextTest = (sch, g, d) => evs.filter(e => exSchName(e) === sch && gradeKey(e.grade) === g && EX_IS_TEST(e.kind) && e.exam_date >= d).sort((a, b) => a.exam_date.localeCompare(b.exam_date))[0];
   const ord = (a, b) => String(a.start_time || "").localeCompare(String(b.start_time || "")) || CONFIG.cities.indexOf(exCity(a)) - CONFIG.cities.indexOf(exCity(b)) || exSchName(a).localeCompare(exSchName(b), "he") || GRADE_ORD.indexOf(gradeKey(a.grade)) - GRADE_ORD.indexOf(gradeKey(b.grade));
-  let h = `<div class="gseg exm-tabs" role="group" aria-label="תצוגה">${[["week", "לוח שנה"], ["mar", "מפגשי מרתון"]].map(([k, l]) => `<button type="button" data-exmt="${k}" aria-pressed="${EX.mTab === k}">${l}</button>`).join("")}</div>`;
+  // 5.19.90 (נועה): פחות שורות סינון – שורה אחת לתצוגה (שבוע / חודש / מרתונים / רשימה) ושורה אחת לעיר + בית ספר
+  EX.mView = EX.mView || store("telem_exm_view") || "w";
+  const vk = EX.mTab === "mar" ? "mar" : EX.mView;
+  let h = `<div class="gseg exm-tabs" role="group" aria-label="תצוגה">${[["w", "שבוע"], ["m", "חודש"], ["mar", "מרתונים"], ["list", "רשימה"]].map(([k, l]) => `<button type="button" data-exmt="${k}" aria-pressed="${vk === k}">${l}</button>`).join("")}</div>`;
   if (EX.mScC && !cities.includes(EX.mScC)) EX.mScC = "";
-  h += chips(cities, EX.mScC || "", "data-exmsc", "כל הערים");
-  if (EX.mScC) { const ss = schOf(EX.mScC); if (EX.mScS && !ss.includes(EX.mScS)) EX.mScS = "";   // 5.19.88 (נועה): בית ספר – רשימה נפתחת
-    h += `<select class="exm-sel" id="exmSchSel" aria-label="בית ספר"><option value="">כל בתי הספר</option>${ss.map(x => `<option ${x === EX.mScS ? "selected" : ""}>${esc(x)}</option>`).join("")}</select>`; }
+  const ss = EX.mScC ? schOf(EX.mScC) : []; if (EX.mScS && !ss.includes(EX.mScS)) EX.mScS = "";
+  h += `<div class="exm-frow"><select class="exm-sel" id="exmCitySel" aria-label="עיר"><option value="">כל הערים</option>${cities.map(c => `<option ${c === EX.mScC ? "selected" : ""}>${esc(c)}</option>`).join("")}</select>
+    <select class="exm-sel" id="exmSchSel" aria-label="בית ספר" ${EX.mScC ? "" : "disabled"}><option value="">כל בתי הספר</option>${ss.map(x => `<option ${x === EX.mScS ? "selected" : ""}>${esc(x)}</option>`).join("")}</select></div>`;
   const inScope = (e) => (!EX.mScC || exCity(e) === EX.mScC) && (!EX.mScS || exSchName(e) === EX.mScS);
   // מתחת ללוח: הפרטים של היום שנבחר – שעות, קבוצה, חומר למבחן, ולמפגש מרתון גם לקראת איזה מבחן
   const exmDayList = (d) => { const l = evs.filter(e => e.exam_date === d && inScope(e)).sort(ord);
     return `<div class="exm-dh">${esc(dLbl(d))}</div>` + (l.length ? l.map(e => { const n = (String(e.kind).match(/מפגש\s*(\d+)/) || [])[1], nt = exIsMar(e) ? nextTest(exSchName(e), gradeKey(e.grade), e.exam_date) : null;
       return `<button type="button" class="exm-mar${e.id === EX.mEv ? " on" : ""}" data-ex="${e.id}"><i class="${exKindCls(e.kind)}"></i><span class="exm-it-b"><span class="exm-mh"><b>${n ? "מרתון · מפגש " + n : esc(e.kind)}</b>${e.start_time ? `<span class="exm-tm" dir="ltr">${esc(hm5(e.start_time))}${e.end_time ? "–" + esc(hm5(e.end_time)) : ""}</span>` : ""}${e.time_label ? `<span class="muted">${esc(e.time_label)}</span>` : ""}</span>
         <span>${scChip(exSchName(e))} <span class="gbadge g-${gradeKey(e.grade)}">${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</span> <span class="muted">${esc(exCity(e))}</span></span>
-        ${EX_IS_TEST(e.kind) ? `<span class="exm-for">${e.topics ? "חומר: " + esc(e.topics) : `<span class="muted">עוד אין חומר למבחן</span>`}</span>` : ""}
-        ${nt ? `<span class="exm-for">לקראת ${esc(nt.kind)} ב-${esc(fmtDM(nt.exam_date))}${nt.topics ? ": " + esc(nt.topics) : ""}</span>` : ""}</span></button>`; }).join("") : `<div class="muted exm-none">אין אירועים ביום הזה.</div>`); };
+        ${EX_IS_TEST(e.kind) ? `<span class="exm-for">${e.topics ? "חומר: " + exTopicsHtml(e.topics) : `<span class="muted">עוד אין חומר למבחן</span>`}</span>` : ""}
+        ${nt ? `<span class="exm-for">לקראת ${esc(nt.kind)} ב-${esc(fmtDM(nt.exam_date))}${nt.topics ? ": " + exTopicsHtml(nt.topics) : ""}</span>` : ""}</span></button>`; }).join("") : `<div class="muted exm-none">אין אירועים ביום הזה.</div>`); };
   if (EX.mTab === "week") {
     // 5.19.88 (נועה): "לוח שנה ממש" – שבוע: עמודה לכל יום והאירועים בתוכה; חודש: משבצות עם נקודות, ולחיצה על יום מציגה את האירועים שלו
-    EX.mView = EX.mView || store("telem_exm_view") || "w";
     const short = (n) => String(n || "").replace(/^אורט /, "").replace(/ המרכז.*$/, "").slice(0, 7);
     const ofDay = (d) => evs.filter(e => e.exam_date === d && inScope(e)).sort(ord);
-    h += `<div class="exm-vt"><button type="button" data-exmv="w" aria-pressed="${EX.mView === "w"}">שבוע</button><button type="button" data-exmv="m" aria-pressed="${EX.mView === "m"}">חודש</button></div>`;
     if (EX.mView === "w") {
       const w0 = EX.mWk || exWeekStart(t), isNow = w0 === exWeekStart(t);
       let days = [0, 1, 2, 3, 4, 5, 6].map(i => addDays(w0, i)); if (!ofDay(days[6]).length) days = days.slice(0, 6);
-      h += `<div class="exm-wk"><button type="button" class="btn small" data-exmw="-7">→</button><b>${fmtDM(days[0])} – ${fmtDM(days[days.length - 1])}</b>${isNow ? "" : `<button type="button" class="btn small" data-exmw="0">השבוע</button>`}<button type="button" class="btn small" data-exmw="7">←</button></div>`;
+      h += `<div class="exm-wk"><button type="button" class="btn small" data-exmw="-7">→</button><b>${(() => { const a = days[0], z = days[days.length - 1], mn = (d) => HE_MONTHS[Number(d.slice(5, 7)) - 1]; return a.slice(0, 7) === z.slice(0, 7) ? `${mn(a)} ${a.slice(0, 4)}<small dir="ltr">${Number(a.slice(8, 10))}–${Number(z.slice(8, 10))}</small>` : `${mn(a)}–${mn(z)} ${z.slice(0, 4)}<small dir="ltr">${fmtDM(a)} – ${fmtDM(z)}</small>`; })()}</b>${isNow ? "" : `<button type="button" class="btn small" data-exmw="0">השבוע</button>`}<button type="button" class="btn small" data-exmw="7">←</button></div>`;
       h += `<div class="exm-wg" style="grid-template-columns:repeat(${days.length},minmax(0,1fr))">` + days.map(d => `<div class="exm-wh${d === t ? " today" : ""}"><span>${dayLetter(d)}'</span><b>${Number(d.slice(8, 10))}</b></div>`).join("")
-        + days.map(d => `<div class="exm-wc${d === t ? " today" : ""}${d < t ? " exm-past" : ""}${d === EX.mDay ? " sel" : ""}" data-exmd="${d}">${ofDay(d).map(e => `<button type="button" class="exm-wb${e.id === EX.mEv ? " on" : ""}" data-exme="${e.id}" data-exmd="${d}" title="${esc(e.kind + " · " + exSchName(e))}"><b class="school-chip ${scCls(exSchName(e))}">${esc(short(exSchName(e)))}</b><em class="exm-k ${exKindCls(e.kind)}">${esc(exmKindShort(e.kind))} ${esc(gradeKey(e.grade))}'</em></button>`).join("")}</div>`).join("") + `</div>`;
+        + days.map(d => `<div class="exm-wc${d === t ? " today" : ""}${d < t ? " exm-past" : ""}${d === EX.mDay ? " sel" : ""}" data-exmd="${d}">${ofDay(d).map(e => `<button type="button" class="exm-wb${e.id === EX.mEv ? " on" : ""}${exIsMar(e) && e.session_id && !(EX.cxl && EX.cxl.has(e.session_id)) ? " exm-run" : ""}" data-exme="${e.id}" data-exmd="${d}" title="${esc(e.kind + " · " + exSchName(e))}"><b class="school-chip ${scCls(exSchName(e))}">${esc(short(exSchName(e)))}</b><em class="exm-k ${exKindCls(e.kind)}">${esc(exmKindShort(e.kind))} ${esc(gradeKey(e.grade))}'</em></button>`).join("")}</div>`).join("") + `</div>`;
       if (!EX.mDay || !days.includes(EX.mDay)) EX.mDay = days.includes(t) ? t : (days.find(d => ofDay(d).length) || days[0]);
       h += exmDayList(EX.mDay);
     } else {
@@ -5018,14 +5072,16 @@ function exMobile(){
       const tm = e.start_time ? `<span class="exm-tm" dir="ltr">${esc(hm5(e.start_time))}${e.end_time ? "–" + esc(hm5(e.end_time)) : ""}</span>` : `<span class="muted">בלי שעה</span>`;
       h += `<button type="button" class="exm-mar" data-ex="${e.id}"><i class="${exKindCls(e.kind)}"></i><span class="exm-it-b"><span class="exm-mh"><b>${n ? "מפגש " + n : esc(e.kind)}</b>${tm}${e.time_label ? `<span class="muted">${esc(e.time_label)}</span>` : ""}</span>
         <span>${scChip(exSchName(e))} <span class="gbadge g-${gradeKey(e.grade)}">${esc(gradeKey(e.grade))}'</span> <span class="muted">${esc(exCity(e))}</span></span>
-        ${nt ? `<span class="exm-for">לקראת ${esc(nt.kind)} ב-${esc(fmtDM(nt.exam_date))}: ${nt.topics ? esc(nt.topics) : `<span class="muted">עוד אין חומר למבחן</span>`}</span>` : `<span class="muted exm-for">אין מבחן אחרי המפגש</span>`}</span></button>`;
+        ${nt ? `<span class="exm-for">לקראת ${esc(nt.kind)} ב-${esc(fmtDM(nt.exam_date))}: ${nt.topics ? exTopicsHtml(nt.topics) : `<span class="muted">עוד אין חומר למבחן</span>`}</span>` : `<span class="muted exm-for">אין מבחן אחרי המפגש</span>`}</span></button>`;
     });
     if (!list.length) h += `<div class="muted exm-empty">אין מפגשי מרתון ב-${EX.mDays} הימים הקרובים.</div>`;
     h += `<button type="button" class="btn small exm-more" data-exmmore>עוד חודש ←</button>`;
   }
   el.innerHTML = `<div class="exm">${h}</div>`;
   const on = (sel, fn) => el.querySelectorAll(sel).forEach(b => b.onclick = () => { fn(b); exMobile(); });
-  on("[data-exmt]", b => { EX.mTab = b.dataset.exmt; store("telem_exm_tab", EX.mTab); });
+  el.querySelectorAll("[data-exmt]").forEach(b => b.onclick = () => { const k = b.dataset.exmt;
+    if (k === "list") { EX.mode = "list"; store("telem_ex_mode", "list"); renderExams(false); return; }
+    if (k === "mar") EX.mTab = "mar"; else { EX.mTab = "week"; EX.mView = k; store("telem_exm_view", k); } store("telem_exm_tab", EX.mTab); exMobile(); });
   on("[data-exmsc]", b => { EX.mScC = b.dataset.exmsc; EX.mScS = ""; });
   on("[data-exmss]", b => { EX.mScS = b.dataset.exmss; });
   on("[data-exmw]", b => { const k = Number(b.dataset.exmw); EX.mWk = k === 0 ? null : addDays(EX.mWk || exWeekStart(t), k); });
@@ -5035,6 +5091,7 @@ function exMobile(){
   el.querySelectorAll("[data-exmd]").forEach(b => b.onclick = (ev) => { const c = ev.target.closest("[data-exme]"); EX.mDay = (c || b).dataset.exmd; EX.mEv = c ? Number(c.dataset.exme) : null; ev.stopPropagation(); exMobile();
     const x = el.querySelector(".exm-mar.on") || el.querySelector(".exm-dh:last-of-type"); if (x) x.scrollIntoView({ block: "nearest", behavior: "smooth" }); });
   { const sel = el.querySelector("#exmSchSel"); if (sel) sel.onchange = () => { EX.mScS = sel.value; exMobile(); }; }
+  { const sel = el.querySelector("#exmCitySel"); if (sel) sel.onchange = () => { EX.mScC = sel.value; EX.mScS = ""; exMobile(); }; }
 }
 
 function exCalHtml(rows, today, extra){
@@ -5044,7 +5101,7 @@ function exCalHtml(rows, today, extra){
   const y0 = [(Number(yEnd.slice(0, 4)) - 1) + "-09-01", firstEx].filter(Boolean).sort()[0], lastEx = rows.reduce((m, e) => e.exam_date > m ? e.exam_date : m, ""), y1 = [G.yearEnd || "2027-06-30", lastEx].sort().pop();
   const exD = new Set(rows.map(e => e.exam_date));   // כל ימי שישי מוצגים (מרתונים בשישי)
   const days = []; for (let iso = y0; iso <= y1; iso = addDays(iso, 1)) { const dl = dayLetter(iso); if (dl !== "ש") days.push({ iso, dl, d: Number(iso.slice(8, 10)), m: iso.slice(0, 7) }); }
-  const months = []; days.forEach(x => { const l = months[months.length - 1]; if (l && l.m === x.m) l.n++; else { months.push({ m: x.m, n: 1 }); x.first = true; } });
+  const months = []; days.forEach(x => { const l = months[months.length - 1]; if (l && l.m === x.m) l.n++; else { months.push({ m: x.m, n: 1 }); x.first = true; } x.alt = months.length % 2 === 0; });   // 5.19.90: חודש כן / חודש לא – רקע אחר
   // שורות: כל בית ספר + שכבה שיש להם מבחן כלשהו (גם בחודשים אחרים), לפי עיר
   const exCity = (e) => (e.school && e.school.city) || "";
   const keyMap = new Map();
@@ -5057,26 +5114,29 @@ function exCalHtml(rows, today, extra){
   const list = [...keyMap.values()].sort((a, b) => cityRank(a.city) - cityRank(b.city) || schRank(a.sch) - schRank(b.sch) || a.sch.localeCompare(b.sch, "he") || grIdx(a) - grIdx(b));
   if (!list.length) return "<div class='empty-state'>אין מבחנים לפי הבחירה.</div>";   // (גם בלי מבחנים: אפשר להוסיף מ"+ אירוע")
   const holCell = (iso, city, sch) => { const h = holOn(iso, city || null, sch || null).filter(x => x.kind !== "note"); return h.length ? h[0].name : ""; };
-  const wk = (x) => (x.dl === "א" ? " wk" : "") + (x.first ? " ms" : "") + (x.dl === "ו" ? " fri" : "");   // שישי - אפור כמו חג
+  const wk = (x) => (x.dl === "א" ? " wk" : "") + (x.first ? " ms" : "") + (x.dl === "ו" ? " fri" : "") + (x.alt ? " malt" : "");   // שישי - אפור כמו חג
   const legend = `<div class="ex-legend"><span><i class="lg-ex"></i>מבחן / מבדק</span><span><i class="lg-qz"></i>בוחן</span><span><i class="lg-mk"></i>מועד השלמה / שיפור ציון</span><span><i class="lg-hol"></i>חג / חופשה</span><span><i class="lg-st">📓</i>לומדים עכשיו (התקבל)</span><span><i class="lg-sy"></i>וידוא קיום המבחן / SMS מבית הספר</span><span><i class="lg-sr"></i>SMS מתלם</span><span><i class="lg-ot"></i>אירוע אחר</span><span><i class="lg-m1"></i>מרתון - מפגש 1</span><span><i class="lg-m2"></i>מרתון - מפגש 2</span><span class="muted">לוחצים על משבצת ירוקה - רואים את הנושאים${ME.role !== "instructor" ? " · על יום ריק - בוחרים צבע ומוסיפים אירוע" : ""}</span></div>`;
   let html = `
-    <div class="tbl-wrap ex-cal-wrap"><table class="ex-cal"><thead><tr><th class="sch" rowspan="3">בית ספר</th><th class="gr" rowspan="3">שכבה</th>${months.map(x => { const [yy, mm] = x.m.split("-").map(Number); return `<th class="mo" colspan="${x.n}"><span>${HE_MONTHS[mm - 1]} ${yy}</span></th>`; }).join("")}</tr>
+    <div class="tbl-wrap ex-cal-wrap"><table class="ex-cal"><thead><tr><th class="sch" rowspan="3">בית ספר</th><th class="gr" rowspan="3">שכבה</th>${months.map((x, i) => { const [yy, mm] = x.m.split("-").map(Number); return `<th class="mo${i % 2 ? " malt" : ""}${x.m === today.slice(0, 7) ? " mnow" : ""}" colspan="${x.n}"><span>${HE_MONTHS[mm - 1]} ${yy}</span></th>`; }).join("")}</tr>
     <tr>${days.map(x => `<th class="dl${wk(x)}${x.d === 1 || x.iso === days[0].iso ? " m1" : ""}${x.iso === today ? " today" : ""}${holCell(x.iso) ? " hol" : ""}">${x.dl}</th>`).join("")}</tr>
     <tr>${days.map(x => `<th class="dn${wk(x)}${x.iso === today ? " today" : ""}${holCell(x.iso) ? " hol" : ""}" data-d="${x.iso}" data-dd="${x.iso}" title="${esc(holCell(x.iso))}">${x.d}</th>`).join("")}</tr></thead><tbody>`;
   let city = null;
   list.forEach((r, i) => {
     if (r.city !== city) { city = r.city; html += `<tr class="ex-city"><td colspan="${days.length + 2}"><span>${esc(city || "בלי עיר")}</span></td></tr>`; }
     const first = i === 0 || list[i - 1].sch !== r.sch || list[i - 1].city !== r.city, span = first ? list.filter(x => x.sch === r.sch && x.city === r.city).length : 0;
+    // 5.19.90 (נועה): מרתון שרץ (יש לו קישור הרשמה) – מסגרת שחורה סביב כל הימים מהמפגש הראשון עד האחרון
+    const mr = {}; r.ex.forEach(e => { if (exIsMar(e) && e.session_id && !(EX.cxl && EX.cxl.has(e.session_id))) { const z = mr[e.session_id] = mr[e.session_id] || [e.exam_date, e.exam_date]; if (e.exam_date < z[0]) z[0] = e.exam_date; if (e.exam_date > z[1]) z[1] = e.exam_date; } });
+    const mrs = Object.values(mr), frm = (iso) => { const z = mrs.find(z => iso >= z[0] && iso <= z[1]); return z ? " mrf" + (iso === z[0] ? " mrs" : "") + (iso === z[1] ? " mre" : "") : ""; };
     html += `<tr class="${first ? "first" : ""}" data-row="${esc(r.city)}|${esc(r.sch)}|${esc(r.gr)}">${first ? `<td class="sch" rowspan="${span}">${scChip(r.sch)}</td>` : ""}<td class="gr">${r.gr ? `<span class="gr-b g-${esc(r.gr)}">${esc(r.gr)}'</span>` : `<span class="muted">—</span>`}</td>` + days.map(x => {
       const all = r.ex.filter(e => e.exam_date === x.iso), es = all.filter(e => !EX_STUDY.test(e.kind) && !EX_EVT.test(e.kind)), evt = all.find(e => EX_EVT.test(e.kind)), stu = all.find(e => EX_STUDY.test(e.kind)), h = holCell(x.iso, r.city, r.sch);
       if (es.length) { const e = es.find(z => !EX_MAKEUP.test(z.kind)) || es[0], mkc = EX_MAKEUP.test(e.kind);
-        return `<td class="d${wk(x)} ${mkc ? "mk" : /בוחן/.test(e.kind) ? "ex qz" : "ex"}${x.iso === today ? " today" : ""}" data-ex="${e.id}" title="${esc(es.map(z => z.kind + (z.class_num ? " (" + r.gr + "'" + z.class_num + ")" : "") + (z.topics ? ": " + z.topics : "")).join("\n"))}">${esc(exShort(e.kind))}</td>`; }
-      if (evt && /^מרתון/.test(evt.kind)) { const n2 = /2/.test(evt.kind), cx = evt.session_id && EX.cxl && EX.cxl.has(evt.session_id); return `<td class="d ${n2 ? "m2c" : "m1c"}${evt.session_id ? " lnk" : ""}${cx ? " mcx" : ""}${wk(x)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.start_time ? " · " + hm5(evt.start_time) + "–" + hm5(evt.end_time) : "") + (evt.session_id ? (EX.cxl && EX.cxl.has(evt.session_id) ? " · לא יתקיים" : " · יש קישור הרשמה") : "") + (evt.topics ? ": " + evt.topics : ""))}">${n2 ? 2 : 1}</td>`; }
-      if (evt && /^וידוא/.test(evt.kind)) return `<td class="d sy vd${wk(x)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.topics ? ": " + evt.topics : ""))}">וידוא</td>`;   // 5.19.34: אדום = וידוא קיום המבחן
-      if (evt) { const ot = /^אירוע/.test(evt.kind), tl = /תלם/.test(evt.kind); return `<td class="d ${ot ? "ot" : tl ? "sr" : "sy"}${wk(x)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc((ot ? "" : evt.kind) + (evt.topics ? (ot ? "" : ": ") + evt.topics : ot ? evt.kind : ""))}">${ot ? "★" : "SMS"}</td>`; }
+        return `<td class="d${wk(x)}${frm(x.iso)} ${mkc ? "mk" : /בוחן/.test(e.kind) ? "ex qz" : "ex"}${x.iso === today ? " today" : ""}" data-ex="${e.id}" title="${esc(es.map(z => z.kind + (z.class_num ? " (" + r.gr + "'" + z.class_num + ")" : "") + (z.topics ? ": " + z.topics : "")).join("\n"))}">${esc(exShort(e.kind))}</td>`; }
+      if (evt && /^מרתון/.test(evt.kind)) { const n2 = /2/.test(evt.kind), cx = evt.session_id && EX.cxl && EX.cxl.has(evt.session_id); return `<td class="d ${n2 ? "m2c" : "m1c"}${evt.session_id ? " lnk" : ""}${cx ? " mcx" : ""}${wk(x)}${frm(x.iso)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.start_time ? " · " + hm5(evt.start_time) + "–" + hm5(evt.end_time) : "") + (evt.session_id ? (EX.cxl && EX.cxl.has(evt.session_id) ? " · לא יתקיים" : " · יש קישור הרשמה") : "") + (evt.topics ? ": " + evt.topics : ""))}">${n2 ? 2 : 1}</td>`; }
+      if (evt && /^וידוא/.test(evt.kind)) return `<td class="d sy vd${wk(x)}${frm(x.iso)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.topics ? ": " + evt.topics : ""))}">וידוא</td>`;   // 5.19.34: אדום = וידוא קיום המבחן
+      if (evt) { const ot = /^אירוע/.test(evt.kind), tl = /תלם/.test(evt.kind); return `<td class="d ${ot ? "ot" : tl ? "sr" : "sy"}${wk(x)}${frm(x.iso)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc((ot ? "" : evt.kind) + (evt.topics ? (ot ? "" : ": ") + evt.topics : ot ? evt.kind : ""))}">${ot ? "★" : "SMS"}</td>`; }
       // "לומדים עכשיו" - הערה ביום שבו התקבל (נגיעה - הנושאים)
-      if (stu) return `<td class="d st${wk(x)}${x.iso === today ? " today" : ""}" data-ex="${stu.id}" title="${esc("לומדים עכשיו" + (stu.topics ? ": " + stu.topics : ""))}">📓</td>`;
-      return `<td class="d${wk(x)}${h ? " hol" : ""}${x.iso === today ? " today" : ""}" data-dd="${x.iso}"${h ? ` title="${esc(h)}"` : ""}></td>`; }).join("") + "</tr>";
+      if (stu) return `<td class="d st${wk(x)}${frm(x.iso)}${x.iso === today ? " today" : ""}" data-ex="${stu.id}" title="${esc("לומדים עכשיו" + (stu.topics ? ": " + stu.topics : ""))}">📓</td>`;
+      return `<td class="d${wk(x)}${frm(x.iso)}${h ? " hol" : ""}${x.iso === today ? " today" : ""}" data-dd="${x.iso}"${h ? ` title="${esc(h)}"` : ""}></td>`; }).join("") + "</tr>";
   });
   return html + "</tbody></table></div>";   // 5.19.34: בלי מקרא - הצבעים בפס למעלה
 }
@@ -5094,7 +5154,7 @@ function exOpenForm(e, pre){
     <div id="exfKindBox"><label class="lbl" for="exfKind">סוג המבחן</label><select id="exfKind">${EX_TESTS.map(k => `<option ${(e ? e.kind : pre.kind) === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>
     ${EX.link ? `<div id="exfTimeBox" class="ex-f-wide ex-f-time"><span><label class="lbl" for="exfSt">שעת התחלה</label><input id="exfSt" type="time" value="${esc(hm5(e && e.start_time))}"></span><span><label class="lbl" for="exfEn">שעת סיום</label><input id="exfEn" type="time" value="${esc(hm5(e && e.end_time))}"></span></div>` : ""}
     <div class="ex-f-wide"><label class="lbl" for="exfTop">נושאים</label><textarea id="exfTop" rows="2">${esc(e && e.topics || "")}</textarea></div>
-    <div><label class="lbl" for="exfMat">שם קובץ (לא חובה)</label><input id="exfMat" type="text" value="${esc(e && e.material || "")}"></div>
+    <div><label class="lbl" for="exfMat">קובץ החומר בדרייב (לא חובה)</label><input id="exfMat" type="text" placeholder="שם הקובץ בתיקיית בית הספר" title="שם הקובץ בתיקייה &quot;חומר מבתי הספר&quot; שממנו נלקח החומר" value="${esc(e && e.material || "")}"></div>
     <div class="ex-f-btns"><button class="btn small primary" type="submit">שמירה</button><button class="btn small" type="button" data-exfcancel>ביטול</button>${canDel ? `<button type="button" class="btn small danger" data-exfdel>מחיקה</button>` : ""}</div>`;
   f.querySelectorAll("[data-exfcancel]").forEach(b => b.onclick = exFormClose);
   f.querySelectorAll("[data-exfdel]").forEach(b => b.onclick = async () => {
@@ -5905,10 +5965,63 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
     : r.kind === "group_diff" ? [[d.location, d.day ? "יום " + d.day : "", d.time_label].filter(Boolean).join(" "), d.lesson_date ? fmtIso(d.lesson_date) : "", "קבוע: " + (d.fixed || "אין")]
     : [d.city, d.school, d.grade, d.parent_phone || d.phone];
   return bits.filter(Boolean).map(String).join(" · "); }
+// 5.19.90 (נועה): התראה "מול הקבוצה הקבועה" – כרטיס קריא: ילד/ה · מה קרה (תגית) · פרטים (השיעור + הקבוצות הקבועות כמו בכרטיס התלמיד) · החלטה
+const gdPill = (loc, txt) => `<span class="asg-pill"><span class="${scCls(loc || "")}"><i></i>${txt}</span></span>`;
+const gdFixed = (sid) => ((L.asg && L.asg[sid]) || []).filter(se => se.kind !== "מרתון");
+const gdWeek = (iso) => { const d = new Date(iso + "T12:00:00Z"), s0 = addDays(iso, -d.getUTCDay()); return [s0, addDays(s0, 6)]; };   // ראשון–שבת
+// 5.19.90 (נועה): מתחת לכל קבוצה קבועה – בקטן, אם היה/ה בה נוכחות באותו שבוע
+function gdWeekNote(r, se){
+  const d = r.data || {}; if (!d.lesson_date) return "";
+  const [a, b] = gdWeek(d.lesson_date), at = ((IB.gdAtt || {})[r.student_id] || []).filter(x => x.session_id === se.id && x.lesson_date >= a && x.lesson_date <= b);
+  if (!at.length) return `<small class="ib-gd-w">באותו שבוע: אין רישום נוכחות בקבוצה הזו</small>`;
+  return `<small class="ib-gd-w">באותו שבוע: ${at.map(x => `${x.present ? "הגיע/ה" : "חסר/ה"} ${esc(fmtDM(x.lesson_date))}`).join(" · ")}</small>`;
+}
+function ibGdCard(r, when){
+  const d = r.data || {}, t = d.type || (r.flags || [])[0], lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null;
+  const tag = IB_FLAG[t] ? `<span class="ib-tag ${IB_FLAG[t][0]}">${IB_FLAG[t][1]}</span>` : "";
+  const day = d.day ? (DAY_NAMES[d.day] ? "יום " + DAY_NAMES[d.day] : "יום " + d.day) : "";
+  const lesson = gdPill(d.location, `${esc(day)} ${d.lesson_date ? esc(fmtDM(d.lesson_date)) : ""} · ${esc(d.time_label || "")} · ${esc(d.location || "")}`);
+  const fx = gdFixed(r.student_id), fxH = fx.length ? fx.map(se => { const st0 = String(se.start_time || "").slice(0, 5); return `<span class="ib-gd-fx">${gdPill(se.location && se.location.name, `${sessWhen(se)} ${rng(st0, String(se.end_time || "").slice(0, 5) || addMin(st0, 45))} · ${esc((se.location && se.location.name) || "")}`)}${gdWeekNote(r, se)}</span>`; }).join("")
+    : (d.fixed ? String(d.fixed).split(" · ").map(z => `<span class="ib-gd-fx">${gdPill(z.trim().split(" ")[0], esc(z.trim()))}</span>`).join("") : `<span class="muted">לא משובץ/ת לקבוצה קבועה</span>`);
+  const what = t === "added" ? "" : t === "absent" ? `<span class="ib-gd-x">סומן/ה <b>חסר/ה</b> – רשום/ה בקבוצה הזו קבוע</span>` : `<span class="ib-gd-x">סומן/ה "לא מגיע/ה היום" – רשום/ה בקבוצה הזו קבוע</span>`;
+  const lk = t === "added" ? "נוכחות חד פעמית:" : "השיעור:";
+  const done = r.status === "handled";
+  let acts = "";
+  if (!done) {
+    if (t === "added") acts += fx.length ? fx.map(se => `<button type="button" class="btn small" data-gdmv="${r.id}" data-from="${se.id}">העברה קבועה ${fx.length > 1 ? "מ" + sessWhen(se) + " " : ""}לקבוצה הזו</button>`).join("")
+      : `<button type="button" class="btn small" data-gdadd="${r.id}">שיבוץ קבוע בקבוצה הזו</button>`;
+    acts += `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ סימון כנקרא</button>`;
+  }
+  return `<div class="ib-gd ${r.status}" data-ib="${r.id}">
+    <div class="ib-gd-h"><span class="ib-ic">🔀</span><b class="ib-gd-n">${lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : esc(ibName(r))}</b>${tag}<span class="ib-time">${esc(when(r.created_at))}</span></div>
+    <div class="ib-gd-b"><div class="ib-gd-l"><span class="ib-gd-k">${lk}</span> <span class="ib-gd-v">${lesson}${what}</span></div>
+      <div class="ib-gd-l"><span class="ib-gd-k">קבוצות קבועות:</span> <span class="ib-gd-v">${fxH}</span></div></div>
+    <div class="ib-gd-a">${done ? `<span class="muted">✓ טופל${r.note ? " · " + esc(r.note) : ""}</span>` : acts}</div></div>`;
+}
+async function ibGdAct(b, kind){
+  const r = (IB.rows || []).find(x => x.id === Number(kind === "move" ? b.dataset.gdmv : b.dataset.gdadd)); if (!r) return;
+  const d = r.data || {}, sid = r.student_id, target = Number(d.session_id), from = Number(b.dataset.from || 0);
+  const q = kind === "move" ? `להעביר את ${ibName(r)} באופן קבוע לקבוצה ${d.location || ""} ${d.time_label || ""}?` : `לשבץ את ${ibName(r)} באופן קבוע בקבוצה ${d.location || ""} ${d.time_label || ""}?`;
+  if (!await uiConfirm(q)) return;
+  b.disabled = true;
+  try {
+    if (kind === "move") { const a = await get("assignments", `select=id&student_id=eq.${sid}&session_id=eq.${from}&status=eq.${encodeURIComponent("משובץ")}`);
+      if (!a.length) throw new Error("השיבוץ הקבוע לא נמצא");
+      await patch("assignments", "id=eq." + a[0].id, { session_id: target, arrival_time: null, personal_end: null }); }
+    else await insert("assignments", { session_id: target, student_id: sid, status: "משובץ" });
+    const note = kind === "move" ? "הועבר/ה לקבוצה הזו" : "שובץ/ה בקבוצה הזו";
+    await patch("form_inbox", "id=eq." + r.id, { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note });
+    r.status = "handled"; r.note = note; toast(note); loadLeadsDelta().then(() => renderInbox(false)).catch(() => renderInbox(false));
+  } catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); }
+}
 async function renderInbox(reload){
   const box = $("ibList");
   document.querySelectorAll("[data-ibf]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ibf === IB.f)));
   if (reload || !IB.rows) { try { IB.rows = await get("form_inbox", "select=*&order=id.desc&limit=300"); } catch(e) { box.innerHTML = `<div class="err">${IB.ok ? "לא נטען: " + esc(e.message) : "כדי להשתמש בתיבת ההודעות צריך להריץ את קובץ 71."}</div>`; return; } await ibNames(IB.rows);
+    IB.gdAtt = {};   // 5.19.90: נוכחות באותו שבוע לכרטיסי "מול הקבוצה הקבועה"
+    const gd = IB.rows.filter(r => r.kind === "group_diff" && r.student_id && r.data && r.data.lesson_date);
+    if (gd.length) { const ws = gd.map(r => gdWeek(r.data.lesson_date)), lo = ws.map(w => w[0]).sort()[0], hi = ws.map(w => w[1]).sort().pop();
+      try { (await get("attendance", `select=student_id,session_id,lesson_date,present&student_id=in.(${[...new Set(gd.map(r => r.student_id))].join(",")})&lesson_date=gte.${lo}&lesson_date=lte.${hi}`)).forEach(x => (IB.gdAtt[x.student_id] = IB.gdAtt[x.student_id] || []).push(x)); } catch(e) {} }
     IB.plans = {};   // 5.19.68: הוראות קבע שהושהו - לכפתור "סימון: בוטלה"
     if (ME.role === "admin" && IB.rows.some(r => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused"))) { try { ((await rpc("recurring_plans_list")) || []).forEach(p => IB.plans[p.id] = p); } catch(e) {} } }
   const ibPlan = (r) => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused") ? (IB.plans || {})[r.ref_id] : null;
@@ -5918,7 +6031,7 @@ async function renderInbox(reload){
   if (!rows.length) { box.innerHTML = `<div class="empty-state">${IB.f === "new" ? "אין הודעות חדשות." : "אין הודעות."}</div>`; return; }
   const when = (iso) => { const d = new Date(iso), t = todayIL(), dd = d.toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" }), hh = d.toLocaleTimeString("he-IL", { timeZone: "Asia/Jerusalem", hour: "2-digit", minute: "2-digit" });
     return (dd === t ? "היום" : dd === addDays(t, -1) ? "אתמול" : fmtDM(dd)) + " " + hh; };
-  box.innerHTML = `<div class="ib-list">` + rows.map(r => { const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = r.issues || [];
+  box.innerHTML = `<div class="ib-list">` + rows.map(r => { if (r.kind === "group_diff") return ibGdCard(r, when); const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = r.issues || [];
     const tags = (r.flags || []).filter(f => IB_FLAG[f]).map(f => `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
       + (iss.length || (r.flags || []).includes("mismatch") ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}">⚠ ${iss.length ? iss.length + " " : ""}לא תואם ▾</button>` : "");
     return `<div class="ib-row ${r.status}${w ? " warn" : ""}" data-ib="${r.id}">
@@ -5930,6 +6043,8 @@ async function renderInbox(reload){
       ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>`;
   box.querySelectorAll("[data-ibl]").forEach(a => a.onclick = () => openLead(Number(a.dataset.ibl)));
+  box.querySelectorAll("[data-gdmv]").forEach(b => b.onclick = () => ibGdAct(b, "move"));
+  box.querySelectorAll("[data-gdadd]").forEach(b => b.onclick = () => ibGdAct(b, "add"));
   box.querySelectorAll("[data-ibx]").forEach(b => b.onclick = () => { const d = $("ibd" + b.dataset.ibx); if (d) d.hidden = !d.hidden; });
   box.querySelectorAll("[data-ibm]").forEach(b => b.onclick = () => mergeDlg(Number(b.dataset.ibm)));
   box.querySelectorAll("[data-ibcx]").forEach(b => b.onclick = async () => { const p = (IB.plans || {})[b.dataset.ibcx]; if (!p) return; b.disabled = true;   // 5.19.68: סימון "בוטלה" מההודעה
