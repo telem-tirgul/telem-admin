@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.91">
+<meta name="app-version" content="5.19.94">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3189,7 +3189,7 @@ function go(view){
   if (view === "staff") loadStaff();
   if (view === "schools") loadSchools();
   if (view === "holidays") renderHolidays(true);
-  if (view === "exams") renderExams(true);
+  if (view === "exams") { EX.goToday = true; EX.scrollTo = null; EX.mWk = null; EX.mMon = null; EX.mDay = null; EX.mEv = null; renderExams(true); }   // 5.19.94 (נועה): תמיד נפתח על היום
   if (view === "inbox") ibTab(IB_TAB);
   if (view === "attk" || view === "attg") { $("arHostG").appendChild($("attReport")); $("attReport").hidden = false;
     { const hd = document.querySelector("#view-" + view + " .page-head"), bk = hd && hd.querySelector("#arBackBtn, .btn:last-child"); if (hd && bk) hd.insertBefore($("arCsv"), bk); else if (hd) hd.appendChild($("arCsv")); }   // 5.19.88: "הורדה לאקסל" בשורת הכותרת, מימין ל"חזרה"
@@ -4917,9 +4917,9 @@ async function renderExams(reload){
   if (cal && EX.link && !EX.cxl) { EX.cxl = new Set(); try { (await get("sessions", "select=id,marathon:marathons!inner(cancelled_at)&kind=eq." + encodeURIComponent("מרתון") + "&marathon.cancelled_at=not.is.null")).forEach(x => EX.cxl.add(x.id)); } catch(e) {} }   // 5.19.36
   $("view-exams").classList.toggle("exm-on", cal && isMobile());
   if (cal && isMobile()) { exMobile(); $("exMonthNav").hidden = true; box.innerHTML = ""; return; }   // 5.19.88 (נועה): בנייד – בית ספר ← שכבה ← ציר זמן עד המבחן
-  if (cal) { await loadHol(); if (!EX.scrollTo && document.querySelector(".ex-cal-wrap")) EX.scrollTo = exFirstVisible(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_CAL_HIDE.test(e.kind) && !EX_STUDY.test(e.kind) && flt(e) && exColored(exSchName(e))), t,
+  if (cal) { await loadHol(); if (!EX.scrollTo && !EX.goToday && document.querySelector(".ex-cal-wrap")) EX.scrollTo = exFirstVisible(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_CAL_HIDE.test(e.kind) && !EX_STUDY.test(e.kind) && flt(e) && exColored(exSchName(e))), t,
       (L.schools || []).filter(x => exColored(x.name) && (!fc || x.city === fc) && (!fs || x.name === fs))
-        .flatMap(x => exGradesOf(x.name).filter(g => !fg || g === fg).map(g => ({ city: x.city, sch: x.name, gr: g })))); exFit(); exScrollTo(EX.scrollTo || exWeekStart(t), true, false); EX.scrollTo = null; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
+        .flatMap(x => exGradesOf(x.name).filter(g => !fg || g === fg).map(g => ({ city: x.city, sch: x.name, gr: g })))); exFit(); exScrollTo(EX.scrollTo || exWeekStart(t), true, false); EX.scrollTo = null; EX.goToday = false; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
   // 5.19.49 (הלקוחה): סינון מתאריך-עד תאריך. "מתאריך" גובר על "גם מבחנים שעברו"
   // ברירת מחדל: מהיום עד 20.6 של שנת הלימודים
   const y20 = (Number(t.slice(0, 4)) + (Number(t.slice(5, 7)) >= 7 ? 1 : 0)) + "-06-20";
@@ -4990,11 +4990,13 @@ function exScrollTo(iso, start, smooth){
   const th = ths.find(x => x.dataset.d >= iso) || ths[ths.length - 1];
   const sticky = (w.querySelector("thead .sch") || {}).offsetWidth + (w.querySelector("thead .gr") || {}).offsetWidth || 0;
   // RTL: העמודה צריכה להיות מימין, אחרי עמודות בית הספר והשכבה
-  const wr = w.getBoundingClientRect(), tr = th.getBoundingClientRect();
-  const delta = start ? (tr.right - (wr.right - sticky)) : (tr.left + tr.width / 2 - (wr.left + (wr.width - sticky) / 2));
+  // 5.19.94 (נועה): בנייד / אייפד נפתח על יוני – במקום חישוב ידני של הגלילה (שונה בין דפדפנים ב-RTL): scrollIntoView עם ריווח לעמודות הקבועות
   if (!w.dataset.lbl) { w.dataset.lbl = 1; let tm; w.addEventListener("scroll", () => { clearTimeout(tm); tm = setTimeout(exMLabel, 80); }, { passive: true }); }
-  w.scrollBy({ left: delta, behavior: smooth ? "smooth" : "auto" });
-  setTimeout(exMLabel, smooth ? 450 : 0);
+  w.style.scrollPaddingInlineStart = (sticky + 2) + "px";
+  const go = (beh) => { const y = window.scrollY; try { th.scrollIntoView({ block: "nearest", inline: start ? "start" : "center", behavior: beh }); } catch(e) { th.scrollIntoView(); } if (Math.abs(window.scrollY - y) > 1) window.scrollTo(0, y); };
+  go(smooth ? "smooth" : "auto");
+  if (!smooth) setTimeout(() => go("auto"), 150);   // אחרי שהגופנים / הרוחב התייצבו
+  setTimeout(exMLabel, smooth ? 450 : 200);
 }
 function exMLabel(){ const m = exVisMonth(), [y, mo] = m.split("-").map(Number); $("exMLbl").textContent = HE_MONTHS[mo - 1] + " " + y; }
 // לוח חודשי (לתכנון מרתונים): שורה לכל בית ספר ושכבה (לפי עיר), עמודה לכל יום א'-ו'. ירוק = מבחן.
