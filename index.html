@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.97">
+<meta name="app-version" content="5.19.98">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2716,6 +2716,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <section id="view-exams" hidden>
       <div class="page-head"><h1>מרתונים · לוח מבחנים</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;" data-admin>
+          <button class="btn small" type="button" id="exScanBtn" title="קריאת קבצים חדשים מ&quot;חומר מבתי הספר&quot; בדרייב (קורה גם לבד כל שעה, 06:00–22:00)">🔄 סריקה עכשיו</button><!-- 5.19.98 -->
           <button class="btn small" type="button" id="exImpBtn">ייבוא מהקובץ</button><input type="file" id="exImpFile" accept=".xlsx" hidden>
           <button class="btn small primary" type="button" id="exAddBtn" hidden>+ אירוע</button>
           <button class="btn small primary" type="button" id="exMarBtn" hidden>+ מרתון</button><!-- 5.19.33: יצירת מרתון (קישור הרשמה) - רק ב"הרשמה ותשלומים"; בלוח - מפגשי מרתון כאירועים -->
@@ -5459,6 +5460,18 @@ function exParseSheet(aoa, study){
   return { found: !!col, rows: out };
 }
 $("exImpBtn").addEventListener("click", () => $("exImpFile").click());
+// 5.19.98 (נועה): "🔄 סריקה עכשיו" – מפעיל את סריקת הדרייב (פונקציה scan-now; קובץ 87). החומר נכנס ללוח לבד אחרי כמה דקות.
+$("exScanBtn").addEventListener("click", async () => {
+  const b = $("exScanBtn"); b.disabled = true;
+  try {
+    const t = await token(); if (!t) throw new Error("צריך להיכנס מחדש");
+    const r = await fetch(CONFIG.supabaseUrl + "/functions/v1/scan-now", { method: "POST", headers: Object.assign(baseHeaders(), { Authorization: "Bearer " + t }), body: "{}" });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || ("שגיאה " + r.status));
+    toast(j.already ? "כבר רצה סריקה – החומר יופיע בעוד כמה דקות" : "הסריקה התחילה – קבצים חדשים יופיעו בלוח בעוד כ-5 דקות");
+  } catch(e) { toast("הסריקה לא התחילה: " + e.message); }
+  setTimeout(() => { b.disabled = false; }, 60000);
+});
 $("exImpFile").addEventListener("change", async () => {
   const file = $("exImpFile").files[0]; $("exImpFile").value = ""; if (!file) return;
   try {
