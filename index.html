@@ -732,7 +732,9 @@
   .gseg button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
   .ar-vseg{ margin-bottom:10px; }
   .subnav{ margin-bottom:12px; }
-  .set-nav{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; } .set-nav .subnav{ margin-bottom:0; } .set-logout{ margin-inline-start:auto; color:#B3261E; border-color:#E8B4AE; }
+  .st-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:4px 2px 8px; } .st-bar b{ font-size:15px; }
+  .set-nav{ margin-bottom:12px; } .set-nav .subnav{ margin-bottom:0; } .set-logout{ color:#B3261E; border-color:#E8B4AE; }
+  @media (max-width:760px){ .set-nav .subnav{ display:flex; flex-wrap:nowrap; overflow-x:auto; max-width:100%; scrollbar-width:none; } .set-nav .subnav button{ white-space:nowrap; flex:1 0 auto; padding-inline:12px; } }
   .sc-wrap{ display:grid; grid-template-columns:200px minmax(0,1fr); gap:16px; align-items:start; }
   .sc-cities{ display:flex; flex-direction:column; gap:6px; position:sticky; top:80px; }
   .sc-cities button{ text-align:right; font:inherit; font-weight:800; font-size:16px; padding:12px 14px; border-radius:12px; border:1.5px solid var(--border); background:var(--paper); color:var(--ink); cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px; }
@@ -1478,7 +1480,12 @@
   .home-more{ grid-column:1 / -1; display:flex; gap:8px; flex-wrap:wrap; }
   .home-tile b .payNavN, .home-tile b .nav-n{ display:inline; } .home-tile b .nav-n{ color:#fff; font-size:13px; line-height:1; }
   .home-tile .ic{ font-size:28px; line-height:1; } .home-tile b{ font-size:18px; color:var(--accent); } .home-tile span{ font-size:13px; color:var(--ink-soft, #777); line-height:1.5; }
-  .me-card{ max-width:520px; } .me-dl{ display:grid; grid-template-columns:90px 1fr; gap:8px 12px; margin:0 0 14px; } .me-dl dt{ color:var(--ink-soft, #777); } .me-dl dd{ margin:0; font-weight:700; }
+  .me-card{ max-width:520px; padding:20px 22px; }
+  .me-top{ display:flex; align-items:center; gap:14px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+  .me-av{ width:52px; height:52px; border-radius:50%; background:var(--accent, #5A1216); color:#fff; display:flex; align-items:center; justify-content:center; font-size:21px; font-weight:800; flex:none; }
+  .me-nm{ font-size:19px; font-weight:800; line-height:1.3; } .me-role{ display:inline-block; margin-top:3px; font-size:12.5px; font-weight:700; padding:1px 10px; border-radius:999px; background:#F3E9D6; color:#7A5410; }
+  .me-rows{ padding:8px 0 4px; } .me-row{ display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-bottom:1px dashed var(--border); font-size:14.5px; } .me-row:last-child{ border-bottom:0; } .me-row span{ color:var(--ink-soft, #777); }
+  .me-acts{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:12px; } .me-acts .sp{ flex:1; }
   .ms-school{ margin-bottom:16px; } .ms-school h2{ margin:0 0 10px; font-size:20px; display:flex; gap:8px; align-items:center; }
   .ms-kids{ list-style:none; margin:6px 0 0; padding:0; font-size:13.5px; } .ms-kids li{ padding:4px 0; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; gap:8px; }
   .ms-grp{ border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:10px; } .ms-grp h4{ margin:0; font-size:15px; }
@@ -2539,13 +2546,13 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
     <section id="view-issues" hidden>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div><button type="button" class="btn small set-logout" data-logout>יציאה מהמערכת</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <!-- 5.19.66: הדיווחים עברו למסך ההודעות (📥) -->
     </section>
     <!-- ===== 5.19.100 (נועה): נוסחי הטפסים (בהגדרות) ===== -->
     <section id="view-ftx" hidden>
       <div class="page-head"><h1>נוסחי הטפסים</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div><button type="button" class="btn small set-logout" data-logout>יציאה מהמערכת</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <div class="ftx-top">
         <div class="gseg ftx-forms" id="ftxForms" role="group" aria-label="טופס"></div>
         <div class="ftx-acts"><span id="ftxDirty"></span><button type="button" class="btn small danger-t" id="ftxDrop" hidden>מחיקת הטיוטות</button><button type="button" class="btn" id="ftxCancel" hidden>ביטול</button><button type="button" class="btn" id="ftxSave" disabled>שמירת טיוטה</button><button type="button" class="btn primary" id="ftxPub" disabled>פרסום לאוויר</button></div>
@@ -2559,7 +2566,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     </section>
     <section id="view-backup" hidden>
       <div class="page-head"><h1>גיבוי</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div><button type="button" class="btn small set-logout" data-logout>יציאה מהמערכת</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
         <p class="muted" style="font-size:13.5px; margin:0 0 10px;">כל הטבלאות בקובץ אחד. כדאי לשמור עותק גם בדרייב. הקובץ כולל טלפונים ופרטים אישיים - לא לשלוח הלאה.</p>
@@ -2675,11 +2682,16 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
     <section id="view-me" hidden>
-      <div class="page-head"><h1>הפרטים שלי</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div><button type="button" class="btn small set-logout" data-logout>יציאה מהמערכת</button></div>
+      <div class="page-head"><h1>החשבון שלי</h1></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <!-- 5.19.101 (נועה): "החשבון שלי" מסודר; היציאה מהמערכת – כאן (לא בכותרת) -->
       <div class="card me-card">
-        <dl class="me-dl"><dt>שם</dt><dd id="meName"></dd><dt>אימייל</dt><dd id="meEmail" dir="ltr"></dd><dt>תפקיד</dt><dd id="meRole"></dd><dt>גרסת המערכת</dt><dd id="meVer" dir="ltr" style="text-align:right"></dd></dl>
-        <button class="btn" type="button" id="mePwBtn">שינוי סיסמה</button>
+        <div class="me-top"><span class="me-av" id="meAv"></span><div><div class="me-nm" id="meName"></div><span class="me-role" id="meRole"></span></div></div>
+        <div class="me-rows">
+          <div class="me-row"><span>אימייל</span><b><bdi id="meEmail"></bdi></b></div>
+          <div class="me-row"><span>גרסת המערכת</span><b><bdi id="meVer"></bdi></b></div>
+        </div>
+        <div class="me-acts"><button class="btn" type="button" id="mePwBtn">🔑 שינוי סיסמה</button><span class="sp"></span><button type="button" class="btn set-logout" data-logout>יציאה מהמערכת</button></div>
       </div>
     </section>
 
@@ -2800,8 +2812,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== צוות ומתרגלים ===== -->
     <section id="view-staff" hidden>
-      <div class="page-head"><h1>צוות ומתרגלים</h1><button class="btn small primary" type="button" id="stNewBtn" data-admin>+ משתמש חדש</button></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div><button type="button" class="btn small set-logout" data-logout>יציאה מהמערכת</button></div>
+      <div class="page-head"><h1>צוות ומתרגלים</h1></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <div class="card" id="stCard" style="margin-bottom:14px;" hidden>
         <div class="st-fh"><b id="stFT">משתמש חדש</b></div>
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
@@ -2818,6 +2830,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         </form>
         <div class="err" id="stErr"></div>
       </div>
+      <div class="st-bar"><b>המשתמשים</b><button class="btn small primary" type="button" id="stNewBtn" data-admin>+ משתמש חדש</button></div><!-- 5.19.101 (נועה): בתוך הרשימה, לא ליד הכותרת -->
       <div class="tbl-wrap"><table class="tbl st-tbl" id="stTbl"></table></div>
       <div class="card" id="stAssign" hidden style="margin-top:14px;">
         <div class="page-head" style="margin-bottom:8px;"><h2 id="stAssignTitle" style="font-size:18px;"></h2>
@@ -7918,6 +7931,7 @@ $("brandHome").addEventListener("keydown", (e) => { if (e.key === "Enter") go("h
 // ---------- הפרטים שלי ----------
 function renderMe(){
   $("meName").textContent = ME.full_name || "—";
+  $("meAv").textContent = String(ME.full_name || (auth && auth.email) || "?").trim().charAt(0);
   $("meEmail").textContent = (auth && auth.email) || "—";
   $("meRole").textContent = ME.role === "instructor" ? "מתרגל/ת" : "מנהל/ת";
   { const mv = document.querySelector('meta[name="app-version"]'); $("meVer").textContent = mv ? mv.content : ""; }
