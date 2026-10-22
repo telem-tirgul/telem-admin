@@ -3404,8 +3404,9 @@ async function loadLeads(){
       return L.hist; });
   if (!L.hist) L.hist = {};
   const [leads, notes, asg, mreg] = await Promise.all([
-    getAll("leads", "select=" + LEAD_SELECT + "&order=updated_at.desc,id.desc")
-      .catch(e => /tracking/.test(String(e && e.message)) ? getAll("leads", "select=" + LEAD_SELECT.replace("tracking,", "") + "&order=updated_at.desc,id.desc") : Promise.reject(e)),
+    // 5.19.103 (נועה): בכניסה – רק הכרטיסים הפעילים (מה שרואים בדיפולט); הלא פעילים (כ-11,000 עם "שנים קודמות") – ברקע, מיד אחרי
+    getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.true&order=updated_at.desc,id.desc")
+      .catch(e => /tracking/.test(String(e && e.message)) ? getAll("leads", "select=" + LEAD_SELECT.replace("tracking,", "") + "&is_active=is.true&order=updated_at.desc,id.desc") : Promise.reject(e)),
     getAll("notes", "select=id,lead_id,body,created_at&order=created_at"),
     getAll("assignments", "select=student_id,status,arrival_time,personal_end,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")
       .catch(() => getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")).catch(() => []),
@@ -3422,6 +3423,12 @@ async function loadLeads(){
   setAsg(asg); L.asgSig = null;
   L.leads = leads.filter(l => l.student);
   L.loadedAt = t0; L.fullAt = t0;
+  L.inactReady = false;
+  L.inactP = getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.false&order=updated_at.desc,id.desc")
+    .then(rows => { const have = new Set(L.leads.map(l => l.id)); rows.forEach(l => { if (l.student && !have.has(l.id)) L.leads.push(l); });
+      L.inactReady = true;
+      if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads(); })
+    .catch(() => { L.inactReady = true; });
   L.notesCount = {}; L.notes = {}; notes.forEach(n => { L.notesCount[n.lead_id] = (L.notesCount[n.lead_id] || 0) + 1; (L.notes[n.lead_id] = L.notes[n.lead_id] || []).push(n); });
 }
 const statusName = (id) => (L.statuses.find(s => s.id === id) || {}).name || "";
@@ -3744,7 +3751,8 @@ function renderLeads(){
   if (F.page >= pages) F.page = pages - 1;
   const slice = list.slice(F.page * CONFIG.pageSize, (F.page + 1) * CONFIG.pageSize);
   $("countLine").textContent = (list.length ? `${F.page * CONFIG.pageSize + 1}-${F.page * CONFIG.pageSize + slice.length} מתוך ${list.length}` : "אין תוצאות")
-    + (LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : LR.histLoading ? " · טוען שנים קודמות…" : "");
+    + (LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : LR.histLoading ? " · טוען שנים קודמות…" : "")
+    + (!L.inactReady && (!$("fActive").checked || $("fSearch").value.trim() || $("fFrom").value || $("fTo").value) ? " · טוען כרטיסים לא פעילים…" : "");
   // "ניקוי סינון" - רק כשיש סינון פעיל
   $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo"].some(id => $(id).value) || F.statuses.size || F.sources.size || $("fStar").checked || $("fRemind").checked || !$("fActive").checked); markFilters();
   $("pageInfo").textContent = `עמוד ${F.page + 1} מתוך ${pages}`;
