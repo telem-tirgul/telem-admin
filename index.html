@@ -1228,6 +1228,7 @@
   .tbl tr.h-past td{ background:#FAF7F1; } .tbl tr.h-past:hover td{ background:#F3EDE2; }
   .h-yr{ display:inline-block; font-size:12px; font-weight:700; color:#7A5410; background:#F3E9D6; border-radius:999px; padding:1px 8px; white-space:nowrap; }
   .h-tag{ font-size:11.5px; color:var(--ink-soft); white-space:nowrap; } .h-st{ font-size:12.5px; color:#555; } .h-st.reg{ color:#2E7D32; font-weight:700; }
+  .h-yrs{ display:inline-flex; flex-wrap:wrap; gap:3px; margin-inline-start:6px; vertical-align:middle; } .h-yrs .h-yr{ font-size:11px; padding:0 6px; }
   .h-now{ display:block; font-size:11.5px; color:var(--ink-soft); } .h-has{ font-size:11.5px; color:#2E7D32; font-weight:700; white-space:nowrap; }
   .hh-jump{ all:unset; cursor:pointer; font-size:13px; font-weight:700; color:var(--accent); margin-inline-start:10px; text-decoration:underline; text-underline-offset:3px; }
   .hh-h{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin-bottom:8px; } .hh-h #hhAll{ margin-inline-start:auto; }
@@ -3640,7 +3641,14 @@ function histFiltered(leadList){
   if (!useDates) {   // חיפוש בלבד – שורה אחת לכל ילד/ה (השנה האחרונה)
     const seen = new Set(); out = out.filter(h => { const k = h.kid_key || ("h" + h.id); if (seen.has(k)) return false; seen.add(k); return true; });
   }
-  return out.map(h => ({ __h: h }));
+  // 5.19.103 (נועה): ילד/ה שיש לו/ה כרטיס – מופיע/ה ככרטיס הרגיל (לא פעיל), עם תגית השנים; בלי כרטיס – שורת "שנים קודמות"
+  const byLead = new Map(), rows = [];
+  out.forEach(h => { const lead = h.student_id ? L.leadByStudent.get(h.student_id) : null;
+    if (!lead) { rows.push({ __h: h }); return; }
+    if (shown.has(lead.student_id)) { if (useDates) (LR.years.get(lead.id) || LR.years.set(lead.id, []).get(lead.id)).push(h); return; }
+    if (!byLead.has(lead.id)) byLead.set(lead.id, { lead, hs: [] }); byLead.get(lead.id).hs.push(h); });
+  byLead.forEach(v => { LR.years.set(v.lead.id, v.hs); rows.push(v.lead); });
+  return rows;
 }
 const H_KEY = {
   id: () => 9e15, name: x => (x.__h.first_name || "") + " " + (x.__h.last_name || ""), status: x => x.__h.status || "", source: x => x.__h.source || "",
@@ -3649,16 +3657,21 @@ const H_KEY = {
 };
 // כל השורות של הטבלה: הכרטיסים + שנים קודמות (באותו מיון)
 function leadRows(){
+  LR.years = new Map(); L.leadByStudent = new Map(L.leads.map(l => [l.student_id, l]));
   const list = filtered(), hs = histFiltered(list);
   LR.histN = hs ? hs.length : 0; LR.histLoading = hs === null;
   if (!hs || !hs.length) return list;
   const lk = { id: l => Number(l.legacy_user_id) || l.id + 1e6, name: l => (l.student.first_name + " " + (l.student.last_name || "")), status: l => statusName(l.status_id), source: l => sourceName(l.source_id),
     school: l => schoolOf(l.student).name, grade: l => String(GRADES.indexOf(l.student.grade)).padStart(2, "0"), asg: l => asgOf(l).length,
     parent: l => [(l.student.family || {}).parent1_first, (l.student.family || {}).parent1_last].filter(Boolean).join(" "), manager: l => staffName(l.manager_id), remind: l => l.remind_at || "", updated: l => lastUpdate(l) || "" };
-  const kf = (x) => x.__h ? (H_KEY[F.sort] || H_KEY.updated)(x) : (lk[F.sort] || lk.updated)(x);
+  const kf = (x) => x.__h ? (H_KEY[F.sort] || H_KEY.updated)(x) : F.sort === "updated" && LR.years.has(x.id) ? LR.years.get(x.id)[0].year_start + "-09-01" : (lk[F.sort] || lk.updated)(x);
   return list.concat(hs).sort((a, b) => { const x = kf(a), y = kf(b); return (x > y ? 1 : x < y ? -1 : 0) * F.dir; });
 }
-const LR = { histN: 0, histLoading: false };
+const LR = { histN: 0, histLoading: false, years: new Map() };
+// תגית השנים (ושכבה של אז) לכרטיס שהגיע מ"שנים קודמות"
+const lrYears = (l) => { const hs = LR.years.get(l.id); if (!hs || !hs.length) return "";
+  const u = [...new Map(hs.map(h => [h.year_start, h])).values()].sort((a, b) => b.year_start - a.year_start);
+  return `<span class="h-yrs">${u.map(h => `<span class="h-yr" title="${esc((h.status || "") + (h.school ? " · " + h.school : ""))}">${esc(hyLbl(h.school_year, h.year_start))}${h.grade ? " · " + esc(h.grade) : ""}</span>`).join("")}</span>`; };
 function histRowHtml(x){
   const h = x.__h, lead = h.student_id ? L.leads.find(l => l.student_id === h.student_id) : null, now = histGradeNow(h.grade, h.year_start);
   return `<tr data-h="${h.id}" class="h-past">
@@ -3753,7 +3766,7 @@ function renderLeads(){
       <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="${stSoft(statusColor(l.status_id))}"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select>${marIcon(s)}</td>
       <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
       <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" title="${esc(ns.length ? ns.slice(-3).reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n").slice(0, 600) + (ns.length > 3 ? "\n(ועוד " + (ns.length - 3) + " - לחיצה לכל ההערות)" : "") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
-      <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}</td>
+      <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
       <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
       <td class="c-grade">${esc(classLabel(s.grade, s.class_num))}</td>
       <td class="c-asg" data-act="asg" title="לחיצה - שיבוץ לקבוצה / שינוי">${(() => { const a = asgOf(l), pr = propOf(l);
@@ -3881,7 +3894,7 @@ $("exportBtn").addEventListener("click", () => {
       return [hyLbl(h.school_year, h.year_start), "", "לא", "", h.status, h.source, "", h.first_name, h.last_name, h.student_phone, h.school, h.city, h.grade + (histGradeNow(h.grade, h.year_start) ? " (היום " + histGradeNow(h.grade, h.year_start) + ")" : ""), "",
         h.parent1_name, h.parent1_phone, h.email, h.parent2_name, h.parent2_phone, "", "", "", "", h.message, h.notes]; }
     const s = l.student, f = s.family || {}, sch = schoolOf(s);
-    return ["השנה", l.legacy_user_id || l.id, l.is_active ? "כן" : "לא", l.is_starred ? "כן" : "", statusName(l.status_id), sourceName(l.source_id), l.topic,
+    return [LR.years.has(l.id) ? [...new Set(LR.years.get(l.id).map(h => hyLbl(h.school_year, h.year_start)))].join(", ") : "השנה", l.legacy_user_id || l.id, l.is_active ? "כן" : "לא", l.is_starred ? "כן" : "", statusName(l.status_id), sourceName(l.source_id), l.topic,
       s.first_name, s.last_name, s.phone, sch.name, sch.city || f.city, classLabel(s.grade, s.class_num), asgOf(l).map(asgText).join(", "), [f.parent1_first, f.parent1_last].filter(Boolean).join(" "), f.parent1_phone, f.parent1_email,
       [f.parent2_first, f.parent2_last].filter(Boolean).join(" "), f.parent2_phone, staffName(l.manager_id), fmtDate(l.remind_at), fmtDate(l.created_at), fmtDate(lastUpdate(l)),
       l.message, (L.notes[l.id] || []).map(n => fmtDate(n.created_at) + " " + cleanNote(n.body)).join("\n")]; });
