@@ -2050,13 +2050,19 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   #view-leads .page-head:has(#leadsTools.lt-head){ flex-wrap:nowrap; } #view-leads .page-head:has(#leadsTools.lt-head) h1{ margin-inline-end:auto; }
   .clear-f{ white-space:nowrap; }
   /* 5.19.90: התראת "מול הקבוצה הקבועה" */
-  .ib-gd{ border-top:1px solid var(--border); padding:10px 12px; display:flex; flex-direction:column; gap:6px; } .ib-gd.new{ background:#FFFDF6; } .ib-gd.handled{ opacity:.7; }
-  .ib-gd-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .ib-gd-n{ font-size:15px; } .ib-gd-h .ib-time{ margin-inline-start:auto; }
-  .ib-gd-b{ display:flex; flex-direction:column; gap:4px; padding-inline-start:30px; } .ib-gd-l{ display:flex; gap:8px; align-items:baseline; font-size:13.5px; } .ib-gd-k{ flex:none; width:128px; color:var(--ink-soft); font-weight:700; } .ib-gd-v{ display:flex; flex-wrap:wrap; gap:4px 6px; align-items:center; }
+  /* 5.19.97 (נועה): אירוע "מול הקבוצה הקבועה" בשורה אחת – ילד/ה | מה קרה | שיבוצים קבועים | פעולות */
+  .ib-gd{ border-top:1px solid var(--border); padding:7px 12px; display:grid; grid-template-columns:190px minmax(0,1.1fr) minmax(0,1.3fr) auto; gap:4px 14px; align-items:center; font-size:13.5px; } .ib-gd.new{ background:#FFFDF6; } .ib-gd.handled{ opacity:.7; }
+  .ib-gd-c1{ display:flex; align-items:center; gap:8px; min-width:0; } .ib-gd-c1 > span:last-child{ display:flex; flex-direction:column; line-height:1.25; } .ib-gd-n{ font-size:14.5px; } .ib-gd-c1 .ib-time{ font-size:11.5px; color:var(--ink-soft); }
+  .ib-gd-c2, .ib-gd-c3{ display:flex; align-items:center; gap:6px; min-width:0; } .ib-gd-k{ display:none; flex:none; color:var(--ink-soft); font-weight:700; font-size:12.5px; } .ib-gd-v{ display:flex; flex-wrap:wrap; gap:3px 6px; align-items:center; }
+  .ts-acc{ display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline; } .ts-req{ background:#FFF4D6; border:1px solid #F0D9A0; border-radius:8px; padding:4px 10px; margin-bottom:6px; font-weight:700; display:inline-block; }
+  .ts-acts{ display:flex; gap:8px; align-items:center; margin-top:8px; } .ts-acts .sp{ flex:1; } .btn.danger-t{ color:var(--error, #B3261E); border-color:#E8B4AE; }
+  .ts-dlg input{ width:100%; margin-bottom:8px; font-size:16px; } .ts-pre{ white-space:pre-wrap; background:var(--bg-soft, #F7F2EA); border-radius:8px; padding:10px; font:inherit; font-size:13.5px; margin:8px 0; max-height:50vh; overflow:auto; }
+  .ui-dlg-ch{ display:flex; flex-direction:column; gap:6px; margin:10px 0 4px; } .ui-dlg-ch .btn{ justify-content:flex-start; text-align:start; }
   .ib-gd-v .asg-pill > span{ font-size:12.5px; padding:2px 9px; }
   .ib-gd-fx{ display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; margin-inline-end:8px; } .ib-gd-w{ font-size:11.5px; color:var(--ink-soft); padding-inline-start:4px; } .ib-gd-x{ font-size:12.5px; color:var(--ink-soft); }
-  .ib-gd-a{ display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; padding-inline-start:30px; }
-  @media (max-width:760px){ .ib-gd-b, .ib-gd-a{ padding-inline-start:0; } .ib-gd-l{ flex-direction:column; align-items:flex-start; gap:2px; } .ib-gd-k{ width:auto; } }
+  .ib-gd-a{ display:flex; gap:6px; flex-wrap:nowrap; justify-content:flex-end; }
+  @media (max-width:1100px){ .ib-gd{ grid-template-columns:170px minmax(0,1fr) minmax(0,1fr); } .ib-gd-a{ grid-column:1 / -1; } }
+  @media (max-width:760px){ .ib-gd{ display:flex; flex-direction:column; align-items:stretch; gap:5px; padding:9px 12px; } .ib-gd-c2, .ib-gd-c3{ align-items:baseline; } .ib-gd-k{ display:inline; width:96px; } .ib-gd-a{ flex-wrap:wrap; } }
   /* 5.19.89 (נועה: "סינון נוסף נמרח על כל המסך"): בנייד – הסינון הפתוח קומפקטי: חיפוש + "פחות ▴" בשורה אחת, 2 שדות בשורה בלי כותרות (השם בתוך השדה), גובה מוגבל עם גלילה, ולא נדבק למעלה */
   @media (max-width:760px){
     #view-leads .filters-card.open{ position:static !important; display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; }
@@ -2419,6 +2425,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
           <details class="la-row"><summary><b>נוכחות אחרונה</b><span class="la-sum" data-of="leadAtt"></span></summary><div class="la-body"><div id="leadAtt" class="muted" style="font-size:13.5px;"></div></div></details>
           <details class="la-row"><summary><b>חתימה על טופס ההרשמה</b><span class="la-sum" data-of="leadSig"></span></summary><div class="la-body"><div id="leadSig" class="muted" style="font-size:13.5px;"></div></div></details>
           <details class="la-row"><summary><b>טופס ביטול</b><span class="la-sum" data-of="leadCancel2"></span></summary><div class="la-body"><div id="leadCancel2" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row" id="leadTsRow" data-admin><summary><b>📱 תלם שלי</b><span class="la-sum" data-of="leadTs"></span></summary><div class="la-body"><div id="leadTs" style="font-size:13.5px;"></div></div></details><!-- 5.19.97 (של-21/32): ניהול החשבון עבר לכאן -->
           <details class="la-row"><summary><b>שנים קודמות</b><span class="la-sum" data-of="leadHist"></span></summary><div class="la-body"><div id="leadHist" class="muted" style="font-size:13.5px;"></div></div></details>
           <details class="la-row"><summary><b>היסטוריית שינויים</b><span class="la-sum" data-of="leadLog"></span></summary><div class="la-body"><div id="leadLog" class="lead-log"></div></div></details>
         </div>
@@ -2972,6 +2979,7 @@ $("loginForm").addEventListener("submit", async (e) => {
   $("lgBtn").disabled = false;
 });
 async function logout(msg){
+  store("telem_staff", null);
   L.histP = null; L.hist = null; L.histReady = false;
   try { sessionStorage.removeItem("telem_last"); sessionStorage.removeItem("telem_resume"); store("telem_last_keep", null); sessionStorage.removeItem("telem_lead_filters"); } catch(e) {} RESUME = null;
   try { const t = await token(); if (t) await fetch(CONFIG.supabaseUrl + "/auth/v1/logout", { method:"POST", headers: Object.assign(baseHeaders(), {"Authorization":"Bearer "+t}) }); } catch(e) {}
@@ -3141,6 +3149,20 @@ function uiDialog(msg, o){ o = o || {};
   });
 }
 const uiConfirm = (msg, o) => uiDialog(msg, o);
+// 5.19.97: חלון בחירה – כפתור לכל אפשרות (opts: [{v, t}]), מחזיר את v או null
+function uiChoose(msg, opts){
+  return new Promise((resolve) => {
+    const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
+    bg.innerHTML = `<div class="ui-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t"></div><div class="ui-dlg-ch">${opts.map((o, i) => `<button type="button" class="btn" data-ch="${i}"></button>`).join("")}</div><div class="ui-dlg-b"><button type="button" class="btn" data-no>ביטול</button></div></div>`;
+    bg.querySelector(".ui-dlg-t").textContent = msg; opts.forEach((o, i) => bg.querySelector(`[data-ch="${i}"]`).textContent = o.t);
+    const done = (v) => { document.removeEventListener("keydown", key, true); bg.remove(); resolve(v); };
+    const key = (ev) => { if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); done(null); } };
+    document.addEventListener("keydown", key, true);
+    bg.querySelectorAll("[data-ch]").forEach(b => b.onclick = () => done(opts[+b.dataset.ch].v));
+    bg.querySelector("[data-no]").onclick = () => done(null); bg.addEventListener("click", (ev) => { if (ev.target === bg) done(null); });
+    document.body.appendChild(bg); setTimeout(() => bg.querySelector("[data-ch]").focus(), 30);
+  });
+}
 const uiPrompt = (msg, value, o) => uiDialog(msg, Object.assign({ input: true, value, multi: true }, o || {}));
 const uiCopyBox = (t) => uiDialog("להעתקה: מסמנים את הטקסט ומעתיקים", { input: true, value: t, copy: true, multi: false });
 function go(view){
@@ -3792,7 +3814,7 @@ function openLead(id){
   go("lead");
   renderTrack(l); $("leadPay").innerHTML = ""; $("leadPayments").innerHTML = ""; $("leadCancel2").innerHTML = "";
   leadQuick(l ? l.student : null, null);
-  if (l) { loadNotes(l.id); loadLeadGroups(l.student.id); loadLeadSig(l); loadLeadHist(l); loadLeadLog(l); loadLeadExams(l); loadLeadPay(l); loadLeadPayments(l); loadLeadCancel(l); } else { $("leadSig").textContent = ""; $("leadHist").textContent = ""; }
+  if (l) { loadNotes(l.id); loadLeadGroups(l.student.id); loadLeadSig(l); loadLeadHist(l); loadLeadLog(l); loadLeadExams(l); loadLeadPay(l); loadLeadPayments(l); loadLeadCancel(l); loadLeadTs(l); } else { $("leadSig").textContent = ""; $("leadHist").textContent = ""; $("leadTs").textContent = ""; }
 }
 // כותרת המסך: שם הילד בגדול, ומתחת - הורה, טלפון, בית ספר ושכבה. מתעדכנת תוך כדי הקלדה.
 function updateLeadHead(){
@@ -4473,6 +4495,84 @@ async function ensureG(force){ if (force || !G.loaded || Date.now() - (G.loadedA
 async function grpEdit(sid){ await ensureG(); if (G.sessions.some(x => x.session_id === sid)) { G.autoEdit = false; openPanel(sid); } else toast("הקבוצה לא נמצאה"); }   // 5.19.81 (נועה): נפתח בתצוגה - פרטי הקבוצה לקריאה; עורכים רק ב"✎ עריכה"
 function openGroupOnBoard(sessionId, city){ grpEdit(sessionId); }
 $("addLeadBtn").addEventListener("click", () => openLead(null));
+// ---------------------------------------------------------------- 5.19.97 (של-21, של-32): חשבון "תלם שלי" בכרטיס התלמיד/ה (מנהלים)
+//  יצירת חשבון / קוד חדש (portal_create_account) · מחיקה (portal_delete_account) · כניסה אחרונה · בקשת "שכחתי קוד" (portal_code_requests)
+const TS_APP = "https://telem-tirgul.github.io/telem-sheli/";
+const tsRand = () => { let c; do { const a = new Uint32Array(1); crypto.getRandomValues(a); c = String(a[0] % 1000000).padStart(6, "0"); } while (/^(\d)\1{5}$/.test(c) || ["123456", "654321"].includes(c)); return c; };
+const tsPh = (p) => { p = String(p || "").replace(/\D/g, ""); if (p.indexOf("972") === 0) p = "0" + p.slice(3); return p; };
+const tsPhF = (p) => { p = tsPh(p); return p.length === 10 ? p.slice(0, 3) + "-" + p.slice(3) : p; };
+const tsWhen = (iso) => { if (!iso) return ""; const d = new Date(iso), dd = d.toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" }), t = todayIL();
+  return (dd === t ? "היום" : dd === addDays(t, -1) ? "אתמול" : fmtDate(iso)) + " " + d.toLocaleTimeString("he-IL", { timeZone: "Asia/Jerusalem", hour: "2-digit", minute: "2-digit" }); };
+async function loadLeadTs(l){
+  const box = $("leadTs"), row = $("leadTsRow"); if (!box) return;
+  if (ME.role !== "admin" || !l || !l.student) { row.hidden = true; return; } row.hidden = false;
+  const sid = l.student.id; delete box.dataset.sum; box.textContent = "טוען...";
+  let acc = null, req = [];
+  try { acc = (await get("portal_accounts", `select=student_id,login_phone,must_change_code,last_seen_at,created_at,initial_code_at&student_id=eq.${sid}`))[0] || null;
+        req = await get("portal_code_requests", `select=id,created_at&student_id=eq.${sid}&handled_at=is.null&matched=is.true&order=created_at.desc`); }
+  catch(e) { box.textContent = "לא נטען: " + e.message; return; }
+  if (!editing || editing.id !== l.id) return;
+  const nm = ((l.student.first_name || "") + " " + (l.student.last_name || "")).trim();
+  const reqH = req.length ? `<div class="ts-req">🔑 ביקש/ה קוד חדש ${esc(tsWhen(req[0].created_at))}</div>` : "";
+  if (acc) {
+    box.dataset.sum = (req.length ? "🔑 ביקש/ה קוד חדש · " : "") + "יש חשבון · " + (acc.last_seen_at ? "נכנס/ה " + tsWhen(acc.last_seen_at) : "עוד לא נכנס/ה");
+    box.innerHTML = `${reqH}<div class="ts-acc"><span>טלפון לכניסה: <b dir="ltr">${esc(tsPhF(acc.login_phone))}</b></span>
+      <span>כניסה אחרונה: <b>${acc.last_seen_at ? esc(tsWhen(acc.last_seen_at)) : "עוד לא נכנס/ה"}</b></span>
+      ${acc.must_change_code ? `<span class="muted">עוד לא בחר/ה קוד אישי (קוד ראשוני מ-${esc(fmtDate(acc.initial_code_at || acc.created_at))})</span>` : ""}
+      <span class="muted">נפתח ${esc(fmtDate(acc.created_at))}</span></div>
+      <div class="ts-acts"><button type="button" class="btn small danger-t" id="tsDel">מחיקת חשבון</button><span class="sp"></span><button type="button" class="btn small primary" id="tsReset">🔑 קוד חדש</button></div>`;
+    $("tsReset").onclick = () => tsAccount(l, true, acc.login_phone, nm);
+    $("tsDel").onclick = async () => {
+      if (!await uiConfirm(`למחוק את החשבון של ${nm} בתלם שלי? הוא/היא לא יוכל/תוכל להיכנס. התוכנית והדפים נשמרים.`)) return;
+      try { await rpc("portal_delete_account", { p_student: String(sid) }); toast("החשבון נמחק"); loadLeadTs(l); } catch(e) { toast("לא נמחק: " + e.message); }
+    };
+  } else {
+    box.dataset.sum = (req.length ? "🔑 ביקש/ה קוד · " : "") + "אין חשבון";
+    box.innerHTML = `${reqH}<div class="ts-acc"><span class="muted">אין חשבון בתלם שלי.</span></div>
+      <div class="ts-acts"><span class="sp"></span><button type="button" class="btn small primary" id="tsNew">+ יצירת חשבון</button></div>`;
+    $("tsNew").onclick = () => tsAccount(l, false, l.student.phone, nm);
+  }
+}
+// חלון יצירה / קוד חדש → הודעה לשליחה בוואטסאפ
+function tsAccount(l, reset, phone, nm, onDone){
+  const sid = String(l && l.student ? l.student.id : l);
+  const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
+  bg.innerHTML = `<div class="ui-dlg ts-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t"></div>
+    <label class="lbl" for="tsPhIn">הטלפון של התלמיד/ה</label><input id="tsPhIn" type="tel" dir="ltr" inputmode="numeric">
+    <label class="lbl" for="tsCdIn">קוד ראשוני</label><input id="tsCdIn" dir="ltr" inputmode="numeric" maxlength="6">
+    <div class="muted" style="font-size:12.5px; margin-top:4px;">בכניסה הראשונה התלמיד/ה יבחר/תבחר קוד אישי.</div><div class="err" id="tsErr"></div>
+    <div class="ui-dlg-b"><button type="button" class="btn primary" data-ok></button><button type="button" class="btn" data-no>ביטול</button></div></div>`;
+  bg.querySelector(".ui-dlg-t").textContent = (reset ? "קוד חדש ל" : "חשבון תלם שלי ל") + nm;
+  bg.querySelector("#tsPhIn").value = tsPhF(phone); bg.querySelector("#tsCdIn").value = tsRand();
+  bg.querySelector("[data-ok]").textContent = reset ? "שמירת הקוד" : "יצירת החשבון";
+  const close = () => bg.remove();
+  bg.querySelector("[data-no]").onclick = close; bg.addEventListener("click", (ev) => { if (ev.target === bg) close(); });
+  bg.querySelector("[data-ok]").onclick = async () => {
+    const ph = tsPh(bg.querySelector("#tsPhIn").value), cd = bg.querySelector("#tsCdIn").value.trim(), er = bg.querySelector("#tsErr"), b = bg.querySelector("[data-ok]");
+    if (!/^05\d{8}$/.test(ph)) { er.textContent = "הטלפון צריך להיות נייד (05X-XXXXXXX)."; return; }
+    if (!/^\d{6}$/.test(cd)) { er.textContent = "הקוד צריך להיות 6 ספרות."; return; }
+    b.disabled = true; er.textContent = "";
+    try {
+      const r = await rpc("portal_create_account", { p_student: sid, p_phone: ph, p_code: cd });
+      if (reset) { try { await rpc("portal_code_request_done", { p_student: sid }); } catch(e) {} }
+      close(); tsSendMsg(nm.split(" ")[0], (r && r.phone) || ph, cd, reset);
+      if (l && l.student && editing && editing.id === l.id) loadLeadTs(l); if (onDone) onDone();
+    } catch(e) { er.textContent = e.message; b.disabled = false; }
+  };
+  document.body.appendChild(bg); setTimeout(() => bg.querySelector("#tsPhIn").focus(), 30);
+}
+function tsSendMsg(first, phone, code, reset){
+  const msg = reset
+    ? `שלום ${first || ""}! הנה קוד חדש לאפליקציה "תלם שלי" 🔑\n${TS_APP}\nטלפון: ${tsPhF(phone)}\nקוד: ${code}\nבכניסה תתבקש/י לבחור קוד אישי חדש.`
+    : `שלום ${first || ""}! 👋\nמעכשיו דפי התרגול של תלם מגיעים אליך באפליקציה "תלם שלי":\n${TS_APP}\n\nנכנסים עם הטלפון שלך:\nטלפון: ${tsPhF(phone)}\nקוד ראשוני: ${code}\n\nבכניסה הראשונה בוחרים קוד אישי חדש.`;
+  const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
+  bg.innerHTML = `<div class="ui-dlg ts-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t">${reset ? "הקוד נשמר ✓" : "החשבון נוצר ✓"} – ההודעה לתלמיד/ה:</div><pre class="ts-pre"></pre>
+    <div class="ui-dlg-b"><a class="btn primary" target="_blank" rel="noopener" data-wa>שליחה בוואטסאפ</a><button type="button" class="btn" data-cp>העתקה</button><button type="button" class="btn" data-no>סגירה</button></div></div>`;
+  bg.querySelector(".ts-pre").textContent = msg; bg.querySelector("[data-wa]").href = "https://wa.me/972" + tsPh(phone).slice(1) + "?text=" + encodeURIComponent(msg);
+  bg.querySelector("[data-cp]").onclick = async () => { try { await navigator.clipboard.writeText(msg); toast("ההודעה הועתקה"); } catch(e) { uiCopyBox(msg); } };
+  bg.querySelector("[data-no]").onclick = () => bg.remove();
+  document.body.appendChild(bg);
+}
 // 5.19.18: תקציר לכל שורה מקופלת - השורה הראשונה של התוכן (מתעדכן כשהתוכן נטען)
 document.querySelectorAll("#leadAcc .la-sum[data-of]").forEach(sp => { const src = $(sp.dataset.of);
   // 5.19.41: אם התוכן נותן תקציר משלו (data-sum) - מציגים אותו, ולא את כל הטקסט ברצף
@@ -5953,8 +6053,8 @@ setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && M
 // ===== 5.19.56: תיבת הודעות מהטפסים (קובץ 71) =====
 // כל טופס שנשלח (הרשמה, מרתון, התעניינות, בקשת שיבוץ, ביטול חתום, תשלום אישי) = שורה. פרטים שלא תואמים (issues) - משיחת התשלומים
 const IB = { rows: null, f: "new", ok: true, lastMax: Number(store("telem_ib_max") || 0), names: {}, mars: {} };
-const IB_KIND = { registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"] };   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
-const IB_FLAG = { added: ["t-new", "נוסף/ה לקבוצה"], removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"],
+const IB_KIND = { registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"] };   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
+const IB_FLAG = { added: ["t-new", "נוסף/ה לקבוצה"], removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], plan_paused: ["t-old", "הוראת קבע הושהתה"],
   plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"] };
 const IB_WARN_F = ["mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check", "plan_last_check", "plan_reactivated"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
@@ -6000,6 +6100,7 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
     : r.kind === "cancel" ? [d.school, d.subject, d.reason ? "סיבה: " + d.reason : ""]
     : r.kind === "pay_link" ? [d.description, amt(d.one_time_amount)]
     : r.kind === "payment" ? [d.title, d.description, amt(d.amount), d.text]
+    : r.kind === "portal_code" ? [d.phone ? "טלפון: " + tsPhF(d.phone) : "", "שכח/ה את הקוד"]
     : r.kind === "contact" ? [d.phone, d.email, d.message ? String(d.message).slice(0, 80) + (String(d.message).length > 80 ? "…" : "") : ""]
     : r.kind === "group_diff" ? [[d.location, d.day ? "יום " + d.day : "", d.time_label].filter(Boolean).join(" "), d.lesson_date ? fmtIso(d.lesson_date) : "", "קבוע: " + (d.fixed || "אין")]
     : [d.city, d.school, d.grade, d.parent_phone || d.phone];
@@ -6022,26 +6123,33 @@ function ibGdCard(r, when){
   const lesson = gdPill(d.location, `${esc(day)} ${d.lesson_date ? esc(fmtDM(d.lesson_date)) : ""} · ${esc(d.time_label || "")} · ${esc(d.location || "")}`);
   const fx = gdFixed(r.student_id), fxH = fx.length ? fx.map(se => { const st0 = String(se.start_time || "").slice(0, 5); return `<span class="ib-gd-fx">${gdPill(se.location && se.location.name, `${sessWhen(se)} ${rng(st0, String(se.end_time || "").slice(0, 5) || addMin(st0, 45))} · ${esc((se.location && se.location.name) || "")}`)}${gdWeekNote(r, se)}</span>`; }).join("")
     : (d.fixed ? String(d.fixed).split(" · ").map(z => `<span class="ib-gd-fx">${gdPill(z.trim().split(" ")[0], esc(z.trim()))}</span>`).join("") : `<span class="muted">לא משובץ/ת לקבוצה קבועה</span>`);
-  const what = t === "added" ? "" : t === "absent" ? `<span class="ib-gd-x">סומן/ה <b>חסר/ה</b> – רשום/ה בקבוצה הזו קבוע</span>` : `<span class="ib-gd-x">סומן/ה "לא מגיע/ה היום" – רשום/ה בקבוצה הזו קבוע</span>`;
-  const lk = t === "added" ? "נוכחות חד פעמית:" : "השיעור:";
+  const what = t === "added" ? "" : t === "absent" ? `<span class="ib-gd-x">סומן/ה <b>חסר/ה</b> – בקבוצה הקבועה שלו/ה</span>` : `<span class="ib-gd-x">"לא מגיע/ה היום" – בקבוצה הקבועה שלו/ה</span>`;
   const done = r.status === "handled";
   let acts = "";
-  if (!done) {
-    if (t === "added") acts += fx.length ? fx.map(se => `<button type="button" class="btn small" data-gdmv="${r.id}" data-from="${se.id}">העברה קבועה ${fx.length > 1 ? "מ" + sessWhen(se) + " " : ""}לקבוצה הזו</button>`).join("")
-      : `<button type="button" class="btn small" data-gdadd="${r.id}">שיבוץ קבוע בקבוצה הזו</button>`;
-    acts += `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ סימון כנקרא</button>`;
+  if (!done) {   // 5.19.97 (נועה): כפתור אחד "העברה לקבוצה" → חלון "מאיזה שיבוץ להעביר?"
+    if (t === "added") acts += fx.length ? `<button type="button" class="btn small" data-gdmv="${r.id}">העברה לקבוצה</button>`
+      : `<button type="button" class="btn small" data-gdadd="${r.id}">שיבוץ קבוע בקבוצה</button>`;
+    acts += `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ נקרא</button>`;
   }
+  // 5.19.97 (נועה): כל אירוע בשורה אחת – ילד/ה | מה קרה | שיבוצים קבועים | פעולות (בנייד – זה מתחת לזה)
   return `<div class="ib-gd ${r.status}" data-ib="${r.id}">
-    <div class="ib-gd-h"><span class="ib-ic">🔀</span><b class="ib-gd-n">${lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : esc(ibName(r))}</b>${tag}<span class="ib-time">${esc(when(r.created_at))}</span></div>
-    <div class="ib-gd-b"><div class="ib-gd-l"><span class="ib-gd-k">${lk}</span> <span class="ib-gd-v">${lesson}${what}</span></div>
-      <div class="ib-gd-l"><span class="ib-gd-k">קבוצות קבועות:</span> <span class="ib-gd-v">${fxH}</span></div></div>
+    <div class="ib-gd-c1"><span class="ib-ic">🔀</span><span><b class="ib-gd-n">${lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : esc(ibName(r))}</b><small class="ib-time">${esc(when(r.created_at))}</small></span></div>
+    <div class="ib-gd-c2"><span class="ib-gd-k">מה קרה</span><span class="ib-gd-v">${tag}${lesson}${what}</span></div>
+    <div class="ib-gd-c3"><span class="ib-gd-k">שיבוצים קבועים</span><span class="ib-gd-v">${fxH}</span></div>
     <div class="ib-gd-a">${done ? `<span class="muted">✓ טופל${r.note ? " · " + esc(r.note) : ""}</span>` : acts}</div></div>`;
 }
 async function ibGdAct(b, kind){
   const r = (IB.rows || []).find(x => x.id === Number(kind === "move" ? b.dataset.gdmv : b.dataset.gdadd)); if (!r) return;
-  const d = r.data || {}, sid = r.student_id, target = Number(d.session_id), from = Number(b.dataset.from || 0);
-  const q = kind === "move" ? `להעביר את ${ibName(r)} באופן קבוע לקבוצה ${d.location || ""} ${d.time_label || ""}?` : `לשבץ את ${ibName(r)} באופן קבוע בקבוצה ${d.location || ""} ${d.time_label || ""}?`;
-  if (!await uiConfirm(q)) return;
+  const d = r.data || {}, sid = r.student_id, target = Number(d.session_id), grp = `${d.location || ""} ${d.time_label || ""}`.trim();
+  let from = 0;
+  if (kind === "move") {   // 5.19.97: מאיזה שיבוץ להעביר? (או שיבוץ נוסף בלי להעביר)
+    const dn = d.day ? (DAY_NAMES[d.day] || d.day) : "", to = [dn ? "יום " + dn : "", String(d.time_label || "").split("-")[0]].filter(Boolean).join(" ") + (d.location ? " ב" + d.location : "");
+    const fx = gdFixed(sid), ch = await uiChoose(`${ibName(r)}: מאיזה שיבוץ להעביר ל${to}?`,
+      fx.map(se => ({ v: se.id, t: "מ" + sessWhen(se) + " " + String(se.start_time || "").slice(0, 5) + " · " + ((se.location && se.location.name) || "") }))
+        .concat([{ v: "add", t: "שיבוץ נוסף (בלי להעביר)" }]));
+    if (ch == null) return;
+    if (ch === "add") kind = "add"; else from = Number(ch);
+  } else if (!await uiConfirm(`לשבץ את ${ibName(r)} באופן קבוע בקבוצה ${grp}?`)) return;
   b.disabled = true;
   try {
     if (kind === "move") { const a = await get("assignments", `select=id&student_id=eq.${sid}&session_id=eq.${from}&status=eq.${encodeURIComponent("משובץ")}`);
@@ -6078,12 +6186,14 @@ async function renderInbox(reload){
       <span class="ib-n">${lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : esc(ibName(r))}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
       <span class="ib-time">${esc(when(r.created_at))}</span>
-      <span class="ib-acts">${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${r.id}">✓ נקרא</button>` : ""}${w && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
+      <span class="ib-acts">${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${r.id}">✓ נקרא</button>` : ""}${w && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
       ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>`;
   box.querySelectorAll("[data-ibl]").forEach(a => a.onclick = () => openLead(Number(a.dataset.ibl)));
   box.querySelectorAll("[data-gdmv]").forEach(b => b.onclick = () => ibGdAct(b, "move"));
   box.querySelectorAll("[data-gdadd]").forEach(b => b.onclick = () => ibGdAct(b, "add"));
+  box.querySelectorAll("[data-ibts]").forEach(b => b.onclick = () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibts)); if (!r) return;   // 5.19.97: בקשת קוד מתלם שלי
+    tsAccount(r.student_id, true, (r.data || {}).phone, ibName(r), async () => { try { await patch("form_inbox", "id=eq." + r.id, { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note: "נשלח קוד חדש" }); } catch(e) {} r.status = "handled"; r.note = "נשלח קוד חדש"; renderInbox(false); }); });
   box.querySelectorAll("[data-ibx]").forEach(b => b.onclick = () => { const d = $("ibd" + b.dataset.ibx); if (d) d.hidden = !d.hidden; });
   box.querySelectorAll("[data-ibm]").forEach(b => b.onclick = () => mergeDlg(Number(b.dataset.ibm)));
   box.querySelectorAll("[data-ibcx]").forEach(b => b.onclick = async () => { const p = (IB.plans || {})[b.dataset.ibcx]; if (!p) return; b.disabled = true;   // 5.19.68: סימון "בוטלה" מההודעה
@@ -9273,6 +9383,8 @@ async function boot(){
   document.body.classList.toggle("instructor", ME.role === "instructor");
   document.querySelectorAll(".nav button").forEach(b => { b.hidden = ME.role === "instructor" && !["att","ws","info"].includes(b.dataset.view); });
   if (ME.full_name) $("whoEmail").textContent = ME.full_name;
+  // 5.19.97: סימון לטפסים (אותו אתר) – ?cardtest=1 עובד רק בדפדפן של מנהל/ת (14 יום, נמחק ביציאה)
+  store("telem_staff", ME.role === "admin" ? String(Date.now() + 14 * 864e5) : null);
   if (ME.role === "instructor") { if (RESUME) resumeView(true); else go("home"); afterAuthLink(); return; }
   // דף הבית מיד; התלמידים, ההערות וההיסטוריה נטענים ברקע
   DATA_READY = false;
