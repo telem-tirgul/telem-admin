@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.98">
+<meta name="app-version" content="5.19.100">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2054,6 +2054,17 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   .ib-gd{ border-top:1px solid var(--border); padding:7px 12px; display:grid; grid-template-columns:190px minmax(0,1.1fr) minmax(0,1.3fr) auto; gap:4px 14px; align-items:center; font-size:13.5px; } .ib-gd.new{ background:#FFFDF6; } .ib-gd.handled{ opacity:.7; }
   .ib-gd-c1{ display:flex; align-items:center; gap:8px; min-width:0; } .ib-gd-c1 > span:last-child{ display:flex; flex-direction:column; line-height:1.25; } .ib-gd-n{ font-size:14.5px; } .ib-gd-c1 .ib-time{ font-size:11.5px; color:var(--ink-soft); }
   .ib-gd-c2, .ib-gd-c3{ display:flex; align-items:center; gap:6px; min-width:0; } .ib-gd-k{ display:none; flex:none; color:var(--ink-soft); font-weight:700; font-size:12.5px; } .ib-gd-v{ display:flex; flex-wrap:wrap; gap:3px 6px; align-items:center; }
+  .ftx-top{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between; margin:10px 0 6px; } .ftx-forms{ flex-wrap:wrap; } .ftx-acts{ display:flex; gap:8px; align-items:center; }
+  .ftx-help{ font-size:13px; margin:2px 0 10px; } .ftx-help b{ font-family:monospace; }
+  .ftx-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; align-items:start; }
+  .ftx-list{ padding:10px 14px; max-height:calc(100vh - 230px); overflow:auto; } .ftx-prev{ padding:8px; position:sticky; top:10px; } .ftx-prev iframe{ width:100%; height:calc(100vh - 270px); border:1px solid var(--border); border-radius:10px; background:#fff; }
+  .ftx-prev-h{ display:flex; gap:8px; align-items:center; margin:0 4px 6px; } .ftx-prev-h a{ margin-inline-start:auto; }
+  .ftx-g{ font-weight:800; color:var(--accent, #5A1216); margin:14px 0 6px; font-size:14px; border-bottom:1px solid var(--border); padding-bottom:3px; } .ftx-g:first-child{ margin-top:2px; }
+  .ftx-it{ margin:0 0 8px; } .ftx-it label{ display:flex; gap:6px; align-items:center; font-size:12px; color:var(--ink-soft); margin-bottom:2px; } .ftx-it label .sp{ flex:1; }
+  .ftx-it textarea{ width:100%; min-height:34px; resize:vertical; font:inherit; font-size:14px; line-height:1.45; padding:6px 9px; border:1px solid var(--border); border-radius:8px; field-sizing:content; }
+  .ftx-it.mod textarea{ border-color:#C9A227; background:#FFFBEA; } .ftx-it .ftx-mod{ display:none; color:#8A6A00; font-weight:700; } .ftx-it.mod .ftx-mod{ display:inline; }
+  .ftx-it .ftx-rs{ font-size:12px; padding:1px 7px; } .ftx-it:not(.mod) .ftx-rs{ display:none; }
+  @media (max-width:900px){ .ftx-grid{ grid-template-columns:1fr; } .ftx-prev{ display:none; } .ftx-list{ max-height:none; } }
   .ts-acc{ display:flex; flex-wrap:wrap; gap:4px 16px; align-items:baseline; } .ts-req{ background:#FFF4D6; border:1px solid #F0D9A0; border-radius:8px; padding:4px 10px; margin-bottom:6px; font-weight:700; display:inline-block; }
   .ts-acts{ display:flex; gap:8px; align-items:center; margin-top:8px; } .ts-acts .sp{ flex:1; } .btn.danger-t{ color:var(--error, #B3261E); border-color:#E8B4AE; }
   .ts-dlg input{ width:100%; margin-bottom:8px; font-size:16px; } .ts-pre{ white-space:pre-wrap; background:var(--bg-soft, #F7F2EA); border-radius:8px; padding:10px; font:inherit; font-size:13.5px; margin:8px 0; max-height:50vh; overflow:auto; }
@@ -2513,12 +2524,26 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
     <section id="view-issues" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <!-- 5.19.66: הדיווחים עברו למסך ההודעות (📥) -->
+    </section>
+    <!-- ===== 5.19.100 (נועה): נוסחי הטפסים (בהגדרות) ===== -->
+    <section id="view-ftx" hidden>
+      <div class="page-head"><h1>נוסחי הטפסים</h1></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="ftx-top">
+        <div class="gseg ftx-forms" id="ftxForms" role="group" aria-label="טופס"></div>
+        <div class="ftx-acts"><span class="muted" id="ftxDirty"></span><button type="button" class="btn" id="ftxCancel" hidden>ביטול</button><button type="button" class="btn primary" id="ftxSave" disabled>שמירה</button></div>
+      </div>
+      <p class="muted ftx-help">עורכים את הנוסח ולוחצים "שמירה" – הטופס באתר מתעדכן מיד. <b>**מודגש**</b> = שתי כוכביות מכל צד; Enter = שורה חדשה. "↺ מקור" מחזיר לנוסח המקורי. טקסטים שנבנים לבד (שם המרתון, סכומים, תאריכים) לא מופיעים כאן.</p>
+      <div class="ftx-grid">
+        <div class="card ftx-list" id="ftxList"><div class="muted">טוען...</div></div>
+        <div class="card ftx-prev"><div class="ftx-prev-h"><b>תצוגה מקדימה</b><span class="muted">(לא נשמר כלום)</span><a class="btn small" id="ftxOpenNew" target="_blank" rel="noopener">פתיחה בלשונית ↗</a></div><iframe id="ftxFrame" title="תצוגה מקדימה של הטופס"></iframe></div>
+      </div>
     </section>
     <section id="view-backup" hidden>
       <div class="page-head"><h1>גיבוי</h1></div>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
         <p class="muted" style="font-size:13.5px; margin:0 0 10px;">כל הטבלאות בקובץ אחד. כדאי לשמור עותק גם בדרייב. הקובץ כולל טלפונים ופרטים אישיים - לא לשלוח הלאה.</p>
@@ -2635,7 +2660,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
     <section id="view-me" hidden>
       <div class="page-head"><h1>הפרטים שלי</h1></div>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="card me-card">
         <dl class="me-dl"><dt>שם</dt><dd id="meName"></dd><dt>אימייל</dt><dd id="meEmail" dir="ltr"></dd><dt>תפקיד</dt><dd id="meRole"></dd><dt>גרסת המערכת</dt><dd id="meVer" dir="ltr" style="text-align:right"></dd></dl>
         <button class="btn" type="button" id="mePwBtn">שינוי סיסמה</button>
@@ -2760,7 +2785,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== צוות ומתרגלים ===== -->
     <section id="view-staff" hidden>
       <div class="page-head"><h1>צוות ומתרגלים</h1><button class="btn small primary" type="button" id="stNewBtn" data-admin>+ משתמש חדש</button></div>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
       <div class="card" id="stCard" style="margin-bottom:14px;" hidden>
         <div class="st-fh"><b id="stFT">משתמש חדש</b></div>
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
@@ -3126,7 +3151,7 @@ function resumeView(force){
   if (!st || (!force && currentView !== "home")) return;
   window.dispatchEvent(new PopStateEvent("popstate", { state: st }));
 }
-const SETTINGS_VIEWS = ["staff","backup","me"];   // 5.19.66: "issues" (דיווחים) עבר למסך ההודעות
+const SETTINGS_VIEWS = ["staff","backup","ftx","me"];   // 5.19.66: "issues" (דיווחים) עבר למסך ההודעות
 let IB_TAB = "forms";   // 5.19.32: "הרשמה ותשלומים" - טאב בתפריט הראשי
 const INFO_VIEWS = [];   // "מידע למתרגלים" ו"חגים וחופשות" - בתפריט הקטן ⓘ ליד ההגדרות
 let DATA_READY = true, DATA_WAIT = null;
@@ -3193,7 +3218,7 @@ function go(view){
   if (SETTINGS_VIEWS.includes(view)) store(key, view);
   if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
   const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.sched = "reg"; navOf.attk = "leads"; navOf.groups = "att"; navOf.attg = "att"; navOf.myschools = "schools";
-  ["home","leads","lead","groups","att","sched","reg","pay","info","staff","schools","reports","history","backup","ws","me","myschools","holidays","issues","exams","attk","attg","inbox"].forEach(v => { $("view-" + v).hidden = v !== view; });
+  ["home","leads","lead","groups","att","sched","reg","pay","info","staff","schools","reports","history","backup","ftx","ws","me","myschools","holidays","issues","exams","attk","attg","inbox"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   { const cur = document.querySelector('.nav button[aria-current="page"]'); if ($("navCur")) $("navCur").textContent = cur ? (cur.querySelector(inst ? ".lbl-i" : ".lbl-a") || cur).textContent.replace("⚙", "").trim() : (view === "home" ? "תפריט" : ({ me: "הגדרות", staff: "הגדרות", backup: "הגדרות", issues: "הגדרות", info: "מידע למתרגלים", holidays: "חגים וחופשות" }[view] || "תפריט")); }
   document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view || (b.dataset.sv === "reg" && view === "sched"))));
@@ -3205,6 +3230,7 @@ function go(view){
   if (view === "info") loadInfo();
   if (view === "history") loadHistoryView();
   if (view === "backup") showBackupInfo();
+  if (view === "ftx") ftxOpen();
   if (view === "issues") loadIssues();
   if (view === "ws") loadWs();
   if (view === "home") renderHome();
@@ -3216,7 +3242,10 @@ function go(view){
   if (view === "staff") loadStaff();
   if (view === "schools") loadSchools();
   if (view === "holidays") renderHolidays(true);
-  if (view === "exams") { EX.goToday = true; EX.scrollTo = null; EX.mWk = null; EX.mMon = null; EX.mDay = null; EX.mEv = null; renderExams(true); }   // 5.19.94 (נועה): תמיד נפתח על היום
+  if (view === "exams") {   // 5.19.94 (נועה): תמיד נפתח על היום
+    // 5.19.99 (נועה: "כשאני נכנסת למסך הלוח קופץ"): הלוח כבר מצויר (במחשב) – גוללים אותו מיד להיום, והטעינה ברקע לא מציירת מחדש אם לא השתנה כלום
+    if (!isMobile() && EX.rows && document.querySelector("#exCal .ex-cal-wrap")) { EX.enterQuiet = true; EX.scrollTo = null; exScrollTo(exWeekStart(todayIL()), true, false); renderExams(true); }
+    else { EX.goToday = true; EX.scrollTo = null; EX.mWk = null; EX.mMon = null; EX.mDay = null; EX.mEv = null; renderExams(true); } }
   if (view === "inbox") ibTab(IB_TAB);
   if (view === "attk" || view === "attg") { $("arHostG").appendChild($("attReport")); $("attReport").hidden = false;
     { const hd = document.querySelector("#view-" + view + " .page-head"), bk = hd && hd.querySelector("#arBackBtn, .btn:last-child"); if (hd && bk) hd.insertBefore($("arCsv"), bk); else if (hd) hd.appendChild($("arCsv")); }   // 5.19.88: "הורדה לאקסל" בשורת הכותרת, מימין ל"חזרה"
@@ -4496,6 +4525,76 @@ async function ensureG(force){ if (force || !G.loaded || Date.now() - (G.loadedA
 async function grpEdit(sid){ await ensureG(); if (G.sessions.some(x => x.session_id === sid)) { G.autoEdit = false; openPanel(sid); } else toast("הקבוצה לא נמצאה"); }   // 5.19.81 (נועה): נפתח בתצוגה - פרטי הקבוצה לקריאה; עורכים רק ב"✎ עריכה"
 function openGroupOnBoard(sessionId, city){ grpEdit(sessionId); }
 $("addLeadBtn").addEventListener("click", () => openLead(null));
+// ---------------------------------------------------------------- 5.19.100 (נועה): נוסחי הטפסים
+//  הטופס נטען בתצוגה מקדימה (אותו אתר) עם ?txedit=1 – texts.js בטופס אוסף את כל הטקסטים המסומנים (data-t) ואת מה שנבנה בקוד (TX.reg).
+//  שמירה = form_texts (קובץ 88): נוסח שונה מהמקור נשמר, נוסח שחזר למקור נמחק. הטופס באתר קורא משם.
+const FTX_FORMS = [["register", "הרשמה לתרגולים"], ["marathon", "מרתון"], ["interest", "התעניינות"], ["pay", "תשלום אישי"], ["cancel", "ביטול"], ["shibutz", "שיבוץ"], ["thank-you", "תודה"], ["payment-failed", "תשלום לא הושלם"]];
+const FX = { form: "register", items: [], saved: {}, edit: {} };
+async function ftxOpen(){
+  $("ftxForms").innerHTML = FTX_FORMS.map(([k, n]) => `<button type="button" data-ftx="${k}" aria-pressed="${k === FX.form}">${esc(n)}</button>`).join("");
+  $("ftxForms").querySelectorAll("[data-ftx]").forEach(b => b.onclick = async () => { if (ftxDirtyN() && !await uiConfirm("יש שינויים שלא נשמרו. לעבור טופס בלי לשמור?")) return; FX.form = b.dataset.ftx; ftxOpen(); });
+  FX.edit = {}; FX.items = []; FX.w = null; ftxPaintDirty(); $("ftxList").innerHTML = `<div class="muted">טוען את הטופס...</div>`;
+  let extra = "";
+  if (FX.form === "marathon") { try { const m = await get("marathons", "select=code&cancelled_at=is.null&code=not.is.null&order=id.desc&limit=1"); if (m[0]) extra = "&m=" + encodeURIComponent(m[0].code); } catch(e) {} }
+  if (FX.form === "interest") extra = "&city=" + encodeURIComponent("ראש העין");
+  const url = "/" + FX.form + ".html?preview=1" + extra;
+  $("ftxOpenNew").href = url;
+  try { FX.saved = {}; (await get("form_texts", "select=key,value&form=eq." + encodeURIComponent(FX.form))).forEach(r => FX.saved[r.key] = r.value); }
+  catch(e) { $("ftxList").innerHTML = `<div class="err">${e.status === 404 || /form_texts/.test(e.message) ? "צריך להריץ את קובץ 88." : "לא נטען: " + esc(e.message)}</div>`; return; }
+  const fr = $("ftxFrame"), want = FX.form; fr.onload = () => setTimeout(() => { if (FX.form === want) ftxCollect(fr); }, 1500); fr.src = url + "&txedit=1";
+}
+function ftxCollect(fr){
+  let w; try { w = fr.contentWindow; if (!w.TX) throw 0; } catch(e) { $("ftxList").innerHTML = `<div class="err">הטופס לא נטען (צריך את גרסת הטפסים 5.19.100).</div>`; return; }
+  const d = w.document, TX = w.TX, items = []; let grp = "פתיחה";
+  const HDR = "legend, .sec-h, .terms-box h4, .pm-title, h2, h3, .field-title";
+  d.querySelectorAll("[data-t], " + HDR).forEach(el => {
+    if (el.closest("footer")) grp = "תחתית העמוד";
+    else if (el.matches(HDR)) { const g = (el.textContent || "").replace(/\s+/g, " ").trim(); if (g) grp = g.slice(0, 60); }
+    if (!el.hasAttribute("data-t")) return;
+    const k = el.getAttribute("data-t"), ta = el.getAttribute("data-ta");
+    if (ta) { ta.split(",").forEach(a => { a = a.trim(); items.push({ el, key: k + "." + a, grp, def: (el.__txA && el.__txA[a]) || el.getAttribute("data-" + a) || "", what: a === "card" ? "נוסח האישור – כשמשלמים באשראי" : a === "phone" ? "נוסח האישור – כשמשלמים בטלפון" : a }); }); return; }
+    if (el.__txDef == null || el.innerHTML !== el.__txDef) return;   // נבנה / משתנה בקוד – לא לעריכה
+    if (el.closest("[hidden]")) return;   // מוסתר בטופס הזה (למשל אשראי כשהתשלום טלפוני בלבד)
+    const tag = el.tagName.toLowerCase(), cls = String(el.className || "");
+    const what = /error-msg/.test(cls) ? "הודעת שגיאה" : /hint/.test(cls) ? "הסבר מתחת לשדה" : tag === "option" ? "אפשרות ברשימה" : tag === "legend" || /sec-h/.test(cls) || /^h\d$/.test(tag) ? "כותרת" : tag === "li" ? "סעיף" : tag === "p" ? "פסקה" : tag === "button" ? "כפתור" : el.closest("label") ? "שם שדה / תיבת סימון" : "טקסט";
+    items.push({ el, key: k, grp, def: TX.toPlain(el.__txDef), what });
+  });
+  Object.keys(TX.reg || {}).forEach(k => { const r = TX.reg[k], l = String(r.label || k), i = l.indexOf(" · "); items.push({ key: k, grp: i > 0 ? l.slice(0, i) : "טקסטים נוספים", def: r.def, what: i > 0 ? l.slice(i + 3) : l }); });
+  FX.items = items; FX.w = w; ftxRender(); ftxPreview();
+}
+const ftxVal = (it) => FX.edit[it.key] != null ? FX.edit[it.key] : FX.saved[it.key] != null ? FX.saved[it.key] : it.def;
+const ftxNorm = (s) => String(s || "").replace(/\r/g, "").trim();
+function ftxRender(){
+  if (!FX.items.length) { $("ftxList").innerHTML = `<div class="muted">אין בטופס הזה טקסטים לעריכה.</div>`; return; }
+  let last = null, h = "";
+  FX.items.forEach((it, i) => {
+    if (it.grp !== last) { h += `<div class="ftx-g">${esc(it.grp)}</div>`; last = it.grp; }
+    const mod = ftxNorm(ftxVal(it)) !== ftxNorm(it.def);
+    h += `<div class="ftx-it${mod ? " mod" : ""}" data-i="${i}"><label for="ftx${i}"><span>${esc(it.what)}</span><span class="ftx-mod">· שונה</span><span class="sp"></span><button type="button" class="btn small ftx-rs" data-rs="${i}" title="חזרה לנוסח המקורי">↺ מקור</button></label><textarea id="ftx${i}" rows="1"></textarea></div>`;
+  });
+  $("ftxList").innerHTML = h;
+  FX.items.forEach((it, i) => { const ta = $("ftx" + i); ta.value = ftxVal(it); ta.oninput = () => { FX.edit[it.key] = ta.value; ftxMark(i); ftxPaintDirty(); ftxPreview(); };
+    ta.onfocus = () => { const el = it.el; if (!el || !el.isConnected) return; try { el.scrollIntoView({ block: "center", behavior: "smooth" }); el.style.outline = "3px solid #C9A227"; el.style.outlineOffset = "2px"; clearTimeout(el.__ftxT); el.__ftxT = setTimeout(() => { el.style.outline = ""; el.style.outlineOffset = ""; }, 1800); } catch(e) {} }; });   // בתצוגה – קופצים לטקסט ומסמנים
+  $("ftxList").querySelectorAll("[data-rs]").forEach(b => b.onclick = () => { const i = +b.dataset.rs, it = FX.items[i]; FX.edit[it.key] = it.def; $("ftx" + i).value = it.def; ftxMark(i); ftxPaintDirty(); ftxPreview(); });
+}
+function ftxMark(i){ const it = FX.items[i]; document.querySelector(`.ftx-it[data-i="${i}"]`).classList.toggle("mod", ftxNorm(ftxVal(it)) !== ftxNorm(it.def)); }
+// מה שונה מהשמור (לשמירה)
+function ftxChanges(){ const ch = []; (FX.items || []).forEach(it => { if (FX.edit[it.key] == null) return; const v = ftxNorm(FX.edit[it.key]), s = FX.saved[it.key] != null ? ftxNorm(FX.saved[it.key]) : ftxNorm(it.def); if (v !== s) ch.push({ it, v }); }); return ch; }
+const ftxDirtyN = () => ftxChanges().length;
+function ftxPaintDirty(){ const n = ftxDirtyN(); $("ftxSave").disabled = !n; $("ftxCancel").hidden = !n; $("ftxDirty").textContent = n ? (n === 1 ? "שינוי אחד שלא נשמר" : n + " שינויים שלא נשמרו") : ""; }
+function ftxPreview(){ if (!FX.w || !FX.w.TX) return; const m = {}; FX.items.forEach(it => { const v = ftxNorm(ftxVal(it)); if (v !== ftxNorm(it.def)) m[it.key] = v; }); try { FX.w.TX.preview(m); } catch(e) {} }
+$("ftxCancel").addEventListener("click", () => { FX.edit = {}; ftxRender(); ftxPaintDirty(); ftxPreview(); });
+$("ftxSave").addEventListener("click", async () => {
+  const ch = ftxChanges(); if (!ch.length) return; const b = $("ftxSave"); b.disabled = true;
+  try {
+    const up = ch.filter(c => c.v && c.v !== ftxNorm(c.it.def)).map(c => ({ form: FX.form, key: c.it.key, value: c.v }));
+    const back = ch.filter(c => !c.v || c.v === ftxNorm(c.it.def)).map(c => c.it.key);
+    if (up.length) await api("POST", "/rest/v1/form_texts?on_conflict=form,key", up, { Prefer: "resolution=merge-duplicates,return=minimal" });
+    if (back.length) await api("DELETE", "/rest/v1/form_texts?form=eq." + encodeURIComponent(FX.form) + "&key=in.(" + back.map(k => encodeURIComponent('"' + k.replace(/"/g, "") + '"')).join(",") + ")");
+    up.forEach(r => FX.saved[r.key] = r.value); back.forEach(k => delete FX.saved[k]); FX.edit = {};
+    ftxRender(); ftxPaintDirty(); ftxPreview(); toast("נשמר – הטופס באתר מעודכן");
+  } catch(e) { toast("לא נשמר: " + e.message); ftxPaintDirty(); }
+});
 // ---------------------------------------------------------------- 5.19.97 (של-21, של-32): חשבון "תלם שלי" בכרטיס התלמיד/ה (מנהלים)
 //  יצירת חשבון / קוד חדש (portal_create_account) · מחיקה (portal_delete_account) · כניסה אחרונה · בקשת "שכחתי קוד" (portal_code_requests)
 const TS_APP = "https://telem-tirgul.github.io/telem-sheli/";
@@ -5000,15 +5099,15 @@ async function loadLeadExams(l){
 const exKindCls = (k) => /מבדק/.test(k) && !/^וידוא|^SMS|^מרתון|^אירוע/.test(k) ? "lg-bd" : /^וידוא|^SMS מבית/.test(k) ? "lg-sy" : /^SMS/.test(k) ? "lg-sr" : /מפגש 1/.test(k) ? "lg-m1" : /מפגש 2/.test(k) ? "lg-m2" : /^מרתון/.test(k) ? "lg-m1" : /^אירוע/.test(k) ? "lg-ot" : /בוחן/.test(k) ? "lg-qz" : EX_MAKEUP.test(k) ? "lg-mk" : "lg-ex";
 const exKindChip = (k) => `<span class="ex-kc"><i class="${exKindCls(k)}"></i>${esc(k)}</span>`;
 async function renderExams(reload){
-  const box = $("exList");
-  if (reload || !EX.rows) { if (!LIVE_QUIET || !EX.rows) box.innerHTML = "<div class='empty-state'>טוען...</div>"; await loadExams(true);
+  const box = $("exList"), QUIET = LIVE_QUIET || EX.enterQuiet; EX.enterQuiet = false;
+  if (reload || !EX.rows) { if (!QUIET || !EX.rows) box.innerHTML = "<div class='empty-state'>טוען...</div>"; await loadExams(true);
     try { const r = await get("exam_imports", "select=at,rows_in,unmatched,by_name&order=id.desc&limit=1"); EX.imp = r[0] || null; } catch(e) { EX.imp = null; } }
   // 5.19.96 (נועה: "הלוח זז ימינה ושמאלה כל כמה שניות"): בעדכון האוטומטי – אם שום דבר לא השתנה לא מציירים מחדש,
   // ואם השתנה – הגלילה נשמרת בדיוק (בפיקסלים), בלי ליישר מחדש לפי תאריך
   const sig = JSON.stringify(EX.rows) + "|" + JSON.stringify(EX.imp);
-  if (LIVE_QUIET && EX.sig === sig && document.querySelector("#exCal .ex-cal-wrap, #exCal .exm")) return;
+  if (QUIET && EX.sig === sig && document.querySelector("#exCal .ex-cal-wrap, #exCal .exm")) return;
   EX.sig = sig;
-  { const w0 = document.querySelector(".ex-cal-wrap"); EX.keepSL = LIVE_QUIET && w0 ? w0.scrollLeft : null; }
+  { const w0 = document.querySelector(".ex-cal-wrap"); EX.keepSL = QUIET && w0 ? w0.scrollLeft : null; }
   if (EX.err && !EX.rows.length) { box.innerHTML = `<div class="empty-state">${EX.err.status === 404 || /school_exams/.test(EX.err.message || "") ? "צריך להריץ את קובץ 50." : "לא ניתן לטעון."}</div>`; return; }
   const im = EX.imp;
   $("exInfo").innerHTML = im ? `עודכן מהקובץ: <b>${esc(fmtDate(im.at))}</b> · ${esc(im.by_name || "")} · ${im.rows_in} שורות (מתוכן "חומר נלמד": ${EX.rows.filter(e => EX_STUDY.test(e.kind)).length})${im.unmatched ? `<div class="ex-warn">⚠ בתי ספר שלא זוהו במערכת: ${esc(im.unmatched)}</div>` : ""}` : "";
