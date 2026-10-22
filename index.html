@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.102">
+<meta name="app-version" content="5.19.103">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1215,6 +1215,11 @@
   .sw-open.on{ border-color:var(--ok); color:var(--ok); background:color-mix(in srgb, var(--ok) 10%, var(--paper)); }
   .hist-hits{ margin-top:14px; border-color:color-mix(in srgb, var(--gold) 45%, var(--border)); background:color-mix(in srgb, var(--gold) 7%, var(--paper)); }
   .past-badge{ font-size:11.5px; font-weight:700; padding:0 7px; border-radius:999px; background:color-mix(in srgb, var(--ok) 16%, var(--paper)); color:var(--ok); }
+  /* 5.19.103: שורות משנים קודמות בטבלת התלמידים */
+  .tbl tr.h-past td{ background:#FAF7F1; } .tbl tr.h-past:hover td{ background:#F3EDE2; }
+  .h-yr{ display:inline-block; font-size:12px; font-weight:700; color:#7A5410; background:#F3E9D6; border-radius:999px; padding:1px 8px; white-space:nowrap; }
+  .h-tag{ font-size:11.5px; color:var(--ink-soft); white-space:nowrap; } .h-st{ font-size:12.5px; color:#555; } .h-st.reg{ color:#2E7D32; font-weight:700; }
+  .h-now{ display:block; font-size:11.5px; color:var(--ink-soft); } .h-has{ font-size:11.5px; color:#2E7D32; font-weight:700; white-space:nowrap; }
   .hh-jump{ all:unset; cursor:pointer; font-size:13px; font-weight:700; color:var(--accent); margin-inline-start:10px; text-decoration:underline; text-underline-offset:3px; }
   .hh-h{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin-bottom:8px; } .hh-h #hhAll{ margin-inline-start:auto; }
   .rg-opts{ display:flex; flex-wrap:wrap; gap:6px 14px; align-items:center; font-size:13.5px; } .rg-opts select{ width:auto; padding:5px 8px; }
@@ -3591,6 +3596,86 @@ function filtered(){
   return list;
 }
 
+// ---------- 5.19.103 (נועה): "שנים קודמות" באותה טבלה ----------
+// בחירת תאריכים (עודכן מ- / עד) שנוגעים בשנים קודמות → גם הילדים מ"שנים קודמות" של אותן שנים, עם עמודת שנה.
+// חיפוש שם / טלפון → גם ילדים מתאימים משנים קודמות (שאין להם כרטיס ברשימה). בלי תאריכים ובלי חיפוש – כמו קודם.
+const HIST_YS = () => { const d = todayIL(); return Number(d.slice(0, 4)) - (Number(d.slice(5, 7)) < 8 ? 1 : 0); };   // שנת הלימודים הנוכחית (ספטמבר)
+const histGradeNow = (g, ys) => { const i = GRADES.findIndex(x => gradeKey(x) === gradeKey(g)); if (i < 0 || !ys) return ""; const j = i + (HIST_YS() - ys); return j >= GRADES.length ? "סיים/ה" : j < 0 ? "" : GRADES[j]; };
+const hNorm = (s) => String(s || "").replace(/["'׳״\s-]/g, "");
+function histFiltered(leadList){
+  const q = $("fSearch").value.trim().toLowerCase(), qd = digits(q), from = $("fFrom").value, to = $("fTo").value;
+  const useDates = !!(from || to), useSearch = q.length >= 2;
+  if (!useDates && !useSearch) return [];
+  // סינונים שאין להם משמעות בשנים קודמות (כוכב, תזכורת, שיבוץ, מנהל) – אז לא מציגים שנים קודמות
+  if ($("fStar").checked || $("fRemind").checked || $("fAsg").value || $("fManager").value) return [];
+  if (!H.rows) { if (!H.loading) loadHistRows().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); return null; }
+  const city = $("fCity").value, schoolId = $("fSchool").value, grade = $("fGrade").value;
+  const schName = schoolId ? hNorm(((L.schools || []).find(x => String(x.id) === schoolId) || {}).name) : "";
+  const stNames = new Set([...F.statuses].map(statusName)), srcNames = new Set([...F.sources].map(sourceName));
+  const shown = new Set((leadList || []).map(l => l.student_id));
+  let out = H.rows.filter(h => {
+    if (useDates) { const a = h.year_start + "-09-01", b = (h.year_start + 1) + "-08-31"; if ((from && b < from) || (to && a > to)) return false; }
+    if (city && h.city !== city) return false;
+    if (schName && hNorm(h.school) !== schName && !hNorm(h.school).includes(schName)) return false;
+    if (grade && gradeKey(h.grade) !== gradeKey(grade)) return false;
+    if (stNames.size && !stNames.has(h.status)) return false;
+    if (srcNames.size && !srcNames.has(h.source)) return false;
+    if (useSearch) {
+      const txt = [h.first_name, h.last_name, h.parent1_name, h.parent2_name, h.email].join(" ").toLowerCase();
+      const ph = [h.parent1_phone, h.parent2_phone, h.student_phone, h.home_phone].map(digits).join(" ");
+      if (!q.split(/\s+/).every(w => txt.includes(w)) && !(qd.length >= 3 && ph.includes(qd))) return false;
+      if (!useDates && h.student_id && shown.has(h.student_id)) return false;   // כבר ברשימה עם הכרטיס שלו
+    }
+    return true;
+  });
+  if (!useDates) {   // חיפוש בלבד – שורה אחת לכל ילד/ה (השנה האחרונה)
+    const seen = new Set(); out = out.filter(h => { const k = h.kid_key || ("h" + h.id); if (seen.has(k)) return false; seen.add(k); return true; });
+  }
+  return out.map(h => ({ __h: h }));
+}
+const H_KEY = {
+  id: () => 9e15, name: x => (x.__h.first_name || "") + " " + (x.__h.last_name || ""), status: x => x.__h.status || "", source: x => x.__h.source || "",
+  school: x => x.__h.school || "", grade: x => String(GRADES.findIndex(g => gradeKey(g) === gradeKey(x.__h.grade))).padStart(2, "0"), asg: () => -1,
+  parent: x => x.__h.parent1_name || "", manager: () => "", remind: () => "", updated: x => x.__h.year_start + "-09-01"
+};
+// כל השורות של הטבלה: הכרטיסים + שנים קודמות (באותו מיון)
+function leadRows(){
+  const list = filtered(), hs = histFiltered(list);
+  LR.histN = hs ? hs.length : 0; LR.histLoading = hs === null;
+  if (!hs || !hs.length) return list;
+  const lk = { id: l => Number(l.legacy_user_id) || l.id + 1e6, name: l => (l.student.first_name + " " + (l.student.last_name || "")), status: l => statusName(l.status_id), source: l => sourceName(l.source_id),
+    school: l => schoolOf(l.student).name, grade: l => String(GRADES.indexOf(l.student.grade)).padStart(2, "0"), asg: l => asgOf(l).length,
+    parent: l => [(l.student.family || {}).parent1_first, (l.student.family || {}).parent1_last].filter(Boolean).join(" "), manager: l => staffName(l.manager_id), remind: l => l.remind_at || "", updated: l => lastUpdate(l) || "" };
+  const kf = (x) => x.__h ? (H_KEY[F.sort] || H_KEY.updated)(x) : (lk[F.sort] || lk.updated)(x);
+  return list.concat(hs).sort((a, b) => { const x = kf(a), y = kf(b); return (x > y ? 1 : x < y ? -1 : 0) * F.dir; });
+}
+const LR = { histN: 0, histLoading: false };
+function histRowHtml(x){
+  const h = x.__h, lead = h.student_id ? L.leads.find(l => l.student_id === h.student_id) : null, now = histGradeNow(h.grade, h.year_start);
+  return `<tr data-h="${h.id}" class="h-past">
+    <td class="c-info"><button type="button" class="icon-btn info" data-act="hinfo" aria-label="פרטים" title="פרטים">i</button></td>
+    <td class="num c-id"><span class="h-yr" title="שנים קודמות">${esc(hyLbl(h.school_year, h.year_start))}</span></td>
+    <td class="c-act" colspan="2"><span class="h-tag">שנים קודמות</span></td>
+    <td class="c-status"><span class="h-st${histReg(h) ? " reg" : ""}">${esc(h.status || "—")}</span></td>
+    <td class="c-src muted">${esc(h.source || "")}</td><td class="c-notes"></td>
+    <td class="c-name"><button type="button" class="name-link" data-act="hopen">${esc(h.first_name || "")} ${esc(h.last_name || "")}</button>${lead ? ` <span class="h-has" title="יש כרטיס השנה">✓ כרטיס</span>` : ""}</td>
+    <td class="c-school">${h.school ? scChip(h.school) : ""}${h.city ? ` <span class="muted">${esc(h.city)}</span>` : ""}</td>
+    <td class="c-grade">${esc(h.grade || "")}${now ? `<span class="h-now" title="השכבה היום">→ ${esc(now)}</span>` : ""}</td>
+    <td class="c-asg"></td>
+    <td class="c-parent">${h.parent1_name ? `<span class="pn">${esc(h.parent1_name)}</span>` : ""}${h.parent1_name && h.parent1_phone ? `<span class="sep"> · </span>` : ""}${h.parent1_phone ? `<a class="pp" dir="ltr" href="tel:${esc(digits(h.parent1_phone))}" onclick="event.stopPropagation()">${esc(h.parent1_phone)}</a>` : ""}</td>
+    <td class="c-rem"></td><td class="num c-upd muted">${esc(h.school_year || "")}</td></tr>`;
+}
+function histInfoHtml(h){
+  const tl = (v) => v ? String(v).split(/[,;\s]+(?=0)/).map(t => `<a href="tel:${digits(t)}" dir="ltr">${esc(t.trim())}</a>`).join(", ") : "";
+  const lead = h.student_id ? L.leads.find(l => l.student_id === h.student_id) : null, now = histGradeNow(h.grade, h.year_start);
+  const f = [["שנה", esc(hyLbl(h.school_year, h.year_start))], ["בית ספר", esc([h.city, h.school, h.grade].filter(Boolean).join(" · ")) + (now ? " (היום " + esc(now) + ")" : "")], ["סטטוס", esc(h.status || "")],
+    ["הורה 1", [esc(h.parent1_name || ""), tl(h.parent1_phone)].filter(Boolean).join(" · ")], ["הורה 2", [esc(h.parent2_name || ""), tl(h.parent2_phone)].filter(Boolean).join(" · ")],
+    ["טלפון הילד/ה", tl(h.student_phone)], ["טלפון בבית", tl(h.home_phone)], ["אימייל", h.email ? `<a href="mailto:${esc(h.email)}" dir="ltr">${esc(h.email)}</a>` : ""],
+    ["מקור", esc(h.source || "")], ["הודעה", esc(h.message || "")], ["הערות", esc(h.notes || "")]].filter(x => x[1]);
+  return `<div class="pop-info"><div class="pop-title">${esc((h.first_name || "") + " " + (h.last_name || ""))} – שנים קודמות</div>${f.map(x => `<div><b>${x[0]}:</b> ${x[1]}</div>`).join("")}
+    ${lead ? `<div style="margin-top:8px"><button type="button" class="btn small primary" data-pop="lead" data-lead="${lead.id}">לכרטיס של השנה</button></div>` : ""}</div>`;
+}
+
 // כיתה = שכבה + מספר (למשל ח'1). אם מספר הכיתה כבר כולל אות (ח1) - מוצג כמו שהוא
 function classLabel(grade, num){
   const g = String(grade || "").trim(), n = String(num || "").trim();
@@ -3632,11 +3717,12 @@ const COLS = [
   ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","תאריך עדכון"]
 ];
 function renderLeads(){
-  const list = filtered(); paintHistHits(list);
+  const list = leadRows(); paintHistHits(list);
   const pages = Math.max(1, Math.ceil(list.length / CONFIG.pageSize));
   if (F.page >= pages) F.page = pages - 1;
   const slice = list.slice(F.page * CONFIG.pageSize, (F.page + 1) * CONFIG.pageSize);
-  $("countLine").textContent = list.length ? `${F.page * CONFIG.pageSize + 1}-${F.page * CONFIG.pageSize + slice.length} מתוך ${list.length}` : "אין תוצאות";
+  $("countLine").textContent = (list.length ? `${F.page * CONFIG.pageSize + 1}-${F.page * CONFIG.pageSize + slice.length} מתוך ${list.length}` : "אין תוצאות")
+    + (LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : LR.histLoading ? " · טוען שנים קודמות…" : "");
   // "ניקוי סינון" - רק כשיש סינון פעיל
   $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo"].some(id => $(id).value) || F.statuses.size || F.sources.size || $("fStar").checked || $("fRemind").checked || !$("fActive").checked); markFilters();
   $("pageInfo").textContent = `עמוד ${F.page + 1} מתוך ${pages}`;
@@ -3645,6 +3731,7 @@ function renderLeads(){
   const head = "<thead><tr>" + COLS.map(([k, t]) => `<th ${sortable.includes(k) ? `data-sort="${k}"` : ""}>${t} ${F.sort === k ? `<span class="arr">${F.dir > 0 ? "▲" : "▼"}</span>` : ""}</th>`).join("") + "</tr></thead>";
   const now = new Date();
   const rows = slice.map(l => {
+    if (l.__h) return histRowHtml(l);   // 5.19.103: שורה משנים קודמות
     const s = l.student, sch = schoolOf(s);
     const statusOpts = L.statuses.filter(x => x.is_active || x.id === l.status_id).map(x => `<option value="${x.id}"${optStyle(x)} ${x.id === l.status_id ? "selected" : ""}>${esc(x.name)}</option>`).join("");
     const due = l.remind_at && new Date(l.remind_at) <= now;
@@ -3692,6 +3779,11 @@ function setListEdit(on){
 $("listEditBtn").addEventListener("click", () => setListEdit(!LIST_EDIT));
 $("leadsTbl").addEventListener("click", async (e) => {
   const el = e.target.closest("[data-act]"); if (!el) return;
+  if (el.dataset.act === "hinfo" || el.dataset.act === "hopen") {   // 5.19.103: שורה משנים קודמות
+    const h = (H.rows || []).find(x => String(x.id) === el.closest("tr").dataset.h); if (!h) return;
+    const lead = h.student_id ? L.leads.find(l => l.student_id === h.student_id) : null;
+    if (el.dataset.act === "hopen" && lead) { openLead(lead.id); return; }
+    showPop(el, histInfoHtml(h)); return; }
   if (!LIST_EDIT && (el.dataset.act === "active" || el.dataset.act === "star")) { toast("כדי לשנות ישירות ברשימה - \"✎ עריכה ברשימה\" למעלה"); return; }
   const tr = el.closest("tr"), l = L.leads.find(x => String(x.id) === tr.dataset.id); if (!l) return;
   const act = el.dataset.act;
@@ -3756,12 +3848,13 @@ function showPop(anchor, html, lead){
   const ta = p.querySelector("textarea"); if (ta) ta.focus();
 }
 function hidePop(){ $("pop").hidden = true; popLead = null; }
-document.addEventListener("mousedown", (e) => { if (!$("pop").hidden && !e.target.closest("#pop") && !e.target.closest("[data-act=info],[data-act=notes]")) hidePop(); });
+document.addEventListener("mousedown", (e) => { if (!$("pop").hidden && !e.target.closest("#pop") && !e.target.closest("[data-act=info],[data-act=notes],[data-act=hinfo],[data-act=hopen]")) hidePop(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") hidePop(); });
 window.addEventListener("scroll", hidePop, true);
 $("pop").addEventListener("click", async (e) => {
   const b = e.target.closest("[data-pop]"); if (!b) return;
   if (b.dataset.pop === "close") { hidePop(); return; }
+  if (b.dataset.pop === "lead") { hidePop(); openLead(Number(b.dataset.lead)); return; }
   const l = popLead, body = $("pop").querySelector("textarea").value.trim(); if (!l || !body) return;
   const who = (auth && auth.email || "").split("@")[0];
   b.disabled = true;
@@ -3773,10 +3866,13 @@ $("pop").addEventListener("click", async (e) => {
 });
 
 $("exportBtn").addEventListener("click", () => {
-  const list = filtered();
-  const head = ["ID","פעיל","כוכב","סטטוס","מקור ליד","נושא","שם פרטי","שם משפחה","טלפון תלמיד","בית ספר","עיר","כיתה","שיבוץ","הורה 1","טלפון הורה 1","אימייל הורה 1","הורה 2","טלפון הורה 2","מנהל","תזכורת","תאריך יצירה","תאריך עדכון","הודעה","הערות"];
-  const rows = list.map(l => { const s = l.student, f = s.family || {}, sch = schoolOf(s);
-    return [l.legacy_user_id || l.id, l.is_active ? "כן" : "לא", l.is_starred ? "כן" : "", statusName(l.status_id), sourceName(l.source_id), l.topic,
+  const list = leadRows();   // 5.19.103: כולל שנים קודמות (כשבחרו תאריכים / חיפוש)
+  const head = ["שנה","ID","פעיל","כוכב","סטטוס","מקור ליד","נושא","שם פרטי","שם משפחה","טלפון תלמיד","בית ספר","עיר","כיתה","שיבוץ","הורה 1","טלפון הורה 1","אימייל הורה 1","הורה 2","טלפון הורה 2","מנהל","תזכורת","תאריך יצירה","תאריך עדכון","הודעה","הערות"];
+  const rows = list.map(l => { if (l.__h) { const h = l.__h;   // שורה משנים קודמות – באותן עמודות
+      return [hyLbl(h.school_year, h.year_start), "", "לא", "", h.status, h.source, "", h.first_name, h.last_name, h.student_phone, h.school, h.city, h.grade + (histGradeNow(h.grade, h.year_start) ? " (היום " + histGradeNow(h.grade, h.year_start) + ")" : ""), "",
+        h.parent1_name, h.parent1_phone, h.email, h.parent2_name, h.parent2_phone, "", "", "", "", h.message, h.notes]; }
+    const s = l.student, f = s.family || {}, sch = schoolOf(s);
+    return ["השנה", l.legacy_user_id || l.id, l.is_active ? "כן" : "לא", l.is_starred ? "כן" : "", statusName(l.status_id), sourceName(l.source_id), l.topic,
       s.first_name, s.last_name, s.phone, sch.name, sch.city || f.city, classLabel(s.grade, s.class_num), asgOf(l).map(asgText).join(", "), [f.parent1_first, f.parent1_last].filter(Boolean).join(" "), f.parent1_phone, f.parent1_email,
       [f.parent2_first, f.parent2_last].filter(Boolean).join(" "), f.parent2_phone, staffName(l.manager_id), fmtDate(l.remind_at), fmtDate(l.created_at), fmtDate(lastUpdate(l)),
       l.message, (L.notes[l.id] || []).map(n => fmtDate(n.created_at) + " " + cleanNote(n.body)).join("\n")]; });
@@ -9040,6 +9136,9 @@ async function paintHistHits(list){
   const btn = $("histJump"), q = $("fSearch").value.trim().toLowerCase(), qd = digits(q);
   // 5.19.88 (נועה): תמיד מוצג; אפור כשאין מה לפתוח, צבוע כשיש ילדים מתאימים בשנים קודמות
   btn.hidden = false; btn.disabled = true; btn.textContent = "שנים קודמות"; btn.title = "כשמחפשים שם/טלפון - כאן יופיעו ילדים מתאימים משנים קודמות"; btn.onclick = null;
+  // 5.19.103: הילדים משנים קודמות כבר מוצגים בטבלה עצמה – הכפתור רק פותח את מסך "שנים קודמות" (עם אותו חיפוש)
+  btn.disabled = false; btn.title = "מסך שנים קודמות (סיכום לפי שנים / חיפוש)"; btn.onclick = () => { $("hSearch").value = $("fSearch").value; H.view = "search"; H.page = 0; H.from = currentView || "leads"; go("history"); };
+  return;
   if (q.length < 2) return;
   if (!H.rows) { try { await loadHistRows(); } catch(e) { return; } if ($("fSearch").value.trim().toLowerCase() !== q) return; }
   const shown = new Set((list || []).map(l => l.student_id)), kids = new Map();
