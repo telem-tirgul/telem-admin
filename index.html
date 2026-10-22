@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.100">
+<meta name="app-version" content="5.19.101">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -732,6 +732,7 @@
   .gseg button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
   .ar-vseg{ margin-bottom:10px; }
   .subnav{ margin-bottom:12px; }
+  .set-nav{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:12px; } .set-nav .subnav{ margin-bottom:0; } .set-logout{ margin-inline-start:auto; color:#B3261E; border-color:#E8B4AE; }
   .sc-wrap{ display:grid; grid-template-columns:200px minmax(0,1fr); gap:16px; align-items:start; }
   .sc-cities{ display:flex; flex-direction:column; gap:6px; position:sticky; top:80px; }
   .sc-cities button{ text-align:right; font:inherit; font-weight:800; font-size:16px; padding:12px 14px; border-radius:12px; border:1.5px solid var(--border); background:var(--paper); color:var(--ink); cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px; }
@@ -2302,7 +2303,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         <div class="info-menu" id="infoMenu" hidden><button type="button" data-im="reports" data-admin>📊 דוחות</button><button type="button" data-im="info">מידע למתרגלים</button><button type="button" data-im="holidays" data-admin>חגים וחופשות</button></div></div>
       <button class="btn small ghost gear" id="gearBtn" type="button" title="הגדרות" aria-label="הגדרות">⚙</button>
       <button class="btn small ghost ib-bell" id="inboxBtn" type="button" data-admin hidden title="התראות" aria-label="התראות">📥<span id="inboxN"></span></button>
-      <button class="btn small ghost" id="logoutBtn" type="button">יציאה</button>
+      <!-- 5.19.101 (נועה): "יציאה" עבר להגדרות (⚙) – כמו בתלם שלי; בכותרת קל ללחוץ בטעות, במיוחד בנייד -->
     </div>
   </aside>
 
@@ -2538,13 +2539,13 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
     <section id="view-issues" hidden>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div><button type="button" class="btn small set-logout" data-logout>יציאה מהמערכת</button></div>
       <!-- 5.19.66: הדיווחים עברו למסך ההודעות (📥) -->
     </section>
     <!-- ===== 5.19.100 (נועה): נוסחי הטפסים (בהגדרות) ===== -->
     <section id="view-ftx" hidden>
       <div class="page-head"><h1>נוסחי הטפסים</h1></div>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div><button type="button" class="btn small set-logout" data-logout>יציאה מהמערכת</button></div>
       <div class="ftx-top">
         <div class="gseg ftx-forms" id="ftxForms" role="group" aria-label="טופס"></div>
         <div class="ftx-acts"><span id="ftxDirty"></span><button type="button" class="btn small danger-t" id="ftxDrop" hidden>מחיקת הטיוטות</button><button type="button" class="btn" id="ftxCancel" hidden>ביטול</button><button type="button" class="btn" id="ftxSave" disabled>שמירת טיוטה</button><button type="button" class="btn primary" id="ftxPub" disabled>פרסום לאוויר</button></div>
@@ -2558,7 +2559,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     </section>
     <section id="view-backup" hidden>
       <div class="page-head"><h1>גיבוי</h1></div>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div><button type="button" class="btn small set-logout" data-logout>יציאה מהמערכת</button></div>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
         <p class="muted" style="font-size:13.5px; margin:0 0 10px;">כל הטבלאות בקובץ אחד. כדאי לשמור עותק גם בדרייב. הקובץ כולל טלפונים ופרטים אישיים - לא לשלוח הלאה.</p>
@@ -2675,7 +2676,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
     <section id="view-me" hidden>
       <div class="page-head"><h1>הפרטים שלי</h1></div>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div><button type="button" class="btn small set-logout" data-logout>יציאה מהמערכת</button></div>
       <div class="card me-card">
         <dl class="me-dl"><dt>שם</dt><dd id="meName"></dd><dt>אימייל</dt><dd id="meEmail" dir="ltr"></dd><dt>תפקיד</dt><dd id="meRole"></dd><dt>גרסת המערכת</dt><dd id="meVer" dir="ltr" style="text-align:right"></dd></dl>
         <button class="btn" type="button" id="mePwBtn">שינוי סיסמה</button>
@@ -2800,7 +2801,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== צוות ומתרגלים ===== -->
     <section id="view-staff" hidden>
       <div class="page-head"><h1>צוות ומתרגלים</h1><button class="btn small primary" type="button" id="stNewBtn" data-admin>+ משתמש חדש</button></div>
-      <div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות ומתרגלים</button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">הפרטים שלי</button></div><button type="button" class="btn small set-logout" data-logout>יציאה מהמערכת</button></div>
       <div class="card" id="stCard" style="margin-bottom:14px;" hidden>
         <div class="st-fh"><b id="stFT">משתמש חדש</b></div>
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
@@ -3028,7 +3029,7 @@ async function logout(msg){
   try { setLeadDirty(false); currentView = "home"; F.statuses.clear(); LF_IDS.forEach(id => { const el = $(id); if (el.type === "checkbox") el.checked = id === "fActive"; else if (id !== "fRemindDate") el.value = ""; }); } catch(e) {}
   $("lgMsg").textContent = msg || "";
 }
-$("logoutBtn").addEventListener("click", () => logout());
+document.querySelectorAll("[data-logout]").forEach(b => b.addEventListener("click", async () => { if (await uiConfirm("לצאת מהמערכת?", { ok: "יציאה" })) logout(); }));
 $("gearBtn").addEventListener("click", () => go("settings"));
 // סינון פעיל - מסומן בצבע (בכל המסכים): רשימה שבחרו בה משהו שאינו "הכול", תיבה שסומנה/בוטלה לעומת ברירת המחדל, חיפוש עם טקסט
 const FILT_SEL = ".filters, .filters-chk, .g-filters, .ex-filters, .ar-filters, .att-filt, #repCity, #scF";
