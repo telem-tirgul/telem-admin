@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.103">
+<meta name="app-version" content="5.19.104">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -153,7 +153,7 @@
     #view-leads .filters > div{ width:118px; } #view-leads .filters > div.wide{ width:260px; }
     #view-leads .filters > div:has(#fStatus){ width:175px; } #view-leads .filters > div:has(#fSchool){ width:145px; }
     #view-leads .filters > div:has(#fCity){ width:110px; } #view-leads .filters > div:has(#fGrade){ width:84px; }
-    #view-leads .filters > div:has(#fFrom), #view-leads .filters > div:has(#fTo){ width:150px; } #view-leads #fRemindDate{ width:150px; }
+    #view-leads .filters > div:has(#fFrom), #view-leads .filters > div:has(#fTo){ width:150px; } #view-leads .filters > div:has(#fYear){ width:170px; } #view-leads #fRemindDate{ width:150px; }
     #view-leads .filters .lbl{ font-size:11.5px; margin-bottom:2px; }
     #view-leads .filters :is(input:not([type=checkbox]):not([type=radio]), select), #view-leads .filters .multi > button{ height:40px; padding:6px 12px; font-size:14px; border-radius:12px; border:1.5px solid #E3DDD4; background-color:#FAF8F5; box-sizing:border-box; }
     #view-leads .filters :is(input, select):focus, #view-leads .filters .multi > button:focus{ background-color:#fff; border-color:var(--gold-deep, #C9A45C); box-shadow:0 0 0 3px rgba(90,18,22,.10); outline:none; }
@@ -2349,15 +2349,17 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
           <div><label class="lbl" for="fManager">מנהל</label><select id="fManager"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fFrom">עודכן מ-</label><input id="fFrom" type="date"></div>
           <div><label class="lbl" for="fTo">עד</label><input id="fTo" type="date"></div>
+          <div><label class="lbl" for="fYear">שנת לימוד</label><select id="fYear"></select></div><!-- 5.19.104 (נועה) -->
         </div>
         <div class="filters-chk">
           <label class="chk"><input type="checkbox" id="fActive" checked> רק פעילים</label>
+          <label class="chk" title="גם ילדים משנים קודמות (בחיפוש ובסינון). נדלק לבד כשבוחרים שנה קודמת או תאריך לפני 1.9 השנה"><input type="checkbox" id="fPast"> כולל שנים קודמות</label>
           <label class="chk"><input type="checkbox" id="fStar"> רק עם כוכב</label>
           <div class="remind-f"><label class="chk"><input type="checkbox" id="fRemind"> תזכורות עד</label><input type="date" id="fRemindDate" aria-label="תזכורות עד תאריך"></div>
         </div>
       </div>
       <div class="toolbar" id="leadsBar">
-        <div class="leads-meta" id="leadsMeta"><div class="muted" id="countLine"></div><button type="button" class="clear-f" id="clearFilters" hidden>✕ ניקוי סינון</button><button type="button" class="hh-jump" id="histJump" hidden></button></div>
+        <div class="leads-meta" id="leadsMeta"><div class="muted" id="countLine"></div><button type="button" class="clear-f" id="clearFilters" hidden>✕ ניקוי סינון</button><button type="button" class="hh-jump" id="histJump" hidden style="display:none"></button></div>
         <div style="display:flex; gap:8px;" id="leadsTools">
           <button class="btn small" type="button" id="listEditBtn" title="שינוי סטטוס, פעיל וכוכב ישירות ברשימה"><span class="ic">✎</span><span class="bt"> עריכה ברשימה</span></button>
           <button class="btn small" type="button" id="exportBtn" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>
@@ -3423,13 +3425,18 @@ async function loadLeads(){
   setAsg(asg); L.asgSig = null;
   L.leads = leads.filter(l => l.student);
   L.loadedAt = t0; L.fullAt = t0;
-  L.inactReady = false;
-  L.inactP = getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.false&order=updated_at.desc,id.desc")
+  // 5.19.104 (נועה): הלא פעילים – רק כשצריך (שנים קודמות / בלי "רק פעילים" / פתיחת כרטיס לא פעיל); במחשב גם ברקע אחרי כמה שניות. בנייד – לא אוטומטית
+  L.inactReady = false; L.inactP = null;
+  if (!isMobile()) setTimeout(() => { if (L.loadedAt === t0) ensureInact(); }, 5000);
+  L.notesCount = {}; L.notes = {}; notes.forEach(n => { L.notesCount[n.lead_id] = (L.notesCount[n.lead_id] || 0) + 1; (L.notes[n.lead_id] = L.notes[n.lead_id] || []).push(n); });
+}
+function ensureInact(){
+  if (L.inactReady) return Promise.resolve(); if (L.inactP) return L.inactP;
+  return L.inactP = getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.false&order=updated_at.desc,id.desc")
     .then(rows => { const have = new Set(L.leads.map(l => l.id)); rows.forEach(l => { if (l.student && !have.has(l.id)) L.leads.push(l); });
       L.inactReady = true;
       if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads(); })
-    .catch(() => { L.inactReady = true; });
-  L.notesCount = {}; L.notes = {}; notes.forEach(n => { L.notesCount[n.lead_id] = (L.notesCount[n.lead_id] || 0) + 1; (L.notes[n.lead_id] = L.notes[n.lead_id] || []).push(n); });
+    .catch(() => { L.inactP = null; });
 }
 const statusName = (id) => (L.statuses.find(s => s.id === id) || {}).name || "";
 // צבע הסטטוס (עמודה color בטבלת lead_statuses). טקסט לבן על רקע הצבע.
@@ -3514,7 +3521,7 @@ const lastUpdate = (l) => l.updated_at;
 // ======================================================================
 const F = { statuses: new Set(), sources: new Set(), page: 0, sort: "updated", dir: -1 };
 // כל הסינונים בעמוד התלמידים נשמרים יחד (גם סטטוס, גם שיבוץ וכו') - נשארים ברענון (F5), מתאפסים ביציאה או בלשונית חדשה
-const LF_KEY = "telem_lead_filters", LF_IDS = ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fStar","fActive","fRemind","fRemindDate"];
+const LF_KEY = "telem_lead_filters", LF_IDS = ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear","fStar","fActive","fPast","fRemind","fRemindDate"];
 try { store("telem_crm_status_filter", null); } catch(e) {}   // היה נשמר לתמיד - כבר לא
 try { const sv = JSON.parse(sstore(LF_KEY) || "null"); if (sv && sv.statuses) sv.statuses.forEach(x => F.statuses.add(x)); if (sv && sv.sources) sv.sources.forEach(x => F.sources.add(x)); if (sv && sv.sort) { F.sort = sv.sort; F.dir = sv.dir || -1; } } catch(e) {}
 function saveLeadFilters(){
@@ -3522,6 +3529,7 @@ function saveLeadFilters(){
     LF_IDS.forEach(id => { const el = $(id); v[id] = el.type === "checkbox" ? el.checked : el.value; }); sstore(LF_KEY, JSON.stringify(v)); } catch(e) {}
 }
 function restoreLeadFilters(){
+  try { fillYears(); } catch(e) {}
   try { const v = JSON.parse(sstore(LF_KEY) || "null"); if (!v) return;
     LF_IDS.forEach(id => { if (!(id in v)) return; const el = $(id); if (el.type === "checkbox") el.checked = !!v[id]; else el.value = v[id]; }); } catch(e) {}
 }
@@ -3561,11 +3569,16 @@ function multiBox(box, items, set, allLbl){
 }
 $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 $("fRemindDate").addEventListener("change", () => { if ($("fRemindDate").value) $("fRemind").checked = true; });
-["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fStar","fActive","fRemind","fRemindDate"].forEach(id =>
-  $(id).addEventListener(id === "fSearch" ? "input" : "change", () => { if (id === "fAsg" && $("fAsg").value === "wkchg") { WC.map = null; WC.p = null; } F.page = 0; saveLeadFilters(); renderLeads(); }));
+["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear","fStar","fActive","fPast","fRemind","fRemindDate"].forEach(id =>
+  $(id).addEventListener(id === "fSearch" ? "input" : "change", () => { if (id === "fAsg" && $("fAsg").value === "wkchg") { WC.map = null; WC.p = null; }
+    // 5.19.104 (נועה): שנה קודמת / תאריך לפני 1.9 השנה → "כולל שנים קודמות" נדלק לבד; ביטול הסימון – חזרה לשנה הנוכחית
+    if ((id === "fFrom" || id === "fTo") && $(id).value && $(id).value < HIST_YS() + "-09-01") $("fPast").checked = true;
+    if (id === "fYear" && $("fYear").value) $("fPast").checked = true;
+    if (id === "fPast" && !$("fPast").checked) $("fYear").value = "";
+    F.page = 0; saveLeadFilters(); renderLeads(); }));
 $("clearFilters").addEventListener("click", () => {
-  ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo"].forEach(id => $(id).value = "");
-  $("fStar").checked = false; $("fRemind").checked = false; $("fActive").checked = true;
+  ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear"].forEach(id => $(id).value = "");
+  $("fStar").checked = false; $("fRemind").checked = false; $("fActive").checked = true; $("fPast").checked = false;
   $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   F.statuses.clear(); F.sources.clear(); sstore(LF_KEY, null); setupFilters(); F.page = 0; renderLeads();
 });
@@ -3618,11 +3631,19 @@ function filtered(){
 // חיפוש שם / טלפון → גם ילדים מתאימים משנים קודמות (שאין להם כרטיס ברשימה). בלי תאריכים ובלי חיפוש – כמו קודם.
 const HIST_YS = () => { const d = todayIL(); return Number(d.slice(0, 4)) - (Number(d.slice(5, 7)) < 8 ? 1 : 0); };   // שנת הלימודים הנוכחית (ספטמבר)
 const histGradeNow = (g, ys) => { const i = GRADES.findIndex(x => gradeKey(x) === gradeKey(g)); if (i < 0 || !ys) return ""; const j = i + (HIST_YS() - ys); return j >= GRADES.length ? "סיים/ה" : j < 0 ? "" : GRADES[j]; };
+// שנה עברית לשנת לימודים (2025 → תשפ"ו)
+const hebYear = (ys) => { const n = (Number(ys) + 3761) % 1000, h = Math.floor(n / 100), tn = Math.floor((n % 100) / 10), u = n % 10;
+  const H = ["", "ק", "ר", "ש", "ת", "תק", "תר", "תש", "תת", "תתק"][h], T = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"][tn], U = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"][u];
+  let s = H + (tn === 1 && (u === 5 || u === 6) ? (u === 5 ? "טו" : "טז") : T + U); return s.length > 1 ? s.slice(0, -1) + '"' + s.slice(-1) : s + "'"; };
+function fillYears(){ const sel = $("fYear"); if (!sel || sel.options.length) return; const cur = HIST_YS();
+  sel.innerHTML = `<option value="">השנה (${esc(hyLbl(hebYear(cur), cur))})</option><option value="all">כל השנים</option>` + Array.from({ length: cur - 2019 - 1 }, (_, i) => cur - 1 - i).map(y => `<option value="${y}">${esc(hyLbl(hebYear(y), y))}</option>`).join(""); }
 const hNorm = (s) => String(s || "").replace(/["'׳״\s-]/g, "");
 function histFiltered(leadList){
-  const q = $("fSearch").value.trim().toLowerCase(), qd = digits(q), from = $("fFrom").value, to = $("fTo").value;
-  const useDates = !!(from || to), useSearch = q.length >= 2;
-  if (!useDates && !useSearch) return [];
+  const q = $("fSearch").value.trim().toLowerCase(), qd = digits(q), from = $("fFrom").value, to = $("fTo").value, yr = $("fYear").value, past = $("fPast").checked;
+  // 5.19.104 (נועה): שנים קודמות רק כשמסומן "כולל שנים קודמות" (נדלק לבד בשנה קודמת / תאריך ישן)
+  if (!past) return [];
+  const useDates = !!((from && from < HIST_YS() + "-09-01") || (to && to < HIST_YS() + "-09-01")), useSearch = q.length >= 2, useYear = !!yr;
+  if (!useDates && !useSearch && !useYear) return [];
   // סינונים שאין להם משמעות בשנים קודמות (כוכב, תזכורת, שיבוץ, מנהל) – אז לא מציגים שנים קודמות
   if ($("fStar").checked || $("fRemind").checked || $("fAsg").value || $("fManager").value) return [];
   if (!H.rows) { if (!H.loading) loadHistRows().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); return null; }
@@ -3632,6 +3653,7 @@ function histFiltered(leadList){
   const shown = new Set((leadList || []).map(l => l.student_id));
   let out = H.rows.filter(h => {
     if (useDates) { const a = h.year_start + "-09-01", b = (h.year_start + 1) + "-08-31"; if ((from && b < from) || (to && a > to)) return false; }
+    if (useYear && yr !== "all" && String(h.year_start) !== yr) return false;
     if (city && h.city !== city) return false;
     if (schName && hNorm(h.school) !== schName && !hNorm(h.school).includes(schName)) return false;
     if (grade && gradeKey(h.grade) !== gradeKey(grade)) return false;
@@ -3645,14 +3667,14 @@ function histFiltered(leadList){
     }
     return true;
   });
-  if (!useDates) {   // חיפוש בלבד – שורה אחת לכל ילד/ה (השנה האחרונה)
+  if (!useDates && !(useYear && yr !== "all")) {   // חיפוש / כל השנים – שורה אחת לכל ילד/ה (השנה האחרונה)
     const seen = new Set(); out = out.filter(h => { const k = h.kid_key || ("h" + h.id); if (seen.has(k)) return false; seen.add(k); return true; });
   }
   // 5.19.103 (נועה): ילד/ה שיש לו/ה כרטיס – מופיע/ה ככרטיס הרגיל (לא פעיל), עם תגית השנים; בלי כרטיס – שורת "שנים קודמות"
   const byLead = new Map(), rows = [];
   out.forEach(h => { const lead = h.student_id ? L.leadByStudent.get(h.student_id) : null;
     if (!lead) { rows.push({ __h: h }); return; }
-    if (shown.has(lead.student_id)) { if (useDates) (LR.years.get(lead.id) || LR.years.set(lead.id, []).get(lead.id)).push(h); return; }
+    if (shown.has(lead.student_id)) { if (useDates || useYear) (LR.years.get(lead.id) || LR.years.set(lead.id, []).get(lead.id)).push(h); return; }
     if (!byLead.has(lead.id)) byLead.set(lead.id, { lead, hs: [] }); byLead.get(lead.id).hs.push(h); });
   byLead.forEach(v => { LR.years.set(v.lead.id, v.hs); rows.push(v.lead); });
   return rows;
@@ -3665,7 +3687,9 @@ const H_KEY = {
 // כל השורות של הטבלה: הכרטיסים + שנים קודמות (באותו מיון)
 function leadRows(){
   LR.years = new Map(); L.leadByStudent = new Map(L.leads.map(l => [l.student_id, l]));
-  const list = filtered(), hs = histFiltered(list);
+  const yr = $("fYear").value, pastYr = yr && yr !== "all" && Number(yr) < HIST_YS();
+  if (($("fPast").checked || !$("fActive").checked) && !L.inactReady) ensureInact();
+  const list = pastYr ? [] : filtered(), hs = histFiltered(list);
   LR.histN = hs ? hs.length : 0; LR.histLoading = hs === null;
   if (!hs || !hs.length) return list;
   const lk = { id: l => Number(l.legacy_user_id) || l.id + 1e6, name: l => (l.student.first_name + " " + (l.student.last_name || "")), status: l => statusName(l.status_id), source: l => sourceName(l.source_id),
@@ -3746,15 +3770,16 @@ const COLS = [
   ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","תאריך עדכון"]
 ];
 function renderLeads(){
+  fillYears();
   const list = leadRows(); paintHistHits(list);
   const pages = Math.max(1, Math.ceil(list.length / CONFIG.pageSize));
   if (F.page >= pages) F.page = pages - 1;
   const slice = list.slice(F.page * CONFIG.pageSize, (F.page + 1) * CONFIG.pageSize);
   $("countLine").textContent = (list.length ? `${F.page * CONFIG.pageSize + 1}-${F.page * CONFIG.pageSize + slice.length} מתוך ${list.length}` : "אין תוצאות")
     + (LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : LR.histLoading ? " · טוען שנים קודמות…" : "")
-    + (!L.inactReady && (!$("fActive").checked || $("fSearch").value.trim() || $("fFrom").value || $("fTo").value) ? " · טוען כרטיסים לא פעילים…" : "");
+    + (!L.inactReady && (!$("fActive").checked || $("fPast").checked) ? " · טוען כרטיסים לא פעילים…" : "");
   // "ניקוי סינון" - רק כשיש סינון פעיל
-  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo"].some(id => $(id).value) || F.statuses.size || F.sources.size || $("fStar").checked || $("fRemind").checked || !$("fActive").checked); markFilters();
+  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || $("fStar").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
   $("pageInfo").textContent = `עמוד ${F.page + 1} מתוך ${pages}`;
   $("prevPage").disabled = F.page === 0; $("nextPage").disabled = F.page >= pages - 1;
   const sortable = ["id","status","source","name","school","grade","asg","parent","manager","remind","updated"];
@@ -3906,11 +3931,7 @@ $("exportBtn").addEventListener("click", () => {
       s.first_name, s.last_name, s.phone, sch.name, sch.city || f.city, classLabel(s.grade, s.class_num), asgOf(l).map(asgText).join(", "), [f.parent1_first, f.parent1_last].filter(Boolean).join(" "), f.parent1_phone, f.parent1_email,
       [f.parent2_first, f.parent2_last].filter(Boolean).join(" "), f.parent2_phone, staffName(l.manager_id), fmtDate(l.remind_at), fmtDate(l.created_at), fmtDate(lastUpdate(l)),
       l.message, (L.notes[l.id] || []).map(n => fmtDate(n.created_at) + " " + cleanNote(n.body)).join("\n")]; });
-  const csv = "﻿" + [head].concat(rows).map(r => r.map(v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`).join(",")).join("\r\n");
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-  a.download = "telem-leads-" + new Date().toISOString().slice(0, 10) + ".csv";
-  document.body.appendChild(a); a.click(); a.remove();
+  downloadXlsx([head].concat(rows), "תלמידים-" + new Date().toISOString().slice(0, 10) + ".xlsx", "תלמידים");
 });
 
 // ======================================================================
@@ -3959,6 +3980,7 @@ function openLead(id){
   { const to = { leads: "לרשימה", history: "להיסטוריה", reports: "לדוחות", groups: "לקבוצות", att: "לנוכחות", sched: "לשיבוצים", reg: "להרשמה" }[LEAD_FROM] || "";
     document.querySelectorAll("[data-back]").forEach(b => b.innerHTML = "→ חזרה" + (to ? `<span class="lg-t"> ${to}</span>` : ""));   // 5.19.23: כמו בשאר המסכים - חץ + "חזרה"
     document.querySelectorAll("[data-and-back]").forEach(b => b.textContent = "שמירה וחזרה " + to); }
+  if (id && !L.leads.some(x => x.id === id) && !L.inactReady) { toast("טוען…"); ensureInact().then(() => { if (L.leads.some(x => x.id === id)) openLead(id); }); return; }   // 5.19.104: כרטיס לא פעיל שעוד לא נטען
   const l = id ? L.leads.find(x => x.id === id) : null;
   editing = l;
   if ($("leadMergeBtn")) $("leadMergeBtn").hidden = !l || ME.role !== "admin";
@@ -5827,6 +5849,15 @@ $("exForm").addEventListener("submit", async (ev) => {
   catch(err) { toast("לא נשמר: " + err.message); }
 });
 // ייבוא ידני מהקובץ (גיבוי לייבוא האוטומטי): קורא את הגיליון "כל בתי הספר" ומחליף את כל השורות שהגיעו מהקובץ
+// 5.19.104 (נועה): הורדות לאקסל – קובץ xlsx אמיתי (מימין לשמאל, שורת כותרת מודגשת וקפואה, רוחב עמודות)
+async function downloadXlsx(aoa, name, sheet){
+  try { await loadXlsxLib(); } catch(e) { toast("לא הצלחתי לטעון את רכיב האקסל"); return; }
+  const ws = XLSX.utils.aoa_to_sheet(aoa.map(r => r.map(v => v == null ? "" : v)));
+  ws["!cols"] = (aoa[0] || []).map((_, c) => ({ wch: Math.min(50, Math.max(8, ...aoa.slice(0, 300).map(r => String(r[c] == null ? "" : r[c]).split("\n")[0].length + 2))) }));
+  ws["!views"] = [{ RTL: true }]; ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+  const wb = XLSX.utils.book_new(); wb.Workbook = { Views: [{ RTL: true }] };
+  XLSX.utils.book_append_sheet(wb, ws, String(sheet || "גיליון1").slice(0, 31)); XLSX.writeFile(wb, name);
+}
 function loadXlsxLib(){
   if (window.XLSX) return Promise.resolve();
   return new Promise((ok, bad) => { const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"; sc.onload = ok; sc.onerror = () => bad(new Error("לא ניתן לטעון את קורא האקסל")); document.head.appendChild(sc); });
@@ -8836,8 +8867,7 @@ async function repPast(city, target){
     const rows = [["שם פרטי","שם משפחה","כיתה","בית ספר","עיר","הורה","טלפון הורה","שנים שנרשם/ה","סטטוס השנה"]].concat(back.map(l => { const f = l.student.family || {};
       return [l.student.first_name, l.student.last_name || "", l.student.grade, schoolOf(l.student).name || "", leadCity(l), [f.parent1_first, f.parent1_last].filter(Boolean).join(" "), f.parent1_phone || "",
         (L.hist[l.student.id] || []).filter(histReg).map(h => h.school_year + " " + h.status).join("; "), statusName(l.status_id)]; }));
-    const csv = "\ufeff" + rows.map(r => r.map(v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"').join(",")).join("\r\n");
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = "נרשמו-בעבר-ולא-השנה.csv"; document.body.appendChild(a); a.click(); a.remove();
+    downloadXlsx(rows, "נרשמו-בעבר-ולא-השנה.xlsx", "נרשמו בעבר");
   };
 }
 // --- בתי ספר וקבוצות
@@ -9149,8 +9179,7 @@ $("arCsv").addEventListener("click", () => {
   if (!AR.data) { toast("קודם לוחצים \"הצגה\""); return; }
   const lines = [["קבוצה","תלמיד/ה","מקצוע (רישום)","תאריך","נוכחות","מקצוע שסומן"]];
   AR.data.forEach(({ g, dates, rows }) => rows.forEach(r => r.cells.forEach((c, i) => { if (c !== "n" && c !== "f" && c !== "o") lines.push([`${g.location}${!$("arCity").value ? " (" + g.city + ")" : ""} יום ${g.day}' ${String(g.start_time).slice(0, 5)}`, r.name, r.subject, dates[i], c === "p" ? "נוכח/ת" : c === "c" ? "לא התקיים" : "חסר/ה", c === "p" ? arSubj(r.subj[i]).replace(/'/g, "").replace("מת", "מתמטיקה").replace("אנג", "אנגלית") : ""]); })));
-  const csv = "﻿" + lines.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\r\n");
-  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = "attendance-" + $("arFrom").value + "-" + $("arTo").value + ".csv"; a.click();
+  downloadXlsx(lines, "נוכחות-" + $("arFrom").value + "-" + $("arTo").value + ".xlsx", "נוכחות");
 });
 
 
