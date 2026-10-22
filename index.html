@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.104">
+<meta name="app-version" content="5.19.105">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1863,7 +1863,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .mc-meet{ display:flex; flex-wrap:wrap; gap:4px 14px; font-size:13.5px; margin:6px 0 2px; } .mc-meet b{ color:var(--accent); font-weight:700; }
 .mc-facts{ font-size:13px; color:var(--ink-soft); margin-bottom:6px; }
 .mc-links{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; } .mc-links .lk2-l{ display:inline-block; }
-.mc-note{ font-size:12.5px; } .mc-links{ display:grid; grid-template-columns:repeat(2, max-content); gap:6px 32px; align-items:center; }
+.mc-note{ font-size:12.5px; } .mc-site.on{ background:#e8f5e9; border-color:#66bb6a; color:#1b5e20; font-weight:600; } .mc-links{ display:grid; grid-template-columns:repeat(2, max-content); gap:6px 32px; align-items:center; }
 .mc-lk{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .mc-lk-t{ font-size:13px; font-weight:700; color:var(--ink-soft); } .mc-links .lk2-l{ display:none !important; }
 @media (max-width:760px){ .mc-links{ grid-template-columns:1fr; } } .mc-int summary{ cursor:pointer; font-size:12.5px; color:var(--ink-soft); } .mc-int[open] summary{ margin-bottom:4px; }
 .ex-cal td.lnk{ box-shadow:inset 0 0 0 2px #0B3D5E; }
@@ -6750,6 +6750,8 @@ function openMarathonEditor(m, inPanel, pre){
     <div><label class="lbl">מחיר מוזל (₪)</label><input type="number" min="0" data-m="p2" value="${m && Number(m.price_repeat) !== Number(m.price_first) ? Number(m.price_repeat) : ""}"><div class="muted fhint">למי שכבר השתתף/ה במרתון השנה. לא חובה.</div></div>
     <label class="chk full"><input type="checkbox" data-m="open" ${m && m.is_open ? "checked" : ""}> פתוח להרשמה</label>
     <div class="muted fhint full" style="margin-top:-4px;">${m ? "כשמסמנים - הקישור עם התשלום עובד ומופיעות בו רק הקבוצות הפתוחות." : "מרתון חדש נשמר סגור: קודם יוצרים את כל הקבוצות והמפגשים, ורק אז פותחים להרשמה ושולחים קישור."}</div>
+    ${m && "show_on_site" in m ? `<label class="chk full"><input type="checkbox" data-m="site" ${m.show_on_site ? "checked" : ""}> 🌐 להציג באתר של תלם</label>
+    <div class="muted fhint full" style="margin-top:-4px;">בדף בית הספר באתר, רק כל עוד ההרשמה פתוחה ותאריך המבחן לא עבר.</div>` : ""}
     <div class="full"><label class="lbl">הערות (פנימי)</label><input data-m="notes" value="${esc(m && m.notes || "")}"></div>
     ${marHasHak(m) ? `<div class="full"><label class="lbl">אפשרויות הקבצה <span class="muted" style="font-weight:400">- אחת בכל שורה. בטופס ההרשמה ההורה בוחר/ת אחת (חובה). ריק = בלי שדה הקבצה.</span></label><textarea data-m="hak" rows="3" placeholder="הקבצה א'&#10;הקבצה ב'&#10;מצוינות">${esc(((m && m.hakbatsa_options) || []).join("\n"))}</textarea></div>` : ""}
     <div class="full" data-m="groups">${m ? `<div class="muted">טוען קבוצות ומפגשים...</div>` : ""}</div>
@@ -6813,6 +6815,7 @@ function openMarathonEditor(m, inPanel, pre){
     const body = { name: g("name").value.trim(), city: g("city").value, school: g("school").value || null,
       price_first: Number(g("p1").value), price_repeat: Number(g("p2").value || g("p1").value), is_open: g("open").checked, notes: nn(g("notes").value) };
     if (g("grade")) body.grade = g("grade").value || null;   // 5.19.35
+    if (g("site")) body.show_on_site = g("site").checked;   // 5.19.105 (את-17)
     if (g("hak")) { const hk = [...new Set(g("hak").value.split("\n").map(x => x.trim()).filter(Boolean))]; body.hakbatsa_options = hk.length ? hk : null; }   // 5.19.35
     // מחיר אחד = זה מחיר המרתון (נשמר גם כמחיר המוזל, ובטופס לא שואלים אם השתתף כבר)
     if (!body.name || !body.school || !(body.price_first > 0) || !(body.price_repeat > 0)) { g("err").textContent = "צריך שם, בית ספר ומחיר."; return; }
@@ -9530,7 +9533,7 @@ async function renderRegMarathons(city){   // city = "*" - כל הערים יח�
             return `<div class="mc-ref-r${r.refunded_at ? " done" : ""}"><b>${esc((st.first_name || "") + " " + (st.last_name || ""))}</b><span class="muted">${esc([f.parent1_first, f.parent1_last].filter(Boolean).join(" "))}${ph ? ` · <span dir="ltr">${esc(ph)}</span>` : ""}</span><span>${amt ? amt + " ₪" : ""}${r.payment_method ? " · " + esc(r.payment_method) : ""}</span>
               ${r.refunded_at ? `<span class="ok-txt">✔ הוחזר ${esc(fmtDM(String(r.refunded_at).slice(0, 10)))}</span>` : `<span>${/^0\d{8,9}$/.test(d) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${d.slice(1)}?text=${encodeURIComponent(msg)}">וואטסאפ להורה</a>` : ""}<button type="button" class="btn small primary" data-rref="${r.id}" data-ramt="${amt}">✔ הוחזר</button></span>`}</div>`; }).join("") : `<div class="muted">אף אחד לא שילם - אין מה להחזיר.</div>`}</div>` : ""}
         <div class="mc-links"${cxl ? " hidden" : ""}>${MAR_INTEREST ? `<div class="mc-lk"><span class="mc-lk-t">טופס התעניינות</span>${lk2Btns("", lkInterest(q), "התעניינות ב" + where + ": ")}</div>` : ""}
-          <div class="mc-lk"><span class="mc-lk-t">טופס הרשמה</span>${m.code ? lk2Btns("", lkMarCode(m.code), "הרשמה ל" + where + ": ") : ""}${m.code ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(lkMarCode(m.code) + "&cardtest=1")}" title="פותח את טופס ההרשמה עם תשלום באשראי בסביבת הבדיקה (לא לשלוח להורים)">🧪 בדיקת אשראי</a>` : ""}${m.is_open ? "" : `<span class="muted mc-note">יעבוד אחרי "פתיחה להרשמה"</span>`}</div></div>
+          <div class="mc-lk"><span class="mc-lk-t">טופס הרשמה</span>${m.code ? lk2Btns("", lkMarCode(m.code), "הרשמה ל" + where + ": ") : ""}${m.code ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(lkMarCode(m.code) + "&cardtest=1")}" title="פותח את טופס ההרשמה עם תשלום באשראי בסביבת הבדיקה (לא לשלוח להורים)">🧪 בדיקת אשראי</a>` : ""}${m.code && "show_on_site" in m ? `<button type="button" class="btn small mc-site${m.show_on_site ? " on" : ""}" data-rmsite="${m.id}" title="${m.show_on_site ? "המרתון מוצג באתר של תלם (בדף בית הספר) כל עוד ההרשמה פתוחה. לחיצה - הסתרה." : "המרתון לא מוצג באתר של תלם. לחיצה - הצגה בדף בית הספר (רק כשההרשמה פתוחה)."}">${m.show_on_site ? "🌐 מוצג באתר ✓" : "🌐 להציג באתר"}</button>` : ""}${m.is_open ? "" : `<span class="muted mc-note">יעבוד אחרי "פתיחה להרשמה"${m.show_on_site ? " (וגם יופיע באתר)" : ""}</span>`}</div></div>
       </div>`; }).join("") + `</div>` + (past.length ? `</details>` : "")
       : `<div class="muted">${ALL ? "אין מרתונים השנה." : "אין מרתונים בעיר הזאת."} יוצרים מרתון בלוח המבחנים (טאב "מרתונים").</div>`}`;
   box.querySelectorAll("[data-rmkids]").forEach(b => b.onclick = async () => { await ensureG(true); const m = (G.marathons || []).find(x => x.id === Number(b.dataset.rmkids)); if (m) openMarathonPanel(m); });
@@ -9550,6 +9553,11 @@ async function renderRegMarathons(city){   // city = "*" - כל הערים יח�
     if (!await uiConfirm("לסמן שהכסף הוחזר? (את ההחזר עצמו עושים בריווחית)")) return;
     b.disabled = true;
     try { await patch("marathon_registrations", "id=eq." + b.dataset.rref, { refunded_at: new Date().toISOString(), refund_amount: Number(b.dataset.ramt) || null, status: "בוטל" }); toast("סומן: הוחזר"); RG.mar = null; renderRegMarathons(city); }
+    catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
+  // 5.19.105 (נועה, את-17): "להציג באתר" - האתר השיווקי מציג רק מרתונים מסומנים + פתוחים להרשמה + המבחן לא עבר
+  box.querySelectorAll("[data-rmsite]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmsite)), v = !m.show_on_site;
+    b.disabled = true;
+    try { await patch("marathons", "id=eq." + m.id, { show_on_site: v }); m.show_on_site = v; G.marathons = null; toast(v ? (m.is_open ? "המרתון מוצג באתר" : "יוצג באתר אחרי פתיחה להרשמה") : "המרתון לא מוצג באתר"); renderRegMarathons(city); }
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   box.querySelectorAll("[data-rmopen]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmopen)), v = !m.is_open;
     if (v && !await uiConfirm(`לפתוח את "${m.name}" להרשמה? מעכשיו הקישור עם התשלום יעבוד.`)) return;
