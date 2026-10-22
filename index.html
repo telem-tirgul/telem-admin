@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.98">
+<meta name="app-version" content="5.19.99">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3216,7 +3216,10 @@ function go(view){
   if (view === "staff") loadStaff();
   if (view === "schools") loadSchools();
   if (view === "holidays") renderHolidays(true);
-  if (view === "exams") { EX.goToday = true; EX.scrollTo = null; EX.mWk = null; EX.mMon = null; EX.mDay = null; EX.mEv = null; renderExams(true); }   // 5.19.94 (נועה): תמיד נפתח על היום
+  if (view === "exams") {   // 5.19.94 (נועה): תמיד נפתח על היום
+    // 5.19.99 (נועה: "כשאני נכנסת למסך הלוח קופץ"): הלוח כבר מצויר (במחשב) – גוללים אותו מיד להיום, והטעינה ברקע לא מציירת מחדש אם לא השתנה כלום
+    if (!isMobile() && EX.rows && document.querySelector("#exCal .ex-cal-wrap")) { EX.enterQuiet = true; EX.scrollTo = null; exScrollTo(exWeekStart(todayIL()), true, false); renderExams(true); }
+    else { EX.goToday = true; EX.scrollTo = null; EX.mWk = null; EX.mMon = null; EX.mDay = null; EX.mEv = null; renderExams(true); } }
   if (view === "inbox") ibTab(IB_TAB);
   if (view === "attk" || view === "attg") { $("arHostG").appendChild($("attReport")); $("attReport").hidden = false;
     { const hd = document.querySelector("#view-" + view + " .page-head"), bk = hd && hd.querySelector("#arBackBtn, .btn:last-child"); if (hd && bk) hd.insertBefore($("arCsv"), bk); else if (hd) hd.appendChild($("arCsv")); }   // 5.19.88: "הורדה לאקסל" בשורת הכותרת, מימין ל"חזרה"
@@ -5000,15 +5003,15 @@ async function loadLeadExams(l){
 const exKindCls = (k) => /מבדק/.test(k) && !/^וידוא|^SMS|^מרתון|^אירוע/.test(k) ? "lg-bd" : /^וידוא|^SMS מבית/.test(k) ? "lg-sy" : /^SMS/.test(k) ? "lg-sr" : /מפגש 1/.test(k) ? "lg-m1" : /מפגש 2/.test(k) ? "lg-m2" : /^מרתון/.test(k) ? "lg-m1" : /^אירוע/.test(k) ? "lg-ot" : /בוחן/.test(k) ? "lg-qz" : EX_MAKEUP.test(k) ? "lg-mk" : "lg-ex";
 const exKindChip = (k) => `<span class="ex-kc"><i class="${exKindCls(k)}"></i>${esc(k)}</span>`;
 async function renderExams(reload){
-  const box = $("exList");
-  if (reload || !EX.rows) { if (!LIVE_QUIET || !EX.rows) box.innerHTML = "<div class='empty-state'>טוען...</div>"; await loadExams(true);
+  const box = $("exList"), QUIET = LIVE_QUIET || EX.enterQuiet; EX.enterQuiet = false;
+  if (reload || !EX.rows) { if (!QUIET || !EX.rows) box.innerHTML = "<div class='empty-state'>טוען...</div>"; await loadExams(true);
     try { const r = await get("exam_imports", "select=at,rows_in,unmatched,by_name&order=id.desc&limit=1"); EX.imp = r[0] || null; } catch(e) { EX.imp = null; } }
   // 5.19.96 (נועה: "הלוח זז ימינה ושמאלה כל כמה שניות"): בעדכון האוטומטי – אם שום דבר לא השתנה לא מציירים מחדש,
   // ואם השתנה – הגלילה נשמרת בדיוק (בפיקסלים), בלי ליישר מחדש לפי תאריך
   const sig = JSON.stringify(EX.rows) + "|" + JSON.stringify(EX.imp);
-  if (LIVE_QUIET && EX.sig === sig && document.querySelector("#exCal .ex-cal-wrap, #exCal .exm")) return;
+  if (QUIET && EX.sig === sig && document.querySelector("#exCal .ex-cal-wrap, #exCal .exm")) return;
   EX.sig = sig;
-  { const w0 = document.querySelector(".ex-cal-wrap"); EX.keepSL = LIVE_QUIET && w0 ? w0.scrollLeft : null; }
+  { const w0 = document.querySelector(".ex-cal-wrap"); EX.keepSL = QUIET && w0 ? w0.scrollLeft : null; }
   if (EX.err && !EX.rows.length) { box.innerHTML = `<div class="empty-state">${EX.err.status === 404 || /school_exams/.test(EX.err.message || "") ? "צריך להריץ את קובץ 50." : "לא ניתן לטעון."}</div>`; return; }
   const im = EX.imp;
   $("exInfo").innerHTML = im ? `עודכן מהקובץ: <b>${esc(fmtDate(im.at))}</b> · ${esc(im.by_name || "")} · ${im.rows_in} שורות (מתוכן "חומר נלמד": ${EX.rows.filter(e => EX_STUDY.test(e.kind)).length})${im.unmatched ? `<div class="ex-warn">⚠ בתי ספר שלא זוהו במערכת: ${esc(im.unmatched)}</div>` : ""}` : "";
