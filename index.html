@@ -844,6 +844,15 @@
   .ex-cal th.mo > span{ position:sticky; right:146px; } .ex-cal tr.ex-city td > span{ position:sticky; right:10px; }
   .ex-cal th.mo{ height:34px; text-align:right; vertical-align:top; padding:3px 8px 0; line-height:17px; font-size:13px; font-weight:800; color:var(--accent); border-inline-start:3px solid var(--accent) !important; background:color-mix(in srgb, var(--gold) 14%, var(--paper)); }
   .ex-cal td.d, .ex-cal th.dl, .ex-cal th.dn{ min-width:26px; width:26px; max-width:26px; }
+  /* 5.19.103 (נועה): זום – עמודות צרות יותר = יותר חודשים במסך (הצבעים נשארים; פרטים במעבר עכבר / לחיצה) */
+  .ex-zoom{ display:inline-flex; gap:4px; margin-inline-start:10px; } .ex-zoom .btn{ padding:3px 8px; }
+  #exCal.exz1 .ex-cal td.d, #exCal.exz1 .ex-cal th.dl, #exCal.exz1 .ex-cal th.dn{ min-width:16px; width:16px; max-width:16px; }
+  #exCal.exz2 .ex-cal td.d, #exCal.exz2 .ex-cal th.dl, #exCal.exz2 .ex-cal th.dn{ min-width:10px; width:10px; max-width:10px; }
+  #exCal.exz3 .ex-cal td.d, #exCal.exz3 .ex-cal th.dl, #exCal.exz3 .ex-cal th.dn{ min-width:6px; width:6px; max-width:6px; }
+  #exCal.exz1 .ex-cal td.d, #exCal.exz2 .ex-cal td.d, #exCal.exz3 .ex-cal td.d{ font-size:0; letter-spacing:0; }
+  #exCal.exz1 .ex-cal th.dl{ font-size:8px; } #exCal.exz1 .ex-cal th.dn{ font-size:9px; letter-spacing:-.5px; }
+  #exCal.exz2 .ex-cal th.dl, #exCal.exz3 .ex-cal th.dl, #exCal.exz2 .ex-cal th.dn, #exCal.exz3 .ex-cal th.dn{ font-size:0; }
+  #exCal.exz2 .ex-cal th.mo, #exCal.exz3 .ex-cal th.mo{ white-space:nowrap; overflow:hidden; text-overflow:clip; } #exCal.exz3 .ex-cal th.mo{ font-size:12px !important; }
   .ex-cal td.d{ height:28px; font-size:9.5px; font-weight:700; letter-spacing:-.3px; overflow:hidden; white-space:nowrap; }
   .ex-cal .wk{ border-inline-start:2px solid color-mix(in srgb, var(--ink) 35%, transparent) !important; }
   .ex-cal .ms{ border-inline-start:3px solid var(--accent) !important; }
@@ -2781,7 +2790,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         </div></div>
       <div class="ex-modebar">
         <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-exm="cal">לוח חודשי</button><button type="button" data-exm="list">רשימה</button></div>
-        <div class="ex-monthnav" id="exMonthNav"><button type="button" class="btn small" id="exMPrev" hidden>→ חודש קודם</button><b id="exMLbl"></b><button type="button" class="btn small" id="exMNow">היום</button><button type="button" class="btn small" id="exMNext" hidden>חודש הבא ←</button></div>
+        <div class="ex-monthnav" id="exMonthNav"><button type="button" class="btn small" id="exMPrev" hidden>→ חודש קודם</button><b id="exMLbl"></b><button type="button" class="btn small" id="exMNow">היום</button><button type="button" class="btn small" id="exMNext" hidden>חודש הבא ←</button><span class="ex-zoom" role="group" aria-label="גודל הלוח"><button type="button" class="btn small" id="exZOut" title="להקטין – לראות יותר חודשים">🔍−</button><button type="button" class="btn small" id="exZIn" title="להגדיל">🔍+</button></span></div><!-- 5.19.103 (נועה): זום לטבלה בלבד -->
       <div class="ex-filters">
         <label>עיר <select id="exCity"></select></label>
         <label>בית ספר <select id="exSch"></select></label>
@@ -5430,6 +5439,13 @@ const exVisMonth = () => { const d = exFirstVisible(); return d ? d.slice(0, 7) 
 $("exMPrev").addEventListener("click", () => exScrollTo(exMonthAdd(exVisMonth(), -1) + "-01", true, true));
 $("exMNext").addEventListener("click", () => exScrollTo(exMonthAdd(exVisMonth(), 1) + "-01", true, true));
 $("exMNow").addEventListener("click", () => exScrollTo(exWeekStart(todayIL()), true, true));
+// 5.19.103 (נועה): זום לטבלה בלבד (4 גדלים, נשמר במכשיר); נשארים על אותו תאריך
+const exZoom = (z) => { z = Math.max(0, Math.min(3, z)); const c = $("exCal"), d = document.querySelector("#exCal .ex-cal-wrap") ? exFirstVisible() : null;
+  c.classList.remove("exz1", "exz2", "exz3"); if (z) c.classList.add("exz" + z); store("telem_ex_zoom", String(z)); EX.zoom = z;
+  $("exZOut").disabled = z >= 3; $("exZIn").disabled = z <= 0; if (d) requestAnimationFrame(() => exScrollTo(d, true, false)); };
+$("exZOut").addEventListener("click", () => exZoom((EX.zoom || 0) + 1));
+$("exZIn").addEventListener("click", () => exZoom((EX.zoom || 0) - 1));
+exZoom(Number(store("telem_ex_zoom") || 0));
 // תחילת שבוע הלימודים (יום ראשון) של תאריך - הלוח נפתח כשהשבוע הנוכחי מתחיל מימין
 // התאריך של העמודה הראשונה שנראית (מימין) - כדי שרענון / סינון לא יקפיץ להיום
 // 5.19.34: הטבלה בגובה המסך - הגלילה רק בתוך הטבלה, לא בעמוד (החלק העליון עד "הוספה" נשאר במקום)
