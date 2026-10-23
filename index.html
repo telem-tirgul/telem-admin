@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.108">
+<meta name="app-version" content="5.19.109">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6765,12 +6765,23 @@ function openMarathonEditor(m, inPanel, pre){
     ${m && "show_on_site" in m ? `<label class="chk full"><input type="checkbox" data-m="site" ${m.show_on_site ? "checked" : ""}> 🌐 להציג באתר של תלם</label>
     <div class="muted fhint full" style="margin-top:-4px;">בדף בית הספר באתר, רק כל עוד ההרשמה פתוחה ותאריך המבחן לא עבר.</div>` : ""}
     <div class="full"><label class="lbl">הערות (פנימי)</label><input data-m="notes" value="${esc(m && m.notes || "")}"></div>
-    ${marHasHak(m) ? `<div class="full"><label class="lbl">אפשרויות הקבצה <span class="muted" style="font-weight:400">- אחת בכל שורה. בטופס ההרשמה ההורה בוחר/ת אחת (חובה). ריק = בלי שדה הקבצה.</span></label><textarea data-m="hak" rows="3" placeholder="הקבצה א'&#10;הקבצה ב'&#10;מצוינות">${esc(((m && m.hakbatsa_options) || []).join("\n"))}</textarea></div>` : ""}
+    ${marHasHak(m) ? `<div class="full"><label class="lbl">אפשרויות הקבצה <span class="muted" style="font-weight:400">- אחת בכל שורה. בטופס ההרשמה ההורה בוחר/ת אחת (חובה); תמיד נוסף גם "אחר". ריק = ההקבצות של בית הספר (או הרשימה הקבועה).</span></label><textarea data-m="hak" rows="3" placeholder="הקבצה א'&#10;הקבצה ב'&#10;מצוינות">${esc(((m && m.hakbatsa_options) || []).join("\n"))}</textarea><div class="muted fhint" data-m="hakhint" hidden></div></div>` : ""}
     <div class="full" data-m="groups">${m ? `<div class="muted">טוען קבוצות ומפגשים...</div>` : ""}</div>
     <div class="err full" data-m="err"></div>
     <div class="full lg-btns"><button type="button" class="btn small primary" data-m="save">שמירה</button><button type="button" class="btn small" data-m="cancel">ביטול</button></div>`;
   const g = (k) => box.querySelector(`[data-m="${k}"]`);
-  g("city").onchange = () => { g("school").innerHTML = schoolOpts(g("city").value, ""); };
+  g("city").onchange = () => { g("school").innerHTML = schoolOpts(g("city").value, ""); hakFromSchool(); };
+  // 5.19.109 (נועה): ההקבצות – מההגדרות של בית הספר (מסך "בתי ספר"), אם יש ואם במרתון עוד לא נקבעו. החלפת בית ספר – מתעדכן (כל עוד לא שינית ידנית)
+  let hakAuto = null;
+  const hakFromSchool = async () => { const ta = g("hak"), hint = g("hakhint"); if (!ta) return;
+    if (ta.value.trim() && ta.value !== hakAuto) return;   // נקבע ידנית / שמור במרתון – לא נוגעים
+    let list = []; try { if (!SC.list || !SC.list.length) SC.list = await get("site_info", "select=*&order=city,name"); } catch(e) {}
+    const c = g("city").value, sc = g("school").value, x = (SC.list || []).find(y => y.city === c && y.name === sc);
+    list = x && Array.isArray(x.hakbatsa_options) ? x.hakbatsa_options : [];
+    if (ta.value.trim() && ta.value !== hakAuto) return;
+    ta.value = hakAuto = list.join("\n");
+    hint.hidden = !list.length; hint.textContent = list.length ? "ההקבצות נלקחו מההגדרות של " + sc + " (מסך בתי ספר). אפשר לשנות כאן." : ""; };
+  if (g("hak")) { g("hak").addEventListener("input", () => { hakAuto = null; if (g("hakhint")) g("hakhint").hidden = true; }); g("school").addEventListener("change", hakFromSchool); hakFromSchool(); }
   const fromReg = currentView === "reg";
   // 5.19.41: הקבוצות של המרתון ומועדי המפגשים - במקום אחד (ביצירה ובעריכה). קבוצה = שם, מקסימום נרשמים, חדר (לא חובה) ומפגשים.
   // הקבוצה הראשונה מקושרת ללוח המבחנים: שינוי המפגשים שלה מעדכן את הלוח.
