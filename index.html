@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.105">
+<meta name="app-version" content="5.19.106">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -846,6 +846,12 @@
   .ex-cal td.d, .ex-cal th.dl, .ex-cal th.dn{ min-width:26px; width:26px; max-width:26px; }
   /* 5.19.103 (נועה): זום – עמודות צרות יותר = יותר חודשים במסך (הצבעים נשארים; פרטים במעבר עכבר / לחיצה) */
   .ex-zoom{ display:inline-flex; gap:4px; margin-inline-start:10px; } .ex-zoom .btn{ padding:3px 8px; }
+  /* 5.19.106 (נועה): מסך מלא ללוח המבחנים (מחשב) */
+  .ex-maxb.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
+  @media (max-width:760px){ .ex-maxb{ display:none !important; } }
+  body.ex-max .app > .side, body.ex-max #view-exams > .page-head{ display:none !important; }
+  body.ex-max .main{ padding-top:8px !important; }
+  body.ex-max #view-exams .ex-modebar{ margin-top:0 !important; }
   #exCal.exz1 .ex-cal td.d, #exCal.exz1 .ex-cal th.dl, #exCal.exz1 .ex-cal th.dn{ min-width:16px; width:16px; max-width:16px; }
   #exCal.exz2 .ex-cal td.d, #exCal.exz2 .ex-cal th.dl, #exCal.exz2 .ex-cal th.dn{ min-width:10px; width:10px; max-width:10px; }
   #exCal.exz3 .ex-cal td.d, #exCal.exz3 .ex-cal th.dl, #exCal.exz3 .ex-cal th.dn{ min-width:6px; width:6px; max-width:6px; }
@@ -2793,7 +2799,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         </div></div>
       <div class="ex-modebar">
         <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-exm="cal">לוח חודשי</button><button type="button" data-exm="list">רשימה</button></div>
-        <div class="ex-monthnav" id="exMonthNav"><button type="button" class="btn small" id="exMPrev" hidden>→ חודש קודם</button><b id="exMLbl"></b><button type="button" class="btn small" id="exMNow">היום</button><button type="button" class="btn small" id="exMNext" hidden>חודש הבא ←</button><span class="ex-zoom" role="group" aria-label="גודל הלוח"><button type="button" class="btn small" id="exZOut" title="להקטין – לראות יותר חודשים">🔍−</button><button type="button" class="btn small" id="exZIn" title="להגדיל">🔍+</button></span></div><!-- 5.19.103 (נועה): זום לטבלה בלבד -->
+        <div class="ex-monthnav" id="exMonthNav"><button type="button" class="btn small" id="exMPrev" hidden>→ חודש קודם</button><b id="exMLbl"></b><button type="button" class="btn small" id="exMNow">היום</button><button type="button" class="btn small" id="exMNext" hidden>חודש הבא ←</button><span class="ex-zoom" role="group" aria-label="גודל הלוח"><button type="button" class="btn small" id="exZOut" title="להקטין – לראות יותר חודשים">🔍−</button><button type="button" class="btn small" id="exZIn" title="להגדיל">🔍+</button><button type="button" class="btn small ex-maxb" id="exMax" title="הלוח על כל המסך – בלי התפריט העליון והכותרת (עוד שורות). לחיצה שוב או Esc – חזרה">⛶ מסך מלא</button></span></div><!-- 5.19.103 (נועה): זום לטבלה בלבד -->
       <div class="ex-filters">
         <label>עיר <select id="exCity"></select></label>
         <label>בית ספר <select id="exSch"></select></label>
@@ -3238,6 +3244,7 @@ function uiChoose(msg, opts){
 const uiPrompt = (msg, value, o) => uiDialog(msg, Object.assign({ input: true, value, multi: true }, o || {}));
 const uiCopyBox = (t) => uiDialog("להעתקה: מסמנים את הטקסט ומעתיקים", { input: true, value: t, copy: true, multi: false });
 function go(view){
+  try { document.body.classList.toggle("ex-max", view === "exams" && !isMobile() && store("telem_ex_max") === "1"); const b = $("exMax"); if (b) { const on = document.body.classList.contains("ex-max"); b.classList.toggle("on", on); b.textContent = on ? "✕ יציאה ממסך מלא" : "⛶ מסך מלא"; } } catch(e) {}   // 5.19.106
   if (view === "attk") { view = "attg"; AR.view = "kid"; }
   if (view === "groups") view = "att";   // 5.19.29: מסך הקבוצות אוחד עם הנוכחות   // 5.19.27: דוח נוכחות אחד (בקבוצות ונוכחות) - לפי ילד/ה או לפי קבוצה
   if (view !== "lead" && typeof LEAD_DIRTY !== "undefined" && LEAD_DIRTY && !LEAD_SAVING && currentView === "lead") { const v = view; askLeadSave(() => go(v)); return; }
@@ -5489,6 +5496,10 @@ const exZoom = (z) => { z = Math.max(0, Math.min(3, z)); const c = $("exCal"), d
 $("exZOut").addEventListener("click", () => exZoom((EX.zoom || 0) + 1));
 $("exZIn").addEventListener("click", () => exZoom((EX.zoom || 0) - 1));
 exZoom(Number(store("telem_ex_zoom") || 0));
+// 5.19.106 (נועה): "מסך מלא" ללוח המבחנים במחשב – מסתירים את התפריט העליון והכותרת (שורת "הוספה" נשארת), והטבלה תופסת את כל הגובה (עוד שורות)
+const exMax = (on) => { document.body.classList.toggle("ex-max", !!on); store("telem_ex_max", on ? "1" : ""); const b = $("exMax"); b.classList.toggle("on", !!on); b.textContent = on ? "✕ יציאה ממסך מלא" : "⛶ מסך מלא"; requestAnimationFrame(exFit); };
+$("exMax").addEventListener("click", () => exMax(!document.body.classList.contains("ex-max")));
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && document.body.classList.contains("ex-max") && currentView === "exams" && !document.querySelector(".ui-dlg-bg, #exForm:not([hidden])")) exMax(false); });
 // תחילת שבוע הלימודים (יום ראשון) של תאריך - הלוח נפתח כשהשבוע הנוכחי מתחיל מימין
 // התאריך של העמודה הראשונה שנראית (מימין) - כדי שרענון / סינון לא יקפיץ להיום
 // 5.19.34: הטבלה בגובה המסך - הגלילה רק בתוך הטבלה, לא בעמוד (החלק העליון עד "הוספה" נשאר במקום)
