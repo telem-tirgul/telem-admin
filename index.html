@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.112">
+<meta name="app-version" content="5.19.113">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -364,6 +364,10 @@
   body[data-view="att"]{ background:var(--att-bg); }
   .att-embed #attFrame{ display:block; width:100%; min-height:600px; border:0; background:transparent; }   /* 5.19.112 */
   .att-embed #attFrameMsg{ padding:10px 0; }
+  #tsSide{ position:fixed; z-index:70; top:0; bottom:0; inset-inline-start:0; width:min(760px, 94vw); background:var(--bg, #F6F3EF); box-shadow:0 0 40px rgba(0,0,0,.25); overflow-y:auto; padding:10px 14px 30px; }
+  #tsSide .ts-side-h{ display:flex; align-items:center; gap:10px; position:sticky; top:-10px; background:inherit; padding:6px 0 8px; z-index:2; }
+  #tsSideFrame{ display:block; width:100%; min-height:500px; border:0; background:transparent; }
+  body.ts-side-open #attSideBg{ z-index:69; }
 
   .att-head{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
   #payWrap .pay-sub{ margin:-6px 0 12px; font-size:13px; } .reg-tabs .payN .cnt{ margin-inline-start:4px; background:var(--muted); color:var(--ink-soft); border-radius:999px; padding:0 7px; font-size:12px; } .reg-tabs .payN .cnt.red{ background:var(--full); color:#fff; }
@@ -3298,7 +3302,7 @@ function go(view){
   if (view === "myschools") loadMySchools();
   if (view === "groups") loadGroups();
   if (view === "att" && ME.role !== "instructor") { const r = A.ret; A.ret = null;   // 5.19.112 (של-53): הנוכחות – מסך תלם שלי בתוך המערכת
-    showAttList(); if (r) { A.mode = "a"; A.date = r.date; A.embedSid = r.sid; } loadAttGroups(); }
+    showAttList(); if (r) { A.mode = "a"; A.date = r.date; if (isMobile()) A.embedSid = r.sid; } loadAttGroups(); if (r && !isMobile()) attOpenTs(r.sid, r.date); }
   else if (view === "att") { const r = A.ret || attLast(); A.ret = null;
     if (r) { A.date = r.date; showAttList(); loadAttGroups(); openSheet(r.sid); } else { showAttList(); loadAttGroups(); } }
   if (view === "staff") loadStaff();
@@ -7273,7 +7277,7 @@ async function loadAttWeek(){
   }).join("");
   $("attCal").innerHTML = `<div class="tbl-wrap"><div class="cal-grid${CS.length > 2 ? " c3" : ""}" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${showDates.length}, minmax(${Math.max(130, CS.length * 78)}px, 1fr));">
     <div class="cal-col cal-times"><div class="cal-day"></div><div class="cal-body" style="height:${H}px">${hours}</div></div>${cols}</div></div>`;
-  $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = (e) => { if (MODE === "g" || e.target.closest("[data-ged]") || b.classList.contains("ev-empty")) { grpEdit(Number(b.dataset.s)); return; } A.date = b.dataset.d; const x = ev.find(e => String(e.g.session_id) === b.dataset.s && e.date === b.dataset.d); A.curG = x ? x.g : null; openSheet(Number(b.dataset.s)); });
+  $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = (e) => { if (MODE === "g" || e.target.closest("[data-ged]") || b.classList.contains("ev-empty")) { grpEdit(Number(b.dataset.s)); return; } A.date = b.dataset.d; const x = ev.find(e => String(e.g.session_id) === b.dataset.s && e.date === b.dataset.d); A.curG = x ? x.g : null; if (ME.role !== "instructor") { attOpenTs(Number(b.dataset.s), b.dataset.d); return; } openSheet(Number(b.dataset.s)); });
 }
 const TS_STAFF = "https://telem-tirgul.github.io/telem-sheli/#staff";   // 5.19.110
 // 5.19.112 (נועה, של-53): "✓ נוכחות" = מסך הנוכחות של תלם שלי עצמו בתוך המערכת (אותו קוד, אפשר גם לערוך). "👥 קבוצות" – כמו קודם.
@@ -7287,8 +7291,25 @@ function attEmbed(){
   if (fr && fr.dataset.src === src) return;
   $("attGroups").innerHTML = `<div id="attFrameMsg" class="muted" hidden></div><iframe id="attFrame" title="נוכחות – תלם שלי" data-src="${esc(src)}" src="${esc(src)}"></iframe>`;
 }
+// 5.19.113 (נועה): במחשב – דף הנוכחות של הקבוצה (תלם שלי, אותו קוד) נפתח בחלון בצד, והלוח השבועי נשאר מאחור
+function attOpenTs(sid, date){
+  let box = $("tsSide");
+  if (!box) { box = document.createElement("div"); box.id = "tsSide"; box.innerHTML = `<div class="ts-side-h"><button type="button" class="btn small" id="tsSideX">✕ סגירה</button><span class="muted">נוכחות – תלם שלי</span></div><div id="tsSideMsg" class="muted" hidden></div><iframe id="tsSideFrame" title="נוכחות – תלם שלי"></iframe>`;
+    document.body.appendChild(box); $("tsSideX").onclick = attCloseTs; }
+  const src = TS_STAFF + "&embed=1&date=" + encodeURIComponent(date || A.date || todayIL()) + "&sid=" + encodeURIComponent(sid);
+  $("tsSideMsg").hidden = true; $("tsSideFrame").style.height = ""; $("tsSideFrame").src = src;
+  box.hidden = false; $("attSideBg").hidden = false; $("attSideBg").onclick = attCloseTs; document.body.classList.add("ts-side-open");
+}
+function attCloseTs(){ const b = $("tsSide"); if (!b || b.hidden) return; b.hidden = true; $("tsSideFrame").src = "about:blank"; $("attSideBg").hidden = true; document.body.classList.remove("ts-side-open"); if (A.tsDirty) { A.tsDirty = false; loadAttGroups(); } }
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && $("tsSide") && !$("tsSide").hidden) attCloseTs(); });
 window.addEventListener("message", (e) => {
   if (e.origin !== location.origin || !e.data || e.data.telemSheli !== "att") return;
+  const sf = $("tsSideFrame");
+  if (sf && e.source === sf.contentWindow) {
+    if (e.data.height) sf.style.height = Math.max(500, Math.round(Number(e.data.height) || 0)) + "px";
+    if (e.data.needAuth) { const m = $("tsSideMsg"); m.hidden = false; m.innerHTML = `הכניסה לתלם שלי לא נקלטה – <a href="${TS_STAFF}" target="_blank" rel="noopener">פתיחת תלם שלי ↗</a>, ואז לרענן כאן.`; }
+    if (e.data.saved) { A.tsDirty = true; G.loadedAt = 0; }   // בסגירה – הלוח מתעדכן (סומן / לא סומן)
+    return; }
   const fr = $("attFrame"); if (!fr || e.source !== fr.contentWindow) return;
   if (e.data.height) fr.style.height = Math.max(400, Math.round(Number(e.data.height) || 0)) + "px";
   if (e.data.needAuth) { const m = $("attFrameMsg"); m.hidden = false; m.innerHTML = `הכניסה לתלם שלי לא נקלטה – <a href="${TS_STAFF}" target="_blank" rel="noopener">פתיחת תלם שלי ↗</a>, ואז לרענן כאן.`; }
@@ -7297,7 +7318,7 @@ window.addEventListener("message", (e) => {
 async function loadAttGroups(){
   loadExams();   // 5.19.29: ברקע - שדף הקבוצה ייפתח מהר
   { const f = document.querySelector("#attList .att-filt"); if (f) f.hidden = false; }
-  if (ME.role !== "instructor" && attMode() === "a") return attEmbed();   // 5.19.112
+  if (ME.role !== "instructor" && attMode() === "a" && isMobile()) return attEmbed();   // 5.19.112 – בטלפון: מסך הנוכחות של תלם שלי; במחשב: הלוח השבועי, ולחיצה על קבוצה – תלם שלי בחלון בצד (5.19.113)
   if (!isMobile()) { $("attDate").value = A.date; return loadAttWeek(); }
   $("attMark").querySelector(".att-date").hidden = false; $("attWeekNav").hidden = true; $("attGroups").hidden = false; $("attCal").hidden = true; $("attSum").innerHTML = "";
   renderAttDate(); renderAttCities();
