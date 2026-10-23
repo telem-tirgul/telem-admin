@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.113">
+<meta name="app-version" content="5.19.114">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2032,6 +2032,13 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   /* 5.19.85 (נועה): על קבוצה בצבע כהה (כתוב בה בלבן) – נוכחים / חסרים כמעט לבנים עם גוון ירוק / אדום */
   .cal-ev:is(.sc-rh4, .sc-rh5, .sc-ks2, .sc-ks3, .sc-hs2, .sc-hs3) .ev-ac .c-yes{ color:#E4FFD2 !important; }
   .cal-ev:is(.sc-rh4, .sc-rh5, .sc-ks2, .sc-ks3, .sc-hs2, .sc-hs3) .ev-ac .c-no{ color:#FFE2DD !important; }
+  /* 5.19.114 (נועה): לוח הנוכחות – בית הספר רק בפס העליון; למטה ירוק = סומן, ורוד = לא סומן, לבן = עתידי */
+  #attCal.att-m-a .cal-ev:not(.ev-empty){ background:#fff !important; color:#2B2320 !important; border:1px solid #d9cfc4 !important; border-radius:8px !important; padding-top:0 !important; }
+  #attCal.att-m-a .cal-ev:not(.ev-empty):has(.att-st.ok){ background:#E3F2E6 !important; border-color:#9CCBA3 !important; }
+  #attCal.att-m-a .cal-ev:not(.ev-empty):has(.att-st.miss){ background:#FCEAE8 !important; border-color:#E8B4AE !important; }
+  #attCal.att-m-a .cal-ev:not(.ev-empty) .ev-loc{ margin:0 -7px 2px; padding:3px 7px; background:var(--scb, var(--accent)); color:var(--sci, #fff) !important; border-bottom:2px solid var(--scd, var(--accent)); flex:none; }
+  #attCal.att-m-a .cal-grid.c3 .cal-ev:not(.ev-empty) .ev-loc{ margin:0 -4px 2px; padding:3px 4px; }
+  #attCal.att-m-a .cal-ev:not(.ev-empty) .ev-ac .c-yes{ color:#2f6e05 !important; } #attCal.att-m-a .cal-ev:not(.ev-empty) .ev-ac .c-no{ color:#B03A2E !important; }
   .cal-ev.sc-rh3 .ev-ac .c-yes{ color:#173F00 !important; } .cal-ev.sc-rh3 .ev-ac .c-no{ color:#6E0F08 !important; }   /* כתום: ירוק ואדום כהים מאוד, כמו הכיתוב שעליו */
   /* 5.19.84 (נועה, שוב): זכוכית המגדלת בחיפוש לא על הטקסט – הכלל האחיד של הסינון (5.19.83) דרס את הריווח */
   .filters #fSearch, input[type=search][style*="background-image"]{ padding-inline-start:34px !important; background-position:right 10px center !important; background-repeat:no-repeat !important; }
@@ -7235,7 +7242,7 @@ async function loadAttWeek(){
   let lists; const MODE = attMode(); paintAttMode();
   try { if (MODE === "g") { await ensureG(); lists = dates.map(attGroupsFromG); } else lists = await Promise.all(dates.map(d => rpc("attendance_groups", { p_date: d, p_city: null })));
     // 5.19.37: מנהלים - גם קבוצות ריקות (עוד בלי ילדים / מתרגל/ת) מופיעות בלוח הנוכחות, במסגרת מקווקוות; לחיצה = חלון הקבוצה
-    if (MODE !== "g" && ME.role !== "instructor") { try { await ensureG(); lists = lists.map((l, i) => (l || []).concat(attGroupsFromG(dates[i]).filter(x => x.kind !== "מרתון" && !(l || []).some(y => y.session_id === x.session_id)).map(x => Object.assign(x, { empty: true })))); } catch(e2) {} } }
+    if (MODE !== "g" && ME.role !== "instructor") { try { await ensureG(); lists = lists.map((l, i) => (l || []).concat(attGroupsFromG(dates[i]).filter(x => !(l || []).some(y => y.session_id === x.session_id)).map(x => Object.assign(x, { empty: true }))   /* 5.19.114 (נועה): גם קבוצות מרתון ריקות */)); } catch(e2) {} } }
   catch(e) { $("attCal").innerHTML = "<div class='card err'>לא ניתן לטעון את הקבוצות" + (e.status === 404 ? " (צריך להריץ את קובץ 16)." : ".") + "</div>"; return; }
   if (weekStart(A.date) !== wk) return;
   const hm = (t) => String(t || "").slice(0, 5), mins = (t) => { const [h, m] = hm(t).split(":").map(Number); return h * 60 + (m || 0); };
@@ -7275,6 +7282,7 @@ async function loadAttWeek(){
         ${MODE === "g" && g.instructors ? `<span class="ev-meta">👤 ${esc(g.instructors)}</span>` : ""}${g.room ? `<span class="ev-meta">📍 ${esc(g.room)}</span>` : ""}${st}</button>`; }).join("");
     return `<div class="cal-col"><div class="cal-day${d === today ? " today" : ""}">${DAY_NAMES[dayLetter(d)]}<small>${fmtDM(d)}</small>${holChips(d) ? `<span class="hol-chips">${holChips(d)}</span>` : ""}${calCityHead(CS)}</div><div class="cal-body${holColCls(d)}" style="height:${H}px">${calSeps(CS)}${blocks}</div></div>`;
   }).join("");
+  $("attCal").classList.toggle("att-m-a", MODE !== "g");   /* 5.19.114: מראה לוח נוכחות */
   $("attCal").innerHTML = `<div class="tbl-wrap"><div class="cal-grid${CS.length > 2 ? " c3" : ""}" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${showDates.length}, minmax(${Math.max(130, CS.length * 78)}px, 1fr));">
     <div class="cal-col cal-times"><div class="cal-day"></div><div class="cal-body" style="height:${H}px">${hours}</div></div>${cols}</div></div>`;
   $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = (e) => { if (MODE === "g" || e.target.closest("[data-ged]") || b.classList.contains("ev-empty")) { grpEdit(Number(b.dataset.s)); return; } A.date = b.dataset.d; const x = ev.find(e => String(e.g.session_id) === b.dataset.s && e.date === b.dataset.d); A.curG = x ? x.g : null; if (ME.role !== "instructor") { attOpenTs(Number(b.dataset.s), b.dataset.d); return; } openSheet(Number(b.dataset.s)); });
