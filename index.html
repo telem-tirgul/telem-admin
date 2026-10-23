@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.106">
+<meta name="app-version" content="5.19.107">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1271,6 +1271,7 @@
   .ws-rc-b{ display:flex; flex-direction:column; gap:4px; min-width:0; }
   .ws-rc-k{ align-self:flex-start; font-size:11.5px; font-weight:800; border-radius:999px; padding:0 8px; background:color-mix(in srgb, var(--kc, var(--gold)) 28%, var(--paper)); }
   /* צבע לכל סוג דפים: סיכום זהב, לפי נושאים כחול-אפור, ובאנגלית - דקדוק ורוד, אנסין כחול, כללי אפור */
+  .ws-task-n{ font-style:normal; font-size:12px; font-weight:700; color:#5B6BC0; background:#EEF0FA; border-radius:999px; padding:1px 8px; margin-inline-start:8px; white-space:nowrap; }   /* 5.19.107 */
   .k-summary{ --kc:var(--gold); } .k-topic{ --kc:#5B7FAE; } .k-grammar{ --kc:#C0607F; } .k-unseen{ --kc:#5B6BC0; } .k-general{ --kc:#8A817B; }
   .ws-rc[class*="k-"]{ border-inline-start:5px solid var(--kc); }
   #wsKind button[class*="k-"][aria-pressed="true"]{ background:color-mix(in srgb, var(--kc) 32%, var(--paper)); }
@@ -8316,11 +8317,11 @@ async function renderWs(){
         const keys = [...new Set(list.map(grpOf))];
         keys.forEach(k => { const rs = up.filter(r => grpOf(r) === k), r0 = rs[0];
           if (rs.length > 1 && (r0.sub || r0.chapter) && rs.every(r => r.is_star)) { rs.forEach(r => done.add(r.storage_path)); tiles.push(tile(rs, r0.sub || ("פרק " + r0.chapter), "")); } });
-        st.filter(x => !done.has(x.r.storage_path)).forEach(x => tiles.push(`<div class="ws-st"><div class="th" data-sto="${x.i}">${sign(x.r.storage_path) ? `<img src="${esc(sign(x.r.storage_path))}" alt="" loading="lazy">` : ""}</div><div class="cp"><b>${esc(String(x.r.page_no || ""))}</b> ${esc(x.r.title || "")}</div><button type="button" class="go" data-sts="${x.i}">${WS_SHARE ? "שליחה" : "העתקה"}</button></div>`));
+        st.filter(x => !done.has(x.r.storage_path)).forEach(x => tiles.push(`<div class="ws-st"><div class="th" data-sto="${x.i}">${sign(x.r.storage_path) ? `<img src="${esc(sign(x.r.storage_path))}" alt="" loading="lazy">` : ""}</div><div class="cp"><b>${esc(String(x.r.page_no || ""))}</b> ${esc(x.r.title || "")}${wsTaskOf(x.r).length > 1 ? ` <span class="ws-task-n">📎 משימה · ${wsTaskOf(x.r).length} דפים</span>` : ""}</div><button type="button" class="go" data-sts="${x.i}">${wsTaskOf(x.r).length > 1 ? (wsMobile() ? "שליחה" : "הורדה") : WS_SHARE ? "שליחה" : "העתקה"}</button></div>`));
       }
       return `<div class="ws-stars"><div class="ws-stars-h"><span>⭐ חשובים בנושא</span>${tiles.length > 1 ? `<button type="button" class="btn small" id="wsStAll">${wsMobile() ? "שליחת כולם" : "הורדת כולם"} (${st.length})</button>` : ""}</div>
         <div class="ws-stars-row">${tiles.join("")}</div></div>`; })()}
-    ${canSel ? `<div class="ws-selhint">לחיצה ארוכה על דף - ${WS_SHARE ? "שליחה" : "העתקה"} בלי לפתוח אותו. לכל הדפים יחד - לחיצה ארוכה על שם ${list.some(r => r.sub) ? (WS.kind === "unseen" ? "היחידה" : "תת-הנושא") + " (או הנושא)" : "הנושא"}.</div>` : ""}
+    ${canSel ? `<div class="ws-selhint">${WS.kind === "unseen" && WS.tab === "page" && list.some(r => wsTaskOf(r).length > 1) ? "כל יחידה היא משימה – שליחה של דף שולחת את כל דפי המשימה. " : ""}לחיצה ארוכה על דף - ${WS_SHARE ? "שליחה" : "העתקה"} בלי לפתוח אותו. לכל הדפים יחד - לחיצה ארוכה על שם ${list.some(r => r.sub) ? (WS.kind === "unseen" ? "היחידה" : "תת-הנושא") + " (או הנושא)" : "הנושא"}.</div>` : ""}
     ${list.some(r => r.level != null || r.is_word) ? `<div class="ws-lvleg"><i>🟡</i> בסיסי · <i>🟣</i> מתקדם · <i>🧩</i> אתגר${list.some(r => r.is_word) ? " · <i>📖</i> שאלות מילוליות" : ""}</div>` : ""}
     ${WS.tab === "answers" ? `<div class="ws-warn">פתרונות - לשימוש הצוות. לשלוח לתלמיד רק אם החלטתם.</div>` : ""}`;
   WS.sign = sign;
@@ -8338,6 +8339,8 @@ async function renderWs(){
         const isSumG = k === "|" + WS_SUMG;
         if (r.sub || r.chapter || isSumG) { const gst = (() => { const rs = list.filter(x => grpOf(x) === k); return rs.length && rs.every(x => x.is_star); })();
           head = `<div class="ws-gh${allIn(k) ? " on" : ""}" data-gsel="${esc(k)}"><span><bdi>${esc(isSumG ? WS_SUMG : (r.sub || ""))}</bdi>${r.chapter && !isSumG ? `<small>פרק ${esc(r.chapter)}</small>` : ""}${gst && ME.role === "instructor" ? " ⭐" : ""}</span>${ME.role !== "instructor" ? `<button type="button" class="ws-gstar${gst ? " on" : ""}" data-gstar="${esc(k)}" title="סימון ${WS.kind === "unseen" ? "היחידה" : "תת-הנושא"} כחשוב" aria-label="סימון כחשוב">${gst ? "⭐" : "☆"}</button>` : ""}</div>`; }
+        if (head && WS.kind === "unseen" && WS.tab === "page") { const n = list.filter(x => grpOf(x) === k && x.type === "page").length;   // 5.19.107: יחידת אנסין = משימה
+          if (n > 1) head = head.replace("</bdi>", `</bdi><em class="ws-task-n" title="כל ${n} הדפים נשלחים יחד">📎 משימה</em>`); }
         groups.push({ k, head, cards: [], sum: isSumG });
       }
       groups[groups.length - 1].cards.push(card(r, i)); });
@@ -8355,7 +8358,7 @@ async function renderWs(){
   $("wsBody").querySelectorAll("[data-sts]").forEach(b => b.onclick = () => wsSendRow(list[Number(b.dataset.sts)]));
   $("wsBody").querySelectorAll("[data-stg]").forEach(b => b.onclick = () => wsSendRows((WS.stGroups || {})[b.dataset.stg] || []));
   if (wsMobile()) Object.values(WS.stGroups || {}).flat().forEach(r => wsFileFor(r).catch(() => {}));
-  if ($("wsStAll")) $("wsStAll").onclick = () => { WS.sel = new Set(list.filter(r => r.is_star && r.uploaded).map(r => r.storage_path)); WS.ready = null; wsSelUpd(); $("wsSelSend").click(); };
+  if ($("wsStAll")) $("wsStAll").onclick = () => { WS.sel = new Set(wsTaskExpand(list.filter(r => r.is_star && r.uploaded)).map(r => r.storage_path)); WS.ready = null; wsSelUpd(); $("wsSelSend").click(); };
   if (wsMobile()) list.filter(r => r.is_star && r.uploaded).forEach(r => wsFileFor(r).catch(() => {}));   // מכינים מראש - כדי שחלון השיתוף ייפתח מיד
   // ⭐ ליחידה / תת-נושא - כל הדפים שלו
   $("wsBody").querySelectorAll("[data-gstar]").forEach(b => {
@@ -8407,6 +8410,15 @@ async function renderWs(){
   });
   wsSelUpd();
 }
+// 5.19.107 (נועה, דפ-06): "משימה" באנסין – כל דפי הקטע (אותו ספר + נושא + תת-נושא) הם משימה אחת: שליחה של דף אחד שולחת את כל דפי המשימה, לפי הסדר.
+// צפייה / הורדה של דף בודד – נשארת. בלי שינוי במסד.
+function wsTaskOf(r){
+  if (!r || r.kind !== "unseen" || r.type !== "page" || !r.sub) return [r];
+  const rs = (WS.rows || []).filter(x => x.kind === "unseen" && x.type === "page" && x.book === r.book && String(x.topic_no) === String(r.topic_no) && x.sub === r.sub && x.uploaded)
+    .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  return rs.length > 1 ? rs : [r];
+}
+const wsTaskExpand = (rows) => { const out = [], seen = new Set(); rows.forEach(r => wsTaskOf(r).forEach(x => { if (!seen.has(x.storage_path)) { seen.add(x.storage_path); out.push(x); } })); return out; };
 // 5.19.14: קובץ של דף (נשמר בזיכרון) - לשליחה ישירה של דף חשוב בלי לפתוח אותו
 WS.files = {};
 async function wsFileFor(r){
@@ -8418,6 +8430,7 @@ async function wsFileFor(r){
 }
 async function wsSendRow(r){
   if (!r) return;
+  { const tk = wsTaskOf(r); if (tk.length > 1) return wsSendRows(tk); }   // 5.19.107: דף ממשימה – כל המשימה
   if (WS_SHARE) {
     const ready = WS.files[r.storage_path];
     try {
@@ -8435,7 +8448,8 @@ async function wsSendRow(r){
 function wsPopOpen(i){
   const r = WS.list[i]; if (!r || !r.uploaded) return;
   WS.popI = i; $("wsPopT").textContent = (r.is_star ? "⭐ " : "") + (r.page_no ? r.page_no + " · " : "") + (r.title || "");
-  $("wsPopSend").textContent = WS_SHARE ? "שליחה" : "העתקה"; $("wsPop").hidden = false;
+  { const n = wsTaskOf(r).length; $("wsPopSend").textContent = n > 1 ? (WS_SHARE ? "שליחת המשימה" : "הורדת המשימה") + " (" + n + " דפים)" : WS_SHARE ? "שליחה" : "העתקה"; }   // 5.19.107
+  $("wsPop").hidden = false;
 }
 $("wsPopSend").addEventListener("click", () => { const r = WS.list[WS.popI]; $("wsPop").hidden = true; wsSendRow(r); });
 $("wsPopOpen").addEventListener("click", () => { $("wsPop").hidden = true; wsOpen(WS.popI); });
@@ -8443,6 +8457,7 @@ $("wsPopX").addEventListener("click", () => { $("wsPop").hidden = true; });
 $("wsPop").addEventListener("click", (e) => { if (e.target === $("wsPop")) $("wsPop").hidden = true; });
 // כמה דפים יחד (יחידה / תת-נושא חשובים): בטלפון - חלון השיתוף עם כולם (מוכנים מראש), במחשב - ZIP
 async function wsSendRows(rows){
+  rows = wsTaskExpand(rows || []);   // 5.19.107: דף ממשימה – כל המשימה
   if (!rows.length) return;
   if (rows.length === 1) return wsSendRow(rows[0]);
   if (WS_SHARE) {
@@ -8687,6 +8702,7 @@ async function wsOpen(i, fromPop){
   $("wsStar").textContent = r.is_star ? "⭐" : "☆"; $("wsStar").classList.toggle("on", !!r.is_star);
   $("wsPrev").disabled = i <= 0; $("wsNext").disabled = i >= WS.list.length - 1;
   $("wsVImg").removeAttribute("src"); $("wsCopy").disabled = true;
+  { const n = wsTaskOf(r).length; $("wsCopy").textContent = n > 1 ? (WS_SHARE ? "שליחת המשימה" : "הורדת המשימה") + " (" + n + ")" : WS_SHARE ? "שליחה" : "העתקה"; $("wsCopy").title = n > 1 ? "הדף הוא חלק ממשימה – נשלחים כל " + n + " הדפים יחד, לפי הסדר" : ""; }   // 5.19.107
   if (!r.uploaded) { $("wsVTitle").textContent += " (עוד לא הועלה)"; return; }
   const sign = await wsSign([r.storage_path]); const url = sign(r.storage_path);
   if (WS.idx !== i) return;
@@ -8737,6 +8753,7 @@ document.addEventListener("keydown", (e) => { if ($("wsViewer").hidden) return; 
 if (WS_SHARE) { $("wsCopy").textContent = "שליחה"; }
 $("wsCopy").addEventListener("click", async () => {
   const url = $("wsVImg").src; if (!url) return;
+  { const r = WS.list[WS.idx], tk = wsTaskOf(r); if (tk.length > 1) return wsSendRows(tk); }   // 5.19.107: דף ממשימה – שולחים את כל המשימה
   if (WS_SHARE) {
     const f = WS.file || await fetch(url).then(x => x.blob()).then(b => new File([b], "דף.png", { type: b.type || "image/png" })).catch(() => null);
     if (f && navigator.canShare({ files: [f] })) {
