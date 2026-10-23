@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.115">
+<meta name="app-version" content="5.19.116">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -445,7 +445,6 @@
   /* מחשב: הכוכבית צמודה לשם, והמקצוע + כפתורי הנוכחות קרובים לשם (לא בצד השני של המסך) */
   /* 5.19.17: מחשב - כל השורות באותו מבנה: שם מימין, ובשמאל עמודה קבועה של מקצוע + נוכח/חסר (מיושר לשמאל, אחד מתחת לשני) */
   @media (min-width:761px){
-    #attSheet > .card{ max-width:900px; } #shRows{ max-width:none; }
     .att-rows li[data-i]{ justify-content:space-between; } .att-nm .dbl-star{ margin-inline-start:2px !important; }
     .att-rows li[data-i] .att-name{ flex:1 1 0 !important; min-width:0; }
     .att-rows li[data-i] .att-ctl{ display:grid !important; grid-template-columns:150px auto; align-items:center; justify-items:end; gap:10px; flex:none; margin-inline-start:auto; }
@@ -475,13 +474,10 @@
     #attMark .att-date-row > .btn:not(.today-btn){ height:54px !important; min-width:76px; flex:0 0 auto; font-size:30px !important; font-weight:900; padding:0 16px !important; }
     #attMark .att-date-row > .today-btn{ height:38px !important; padding:0 9px !important; font-size:13px !important; }   /* 5.19.15: החצים גדולים יותר מ"היום" */
     #attMark .att-dlbl{ height:48px !important; } }
-  #shRows .att-name .meta{ display:inline-flex; flex-wrap:wrap; align-items:center; gap:3px 0; }   /* 5.19.29: נשבר לשורה רק כשאין מקום (לא עולה על הכפתורים) */
   .att-pt-s{ display:inline-flex; align-items:center; gap:2px; padding:0 6px; margin-inline-start:4px; border-radius:999px; background:#fdebd3; color:#8a4b08; border:1px solid #e9b670; font-size:11px; font-weight:700; line-height:1.5; vertical-align:middle; }
-  @media (max-width:760px){ #shRows .att-pt-l{ display:none; } }   /* 5.19.26: בנייד רק השעות */
   .skip-b{ border:1px solid var(--border); background:var(--paper); color:var(--ink-soft); border-radius:999px; padding:0 8px; font-size:11.5px; font-weight:600; line-height:1.7; cursor:pointer; margin-inline-start:4px; vertical-align:middle; }
   @media (max-width:760px){ .skip-t{ display:none; } .skip-b{ padding:0 4px; font-size:11px; line-height:1.5; } }
   .skip-b:hover{ border-color:var(--accent); color:var(--accent); }
-  #shRows li.att-skip{ opacity:.55; } #shRows .att-skip-h{ margin-top:8px; }
   .att-prev{ display:inline-flex; align-items:center; gap:2px; padding:0 6px; margin-inline-start:4px; border-radius:999px; background:#f1f3f5; color:#555; font-size:11px; font-weight:700; line-height:1.6; white-space:nowrap; vertical-align:middle; }
   .att-sj2{ display:inline-flex; align-items:center; gap:0; padding:0 4px; border-radius:999px; background:#dbe9fb; color:#1f4f8a; font-weight:700; font-size:13px; line-height:1.6; }
   .att-sj2 label{ display:inline-flex; align-items:center; gap:3px; padding:1px 5px; cursor:pointer; white-space:nowrap; }
@@ -642,9 +638,6 @@
   .panel-bg{ position:fixed; inset:0; background:rgba(20,14,12,.45); z-index:40; }
   /* 5.19.30: נוכחות של קבוצה - חלון בצד ימין במחשב (כמו חלון הקבוצה) */
   .sh-kicker{ display:none; }
-  #view-att.att-side #attSheet{ position:fixed; top:0; bottom:0; right:0; width:min(620px, 100%); background:var(--att-bg, var(--bg)); z-index:40; overflow-y:auto; padding:0 18px 24px; box-shadow:-8px 0 24px rgba(0,0,0,.18); }
-  #view-att.att-side .sh-kicker{ display:block; font-weight:800; color:var(--accent); font-size:13px; letter-spacing:.3px; padding:12px 0 2px; }
-  #view-att.att-side .sh-stick{ position:sticky; top:0; z-index:5; background:var(--att-bg, var(--bg)); }
   .att-side-bg{ position:fixed; inset:0; background:rgba(20,14,12,.35); z-index:40; }
   .panel{ position:fixed; top:0; bottom:0; right:0; width:min(620px,100%); background:var(--paper); z-index:41;
           display:flex; flex-direction:column; box-shadow:0 0 40px rgba(0,0,0,.3); }
@@ -928,7 +921,6 @@
   .sh-total{ font-size:14px; color:var(--ink-soft); margin-top:2px; } .sh-total b{ color:var(--accent); font-size:15px; }
   .cx-on{ background:color-mix(in srgb, var(--ink) 8%, var(--paper)); border:1px solid var(--border); border-radius:10px; padding:8px 12px; }
   .cx-form{ display:inline-flex; gap:6px; align-items:center; flex-wrap:wrap; } .cx-form select, .cx-form input{ width:auto; padding:5px 8px; }
-  #attSheet .card.cx-off .att-rows, #attSheet .card.cx-off .sh-tools{ opacity:.45; }
   .cx-tag{ display:inline-block; font-size:11px; font-weight:800; border-radius:999px; padding:0 7px; background:var(--paper); color:var(--ink); border:1px solid var(--ink-soft); margin:1px 0; }
   .cal-day{ height:62px; padding:3px 2px; box-sizing:border-box; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--muted); font-family:var(--font-display); font-weight:800; color:var(--accent); border-bottom:1px solid var(--border); }
   .cal-body{ position:relative; background-image:repeating-linear-gradient(to bottom, var(--border) 0 1px, transparent 1px calc(var(--ppm) * 30)); }
@@ -1312,7 +1304,6 @@
     .sh-stick .sh-nav .btn{ padding:6px 12px !important; font-size:14px !important; min-height:0; border-radius:999px; border:1.5px solid var(--accent) !important; color:var(--accent); background:var(--paper); }   /* 5.19.29: ברור יותר ומעט גדול יותר */
     .sh-stick .sh-nav .btn small{ color:var(--accent); opacity:.8; }
     .sh-stick{ padding:4px 0 3px !important; }
-    #attSheet .sh-actions{ position:static; padding-block:6px 4px; }
     /* 5.19.25: נוכחות בנייד - בלי התפריט המשני (קבוצות / דוח לפי קבוצה - במחשב), ושורת היום נמוכה יותר */
     #view-att > .subnav{ display:none !important; }
     .att-date.card{ padding:4px 6px !important; margin-bottom:6px; }
@@ -2300,11 +2291,6 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   #view-pay #payWrap .br-rule2 > .br-f{ margin-top:8px; } #view-pay #payWrap .br-rule2 textarea{ background:#fff; border:1.5px solid #D9CFC2; }
   #view-pay #payWrap .br-rule2 .br-expl{ font-size:13px; margin-top:6px; }
   #view-pay #payWrap .br-rule2 .btn.danger{ padding:4px 12px; min-height:30px; }
-  /* 5.19.88 (נועה): נוכחות – "שמירה" בלי פס קבוע, הכי שמאלית, באותה שורה עם "נשמר ע"י…" (מחשב ונייד אותו דבר) */
-  #attSheet .sh-actions{ position:static !important; background:none !important; border:0 !important; box-shadow:none !important; padding:4px 0 0 !important;
-    margin-top:10px; display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; }
-  #attSheet .sh-actions #shMeta{ flex:1 1 auto; min-width:0; }
-  #attSheet .sh-actions #shSave{ flex:0 0 auto !important; margin-inline-start:auto; padding:9px 26px !important; font-size:15px !important; }
 </style>
 </head>
 <body>
@@ -2543,43 +2529,6 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         </div>
       </div>
       <div class="att-side-bg" id="attSideBg" hidden></div>
-      <div id="attSheet" hidden>
-        <div class="sh-kicker"><span class="kind-tag kt-att">✓ נוכחות בפועל – השיעור הזה</span></div>
-        <div id="shFilt"></div>
-        <div class="sh-stick">
-        <div class="sh-head">
-          <div class="sh-h1row"><div class="sh-tbox"><h1 id="shTitle"></h1></div>
-            <div class="sh-top-btns"><button class="btn small" type="button" id="shGroup" data-admin title="חלון הקבוצה: הילדים, העברה, מתרגלים ועריכת פרטי הקבוצה">👥 <span class="lg-t">חלון ה</span>קבוצה</button><button class="btn small" type="button" id="shBack">→ חזרה<span class="lg-t"> לקבוצות</span></button></div></div>
-        <div id="shTopCnt" class="sh-topcnt"></div><!-- 5.19.73: שורה מלאה מתחת לכותרת -->
-        </div>
-        <div class="sh-nav" id="shNav" hidden><button type="button" class="btn" id="shPrevG"></button><button type="button" class="btn" id="shNextG"></button></div>
-        </div>
-        <div class="sh-head2">
-          <div class="lead-sub" id="shSub"></div>
-          <div class="sh-totrow"><div class="sh-total" id="shTotal"></div><div class="cx-box" id="shCx" hidden></div></div>
-        </div>
-        <div class="notice" id="shLocked" hidden>אפשר לסמן ולתקן נוכחות רק ביום השיעור.</div>
-        <div class="card">
-          <div class="sh-tools"><button class="btn small" type="button" id="shAll">כולם נוכחים</button><span class="muted" id="shCount"></span></div>
-          <div class="split-bar" id="shSplitBar" hidden></div>
-          <ul class="att-rows" id="shRows"></ul>
-          <div class="sh-add" id="shAddBox">
-            <button class="btn small" type="button" id="shAddBtn">+ ילד/ה רשום/ה מקבוצה אחרת</button>
-            <div id="shAddPanel" hidden>
-              <input id="shAddQ" type="search" placeholder="שם הילד/ה (לפחות 2 אותיות)..." aria-label="חיפוש ילד/ה רשום/ה" autocomplete="off">
-              <div class="muted" style="font-size:12.5px; margin-top:4px;">רק ילדים רשומים - קודם מהעיר של הקבוצה, ואחריהם מערים אחרות. ילד/ה שלא רשום/ה - כותבים בהערות למטה.</div>
-              <ul class="sh-add-res" id="shAddRes"></ul>
-            </div>
-          </div>
-          <div class="sh-fields">
-            <textarea id="shExtra" hidden></textarea>
-            <div><label class="lbl" for="shNotes">הערות <span class="muted" style="font-weight:400">(כולל ילדים שלא רשומים - שם + הערה)</span></label><textarea id="shNotes" rows="3"></textarea></div>
-          </div>
-          <div class="err" id="shErr"></div>
-          <div class="actions sh-actions"><div class="meta-line" id="shMeta"></div><button class="btn primary" type="button" id="shSave">שמירה</button></div>
-          <details id="shHist" data-admin><summary>היסטוריית שמירות</summary><ul class="hist" id="shHistList"></ul></details>
-        </div>
-      </div>
     </section>
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
@@ -3310,8 +3259,7 @@ function go(view){
   if (view === "groups") loadGroups();
   if (view === "att" && ME.role !== "instructor") { const r = A.ret; A.ret = null;   // 5.19.112 (של-53): הנוכחות – מסך תלם שלי בתוך המערכת
     showAttList(); if (r) { A.mode = "a"; A.date = r.date; if (isMobile()) A.embedSid = r.sid; } loadAttGroups(); if (r && !isMobile()) attOpenTs(r.sid, r.date); }
-  else if (view === "att") { const r = A.ret || attLast(); A.ret = null;
-    if (r) { A.date = r.date; showAttList(); loadAttGroups(); openSheet(r.sid); } else { showAttList(); loadAttGroups(); } }
+  else if (view === "att") { A.ret = null; showAttList(); loadAttGroups(); }
   if (view === "staff") loadStaff();
   if (view === "schools") loadSchools();
   if (view === "holidays") renderHolidays(true);
@@ -6136,9 +6084,9 @@ function openPanel(id){
     try { await patch("assignments", "id=eq." + k.id, { arrival_time: null, personal_end: null }); toast("השעה האישית בוטלה"); await loadGroups(); openPanel(id); } catch(e) { toast("לא נשמר: " + e.message); } });
   $("roster").querySelectorAll("[data-trk]").forEach(b => b.onclick = async () => { const k = kids.find(x => String(x.student_id) === b.dataset.trk); if (k && await editTracking(k.student_id, k.tracking)) openPanel(id); });
   $("roster").querySelectorAll("[data-lead]").forEach(b => b.onclick = () => { closePanel(); openLead(Number(b.dataset.lead)); });
-  { const back = G.fromAtt && G.fromAtt.sid === se.session_id;   // 5.19.27: מעבר חלק - חזרה לאותו דף נוכחות
-    $("panelAttBtn").hidden = false; $("panelAttBtn").textContent = back ? "→ חזרה לנוכחות" : "✓ נוכחות";
-    $("panelAttBtn").onclick = () => { if (back && currentView === "att" && !$("attSheet").hidden) closePanelUser(); else openAttFor(se); }; }
+  {
+    $("panelAttBtn").hidden = false; $("panelAttBtn").textContent = "✓ נוכחות";
+    $("panelAttBtn").onclick = () => openAttFor(se); }
   // פיצול לתת-קבוצות - הוסר מהלוח (הלקוחה 12.10, לא בשימוש בנוכחות). הקוד נשאר: loadPanelSplits(se)
   loadPanelSchool(se);
   gViewDetails(se, mOf);
@@ -6330,12 +6278,11 @@ function closePanelUser(){
   if ($("panel").hidden) return;
   closePanel();
   G.fromAtt = null;
-  if (currentView === "att") { if (!$("attSheet").hidden && A.sheet) { if (!attChanged()) openSheet(A.sheet.session_id); } else loadAttGroups(); }
+  if (currentView === "att") loadAttGroups();
 }
 $("panelClose").addEventListener("click", closePanelUser);
 $("panelBg").addEventListener("click", closePanelUser);
-$("attSideBg").addEventListener("click", () => $("shBack").click());
-document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if (!$("panel").hidden) closePanelUser(); else if (currentView === "att" && $("view-att").classList.contains("att-side") && !$("attSheet").hidden) $("shBack").click(); });
+document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if (!$("panel").hidden) closePanelUser(); });
 function openMove(se, aid){
   const box = $("roster").querySelector(`li[data-aid="${aid}"] .move-box`);
   if (!box.hidden) { box.hidden = true; return; }
@@ -7142,20 +7089,7 @@ const A = { date: todayIL(), city: store("telem_att_city") || "", groups: [], sh
 A.cities = (() => { try { const v = JSON.parse(store("telem_att_cities") || "null"); if (Array.isArray(v) && v.length) return v.filter(c => CONFIG.cities.includes(c)); } catch(e) {} return CONFIG.cities.slice(); })();
 if (!A.cities.length) A.cities = CONFIG.cities.slice();
 
-// במחשב: שורת הערים והמתרגלים נשארת גם בתוך נוכחות של קבוצה - והקבוצה הקודמת / הבאה לפיה
-const ATT_FILT = { el: null, home: null, next: null };
-function attFiltTo(sheet){
-  if (sheet && attSide()) return;   // 5.19.30: בחלון הצד הסינונים נשארים בלוח
-  const f = ATT_FILT.el || (ATT_FILT.el = document.querySelector("#attList .att-filt"));
-  if (!f) return;
-  if (!ATT_FILT.home) { ATT_FILT.home = f.parentNode; ATT_FILT.next = f.nextSibling; }
-  if (sheet && !isMobile()) $("shFilt").appendChild(f);
-  else if (f.parentNode !== ATT_FILT.home) ATT_FILT.home.insertBefore(f, ATT_FILT.next);
-}
-["click", "change"].forEach(ev => $("shFilt").addEventListener(ev, () => { if (A.sheet) setTimeout(() => shNavFill(A.sheet.session_id), 0); }, true));
-// 5.19.30: במחשב - הנוכחות של קבוצה נפתחת כחלון בצד (הלוח נשאר מאחור); בנייד - מסך מלא כמו קודם
-const attSide = () => !isMobile();
-function showAttList(){ attFiltTo(false); $("attList").hidden = false; $("attSheet").hidden = true; $("view-att").classList.remove("att-side"); $("attSideBg").hidden = true; }
+function showAttList(){ $("attList").hidden = false; $("attSideBg").hidden = true; }
 function renderAttDate(){
   $("attDate").value = A.date;
   $("attDayName").innerHTML = "יום " + esc(DAY_FULL[dayLetter(A.date)]) + (A.date === todayIL() ? ' · <span class="today-word">היום</span>' : "");
@@ -7285,7 +7219,7 @@ async function loadAttWeek(){
   $("attCal").classList.toggle("att-m-a", MODE !== "g");   /* 5.19.114: מראה לוח נוכחות */
   $("attCal").innerHTML = `<div class="tbl-wrap"><div class="cal-grid${CS.length > 2 ? " c3" : ""}" style="--ppm:${PPM}px; grid-template-columns:56px repeat(${showDates.length}, minmax(${Math.max(130, CS.length * 78)}px, 1fr));">
     <div class="cal-col cal-times"><div class="cal-day"></div><div class="cal-body" style="height:${H}px">${hours}</div></div>${cols}</div></div>`;
-  $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = (e) => { if (MODE === "g" || e.target.closest("[data-ged]") || b.classList.contains("ev-empty")) { grpEdit(Number(b.dataset.s)); return; } A.date = b.dataset.d; const x = ev.find(e => String(e.g.session_id) === b.dataset.s && e.date === b.dataset.d); A.curG = x ? x.g : null; if (ME.role !== "instructor") { attOpenTs(Number(b.dataset.s), b.dataset.d); return; } openSheet(Number(b.dataset.s)); });
+  $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = (e) => { if (MODE === "g" || e.target.closest("[data-ged]") || b.classList.contains("ev-empty")) { grpEdit(Number(b.dataset.s)); return; } A.date = b.dataset.d; const x = ev.find(e => String(e.g.session_id) === b.dataset.s && e.date === b.dataset.d); A.curG = x ? x.g : null; attOpenTs(Number(b.dataset.s), b.dataset.d); });
 }
 const TS_STAFF = "https://telem-tirgul.github.io/telem-sheli/#staff";   // 5.19.110
 // 5.19.112 (נועה, של-53): "✓ נוכחות" = מסך הנוכחות של תלם שלי עצמו בתוך המערכת (אותו קוד, אפשר גם לערוך). "👥 קבוצות" – כמו קודם.
@@ -7328,135 +7262,10 @@ async function loadAttGroups(){
   { const f = document.querySelector("#attList .att-filt"); if (f) f.hidden = false; }
   if (ME.role !== "instructor" && attMode() === "a" && isMobile()) return attEmbed();   // 5.19.112 – בטלפון: מסך הנוכחות של תלם שלי; במחשב: הלוח השבועי, ולחיצה על קבוצה – תלם שלי בחלון בצד (5.19.113)
   if (!isMobile()) { $("attDate").value = A.date; return loadAttWeek(); }
-  $("attMark").querySelector(".att-date").hidden = false; $("attWeekNav").hidden = true; $("attGroups").hidden = false; $("attCal").hidden = true; $("attSum").innerHTML = "";
-  renderAttDate(); renderAttCities();
-
-  $("attGroups").className = "att-groups"; if (!LIVE_QUIET) $("attGroups").innerHTML = "<div class='muted'>טוען...</div>";
-  try {
-    await loadHol();
-    const allG = (await rpc("attendance_groups", { p_date: A.date, p_city: null })).filter(attCityOk);
-    renderAttIns(allG);
-    A.groups = allG.filter(attInsOk);
-    if (holChips(A.date)) $("attDayName").insertAdjacentHTML("beforeend", ` <span class="hol-chips" style="display:inline-flex">${holChips(A.date)}</span>`);
-    if (!A.groups.length) {
-      $("attGroups").innerHTML = `<div class="card muted">${ME.role === "instructor" ? "אין לך קבוצות ביום הזה." : A.ins && allG.length ? "אין קבוצות ביום הזה למתרגל/ת שנבחר/ה." : "אין קבוצות ביום הזה."}</div>`;
-      return;
-    }
-    const hm = (t) => String(t || "").slice(0, 5);
-    A.groups.forEach(g => { g.cx = g.marked ? null : lessonCx({ kind: g.kind, city: g.city, location: g.location }, A.date, g.cancelled, g.cancel_reason); });
-    const card = (g, showCity) => `<button type="button" class="att-group ${scCls(g.location)} ${g.marked ? "done" : ""}${g.cx ? " hol-fade" : ""}" data-s="${g.session_id}">
-      ${ME.role !== "instructor" ? `<span class="ev-ed" data-ged role="button" title="חלון הקבוצה (ילדים, מתרגלים, עריכה)" aria-label="חלון הקבוצה">✎</span>` : ""}<span class="t">${g.kind === "מרתון" ? "🏁 מרתון · " + esc(g.time_label) + (g.start_time ? ` <span class="m">${rng(hm(g.start_time), hm(g.end_time))}</span>` : "") : rng(hm(g.start_time), hm(g.end_time))}</span>
-      <span class="w">${scChip(g.location)}${showCity ? " · " + esc(g.city) : ""}</span><span class="ag-br"></span>${g.room ? `<span class="m">חדר: <b><bdi>${esc(g.room)}</bdi></b></span>` : ""}
-      ${ME.role !== "instructor" && g.instructors ? `<span class="ag-ins">${esc(g.instructors)}</span>` : ""}
-      <span class="ag-st">${g.marked ? `<span class="ok">✓ סומן · <b>${g.marked_count}</b> נוכחים מתוך ${g.kids}</span>` : `<span class="m kn">${g.kids} ילדים</span> · ${g.cx ? cxTag(g.cx) : `<span class="m">טרם סומן</span>`}`}</span></button>`;   // 5.19.73 (נועה): הסטטוס תמיד באותו מקום - בצד שמאל
-    if (ME.role === "instructor" || isMobile()) {
-      $("attGroups").className = "att-groups";
-      $("attGroups").innerHTML = A.groups.map(g => card(g, ME.role !== "instructor")).join("");
-    } else {
-      // כמו לוח הקבוצות: שורה לכל שעה, עמודה לכל עיר (או לכל בית ספר כשנבחרה עיר)
-      const byCity = !A.city, colOf = (g) => byCity ? g.city : g.location;
-      const cols = [...new Set(A.groups.map(colOf))].sort((a, b) => byCity ? CONFIG.cities.indexOf(a) - CONFIG.cities.indexOf(b) : a.localeCompare(b, "he"));
-      const times = [...new Set(A.groups.map(g => hm(g.start_time)))].sort();
-      $("attGroups").className = "tbl-wrap";
-      $("attGroups").innerHTML = `<table class="att-board"><thead><tr><th class="time">שעה</th>${cols.map(c => `<th>${byCity ? esc(c) : scChip(c)}</th>`).join("")}</tr></thead><tbody>` +
-        times.map(t => `<tr><th class="time">${t}</th>${cols.map(c => `<td>${A.groups.filter(g => hm(g.start_time) === t && colOf(g) === c).map(g => card(g, false)).join("")}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
-    }
-    $("attGroups").querySelectorAll("[data-s]").forEach(b => b.onclick = (e) => { if (e.target.closest("[data-ged]")) { grpEdit(Number(b.dataset.s)); return; } A.curG = A.groups.find(g => String(g.session_id) === b.dataset.s) || null; openSheet(Number(b.dataset.s)); });
-  } catch(e) {
-    $("attGroups").innerHTML = "<div class='card err'>לא ניתן לטעון את הקבוצות" + (e.status === 404 ? " (צריך להריץ את קובץ 16)." : ".") + "</div>";
-  }
+  return attEmbed();   // 5.19.116: רשימת היום הישנה (דף הנוכחות של המערכת) הוסרה
 }
 
-// מעבר לקבוצה הקודמת / הבאה באותו יום (לפי השעה, לפי העיר והמתרגל/ת שנבחרו)
-A.sibCache = {};
-async function shNavFill(sid){
-  const nav = $("shNav"), d = A.date; nav.hidden = true;
-  try {
-    if (!A.sibCache[d]) A.sibCache[d] = await rpc("attendance_groups", { p_date: d, p_city: null });
-    if (A.date !== d || !A.sheet || A.sheet.session_id !== sid) return;
-    const hm = (t) => String(t || "").slice(0, 5);
-    const gs = (A.sibCache[d] || []).filter(g => g.session_id === sid || (attCityOk(g) && attInsOk(g))).sort((a, b) => String(a.start_time).localeCompare(String(b.start_time)) || String(a.location).localeCompare(String(b.location), "he"));
-    const i = gs.findIndex(g => g.session_id === sid); if (i < 0 || gs.length < 2) return;
-    const lbl = (g) => `<small>${hm(g.start_time)}</small> ${esc(g.location)}`;
-    const pv = gs[i - 1], nx = gs[i + 1];
-    $("shPrevG").innerHTML = pv ? `→ ${lbl(pv)}` : ""; $("shPrevG").hidden = !pv; $("shPrevG").onclick = () => shGo(pv);
-    $("shNextG").innerHTML = nx ? `${lbl(nx)} ←` : ""; $("shNextG").hidden = !nx; $("shNextG").onclick = () => shGo(nx);
-    nav.hidden = false;
-  } catch(e) {}
-}
-async function shGo(g){
-  if (!g) return;
-  if (attChanged() && !await uiConfirm("יש סימון נוכחות שעוד לא נשמר. לעבור לקבוצה אחרת בלי לשמור? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הקבוצה)")) return;
-  A.dirty = false; A.curG = g; openSheet(g.session_id);
-}
-async function openSheet(sessionId, retry){
-  attFiltTo(true);
-  $("shBack").innerHTML = A.fromGrp === sessionId ? "→ חזרה לחלון הקבוצה" : attSide() ? "✕ סגירה" : `→ חזרה<span class="lg-t"> לקבוצות</span>`;
-  if (attSide()) { $("attList").hidden = false; $("attSheet").hidden = false; $("view-att").classList.add("att-side"); $("attSideBg").hidden = false; $("attSheet").scrollTop = 0; }
-  else { $("attList").hidden = true; $("attSheet").hidden = false; window.scrollTo(0, 0); }
-  $("shRows").innerHTML = "<li class='muted'>טוען...</li>"; $("shErr").textContent = ""; $("shMeta").textContent = "";
-  try {
-    // 5.19.29: לא מחכים ללוח המבחנים (טעינה ארוכה בפעם הראשונה) - הרשימה מוצגת מיד, תגיות המבחן מתווספות כשהוא מגיע
-    const exReady = !!EX.rows, exP = loadExams();
-    const sh = await rpc("attendance_sheet", { p_session: sessionId, p_date: A.date });
-    if (!exReady) exP.then(() => { if (A.sheet && A.sheet.session_id === sessionId && !$("attSheet").hidden) renderSheetRows(); });
-    A.sheet = sh;
-    // 5.19.15: זוכרים את הקבוצה הפתוחה (עד סוף היום) - "נוכחות" בתפריט חוזר ישר אליה
-    store("telem_att_last", JSON.stringify({ sid: sessionId, date: A.date, day: todayIL(), label: [sh.location, sh.day ? "יום " + sh.day + "'" : "", (!sh.day && (A.groups || []).some(g => g.session_id === sessionId && g.kind === "מרתון") ? "מרתון · " : "") + sh.time_label].filter(Boolean).join(" · ") }));
-    A.rows = sh.rows.map(r => ({ ...r, present: r.present == null ? null : r.present, did_math: !!r.did_math, did_english: !!r.did_english, saved: r.present != null || !!r.planned, present0: r.present == null ? null : r.present, skip: !!r.skip, skip0: !!r.skip }));
-    A.hasPlan = sh.rows.some(r => "skip" in r);   // 5.19.29 (קובץ 59): "לא מגיע/ה היום" ו"אמור/ה להגיע"
-    // ילד/ה שנוסף/ה לשיעור: המקצוע לפי ההרשמה שלו/ה (ומתקנים סימון ישן שנשמר רק מת' - נשמר בשמירה הבאה)
-    // 5.19.25: המקצוע תמיד לפי הסטטוס הנוכחי - גם לילדים בקבוצה (לא לפי מה שנשמר ביום השיבוץ)
-    A.rows.forEach(r => { const s = r.reg_status != null ? subjFromStatus(r.reg_status) : stSubjOf(r.student_id);
-      if (s) r.subject = s; else if (!r.in_group && !r.subject) r.subject = regSubj(r.student_id, r.reg_status);
-      if (r.subject && r.present && subjGrp(r.subject) !== 2) { const d = subjDefault(r.subject); r.did_math = d.m; r.did_english = d.e; } });
-    // 5.19.47: מרתון = מתמטיקה בלבד (גם לילד/ה שרשום/ה לשוטף במת' + אנג')
-    if (((A.groups || []).find(g => g.session_id === sessionId) || {}).kind === "מרתון" || (!sh.day && (G.sessions || []).some(x => x.session_id === sessionId && x.kind === "מרתון")))
-      A.rows.forEach(r => { r.subject = "מתמטיקה"; if (r.present) { r.did_math = true; r.did_english = false; } });
-    A.rows.sort(attTimeSort);   // 5.19.20: לפי שעת ההגעה (שעה אישית, או שעת הקבוצה) ואז שם
-    A.removed = [];
-    A.splitView = "";   // פיצול לתת-קבוצות/חדרים - לא בשימוש (הלקוחה 11.10): תמיד כל הילדים
-    $("shAddPanel").hidden = true; $("shAddQ").value = ""; $("shAddRes").innerHTML = ""; $("shAddBox").hidden = !sh.can_edit;
-    // 5.19.47 (הלקוחה): בקבוצת מרתון - "מרתון" בשם הקבוצה
-    const gMar = (A.groups || []).find(g => g.session_id === sessionId), isMarSh = (gMar && gMar.kind === "מרתון") || (!sh.day && !!(G.sessions || []).find(x => x.session_id === sessionId && x.kind === "מרתון"));
-    $("shTitle").textContent = `${isMarSh ? "🏁 מרתון · " : ""}${sh.time_label} · ${sh.location}`;
-    const mySp = null;
-    $("shSub").innerHTML = `יום <b>${DAY_FULL[sh.day || dayLetter(sh.date)]}</b> · <b>${fmtIso(sh.date)}</b> · ${esc(sh.city)}${mySp ? ` · תת-קבוצה <b>${esc(mySp.name)}</b>` : ""}${(mySp && mySp.room) || sh.room ? ` · חדר <b><bdi>${esc((mySp && mySp.room) || sh.room)}</bdi></b>` : ""}`;
-    $("shLocked").hidden = !!sh.can_edit;
-    // "ילדים שלא רשומים" אוחד עם ההערות
-    { const ex = ((sh.lesson && sh.lesson.extra_students) || "").trim(), nt = ((sh.lesson && sh.lesson.notes) || "").trim();
-      $("shExtra").value = ""; $("shNotes").value = ex ? (nt ? nt + "\n" : "") + "ילדים שלא רשומים: " + ex : nt; }
-    ["shExtra","shNotes","shSave","shAll"].forEach(id => $(id).disabled = !sh.can_edit);
-    $("shMeta").textContent = sh.lesson && sh.lesson.updated_at ? `נשמר לאחרונה: ${fmtDate(sh.lesson.updated_at)}${sh.lesson.updated_by ? " · " + sh.lesson.updated_by : ""}` : "";
-    A.dirty = false; A.base = attSnap(); attDraftRestore();
-    shNavFill(sh.session_id);
-    A.prev = {}; renderSheetRows();
-    renderSheetCx();
-    if (ME.role !== "instructor") loadHistory(sessionId, A.date);
-    loadPrevSubj(sessionId);
-  } catch(e) {
-    // 5.19.32: אחרי חזרה מוואטסאפ / שליחה הטלפון לפעמים עוד לא מחובר - מנסים שוב לבד, ואם לא - כפתור "לנסות שוב"
-    if (!retry) { setTimeout(() => { if (currentView === "att" && !$("attSheet").hidden) openSheet(sessionId, true); }, 1500); return; }
-    $("shRows").innerHTML = "<li class='err'>לא ניתן לטעון את רשימת הילדים (אולי אין חיבור). <button type='button' class='btn small' id='shRetry'>לנסות שוב</button><div class='muted' style='font-size:11px;direction:ltr'>" + esc(String(e && e.message || "")).slice(0, 120) + "</div></li>";
-    const rb = $("shRetry"); if (rb) rb.onclick = () => openSheet(sessionId);
-  }
-}
-// מקצוע לתצוגה: מהשיבוץ; לילד/ה שנוסף/ה לשיעור - לפי מה שנשמר (מת' / אנג' / שניהם)
-// המקצוע שהילד/ה רשום/ה אליו (לפי הסטטוס: נרשם מת. / אנג. / מת. + אנג.) - מה שרשום זה מה שעושה
-function regSubj(studentId, status){
-  const ld = (L.leads || []).find(l => l.student && l.student.id === studentId);
-  return subjFromStatus(status || "") || (ld ? subjFromStatus(statusName(ld.status_id)) : "") || null;
-}
-const rowSubj = (r) => r.subject || (r.did_math && r.did_english ? "מתמטיקה ואנגלית" : r.did_math ? "מתמטיקה" : r.did_english ? "אנגלית" : null);
-const subjDefault = (subj) => ({ m: !subj || subj.indexOf("מתמטיקה") >= 0, e: !!subj && subj.indexOf("אנגלית") >= 0 });
-const shVisible = (r) => !r.skip && (!A.splitView || r.split_id === Number(A.splitView));
-function renderSplitBar(){
-  const sp = (A.sheet && A.sheet.splits) || [], bar = $("shSplitBar");
-  if (true || !sp.length || ME.role === "instructor") { bar.hidden = true; bar.innerHTML = ""; return; }   // לא בשימוש
-  bar.hidden = false;
-  bar.innerHTML = `<span class="lbl2">תת-קבוצות:</span><button type="button" data-sv2="" aria-pressed="${!A.splitView}">כולם (${A.rows.length})</button>` + sp.map(s => `<button type="button" data-sv2="${s.id}" aria-pressed="${String(A.splitView) === String(s.id)}">${esc(s.name)}${s.room ? " · " + esc(s.room) : ""}${s.instructor ? " · " + esc(s.instructor) : ""} (${A.rows.filter(r => r.split_id === s.id).length})</button>`).join("");
-  bar.querySelectorAll("[data-sv2]").forEach(b => b.onclick = () => { A.splitView = b.dataset.sv2; renderSheetRows(); });
-}
+// 5.19.116 (נועה): דף הנוכחות הישן של המערכת הוסר – הנוכחות כולה בתלם שלי. נשארו העזרים שמשמשים גם את חלון הקבוצה.
 // מיון בדף הנוכחות: מתמטיקה, אנגלית, מתמטיקה+אנגלית (ובלי מקצוע בסוף), ובתוך כל מקצוע לפי שכבה ואז שם
 const GRADE_ORD = ["ה","ו","ז","ח","ט","י","יא","יב"];
 const gradeKey = (g) => String(g || "").replace(/['׳"״\s]/g, "");
@@ -7482,11 +7291,6 @@ function rosterSort(a, b){ return subjGrp(a.subject) - subjGrp(b.subject) || att
 function attSort(a, b){
   return (a.first_name || "").localeCompare(b.first_name || "", "he") || (a.last_name || "").localeCompare(b.last_name || "", "he");
 }
-// 5.19.20: דף הנוכחות לפי שעת ההגעה - שעה אישית אם יש, אחרת שעת תחילת הקבוצה; באותה שעה לפי שם פרטי
-const attGrpStart = () => { const sh = A.sheet || {}, g = A.curG && A.curG.session_id === sh.session_id ? A.curG : null;
-  return hmMin(sh.start_time || (g && g.start_time) || sh.time_label); };
-const attArr = (r) => { const t = hmMin(r.arrival_time); return t != null ? t : attGrpStart(); };
-function attTimeSort(a, b){ return (attArr(a) ?? 9999) - (attArr(b) ?? 9999) || attSort(a, b); }
 const minHm = (m) => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
 // שיעור כפול: ★ ליד השם (שתי קבוצות באותו יום באותו בית ספר, או שעה אישית ארוכה)
 const hmMin = (t) => { const m = String(t || "").match(/^(\d{1,2}):(\d{2})/); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
@@ -7515,274 +7319,6 @@ function dblRange(sid, day, loc){
 const dblStar = (on) => on ? `<span class="dbl-star dbl-x2" dir="ltr" title="שיעור כפול" aria-label="שיעור כפול">×2</span>` : "";
 // שכבה + מספר כיתה (ח'3), צבע עדין לפי שכבה
 const gradeBadge = (g, n) => { const k = gradeKey(g); return `<span class="gbadge g-${GRADE_ORD.includes(k) ? k : "x"}">${k ? esc(k + "'" + (n || "")) : "?"}</span>`; };
-// "לא התקיים תרגול": מנהלים מסמנים (וסיבה). מתרגלים רואים, וכותבים בהערות אם לא התקיים.
-const CX_REASONS = ["חג", "חופשה", "אירוע בבית הספר", "מתרגל/ת חסר/ה"];
-function renderSheetCx(){
-  const sh = A.sheet, L0 = sh.lesson || {}, box = $("shCx"), adm = ME.role !== "instructor";
-  const g = A.curG || {}, cx = lessonCx({ kind: g.kind || "שוטף", city: sh.city, location: sh.location }, A.date, L0.cancelled, L0.cancel_reason);
-  document.querySelector("#attSheet .card").classList.toggle("cx-off", !!cx);
-  if (!cx && !adm) { box.hidden = true; return; }
-  box.hidden = false;
-  if (cx) box.innerHTML = `<div class="cx-on"><b>התרגול לא התקיים</b>${cx.reason ? " · " + esc(cx.reason) : ""}${cx.auto ? ` <span class="muted">(לפי לוח החגים)</span>` : ""}</div>
-    ${adm ? `<button type="button" class="btn small" data-cx="held">התקיים בכל זאת</button>${cx.auto ? "" : `<button type="button" class="btn small" data-cx="auto" title="חזרה ללוח החגים">ביטול הסימון</button>`}` : ""}`;
-  else box.innerHTML = `<button type="button" class="btn small cx-btn" data-cx="open" title="לסמן שהתרגול לא התקיים (חג, אירוע...)">⊘ לא התקיים</button>
-    <span class="cx-form" hidden><select id="cxReason">${CX_REASONS.map(r => `<option>${esc(r)}</option>`).join("")}<option value="">אחר...</option></select>
-    <input id="cxOther" placeholder="סיבה" hidden><button type="button" class="btn small primary" data-cx="save">שמירה</button></span>
-    ${L0.cancelled === false ? `<span class="muted" style="font-size:12.5px;">סומן "התקיים" למרות החג.</span>` : ""}`;
-  const set = async (v, reason) => { try { await rpc("set_lesson_cancelled", { p_session: sh.session_id, p_date: A.date, p_cancelled: v, p_reason: reason || null });
-      sh.lesson = Object.assign({}, sh.lesson || {}, { cancelled: v, cancel_reason: v ? reason : null }); toast(v ? "סומן: לא התקיים" : "נשמר"); renderSheetCx(); }
-    catch(e) { toast(/set_lesson_cancelled|404/.test(e.message + e.status) ? "צריך להריץ את קובץ 46" : "לא נשמר: " + e.message); } };
-  box.querySelectorAll("[data-cx]").forEach(b => b.onclick = () => {
-    const a = b.dataset.cx;
-    if (a === "open") { box.querySelector(".cx-form").hidden = false; b.hidden = true; $("cxReason").onchange = () => { $("cxOther").hidden = $("cxReason").value !== ""; }; }
-    else if (a === "save") set(true, $("cxReason").value || $("cxOther").value.trim() || "אחר");
-    else if (a === "held") set(false, null);
-    else if (a === "auto") set(null, null);
-  });
-}
-// 5.19.25: למשולבים - מה עשה/תה בשיעור הקודם (מת' / אנג'), כדי לדעת מה לעשות היום
-async function loadPrevSubj(sessionId){
-  // 5.19.26 (קובץ 57): השיעור הקודם מגיע כבר עם הדף (גם למדריכים) - לא צריך לשלוף
-  if (A.rows.some(r => "prev" in r)) { const prev = {}; A.rows.forEach(r => { if (r.prev) prev[r.student_id] = { lesson_date: r.prev.d, did_math: r.prev.m, did_english: r.prev.e }; }); A.prev = prev; renderSheetRows(); return; }
-  const ids = A.rows.filter(r => subjGrp(rowSubj(r)) === 2).map(r => r.student_id); if (!ids.length) return;
-  const d0 = A.sheet.date || A.date;
-  let rows; try { rows = await get("attendance", `select=student_id,lesson_date,did_math,did_english&student_id=in.(${ids.join(",")})&lesson_date=lt.${d0}&present=is.true&order=lesson_date.desc&limit=${ids.length * 6}`); }
-  catch(e) { return; }   // מדריכים - אין הרשאה לטבלה (בינתיים רק למנהלים)
-  if (!A.sheet || A.sheet.session_id !== sessionId || (A.sheet.date || A.date) !== d0) return;
-  const prev = {}; rows.forEach(x => { if (!prev[x.student_id] && (x.did_math || x.did_english)) prev[x.student_id] = x; });
-  A.prev = prev; renderSheetRows();
-}
-const prevTag = (r) => { const x = (A.prev || {})[r.student_id]; if (!x) return "";
-  const t = x.did_math && x.did_english ? "מת'+אנג'" : x.did_math ? "מת'" : "אנג'";
-  return `<span class="att-prev" title="בשיעור הקודם (${fmtIso(x.lesson_date)}) עשה/תה ${t}">↩ ${t}</span>`; };
-// 5.19.26: השעה האישית / שיעור כפול - באותה שורה עם בית הספר (הלקוחה 14.10)
-function attPtHtml(r){
-  // 5.19.27 (קובץ 58): dbl_from מגיע עם הדף - גם למדריכים
-  const dr = r.dbl_from ? [r.dbl_from, minHm(hmMin(r.dbl_from) + 90)] : "dbl_from" in r ? null : dblRange(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location);
-  const pt = dr ? rng(dr[0], dr[1]) : r.arrival_time ? rng(String(r.arrival_time).slice(0, 5), String(r.personal_end || addMin(String(r.arrival_time).slice(0, 5), 45)).slice(0, 5)) : "";
-  return pt ? `<span class="att-pt att-pt-s"${dr ? ` title="שיעור כפול - 90 דקות"` : ""}>⏰ <span class="att-pt-l">${dr ? "שיעור כפול " : "שעה אישית "}</span><bdi>${pt}</bdi></span>` : "";
-}
-function renderSheetRows(){
-  const can = A.sheet.can_edit;
-  renderSplitBar();
-  if (!A.rows.length) { $("shRows").innerHTML = "<li class='muted'>אין ילדים משובצים לקבוצה הזאת.</li>"; updateCount(); return; }
-  const spName = (id) => ((A.sheet.splits || []).find(s => s.id === id) || {}).name;
-  let prevGrp = null;
-  A.rows.sort(attTimeSort);
-  // 5.19.20: כותרת שעה רק כשיש בקבוצה יותר משעת הגעה אחת (מי מגיע קודם ומי אחר כך)
-  const tSet = new Set(A.rows.filter(shVisible).map(attArr).filter(t => t != null)), multiT = tSet.size > 1;
-  let prevT = null;
-  $("shRows").innerHTML = A.rows.map((r, i) => { if (!shVisible(r)) return "";
-    const grp = subjGrp(r.subject), t = attArr(r);
-    let head = "";
-    if (multiT && t != null && t !== prevT) { const n = A.rows.filter(x => shVisible(x) && attArr(x) === t).length;
-      head = `<li class="att-sec att-tsec"><span>⏰ <bdi>${minHm(t)}</bdi>${t === attGrpStart() ? " · שעת הקבוצה" : ""}</span><span>${n === 1 ? "ילד/ה 1" : n + " ילדים"}</span></li>`; prevT = t; }
-    return head + `<li data-i="${i}">${gradeBadge(r.grade, r.class_num)}
-    <div class="att-name"><b class="att-nm"><span${ME.role !== "instructor" && L.leads.some(l => l.student && l.student.id === r.student_id) ? ` class="att-kl" data-kl="${r.student_id}" role="button" tabindex="0" title="פרטים ושיבוצים"` : ""}>${esc(r.first_name)} ${esc(r.last_name || "")}</span>${ME.role !== "instructor" ? pastBadge({ id: r.student_id }) + (((G.sessions || []).find(x => x.session_id === A.sheet.session_id) || {}).kind === "מרתון" ? "" : marFlag(r.student_id)) : ""}${payPendChip(r.student_id, A.sheet.session_id, ((G.sessions || []).find(x => x.session_id === A.sheet.session_id) || {}).kind === "מרתון")}${dblStar(!!r.dbl_from || isDouble(r.student_id, A.sheet.day || dayLetter(A.sheet.date), A.sheet.location, r.arrival_time, r.personal_end))}</b>
-      <span class="meta">${r.school ? `<span class="school-chip sch-sm ${scCls(r.school)}">${esc(r.school)}</span>` : ""}${attPtHtml(r)}${subjGrp(rowSubj(r)) === 2 ? prevTag(r) : ""}${r.in_group ? (can && A.hasPlan ? ` <button type="button" class="skip-b" data-skip title="לא מגיע/ה היום - הסרה מהשיעור הזה בלבד (השיבוץ הקבוע לא משתנה)" aria-label="לא מגיע/ה היום">⊘<span class="skip-t"> לא היום</span></button>` : "") : r.added ? ` · <b class="added-tag">נוסף/ה לשיעור</b>${can ? ` <button type="button" class="rm" data-rm="1">הסרה</button>` : ""}` : " · <b>כבר לא בקבוצה</b>"}</span>
-      </div>
-    <div class="att-ctl">
-      ${subjGrp(rowSubj(r)) === 2 && r.present !== false ? `<span class="att-sj2${r.present && !r.did_math && !r.did_english ? " need" : ""}" title="משולב - לסמן מה עשה/תה היום"><label><input type="checkbox" data-m ${r.did_math ? "checked" : ""} ${can ? "" : "disabled"}>מת'</label><label><input type="checkbox" data-e ${r.did_english ? "checked" : ""} ${can ? "" : "disabled"}>אנג'</label></span>` : subjMini(rowSubj(r))}
-      <div class="seg" role="group" aria-label="נוכחות">
-        <button type="button" class="no ${r.present === false ? "on" : ""}" data-p="0" ${can ? "" : "disabled"} aria-label="חסר/ה"><span class="lg">חסר/ה</span><span class="sm">✗</span></button>
-        <button type="button" class="yes ${r.present === true ? "on" : ""}" data-p="1" ${can ? "" : "disabled"} aria-label="נוכח/ת"><span class="lg">נוכח/ת</span><span class="sm">✓</span></button>
-      </div>
-
-    </div>${(() => { const ex = kidExTag(r, A.sheet.city, A.sheet.date || A.date);   // 5.19.19: מבחן / לומדים עכשיו - באותה שורה עם השעה האישית והמעקב (לא דוחקים את השם)
-      return r.tracking || ex ? `<div class="att-track-row">${ex}${r.tracking ? `<span class="att-track">📌 ${esc(r.tracking)}</span>` : ""}</div>` : ""; })()}</li>`; }).join("");
-  // 5.19.29: "לא מגיעים היום" - בסוף הרשימה, באפור, עם החזרה
-  const sk = A.rows.map((r, i) => [r, i]).filter(([r]) => r.skip);
-  if (sk.length) $("shRows").insertAdjacentHTML("beforeend", `<li class="att-sec att-skip-h"><span>לא מגיעים היום (רק בשיעור הזה)</span><span>${sk.length}</span></li>` +
-    sk.map(([r, i]) => `<li data-i="${i}" class="att-skip">${gradeBadge(r.grade, r.class_num)}<div class="att-name"><b class="att-nm"><span>${esc(r.first_name)} ${esc(r.last_name || "")}</span></b><span class="meta">${r.school ? `<span class="school-chip sch-sm ${scCls(r.school)}">${esc(r.school)}</span>` : ""}</span></div>
-      <div class="att-ctl">${can ? `<button type="button" class="btn small" data-unskip>↺ החזרה</button>` : ""}</div></li>`).join(""));
-  updateCount();
-}
-function updateCount(){
-  const rows = A.rows.filter(shVisible), p = rows.filter(r => r.present === true).length, x = rows.filter(r => r.present === false).length, n = rows.filter(r => r.present == null).length;
-  // 5.19.73 (נועה): מקום אחד ברור לכמה ילדים / נוכחים / חסרים / לא סומנו - למעלה, בצבעים (היה בשלושה מקומות)
-  const nSk = A.rows.filter(r => r.skip).length;
-  $("shTopCnt").innerHTML = `<span><b>${rows.length}</b> ילדים</span> · <b class="c-yes">${p} נוכחים</b> · <b class="c-no">${x} חסרים</b>` + (n ? ` · <span class="c-un">${n} לא סומנו</span>` : "");
-  $("shCount").innerHTML = "";
-  $("shTotal").innerHTML = (nSk ? `${nSk} לא מגיעים היום` : "") + (A.splitView && rows.length !== A.rows.length - nSk ? `${nSk ? " · " : ""}${rows.length} בתת-הקבוצה המוצגת` : "");
-}
-// טיוטת נוכחות: כל סימון נשמר גם בטלפון עצמו, כך שאם השמירה נכשלה (אין קליטה), הדף התרענן או יצאו מהמערכת - הסימון לא הולך לאיבוד
-const attDraftKey = () => A.sheet ? "telem_att_draft_" + A.sheet.session_id + "_" + A.sheet.date : "";
-function attDirty(){
-  if (!A.sheet || !A.sheet.can_edit) return;
-  A.dirty = true;
-  store(attDraftKey(), JSON.stringify({ t: Date.now(), extra: $("shExtra").value, notes: $("shNotes").value,
-    rows: A.rows.map(r => ({ id: r.student_id, p: r.present, m: r.did_math, e: r.did_english, s: !!r.skip })), removed: A.removed || [] }));
-}
-// האם שונה משהו מאז הטעינה / השמירה האחרונה (רק אז שואלים לפני יציאה)
-function attSnap(){ return JSON.stringify({ r: (A.rows || []).map(r => [r.student_id, r.present, !!r.did_math, !!r.did_english, !!r.skip]).sort((a, b) => String(a[0]).localeCompare(String(b[0]))), n: ($("shNotes") || {}).value || "", rm: A.removed || [] }); }
-const attChanged = () => !!(A.sheet && A.sheet.can_edit && A.base != null && !$("attSheet").hidden && attSnap() !== A.base);
-function attLast(){ try { const m = JSON.parse(store("telem_att_last") || "null"); return m && m.day === todayIL() && m.sid ? m : null; } catch(e) { return null; } }
-function attDraftClear(){ if (A.sheet) store(attDraftKey(), null); A.dirty = false; }
-function attDraftRestore(){
-  let d = null; try { d = JSON.parse(store(attDraftKey()) || "null"); } catch(e) {}
-  if (!d || !A.sheet.can_edit) return;
-  const saved = A.sheet.lesson && A.sheet.lesson.updated_at ? new Date(A.sheet.lesson.updated_at).getTime() : 0;
-  if (d.t < saved) { store(attDraftKey(), null); return; }   // נשמר במערכת אחרי הטיוטה - אין מה לשחזר
-  const by = {}; (d.rows || []).forEach(x => by[x.id] = x);
-  A.rows.forEach(r => { const x = by[r.student_id]; if (x) { r.present = x.p; r.did_math = !!x.m; r.did_english = !!x.e; if ("s" in x) r.skip = !!x.s; if (r.present == null && r.present0 != null && !r.skip) r.unmark = true; } });   // של-53: סימון שבוטל בטיוטה – נמחק גם בשרת
-  A.removed = d.removed || []; A.rows = A.rows.filter(r => !A.removed.includes(r.student_id));
-  if (d.extra != null) $("shExtra").value = d.extra; if (d.notes != null) $("shNotes").value = d.notes;
-  // 5.19.14: אם הטיוטה זהה למה שכבר שמור - אין מה לשחזר ולא שואלים ביציאה
-  if (attSnap() === A.base) { store(attDraftKey(), null); A.dirty = false; return; }
-  A.dirty = true; toast("שוחזר סימון שעוד לא נשמר - לא לשכוח ללחוץ \"שמירה\"");
-}
-window.addEventListener("beforeunload", (e) => { if (attChanged()) { e.preventDefault(); e.returnValue = ""; } });
-function setPresent(r, v){
-  r.present = v;
-  // משולב: לא מסמנים מראש - המתרגל/ת מסמן/ת מה עשו בפועל (מת' / אנג' / שניהם)
-  if (v && !r.did_math && !r.did_english && subjGrp(rowSubj(r)) !== 2) { const d = subjDefault(rowSubj(r)); r.did_math = d.m; r.did_english = d.e; }
-  if (!v) { r.did_math = false; r.did_english = false; }
-}
-// 5.19.23: חלון פרטים מהיר של ילד/ה מתוך הנוכחות (מנהלים)
-async function attKidPop(l){
-  const s = l.student, f = s.family || {}, sch = schoolOf(s), city = leadCity(l);
-  let o = $("kidPop"); if (!o) { o = document.createElement("div"); o.id = "kidPop"; o.className = "ex-pop"; document.body.appendChild(o);
-    o.addEventListener("click", (ev) => { if (ev.target === o || ev.target.closest("[data-kpclose]")) o.hidden = true; }); }
-  const ph = (v) => v ? `<a class="kp-ph" dir="ltr" href="tel:${esc(v)}">${esc(String(v).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : "";
-  const row = (k, v) => v ? `<div class="kp-r"><span class="kp-k">${k}</span><span>${v}</span></div>` : "";
-  const paint = (asg) => {
-    o.innerHTML = `<div class="ex-pop-box kp-box" role="dialog" aria-modal="true">
-      <div class="ex-pop-h"><b>${esc(fullName(s.first_name, s.last_name))}</b><button type="button" class="kp-x" data-kpclose aria-label="סגירה" title="סגירה">✕</button></div>
-      <div class="kp-tags">${statusName(l.status_id) ? `<span class="kp-st"${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff;"` : ""}>${esc(statusName(l.status_id))}</span>` : ""}
-        ${city ? `<span class="muted">${esc(city)}</span>` : ""}</div>
-      <div class="kp-r"><span class="kp-k">בית ספר</span><span>${sch.name ? scChip(sch.name) : "<span class='muted'>לא ידוע</span>"}</span><span class="kp-k" style="min-width:0; margin-inline-start:10px;">כיתה</span><span>${s.grade ? `<b>${esc(classLabel(s.grade, s.class_num))}</b>` : "<span class='muted'>לא ידוע</span>"}</span></div>
-      ${row("הורה", [esc(fullName(f.parent1_first, f.parent1_last)), ph(f.parent1_phone)].filter(Boolean).join(" · "))}
-      ${f.parent2_phone ? row("הורה 2", [esc(fullName(f.parent2_first, f.parent2_last)), ph(f.parent2_phone)].filter(Boolean).join(" · ")) : ""}
-      ${row("תלמיד/ה", ph(s.phone))}
-      ${s.tracking ? row("📌 מעקב", esc(s.tracking)) : ""}
-      <div class="kp-k" style="margin-top:4px;">שיבוצים</div>
-      <div class="kp-asg">${asg == null ? "<span class='muted'>טוען…</span>" : asg.length ? asg.map(a => { const se = a.session, arr = String(a.arrival_time || "").slice(0, 5), st = String(se.start_time || "").slice(0, 5);
-        return `<div class="kp-a"><span class="asg-pill"><span class="${scCls(se.location && se.location.name)}"><i></i>${se.kind === "מרתון" ? "מרתון" : esc(se.day) + "'"} ${rng(st, String(se.end_time || "").slice(0, 5))} · ${esc((se.location && se.location.name) || "")}</span></span>${arr && arr !== st ? ` <span class="kp-pt">⏰ שעה אישית ${rng(arr, String(a.personal_end || "").slice(0, 5) || addMin(arr, 45))}</span>` : ""}${a.status === "ממתין" ? ` <span class="muted">(מוצע)</span>` : ""}</div>`; }).join("") : "<span class='muted'>לא משובץ/ת</span>"}</div>
-      <div class="kp-btns"><button type="button" class="btn small primary" data-kpopen>לכרטיס התלמיד ←</button></div></div>`;
-    o.querySelector("[data-kpopen]").onclick = () => { o.hidden = true; A.ret = { sid: A.sheet.session_id, date: A.date }; openLead(l.id); };
-  };
-  paint(null); o.hidden = false;
-  try { const r = await get("assignments", "select=id,status,arrival_time,personal_end,session:sessions(day,start_time,end_time,kind,school_year,location:locations(name))&student_id=eq." + s.id + "&order=id");
-    paint(r.filter(a => a.session && a.session.school_year === CONFIG.schoolYear && (a.status === "משובץ" || a.status === "ממתין"))
-      .sort((a, b) => (DAY_ORDER[a.session.day] ?? 9) - (DAY_ORDER[b.session.day] ?? 9) || String(a.session.start_time).localeCompare(String(b.session.start_time)))); }
-  catch(e) { paint([]); }
-}
-document.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && $("kidPop") && !$("kidPop").hidden) $("kidPop").hidden = true; });
-$("shRows").addEventListener("click", async (e) => {
-  // 5.19.14: מנהלים - לחיצה על שם הילד/ה פותחת את כרטיס התלמיד; "חזרה לנוכחות" מחזיר לאותה קבוצה ואותו יום (הסימון נשמר בטלפון)
-  const kl = e.target.closest("[data-kl]");
-  // 5.19.23: לחיצה על השם - חלון עם הפרטים העיקריים והשיבוצים; לכרטיס (לעריכה) רק בכפתור
-  if (kl) { const sid = Number(kl.dataset.kl), l = L.leads.find(x => x.student && x.student.id === sid); if (!l) return;
-    attKidPop(l); return; }
-  const skb = e.target.closest("[data-skip], [data-unskip]");
-  if (skb && A.sheet.can_edit) { const r = A.rows[Number(skb.closest("li").dataset.i)]; r.skip = skb.hasAttribute("data-skip");
-    if (r.skip) { r.present = null; r.did_math = false; r.did_english = false; } attDirty(); renderSheetRows(); return; }
-  const rm = e.target.closest("[data-rm]");
-  if (rm && A.sheet.can_edit) { const i = Number(rm.closest("li").dataset.i), r = A.rows[i]; if (r.saved) A.removed.push(r.student_id); A.rows.splice(i, 1); attDirty(); renderSheetRows(); return; }
-  const b = e.target.closest("[data-p]"); if (!b || !A.sheet.can_edit) return;
-  const r = A.rows[Number(b.closest("li").dataset.i)];
-  // 5.19.30: לחיצה שוב על הסימון הנבחר - מבטלת אותו (סומן/ה בטעות); נמחק בשמירה (קובץ 60)
-  const pv = b.dataset.p === "1";
-  if (r.present === pv) { r.present = null; r.did_math = false; r.did_english = false; if (r.saved && !r.planned || r.present0 != null) r.unmark = true; }
-  else { setPresent(r, pv); r.unmark = false; }
-  attDirty(); renderSheetRows(); $("shErr").textContent = "";
-});
-$("shRows").addEventListener("change", (e) => {
-  const li = e.target.closest("li"); if (!li) return; const r = A.rows[Number(li.dataset.i)];
-  if (e.target.hasAttribute("data-m")) r.did_math = e.target.checked;
-  if (e.target.hasAttribute("data-e")) r.did_english = e.target.checked;
-  if (e.target.checked && r.present !== true) { r.present = true; attDirty(); renderSheetRows(); return; }   // סימון מקצוע = נוכח/ת
-  $("shErr").textContent = ""; attDirty();
-});
-["shExtra", "shNotes"].forEach(id => $(id).addEventListener("input", attDirty));
-$("shAll").addEventListener("click", () => { A.rows.filter(shVisible).forEach(r => { if (r.present == null) setPresent(r, true); }); attDirty(); renderSheetRows(); });
-$("shGroup").addEventListener("click", async () => {
-  if (attChanged() && !await uiConfirm("יש סימונים שלא נשמרו. לעבור בכל זאת? (הסימון נשמר בטלפון ויחזור כשתפתחי שוב את הנוכחות)")) return;
-  G.fromAtt = A.sheet ? { sid: A.sheet.session_id, date: A.sheet.date || A.date } : null; A.fromGrp = null; if (A.sheet) grpEdit(A.sheet.session_id);
-});
-$("shBack").addEventListener("click", async () => {
-  if (attChanged() && !await uiConfirm("יש סימון נוכחות שעוד לא נשמר. לצאת בלי לשמור?")) return;
-  attDraftClear(); store("telem_att_last", null);
-  // 5.19.27: באו מחלון הקבוצה ("✓ נוכחות") - "חזרה" חוזרת לחלון הקבוצה
-  if (A.fromGrp && A.sheet && A.fromGrp === A.sheet.session_id) { const sid = A.fromGrp; A.fromGrp = null; showAttList(); loadAttGroups(); grpEdit(sid); return; }
-  A.fromGrp = null; showAttList(); loadAttGroups(); });
-$("shSave").addEventListener("click", async () => {
-  const err = $("shErr"); err.textContent = "";
-  const missing = A.rows.filter(r => r.present == null && !r.skip && !(r.added && !r.in_group)).length;   // מותר לשמור גם בלי לסמן את כולם - מי שלא סומן פשוט לא נשמר
-  // 5.19.14: בלי הודעה על סימון חלקי - משולב/ת שסומן/ה נוכח/ת בלי מת'/אנג' נשמר/ת כנוכח/ת (הלקוחה)
-  $("shSave").disabled = true;
-  try {
-    await rpc("save_attendance", { p_session: A.sheet.session_id, p_date: A.sheet.date,
-      p_rows: A.rows.map(r => { const o = { student_id: r.student_id, present: r.skip ? null : r.present, did_math: r.did_math, did_english: r.did_english };
-          if (r.skip) o.plan = "skip"; else if (r.skip0) o.plan = "clear"; else if (!r.in_group && r.added && r.present == null && !r.planned) o.plan = "add";
-          if (r.unmark && r.present == null && !r.skip) o.unmark = true;
-          return o; })
-        .concat((A.removed || []).map(id => ({ student_id: id, present: null, remove: true }))),
-      p_extra: "", p_notes: $("shNotes").value });
-    toast(missing ? `הנוכחות נשמרה (${missing} לא סומנו)` : "הנוכחות נשמרה"); attDraftClear();
-    // 5.19.18: נשארים בדף הקבוצה אחרי שמירה (אפשר לשמור חלק ולהמשיך לסמן כשמגיעים עוד ילדים). לרשימה - "חזרה".
-    A.rows.forEach(r => { if (r.unmark) { r.unmark = false; r.present0 = null; } if (r.present != null) { r.saved = true; r.present0 = r.present; } r.skip0 = r.skip; if (A.hasPlan && r.added && !r.in_group) { r.planned = true; r.saved = true; } }); A.rows = A.rows.filter(r => !(A.removed || []).includes(r.student_id)); A.removed = [];
-    A.base = attSnap(); renderSheetRows(); loadAttGroups();
-  } catch(e2) {
-    err.textContent = /only save attendance for today/.test(e2.message) ? "אפשר לשמור נוכחות רק ביום השיעור." : (/fetch|network|Failed/i.test(e2.message) ? "אין חיבור לאינטרנט - הסימון שמור בטלפון. כשהקליטה תחזור, לוחצים שוב \"שמירה\"." : "השמירה נכשלה: " + e2.message);
-  }
-  $("shSave").disabled = false;
-});
-// הוספת ילד/ה רשום/ה מקבוצה אחרת לשיעור הזה (השיבוץ הקבוע לא משתנה)
-$("shAddBtn").addEventListener("click", () => { const p = $("shAddPanel"); p.hidden = !p.hidden; if (!p.hidden) $("shAddQ").focus(); });
-let shAddT = null;
-$("shAddQ").addEventListener("input", () => {
-  clearTimeout(shAddT);
-  const q = $("shAddQ").value.trim(), res = $("shAddRes");
-  if (q.length < 2) { res.innerHTML = ""; return; }
-  shAddT = setTimeout(async () => {
-    res.innerHTML = "<li class='muted'>מחפש...</li>";
-    try {
-      // 5.19.81 (נועה, קובץ 80): בשיעור שכבר היה - אפשר להוסיף גם ילד/ה שנכנס/ה לקבוצה רק אחרי השיעור (נרשם/ה למחרת)
-      let list; try { list = await rpc("attendance_find_student", { p_session: A.sheet.session_id, p_q: q, p_date: A.sheet.date }); }
-      catch(e1) { if (e1.status === 404 || e1.code === "PGRST202") list = await rpc("attendance_find_student", { p_session: A.sheet.session_id, p_q: q }); else throw e1; }
-      list = list.filter(k => !A.rows.some(r => r.student_id === k.student_id));
-      if ($("shAddQ").value.trim() !== q) return;
-      const firstOther = list.findIndex(k => k.same_city === false);
-      res.innerHTML = list.length ? list.map((k, i) => (i === firstOther ? `<li class="muted" style="font-size:12.5px; padding:8px 4px 2px;">מערים אחרות:</li>` : "") +
-          `<li><button type="button" data-add='${esc(JSON.stringify(k))}'><b>${esc(k.first_name)} ${esc(k.last_name || "")}</b><small>${esc([k.grade && "כיתה " + classLabel(k.grade, k.class_num), k.school, k.same_city === false ? k.city : ""].filter(Boolean).join(" · "))}</small></button></li>`).join("")
-        : "<li class='muted' style='padding:6px 0;'>לא נמצא ילד/ה רשום/ה בשם הזה. אם לא רשום/ה - לכתוב בשדה למטה.</li>";
-    } catch(e) { res.innerHTML = `<li class="err">${e.status === 404 || e.code === "PGRST202" ? "צריך להריץ את קובץ 32." : "החיפוש נכשל."}</li>`; }
-  }, 300);
-});
-$("shAddRes").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-add]"); if (!b) return;
-  const k = JSON.parse(b.dataset.add);
-  A.removed = (A.removed || []).filter(id => id !== k.student_id);
-  // המקצוע של הילד/ה: מהסטטוס ("נרשם מת. + אנג." ...) - מהחיפוש, או מרשימת התלמידים (מנהלים)
-  const subj = regSubj(k.student_id, k.status);
-  const r = { student_id: k.student_id, first_name: k.first_name, last_name: k.last_name, grade: k.grade, school: k.school, subject: subj, in_group: false, added: true, present: null, did_math: false, did_english: false, saved: false };
-  // 5.19.30: נוסף/ה לשיעור = "אמור/ה להגיע" - בלי סימון נוכחות (מסמנים כשמגיע/ה). בלי קובץ 59 - נשאר הסימון הקודם (נוכח/ת)
-  if (!A.hasPlan) setPresent(r, true); A.rows.push(r);
-  $("shAddQ").value = ""; $("shAddRes").innerHTML = ""; $("shAddPanel").hidden = true;
-  if (!A.hasPlan) { attDirty(); renderSheetRows(); toast(`${k.first_name} נוסף/ה לשיעור - לא לשכוח לשמור`); return; }
-  // 5.19.81 (נועה): הוספת ילד/ה לשיעור נשמרת מיד, לבד - בלי לשמור את שאר הסימונים בדף (הם נשארים כמו שהם, לשמירה רגילה)
-  renderSheetRows();
-  (async () => { let base = null; try { base = JSON.parse(A.base || "null"); } catch(e) {}
-    try {
-      await rpc("save_attendance", { p_session: A.sheet.session_id, p_date: A.sheet.date, p_rows: [{ student_id: r.student_id, present: null, did_math: false, did_english: false, plan: "add" }], p_extra: "", p_notes: base ? base.n : $("shNotes").value });
-      r.planned = true; r.saved = true;
-      if (base) { base.r.push([r.student_id, null, false, false, false]); base.r.sort((a, b) => String(a[0]).localeCompare(String(b[0]))); A.base = JSON.stringify(base); }
-      if (attSnap() === A.base) attDraftClear(); else attDirty();
-      renderSheetRows(); toast(`${k.first_name} נוסף/ה לשיעור ונשמר/ה`); loadAttGroups();
-    } catch(e2) { attDirty(); toast(`${k.first_name} נוסף/ה לרשימה, אבל לא נשמר/ה - לשמור עם "שמירה"`); }
-  })();
-});
-async function loadHistory(sessionId, date){
-  $("shHistList").innerHTML = "<li class='muted'>טוען...</li>";
-  try {
-    const logs = await get("attendance_log", "select=saved_at,saved_by,payload&session_id=eq." + sessionId + "&lesson_date=eq." + date + "&order=saved_at.desc");
-    $("shHistList").innerHTML = logs.length ? logs.map(l => {
-      const rows = (l.payload && l.payload.rows) || [], p = rows.filter(r => r.present).length;
-      return `<li><b>${esc(fmtDate(l.saved_at))}</b> · ${esc(staffName(l.saved_by) || "")} · ${p} נוכחים מתוך ${rows.length}${l.payload && l.payload.extra_students ? " · נוספים: " + esc(l.payload.extra_students) : ""}${l.payload && l.payload.notes ? " · הערות: " + esc(l.payload.notes) : ""}</li>`;
-    }).join("") : "<li class='muted'>עוד לא נשמר.</li>";
-  } catch(e) { $("shHistList").innerHTML = ""; }
-}
 
 // ======================================================================
 // צוות ומתרגלים (מנהלים בלבד)
@@ -10006,7 +9542,6 @@ function updSafe(){
   if (!$("panel").hidden) return false;
   if (document.querySelector(".ui-dlg-bg")) return false;   // 5.19.57: חלון שאלה פתוח
   if ($("payPnl") && !$("payPnl").hidden) return false;   // חלון פרטים בתשלומים
-  if (attChanged()) return false;   // באמצע סימון נוכחות שלא נשמר
   return true;
 }
 function updReload(){ sstore("telem_updated", APP_VER); try { if (history.state && history.state.telem) sessionStorage.setItem("telem_resume", JSON.stringify(history.state)); } catch(e) {} location.replace(location.pathname + "?v=" + Date.now() + location.hash); }
@@ -10062,7 +9597,7 @@ async function liveRefresh(minGap){
   try {
     if (v === "leads") { const n = await loadLeadsDelta(); if (n !== 0 && currentView === "leads" && updSafe()) leadsKeepRow(renderLeads); }   // 5.19.87: מציירים רק כשבאמת השתנה משהו
     else if (v === "groups") await loadGroups();
-    else if (v === "att") { if ($("attSheet").hidden) await loadAttGroups(); }
+    else if (v === "att") await loadAttGroups();
     else if (v === "exams") await renderExams(true);
     else if (v === "reports") await loadReports();
     else if (v === "attg" || v === "attk") { if (AR.raw) { await showAttReport(); arClearState(); } }   // 5.19.88: במקום כפתור "רענון"
