@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.109">
+<meta name="app-version" content="5.19.110">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -362,6 +362,7 @@
   .att-date-row > .today-btn{ background:var(--accent); border-color:var(--accent); color:#fff; } .att-date-row > .today-btn:hover{ filter:brightness(.95); } .today-word{ color:#B07D1E; }
   /* נוכחות: רקע ירקרק כדי להבדיל מלוח הקבוצות; לוח שבועי עם מצב סימון */
   body[data-view="att"]{ background:var(--att-bg); }
+
   .att-head{ display:flex; align-items:baseline; gap:12px; flex-wrap:wrap; }
   #payWrap .pay-sub{ margin:-6px 0 12px; font-size:13px; } .reg-tabs .payN .cnt{ margin-inline-start:4px; background:var(--muted); color:var(--ink-soft); border-radius:999px; padding:0 7px; font-size:12px; } .reg-tabs .payN .cnt.red{ background:var(--full); color:#fff; }
 .reg-tabs a.rt-pay{ display:inline-flex; align-items:center; padding:6px 14px; border-radius:999px; font-weight:700; color:inherit; text-decoration:none; white-space:nowrap; }
@@ -2321,7 +2322,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <button type="button" data-view="leads" data-ic="👥" data-sl="תלמידים">תלמידים</button>
       <button type="button" data-view="schools" data-ic="🏫" data-sl="בתי ספר"><span class="lbl-a">בתי ספר</span><span class="lbl-i">בתי הספר שלי</span></button>
       <button type="button" data-view="exams" data-admin data-ic="🗓️" data-sl="מרתונים">מרתונים</button>
-      <button type="button" data-view="att" data-ic="✅" data-sl="נוכחות"><span class="lbl-a">קבוצות ונוכחות</span><span class="lbl-i">נוכחות</span></button>
+      <button type="button" data-view="att" data-ic="✅" data-sl="קבוצות"><span class="lbl-a">קבוצות ונוכחות</span><span class="lbl-i">נוכחות</span></button>
       <button type="button" data-view="ws" data-ic="📚" data-sl="מאגר">מאגר תרגולים</button>
       <button type="button" data-view="reg" data-admin data-ic="📝" data-sl="הרשמה">הרשמה</button>
       <button type="button" data-view="pay" data-admin data-ic="💳" data-sl="תשלומים">תשלומים <span class="payNavN"></span></button>
@@ -3247,7 +3248,10 @@ const uiCopyBox = (t) => uiDialog("להעתקה: מסמנים את הטקסט ו
 function go(view){
   try { document.body.classList.toggle("ex-max", view === "exams" && !isMobile() && store("telem_ex_max") === "1"); const b = $("exMax"); if (b) { const on = document.body.classList.contains("ex-max"); b.classList.toggle("on", on); b.textContent = on ? "✕ יציאה ממסך מלא" : "⛶ מסך מלא"; } } catch(e) {}   // 5.19.106
   if (view === "attk") { view = "attg"; AR.view = "kid"; }
-  if (view === "groups") view = "att";   // 5.19.29: מסך הקבוצות אוחד עם הנוכחות   // 5.19.27: דוח נוכחות אחד (בקבוצות ונוכחות) - לפי ילד/ה או לפי קבוצה
+  if (view === "groups") view = "att";
+  if (ME && ME.role === "instructor" && (view === "att" || view === "attg")) view = "home";   // 5.19.110: הנוכחות – בתלם שלי
+  if (ME && ME.role && view === "ws") view = "home";   // 5.19.110: המאגר – בתלם שלי   // 5.19.29
+  if (view === "att" && currentView !== "att") { try { A.mode = "g"; } catch(e) {} }   // 5.19.110 (נועה): כניסה למסך – תמיד על "👥 קבוצות": מסך הקבוצות אוחד עם הנוכחות   // 5.19.27: דוח נוכחות אחד (בקבוצות ונוכחות) - לפי ילד/ה או לפי קבוצה
   if (view !== "lead" && typeof LEAD_DIRTY !== "undefined" && LEAD_DIRTY && !LEAD_SAVING && currentView === "lead") { const v = view; askLeadSave(() => go(v)); return; }
   try { if (!NAV_POP && view !== "home") RESUME = null; } catch(e) {}
   try { if (document.body.classList.contains("ws-vopen")) wsViewerOff(); } catch(e) {}   // 5.19.21: מעבר מסך מהתפריט כשדף פתוח - סוגרים את הדף   // המשתמש עבר למסך בעצמו - לא לחזור אחר כך למסך שלפני הרענון
@@ -7175,7 +7179,7 @@ function renderAttIns(all){
 }
 $("attIns").addEventListener("change", () => { A.ins = $("attIns").value; store("telem_att_ins", A.ins || null); loadAttGroups(); });
 // 5.19.29: מסך אחד - מצב נוכחות / קבוצות (מנהלים, במחשב) + סינונים משותפים
-A.mode = store("telem_att_mode") === "g" ? "g" : "a"; A.loc = ""; A.fill = "all";   // 5.19.37: תמיד כל הקבוצות (ריקות - במסגרת מקווקוות)
+A.mode = "g"; A.loc = ""; A.fill = "all";   // 5.19.37: תמיד כל הקבוצות (ריקות - במסגרת מקווקוות)
 try { A.kinds = JSON.parse(store("telem_att_kinds") || "null"); } catch(e) {} if (!Array.isArray(A.kinds) || !A.kinds.length) A.kinds = ["שוטף", "מרתון"];
 const attMode = () => (ME.role !== "instructor" && !isMobile() && A.mode === "g") ? "g" : "a";
 function paintAttMode(){
@@ -7183,7 +7187,7 @@ function paintAttMode(){
   document.querySelectorAll("[data-akind]").forEach(b => b.setAttribute("aria-pressed", String(A.kinds.includes(b.dataset.akind))));
   $("attFill").hidden = true;
 }
-document.querySelectorAll("[data-amode]").forEach(b => b.onclick = () => { A.mode = b.dataset.amode; store("telem_att_mode", A.mode); loadAttGroups(); });
+document.querySelectorAll("[data-amode]").forEach(b => b.onclick = () => { A.mode = b.dataset.amode; loadAttGroups(); });   // 5.19.110: לא נשמר – תמיד נפתח על "קבוצות"
 document.querySelectorAll("[data-akind]").forEach(b => b.onclick = () => { const k = b.dataset.akind, n = A.kinds.includes(k) ? A.kinds.filter(x => x !== k) : A.kinds.concat(k);
   if (!n.length) return; A.kinds = n; store("telem_att_kinds", JSON.stringify(n)); loadAttGroups(); });
 $("attLoc").addEventListener("change", () => { A.loc = $("attLoc").value; loadAttGroups(); });
@@ -7267,6 +7271,7 @@ async function loadAttWeek(){
     <div class="cal-col cal-times"><div class="cal-day"></div><div class="cal-body" style="height:${H}px">${hours}</div></div>${cols}</div></div>`;
   $("attCal").querySelectorAll(".cal-ev").forEach(b => b.onclick = (e) => { if (MODE === "g" || e.target.closest("[data-ged]") || b.classList.contains("ev-empty")) { grpEdit(Number(b.dataset.s)); return; } A.date = b.dataset.d; const x = ev.find(e => String(e.g.session_id) === b.dataset.s && e.date === b.dataset.d); A.curG = x ? x.g : null; openSheet(Number(b.dataset.s)); });
 }
+const TS_STAFF = "https://telem-tirgul.github.io/telem-sheli/#staff";   // 5.19.110
 async function loadAttGroups(){
   loadExams();   // 5.19.29: ברקע - שדף הקבוצה ייפתח מהר
   if (!isMobile()) { $("attDate").value = A.date; return loadAttWeek(); }
@@ -8104,23 +8109,22 @@ function renderHome(){
   // 5.19.45: אותו סדר ואותם שמות כמו בתפריט הצד; דוחות והגדרות - בשורה קטנה למטה (כמו ⓘ ו-⚙ בתפריט)
   const tiles = inst ? [
     ["myschools", "🏫", "בתי הספר שלי", "הקבוצות, צלצולים וכיתות"],
-    ["att", "✔", "נוכחות", "סימון נוכחות בקבוצות שלי"],
-    ["ws", "📄", "מאגר תרגולים", "דפי תרגול להעתקה והורדה"],
+    ["tsheli", "✔", "תלם שלי ↗", "נוכחות בקבוצות שלי"],
     ["info", "ℹ", "מידע למתרגלים", "הנחיות ומידע לעבודה"],
     ["settings", "⚙", "הגדרות", "הפרטים שלי"]
   ] : [
     ["leads", "👥", "תלמידים", "לידים, כרטיסי תלמיד, שנים קודמות"],
     ["schools", "🏫", "בתי ספר", "פרטי בית הספר והקבוצות שלנו"],
     ["exams", "🗓", "מרתונים", "מרתונים ולוח המבחנים"],
-    ["att", "✔", "קבוצות ונוכחות", "סימון נוכחות, לוח הקבוצות ודוח לפי קבוצה"],
-    ["ws", "📄", "מאגר תרגולים", "דפי תרגול להעתקה והורדה"],
+    ["att", "✔", "קבוצות ונוכחות", "לוח הקבוצות, צפייה בנוכחות ודוח"],
+    ["tsheli", "📄", "תלם שלי ↗", "סימון נוכחות ומאגר הדפים"],
     ["reg", "📝", "הרשמה", "קישורי הטפסים, ממתינים לתשלום, ביטולים"],
     ["pay", "💳", "תשלומים", "לטיפול, עסקאות, הוראות קבע ודפי תשלום"]
   ];
   const more = inst ? [] : [["reports", "📊", "דוחות"], ["settings", "⚙", "הגדרות"]];
   $("homeTiles").innerHTML = tiles.map(([v, ic, t, d]) => `<button type="button" class="home-tile" data-go="${v}"><span class="ic" aria-hidden="true">${ICON[v] ? icon(v) : ic}</span><b>${esc(t)}${v === "pay" ? ` <span class="payNavN">${(document.querySelector(".nav .payNavN") || {}).innerHTML || ""}</span>` : ""}</b><span>${esc(d)}</span></button>`).join("")
     + (more.length ? `<div class="home-more">${more.map(([v, ic, t]) => `<button type="button" class="btn small" data-go="${v}">${ic} ${esc(t)}</button>`).join("")}</div>` : "");
-  $("homeTiles").querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const v = b.dataset.go; go(v); if (v === "leads" && DATA_READY) renderLeads(); });
+  $("homeTiles").querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const v = b.dataset.go; if (v === "tsheli") { window.open(TS_STAFF, "_blank", "noopener"); return; } go(v); if (v === "leads" && DATA_READY) renderLeads(); });
 }
 $("brandHome").addEventListener("click", () => go("home"));
 $("brandHome").addEventListener("keydown", (e) => { if (e.key === "Enter") go("home"); });
@@ -9861,7 +9865,8 @@ async function boot(){
   catch(e) { ME = { role: "admin" }; }   // לפני הרצת קובץ 16
   if (!ME.role) { $("leadsTbl").innerHTML = "<tr><td class='empty-state'>המשתמש לא מוגדר בצוות. צריך להוסיף אותו במסך 'צוות ומתרגלים'.</td></tr>"; go("leads"); return; }
   document.body.classList.toggle("instructor", ME.role === "instructor");
-  document.querySelectorAll(".nav button").forEach(b => { b.hidden = ME.role === "instructor" && !["att","ws","info"].includes(b.dataset.view); });
+  // 5.19.110 (נועה, של-51): המאגר – רק בתלם שלי (לכולם). מתרגלים – גם הנוכחות רק בתלם שלי. מנהלים – "קבוצות ונוכחות" נשאר (נפתח על "קבוצות")
+  document.querySelectorAll(".nav button").forEach(b => { const v = b.dataset.view; b.hidden = ME.role === "instructor" ? !["info"].includes(v) : v === "ws"; });
   if (ME.full_name) $("whoEmail").textContent = ME.full_name;
   // 5.19.97: סימון לטפסים (אותו אתר) – ?cardtest=1 עובד רק בדפדפן של מנהל/ת (14 יום, נמחק ביציאה)
   store("telem_staff", ME.role === "admin" ? String(Date.now() + 14 * 864e5) : null);
