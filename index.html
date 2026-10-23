@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.110">
+<meta name="app-version" content="5.19.111">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3251,7 +3251,7 @@ function go(view){
   if (view === "groups") view = "att";
   if (ME && ME.role === "instructor" && (view === "att" || view === "attg")) view = "home";   // 5.19.110: הנוכחות – בתלם שלי
   if (ME && ME.role && view === "ws") view = "home";   // 5.19.110: המאגר – בתלם שלי   // 5.19.29
-  if (view === "att" && currentView !== "att") { try { A.mode = "g"; } catch(e) {} }   // 5.19.110 (נועה): כניסה למסך – תמיד על "👥 קבוצות": מסך הקבוצות אוחד עם הנוכחות   // 5.19.27: דוח נוכחות אחד (בקבוצות ונוכחות) - לפי ילד/ה או לפי קבוצה
+  if (view === "att" && currentView !== "att") { try { A.mode = "a"; } catch(e) {} }   // 5.19.111 (נועה): כניסה למסך – תמיד על "✓ נוכחות": מסך הקבוצות אוחד עם הנוכחות   // 5.19.27: דוח נוכחות אחד (בקבוצות ונוכחות) - לפי ילד/ה או לפי קבוצה
   if (view !== "lead" && typeof LEAD_DIRTY !== "undefined" && LEAD_DIRTY && !LEAD_SAVING && currentView === "lead") { const v = view; askLeadSave(() => go(v)); return; }
   try { if (!NAV_POP && view !== "home") RESUME = null; } catch(e) {}
   try { if (document.body.classList.contains("ws-vopen")) wsViewerOff(); } catch(e) {}   // 5.19.21: מעבר מסך מהתפריט כשדף פתוח - סוגרים את הדף   // המשתמש עבר למסך בעצמו - לא לחזור אחר כך למסך שלפני הרענון
@@ -7179,7 +7179,7 @@ function renderAttIns(all){
 }
 $("attIns").addEventListener("change", () => { A.ins = $("attIns").value; store("telem_att_ins", A.ins || null); loadAttGroups(); });
 // 5.19.29: מסך אחד - מצב נוכחות / קבוצות (מנהלים, במחשב) + סינונים משותפים
-A.mode = "g"; A.loc = ""; A.fill = "all";   // 5.19.37: תמיד כל הקבוצות (ריקות - במסגרת מקווקוות)
+A.mode = "a"; A.loc = ""; A.fill = "all";   // 5.19.37: תמיד כל הקבוצות (ריקות - במסגרת מקווקוות)
 try { A.kinds = JSON.parse(store("telem_att_kinds") || "null"); } catch(e) {} if (!Array.isArray(A.kinds) || !A.kinds.length) A.kinds = ["שוטף", "מרתון"];
 const attMode = () => (ME.role !== "instructor" && !isMobile() && A.mode === "g") ? "g" : "a";
 function paintAttMode(){
@@ -7187,7 +7187,7 @@ function paintAttMode(){
   document.querySelectorAll("[data-akind]").forEach(b => b.setAttribute("aria-pressed", String(A.kinds.includes(b.dataset.akind))));
   $("attFill").hidden = true;
 }
-document.querySelectorAll("[data-amode]").forEach(b => b.onclick = () => { A.mode = b.dataset.amode; loadAttGroups(); });   // 5.19.110: לא נשמר – תמיד נפתח על "קבוצות"
+document.querySelectorAll("[data-amode]").forEach(b => b.onclick = () => { A.mode = b.dataset.amode; loadAttGroups(); });   // 5.19.111: לא נשמר – תמיד נפתח על "נוכחות"
 document.querySelectorAll("[data-akind]").forEach(b => b.onclick = () => { const k = b.dataset.akind, n = A.kinds.includes(k) ? A.kinds.filter(x => x !== k) : A.kinds.concat(k);
   if (!n.length) return; A.kinds = n; store("telem_att_kinds", JSON.stringify(n)); loadAttGroups(); });
 $("attLoc").addEventListener("change", () => { A.loc = $("attLoc").value; loadAttGroups(); });
