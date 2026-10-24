@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.126">
+<meta name="app-version" content="5.19.127">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -997,6 +997,7 @@
   .icon-btn.note.has{ color:#b7791f; }
   .icon-btn .cnt{ position:absolute; top:-4px; left:-6px; background:#b7791f; color:#fff; font-size:10px; font-style:normal; border-radius:999px; padding:0 4px; line-height:15px; }
   td.lastnote{ max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#555; font-size:13px; }
+  .toast .toast-undo{ margin-inline-start:10px; background:transparent; color:#FFD27A; border:1px solid #FFD27A; border-radius:8px; padding:2px 10px; font:inherit; font-weight:800; cursor:pointer; }
   .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--ink); color:var(--bg);
           padding:10px 18px; border-radius:999px; font-weight:700; z-index:60; max-width:calc(100% - 32px); }
 
@@ -2926,6 +2927,13 @@ const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&a
 const digits = (s) => String(s || "").replace(/\D/g, "");
 const fmtDate = (iso) => { if (!iso) return ""; const d = new Date(iso); return d.toLocaleDateString("he-IL", {day:"2-digit", month:"2-digit", year:"numeric"}) + " " + d.toLocaleTimeString("he-IL", {hour:"2-digit", minute:"2-digit"}); };
 const fmtDay = (iso) => iso ? new Date(iso).toLocaleDateString("he-IL", {day:"2-digit", month:"2-digit", year:"2-digit"}) : "";
+// 5.19.127 (נועה): הודעה עם "↩ ביטול" ל-8 שניות (סומן בטעות)
+function toastUndo(text, undo){ const t = $("toast"); t.innerHTML = ""; const sp = document.createElement("span"); sp.textContent = text + " "; const b = document.createElement("button"); b.type = "button"; b.className = "toast-undo"; b.textContent = "↩ ביטול";
+  b.onclick = async () => { clearTimeout(toast._t); t.hidden = true; try { await undo(); toast("בוטל"); } catch(e) { toast("לא בוטל: " + e.message); } };
+  t.append(sp, b); t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, 8000); }
+// התראות: לשחזר סטטוס קודם (חדשה / נקראה) לרשימת שורות
+async function ibRestore(prev){ for (const p of prev) { await patch("form_inbox", "id=eq." + p.id, { status: p.status, handled_at: p.handled_at || null, handled_by: p.handled_by || null, note: p.note || null });
+    const r = (IB.rows || []).find(x => x.id === p.id); if (r) Object.assign(r, p); } renderInbox(false); }
 function toast(text){ const t = $("toast"); t.textContent = text; t.hidden = false; clearTimeout(toast._t); toast._t = setTimeout(() => { t.hidden = true; }, 3500); }
 function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch(e) { return null; } }
 
@@ -5509,7 +5517,11 @@ $("exZIn").addEventListener("click", () => exZoom((EX.zoom || 0) - 1));
 exZoom(Number(store("telem_ex_zoom") || 0));
 // 5.19.106 (נועה): "מסך מלא" ללוח המבחנים במחשב – מסתירים את התפריט העליון והכותרת (שורת "הוספה" נשארת), והטבלה תופסת את כל הגובה (עוד שורות)
 const exMax = (on) => { document.body.classList.toggle("ex-max", !!on); store("telem_ex_max", on ? "1" : ""); const b = $("exMax"); b.classList.toggle("on", !!on); b.textContent = on ? "✕ יציאה ממסך מלא" : "⛶ מסך מלא"; requestAnimationFrame(exFit); };
-$("exMax").addEventListener("click", () => exMax(!document.body.classList.contains("ex-max")));
+// 5.19.127 (נועה): "מסך מלא" = גם מסך מלא של הדפדפן (בלי שורת הכתובת והלשוניות). Esc / F11 של הדפדפן – יוצא גם מהמצב של הלוח
+$("exMax").addEventListener("click", () => { const on = !document.body.classList.contains("ex-max"); exMax(on);
+  try { if (on && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => {});
+        else if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch(e) {} });
+document.addEventListener("fullscreenchange", () => { if (!document.fullscreenElement && document.body.classList.contains("ex-max") && currentView === "exams") exMax(false); else requestAnimationFrame(exFit); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && document.body.classList.contains("ex-max") && currentView === "exams" && !document.querySelector(".ui-dlg-bg, #exForm:not([hidden])")) exMax(false); });
 // תחילת שבוע הלימודים (יום ראשון) של תאריך - הלוח נפתח כשהשבוע הנוכחי מתחיל מימין
 // התאריך של העמודה הראשונה שנראית (מימין) - כדי שרענון / סינון לא יקפיץ להיום
@@ -6513,7 +6525,7 @@ setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && M
 // כל טופס שנשלח (הרשמה, מרתון, התעניינות, בקשת שיבוץ, ביטול חתום, תשלום אישי) = שורה. פרטים שלא תואמים (issues) - משיחת התשלומים
 const IB = { rows: null, f: "new", ok: true, lastMax: Number(store("telem_ib_max") || 0), names: {}, mars: {} };
 const IB_KIND = { registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"] };   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
-const IB_FLAG = { added: ["t-new", "נוסף/ה לקבוצה"], removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
+const IB_FLAG = { phone_pending: ["t-warn", "תשלום טלפוני ממתין"], system_issue: ["t-warn", "תקלה טכנית"], added: ["t-new", "נוסף/ה לקבוצה"],   // 5.19.127 (תש-16, icredit-24) removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], plan_paused: ["t-old", "הוראת קבע הושהתה"],
   plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"] };
 const IB_WARN_F = ["mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check", "plan_last_check", "plan_reactivated"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
@@ -6565,6 +6577,7 @@ async function ibOpenStudent(sid, el){
   if (l) openLead(l.id); else toast("הכרטיס לא נמצא (אולי אוחד או נמחק)");
 }
 function ibName(r){ const s = IB.names[r.student_id], d = r.data || {};
+  if (!r.student_id && (r.flags || []).includes("system_issue")) return "מערכת התשלומים";
   if (s) return ((s.first_name || "") + " " + (s.last_name || "")).trim();
   return ((d.student_first || d.first_name || d.student_name || "") + " " + (d.student_last || d.last_name || "")).trim() || (d.parent_name || d.parent_first || d.name || "") || "—"; }
 function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x) => x != null && x !== "" ? Number(x) + " ₪" : "";
@@ -6723,11 +6736,16 @@ async function renderInbox(reload){
       <span class="ib-n">${ibNameLink(r, lead)}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
       <span class="ib-time">${esc(when(r.created_at))}</span>
-      <span class="ib-acts">${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${r.id}">✓ נקרא</button>` : ""}${w && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
+      <span class="ib-acts">${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${r.id}">✓ נקרא</button>` : ""}${w && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
       ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>`;
   box.querySelectorAll("[data-ibl]").forEach(a => a.onclick = () => openLead(Number(a.dataset.ibl)));
   box.querySelectorAll("[data-ibsid]").forEach(a => a.onclick = () => ibOpenStudent(Number(a.dataset.ibsid), a));
+  // 5.19.127 (תש-16): תשלום טלפוני שממתין – "✔ שולם" ישר מההתראה (השרת סוגר את ההתראה לבד)
+  box.querySelectorAll("[data-ibpaid]").forEach(b => b.onclick = async () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibpaid)); if (!r) return; const d = r.data || {};
+    b.disabled = true;
+    const ok = await markPaid({ kind: d.order_kind, order_id: d.order_id, first_name: ibName(r), last_name: "", what: d.title || "", amount: d.amount });
+    b.disabled = false; if (ok) { r.status = "handled"; r.note = "טופל – שולם"; renderInbox(true); } });
   box.querySelectorAll("[data-gdmv]").forEach(b => b.onclick = () => ibGdAct(b, "move"));
   box.querySelectorAll("[data-gdadd]").forEach(b => b.onclick = () => ibGdAct(b, "add"));
   box.querySelectorAll("[data-ibts]").forEach(b => b.onclick = () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibts)); if (!r) return;   // 5.19.97: בקשת קוד מתלם שלי
@@ -6741,15 +6759,18 @@ async function renderInbox(reload){
       const has = (id) => (L.leads || []).some(l => Number(l.student_id) === Number(id));
       if (!has(d.dup_id) || !has(r.student_id)) { b.disabled = true; toast("טוען את הכרטיסים…"); try { await ensureInact(); } finally { b.disabled = false; } }
       if (!has(d.dup_id)) { toast("הכרטיס הכפול כבר לא קיים (אולי כבר אוחד)"); return; }
-      const done = (note) => async () => { try { await patch("form_inbox", "id=eq." + r.id, { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note }); r.status = "handled"; r.note = note; if (note !== "אוחד") toast("נשארו שני הכרטיסים · סומן טופל"); renderInbox(false); } catch(e) { toast("לא נשמר: " + e.message); } };
+      const done = (note) => async () => { try { await patch("form_inbox", "id=eq." + r.id, { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note }); r.status = "handled"; r.note = note; renderInbox(false);
+        if (note !== "אוחד") toastUndo("נשארו שני הכרטיסים · סומן טופל", () => ibRestore([{ id: r.id, status: "new", handled_at: null, handled_by: null, note: null }])); } catch(e) { toast("לא נשמר: " + e.message); } };
       mergeConfirm(r.student_id, d.dup_id, done("אוחד"), done("לא כפילות – נשארו שניהם"));
       return; }
     mergeDlg(Number(b.dataset.ibm)); });
   box.querySelectorAll("[data-ibcx]").forEach(b => b.onclick = async () => { const p = (IB.plans || {})[b.dataset.ibcx]; if (!p) return; b.disabled = true;   // 5.19.68: סימון "בוטלה" מההודעה
     const r = IB.rows.find(x => x.ref_id === b.dataset.ibcx); if (await planMarkCancel(p, r ? ibName(r) : "")) { p.cancel_marked_at = new Date().toISOString(); renderInbox(false); } else b.disabled = false; });   // 5.19.66: כפילות אפשרית - איחוד מכאן
   box.querySelectorAll("[data-ibs]").forEach(b => b.onclick = async () => { const [st, id] = b.dataset.ibs.split(":"); b.disabled = true;
+    const prev = id.split(",").map(i => IB.rows.find(x => x.id === Number(i))).filter(Boolean).map(r => ({ id: r.id, status: r.status, handled_at: r.handled_at, handled_by: r.handled_by, note: r.note }));
     try { await patch("form_inbox", "id=" + (id.includes(",") ? "in.(" + id + ")" : "eq." + id), st === "handled" ? { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "" } : { status: "seen" });
-          id.split(",").forEach(i => { const r = IB.rows.find(x => x.id === Number(i)); if (r) r.status = st; }); renderInbox(false); }
+          id.split(",").forEach(i => { const r = IB.rows.find(x => x.id === Number(i)); if (r) r.status = st; }); renderInbox(false);
+          toastUndo(st === "handled" ? "סומן טופל" : "סומן נקרא", () => ibRestore(prev)); }
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   box.querySelectorAll("[data-ibu]").forEach(b => b.onclick = async () => { const [id, i] = b.dataset.ibu.split(":").map(Number), r = IB.rows.find(x => x.id === id), x = r && (r.issues || [])[i]; if (!x) return;
     if (!await uiConfirm(`לעדכן ${x.label || x.field} ל"${x.form}" (במקום "${x.ours ?? ""}")?`)) return;
@@ -6761,7 +6782,8 @@ async function renderInbox(reload){
 }
 document.querySelectorAll("[data-ibf]").forEach(b => b.addEventListener("click", () => { IB.f = b.dataset.ibf; renderInbox(false); }));
 $("ibAllSeen").addEventListener("click", async () => { const ids = (IB.rows || []).filter(r => r.status === "new").map(r => r.id); if (!ids.length) return;
-  try { await patch("form_inbox", "id=in.(" + ids.join(",") + ")", { status: "seen" }); IB.rows.forEach(r => { if (r.status === "new") r.status = "seen"; }); renderInbox(false); } catch(e) { toast("לא נשמר: " + e.message); } });
+  try { await patch("form_inbox", "id=in.(" + ids.join(",") + ")", { status: "seen" }); IB.rows.forEach(r => { if (r.status === "new") r.status = "seen"; }); renderInbox(false);
+    toastUndo(`סומנו ${ids.length} כנקראו`, async () => { await patch("form_inbox", "id=in.(" + ids.join(",") + ")", { status: "new" }); IB.rows.forEach(r => { if (ids.includes(r.id)) r.status = "new"; }); renderInbox(false); }); } catch(e) { toast("לא נשמר: " + e.message); } });
 $("inboxBtn").addEventListener("click", () => go("inbox"));
 // 5.19.66 (נועה): דיווחים על בעיות - לשונית במסך ההודעות (במקום בהגדרות ליד הגיבוי)
 function ibTab(t){ IB_TAB = t === "iss" ? "iss" : "forms";
