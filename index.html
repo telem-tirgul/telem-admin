@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.125">
+<meta name="app-version" content="5.19.126">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -861,7 +861,8 @@
   #exCal.exz1 .ex-cal th.dl{ font-size:8px; } #exCal.exz1 .ex-cal th.dn{ font-size:9px; letter-spacing:-.5px; }
   #exCal.exz2 .ex-cal th.dl, #exCal.exz3 .ex-cal th.dl, #exCal.exz2 .ex-cal th.dn, #exCal.exz3 .ex-cal th.dn{ font-size:0; }
   #exCal.exz2 .ex-cal th.mo, #exCal.exz3 .ex-cal th.mo{ white-space:nowrap; overflow:hidden; text-overflow:clip; } #exCal.exz3 .ex-cal th.mo{ font-size:12px !important; }
-  .ex-cal td.d{ height:28px; font-size:9.5px; font-weight:700; letter-spacing:-.3px; overflow:hidden; white-space:nowrap; }
+  #exCal.ex-tight .ex-cal td.d{ font-size:8px; } #exCal.ex-tight .ex-cal tbody td:not(.d){ font-size:11.5px; line-height:1.1; } #exCal.ex-tight .ex-cal tbody td:not(.d) *{ padding-block:0 !important; line-height:13px !important; font-size:11px !important; min-height:0 !important; height:auto !important; } #exCal.ex-tight .ex-cal tbody td{ height:var(--exrh) !important; padding-block:0 !important; } #exCal.ex-tight .ex-cal tr.ex-city td{ padding-block:1px !important; font-size:11.5px; }
+  .ex-cal td.d{ height:var(--exrh, 28px); font-size:9.5px; font-weight:700; letter-spacing:-.3px; overflow:hidden; white-space:nowrap; }
   .ex-cal .wk{ border-inline-start:2px solid color-mix(in srgb, var(--ink) 35%, transparent) !important; }
   .ex-cal .ms{ border-inline-start:3px solid var(--accent) !important; }
   .ex-cal .sch, .ex-cal .gr{ position:sticky; z-index:1; background:var(--paper); white-space:nowrap; }
@@ -5520,6 +5521,14 @@ function exFit(){
   let h = Math.max(260, window.innerHeight - top - ih - 14); w.style.maxHeight = h + "px";
   const over = document.documentElement.scrollHeight - window.innerHeight;   // ריווח מתחת לטבלה (שוליים, תפריט תחתון בנייד)
   if (over > 0 && h > 260) w.style.maxHeight = Math.max(260, h - over) + "px";
+  // 5.19.126 (נועה): במסך מלא – השורות מתכווצות (עד 14px) כדי שכל בתי הספר ייכנסו בגובה המסך
+  const cal = $("exCal");
+  if (document.body.classList.contains("ex-max") && !isMobile()) {
+    const rows = w.querySelectorAll("tbody tr:not(.ex-city)").length, cities = w.querySelectorAll("tbody tr.ex-city").length, head = (w.querySelector("thead") || {}).offsetHeight || 80;
+    const avail = parseFloat(w.style.maxHeight) - head - cities * 24 - 4;
+    const rh = rows ? Math.max(14, Math.min(28, Math.floor(avail / rows))) : 28;
+    cal.style.setProperty("--exrh", rh + "px"); cal.classList.toggle("ex-tight", rh < 22);
+  } else { cal.style.removeProperty("--exrh"); cal.classList.remove("ex-tight"); }
 }
 window.addEventListener("resize", () => { clearTimeout(exFit._t); exFit._t = setTimeout(exFit, 120); });
 function exFirstVisible(){ const w = document.querySelector(".ex-cal-wrap"); if (!w) return null; const r = w.getBoundingClientRect();
