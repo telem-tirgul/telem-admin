@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.123">
+<meta name="app-version" content="5.19.124">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3421,12 +3421,14 @@ async function loadLeads(){
   L.inactReady = false; L.inactP = null;
   if (!isMobile()) setTimeout(() => { if (L.loadedAt === t0) ensureInact(); }, 5000);
   L.notesCount = {}; L.notes = {}; notes.forEach(n => { L.notesCount[n.lead_id] = (L.notesCount[n.lead_id] || 0) + 1; (L.notes[n.lead_id] = L.notes[n.lead_id] || []).push(n); });
+  if (currentView === "inbox" && typeof renderInbox === "function") setTimeout(() => renderInbox(false), 0);   // 5.19.124: ההתראות – שמות לחיצים מיד כשהכרטיסים נטענו
 }
 function ensureInact(){
   if (L.inactReady) return Promise.resolve(); if (L.inactP) return L.inactP;
   return L.inactP = getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.false&order=updated_at.desc,id.desc")
     .then(rows => { const have = new Set(L.leads.map(l => l.id)); rows.forEach(l => { if (l.student && !have.has(l.id)) L.leads.push(l); });
       L.inactReady = true;
+      if (currentView === "inbox" && typeof renderInbox === "function") renderInbox(false);   // 5.19.124
       if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads(); })
     .catch(() => { L.inactP = null; });
 }
@@ -6537,6 +6539,18 @@ async function ibNames(rows){
   const mids = [...new Set(rows.map(r => r.data && r.data.marathon_id).filter(id => id && !IB.mars[id]))];
   if (mids.length) { try { (await get("marathons", "select=id,name,school&id=in.(" + mids.join(",") + ")")).forEach(m => IB.mars[m.id] = m); } catch(e) {} }
 }
+// 5.19.124 (נועה): השם בהתראה תמיד לחיץ – גם אם הכרטיס עוד לא נטען (לא פעיל / הרשימה עוד נטענת): מחכים לו ואז פותחים
+const ibNameLink = (r, lead) => lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : r.student_id ? `<a class="name-link" data-ibsid="${r.student_id}">${esc(ibName(r))}</a>` : esc(ibName(r));
+async function ibOpenStudent(sid, el){
+  const find = () => (L.leads || []).find(l => Number(l.student_id) === Number(sid));
+  let l = find();
+  if (!l) { if (el) el.style.opacity = ".5"; toast("טוען את הכרטיס…");
+    try { if (typeof ensureInact === "function") await ensureInact(); } catch(e) {}
+    l = find();
+    if (!l) { try { const r = await get("leads", "select=" + LEAD_SELECT + "&student_id=eq." + sid + "&limit=1"); if (r[0] && r[0].student) { L.leads.push(r[0]); l = r[0]; } } catch(e) {} }
+    if (el) el.style.opacity = ""; }
+  if (l) openLead(l.id); else toast("הכרטיס לא נמצא (אולי אוחד או נמחק)");
+}
 function ibName(r){ const s = IB.names[r.student_id], d = r.data || {};
   if (s) return ((s.first_name || "") + " " + (s.last_name || "")).trim();
   return ((d.student_first || d.first_name || d.student_name || "") + " " + (d.student_last || d.last_name || "")).trim() || (d.parent_name || d.parent_first || d.name || "") || "—"; }
@@ -6581,7 +6595,7 @@ function ibGdCard(r, when){
   }
   // 5.19.97 (נועה): כל אירוע בשורה אחת – ילד/ה | מה קרה | שיבוצים קבועים | פעולות (בנייד – זה מתחת לזה)
   return `<div class="ib-gd ${r.status}" data-ib="${r.id}">
-    <div class="ib-gd-c1"><span class="ib-ic">🔀</span><span><b class="ib-gd-n">${lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : esc(ibName(r))}</b><small class="ib-time">${esc(when(r.created_at))}</small></span></div>
+    <div class="ib-gd-c1"><span class="ib-ic">🔀</span><span><b class="ib-gd-n">${ibNameLink(r, lead)}</b><small class="ib-time">${esc(when(r.created_at))}</small></span></div>
     <div class="ib-gd-c2"><span class="ib-gd-k">מה קרה</span><span class="ib-gd-v">${tag}${lesson}${what}</span></div>
     <div class="ib-gd-c3"><span class="ib-gd-k">שיבוצים קבועים</span><span class="ib-gd-v">${fxH}</span></div>
     <div class="ib-gd-a">${done ? `<span class="muted">✓ טופל${r.note ? " · " + esc(r.note) : ""}</span>` : acts}</div></div>`;
@@ -6630,7 +6644,7 @@ function ibGdGroup(g, when){
     : `<span class="muted">לא משובץ/ת לקבוצה קבועה</span>`;
   const ids = g.filter(r => r.status !== "handled").map(r => r.id).join(",");
   return `<div class="ib-gd gdg ${done ? "handled" : "new"}" data-ib="${r0.id}">
-    <div class="gdg-h"><span class="ib-ic">🔀</span><b class="ib-gd-n">${lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r0))}</a>` : esc(ibName(r0))}</b>
+    <div class="gdg-h"><span class="ib-ic">🔀</span><b class="ib-gd-n">${ibNameLink(r0, lead)}</b>
       <span class="gdg-sum">${head}</span><small class="ib-time">${esc(when(g[g.length - 1].created_at))}</small>
       <span class="gdg-a">${done ? `<span class="muted">✓ טופל</span>` : ids ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ נקרא (${ids.split(",").length})</button>` : ""}</span></div>
     ${fx.length ? "" : `<div class="gdg-fx"><span class="gdg-l">שיבוצים קבועים:</span> ${fxH}</div>`}
@@ -6671,6 +6685,11 @@ async function renderInbox(reload){
     IB.plans = {};   // 5.19.68: הוראות קבע שהושהו - לכפתור "סימון: בוטלה"
     if (ME.role === "admin" && IB.rows.some(r => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused"))) { try { ((await rpc("recurring_plans_list")) || []).forEach(p => IB.plans[p.id] = p); } catch(e) {} } }
   const ibPlan = (r) => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused") ? (IB.plans || {})[r.ref_id] : null;
+  // 5.19.124 (נועה): "לא משובץ/ת" – ברגע שיש לילד/ה שיבוץ בקבוצה שוטפת (במערכת), ההתראה נסגרת לבד (לא מחכים לבדיקה של הערב)
+  { const fixed = IB.rows.filter(r => r.kind === "unassigned" && r.status !== "handled" && r.student_id && ((L.asg || {})[r.student_id] || []).length);
+    if (fixed.length) { const now = new Date().toISOString();
+      fixed.forEach(r => { r.status = "handled"; r.note = "טופל – שובץ/ה"; });
+      patch("form_inbox", "id=in.(" + fixed.map(r => r.id).join(",") + ")", { status: "handled", handled_at: now, handled_by: ME.full_name || "", note: "טופל – שובץ/ה" }).catch(() => {}); } }
   const nNew = IB.rows.filter(r => r.status === "new").length, nWarn = IB.rows.filter(r => ibWarn(r) && r.status !== "handled").length; ibPaint(nNew);
   document.querySelector('[data-ibf="new"]').textContent = "חדשות " + nNew; document.querySelector('[data-ibf="warn"]').textContent = "⚠ לא תואמות " + nWarn;
   const rows = IB.rows.filter(r => IB.f === "all" ? true : IB.f === "warn" ? ibWarn(r) && r.status !== "handled" : r.status === "new");
@@ -6688,13 +6707,14 @@ async function renderInbox(reload){
       + (iss.length || (r.flags || []).includes("mismatch") ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}">⚠ ${iss.length ? iss.length + " " : ""}לא תואם ▾</button>` : "");
     return `<div class="ib-row ${r.status}${w ? " warn" : ""}" data-ib="${r.id}">
       <span class="ib-ic" title="${esc(k[1])}">${k[0]}</span><span class="ib-k">${esc(k[1])}</span>
-      <span class="ib-n">${lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : esc(ibName(r))}</span>
+      <span class="ib-n">${ibNameLink(r, lead)}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
       <span class="ib-time">${esc(when(r.created_at))}</span>
-      <span class="ib-acts">${r.kind === "unassigned" && lead && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibl="${lead.id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${r.id}">✓ נקרא</button>` : ""}${w && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
+      <span class="ib-acts">${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${r.id}">✓ נקרא</button>` : ""}${w && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
       ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>`;
   box.querySelectorAll("[data-ibl]").forEach(a => a.onclick = () => openLead(Number(a.dataset.ibl)));
+  box.querySelectorAll("[data-ibsid]").forEach(a => a.onclick = () => ibOpenStudent(Number(a.dataset.ibsid), a));
   box.querySelectorAll("[data-gdmv]").forEach(b => b.onclick = () => ibGdAct(b, "move"));
   box.querySelectorAll("[data-gdadd]").forEach(b => b.onclick = () => ibGdAct(b, "add"));
   box.querySelectorAll("[data-ibts]").forEach(b => b.onclick = () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibts)); if (!r) return;   // 5.19.97: בקשת קוד מתלם שלי
