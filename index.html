@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.119">
+<meta name="app-version" content="5.19.120">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4224,6 +4224,23 @@ function mergeDlg(sid, preferKeep){
     res.innerHTML = hits.map(l => `<button type="button" class="mg-c" data-mg="${l.student_id}">${dupCard(l)}</button>`).join("") || `<div class="muted">לא נמצא</div>`;
     res.querySelectorAll("[data-mg]").forEach(b => b.onclick = () => pick(Number(b.dataset.mg))); };
 }
+// 5.19.120 (נועה): באיחוד – טלפונים / שמות / אימייל מהכרטיס שנמחק, שאין להם מקום בכרטיס שנשאר (השדה מלא בערך אחר) → הערה
+function mergeLostNote(a, b){
+  const sa = (a && a.student) || {}, sb = (b && b.student) || {}, fa = sa.family || {}, fb = sb.family || {};
+  const ph = (v) => String(v || "").replace(/\D/g, ""), tx = (v) => String(v || "").trim();
+  const havePh = new Set([sa.phone, fa.parent1_phone, fa.parent2_phone, fa.home_phone].map(ph).filter(Boolean));
+  const haveTx = new Set([fa.parent1_first, fa.parent2_first, fa.parent1_last, fa.parent2_last, fa.parent1_email, fa.parent2_email, sa.email].map(tx).filter(Boolean));
+  const out = [];
+  const addPh = (lbl, v, who) => { if (ph(v) && !havePh.has(ph(v))) { out.push(`${lbl}: ${[tx(who), tx(v)].filter(Boolean).join(" ")}`); havePh.add(ph(v)); } };
+  addPh("טלפון הורה", fb.parent1_phone, [fb.parent1_first, fb.parent1_last].filter(Boolean).join(" "));
+  addPh("טלפון הורה 2", fb.parent2_phone, [fb.parent2_first, fb.parent2_last].filter(Boolean).join(" "));
+  addPh("טלפון בבית", fb.home_phone, "");
+  // נייד ילד/ה: אם בכרטיס שנשאר ריק – האיחוד ממלא אותו; אם מלא במספר אחר – להערה
+  if (ph(sb.phone) && ph(sa.phone) && ph(sb.phone) !== ph(sa.phone) && !havePh.has(ph(sb.phone))) { out.push("נייד ילד/ה: " + tx(sb.phone)); havePh.add(ph(sb.phone)); }
+  [["אימייל", fb.parent1_email, fa.parent1_email], ["אימייל הורה 2", fb.parent2_email, fa.parent2_email], ["אימייל ילד/ה", sb.email, sa.email]].forEach(([l, v, mine]) => { if (tx(v) && tx(mine) && !haveTx.has(tx(v))) out.push(l + ": " + tx(v)); });   // רק כשהשדה בכרטיס שנשאר מלא (אחרת האיחוד ממלא אותו)
+  if (!out.length) return "";
+  return `🔀 פרטים מהכרטיס שאוחד (${tx(sb.first_name)} ${tx(sb.last_name)} #${sb.id || ""}${b && b.created_at ? ", מ-" + fmtIso(String(b.created_at).slice(0, 10)) : ""}${b && b.legacy_user_id ? ", ליד ב-CRM " + b.legacy_user_id : ""}) שלא נכנסו – השדות כבר מלאים: ` + out.join(" · ");
+}
 async function mergeConfirm(keep, dup, after, both){
   let a = (L.leads || []).find(l => Number(l.student_id) === Number(keep)), b = (L.leads || []).find(l => Number(l.student_id) === Number(dup)); if (!a || !b) return;
   const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
@@ -4237,7 +4254,9 @@ async function mergeConfirm(keep, dup, after, both){
     if (both) bg.querySelector("[data-both]").onclick = async () => { bg.remove(); await both(); };   // 5.19.117 (נועה): לא כפילות
     bg.querySelector("[data-sw]").onclick = () => { [a, b] = [b, a]; [keep, dup] = [dup, keep]; paint(); };
     bg.querySelector("[data-ok]").onclick = async (e) => { e.target.disabled = true;
+      const keepNote = mergeLostNote(a, b);   // 5.19.120 (נועה): פרטים מהכרטיס שנמחק שלא נכנסים (השדה כבר מלא) – להערה בכרטיס שנשאר
       try { const r = await rpc("merge_students", { p_keep: Number(keep), p_dup: Number(dup) }); bg.remove();
+        if (keepNote && a.id) { try { await insert("notes", { lead_id: a.id, body: keepNote }); } catch(e2) { toast("אוחד, אבל ההערה עם הפרטים הנוספים לא נשמרה: " + e2.message); } }
         toast("אוחד" + (r && r.moved ? " · עבר: " + Object.entries(r.moved).map(([t, n]) => n).reduce((x, y) => x + y, 0) + " שורות" : ""));
         await loadLeads(); const k = (L.leads || []).find(l => Number(l.student_id) === Number(keep)); if (k) openLead(k.id);
         if (typeof IB !== "undefined" && IB.rows) { IB.rows.forEach(x => { if (Number(x.student_id) === Number(dup)) x.student_id = Number(keep); }); }
