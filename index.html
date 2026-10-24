@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.117">
+<meta name="app-version" content="5.19.118">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6656,11 +6656,14 @@ async function renderInbox(reload){
   box.querySelectorAll("[data-ibts]").forEach(b => b.onclick = () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibts)); if (!r) return;   // 5.19.97: בקשת קוד מתלם שלי
     tsAccount(r.student_id, true, (r.data || {}).phone, ibName(r), async () => { try { await patch("form_inbox", "id=eq." + r.id, { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note: "נשלח קוד חדש" }); } catch(e) {} r.status = "handled"; r.note = "נשלח קוד חדש"; renderInbox(false); }); });
   box.querySelectorAll("[data-ibx]").forEach(b => b.onclick = () => { const d = $("ibd" + b.dataset.ibx); if (d) d.hidden = !d.hidden; });
-  box.querySelectorAll("[data-ibm]").forEach(b => b.onclick = () => {
+  box.querySelectorAll("[data-ibm]").forEach(b => b.onclick = async () => {
     // 5.19.117: כפילות מקובץ 101 – ישר להשוואה בין שני הכרטיסים; אחרי איחוד ההתראה מסומנת "טופל"
     const r = IB.rows.find(x => String(x.id) === (b.closest("[data-ib]") || {}).dataset?.ib), d = (r && r.data) || {};
     if (r && r.kind === "duplicate" && d.dup_id) {
-      if (!(L.leads || []).some(l => Number(l.student_id) === Number(d.dup_id))) { toast("הכרטיס הכפול כבר לא קיים (אולי כבר אוחד)"); return; }
+      // 5.19.118 (נועה): הכרטיסים מ-89 לא פעילים – נטענים ברקע; קודם מחכים להם (אחרת נראה כאילו כבר אוחד)
+      const has = (id) => (L.leads || []).some(l => Number(l.student_id) === Number(id));
+      if (!has(d.dup_id) || !has(r.student_id)) { b.disabled = true; toast("טוען את הכרטיסים…"); try { await ensureInact(); } finally { b.disabled = false; } }
+      if (!has(d.dup_id)) { toast("הכרטיס הכפול כבר לא קיים (אולי כבר אוחד)"); return; }
       const done = (note) => async () => { try { await patch("form_inbox", "id=eq." + r.id, { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note }); r.status = "handled"; r.note = note; if (note !== "אוחד") toast("נשארו שני הכרטיסים · סומן טופל"); renderInbox(false); } catch(e) { toast("לא נשמר: " + e.message); } };
       mergeConfirm(r.student_id, d.dup_id, done("אוחד"), done("לא כפילות – נשארו שניהם"));
       return; }
