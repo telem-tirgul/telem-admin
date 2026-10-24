@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.128">
+<meta name="app-version" content="5.19.129">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -622,6 +622,7 @@
   .ts-bulk{ max-height:85vh; overflow:auto; } .tsb-h{ font-weight:800; margin:10px 0 4px; } .tsb-l{ list-style:none; margin:0; padding:0; max-height:42vh; overflow:auto; }
   .tsb-l li{ display:flex; align-items:center; gap:8px; padding:4px 0; border-bottom:1px solid var(--line, #eee); } .tsb-l li > span:first-child{ flex:1; }
   .noadm{ display:inline-block; width:fit-content; align-self:flex-start; font-size:12px; font-weight:800; color:#9A3412; background:#FFEDD5; border:1px solid #FDBA74; border-radius:999px; padding:0 7px; margin-inline-start:4px; white-space:nowrap; cursor:help; }
+  .mar-g-ins{ font-size:13px; margin-top:2px; }
   .noadm-sum{ font:inherit; font-size:13px; cursor:pointer; }
   .cal-ev .noadm-ic{ position:absolute; top:2px; inset-inline-end:2px; padding:0 4px; font-size:11px; }
   .stat.stat-warn{ cursor:pointer; border:1.5px solid #FDBA74; background:#FFF7ED; font:inherit; color:inherit; } .stat.stat-warn b{ color:#9A3412; }
@@ -2388,7 +2389,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         </div>
         <div class="filters-chk">
           <label class="chk"><input type="checkbox" id="fActive" checked> רק פעילים</label>
-          <label class="chk" title="גם ילדים משנים קודמות (בחיפוש ובסינון). נדלק לבד כשבוחרים שנה קודמת או תאריך לפני 1.9 השנה"><input type="checkbox" id="fPast"> כולל שנים קודמות</label>
+          <input type="checkbox" id="fPast" hidden><!-- 5.19.129 (נועה 24.10): בלי "כולל שנים קודמות" – שנה קודמת / "כל השנים" / תאריך לפני 1.9 = מציגים שנים קודמות -->
           <label class="chk"><input type="checkbox" id="fStar"> רק עם כוכב</label>
           <div class="remind-f"><label class="chk"><input type="checkbox" id="fRemind"> תזכורות עד</label><input type="date" id="fRemindDate" aria-label="תזכורות עד תאריך"></div>
         </div>
@@ -3599,10 +3600,7 @@ $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 
 $("fRemindDate").addEventListener("change", () => { if ($("fRemindDate").value) $("fRemind").checked = true; });
 ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear","fStar","fActive","fPast","fRemind","fRemindDate"].forEach(id =>
   $(id).addEventListener(id === "fSearch" ? "input" : "change", () => { if (id === "fAsg" && $("fAsg").value === "wkchg") { WC.map = null; WC.p = null; }
-    // 5.19.104 (נועה): שנה קודמת / תאריך לפני 1.9 השנה → "כולל שנים קודמות" נדלק לבד; ביטול הסימון – חזרה לשנה הנוכחית
-    if ((id === "fFrom" || id === "fTo") && $(id).value && $(id).value < HIST_YS() + "-09-01") $("fPast").checked = true;
-    if (id === "fYear" && $("fYear").value) $("fPast").checked = true;
-    if (id === "fPast" && !$("fPast").checked) $("fYear").value = "";
+    pastSync();   // 5.19.129: שנים קודמות – לפי שנת הלימוד / התאריכים
     F.page = 0; saveLeadFilters(); renderLeads(); }));
 $("clearFilters").addEventListener("click", () => {
   ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear"].forEach(id => $(id).value = "");
@@ -3663,10 +3661,14 @@ const histGradeNow = (g, ys) => { const i = GRADES.findIndex(x => gradeKey(x) ==
 const hebYear = (ys) => { const n = (Number(ys) + 3761) % 1000, h = Math.floor(n / 100), tn = Math.floor((n % 100) / 10), u = n % 10;
   const H = ["", "ק", "ר", "ש", "ת", "תק", "תר", "תש", "תת", "תתק"][h], T = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"][tn], U = ["", "א", "ב", "ג", "ד", "ה", "ו", "ז", "ח", "ט"][u];
   let s = H + (tn === 1 && (u === 5 || u === 6) ? (u === 5 ? "טו" : "טז") : T + U); return s.length > 1 ? s.slice(0, -1) + '"' + s.slice(-1) : s + "'"; };
+// 5.19.129: "שנים קודמות" לפי הסינון עצמו – שנת לימוד שאינה השנה (שנה קודמת / כל השנים), או תאריך לפני 1.9 השנה
+function pastSync(){ const y0 = HIST_YS() + "-09-01", f = $("fFrom").value, t = $("fTo").value;
+  $("fPast").checked = !!$("fYear").value || !!(f && f < y0) || !!(t && t < y0); }
 function fillYears(){ const sel = $("fYear"); if (!sel || sel.options.length) return; const cur = HIST_YS();
   sel.innerHTML = `<option value="">השנה (${esc(hyLbl(hebYear(cur), cur))})</option><option value="all">כל השנים</option>` + Array.from({ length: cur - 2019 - 1 }, (_, i) => cur - 1 - i).map(y => `<option value="${y}">${esc(hyLbl(hebYear(y), y))}</option>`).join(""); }
 const hNorm = (s) => String(s || "").replace(/["'׳״\s-]/g, "");
 function histFiltered(leadList){
+  pastSync();
   const q = $("fSearch").value.trim().toLowerCase(), qd = digits(q), from = $("fFrom").value, to = $("fTo").value, yr = $("fYear").value, past = $("fPast").checked;
   // 5.19.104 (נועה): שנים קודמות רק כשמסומן "כולל שנים קודמות" (נדלק לבד בשנה קודמת / תאריך ישן)
   if (!past) return [];
@@ -3714,7 +3716,7 @@ const H_KEY = {
 };
 // כל השורות של הטבלה: הכרטיסים + שנים קודמות (באותו מיון)
 function leadRows(){
-  LR.years = new Map(); L.leadByStudent = new Map(L.leads.map(l => [l.student_id, l]));
+  pastSync(); LR.years = new Map(); L.leadByStudent = new Map(L.leads.map(l => [l.student_id, l]));
   const yr = $("fYear").value, pastYr = yr && yr !== "all" && Number(yr) < HIST_YS();
   if (($("fPast").checked || !$("fActive").checked) && !L.inactReady) ensureInact();
   const list = pastYr ? [] : filtered(), hs = histFiltered(list);
@@ -6507,8 +6509,9 @@ async function openMarathonPanel(m){
   const R = $("marKids");
   R.innerHTML = `<li class="mar-kids-h"><b>👥 נרשמים (${total})</b>${m.code ? `<span class="mar-kids-lk">${lk2Btns("", lkMarCode(m.code), "הרשמה ל" + m.name + ": ")}</span>` : ""}</li>`
     + (gs.length ? gs.map(g => { const ks = kidsOf(g.session_id);
-      return `<li class="mar-g-h"><div><b>${esc(g.time_label || "קבוצה")}</b> <span class="muted">${esc(marMeetings(g).map(x => fmtDM(x.date)).join(", "))} · ${ks.length}${g.capacity ? " / " + g.capacity : ""} ילדים</span></div>
-          <span class="mar-g-btns">${ks.length >= 2 ? `<button type="button" class="btn small" data-msplit="${g.session_id}" title="פיצול לשתי קבוצות (למשל לשתי כיתות)">✂ פיצול</button>` : ""}<button type="button" class="btn small" data-matt="${g.session_id}">✓ נוכחות</button></span></li>`
+      return `<li class="mar-g-h"><div><b>${esc(g.time_label || "קבוצה")}</b> <span class="muted">${esc(marMeetings(g).map(x => fmtDM(x.date)).join(", "))} · ${ks.length}${g.capacity ? " / " + g.capacity : ""} ילדים</span>
+          <div class="mar-g-ins">${(G.ins && G.ins[g.session_id] || []).length ? "👤 " + esc(G.ins[g.session_id].join(", ")) : '<span class="muted">אין מתרגל/ת</span>'}${noAdmIc(g)}</div></div>
+          <span class="mar-g-btns"><button type="button" class="btn small" data-mins="${g.session_id}" title="מתרגלים, מפגשים ושעות של הקבוצה">✎ מתרגלים</button>${ks.length >= 2 ? `<button type="button" class="btn small" data-msplit="${g.session_id}" title="פיצול לשתי קבוצות (למשל לשתי כיתות)">✂ פיצול</button>` : ""}<button type="button" class="btn small" data-matt="${g.session_id}">✓ נוכחות</button></span></li>`
         + (ks.length ? ks.map(k => { const lead = L.leads.find(x => x.student_id === k.student_id);
           return `<li data-aid="${k.id}" data-sid="${g.session_id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}${payPendChip(k.student_id, g.session_id, true)}</span>
             <span class="ro-btns"><button type="button" class="btn small" data-mwd="${k.id}">פרישה מהמרתון</button></span></div>
@@ -6516,6 +6519,9 @@ async function openMarathonPanel(m){
           : `<li class="meta">עוד אין נרשמים בקבוצה הזאת.</li>`); }).join("") : `<li class="meta">אין קבוצות במרתון.</li>`);
   wireLk(R);
   R.querySelectorAll("[data-lead]").forEach(b => b.onclick = () => { closePanel(); openLead(Number(b.dataset.lead)); });
+  // 5.19.129 (נועה 24.10): מתרגלים בקבוצת מרתון – כמו בקבוצה שוטפת (אותה בחירה); לכל קבוצה צריך מנהל/ת
+  R.querySelectorAll("[data-mins]").forEach(b => b.onclick = () => { const se = gs.find(x => x.session_id === Number(b.dataset.mins)); if (!se) return;
+    panelFor((se.time_label || "קבוצה") + " · " + m.name, m.school || ""); G.marPanel = null; openMarGroupEditor(m, se); });
   R.querySelectorAll("[data-matt]").forEach(b => b.onclick = () => { const se = gs.find(x => x.session_id === Number(b.dataset.matt)); if (se) openAttFor(se); });
   R.querySelectorAll("[data-msplit]").forEach(b => b.onclick = () => { const se = gs.find(x => x.session_id === Number(b.dataset.msplit)); if (se) marSplit(m, se, kidsOf(se.session_id), gs); });
   R.querySelectorAll("[data-mwd]").forEach(b => b.onclick = () => { const li = b.closest("li"), sid = Number(li.dataset.sid), k = kidsOf(sid).find(x => String(x.id) === b.dataset.mwd); if (k) marWithdraw(k, gs.find(x => x.session_id === sid), m); });
