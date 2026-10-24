@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.127">
+<meta name="app-version" content="5.19.128">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -618,6 +618,13 @@
   .prop-chk{ display:flex; gap:14px; flex-wrap:wrap; margin-top:4px; font-size:13px; } .prop-chk label{ display:flex; gap:5px; align-items:center; }
   .prop-st{ display:inline-block; font-size:11.5px; font-weight:800; border-radius:999px; padding:1px 8px; white-space:nowrap; }
   .prop-st.none{ background:#C0392B; color:#fff; } .prop-st.sent{ color:#B07D1E; border:1px solid #E8C98A; } .prop-st.ok{ color:var(--ok); border:1px solid currentColor; }
+  .asg-pill.mar > span{ background:#EEF0FF; color:#3B3F8F; border:1.5px solid #B9BEF0; }   /* 5.19.128: שיבוץ למרתון */
+  .ts-bulk{ max-height:85vh; overflow:auto; } .tsb-h{ font-weight:800; margin:10px 0 4px; } .tsb-l{ list-style:none; margin:0; padding:0; max-height:42vh; overflow:auto; }
+  .tsb-l li{ display:flex; align-items:center; gap:8px; padding:4px 0; border-bottom:1px solid var(--line, #eee); } .tsb-l li > span:first-child{ flex:1; }
+  .noadm{ display:inline-block; width:fit-content; align-self:flex-start; font-size:12px; font-weight:800; color:#9A3412; background:#FFEDD5; border:1px solid #FDBA74; border-radius:999px; padding:0 7px; margin-inline-start:4px; white-space:nowrap; cursor:help; }
+  .noadm-sum{ font:inherit; font-size:13px; cursor:pointer; }
+  .cal-ev .noadm-ic{ position:absolute; top:2px; inset-inline-end:2px; padding:0 4px; font-size:11px; }
+  .stat.stat-warn{ cursor:pointer; border:1.5px solid #FDBA74; background:#FFF7ED; font:inherit; color:inherit; } .stat.stat-warn b{ color:#9A3412; }
   .asg-pill.one{ outline:2px dashed var(--warn); outline-offset:2px; border-radius:999px; }
   .asg-none{ font-size:12.5px; color:var(--ink-soft); }
   .school-chip{ display:inline-block; background:var(--scb); color:var(--sci); font-weight:800; border-radius:999px; padding:1px 10px; line-height:1.6; white-space:nowrap; }
@@ -2879,7 +2886,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 <div class="panel-bg" id="panelBg" hidden></div>
 <aside class="panel" id="panel" hidden aria-label="פרטי קבוצה">
   <header><div><span class="kind-tag kt-grp">👥 קבוצה – הגדרה קבועה</span><h3 id="panelTitle"></h3><div class="muted" id="panelSub"></div></div>
-    <div style="display:flex; gap:6px; align-items:flex-start;"><button class="btn small" id="gEditBtn" type="button">✎ עריכה</button><button class="btn small" id="panelAttBtn" type="button">✓ נוכחות</button><button class="kp-x" id="panelClose" type="button" aria-label="סגירה" title="סגירה">✕</button></div></header>
+    <div style="display:flex; gap:6px; align-items:flex-start;"><button class="btn small" id="gEditBtn" type="button">✎ עריכה</button><button class="btn small" id="panelTsBtn" type="button" hidden title="יצירת חשבונות באפליקציה &quot;תלם שלי&quot; לכל הילדים כאן">📱 תלם שלי</button><button class="btn small" id="panelAttBtn" type="button">✓ נוכחות</button><button class="kp-x" id="panelClose" type="button" aria-label="סגירה" title="סגירה">✕</button></div></header>
   <div class="g-edit" id="gEdit" hidden></div>
   <details class="la-row ro-wrap" id="roWrap" open><summary><b id="roWrapT">ילדים בקבוצה</b></summary>
     <div class="ro-add" id="roAddBox" data-admin><button type="button" class="btn small" id="roAddBtn">+ הוספת ילד/ה לקבוצה</button>
@@ -3361,6 +3368,16 @@ async function loadLists(){
   L.statuses = st; L.sources = so; L.staffAll = sf; L.staff = sf.filter(x => x.role !== "instructor" && x.role !== "display"); L.schools = sc; L.levels = lv.map(x => x.name);
 }
 const ASG_Q = () => getAll("assignments", "select=student_id,status,arrival_time,personal_end,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")");
+// 5.19.128 (נועה 24.10): שיבוץ לקבוצת מרתון (גם בלי הרשמה בטופס – למשל הוספה ידנית) – 🏁 ליד הסטטוס ושורה בעמודת השיבוץ.
+// רק מרתונים שעוד לא עברו (עד 14 יום אחרי המפגש האחרון).
+const MASG_Q = () => getAll("assignments", "select=student_id,session_id,session:sessions!inner(id,kind,meeting_dates,time_label,marathon:marathons(name,city,school,event_date))&session.kind=eq." + encodeURIComponent("מרתון") + "&status=eq." + encodeURIComponent("משובץ")).catch(() => null);
+function setMarAsg(rows){
+  if (!rows) return; L.marAsg = {}; const lim = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
+  rows.forEach(a => { const se = a.session || {}, m = se.marathon || {}, ds = (se.meeting_dates || []).concat(m.event_date ? [m.event_date] : []).filter(Boolean).sort();
+    const last = ds[ds.length - 1]; if (last && last < lim) return;
+    (L.marAsg[a.student_id] = L.marAsg[a.student_id] || []).push({ session_id: a.session_id, name: m.name || "מרתון", school: m.school || "", city: m.city || "", date: ds[0] || "" }); });
+}
+const marAsgOf = (sid) => (L.marAsg && L.marAsg[sid]) || [];
 function setAsg(asg){
   L.asg = {}; L.prop = {}; asg.forEach(a => { if (!a.session) return; const m = a.status === "ממתין" ? L.prop : L.asg; (m[a.student_id] = m[a.student_id] || []).push(Object.assign({}, a.session, { arrival_time: a.arrival_time, personal_end: a.personal_end })); });
   Object.values(L.asg).forEach(v => v.sort((x, y) => DAY_ORDER[x.day] - DAY_ORDER[y.day] || String(x.start_time).localeCompare(String(y.start_time))));
@@ -3369,9 +3386,10 @@ function setAsg(asg){
 async function loadLeadsDelta(){
   if (!L.loadedAt || Date.now() - (L.fullAt || 0) > 30 * 60 * 1000) return loadLeads();   // פעם בחצי שעה - טעינה מלאה
   const since = new Date(L.loadedAt - 120000).toISOString(), t0 = Date.now(), q = encodeURIComponent(since);
-  const [ch, asg, notes] = await Promise.all([
+  const [ch, asg, masg, notes] = await Promise.all([
     get("leads", "select=" + LEAD_SELECT + "&updated_at=gt." + q + "&order=updated_at.desc,id.desc&limit=1000"),
     ASG_Q().catch(() => null),
+    MASG_Q(),
     get("notes", "select=id,lead_id,body,created_at&created_at=gt." + q + "&order=created_at&limit=1000").catch(() => [])
   ]);
   // 5.19.87 (נועה): סופרים רק שינוי אמיתי - בלי שינוי לא מציירים מחדש את הטבלה (שלא "יקפוץ" כל דקה)
@@ -3393,6 +3411,7 @@ async function loadLeadsDelta(){
     }
   } catch(e) {}
   if (asg) { const sig = JSON.stringify(asg); if (sig !== L.asgSig) { if (L.asgSig) real++; L.asgSig = sig; setAsg(asg); } }
+  if (masg) { const sig = JSON.stringify(masg); if (sig !== L.masgSig) { if (L.masgSig) real++; L.masgSig = sig; setMarAsg(masg); } }
   notes.forEach(n => { const arr = (L.notes[n.lead_id] = L.notes[n.lead_id] || []); if (!arr.some(x => x.id === n.id)) { arr.push(n); L.notesCount[n.lead_id] = arr.length; real++; } });
   await loadNotices();
   L.loadedAt = t0;
@@ -3408,7 +3427,7 @@ async function loadLeads(){
       if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads();
       return L.hist; });
   if (!L.hist) L.hist = {};
-  const [leads, notes, asg, mreg] = await Promise.all([
+  const [leads, notes, asg, mreg, masg] = await Promise.all([
     // 5.19.103 (נועה): בכניסה – רק הכרטיסים הפעילים (מה שרואים בדיפולט); הלא פעילים (כ-11,000 עם "שנים קודמות") – ברקע, מיד אחרי
     getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.true&order=updated_at.desc,id.desc")
       .catch(e => /tracking/.test(String(e && e.message)) ? getAll("leads", "select=" + LEAD_SELECT.replace("tracking,", "") + "&is_active=is.true&order=updated_at.desc,id.desc") : Promise.reject(e)),
@@ -3417,12 +3436,14 @@ async function loadLeads(){
       .catch(() => getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")).catch(() => []),
     // 5.19.41: גם מזהה, קבוצה ותשלום (לסימון "ממתין לתשלום" בקבוצה ובנוכחות)
     getAll("marathon_registrations", "select=id,student_id,session_id,status,payment_method,paid_at,amount,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id")
-      .catch(() => getAll("marathon_registrations", "select=student_id,status,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id")).catch(() => [])
+      .catch(() => getAll("marathon_registrations", "select=student_id,status,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id")).catch(() => []),
+    MASG_Q()
   ]);
   callCount(); inboxPoll(true);
   L.pendReg = {}; if (ME.role !== "instructor") get("pending_phone_payments", "select=kind,order_id,student_id,first_name,last_name,what,amount&kind=eq.registration")
     .then(r => { L.pendReg = {}; r.forEach(x => { L.pendReg[x.student_id] = x; }); }).catch(() => {});
   L.mar = {}; mreg.forEach(r => (L.mar[r.student_id] = L.mar[r.student_id] || []).push(r));
+  L.marAsg = {}; setMarAsg(masg); L.masgSig = null;
   await loadNotices();
   // משובצים ב-L.asg, שיבוצים מוצעים ("ממתין") ב-L.prop
   setAsg(asg); L.asgSig = null;
@@ -3490,7 +3511,8 @@ function marTag(st){
 // אייקון קטן ליד הסטטוס - רשום/ה למרתון (הפרטים במעבר עכבר)
 // 5.19.35: 🏁 ליד ילד/ה שרשום/ה למרתון (נוכחות וחלון הקבוצה השוטפת) - רק לפי הרשמה בקישור המרתון
 function marFlag(sid){
-  const m = ((typeof L !== "undefined" && L.mar && L.mar[sid]) || []).filter(x => x.status !== "בוטל"); if (!m.length) return "";
+  const m = ((typeof L !== "undefined" && L.mar && L.mar[sid]) || []).filter(x => x.status !== "בוטל");
+  if (!m.length) { const g = typeof L !== "undefined" ? marAsgOf(sid) : []; return g.length ? ` <span class="mar-ic" title="${esc("משובץ/ת למרתון: " + g.map(x => [x.name, x.school].filter(Boolean).join(" · ")).join(", "))}">🏁</span>` : ""; }
   return ` <span class="mar-ic" title="${esc("רשום/ה למרתון: " + m.map(x => x.marathon ? [x.marathon.name, x.marathon.school].filter(Boolean).join(" · ") : "מרתון").join(", "))}">🏁</span>`;
 }
 // 5.19.41: תשלום טלפוני שעוד לא אושר - "❓ ממתין לתשלום" ליד הילד/ה בקבוצה ובנוכחות. לחיצה (מנהלים): אישור התשלום והשיבוץ.
@@ -3515,7 +3537,8 @@ document.addEventListener("click", async (ev) => {
   document.querySelectorAll(`[data-payq="${stId}"][data-payo="${b.dataset.payo}"]`).forEach(x => x.remove());
 }, true);
 function marIcon(st){
-  const m = (L.mar && L.mar[st.id]) || []; if (!m.length) return "";
+  const m = (L.mar && L.mar[st.id]) || [];
+  if (!m.length) { const g = marAsgOf(st.id); return g.length ? `<span class="mar-ic" title="${esc("משובץ/ת למרתון (בלי הרשמה בטופס): " + g.map(x => [x.name, x.school, x.city].filter(Boolean).join(" · ")).join("\n"))}">🏁</span>` : ""; }
   return `<span class="mar-ic" title="${esc("מרתון: " + m.map(x => (x.marathon ? [x.marathon.name, x.marathon.school, x.marathon.city].filter(Boolean).join(" · ") : "מרתון") + " · " + (x.status || "")).join("\n"))}">🏁</span>`;
 }
 // תאריך העדכון של הליד (כל שמירה במסך הליד מעדכנת אותו)
@@ -3810,8 +3833,9 @@ function renderLeads(){
       <td class="c-asg" data-act="asg" title="לחיצה - שיבוץ לקבוצה / שינוי">${(() => { const a = asgOf(l), pr = propOf(l);
         const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}${x.location && x.location.name ? `<em class="asg-loc"> · ${esc(x.location.name)}</em>` : ""}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
+        const mg = marAsgOf(s.id), mpill = mg.length ? `<span class="asg-pill mar" title="${esc(mg.map(x => "מרתון: " + [x.name, x.school].filter(Boolean).join(" · ") + (x.date ? " · " + fmtIso(x.date) : "")).join("\n"))}">${mg.map(x => `<span>🏁 מרתון${x.date ? " " + esc(fmtIso(x.date).replace(/\.\d{4}$/, "")) : ""}</span>`).join("")}</span>` : "";
         const ov = a.length ? weekLoadCalc(a.map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))) : "";   // 5.19.20
-        return ($("fAsg").value === "wkchg" ? wkChgHtml(s.id) : "") + (ov ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : `<span class="asg-none">לא משובץ</span>`); })()}</td>
+        return ($("fAsg").value === "wkchg" ? wkChgHtml(s.id) : "") + (ov ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : (mg.length ? "" : `<span class="asg-none">לא משובץ</span>`)) + (mpill ? (pills || props ? " " : "") + mpill : ""); })()}</td>
       <td class="c-parent">${(() => { const fm = s.family || {}, nm = fm.parent1_first || fm.parent1_last || "", ph = fm.parent1_phone || "";   // שם פרטי + טלפון בשורה אחת
         return nm || ph ? `<span class="pn">${esc(nm)}</span>${nm && ph ? `<span class="sep"> · </span>` : ""}${ph ? `<a class="pp" dir="ltr" href="tel:${esc(ph)}" onclick="event.stopPropagation()">${esc(String(ph).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : ""}` : ""; })()}</td>
       <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
@@ -5001,6 +5025,48 @@ function tsSendMsg(first, phone, code, reset){
   bg.querySelector("[data-no]").onclick = () => bg.remove();
   document.body.appendChild(bg);
 }
+// 5.19.128 (של-59, נועה 24.10): חשבונות "תלם שלי" לכל הילדים בקבוצה / במרתון – בבת אחת (portal_create_accounts, TS-05).
+// לפי הנייד שבכרטיס; מי שכבר יש לו חשבון / אין נייד תקין – ברשימת "לא נוצר" עם הסיבה. אחר כך הודעת וואטסאפ לכל אחד/ת.
+function tsBulkBtn(ids, what){
+  const b = $("panelTsBtn"); ids = [...new Set(ids.filter(Boolean).map(String))];
+  b.hidden = ME.role !== "admin" || !ids.length; b.onclick = () => tsBulk(ids, what);
+}
+async function tsBulk(ids, what){
+  let shared = ""; try { const st = await rpc("portal_settings_get"); shared = (st && st.initial_code) || ""; } catch(e) {}
+  const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
+  bg.innerHTML = `<div class="ui-dlg ts-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t"></div>
+    <div class="muted" style="font-size:13px;">החשבון נוצר לפי הנייד של התלמיד/ה בכרטיס. מי שכבר יש לו/ה חשבון, או שאין נייד בכרטיס – לא ייווצר (תופיע הסיבה).</div>
+    <label class="lbl" for="tsBCd">קוד ראשוני (אותו קוד לכולם)</label><input id="tsBCd" dir="ltr" inputmode="numeric" maxlength="6">
+    <div class="muted" style="font-size:12.5px; margin-top:4px;">${shared ? "זה הקוד המשותף שנקבע ב\"תלם שלי\"." : ""} בכניסה הראשונה כל אחד/ת בוחר/ת קוד אישי.</div><div class="err" id="tsBErr"></div>
+    <div class="ui-dlg-b"><button type="button" class="btn primary" data-ok>יצירת החשבונות</button><button type="button" class="btn" data-no>ביטול</button></div></div>`;
+  bg.querySelector(".ui-dlg-t").textContent = `חשבונות תלם שלי – ${what} (${ids.length})`;
+  bg.querySelector("#tsBCd").value = shared || tsRand();
+  const close = () => bg.remove();
+  bg.querySelector("[data-no]").onclick = close; bg.addEventListener("click", (ev) => { if (ev.target === bg) close(); });
+  bg.querySelector("[data-ok]").onclick = async () => {
+    const cd = bg.querySelector("#tsBCd").value.trim(), er = bg.querySelector("#tsBErr"), b = bg.querySelector("[data-ok]");
+    if (!/^\d{6}$/.test(cd)) { er.textContent = "הקוד צריך להיות 6 ספרות."; return; }
+    b.disabled = true; b.textContent = "יוצר…"; er.textContent = "";
+    try { const r = await rpc("portal_create_accounts", { p_students: ids, p_code: cd }); close(); tsBulkDone(r || {}, cd, what); }
+    catch(e) { er.textContent = e.message; b.disabled = false; b.textContent = "יצירת החשבונות"; }
+  };
+  document.body.appendChild(bg);
+}
+function tsBulkDone(r, code, what){
+  const cr = r.created || [], sk = r.skipped || [];
+  const msgOf = (nm, ph) => `שלום ${String(nm || "").split(" ")[0]}! 👋\nמעכשיו דפי התרגול של תלם מגיעים אליך באפליקציה "תלם שלי":\n${TS_APP}\n\nנכנסים עם הטלפון שלך:\nטלפון: ${tsPhF(ph)}\nקוד ראשוני: ${code}\n\nבכניסה הראשונה בוחרים קוד אישי.`;
+  const general = `שלום! 👋\nמעכשיו דפי התרגול של תלם מגיעים באפליקציה "תלם שלי":\n${TS_APP}\n\nנכנסים עם מספר הנייד של התלמיד/ה (זה שמסרתם בהרשמה)\nקוד ראשוני: ${code}\n\nבכניסה הראשונה בוחרים קוד אישי.`;
+  const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
+  bg.innerHTML = `<div class="ui-dlg ts-dlg ts-bulk" role="dialog" aria-modal="true"><div class="ui-dlg-t"></div>
+    ${cr.length ? `<div class="tsb-h">✓ נוצרו ${cr.length} חשבונות – הודעה לכל אחד/ת:</div><ul class="tsb-l">${cr.map((x, i) => `<li><span>${esc(x.name || "")}</span> <span class="muted" dir="ltr">${esc(tsPhF(x.phone))}</span>
+      <a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${esc(tsPh(x.phone).slice(1))}?text=${encodeURIComponent(msgOf(x.name, x.phone))}">וואטסאפ</a></li>`).join("")}</ul>` : ""}
+    ${sk.length ? `<div class="tsb-h">לא נוצר (${sk.length}):</div><ul class="tsb-l">${sk.map(x => `<li><span>${esc(x.name || "#" + x.student_id)}</span> <span class="muted">– ${esc(x.reason || "")}</span></li>`).join("")}</ul>` : ""}
+    <div class="ui-dlg-b"><button type="button" class="btn" data-cp>העתקת הודעה כללית (לקבוצה)</button><button type="button" class="btn" data-no>סגירה</button></div></div>`;
+  bg.querySelector(".ui-dlg-t").textContent = `תלם שלי – ${what}`;
+  bg.querySelector("[data-cp]").onclick = async () => { try { await navigator.clipboard.writeText(general); toast("ההודעה הועתקה"); } catch(e) { uiCopyBox(general); } };
+  bg.querySelector("[data-no]").onclick = () => bg.remove();
+  document.body.appendChild(bg);
+}
 // 5.19.18: תקציר לכל שורה מקופלת - השורה הראשונה של התוכן (מתעדכן כשהתוכן נטען)
 document.querySelectorAll("#leadAcc .la-sum[data-of]").forEach(sp => { const src = $(sp.dataset.of);
   // 5.19.41: אם התוכן נותן תקציר משלו (data-sum) - מציגים אותו, ולא את כל הטקסט ברצף
@@ -5167,7 +5233,7 @@ async function loadGroups(){
       get("session_summary", "select=*&" + year),
       getAll("assignments", "select=id,session_id,subject,arrival_time,personal_end,status,note,student:students(id,first_name,last_name,grade,class_num,tracking,school,family:families(parent1_first,parent1_phone))&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")&order=id"),
       get("locations", "select=id,city,name,color_class"),
-      get("session_instructors", "select=session_id,staff(full_name)").catch(() => []),
+      get("session_instructors", "select=session_id,staff(full_name,role)").then(r => { G.insRole = true; return r; }, () => { G.insRole = false; return get("session_instructors", "select=session_id,staff(full_name)"); }).catch(() => []),
       get("marathons", "select=*&order=id.desc").catch(() => [])
     ]);
     G.marathons = mar; G.hasKind = s.length === 0 || "kind" in s[0];
@@ -5175,7 +5241,8 @@ async function loadGroups(){
       get("scheduling_seasons", "select=year_end&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).then(r => { G.yearEnd = (r[0] && r[0].year_end) || G.yearEnd; }).catch(() => {})]);
     await loadNotices();
     s.forEach(x => { if (!x.kind) x.kind = "שוטף"; });
-    G.ins = {}; ins.forEach(x => { if (x.staff) (G.ins[x.session_id] = G.ins[x.session_id] || []).push(x.staff.full_name); });
+    G.ins = {}; G.insAdm = {};
+    ins.forEach(x => { if (x.staff) { (G.ins[x.session_id] = G.ins[x.session_id] || []).push(x.staff.full_name); if (x.staff.role === "admin") G.insAdm[x.session_id] = true; } });
     G.sessions = s; const ids = new Set(s.map(x => x.session_id));
     // G.roster - משובצים בלבד (כל הספירות). G.prop - שיבוצים מוצעים (ממתינים לאישור)
     const rows = a.filter(x => ids.has(x.session_id)).map(x => { const st = x.student || {}, f = st.family || {};
@@ -5222,10 +5289,13 @@ document.querySelectorAll("[data-gkind]").forEach(b => b.onclick = () => {
   else if (G.kind === "all") setKind(other);   // מכבים את זה - נשאר רק השני
 });
 paintKind();
+// 5.19.128 (של-57, נועה 24.10): "סיים/ה דף" ב"תלם שלי" נשלח רק למנהלים שמשובצים לקבוצה – קבוצה עם ילדים בלי מנהל/ת = ⚠
+const noAdm = (se) => !!(G.insRole && ME.role !== "instructor" && (se.assigned_count != null ? se.assigned_count : se.kids || 0) > 0 && !(G.insAdm && G.insAdm[se.session_id]));
+const noAdmIc = (se) => noAdm(se) ? `<span class="noadm" title="אין מנהל/ת משובץ/ת בקבוצה – ההתראות מ&quot;תלם שלי&quot; (סיום דף) לא יגיעו לאף אחד">⚠ בלי מנהל/ת</span>` : "";
 function renderInsFilter(){
   const cur = $("gInsF").value, names = new Set();
   G.sessions.filter(x => cityOk(x) && kindOk(x)).forEach(x => (G.ins[x.session_id] || []).forEach(n => names.add(n)));
-  $("gInsF").innerHTML = "<option value=''>כל המתרגלים</option>" + [...names].sort((a, b) => a.localeCompare(b, "he")).map(n => `<option>${esc(n)}</option>`).join("") + "<option value='__none'>בלי מתרגל/ת</option>";
+  $("gInsF").innerHTML = "<option value=''>כל המתרגלים</option>" + [...names].sort((a, b) => a.localeCompare(b, "he")).map(n => `<option>${esc(n)}</option>`).join("") + "<option value='__none'>בלי מתרגל/ת</option>" + (G.insRole ? "<option value='__noadm'>בלי מנהל/ת (יש ילדים)</option>" : "");
   $("gInsF").value = [...$("gInsF").options].some(o => o.value === cur) ? cur : "";
 }
 $("gInsF").addEventListener("change", () => renderGrid());
@@ -6017,7 +6087,7 @@ function renderCal(list){
       const prop = (G.prop || []).filter(k => k.session_id === se.session_id).length;
       return `<button type="button" class="cal-ev ${scCls(se.location)}${mar ? " ev-mar" : ""}${hf ? " hol-fade" : ""}" data-id="${se.session_id}" style="top:${(x.s - t0) * PPM}px; height:${((x.de || x.e) - x.s) * PPM - 2}px; inset-inline-start:calc(${x.left}% + 2px); width:calc(${x.w}% - 4px);"
         title="${mar ? "מרתון · " + esc(se.time_label) + " · " + fmtDM(x.date) + " · " : ""}${esc(se.location)} · ${esc(se.city)} · ${x.st}-${x.en}${se.room ? " · " + esc(se.room) : ""}${G.ins && G.ins[se.session_id] ? " · " + esc(G.ins[se.session_id].join(", ")) : ""}">
-        <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(se.location)}</span>${hf ? cxTag(hf, true) : ""}
+        <span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(se.location)}</span>${hf ? cxTag(hf, true) : ""}${noAdm(se) ? `<span class="noadm noadm-ic" title="אין מנהל/ת משובץ/ת בקבוצה">⚠</span>` : ""}
         <span class="ev-time">${mar ? "🏁 מרתון · " + (se.time_label ? esc(se.time_label) + " · " : "") : ""}${rng(x.st, x.en)} <span class="ev-n">${n} ילדים${prop ? ` · <b>${prop} מוצעים</b>` : ""}</span></span>
         ${se.room ? `<span class="ev-meta">📍 ${esc(se.room)}</span>` : ""}</button>`;
     }).join("");
@@ -6045,7 +6115,7 @@ function renderGrid(){
   const loc = $("locFilter").value, fill = $("gFill").value;
   const insF = $("gInsF").value;
   let list = G.sessions.filter(x => cityOk(x) && kindOk(x) && (!loc || x.location === loc)
-    && (!insF || (insF === "__none" ? !(G.ins[x.session_id] || []).length : (G.ins[x.session_id] || []).includes(insF))));
+    && (!insF || (insF === "__none" ? !(G.ins[x.session_id] || []).length : insF === "__noadm" ? noAdm(x) : (G.ins[x.session_id] || []).includes(insF))));
   // סינון "עם ילדים / ריקות" - רק לתרגולים השוטפים (קבוצות מרתון מוצגות תמיד)
   if (fill === "full") list = list.filter(x => x.kind === "מרתון" || (x.assigned_count || 0) > 0);
   else if (fill === "empty") list = list.filter(x => x.kind === "מרתון" || !(x.assigned_count || 0));
@@ -6054,7 +6124,9 @@ function renderGrid(){
   const nMar = list.filter(x => x.kind === "מרתון").length, nReg = list.length - nMar;
   $("gStats").innerHTML = `<div class="stat"><b>${kids.size}</b><span>ילדים משובצים</span></div>`
     + (nReg ? `<div class="stat"><b>${list.filter(x => x.kind !== "מרתון" && x.assigned_count > 0).length}</b><span>קבוצות שוטפות פעילות</span></div>` : "")
-    + (nMar || G.kind === "מרתון" ? `<div class="stat"><b>${nMar}</b><span>קבוצות מרתון</span></div>` : "");
+    + (nMar || G.kind === "מרתון" ? `<div class="stat"><b>${nMar}</b><span>קבוצות מרתון</span></div>` : "")
+    + (() => { const na = list.filter(noAdm).length; return na ? `<button type="button" class="stat stat-warn" id="gNoAdm" title="קבוצות עם ילדים שאין בהן מנהל/ת משובץ/ת – לחיצה: רק הן"><b>⚠ ${na}</b><span>קבוצות בלי מנהל/ת</span></button>` : ""; })();
+  if ($("gNoAdm")) $("gNoAdm").onclick = () => { renderInsFilter(); $("gInsF").value = $("gInsF").value === "__noadm" ? "" : "__noadm"; renderGrid(); };
   if (!G.week) G.week = thisWeek();
   paintWeekNav(G.mode !== "table");
   if (G.mode !== "table") list = list.filter(x => x.kind === "מרתון" || sesActiveOn(x, weekDate(x.day)));
@@ -6069,7 +6141,7 @@ function renderGrid(){
       sorted.map(se => { const mar = se.kind === "מרתון";
         return `<tr data-id="${se.session_id}"><td>${mar ? `<span class="mar-tag" style="margin:0">מרתון</span> <b>${esc(mName(se))} · ${esc(se.time_label)}</b><div class="muted" style="font-size:13px">${esc(marWhenShort(se))}</div>` : `<b>${DAY_NAMES[se.day]}</b>`}</td>
         <td>${mar ? marHoursShort(se) : rng(gHm(se.start_time), gHm(se.end_time))}</td><td>${scChip(se.location)}${G.cities.length > 1 ? ` <span class="muted">${esc(se.city)}</span>` : ""}</td>
-        <td class="muted">${se.room ? `<bdi>${esc(se.room)}</bdi>` : ""}</td><td>${G.ins && G.ins[se.session_id] ? esc(G.ins[se.session_id].join(", ")) : "<span class='muted'>—</span>"}</td>
+        <td class="muted">${se.room ? `<bdi>${esc(se.room)}</bdi>` : ""}</td><td>${G.ins && G.ins[se.session_id] ? esc(G.ins[se.session_id].join(", ")) : "<span class='muted'>—</span>"}${noAdmIc(se) ? " " + noAdmIc(se) : ""}</td>
         <td class="num">${se.assigned_count || 0}${se.capacity ? " / " + se.capacity : ""}</td><td>${se.is_open === false ? "<span class='closed'>סגורה</span>" : "פתוחה"}</td></tr>`; }).join("") + "</tbody>";
     $("gGrid").querySelectorAll("tr[data-id]").forEach(tr => tr.onclick = () => openPanel(Number(tr.dataset.id)));
     return;
@@ -6085,7 +6157,7 @@ function renderGrid(){
       if (!de.length) h += `<div class="muted" style="padding:4px 2px 8px;">אין קבוצות</div>`;
       de.forEach(x => { const se = x.se, mar = se.kind === "מרתון";
         h += `<button type="button" class="group mob-group ${scCls(se.location)}${holFor(x.date || dt, se) ? " hol-fade" : ""}" data-id="${se.session_id}">
-          <span class="loc">${mar ? `<span class="mar-tag" style="margin:0">מרתון</span> ` : ""}<b>${rng(x.st, x.en)}</b> · ${esc(se.location)}${G.cities.length > 1 ? " (" + esc(se.city) + ")" : ""}${se.room ? " · 📍 " + esc(se.room) : ""}${mar ? " · " + esc(se.time_label) : ""}</span>${G.ins && G.ins[se.session_id] ? `<span class="ins">${esc(G.ins[se.session_id].join(", "))}</span>` : ""}<span class="cnt">${se.assigned_count || 0} ילדים</span></button>`; });
+          <span class="loc">${mar ? `<span class="mar-tag" style="margin:0">מרתון</span> ` : ""}<b>${rng(x.st, x.en)}</b> · ${esc(se.location)}${G.cities.length > 1 ? " (" + esc(se.city) + ")" : ""}${se.room ? " · 📍 " + esc(se.room) : ""}${mar ? " · " + esc(se.time_label) : ""}</span>${noAdmIc(se)}${G.ins && G.ins[se.session_id] ? `<span class="ins">${esc(G.ins[se.session_id].join(", "))}</span>` : ""}<span class="cnt">${se.assigned_count || 0} ילדים</span></button>`; });
     });
     $("gGrid").innerHTML = h + "</td></tr></tbody>";
     $("gGrid").querySelectorAll(".group").forEach(b => b.onclick = () => openPanel(Number(b.dataset.id)));
@@ -6150,6 +6222,7 @@ function openPanel(id){
   {
     $("panelAttBtn").hidden = false; $("panelAttBtn").textContent = "✓ נוכחות";
     $("panelAttBtn").onclick = () => openAttFor(se); }
+  tsBulkBtn(G.roster.filter(k => k.session_id === id).map(k => k.student_id), se.kind === "מרתון" ? "קבוצת המרתון" : "הקבוצה");
   // פיצול לתת-קבוצות - הוסר מהלוח (הלקוחה 12.10, לא בשימוש בנוכחות). הקוד נשאר: loadPanelSplits(se)
   loadPanelSchool(se);
   gViewDetails(se, mOf);
@@ -6230,7 +6303,7 @@ function gViewDetails(se, mOf){
   if (ME.role === "instructor") return;
   const ins = (G.ins && G.ins[se.session_id]) || [], sub = $("panelSub"); if (!sub) return;
   sub.querySelectorAll(".ps-ins").forEach(x => x.remove());
-  sub.insertAdjacentHTML("beforeend", `<span class="ps-ins">${ins.length ? "מתרגלים: " + esc(ins.join(", ")) : '<span class="muted">אין מתרגל/ת</span>'}</span>`);
+  sub.insertAdjacentHTML("beforeend", `<span class="ps-ins">${ins.length ? "מתרגלים: " + esc(ins.join(", ")) : '<span class="muted">אין מתרגל/ת</span>'}${noAdmIc(se) ? " " + noAdmIc(se) : ""}</span>`);
   const box = $("gEdit"); box.hidden = true; box.innerHTML = ""; box.classList.remove("g-viewmode");
 }
 // 5.19.77 (נועה): הכפתורים בשורה האחרונה של המסגרת (לא בשורה נפרדת); כשהמסגרת סגורה - מתחת לה
@@ -6326,7 +6399,7 @@ $("gEditBtn").addEventListener("click", () => { const se = G.sessions.find(x => 
   if (se.kind === "מרתון") openMarGroupEditor((G.marathons || []).find(m => m.id === se.marathon_id), se); else openGroupEditor(se); } });
 function newGroup(preset){
   G.panel = null; $("panelTitle").textContent = "קבוצה חדשה"; $("panelSub").textContent = (preset && [preset.location, preset.city].filter(Boolean).join(" · ")) || G.city || "";
-  $("gEditBtn").hidden = true; $("panelAttBtn").hidden = true; $("roster").hidden = true; $("roster").innerHTML = "";
+  $("gEditBtn").hidden = true; $("panelAttBtn").hidden = true; $("panelTsBtn").hidden = true; $("roster").hidden = true; $("roster").innerHTML = "";
   $("panel").hidden = false; $("panelBg").hidden = false; openGroupEditor(null, preset);
 }
 $("gNewBtn").addEventListener("click", () => newGroup(null));
@@ -6423,11 +6496,12 @@ async function openMarathonPanel(m){
   const fresh = (G.marathons || []).find(x => x.id === m.id); if (fresh) m = fresh;
   panelFor(m.name, [m.school, m.city].filter(Boolean).join(" · "));
   G.panel = null; G.marPanel = m.id;
-  $("gEditBtn").hidden = true; if ($("panelAttBtn")) $("panelAttBtn").hidden = true;
+  $("gEditBtn").hidden = true; if ($("panelAttBtn")) $("panelAttBtn").hidden = true; $("panelTsBtn").hidden = true;
   openMarathonEditor(m, true);
   const gs = (G.sessions || []).filter(x => x.kind === "מרתון" && x.marathon_id === m.id).sort((a, b) => gFirstDate(a).localeCompare(gFirstDate(b)) || String(a.start_time).localeCompare(String(b.start_time)));
   const kidsOf = (sid) => (G.roster || []).filter(k => k.session_id === sid).sort(attSort);
   const total = gs.reduce((n, g) => n + kidsOf(g.session_id).length, 0);
+  tsBulkBtn([].concat(...gs.map(g => kidsOf(g.session_id).map(k => k.student_id))), "נרשמי " + m.name);
   $("roster").hidden = true; $("roster").innerHTML = "";
   $("gEdit").insertAdjacentHTML("beforeend", `<div class="full mar-kids"><ul class="roster" id="marKids"></ul></div>`);
   const R = $("marKids");
@@ -6477,6 +6551,7 @@ function marSplit(m, se, kids, gs){
         const body = {}; ["kind", "marathon_id", "meeting_dates", "meetings", "day", "location_id", "start_time", "end_time", "capacity", "city", "school_year", "room"].forEach(k => { if (k in src) body[k] = src[k]; });
         body.time_label = name; body.is_open = false;
         const nid = (await insert("sessions", body))[0].id;
+        { let ex = []; try { ex = (await get("session_instructors", "select=staff_id&session_id=eq." + se.session_id)).map(x => x.staff_id); } catch(e) {} await marAddAdmins([nid], ex); }   // 5.19.128: אותם מתרגלים + המנהלים
         const mv = kids.filter(k => move.has(k.id));
         await patch("assignments", "id=in.(" + mv.map(k => k.id).join(",") + ")", { session_id: nid });
         await patch("marathon_registrations", "session_id=eq." + se.session_id + "&student_id=in.(" + mv.map(k => k.student_id).join(",") + ")", { session_id: nid }).catch(() => {});
@@ -6508,7 +6583,7 @@ async function marHakChips(sid, kids){
 }
 function panelFor(title, sub){
   G.panel = null; $("gEdit").hidden = true; $("gEdit").innerHTML = ""; $("roster").classList.remove("editing"); $("panelTitle").textContent = title; $("panelSub").textContent = sub || "";
-  $("gEditBtn").hidden = true; $("panelAttBtn").hidden = true; $("roster").hidden = true; $("roster").innerHTML = ""; $("roWrap").hidden = true;
+  $("gEditBtn").hidden = true; $("panelAttBtn").hidden = true; $("panelTsBtn").hidden = true; $("roster").hidden = true; $("roster").innerHTML = ""; $("roWrap").hidden = true;
   $("panel").hidden = false; $("panelBg").hidden = false;
 }
 $("exMarBtn").addEventListener("click", async () => { await ensureG(); $("mNewBtn").click(); });
@@ -7005,6 +7080,7 @@ function openMarathonEditor(m, inPanel, pre){
           if (x.id) { if (sig(x) !== JSON.stringify(JSON.parse(x.orig))) await patch("sessions", "id=eq." + x.id, sBody(x)); }
           else { const sid = (await insert("sessions", Object.assign({ marathon_id: mid, kind: "מרתון", day: null, location_id: loc0, is_open: true, city: body.city, school_year: CONFIG.schoolYear }, sBody(x))))[0].id; x.id = sid; newIds.push(sid); }
         }
+        if (newIds.length) await marAddAdmins(newIds);   // 5.19.128
       } catch(e2) { if (created) { for (const id of newIds) await del("sessions", "id=eq." + id).catch(() => {}); await del("marathons", "id=eq." + created.id).catch(() => {}); } throw e2; }   // מרתון חדש בלי קבוצות - לא נשאר
       // לוח המבחנים: רק הקבוצה הראשונה מקושרת אליו
       const f = GRPS[0];
@@ -7043,6 +7119,12 @@ const meetRow = (m) => `<div class="d"><div class="mt-h"><b class="mt-n"></b><bu
 // 5.19.41: כיתה לכל מפגש (לא חובה) - נשמרת בתוך meetings, מוצגת רק כשיש
 const meetRead = (r) => { const o = { date: r.querySelector("[data-md]").value, start: r.querySelector("[data-ms]").value, end: r.querySelector("[data-me]").value }, rm = r.querySelector("[data-mr]"); if (rm && rm.value.trim()) o.room = rm.value.trim(); return o; };
 const roomTxt = (r) => !r ? "" : /^(כיתה|חדר|אולם|מעבדה|ספרייה)/.test(String(r).trim()) ? String(r).trim() : "כיתה " + String(r).trim();
+// 5.19.128 (נועה 24.10): קבוצת מרתון חדשה – בדיפולט שני המנהלים משובצים (מורידים בעריכה אם צריך)
+async function marAddAdmins(sids, extra){
+  let ad = []; try { ad = (await get("staff", "select=id,role&role=eq.admin")).map(x => x.id); } catch(e) {}
+  const ids = [...new Set(ad.concat(extra || []))];
+  for (const sid of sids) for (const id of ids) await insert("session_instructors", { session_id: sid, staff_id: id }).catch(() => {});
+}
 async function openMarGroupEditor(m, se){
   const box = $("gEdit"); box.hidden = false; box.classList.remove("g-viewmode"); box.classList.add("g3"); box.innerHTML = "<div class='muted full'>טוען...</div>";
   if (!m) { box.innerHTML = "<div class='err full'>המרתון לא נמצא.</div>"; return; }
@@ -7063,7 +7145,7 @@ async function openMarGroupEditor(m, se){
     <div><label class="lbl">משך כל מפגש (דקות)</label><input type="number" min="15" max="600" step="15" data-dur value="${marDurOf(meets)}"><div class="muted fhint">שעת הסיום מתעדכנת לפי שעת ההתחלה. אפשר גם לשנות אותה ידנית.</div></div>
     <div class="full"><label class="lbl">המפגשים</label><div class="mar-dates" data-g="dates"><div class="dh"><span>תאריך</span><span>שעת התחלה</span><span>שעת סיום</span><span>כיתה</span><span></span></div>${meets.map(m => meetRow(m)).join("")}</div>
       <button type="button" class="btn small" data-g="adddate" style="margin-top:6px;">+ מפגש</button></div>
-    <div class="full"><label class="lbl">מתרגלים בקבוצה</label>${insPicker(curIns)}</div>
+    <div class="full"><label class="lbl">מתרגלים בקבוצה</label>${insPicker(se ? curIns : STAFF_ALL.filter(x => x.role === "admin").map(x => x.id))}</div>
     <div><label class="lbl">מקסימום נרשמים</label><input type="number" min="1" data-g="cap" value="${se && se.capacity != null ? se.capacity : 15}"></div>
     <label class="chk g-chk"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
     <div class="g-btn-cell"></div>
@@ -7281,12 +7363,12 @@ const attCityOk = (g) => ME.role === "instructor" || innerWidth <= 760 || A.citi
 // סינון לפי מתרגל (מנהלים): "הקבוצות שלי" / מתרגל מסוים. נשמר בטלפון.
 A.ins = store("telem_att_ins") || "";
 const attInsOf = (g) => [g.instructors || ""].concat((g.splits || []).map(s => s.instructor || "")).join(", ");
-const attInsOk = (g) => ME.role === "instructor" || !A.ins || attInsOf(g).split(/,\s*/).includes(A.ins === "__me" ? (ME.full_name || "") : A.ins);
+const attInsOk = (g) => ME.role === "instructor" || !A.ins || (A.ins === "__noadm" ? noAdm(g) : attInsOf(g).split(/,\s*/).includes(A.ins === "__me" ? (ME.full_name || "") : A.ins));
 function renderAttIns(all){
   if (ME.role === "instructor") return;
   const names = [...new Set(all.flatMap(g => attInsOf(g).split(/,\s*/)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "he"));
-  if (A.ins && A.ins !== "__me" && !names.includes(A.ins)) names.push(A.ins);
-  $("attIns").innerHTML = `<option value="">כל המתרגלים</option>${ME.full_name ? `<option value="__me">הקבוצות שלי</option>` : ""}` + names.filter(n => n !== ME.full_name).map(n => `<option>${esc(n)}</option>`).join("");
+  if (A.ins && A.ins !== "__me" && A.ins !== "__noadm" && !names.includes(A.ins)) names.push(A.ins);
+  $("attIns").innerHTML = `<option value="">כל המתרגלים</option>${ME.full_name ? `<option value="__me">הקבוצות שלי</option>` : ""}` + names.filter(n => n !== ME.full_name).map(n => `<option>${esc(n)}</option>`).join("") + (G.insRole ? `<option value="__noadm">⚠ בלי מנהל/ת</option>` : "");
   $("attIns").value = A.ins;
 }
 $("attIns").addEventListener("change", () => { A.ins = $("attIns").value; store("telem_att_ins", A.ins || null); loadAttGroups(); });
@@ -7358,7 +7440,8 @@ async function loadAttWeek(){
     const ids = new Set(ev.map(x => x.g.session_id)), kidsN = new Set((G.roster || []).filter(k => ids.has(k.session_id)).map(k => k.student_id)).size;
     const uniq = [...new Map(ev.map(x => [x.g.session_id, x.g])).values()], nMar = uniq.filter(g => g.kind === "מרתון").length;
     const free = uniq.filter(g => g.kind !== "מרתון" && g.capacity).reduce((s, g) => s + Math.max(0, g.capacity - g.kids), 0);
-    $("attSum").innerHTML = ev.length ? `<b>${kidsN}</b> ילדים משובצים · <b>${uniq.length - nMar}</b> קבוצות שוטפות${nMar ? ` · <b>${nMar}</b> קבוצות מרתון` : ""}${free ? ` · <b>${free}</b> מקומות פנויים` : ""}` : "";
+    $("attSum").innerHTML = ev.length ? `<b>${kidsN}</b> ילדים משובצים · <b>${uniq.length - nMar}</b> קבוצות שוטפות${nMar ? ` · <b>${nMar}</b> קבוצות מרתון` : ""}${free ? ` · <b>${free}</b> מקומות פנויים` : ""}${(() => { const na = uniq.filter(noAdm).length; return na ? ` · <button type="button" class="noadm noadm-sum" id="attNoAdm" title="קבוצות עם ילדים בלי מנהל/ת משובץ/ת – ההתראות מ&quot;תלם שלי&quot; לא יגיעו לאף אחד. לחיצה: רק הן">⚠ ${na} קבוצות בלי מנהל/ת</button>` : ""; })()}` : "";
+    if ($("attNoAdm")) $("attNoAdm").onclick = () => { A.ins = A.ins === "__noadm" ? "" : "__noadm"; loadAttGroups(); };
   } else
   $("attSum").innerHTML = ev.length ? `קבוצות השבוע: <b>${nOk}</b> סומנה נוכחות · <span class="miss"><b>${nMiss}</b> כבר היו ולא סומנו</span>${nFut ? ` · <b>${nFut}</b> עוד לא התקיימו` : ""}` : "";
   if (!ev.length) { $("attCal").innerHTML = `<div class="card muted">${ME.role === "instructor" ? "אין לך קבוצות בשבוע הזה." : "אין קבוצות בשבוע הזה."}</div>`; return; }
@@ -7376,7 +7459,7 @@ async function loadAttWeek(){
         title="${esc(g.location)} · ${esc(g.city)} · ${hm(g.start_time)}-${hm(g.end_time)}${g.room ? " · " + esc(g.room) : ""}${g.instructors ? " · " + esc(g.instructors) : ""}">
         ${ME.role !== "instructor" && MODE !== "g" ? `<span class="ev-ed" data-ged role="button" title="חלון הקבוצה (ילדים, מתרגלים, עריכה)" aria-label="חלון הקבוצה">✎</span>` : ""}<span class="ev-loc">${mar ? `<span class="mar-tag">מרתון</span>` : ""}${esc(g.location)}</span>${x.st === "hol" ? cxTag(x.hf, true) : ""}
         <span class="ev-time">${mar ? "🏁 מרתון · " + (g.time_label ? esc(g.time_label) + " · " : "") : ""}${rng(hm(g.start_time), hm(g.end_time))} ${x.st === "ok" && MODE !== "g" ? `<span class="ev-n ev-ac"><b class="c-yes">${x.ac ? x.ac.p : g.marked_count} נוכחים</b> · <b class="c-no">${x.ac ? x.ac.x : Math.max(0, g.kids - g.marked_count)} חסרים</b></span>` : `<span class="ev-n">${g.kids}${MODE === "g" && g.capacity ? "/" + g.capacity : ""} ילדים${MODE === "g" && g.prop ? ` · <b>${g.prop} מוצעים</b>` : ""}</span>`}</span>
-        ${MODE === "g" && g.instructors ? `<span class="ev-meta">👤 ${esc(g.instructors)}</span>` : ""}${g.room ? `<span class="ev-meta">📍 ${esc(g.room)}</span>` : ""}${st}</button>`; }).join("");
+        ${noAdm(g) ? `<span class="noadm noadm-ic" title="אין מנהל/ת משובץ/ת בקבוצה">⚠</span>` : ""}${MODE === "g" && g.instructors ? `<span class="ev-meta">👤 ${esc(g.instructors)}</span>` : ""}${g.room ? `<span class="ev-meta">📍 ${esc(g.room)}</span>` : ""}${st}</button>`; }).join("");
     return `<div class="cal-col"><div class="cal-day${d === today ? " today" : ""}">${DAY_NAMES[dayLetter(d)]}<small>${fmtDM(d)}</small>${holChips(d) ? `<span class="hol-chips">${holChips(d)}</span>` : ""}${calCityHead(CS)}</div><div class="cal-body${holColCls(d)}" style="height:${H}px">${calSeps(CS)}${blocks}</div></div>`;
   }).join("");
   $("attCal").classList.toggle("att-m-a", MODE !== "g");   /* 5.19.114: מראה לוח נוכחות */
