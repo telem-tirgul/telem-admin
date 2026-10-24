@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.121">
+<meta name="app-version" content="5.19.122">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2133,8 +2133,10 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   .gdg-l{ color:var(--ink-soft); font-weight:700; font-size:12px; } .gdg-fx{ margin:6px 0 2px; display:flex; flex-wrap:wrap; gap:4px 8px; align-items:center; font-size:12.5px; }
   .gdg-pat{ margin:6px 0; padding:6px 10px; border-radius:8px; background:#EEF6EC; border:1px solid #CFE3CA; font-size:13px; display:flex; flex-wrap:wrap; gap:6px 10px; align-items:center; }
   .gdg-t{ width:100%; border-collapse:collapse; margin-top:6px; font-size:12.5px; } .gdg-t th{ text-align:start; font-weight:700; color:var(--ink-soft); font-size:11.5px; padding:3px 6px; border-bottom:1px solid var(--border); }
-  .gdg-t td{ padding:4px 6px; border-bottom:1px dashed var(--border); vertical-align:middle; } .gdg-w{ white-space:nowrap; color:var(--ink-soft); width:90px; }
-  .gdg-ev{ display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; margin:2px 0; } .gdg-ok{ color:#2E7D32; font-weight:700; } .gdg-no{ color:#B3261E; font-weight:700; }
+  .gdg-t td{ padding:4px 6px; border-bottom:1px dashed var(--border); vertical-align:middle; } .gdg-w{ white-space:nowrap; color:var(--ink-soft); width:90px; } .gdg-n{ white-space:nowrap; text-align:center; width:60px; } .gdg-t th .asg-pill{ font-weight:600; }
+  .gdg-ev{ display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; margin:2px 0; } .gdg-ok{ color:#2E7D32; font-weight:700; } .gdg-old{ opacity:.6; }
+  .gdg-chips{ display:inline-flex; flex-wrap:wrap; gap:4px 6px; } .gdg-chip{ display:inline-block; padding:2px 10px; border-radius:999px; font-size:13px; font-weight:700; border:1px solid transparent; }
+  .gdg-chip.ok{ background:#E3F2E6; color:#1E6B26; border-color:#B9DDBF; } .gdg-chip.no{ background:#FCEAE8; color:#A4271E; border-color:#F0C2BC; } .gdg-chip.alt{ background:#FFF3D6; color:#7A5200; border-color:#F0DCA6; } .gdg-chip.sw{ background:#EEE9F7; color:#4B3A82; border-color:#D6CCEE; } .gdg-no{ color:#B3261E; font-weight:700; }
   @media (max-width:760px){ .gdg-t thead{ display:none; } .gdg-t tr, .gdg-t td{ display:block; border:0; } .gdg-t tr{ border-bottom:1px dashed var(--border); padding:4px 0; } }   /* 5.19.117 */
   @media (max-width:1100px){ .ib-gd{ grid-template-columns:170px minmax(0,1fr) minmax(0,1fr); } .ib-gd-a{ grid-column:1 / -1; } }
   @media (max-width:760px){ .ib-gd{ display:flex; flex-direction:column; align-items:stretch; gap:5px; padding:9px 12px; } .ib-gd-c2, .ib-gd-c3{ align-items:baseline; } .ib-gd-k{ display:inline; width:96px; } .ib-gd-a{ flex-wrap:wrap; } }
@@ -4206,7 +4208,7 @@ function dupFind(st, fam, exceptSid){
   return out;
 }
 const dupCard = (l) => { const s = l.student || {}, f = s.family || {};
-  return `<b>${esc((s.first_name || "") + " " + (s.last_name || ""))}</b> <span class="muted">#${s.id}</span><div class="muted" style="font-size:13px">${[statusName(l.status_id), s.grade ? "שכבה " + s.grade + (s.class_num ? s.class_num : "") : "", s.school || "", f.parent1_first ? "הורה: " + f.parent1_first + (f.parent1_phone ? " " + f.parent1_phone : "") : "", s.phone ? "נייד: " + s.phone : "", "נוצר " + fmtDM(String(s.created_at || l.created_at || "").slice(0, 10))].filter(Boolean).map(esc).join(" · ")}</div>`; };
+  return `<b>${esc((s.first_name || "") + " " + (s.last_name || ""))}</b> <span class="muted">#${s.id}</span><div class="muted" style="font-size:13px">${[statusName(l.status_id), s.grade ? "שכבה " + s.grade + (s.class_num ? s.class_num : "") : "", s.school || "", f.parent1_first ? "הורה: " + f.parent1_first + (f.parent1_phone ? " " + f.parent1_phone : "") : "", s.phone ? "נייד: " + s.phone : "", "נוצר " + fmtIso(String(l.created_at || s.created_at || "").slice(0, 10))].filter(Boolean).map(esc).join(" · ")}</div>`; };
 // חלון איחוד: מתחילים מילד/ה אחד/ת, בוחרים את הכפול (הצעות לפי הכללים + חיפוש בשם), ואז מי נשאר
 function mergeDlg(sid, preferKeep){
   const me = (L.leads || []).find(l => Number(l.student_id) === Number(sid)); if (!me) { toast("לא נמצא כרטיס"); return; }
@@ -6601,23 +6603,38 @@ function ibGdGroup(g, when){
   // דפוס: אותה קבוצה חלופית ב-2 שבועות ומעלה
   const alt = {}; ad.forEach(r => { const k = String((r.data || {}).session_id || ""); if (k) (alt[k] = alt[k] || new Set()).add(gdWeek(dd(r))[0]); });
   const pat = Object.entries(alt).filter(([, ws]) => ws.size >= 2).map(([k, ws]) => ({ r: ad.filter(r => String((r.data || {}).session_id) === k).pop(), n: ws.size }));
-  const head = [sw ? `<b>החליף/ה מועד ${times(sw)}</b>` : "", ad.length ? `הגיע/ה ${times(ad.length)} לקבוצה אחרת` : "", ms.length ? `חסר/ה ${times(ms.length)} בקבוצה הקבועה` : ""].filter(Boolean).join(" · ");
+  // 5.19.122 (נועה): נוכחות בקבוצה הקבועה באותם שבועות (מתוך הנוכחות) – שיהיה ברור גם מתי כן הגיע/ה
+  const fxIds = new Set(fx.map(se => Number(se.id))), seOf = (id) => fx.find(se => Number(se.id) === Number(id));
+  const att = ((IB.gdAtt || {})[r0.student_id] || []).filter(x => fxIds.has(Number(x.session_id)) && W.has(gdWeek(x.lesson_date)[0]));
+  const nCame = att.filter(x => x.present).length, nMiss = att.filter(x => x.present === false).length;
+  const skipOnly = ms.filter(r => !att.some(x => x.lesson_date === dd(r) && Number(x.session_id) === Number((r.data || {}).session_id) && x.present === false)).length;
+  // 5.19.122 (נועה): טבלה – שורה לכל שבוע, עמודה לכל שיבוץ קבוע (✓ הגיע/ה בירוק / ✗ חסר/ה באדום), "הגיע/ה במקום", וסה״כ X/מתוך
+  const perW = fx.length || 1;
+  const fxCell = (se, w) => { const a = att.find(x => Number(x.session_id) === Number(se.id) && gdWeek(x.lesson_date)[0] === w);
+    const ev = g.find(r => Number((r.data || {}).session_id) === Number(se.id) && gdWeek(dd(r))[0] === w && typ(r) !== "added");
+    const old = ev && ev.status === "handled" && !done ? ` <small class="muted">(טופל)</small>` : "";
+    if (a) return `<span class="${a.present ? "gdg-ok" : "gdg-no"}">${a.present ? "✓ הגיע/ה" : "✗ חסר/ה"}</span> <small class="muted">${esc(fmtDM(a.lesson_date))}</small>${old}`;
+    if (ev) return `<span class="gdg-no">${typ(ev) === "absent" ? "✗ חסר/ה" : "✗ לא מגיע/ה"}</span> <small class="muted">${esc(fmtDM(dd(ev)))}</small>${old}`;
+    return `<span class="muted">–</span>`; };
+  const cell = (r) => { const d = r.data || {}, old = r.status === "handled" && !done;
+    return `<div class="gdg-ev${old ? " gdg-old" : ""}"><span class="gdg-ok">✓ הגיע/ה</span> ${gdPill(d.location, `${esc(dayN(d) ? "יום " + dayN(d) : "")} ${esc(fmtDM(dd(r)))} · ${esc(String(d.time_label || ""))} · ${esc(d.location || "")}`)}${mvBtn(r)}${old ? `<small class="muted">(טופל)</small>` : ""}</div>`; };
   const patH = pat.map(p => `<div class="gdg-pat"><span>⟳ ב-${p.n} שבועות שונים הגיע/ה ל<b>${esc(grpN(p.r.data || {}))}</b> – אולי עדיף שיבוץ קבוע שם</span>${mvBtn(p.r, fx.length ? "העברה קבועה לשם" : "שיבוץ קבוע שם")}</div>`).join("");
-  const cell = (r, came) => { const d = r.data || {}, t = typ(r);
-    const st = came ? `<span class="gdg-ok">✓ הגיע/ה</span>` : t === "absent" ? `<span class="gdg-no">✗ חסר/ה</span>` : `<span class="gdg-no">"לא מגיע/ה היום"</span>`;
-    return `<div class="gdg-ev">${st} ${gdPill(d.location, `${esc(dayN(d) ? "יום " + dayN(d) : "")} ${esc(fmtDM(dd(r)))} · ${esc(String(d.time_label || ""))} · ${esc(d.location || "")}`)}${came ? mvBtn(r) : ""}</div>`; };
-  const rowsH = [...W.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([w, x]) => `<tr><td class="gdg-w">${esc(fmtDM(w))}–${esc(fmtDM(addDays(w, 6)))}</td>
-      <td>${x.miss.map(r => cell(r, false)).join("") || `<span class="muted">–</span>`}</td><td>${x.came.map(r => cell(r, true)).join("") || `<span class="muted">–</span>`}</td></tr>`).join("");
+  let tot = 0, totN = 0;
+  const rowsH = [...W.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([w, x]) => {
+    const n = att.filter(a => gdWeek(a.lesson_date)[0] === w && a.present).length + x.came.length; tot += n; totN += perW;
+    return `<tr><td class="gdg-w">${esc(fmtDM(w))}–${esc(fmtDM(addDays(w, 6)))}</td>${fx.length ? fx.map(se => `<td>${fxCell(se, w)}</td>`).join("") : `<td>${x.miss.map(r => `<span class="gdg-no">${typ(r) === "absent" ? "✗ חסר/ה" : "✗ לא מגיע/ה"}</span> ${gdPill((r.data || {}).location, `${esc(fmtDM(dd(r)))} · ${esc((r.data || {}).location || "")}`)}`).join("<br>") || `<span class="muted">–</span>`}</td>`}
+      <td>${x.came.map(r => cell(r, true)).join("") || `<span class="muted">–</span>`}</td><td class="gdg-n"><b>${n}/${perW}</b></td></tr>`; }).join("");
+  const head = `הגיע/ה <b>${tot}/${totN}</b>${W.size > 1 ? ` <span class="muted">(ב-${W.size} שבועות)</span>` : ""}`;
   const fxH = fx.length ? fx.map(se => { const st0 = String(se.start_time || "").slice(0, 5); return gdPill(se.location && se.location.name, `${sessWhen(se)} ${rng(st0, String(se.end_time || "").slice(0, 5) || addMin(st0, 45))} · ${esc((se.location && se.location.name) || "")}`); }).join(" ")
     : `<span class="muted">לא משובץ/ת לקבוצה קבועה</span>`;
   const ids = g.filter(r => r.status !== "handled").map(r => r.id).join(",");
   return `<div class="ib-gd gdg ${done ? "handled" : "new"}" data-ib="${r0.id}">
     <div class="gdg-h"><span class="ib-ic">🔀</span><b class="ib-gd-n">${lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r0))}</a>` : esc(ibName(r0))}</b>
       <span class="gdg-sum">${head}</span><small class="ib-time">${esc(when(g[g.length - 1].created_at))}</small>
-      <span class="gdg-a">${done ? `<span class="muted">✓ טופל</span>` : ids ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ נקרא (${g.length})</button>` : ""}</span></div>
-    <div class="gdg-fx"><span class="gdg-l">שיבוצים קבועים${fx.length ? " (" + fx.length + ")" : ""}:</span> ${fxH}</div>
+      <span class="gdg-a">${done ? `<span class="muted">✓ טופל</span>` : ids ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ נקרא (${ids.split(",").length})</button>` : ""}</span></div>
+    ${fx.length ? "" : `<div class="gdg-fx"><span class="gdg-l">שיבוצים קבועים:</span> ${fxH}</div>`}
     ${patH}
-    <table class="gdg-t"><thead><tr><th>שבוע</th><th>בקבוצה הקבועה</th><th>הגיע/ה במקום</th></tr></thead><tbody>${rowsH}</tbody></table></div>`;
+    <table class="gdg-t"><thead><tr><th>שבוע</th>${fx.length ? fx.map(se => { const st0 = String(se.start_time || "").slice(0, 5); return `<th>${gdPill(se.location && se.location.name, `${sessWhen(se)} ${st0} · ${esc((se.location && se.location.name) || "")}`)}</th>`; }).join("") : `<th>בקבוצה הקבועה</th>`}<th>הגיע/ה במקום</th><th>סה״כ</th></tr></thead><tbody>${rowsH}</tbody></table></div>`;
 }
 async function ibGdAct(b, kind){
   const r = (IB.rows || []).find(x => x.id === Number(kind === "move" ? b.dataset.gdmv : b.dataset.gdadd)); if (!r) return;
@@ -6660,11 +6677,12 @@ async function renderInbox(reload){
   const when = (iso) => { const d = new Date(iso), t = todayIL(), dd = d.toLocaleDateString("en-CA", { timeZone: "Asia/Jerusalem" }), hh = d.toLocaleTimeString("he-IL", { timeZone: "Asia/Jerusalem", hour: "2-digit", minute: "2-digit" });
     return (dd === t ? "היום" : dd === addDays(t, -1) ? "אתמול" : fmtDM(dd)) + " " + hh; };
   // 5.19.117 (נועה): "מול הקבוצה הקבועה" – סיכום אחד לכל ילד/ה (שנפתחו / שטופלו בנפרד)
-  const gdBy = {}; rows.forEach(r => { if (r.kind === "group_diff" && r.student_id) { const k = r.student_id + "|" + (r.status === "handled" ? "h" : "o"); (gdBy[k] = gdBy[k] || []).push(r); } });
+  // 5.19.122 (נועה): כל האירועים של הילד/ה בכרטיס אחד – גם אלה שכבר טופלו (מסומנים), שהסה״כ יהיה נכון
+  const gdBy = {}; (IB.rows || []).forEach(r => { if (r.kind === "group_diff" && r.student_id) (gdBy[r.student_id] = gdBy[r.student_id] || []).push(r); });
   const gdSeen = new Set();
-  box.innerHTML = `<div class="ib-list">` + rows.map(r => { if (r.kind === "group_diff") { const g = r.student_id ? gdBy[r.student_id + "|" + (r.status === "handled" ? "h" : "o")] : null;
-      if (!g || g.length < 2) return ibGdCard(r, when);
-      const k = r.student_id + "|" + (r.status === "handled" ? "h" : "o"); if (gdSeen.has(k)) return ""; gdSeen.add(k); return ibGdGroup(g, when); } const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = r.issues || [];
+  box.innerHTML = `<div class="ib-list">` + rows.map(r => { if (r.kind === "group_diff") { const g = r.student_id ? gdBy[r.student_id] : null;
+      if (!g) return ibGdCard(r, when);   // 5.19.122: גם אירוע אחד – אותו כרטיס (שבוע, נוכחות בקבוצה הקבועה, לאן הגיע/ה)
+      if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = r.issues || [];
     const tags = (r.flags || []).filter(f => IB_FLAG[f]).map(f => `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
       + (iss.length || (r.flags || []).includes("mismatch") ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}">⚠ ${iss.length ? iss.length + " " : ""}לא תואם ▾</button>` : "");
     return `<div class="ib-row ${r.status}${w ? " warn" : ""}" data-ib="${r.id}">
