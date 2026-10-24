@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.124">
+<meta name="app-version" content="5.19.125">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1913,7 +1913,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .ib-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
 .ib-seg{ display:inline-flex; gap:4px; background:var(--paper); border:1px solid var(--border); border-radius:999px; padding:3px; } .ib-seg button{ border:0; background:none; font:inherit; font-size:13.5px; font-weight:700; padding:5px 12px; border-radius:999px; cursor:pointer; color:var(--ink-soft); } .ib-seg button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
 .ib-list{ background:var(--paper); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-.ib-row{ display:grid; grid-template-columns:28px 120px minmax(110px, 170px) minmax(0, 1fr) auto 92px auto; gap:4px 12px; align-items:center; padding:7px 12px; border-top:1px solid var(--border); border-inline-start:3px solid transparent; font-size:14px; }
+.ib-row{ display:grid; grid-template-columns:28px minmax(110px, 170px) 120px minmax(0, 1fr) auto 92px auto; gap:4px 12px; align-items:center; padding:7px 12px; border-top:1px solid var(--border); border-inline-start:3px solid transparent; font-size:14px; }
 .ib-row:first-child{ border-top:0; } .ib-row.new{ border-inline-start-color:var(--accent); } .ib-row.warn{ border-inline-start-color:#C9554F; } .ib-row.seen, .ib-row.handled{ color:var(--ink-soft); }
 .ib-ic{ font-size:16px; text-align:center; } .ib-k{ font-weight:700; white-space:nowrap; font-size:13px; color:var(--ink-soft); } .ib-n{ font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .ib-w{ color:var(--ink-soft); font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .ib-tags{ display:flex; gap:4px; white-space:nowrap; }
@@ -1922,6 +1922,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .ib-time{ font-size:12.5px; color:var(--ink-soft); white-space:nowrap; text-align:end; } .ib-acts{ display:flex; gap:6px; justify-content:flex-end; white-space:nowrap; } .ib-acts .btn{ padding:3px 9px; } .ib-acts .muted{ font-size:12.5px; }
 .ib-diff{ grid-column:3 / -1; margin:4px 0 2px; border:1px solid #F1D3CF; border-radius:10px; overflow:hidden; font-size:13px; } .ib-diff table{ width:100%; border-collapse:collapse; } .ib-diff th{ background:#FBEDEB; color:#8E2B28; font-weight:800; text-align:right; padding:4px 10px; font-size:12px; } .ib-diff td{ padding:4px 10px; border-top:1px solid #F5E1DE; } .ib-diff td.f{ font-weight:700; width:20%; } .ib-diff .nw{ color:#A1322B; font-weight:800; } .ib-diff td:last-child{ text-align:end; width:1%; white-space:nowrap; }
 .ib-toast{ position:fixed; bottom:18px; inset-inline-start:18px; z-index:300; background:#2B2320; color:#fff; border-radius:14px; padding:10px 14px; box-shadow:0 10px 30px rgba(0,0,0,.25); font-size:14px; display:flex; gap:10px; align-items:center; max-width:440px; } .ib-toast[hidden]{ display:none; } .ib-toast b{ color:#F1D9A6; } .ib-toast button{ background:#fff; color:#2B2320; border:0; border-radius:999px; font:inherit; font-weight:800; font-size:12.5px; padding:4px 10px; cursor:pointer; white-space:nowrap; } .ib-toast button.x{ background:none; color:#fff; padding:2px 4px; }
+/* 5.19.125 (נועה): השם תמיד מימין (מיד אחרי הסמל), ואחריו סוג ההתראה */
+@media (min-width:901px){ .ib-row > *{ order:3; } .ib-row > .ib-ic{ order:0; } .ib-row > .ib-n{ order:1; } .ib-row > .ib-k{ order:2; } }
 /* 5.19.121 (נועה): כל התראה – כרטיס נפרד (רווח ומסגרת), שיהיה ברור איפה מתחילה ונגמרת כל שורה */
 .ib-list{ background:none !important; border:0 !important; border-radius:0 !important; overflow:visible !important; display:flex; flex-direction:column; gap:8px; }
 .ib-list > .ib-row, .ib-list > .ib-gd{ background:var(--paper); border:1px solid var(--border) !important; border-radius:12px; box-shadow:0 1px 2px rgba(0,0,0,.05); }
@@ -6507,12 +6509,14 @@ const IB_FLAG = { added: ["t-new", "נוסף/ה לקבוצה"], removed: ["t-war
   plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"] };
 const IB_WARN_F = ["mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check", "plan_last_check", "plan_reactivated"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
 const ibWarn = (r) => (r.issues || []).length > 0 || (r.flags || []).some(f => IB_WARN_F.includes(f));
+// 5.19.125 (נועה): ספירה לפי ילדים – כמה התראות "מול הקבוצה הקבועה" של אותו ילד/ה = 1 (כמו הכרטיס במסך)
+const ibCountKids = (rows) => new Set(rows.map(r => r.kind === "group_diff" && r.student_id ? "g" + r.student_id : "r" + r.id)).size;
 function ibPaint(n){ const b = $("inboxN"); if (b) b.innerHTML = n ? `<b>${n > 99 ? "99+" : n}</b>` : ""; }
 async function inboxPoll(first){
   if (!ME || ME.role === "instructor" || !IB.ok) return;
   let rows; try { rows = await get("form_inbox", "select=id,kind,student_id,flags,issues,data,created_at&status=eq.new&order=id.desc&limit=100"); }
   catch(e) { if (e.status === 404 || /form_inbox|42P01|PGRST205/i.test(String(e.message) + (e.code || ""))) { IB.ok = false; $("inboxBtn").hidden = true; } return; }
-  $("inboxBtn").hidden = false; ibPaint(rows.length);
+  $("inboxBtn").hidden = false; ibPaint(ibCountKids(rows));
   const max = rows.reduce((m, r) => Math.max(m, r.id), 0);
   if (!first && max > IB.lastMax) {   // הודעה קטנה על מה שהגיע מאז הבדיקה הקודמת
     const fresh = rows.filter(r => r.id > IB.lastMax); await ibNames(fresh);
@@ -6690,7 +6694,7 @@ async function renderInbox(reload){
     if (fixed.length) { const now = new Date().toISOString();
       fixed.forEach(r => { r.status = "handled"; r.note = "טופל – שובץ/ה"; });
       patch("form_inbox", "id=in.(" + fixed.map(r => r.id).join(",") + ")", { status: "handled", handled_at: now, handled_by: ME.full_name || "", note: "טופל – שובץ/ה" }).catch(() => {}); } }
-  const nNew = IB.rows.filter(r => r.status === "new").length, nWarn = IB.rows.filter(r => ibWarn(r) && r.status !== "handled").length; ibPaint(nNew);
+  const nNew = ibCountKids(IB.rows.filter(r => r.status === "new")), nWarn = ibCountKids(IB.rows.filter(r => ibWarn(r) && r.status !== "handled")); ibPaint(nNew);
   document.querySelector('[data-ibf="new"]').textContent = "חדשות " + nNew; document.querySelector('[data-ibf="warn"]').textContent = "⚠ לא תואמות " + nWarn;
   const rows = IB.rows.filter(r => IB.f === "all" ? true : IB.f === "warn" ? ibWarn(r) && r.status !== "handled" : r.status === "new");
   if (!rows.length) { box.innerHTML = `<div class="empty-state">${IB.f === "new" ? "אין הודעות חדשות." : "אין הודעות."}</div>`; return; }
