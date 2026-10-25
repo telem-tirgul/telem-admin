@@ -6,9 +6,9 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.140">
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="app-version" content="5.19.141">
+<link rel="icon" type="image/png" href="favicon.png?v=2">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;700;800;900&family=Assistant:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -1861,6 +1861,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .mc-ref-r{ display:grid; grid-template-columns:minmax(120px,1fr) minmax(160px,1.4fr) auto auto; gap:6px 14px; align-items:center; font-size:13.5px; padding:4px 0; border-top:1px solid var(--border); } .mc-ref-r.done{ opacity:.7; }
 .mc-ref-r > span:last-child{ display:inline-flex; gap:4px; justify-content:flex-end; }
 @media (max-width:760px){ .mc-ref-r{ grid-template-columns:1fr; } .mc-ref-r > span:last-child{ justify-content:flex-start; } }
+.ex-open-lg i{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#22A04B; vertical-align:middle; margin-inline-end:3px; }
+.ex-cal td.mopen{ position:relative; } .ex-cal td.mopen::after{ content:""; position:absolute; top:3px; inset-inline-end:3px; width:7px; height:7px; border-radius:50%; background:#22A04B; box-shadow:0 0 0 1.5px #fff; }   /* 5.19.141: מרתון פתוח להרשמה – נקודה ירוקה */
 .ex-cal td.mcx{ background:repeating-linear-gradient(135deg, #ddd 0 4px, #f2f2f2 4px 8px) !important; color:#888 !important; text-decoration:line-through; }
 .rg-lk-bar .rg-bar-new{ margin-inline-start:auto; }
 /* 5.19.35: בקשות שיבוץ - כמו עמוד הקישורים: ערים בפס קטן למעלה, עמודה אחת ברוחב מלא */
@@ -2331,7 +2333,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 <!-- כניסה -->
 <div id="loginView" class="login" hidden>
   <div class="card">
-    <img class="login-logo" src="logo.png" alt="תלם" width="150" height="90">
+    <img class="login-logo" src="logo.png?v=2" alt="תלם" width="170" height="90">
     <h1>המרכז לשיעורי תרגול<span class="login-sub">מערכת ניהול</span></h1>
     <div class="muted">כניסת צוות</div>
     <form id="loginForm" method="post" action="#">
@@ -2348,7 +2350,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
 <div id="appView" class="app" hidden>
   <aside class="side">
-    <div class="brand" id="brandHome" role="button" tabindex="0" title="למסך הבית"><img src="logo.png" class="brand-logo" alt="תלם"><span class="brand-t">תלם - המרכז לשיעורי תרגול<small>מערכת ניהול</small></span></div>
+    <div class="brand" id="brandHome" role="button" tabindex="0" title="למסך הבית"><img src="logo.png?v=2" class="brand-logo" alt="תלם"><span class="brand-t">תלם - המרכז לשיעורי תרגול<small>מערכת ניהול</small></span></div>
     <button type="button" class="nav-toggle" id="navToggle" aria-label="תפריט" aria-expanded="false">☰ <span id="navCur"></span></button>
     <nav class="nav" aria-label="תפריט">
       <button type="button" data-view="leads" data-ic="👥" data-sl="תלמידים">תלמידים</button>
@@ -2695,7 +2697,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== מסך הבית ===== -->
     <section id="view-home" hidden>
-      <div class="home-hero"><img src="logo.png" alt="תלם" class="home-logo"><div><div class="home-org">המרכז לשיעורי תרגול · מערכת ניהול</div><h1 id="homeHello">שלום</h1></div></div>
+      <div class="home-hero"><img src="logo.png?v=2" alt="תלם" class="home-logo"><div><div class="home-org">המרכז לשיעורי תרגול · מערכת ניהול</div><h1 id="homeHello">שלום</h1></div></div>
       <div class="home-tiles" id="homeTiles"></div>
       <p class="home-load" id="homeLoad" hidden>טוען נתונים…</p>
     </section>
@@ -5572,7 +5574,7 @@ function exMarPop(e, mm){
     <div class="ex-pop-btns"><button type="button" class="btn small" data-mpkids>👥 נרשמים ונוכחות</button><button type="button" class="btn small primary" data-mpedit>פרטי המרתון</button></div></div>`;
   o.hidden = false;
   const q = (sel, fn) => { const b = o.querySelector(sel); if (b) b.onclick = fn; };
-  q("[data-mpcopy]", () => copyText(shortOf(url) || url, shortOf(url) ? "הקישור הקצר הועתק" : undefined));
+  q("[data-mpcopy]", () => { const msg = "הרשמה ל" + (mm.name || "מרתון") + (mm.school && !String(mm.name || "").includes(mm.school) ? " · " + mm.school : "") + ": "; copyText(msg + (shortOf(url) || url), "הועתק עם שם המרתון"); });
   // 5.19.135 (נועה 25.10): הקישור הקצר (נטען / נוצר אם עוד אין)
   if (url && !shortOf(url) && ME.role === "admin") (async () => {
     try { if (SHORT === null) { SHORT_P = SHORT_P || get("short_links", "select=url,short").then(r => { SHORT = {}; r.forEach(x => { SHORT[x.url] = x.short; }); }).catch(() => { SHORT = {}; }); await SHORT_P; }
@@ -5630,7 +5632,7 @@ async function renderExams(reload){
   keep($("exSch"), schs, "כל בתי הספר"); keep($("exGrade"), grs, "כל השכבות");
   const t = todayIL(), fs = $("exSch").value, fg = $("exGrade").value, past = false, mk = false, adm = ME.role !== "instructor";
   const flt = (e) => (!fc || exCity(e) === fc) && (!fs || exSchName(e) === fs) && (!fg || gradeKey(e.grade) === fg);
-  if (cal && EX.link && !EX.cxl) { EX.cxl = new Set(); try { (await get("sessions", "select=id,marathon:marathons!inner(cancelled_at)&kind=eq." + encodeURIComponent("מרתון") + "&marathon.cancelled_at=not.is.null")).forEach(x => EX.cxl.add(x.id)); } catch(e) {} }   // 5.19.36
+  if (cal && EX.link && !EX.cxl) { EX.cxl = new Set(); EX.mopen = new Set(); try { (await get("sessions", "select=id,marathon:marathons!inner(cancelled_at,is_open)&kind=eq." + encodeURIComponent("מרתון"))).forEach(x => { if (x.marathon.cancelled_at) EX.cxl.add(x.id); else if (x.marathon.is_open) EX.mopen.add(x.id); }); } catch(e) {} }   // 5.19.141: גם פתוח / סגור להרשמה   // 5.19.36
   $("view-exams").classList.toggle("exm-on", cal && isMobile());
   if (cal && isMobile()) { exMobile(); $("exMonthNav").hidden = true; box.innerHTML = ""; return; }   // 5.19.88 (נועה): בנייד – בית ספר ← שכבה ← ציר זמן עד המבחן
   if (cal) { await loadHol(); if (!EX.scrollTo && !EX.goToday && document.querySelector(".ex-cal-wrap")) EX.scrollTo = exFirstVisible(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_CAL_HIDE.test(e.kind) && !EX_STUDY.test(e.kind) && flt(e) && exColored(exSchName(e))), t,
@@ -5890,7 +5892,7 @@ function exCalHtml(rows, today, extra){
       const all = r.ex.filter(e => e.exam_date === x.iso), es = all.filter(e => !EX_STUDY.test(e.kind) && !EX_EVT.test(e.kind)), evt = all.find(e => EX_EVT.test(e.kind)), stu = all.find(e => EX_STUDY.test(e.kind)), h = holCell(x.iso, r.city, r.sch);
       if (es.length) { const e = es.find(z => !EX_MAKEUP.test(z.kind)) || es[0], mkc = EX_MAKEUP.test(e.kind);
         return `<td class="d${wk(x)}${frm(x.iso)} ${mkc ? "mk" : /בוחן/.test(e.kind) ? "ex qz" : /מבדק/.test(e.kind) ? "ex bd" : "ex"}${x.iso === today ? " today" : ""}" data-ex="${e.id}" title="${esc(es.map(z => z.kind + (z.class_num ? " (" + r.gr + "'" + z.class_num + ")" : "") + (z.topics ? ": " + z.topics : "")).join("\n"))}">${esc(exShort(e.kind))}</td>`; }
-      if (evt && /^מרתון/.test(evt.kind)) { const n2 = /2/.test(evt.kind), cx = evt.session_id && EX.cxl && EX.cxl.has(evt.session_id); return `<td class="d ${n2 ? "m2c" : "m1c"}${evt.session_id ? " lnk" : ""}${cx ? " mcx" : ""}${wk(x)}${frm(x.iso)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.start_time ? " · " + hm5(evt.start_time) + "–" + hm5(evt.end_time) : "") + (evt.session_id ? (EX.cxl && EX.cxl.has(evt.session_id) ? " · לא יתקיים" : " · יש קישור הרשמה") : "") + (evt.topics ? ": " + evt.topics : ""))}">${n2 ? 2 : 1}</td>`; }
+      if (evt && /^מרתון/.test(evt.kind)) { const n2 = /2/.test(evt.kind), cx = evt.session_id && EX.cxl && EX.cxl.has(evt.session_id); const op = !cx && evt.session_id && EX.mopen && EX.mopen.has(evt.session_id); return `<td class="d ${n2 ? "m2c" : "m1c"}${evt.session_id ? " lnk" : ""}${cx ? " mcx" : ""}${op ? " mopen" : ""}${wk(x)}${frm(x.iso)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.start_time ? " · " + hm5(evt.start_time) + "–" + hm5(evt.end_time) : "") + (evt.session_id ? (EX.cxl && EX.cxl.has(evt.session_id) ? " · לא יתקיים" : op ? " · פתוח להרשמה" : " · סגור להרשמה") : "") + (evt.topics ? ": " + evt.topics : ""))}">${n2 ? 2 : 1}</td>`; }
       if (evt && /^וידוא/.test(evt.kind)) return `<td class="d sy vd${wk(x)}${frm(x.iso)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc(evt.kind + (evt.topics ? ": " + evt.topics : ""))}">וידוא</td>`;   // 5.19.34: אדום = וידוא קיום המבחן
       if (evt) { const ot = /^אירוע/.test(evt.kind), tl = /תלם/.test(evt.kind); return `<td class="d ${ot ? "ot" : tl ? "sr" : "sy"}${wk(x)}${frm(x.iso)}${x.iso === today ? " today" : ""}" data-ex="${evt.id}" title="${esc((ot ? "" : evt.kind) + (evt.topics ? (ot ? "" : ": ") + evt.topics : ot ? evt.kind : ""))}">${ot ? "★" : "SMS"}</td>`; }
       // "לומדים עכשיו" - הערה ביום שבו התקבל (נגיעה - הנושאים)
@@ -6005,7 +6007,8 @@ function exPalRender(){
   const b = $("exPal"); if (!b) return;
   b.hidden = !(EX.mode === "cal" && ME.role !== "instructor");
   b.innerHTML = `<span class="ex-pal-l">הוספה:</span>` + EX_PICK.map((x, i) => `<button type="button" data-pk="${i}" aria-pressed="${EX.pick === i}"><i class="${x[2]}">${x[4] || ""}</i>${esc(x[0])}</button>`).join("")
-    + `<span class="muted ex-pal-h">${EX.pick != null ? "עכשיו לוחצים על יום בלוח" : "בוחרים צבע ולוחצים על יום בלוח"}</span>`;
+    + `<span class="muted ex-pal-h">${EX.pick != null ? "עכשיו לוחצים על יום בלוח" : "בוחרים צבע ולוחצים על יום בלוח"}</span>`
+    + `<span class="muted ex-pal-h ex-open-lg"><i></i> מרתון פתוח להרשמה</span>`;   // 5.19.141
   b.querySelectorAll("[data-pk]").forEach(x => x.onclick = () => { const i = Number(x.dataset.pk); EX.pick = EX.pick === i ? null : i; exPalRender(); });
 }
 // 5.19.33: הוספה מהירה - בלי טופס (בית ספר + שכבה ידועים מהשורה). נושאים מוסיפים אחר כך בלחיצה על המשבצת → ✎ עריכה
@@ -6589,7 +6592,7 @@ function wireMarBox(root, m){
   root.querySelectorAll("[data-mopen]").forEach(b => b.onclick = async () => {
     if (!await uiConfirm("לפתוח את \"" + m.name + "\" להרשמה? מעכשיו הקישור עם התשלום יעבוד.")) return;
     b.disabled = true;
-    try { await patch("marathons", "id=eq." + m.id, { is_open: true }); m.is_open = true; EX.mar = null; RG.mar = null; toast("המרתון פתוח להרשמה"); openMarathonPanel(m); if (currentView === "exams") renderExams(false); }
+    try { await patch("marathons", "id=eq." + m.id, { is_open: true }); m.is_open = true; EX.mar = null; EX.cxl = null; EX.sig = null; RG.mar = null; toast("המרתון פתוח להרשמה"); openMarathonPanel(m); if (currentView === "exams") renderExams(false); }
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   root.querySelectorAll("[data-medit]").forEach(b => b.onclick = () => { $("roster").hidden = true; $("gEditBtn").hidden = true; openMarathonEditor(m, true); });
   // הגדרת המרתון (מחיר, פתוח/סגור) והקישור - במסך "הרשמה ושיבוץ", כמו קישורי ההרשמה לתרגולים
@@ -9365,10 +9368,11 @@ async function makeShort(u){
 const lk2Row = (name, u1, m1, u2, m2, extra, sw1, sw2) => `<div class="lk2-row"><div class="lk-name">${name}${extra ? `<span class="lk2-x">${extra}</span>` : ""}</div>${lk2Btns("התעניינות", u1, m1, sw1)}${lk2Btns("הרשמה", u2, m2, sw2)}</div>`;
 const wireLk = (root) => { root.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
   root.querySelectorAll("[data-scopy]").forEach(b => b.onclick = async () => { const c = b.closest(".lk2-cell"); if (!c) return; const u = c.dataset.u;
-    if (shortOf(u)) { copyText(shortOf(u), "הקישור הקצר הועתק: " + shortOf(u).replace(/^https?:\/\//, "")); return; }
+    const msg = c.dataset.msg || "";   // 5.19.141 (נועה 25.10): מעתיקים גם את השורה (שם / בית ספר / תאריכים) – בוואטסאפ התצוגה המקדימה זהה לכל המרתונים
+    if (shortOf(u)) { copyText(msg + shortOf(u), "הועתק: " + (msg + shortOf(u).replace(/^https?:\/\//, "")).slice(0, 90)); return; }
     b.disabled = true; b.textContent = "…";
-    try { const sh = await makeShort(u); lkApplyShort(document); copyText(sh, "הקישור הקצר הועתק: " + sh.replace(/^https?:\/\//, "")); }
-    catch(e) { copyText(u, "לא נוצר קישור קצר – הועתק הקישור המלא"); console.warn("short-link", e); }
+    try { const sh = await makeShort(u); lkApplyShort(document); copyText(msg + sh, "הועתק: " + (msg + sh.replace(/^https?:\/\//, "")).slice(0, 90)); }
+    catch(e) { copyText(msg + u, "לא נוצר קישור קצר – הועתק הקישור המלא"); console.warn("short-link", e); }
     finally { b.disabled = false; b.textContent = "העתקה"; } });
   if (SHORT === null && ME.role === "admin") { SHORT_P = SHORT_P || get("short_links", "select=url,short").then(r => { SHORT = {}; r.forEach(x => { SHORT[x.url] = x.short; }); }).catch(() => { SHORT = {}; }); SHORT_P.then(() => { lkApplyShort(document); lkAutoShort(); }); }
   else if (SHORT) { lkApplyShort(root); lkAutoShort(); } };
@@ -9586,11 +9590,11 @@ async function renderRegMarathons(city){   // city = "*" - כל הערים יח�
     b.disabled = true;
     try { await patch("marathons", "id=eq." + m.id, { is_open: false, cancelled_at: new Date().toISOString(), cancel_reason: why.trim() || null });
           await patch("marathon_registrations", "marathon_id=eq." + m.id + "&paid_at=is.null&status=eq." + encodeURIComponent("ממתין לתשלום"), { status: "בוטל" }).catch(() => {});
-          toast("המרתון סומן: לא יתקיים"); RG.mar = null; G.marathons = null; EX.cxl = null; renderRegMarathons(city); }
+          toast("המרתון סומן: לא יתקיים"); RG.mar = null; G.marathons = null; EX.cxl = null; EX.sig = null; renderRegMarathons(city); }
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   box.querySelectorAll("[data-rmundo]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmundo));
     if (!await uiConfirm(`להחזיר את "${m.name}" למצב רגיל (מתקיים)? הוא יישאר סגור להרשמה עד שתפתחי. מי שסומן "בוטל" נשאר מבוטל.`)) return;
-    try { await patch("marathons", "id=eq." + m.id, { cancelled_at: null, cancel_reason: null }); toast("המרתון מתקיים"); RG.mar = null; G.marathons = null; EX.cxl = null; renderRegMarathons(city); }
+    try { await patch("marathons", "id=eq." + m.id, { cancelled_at: null, cancel_reason: null }); toast("המרתון מתקיים"); RG.mar = null; G.marathons = null; EX.cxl = null; EX.sig = null; renderRegMarathons(city); }
     catch(e) { toast("לא נשמר: " + e.message); } });
   box.querySelectorAll("[data-rref]").forEach(b => b.onclick = async () => {
     if (!await uiConfirm("לסמן שהכסף הוחזר? (את ההחזר עצמו עושים בריווחית)")) return;
@@ -9605,7 +9609,7 @@ async function renderRegMarathons(city){   // city = "*" - כל הערים יח�
   box.querySelectorAll("[data-rmopen]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmopen)), v = !m.is_open;
     if (v && !await uiConfirm(`לפתוח את "${m.name}" להרשמה? מעכשיו הקישור עם התשלום יעבוד.`)) return;
     b.disabled = true;
-    try { await patch("marathons", "id=eq." + m.id, { is_open: v }); m.is_open = v; G.marathons = null; toast(v ? "המרתון פתוח להרשמה" : "המרתון סגור להרשמה"); renderRegMarathons(city); }
+    try { await patch("marathons", "id=eq." + m.id, { is_open: v }); m.is_open = v; G.marathons = null; EX.cxl = null; EX.sig = null; toast(v ? "המרתון פתוח להרשמה" : "המרתון סגור להרשמה"); renderRegMarathons(city); }
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   wireLk(box);
   box.querySelectorAll("[data-rmdel]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmdel));
@@ -9698,7 +9702,7 @@ async function renderReg(){
         const m = (marsAll || []).find(x => "m" + x.id === k); if (!m) return; const v = !m.is_open;
         if (!await uiConfirm(v ? `לפתוח את "${m.name}" להרשמה? מעכשיו הקישור עם התשלום יעבוד.` : `לסגור את "${m.name}" להרשמה? מי שייכנס לקישור יראה שההרשמה סגורה.`)) return;
         b.disabled = true;
-        try { await patch("marathons", "id=eq." + m.id, { is_open: v }); m.is_open = v; if (RG.mar && RG.mar !== marsAll) { const r = RG.mar.find(x => x.id === m.id); if (r) r.is_open = v; } G.marathons = null; toast(v ? "המרתון פתוח להרשמה" : "המרתון סגור להרשמה"); renderReg(); }
+        try { await patch("marathons", "id=eq." + m.id, { is_open: v }); m.is_open = v; EX.cxl = null; EX.sig = null; if (RG.mar && RG.mar !== marsAll) { const r = RG.mar.find(x => x.id === m.id); if (r) r.is_open = v; } G.marathons = null; toast(v ? "המרתון פתוח להרשמה" : "המרתון סגור להרשמה"); renderReg(); }
         catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); }
       });
     } else if (RG.lk === "general") {
