@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.137">
+<meta name="app-version" content="5.19.138">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5056,7 +5056,14 @@ function tsAccount(l, reset, phone, nm, onDone){
   };
   document.body.appendChild(bg); setTimeout(() => bg.querySelector("#tsPhIn").focus(), 30);
 }
-function tsSendMsg(first, phone, code, reset){
+// 5.19.138 (של-68): בהודעות לתלמידים – הקישור הקצר של "תלם שלי" (אותו קישור ב-short_links כמו בתלם שלי)
+async function tsAppLink(){
+  try { if (SHORT === null) { SHORT_P = SHORT_P || get("short_links", "select=url,short").then(r => { SHORT = {}; r.forEach(x => { SHORT[x.url] = x.short; }); }).catch(() => { SHORT = {}; }); await SHORT_P; }
+        if (!shortOf(TS_APP) && ME.role === "admin") await makeShort(TS_APP); } catch(e) {}
+  return shortOf(TS_APP) || TS_APP;
+}
+async function tsSendMsg(first, phone, code, reset){
+  const TS_APP = await tsAppLink();
   const msg = reset
     ? `שלום ${first || ""}! הנה קוד חדש לאפליקציה "תלם שלי" 🔑\n${TS_APP}\nטלפון: ${tsPhF(phone)}\nקוד: ${code}\nבכניסה תתבקש/י לבחור קוד אישי חדש.`
     : `שלום ${first || ""}! 👋\nמעכשיו דפי התרגול של תלם מגיעים אליך באפליקציה "תלם שלי":\n${TS_APP}\n\nנכנסים עם הטלפון שלך:\nטלפון: ${tsPhF(phone)}\nקוד ראשוני: ${code}\n\nבכניסה הראשונה בוחרים קוד אישי חדש.`;
@@ -5095,7 +5102,8 @@ async function tsBulk(ids, what){
   };
   document.body.appendChild(bg);
 }
-function tsBulkDone(r, code, what){
+async function tsBulkDone(r, code, what){
+  const TS_APP = await tsAppLink();
   const cr = r.created || [], sk = r.skipped || [];
   const msgOf = (nm, ph) => `שלום ${String(nm || "").split(" ")[0]}! 👋\nמעכשיו דפי התרגול של תלם מגיעים אליך באפליקציה "תלם שלי":\n${TS_APP}\n\nנכנסים עם הטלפון שלך:\nטלפון: ${tsPhF(ph)}\nקוד ראשוני: ${code}\n\nבכניסה הראשונה בוחרים קוד אישי.`;
   const general = `שלום! 👋\nמעכשיו דפי התרגול של תלם מגיעים באפליקציה "תלם שלי":\n${TS_APP}\n\nנכנסים עם מספר הנייד של התלמיד/ה (זה שמסרתם בהרשמה)\nקוד ראשוני: ${code}\n\nבכניסה הראשונה בוחרים קוד אישי.`;
