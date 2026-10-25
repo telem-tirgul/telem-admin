@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.131">
+<meta name="app-version" content="5.19.132">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4309,11 +4309,32 @@ async function mergeConfirm(keep, dup, after, both){
       catch(er) { e.target.disabled = false; const m = String(er.message || ""); toast(er.status === 404 || /PGRST202|merge_students/.test(m) ? "צריך להריץ קודם את קובץ 76 ב-Supabase." : /not allowed/.test(m) ? "רק מנהלים יכולים לאחד." : "לא אוחד: " + m); } }; };
   paint(); document.body.appendChild(bg); bg.addEventListener("click", e => { if (e.target === bg) bg.remove(); });
 }
+// 5.19.132 (תש-18, נועה 25.10): הרשמה שסומנה "✔ שולם" (נגבתה ישירות בריווחית) – נשארת שורה כתיעוד, בעסקאות ובכרטיס.
+// רק מה שאין לו תשלום מאושר באיקרדיט (payments). בלי חשבונית / כרטיס – הפרטים יגיעו מריווחית בהמשך (תש-04).
+async function manualPaidRows(o){
+  const f = (o && o.from) ? "&paid_at=gte." + o.from : "", t = (o && o.to) ? "&paid_at=lt." + addDays(o.to, 1) : "", sid = (o && o.sid) ? "&student_id=eq." + o.sid : "";
+  let en = [], mr = [];
+  try { [en, mr] = await Promise.all([
+    get("enrollments", "select=id,student_id,subject,paid_at,paid_by,payment_method,first_charge_amount,one_time_amount&paid_at=not.is.null&status=eq." + encodeURIComponent("פעיל") + f + t + sid + "&order=paid_at.desc&limit=500").catch(() => []),
+    get("marathon_registrations", "select=id,student_id,paid_at,paid_by,payment_method,amount,marathon:marathons(name)&paid_at=not.is.null&status=eq." + encodeURIComponent("שולם") + f + t + sid + "&order=paid_at.desc&limit=500").catch(() => [])]); } catch(e) { return []; }
+  if (!en.length && !mr.length) return [];
+  let have = [];
+  try { have = await get("payments", "select=enrollment_id,marathon_registration_id&status=eq." + encodeURIComponent("אושר") + "&or=(" + [en.length ? "enrollment_id.in.(" + en.map(x => x.id).join(",") + ")" : "", mr.length ? "marathon_registration_id.in.(" + mr.map(x => x.id).join(",") + ")" : ""].filter(Boolean).join(",") + ")"); } catch(e) { return []; }   // לא הצלחנו לבדוק – לא מוסיפים (שלא תהיה כפילות)
+  const hasE = new Set(have.map(x => x.enrollment_id).filter(Boolean)), hasM = new Set(have.map(x => x.marathon_registration_id).filter(Boolean));
+  const who = (u) => { const st = u && (L.staffAll || []).find(x => x.id === u); return st ? st.full_name : ""; };
+  const nm = (sid2) => { const ld = L.leads.find(x => x.student_id === sid2), st = ld && ld.student; return st ? ((st.first_name || "") + " " + (st.last_name || "")).trim() : ""; };
+  const desc = (x) => ["סומן ידנית – נגבה בריווחית", x.payment_method, who(x.paid_by) ? "סימן/ה: " + who(x.paid_by) : ""].filter(Boolean).join(" · ");
+  return en.filter(x => !hasE.has(x.id)).map(x => ({ id: "man-e" + x.id, manual: true, date: x.paid_at, amount: x.first_charge_amount != null ? x.first_charge_amount : x.one_time_amount, status: "אושר", kind: "הרשמה - תשלום ראשון", purpose: "registration",
+      description: desc(x), student_id: x.student_id, student_name: nm(x.student_id) }))
+    .concat(mr.filter(x => !hasM.has(x.id)).map(x => ({ id: "man-m" + x.id, manual: true, date: x.paid_at, amount: x.amount, status: "אושר", kind: "מרתון", purpose: "marathon",
+      description: ((x.marathon && x.marathon.name) ? x.marathon.name + " · " : "") + desc(x), student_id: x.student_id, student_name: nm(x.student_id) })));
+}
 let LP_OPEN = false;   // 5.19.63: לפתוח את "💳 תשלומים" בכרטיס (מהתזכורת / מהתיבה)
 async function loadLeadPayments(l){
   const box = $("leadPayments"); if (!box || ME.role === "instructor") return;
   let rows = [];
   try { rows = await rpc("student_payments", { p_student: l.student.id }) || []; } catch(e) { return; }
+  try { rows = rows.concat(await manualPaidRows({ sid: l.student.id })); } catch(e) {}
   // 5.19.58: הרשמות שסומנו "שולם" - עם "↩ ביטול שולם" (mark_unpaid, icredit-18). השרת מסרב אם יש תשלום אמיתי.
   let paidRegs = [];
   try { const sid = l.student.id;
@@ -9224,9 +9245,31 @@ const genRow = (name, u, msg, sw) => `<div class="lk2-row lk-gen"><div class="lk
 const lkRow = (name, u, msg, extra) => `<div class="lk-row"><span class="lk-name">${name}</span><input class="lk-in" readonly dir="ltr" value="${esc(u || "")}" aria-label="קישור" onfocus="this.select()">
   <span class="lk-ic">${extra || ""}<button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a></span></div>`;
 // שני קישורים באותה שורה (התעניינות + הרשמה) - בלי תיבת הקישור, רק הכפתורים
-const lk2Btns = (label, u, msg, sw) => `<span class="lk2-cell${sw ? " has-sw" : ""}"><span class="lk2-l">${label}</span><button type="button" class="btn small" data-copy="${esc(u)}" title="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a>${sw || ""}</span>`;
+// 5.19.132 (נועה 25.10): קישור קצר ב-TinyURL (פונקציה short-link + טבלה short_links, קובץ 111). קישור שכבר קוצר – "העתקה" ו"וואטסאפ" משתמשים בקצר.
+let SHORT = null, SHORT_P = null;
+const shortOf = (u) => (SHORT && SHORT[u]) || "";
+const lk2Btns = (label, u, msg, sw) => { const sh = shortOf(u), uu = sh || u;
+  return `<span class="lk2-cell${sw ? " has-sw" : ""}" data-u="${esc(u)}" data-msg="${esc(msg)}"><span class="lk2-l">${label}</span><button type="button" class="btn small" data-copy="${esc(uu)}" title="${esc(uu)}">העתקה</button><a class="btn small" data-wa target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + uu)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a>${!sh && ME.role === "admin" ? `<button type="button" class="btn small" data-short title="קישור קצר (TinyURL) – נוצר פעם אחת, ואחר כך העתקה ווואטסאפ משתמשים בו">🔗 קצר</button>` : ""}${sw || ""}</span>`; };
+function lkApplyShort(root){
+  root.querySelectorAll(".lk2-cell[data-u]").forEach(c => { const sh = shortOf(c.dataset.u); if (!sh) return;
+    const cp = c.querySelector("[data-copy]"); if (cp) { cp.dataset.copy = sh; cp.title = sh; }
+    const wa = c.querySelector("a[data-wa]"); if (wa) wa.href = "https://wa.me/?text=" + encodeURIComponent((c.dataset.msg || "") + sh);
+    const sb = c.querySelector("[data-short]"); if (sb) sb.remove(); });
+}
+async function makeShort(u){
+  const t = await token();
+  const res = await fetch(CONFIG.supabaseUrl + "/functions/v1/short-link", { method: "POST", headers: Object.assign(baseHeaders(), { "Authorization": "Bearer " + t }), body: JSON.stringify({ url: u }) });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok || !j.short) { const err = new Error(j.error || ("HTTP " + res.status)); err.status = res.status; throw err; }
+  (SHORT = SHORT || {})[u] = j.short; return j.short;
+}
 const lk2Row = (name, u1, m1, u2, m2, extra, sw1, sw2) => `<div class="lk2-row"><div class="lk-name">${name}${extra ? `<span class="lk2-x">${extra}</span>` : ""}</div>${lk2Btns("התעניינות", u1, m1, sw1)}${lk2Btns("הרשמה", u2, m2, sw2)}</div>`;
-const wireLk = (root) => root.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
+const wireLk = (root) => { root.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
+  root.querySelectorAll("[data-short]").forEach(b => b.onclick = async () => { const c = b.closest(".lk2-cell"); if (!c) return; b.disabled = true; b.textContent = "…";
+    try { const sh = await makeShort(c.dataset.u); lkApplyShort(document); copyText(sh, "הקישור הקצר הועתק: " + sh.replace(/^https?:\/\//, "")); }
+    catch(e) { b.disabled = false; b.textContent = "🔗 קצר"; toast(e.status === 404 || /Failed to fetch/.test(e.message) ? "עוד לא הועלתה הפונקציה short-link ב-Supabase" : "לא נוצר קישור קצר: " + e.message); } });
+  if (SHORT === null && ME.role === "admin") { SHORT_P = SHORT_P || get("short_links", "select=url,short").then(r => { SHORT = {}; r.forEach(x => { SHORT[x.url] = x.short; }); }).catch(() => { SHORT = {}; }); SHORT_P.then(() => lkApplyShort(document)); }
+  else if (SHORT) lkApplyShort(root); };
 // מחירים לכל עיר - מהטבלה reg_prices (קובץ 44). אם עוד לא הורץ - המחירים שכתובים בטפסים.
 const REG_PRICES_FALLBACK = {
   "ראש העין": { single: { early: 348, regular: 393 }, "unlimited-single": { early: 514, regular: 584 }, double: { early: 684, regular: 742 }, registrationFee: 118, materialsFee: null, activityStartDate: "2026-10-11" },
@@ -10073,7 +10116,7 @@ const stuCell = (name, sid) => { const ld = leadOfSid(sid); return ld ? `<button
 const parCell = (name, phone) => `<span class="par1">${esc(name || "")}${phone ? `${name ? " · " : ""}<a href="tel:${esc(String(phone).replace(/\D/g, ""))}" dir="ltr">${esc(phone)}</a>` : ""}</span>`;
 // 5.19.58: זיכוי שסומן ידנית (icredit-20: refund_status / refunded_amount)
 const refChip = (r) => r && r.refund_status ? ` <span class="chip st-paused" title="זיכוי שסומן ידנית (הזיכוי עצמו בריווחית)">↩ ${esc(r.refund_status)}${r.refund_status !== "זוכה" && Number(r.refunded_amount) ? " " + money(r.refunded_amount) : ""}</span>` : "";
-const stPay = (r) => (r.status === "אושר" ? `<span class="chip st-active">שולם</span>` : `<span class="chip st-failed">${esc(r.status === "נכשל" ? "לא התקבל" : r.status || "")}</span>`) + refChip(r);
+const stPay = (r) => (r.manual ? `<span class="chip st-active">שולם</span><div class="muted k-sub">סומן ידנית</div>` : r.status === "אושר" ? `<span class="chip st-active">שולם</span>` : `<span class="chip st-failed">${esc(r.status === "נכשל" ? "לא התקבל" : r.status || "")}</span>`) + refChip(r);
 async function renderAll(b){
   // 5.19.60 (הלקוחה): שורה לכל עסקה - הרשמה = תשלום ראשון + הוראת הקבע שלה (שורה אחת, "גם וגם"); מרתון / תשלום אישי - שורה אחת.
   // הוראות קבע פעילות מוצגות תמיד (גם בלי תשלום בתקופה). "פרטים" - פרטי התלמיד/ה למעלה, ומתחת כל חלק בנפרד (נפתח עם חץ).
@@ -10084,6 +10127,7 @@ async function renderAll(b){
   let rows;
   try { rows = await call("payments_list", { p_from: qf, p_to: qt }) || []; }
   catch(e) { if (e.status === 404 || e.code === "PGRST202") { b.innerHTML = `<div class="card note">כדי לראות כאן את כל התשלומים צריך להריץ ב-Supabase את קובץ 62.3 (מחבילת איקרדיט).</div>`; return; } throw e; }
+  if (!DEMO) { try { rows = rows.concat(await manualPaidRows({ from: qf, to: qt })); } catch(e) {} }   // 5.19.132 (תש-18)
   let ibOpen = {}; try { (await get("form_inbox", "select=ref_id,ref_table,flags&kind=eq.payment&status=neq.handled&limit=500")).forEach(x => { ibOpen[x.ref_table + ":" + x.ref_id] = x.flags || []; }); } catch(e) {}
   try { S.callList = await loadCall(); callPaint(S.callList.length); } catch(e) { S.callList = []; }
   const deals = buildDeals(rows, qf, qt, ibOpen);
