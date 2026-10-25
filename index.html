@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.133">
+<meta name="app-version" content="5.19.134">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6632,6 +6632,11 @@ const IB_FLAG = { phone_pending: ["t-warn", "תשלום טלפוני ממתין"
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], plan_paused: ["t-old", "הוראת קבע הושהתה"],
   plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"] };
 const IB_WARN_F = ["mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check", "plan_last_check", "plan_reactivated"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
+// 5.19.134 (נועה 25.10): "שם פרטי לא תואם", "שם משפחה הורה לא תואם", "טלפון הורה לא תואם"… – בפירוש על התגית (מה היה ומה בטופס – בלחיצה)
+const IB_ISS_NM = { first_name: "שם פרטי", last_name: "שם משפחה", phone: "נייד תלמיד/ה" };
+const IB_ISS_SHORT = { phone_fixed: "נייד תלמיד/ה עודכן", phone_parent: "נייד בטופס – של הורה", parent2_added: "נוסף הורה 2", same_name: "אותו שם – כרטיס חדש", duplicate: "ייתכן כפילות", grade_hist: "שכבה לפי שנים קודמות" };   // 114
+const ibIssLbl = (x) => IB_ISS_SHORT[x.field] || (String(IB_ISS_NM[x.field] || x.label || x.field || "").replace(/ תלמיד\/ה$/, "") + " לא תואם");
+const ibIssTxt = (iss) => !iss.length ? "לא תואם" : iss.slice(0, 2).map(ibIssLbl).join(" · ") + (iss.length > 2 ? ` ועוד ${iss.length - 2}` : "");
 const ibWarn = (r) => (r.issues || []).length > 0 || (r.flags || []).some(f => IB_WARN_F.includes(f));
 // 5.19.125 (נועה): ספירה לפי ילדים – כמה התראות "מול הקבוצה הקבועה" של אותו ילד/ה = 1 (כמו הכרטיס במסך)
 const ibCountKids = (rows) => new Set(rows.map(r => r.kind === "group_diff" && r.student_id ? "g" + r.student_id : "r" + r.id)).size;
@@ -6833,7 +6838,7 @@ async function renderInbox(reload){
       if (!g) return ibGdCard(r, when);   // 5.19.122: גם אירוע אחד – אותו כרטיס (שבוע, נוכחות בקבוצה הקבועה, לאן הגיע/ה)
       if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = r.issues || [];
     const tags = (r.flags || []).filter(f => IB_FLAG[f]).map(f => `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
-      + (iss.length || (r.flags || []).includes("mismatch") ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}">⚠ ${iss.length ? iss.length + " " : ""}לא תואם ▾</button>` : "");
+      + (iss.length || (r.flags || []).includes("mismatch") ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}" title="לחיצה – מה כתוב אצלנו ומה בטופס">⚠ ${esc(ibIssTxt(iss))} ▾</button>` : "");
     return `<div class="ib-row ${r.status}${w ? " warn" : ""}" data-ib="${r.id}">
       <span class="ib-ic" title="${esc(k[1])}">${k[0]}</span><span class="ib-k">${esc(k[1])}</span>
       <span class="ib-n">${ibNameLink(r, lead)}</span>
