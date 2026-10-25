@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.134">
+<meta name="app-version" content="5.19.135">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5467,9 +5467,23 @@ function exShow(id){
     ${e.material || e.source ? `<div class="ex-pop-meta">${[e.material ? "<b>קובץ:</b> " + esc(e.material) : "", e.source ? "<b>מקור:</b> " + esc(e.source) : ""].filter(Boolean).join(" · ")}</div>` : ""}`}
     ${exIsMar(e) && EX.link ? `<div class="ex-pop-mar">${e.start_time ? `🕒 <span dir="ltr">${esc(hm5(e.start_time))}–${esc(hm5(e.end_time))}</span>` : `<span class="muted">עוד אין שעות - ✎ עריכה</span>`}
       ${ME.role === "instructor" ? "" : e.session_id ? `<div>🔗 מחובר לקישור הרשמה <button type="button" class="btn small primary" data-exkids>👥 נרשמים ונוכחות</button> <button type="button" class="btn small" data-exgomar>למרתונים ←</button></div>` : `<div><button type="button" class="btn small primary" data-exlink>🔗 יצירת קישור הרשמה</button> <span class="muted">לכל המפגשים של המרתון הזה (${exMarSeries(e).length})</span></div>`}</div>` : ""}
+    ${!st && !exIsMar(e) && ME.role !== "instructor" ? `<div id="exPopMar"></div>` : ""}
     ${ME.role !== "instructor" && e.origin === "manual" ? `<div class="ex-pop-btns"><button type="button" class="btn small primary" data-expedit>✎ עריכה / נושאים</button><button type="button" class="btn small danger" data-expdel>מחיקה</button></div>` : ""}</div>`;
   o.hidden = false;
   const eb = o.querySelector("[data-expedit]"); if (eb) eb.onclick = () => { o.hidden = true; if (currentView !== "exams") go("exams"); exOpenForm(e); };
+  // 5.19.135 (נועה 25.10): מבחן שיש לפניו מרתון (אותו בית ספר ושכבה, עד 30 יום לפני) – פרטי המרתון גם כאן
+  if (o.querySelector("#exPopMar")) (async () => {
+    const ms = (EX.rows || []).filter(z => exIsMar(z) && z.session_id && exKey(z) === exKey(e) && z.exam_date <= e.exam_date && exDays(e.exam_date, z.exam_date) <= 30);
+    if (!ms.length) return;
+    try { await ensureG(); } catch(err) { return; }
+    const se = G.sessions.find(x => x.session_id === ms[0].session_id), mm = se && (G.marathons || []).find(m => m.id === se.marathon_id);
+    const box = o.querySelector("#exPopMar"); if (!mm || !box) return;
+    const sids = G.sessions.filter(x => x.marathon_id === mm.id).map(x => x.session_id), kids = G.sessions.filter(x => x.marathon_id === mm.id).reduce((n, x) => n + (x.assigned_count || 0), 0);
+    const ds = [...new Set((EX.rows || []).filter(z => exIsMar(z) && sids.includes(z.session_id)).map(z => z.exam_date))].sort();
+    box.innerHTML = `<div class="ex-pop-mar"><div><b>🏃 ${esc(mm.name || "מרתון")}</b> · <span class="ib-tag ${mm.is_open ? "t-new" : "t-old"}">${mm.is_open ? "פתוח להרשמה" : "סגור להרשמה"}</span> · 👥 ${kids} נרשמים</div>
+      <div class="muted">מפגשים: ${esc(ds.map(fmtDM).join(", "))}</div><div><button type="button" class="btn small primary" data-exmarpop>פרטי המרתון וקישור ההרשמה</button></div></div>`;
+    box.querySelector("[data-exmarpop]").onclick = () => exMarPop(ms[0], mm);
+  })();
   const lb = o.querySelector("[data-exlink]"); if (lb) lb.onclick = () => { o.hidden = true; exMakeLink(e); };
   const kb2 = o.querySelector("[data-exkids]"); if (kb2) kb2.onclick = async () => { o.hidden = true; await ensureG(true); if (G.sessions.some(x => x.session_id === e.session_id)) openPanel(e.session_id); else toast("קבוצת המרתון לא נמצאה"); };
   const gb = o.querySelector("[data-exgomar]"); if (gb) gb.onclick = () => { o.hidden = true; RG.tab = "links"; RG.lk = "mar"; store("telem_reg_lk", "mar"); RG.city = (e.school && e.school.city) || RG.city; store("telem_reg_tab", "links"); go("reg"); };
@@ -5487,14 +5501,19 @@ function exMarPop(e, mm){
   o.innerHTML = `<div class="ex-pop-box ex-mp" role="dialog" aria-modal="true">
     <div class="ex-pop-h"><b>🏃 ${esc(mm.name || "מרתון")} · ${esc(exSchName(e))} ${esc(gradeKey(e.grade))}'</b><button type="button" class="kp-x" data-expclose aria-label="סגירה" title="סגירה">✕</button></div>
     <div class="ex-mp-st"><span class="ib-tag ${mm.is_open ? "t-new" : "t-old"}">${mm.is_open ? "פתוח להרשמה" : "סגור להרשמה"}</span><span>👥 ${kids} נרשמים</span>${nt ? `<span class="muted">לקראת ${esc(nt.kind)} ב-${esc(fmtDM(nt.exam_date))}</span>` : ""}</div>
-    ${url ? `<div class="ex-mp-lk"><span class="lbl">קישור להרשמה</span><div><a href="${esc(url)}" target="_blank" rel="noopener" dir="ltr">${esc(url.replace(/^https?:\/\//, ""))}</a><button type="button" class="btn small" data-mpcopy>העתקה</button></div></div>` : `<div class="muted">אין עדיין קישור הרשמה.</div>`}
+    ${url ? `<div class="ex-mp-lk"><span class="lbl">קישור להרשמה</span><div><a id="mpLk" href="${esc(shortOf(url) || url)}" target="_blank" rel="noopener" dir="ltr">${esc((shortOf(url) || url).replace(/^https?:\/\//, ""))}</a><button type="button" class="btn small" data-mpcopy>העתקה</button></div></div>` : `<div class="muted">אין עדיין קישור הרשמה.</div>`}
     <div class="ex-mp-ms">${mts.map(x => { const n = (String(x.kind).match(/מפגש\s*(\d+)/) || [])[1];
       return `<div class="ex-mp-m"><div class="ex-mp-mh"><i class="${exKindCls(x.kind)}"></i><b>${n ? "מפגש " + n : esc(x.kind)}</b><span>יום ${esc(DAY_FULL[dayLetter(x.exam_date)] || dayLetter(x.exam_date))} ${esc(fmtDM(x.exam_date))}</span>${x.start_time ? `<span dir="ltr" class="muted">${esc(hm5(x.start_time))}${x.end_time ? "–" + esc(hm5(x.end_time)) : ""}</span>` : ""}</div>
         <div class="ex-mp-t">${x.topics ? exTopicsHtml(x.topics) : `<span class="ex-mp-no">אין נושאים</span> <button type="button" class="btn small" data-mptop="${x.id}">✎ לעדכן נושאים</button>`}</div></div>`; }).join("") || `<div class="muted">אין מפגשים בלוח.</div>`}</div>
     <div class="ex-pop-btns"><button type="button" class="btn small" data-mpkids>👥 נרשמים ונוכחות</button><button type="button" class="btn small primary" data-mpedit>✎ עריכת המרתון</button></div></div>`;
   o.hidden = false;
   const q = (sel, fn) => { const b = o.querySelector(sel); if (b) b.onclick = fn; };
-  q("[data-mpcopy]", () => copyText(url));
+  q("[data-mpcopy]", () => copyText(shortOf(url) || url, shortOf(url) ? "הקישור הקצר הועתק" : undefined));
+  // 5.19.135 (נועה 25.10): הקישור הקצר (נטען / נוצר אם עוד אין)
+  if (url && !shortOf(url) && ME.role === "admin") (async () => {
+    try { if (SHORT === null) { SHORT_P = SHORT_P || get("short_links", "select=url,short").then(r => { SHORT = {}; r.forEach(x => { SHORT[x.url] = x.short; }); }).catch(() => { SHORT = {}; }); await SHORT_P; }
+          if (!shortOf(url)) await makeShort(url); } catch(e) { return; }
+    const a = o.querySelector("#mpLk"); if (a && shortOf(url)) { a.href = shortOf(url); a.textContent = shortOf(url).replace(/^https?:\/\//, ""); } })();
   q("[data-mpedit]", () => { o.hidden = true; openMarathonPanel(mm); });
   q("[data-mpkids]", () => { o.hidden = true; openPanel(e.session_id); });
   o.querySelectorAll("[data-mptop]").forEach(b => b.onclick = () => { const x = (EX.rows || []).find(z => z.id === Number(b.dataset.mptop)); o.hidden = true; if (currentView !== "exams") go("exams"); exOpenForm(x); });
@@ -9482,7 +9501,7 @@ async function renderRegMarathons(city){   // city = "*" - כל הערים יח�
             return `<div class="mc-ref-r${r.refunded_at ? " done" : ""}"><b>${esc((st.first_name || "") + " " + (st.last_name || ""))}</b><span class="muted">${esc([f.parent1_first, f.parent1_last].filter(Boolean).join(" "))}${ph ? ` · <span dir="ltr">${esc(ph)}</span>` : ""}</span><span>${amt ? amt + " ₪" : ""}${r.payment_method ? " · " + esc(r.payment_method) : ""}</span>
               ${r.refunded_at ? `<span class="ok-txt">✔ הוחזר ${esc(fmtDM(String(r.refunded_at).slice(0, 10)))}</span>` : `<span>${/^0\d{8,9}$/.test(d) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${d.slice(1)}?text=${encodeURIComponent(msg)}">וואטסאפ להורה</a>` : ""}<button type="button" class="btn small primary" data-rref="${r.id}" data-ramt="${amt}">✔ הוחזר</button></span>`}</div>`; }).join("") : `<div class="muted">אף אחד לא שילם - אין מה להחזיר.</div>`}</div>` : ""}
         <div class="mc-links"${cxl ? " hidden" : ""}>${MAR_INTEREST ? `<div class="mc-lk"><span class="mc-lk-t">טופס התעניינות</span>${lk2Btns("", lkInterest(q), "התעניינות ב" + where + ": ")}</div>` : ""}
-          <div class="mc-lk"><span class="mc-lk-t">טופס הרשמה</span>${m.code ? lk2Btns("", lkMarCode(m.code), "הרשמה ל" + where + ": ") : ""}${m.code ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(lkMarCode(m.code) + "&cardtest=1")}" title="פותח את טופס ההרשמה עם תשלום באשראי בסביבת הבדיקה (לא לשלוח להורים)">🧪 בדיקת אשראי</a>` : ""}${"show_on_site" in m ? (m.code && !isPast(m) ? `<button type="button" class="btn small mc-site${m.show_on_site ? " on" : ""}" data-rmsite="${m.id}" title="${m.show_on_site ? "המרתון מוצג באתר של תלם (בדף בית הספר) כל עוד ההרשמה פתוחה. לחיצה - הסתרה." : "המרתון לא מוצג באתר של תלם. לחיצה - הצגה בדף בית הספר (רק כשההרשמה פתוחה)."}">${m.show_on_site ? "🌐 מוצג באתר ✓" : "🌐 להציג באתר"}</button>`
+          <div class="mc-lk"><span class="mc-lk-t">טופס הרשמה</span>${m.code ? lk2Btns("", lkMarCode(m.code), "הרשמה ל" + where + ": ") : ""}${"show_on_site" in m ? (m.code && !isPast(m) ? `<button type="button" class="btn small mc-site${m.show_on_site ? " on" : ""}" data-rmsite="${m.id}" title="${m.show_on_site ? "המרתון מוצג באתר של תלם (בדף בית הספר) כל עוד ההרשמה פתוחה. לחיצה - הסתרה." : "המרתון לא מוצג באתר של תלם. לחיצה - הצגה בדף בית הספר (רק כשההרשמה פתוחה)."}">${m.show_on_site ? "🌐 מוצג באתר ✓" : "🌐 להציג באתר"}</button>`
             : `<button type="button" class="btn small mc-site" disabled title="${!m.code ? "אין עדיין קישור הרשמה למרתון" : "המרתון עבר – לא מוצג באתר"}">🌐 להציג באתר</button>`) : ""}${m.is_open ? "" : `<span class="muted mc-note">יעבוד אחרי "פתיחה להרשמה"${m.show_on_site ? " (וגם יופיע באתר)" : ""}</span>`}</div></div>
       </div>`; }).join("") + `</div>` + (past.length ? `</details>` : "")
       : `<div class="muted">${ALL ? "אין מרתונים השנה." : "אין מרתונים בעיר הזאת."} יוצרים מרתון בלוח המבחנים (טאב "מרתונים").</div>`}`;
