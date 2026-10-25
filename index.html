@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.138">
+<meta name="app-version" content="5.19.139">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -628,6 +628,8 @@
   .noadm-sum{ font:inherit; font-size:13px; cursor:pointer; }
   .cal-ev .noadm-ic{ position:absolute; top:2px; inset-inline-end:2px; padding:0 4px; font-size:11px; }
   .stat.stat-warn{ cursor:pointer; border:1.5px solid #FDBA74; background:#FFF7ED; font:inherit; color:inherit; } .stat.stat-warn b{ color:#9A3412; }
+  .asg-pill .asg-end{ font-style:normal; color:#9A3412; font-weight:800; }
+  #leadsTbl td.c-ts{ width:28px; text-align:center; padding-inline:2px; } .ts-ic{ font-size:15px; cursor:help; } .ts-ic.off{ filter:grayscale(1); opacity:.4; }
   .asg-pill.one{ outline:2px dashed var(--warn); outline-offset:2px; border-radius:999px; }
   .asg-none{ font-size:12.5px; color:var(--ink-soft); }
   .school-chip{ display:inline-block; background:var(--scb); color:var(--sci); font-weight:800; border-radius:999px; padding:1px 10px; line-height:1.6; white-space:nowrap; }
@@ -1036,7 +1038,7 @@
     #leadsTbl thead{ display:none; }
     #leadsTbl tbody tr{ display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; padding:10px 8px; border-top:1px solid var(--border); }
     #leadsTbl tbody td{ border:0; padding:0; font-size:13px; }
-    #leadsTbl .c-name{ order:1; flex:1 1 60%; } #leadsTbl .c-name .name-link{ font-size:16.5px; }
+    #leadsTbl .c-name{ order:1; flex:1 1 60%; } #leadsTbl .c-ts{ order:1; width:auto; } #leadsTbl .c-ts:empty{ display:none; } #leadsTbl .c-name .name-link{ font-size:16.5px; }
     #leadsTbl .c-notes{ order:2; } #leadsTbl .c-info{ order:3; }
     #leadsTbl .c-status{ order:4; flex:1 1 100%; display:flex !important; align-items:center; gap:4px; } #leadsTbl .c-status select{ width:100%; flex:1; min-width:0; font-size:14.5px; padding:7px 10px; }
     #leadsTbl .c-act{ padding-inline-end:6px; } #leadsTbl .c-grade:empty{ display:none; }
@@ -3370,7 +3372,7 @@ async function loadLists(){
   ]);
   L.statuses = st; L.sources = so; L.staffAll = sf; L.staff = sf.filter(x => x.role !== "instructor" && x.role !== "display"); L.schools = sc; L.levels = lv.map(x => x.name);
 }
-const ASG_Q = () => getAll("assignments", "select=student_id,status,arrival_time,personal_end,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")");
+const ASG_Q = () => getAll("assignments", "select=id,student_id,status,arrival_time,personal_end,ends_on,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")");
 // 5.19.128 (נועה 24.10): שיבוץ לקבוצת מרתון (גם בלי הרשמה בטופס – למשל הוספה ידנית) – 🏁 ליד הסטטוס ושורה בעמודת השיבוץ.
 // רק מרתונים שעוד לא עברו (עד 14 יום אחרי המפגש האחרון).
 const MASG_Q = () => getAll("assignments", "select=student_id,session_id,session:sessions!inner(id,kind,meeting_dates,time_label,marathon:marathons(name,city,school,event_date))&session.kind=eq." + encodeURIComponent("מרתון") + "&status=eq." + encodeURIComponent("משובץ")).catch(() => null);
@@ -3382,7 +3384,7 @@ function setMarAsg(rows){
 }
 const marAsgOf = (sid) => (L.marAsg && L.marAsg[sid]) || [];
 function setAsg(asg){
-  L.asg = {}; L.prop = {}; asg.forEach(a => { if (!a.session) return; const m = a.status === "ממתין" ? L.prop : L.asg; (m[a.student_id] = m[a.student_id] || []).push(Object.assign({}, a.session, { arrival_time: a.arrival_time, personal_end: a.personal_end })); });
+  L.asg = {}; L.prop = {}; asg.forEach(a => { if (!a.session) return; const m = a.status === "ממתין" ? L.prop : L.asg; (m[a.student_id] = m[a.student_id] || []).push(Object.assign({}, a.session, { arrival_time: a.arrival_time, personal_end: a.personal_end, ends_on: a.ends_on || null, asg_id: a.id })); });
   Object.values(L.asg).forEach(v => v.sort((x, y) => DAY_ORDER[x.day] - DAY_ORDER[y.day] || String(x.start_time).localeCompare(String(y.start_time))));
 }
 // עדכון קל (כל כמה דקות): רק לידים שהשתנו מאז הטעינה האחרונה + שיבוצים + הערות חדשות. לא מוריד שוב את כל הרשימה.
@@ -3435,7 +3437,7 @@ async function loadLeads(){
     getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.true&order=updated_at.desc,id.desc")
       .catch(e => /tracking/.test(String(e && e.message)) ? getAll("leads", "select=" + LEAD_SELECT.replace("tracking,", "") + "&is_active=is.true&order=updated_at.desc,id.desc") : Promise.reject(e)),
     getAll("notes", "select=id,lead_id,body,created_at&order=created_at"),
-    getAll("assignments", "select=student_id,status,arrival_time,personal_end,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")
+    getAll("assignments", "select=id,student_id,status,arrival_time,personal_end,ends_on,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")
       .catch(() => getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")).catch(() => []),
     // 5.19.41: גם מזהה, קבוצה ותשלום (לסימון "ממתין לתשלום" בקבוצה ובנוכחות)
     getAll("marathon_registrations", "select=id,student_id,session_id,status,payment_method,paid_at,amount,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id")
@@ -3447,6 +3449,7 @@ async function loadLeads(){
     .then(r => { L.pendReg = {}; r.forEach(x => { L.pendReg[x.student_id] = x; }); }).catch(() => {});
   L.mar = {}; mreg.forEach(r => (L.mar[r.student_id] = L.mar[r.student_id] || []).push(r));
   L.marAsg = {}; setMarAsg(masg); L.masgSig = null;
+  if (ME.role === "admin") get("portal_accounts", "select=student_id").then(r => { L.tsAcc = new Set(r.map(x => Number(x.student_id))); if (currentView === "leads" && updSafe() && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads(); }).catch(() => {});
   await loadNotices();
   // משובצים ב-L.asg, שיבוצים מוצעים ("ממתין") ב-L.prop
   setAsg(asg); L.asgSig = null;
@@ -3744,6 +3747,7 @@ function histRowHtml(x){
     <td class="c-status"><span class="h-st${histReg(h) ? " reg" : ""}">${esc(h.status || "—")}</span></td>
     <td class="c-src muted">${esc(h.source || "")}</td><td class="c-notes"></td>
     <td class="c-name"><button type="button" class="name-link" data-act="hopen">${esc(h.first_name || "")} ${esc(h.last_name || "")}</button>${lead ? ` <span class="h-has" title="יש כרטיס השנה">✓ כרטיס</span>` : ""}</td>
+    <td class="c-ts"></td>
     <td class="c-school">${h.school ? scChip(h.school) : ""}${h.city ? ` <span class="muted">${esc(h.city)}</span>` : ""}</td>
     <td class="c-grade">${esc(h.grade || "")}${now ? `<span class="h-now" title="השכבה היום">→ ${esc(now)}</span>` : ""}</td>
     <td class="c-asg"></td>
@@ -3797,8 +3801,12 @@ const propOf = (l) => (L.prop && L.prop[l.student.id]) || [];
 const propStage = (sid) => { const n = (NTC.ok && NTC.map[sid]) || {}; return n.confirmed_at ? "ok" : n.notified_at ? "sent" : "none"; };
 const PROP_ST = { none: "טרם נשלחה הודעה", sent: "קיבל הודעה", ok: "אישר" };
 const asgText = (x) => `${x.day}' ${String(x.start_time || "").slice(0, 5)} ${(x.location && x.location.name) || ""}`;
+// 5.19.139 (נועה 25.10): עמודת "תלם שלי" – 📱 למי שיש חשבון ויש לו/ה גישה עכשיו (משובץ/ת לקבוצה או סטטוס "נרשם…", כמו TS-10); חשבון בלי גישה – אפור
+const tsAccess = (l) => /^נרשם/.test(statusName(l.status_id)) && !/קיץ/.test(statusName(l.status_id)) || asgOf(l).length > 0 || marAsgOf(l.student.id).length > 0;
+const tsCell = (l) => { if (!L.tsAcc || !L.tsAcc.has(l.student.id)) return "";
+  return tsAccess(l) ? `<span class="ts-ic" title="יש חשבון ב&quot;תלם שלי&quot; – יש גישה">📱</span>` : `<span class="ts-ic off" title="יש חשבון ב&quot;תלם שלי&quot; – אין גישה כרגע (לא משובץ/ת ולא בסטטוס &quot;נרשם&quot;)">📱</span>`; };
 const COLS = [
-  ["info",""],["id","ID"],["active","פעיל"],["star","★"],["status","סטטוס"],["source","מקור ליד"],["notes",""],["name","שם"],
+  ["info",""],["id","ID"],["active","פעיל"],["star","★"],["status","סטטוס"],["source","מקור ליד"],["notes",""],["name","שם"],["ts","📱"],
   ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","תאריך עדכון"]
 ];
 function renderLeads(){
@@ -3832,10 +3840,11 @@ function renderLeads(){
       <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
       <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" title="${esc(ns.length ? ns.slice(-3).reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n").slice(0, 600) + (ns.length > 3 ? "\n(ועוד " + (ns.length - 3) + " - לחיצה לכל ההערות)" : "") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
       <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
+      <td class="c-ts">${tsCell(l)}</td>
       <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
       <td class="c-grade">${esc(classLabel(s.grade, s.class_num))}</td>
       <td class="c-asg" data-act="asg" title="לחיצה - שיבוץ לקבוצה / שינוי">${(() => { const a = asgOf(l), pr = propOf(l);
-        const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}${x.location && x.location.name ? `<em class="asg-loc"> · ${esc(x.location.name)}</em>` : ""}</span>`).join("")}</span>` : "";
+        const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}${x.location && x.location.name ? `<em class="asg-loc"> · ${esc(x.location.name)}</em>` : ""}${x.ends_on ? `<em class="asg-end" title="פרש/ה – השיבוץ יורד לבד אחרי התאריך"> · עד ${esc(fmtIso(x.ends_on).slice(0, 5))}</em>` : ""}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
         const mg = marAsgOf(s.id), mpill = mg.length ? `<span class="asg-pill mar" title="${esc(mg.map(x => "מרתון: " + [x.name, x.school].filter(Boolean).join(" · ") + (x.date ? " · " + fmtIso(x.date) : "")).join("\n"))}">${mg.map(x => `<span>🏁 מרתון${x.date ? " " + esc(fmtIso(x.date).replace(/\.\d{4}$/, "")) : ""}</span>`).join("")}</span>` : "";
         const ov = a.length ? weekLoadCalc(a.map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))) : "";   // 5.19.20
@@ -3847,7 +3856,7 @@ function renderLeads(){
     </tr>`;
   }).join("");
   $("leadsTbl").classList.toggle("locked", !LIST_EDIT);
-  $("leadsTbl").innerHTML = head + "<tbody>" + (rows || `<tr><td colspan="14" class="empty-state">${$("fAsg").value === "wkchg" && !WC.map ? "טוען את הנוכחות של השבוע…" : "אין לידים שמתאימים לסינון."}</td></tr>`) + "</tbody>";
+  $("leadsTbl").innerHTML = head + "<tbody>" + (rows || `<tr><td colspan="15" class="empty-state">${$("fAsg").value === "wkchg" && !WC.map ? "טוען את הנוכחות של השבוע…" : "אין לידים שמתאימים לסינון."}</td></tr>`) + "</tbody>";
   $("leadsTbl").querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
     if (F.sort === th.dataset.sort) F.dir *= -1; else { F.sort = th.dataset.sort; F.dir = th.dataset.sort === "updated" ? -1 : 1; }
     saveLeadFilters(); renderLeads();
@@ -3900,10 +3909,34 @@ $("leadsTbl").addEventListener("change", async (e) => {
   try { await patch("leads", "id=eq." + l.id, { status_id: v }); l.status_id = v; l.updated_at = new Date().toISOString();
         paintStatus(e.target, v); toast(`הסטטוס של ${l.student.first_name} ${l.student.last_name || ""} עודכן ל"${statusName(v) || "ללא"}"`);
         planWarn(l.student.id, [l.student.first_name, l.student.last_name].filter(Boolean).join(" "), old0, v);
-        await regHowAsk(l.id, old0, v); if (currentView === "leads" && updSafe()) leadsKeepRow(renderLeads); }
+        await regHowAsk(l.id, old0, v); await withdrawAsk(l.student.id, [l.student.first_name, l.student.last_name].filter(Boolean).join(" "), old0, v); if (currentView === "leads" && updSafe()) leadsKeepRow(renderLeads); }
   catch(err) { toast("לא נשמר: " + err.message); e.target.value = l.status_id || ""; }
 });
 
+// 5.19.139 (נועה 25.10): מעבר ל"פרש" – עד מתי מגיע/ה? מסירים עכשיו / עד סוף החודש / עד סוף החודש הבא (ends_on, קובץ 116).
+// השיבוצים בקבוצות השוטפות של השנה (משובץ / ממתין). עם תאריך – נשארים (נוכחות, "תלם שלי") ויורדים לבד בלילה שאחרי.
+async function withdrawAsk(sid, name, oldId, newId){
+  if (!sid || ME.role === "instructor" || statusName(newId) !== "פרש" || newId === oldId) return;
+  let rows = [];
+  try { rows = await get("assignments", "select=id,status,ends_on,session:sessions!inner(id,day,start_time,kind,school_year,location:locations(name))&student_id=eq." + sid + "&session.kind=eq." + encodeURIComponent("שוטף") + "&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear)); } catch(e) { return; }
+  if (!rows.length) return;
+  const t = todayIL(), [y, m] = t.split("-").map(Number), eom = (yy, mm) => new Date(Date.UTC(yy, mm, 0)).toISOString().slice(0, 10);
+  const e1 = eom(y, m), e2 = eom(m === 12 ? y + 1 : y, m === 12 ? 1 : m + 1);
+  const pr = uiChoose(`${name || "התלמיד/ה"} פרש/ה – עד מתי מגיע/ה? (${rows.length} שיבוצים: ${rows.map(a => `${a.session.day}' ${String(a.session.start_time || "").slice(0, 5)}`).join(", ")})`, [
+    { v: "now", t: "מסירים עכשיו – קבוצות שוטפות + תלם שלי" },
+    { v: e1, t: `עד סוף החודש (${fmtIso(e1)})` },
+    { v: e2, t: `עד סוף החודש הבא (${fmtIso(e2)})` }]);
+  { const bgs = document.querySelectorAll(".ui-dlg-bg"), nb = bgs.length && bgs[bgs.length - 1].querySelector("[data-no]"); if (nb) nb.textContent = "להשאיר כמו שזה"; }
+  const ch = await pr;
+  if (!ch) return;
+  try {
+    const ids = rows.map(a => a.id).join(",");
+    if (ch === "now") { await del("assignments", "id=in.(" + ids + ")"); toast("הוסר/ה מהקבוצות"); }
+    else { await patch("assignments", "id=in.(" + ids + ")", { ends_on: ch }); toast("נשאר/ת בקבוצות עד " + fmtIso(ch)); }
+    L.asg = null; if (typeof G !== "undefined") G.loadedAt = 0;
+    try { setAsg(await ASG_Q()); } catch(e) {}
+  } catch(e) { toast(/ends_on/.test(e.message) ? "צריך להריץ קודם את קובץ 116" : "לא נשמר: " + e.message); }
+}
 // 5.19.137 (נועה 25.10): מעבר ידני לסטטוס "נרשם…" – חלון קטן "איך נרשם/ה?" (נשמר כהערה בכרטיס). אפשר לדלג.
 async function regHowAsk(leadId, oldId, newId){
   const nw = statusName(newId) || "", od = statusName(oldId) || "";
@@ -5243,6 +5276,7 @@ $("leadForm").addEventListener("submit", async (e) => {
       await patch("leads", "id=eq." + editing.id, lead);
       leadId = editing.id;
       await regHowAsk(leadId, editing.status_id, lead.status_id);   // 5.19.137
+      await withdrawAsk(editing.student.id, [student.first_name, student.last_name].filter(Boolean).join(" "), editing.status_id, lead.status_id);   // 5.19.139
     } else {
       // 5.19.66 (נועה): ילד/ה שכבר קיים/ת (אותם כללים כמו בטפסים) - שואלים לפני שיוצרים כרטיס חדש
       const dups = dupFind(student, family, null);
