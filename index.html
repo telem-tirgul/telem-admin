@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.135">
+<meta name="app-version" content="5.19.136">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -623,6 +623,8 @@
   .tsb-l li{ display:flex; align-items:center; gap:8px; padding:4px 0; border-bottom:1px solid var(--line, #eee); } .tsb-l li > span:first-child{ flex:1; }
   .noadm{ display:inline-block; width:fit-content; align-self:flex-start; font-size:12px; font-weight:800; color:#9A3412; background:#FFEDD5; border:1px solid #FDBA74; border-radius:999px; padding:0 7px; margin-inline-start:4px; white-space:nowrap; cursor:help; }
   .mar-g-ins{ font-size:13px; margin-top:2px; }
+  .mar-view .mv-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:8px 14px; background:var(--bg-soft, #FAF8F5); border:1px solid var(--border); border-radius:12px; padding:10px 12px; }
+  .mar-view .mv-grid > div{ display:flex; flex-direction:column; gap:2px; } .mar-view .mv-grid > div.full{ grid-column:1 / -1; } .mar-view .mv-grid span{ font-size:12.5px; color:var(--ink-soft); } .mar-view .mv-grid b{ font-size:14.5px; }
   .noadm-sum{ font:inherit; font-size:13px; cursor:pointer; }
   .cal-ev .noadm-ic{ position:absolute; top:2px; inset-inline-end:2px; padding:0 4px; font-size:11px; }
   .stat.stat-warn{ cursor:pointer; border:1.5px solid #FDBA74; background:#FFF7ED; font:inherit; color:inherit; } .stat.stat-warn b{ color:#9A3412; }
@@ -5505,7 +5507,7 @@ function exMarPop(e, mm){
     <div class="ex-mp-ms">${mts.map(x => { const n = (String(x.kind).match(/מפגש\s*(\d+)/) || [])[1];
       return `<div class="ex-mp-m"><div class="ex-mp-mh"><i class="${exKindCls(x.kind)}"></i><b>${n ? "מפגש " + n : esc(x.kind)}</b><span>יום ${esc(DAY_FULL[dayLetter(x.exam_date)] || dayLetter(x.exam_date))} ${esc(fmtDM(x.exam_date))}</span>${x.start_time ? `<span dir="ltr" class="muted">${esc(hm5(x.start_time))}${x.end_time ? "–" + esc(hm5(x.end_time)) : ""}</span>` : ""}</div>
         <div class="ex-mp-t">${x.topics ? exTopicsHtml(x.topics) : `<span class="ex-mp-no">אין נושאים</span> <button type="button" class="btn small" data-mptop="${x.id}">✎ לעדכן נושאים</button>`}</div></div>`; }).join("") || `<div class="muted">אין מפגשים בלוח.</div>`}</div>
-    <div class="ex-pop-btns"><button type="button" class="btn small" data-mpkids>👥 נרשמים ונוכחות</button><button type="button" class="btn small primary" data-mpedit>✎ עריכת המרתון</button></div></div>`;
+    <div class="ex-pop-btns"><button type="button" class="btn small" data-mpkids>👥 נרשמים ונוכחות</button><button type="button" class="btn small primary" data-mpedit>פרטי המרתון</button></div></div>`;
   o.hidden = false;
   const q = (sel, fn) => { const b = o.querySelector(sel); if (b) b.onclick = fn; };
   q("[data-mpcopy]", () => copyText(shortOf(url) || url, shortOf(url) ? "הקישור הקצר הועתק" : undefined));
@@ -6439,7 +6441,8 @@ async function openGroupEditor(se, preset){
   };
 }
 $("gEditBtn").addEventListener("click", () => { const se = G.sessions.find(x => x.session_id === G.panel); if (se) { $("gEditBtn").hidden = true; $("roster").classList.add("editing"); $("roWrap").open = false;
-  if (se.kind === "מרתון") openMarGroupEditor((G.marathons || []).find(m => m.id === se.marathon_id), se); else openGroupEditor(se); } });
+  if (se.kind === "מרתון") openMarGroupEditor((G.marathons || []).find(m => m.id === se.marathon_id), se); else openGroupEditor(se); }
+  else if (G.marPanel) { const m = (G.marathons || []).find(x => x.id === G.marPanel); if (m) { $("gEditBtn").hidden = true; $("gEdit").classList.remove("g-viewmode"); $("gEdit").innerHTML = ""; openMarathonEditor(m, true); } } });   // 5.19.136
 function newGroup(preset){
   G.panel = null; $("panelTitle").textContent = "קבוצה חדשה"; $("panelSub").textContent = (preset && [preset.location, preset.city].filter(Boolean).join(" · ")) || G.city || "";
   $("gEditBtn").hidden = true; $("panelAttBtn").hidden = true; $("panelTsBtn").hidden = true; $("roster").hidden = true; $("roster").innerHTML = "";
@@ -6539,8 +6542,17 @@ async function openMarathonPanel(m){
   const fresh = (G.marathons || []).find(x => x.id === m.id); if (fresh) m = fresh;
   panelFor(m.name, [m.school, m.city].filter(Boolean).join(" · "));
   G.panel = null; G.marPanel = m.id;
-  $("gEditBtn").hidden = true; if ($("panelAttBtn")) $("panelAttBtn").hidden = true; $("panelTsBtn").hidden = true;
-  openMarathonEditor(m, true);
+  if ($("panelAttBtn")) $("panelAttBtn").hidden = true; $("panelTsBtn").hidden = true;
+  // 5.19.136 (נועה 25.10): החלון נפתח לצפייה – פרטי המרתון, הקבוצות והנרשמים; "✎ עריכה" בכותרת פותח את העריכה
+  $("gEditBtn").hidden = ME.role === "instructor";
+  { const box = $("gEdit"); box.hidden = false; box.classList.remove("g3"); box.classList.add("g-viewmode");
+    const one = Number(m.price_repeat) === Number(m.price_first);
+    box.innerHTML = `<div class="full mar-view"><div class="mv-grid">
+      <div><span>עיר · בית ספר</span><b>${esc([m.city, m.school].filter(Boolean).join(" · ") || "—")}</b></div>
+      ${m.grade ? `<div><span>שכבה</span><b>${esc(m.grade)}'</b></div>` : ""}
+      <div><span>מחיר</span><b>${one ? Number(m.price_first) + " ₪" : `${Number(m.price_first)} ₪ <span class="muted">(מוזל ${Number(m.price_repeat)} ₪)</span>`}</b></div>
+      <div><span>הרשמה</span><b><span class="ib-tag ${m.is_open ? "t-new" : "t-old"}">${m.is_open ? "פתוח להרשמה" : "סגור להרשמה"}</span></b></div>
+      ${m.notes ? `<div class="full"><span>הערות</span><b>${esc(m.notes)}</b></div>` : ""}</div></div>`; }
   const gs = (G.sessions || []).filter(x => x.kind === "מרתון" && x.marathon_id === m.id).sort((a, b) => gFirstDate(a).localeCompare(gFirstDate(b)) || String(a.start_time).localeCompare(String(b.start_time)));
   const kidsOf = (sid) => (G.roster || []).filter(k => k.session_id === sid).sort(attSort);
   const total = gs.reduce((n, g) => n + kidsOf(g.session_id).length, 0);
@@ -9923,11 +9935,14 @@ async function liveRefresh(minGap){
   LIVE_BUSY = true; LIVE_LAST = Date.now(); const y = window.scrollY, v = currentView;
   // 5.19.88 (נועה: "הקבוצות מתרפרשות כל הזמן"): עדכון שקט - בלי "טוען..." באמצע, הגובה נשמר בזמן הציור, ושומרים גם את הגלילה בתוך המסך (לוח השבוע וכו')
   LIVE_QUIET = true;
-  const root = $("view-" + v), inner = root ? [...root.querySelectorAll("[id]")].filter(e => e.scrollTop || e.scrollLeft).map(e => [e.id, e.scrollTop, e.scrollLeft]) : [];
+  const root = $("view-" + v), inner = root ? [...root.querySelectorAll("[id]")].filter(e => e.scrollTop || e.scrollLeft).map(e => [e.id, e.scrollTop, e.scrollLeft, e]) : [];
+  // 5.19.136 (נועה: "תזוזות ימינה ושמאלה בלוח המבחנים"): אם גוללים בזמן העדכון – לא מחזירים את הגלילה למה שהיה לפני; ואזור שלא צויר מחדש (אותו אלמנט) – לא נוגעים בו
+  let moved = false; const mv = () => { moved = true; }; const MV_EV = ["wheel", "touchmove", "keydown", "mousedown", "pointerdown"];
+  MV_EV.forEach(t => window.addEventListener(t, mv, { passive: true, capture: true }));
   // 5.19.96 (נועה): בלי "ריפרוש" נראה בשום מסך – שומרים גם גלילה של אזורים בלי id (טבלאות רחבות, רשימות) ואת מה שפתוח (details), לפי המקום שלהם במסך
   const pathOf = (e) => { const p = []; for (let x = e; x && x !== root; x = x.parentElement) p.unshift([...x.parentElement.children].indexOf(x)); return p.join("."); };
   const byPath = (p) => { let x = root; for (const i of p.split(".")) { x = x && x.children[Number(i)]; } return x; };
-  const inner2 = root ? [...root.querySelectorAll("*:not([id])")].filter(e => e.scrollTop || e.scrollLeft).map(e => [pathOf(e), e.scrollTop, e.scrollLeft, e.className]) : [];
+  const inner2 = root ? [...root.querySelectorAll("*:not([id])")].filter(e => e.scrollTop || e.scrollLeft).map(e => [pathOf(e), e.scrollTop, e.scrollLeft, e.className, e]) : [];
   const opened = root ? [...root.querySelectorAll("details")].map(d => [pathOf(d), d.open]) : [];
   if (root && v !== "leads") root.style.minHeight = root.offsetHeight + "px";
   try {
@@ -9942,13 +9957,13 @@ async function liveRefresh(minGap){
     else if (v === "pay") { if ($("payPnl").hidden && typeof PAY !== "undefined") await PAY.refresh(); }   // 5.19.57: גם מסכי התשלומים
     else if (v === "reg") { await loadRegData(); if (currentView === "reg" && updSafe()) await renderReg(); }   // 5.19.57: גם הרשמה (קישורים, ביטולים, ממתינים)
     if (ME && ME.role !== "instructor") { callCount(); if (v !== "pay" && typeof PAY !== "undefined") PAY.refresh(true); }   // המונים בתפריט
-    if (currentView === v && v !== "leads") window.scrollTo(0, y);
-    inner.forEach(([id, t, l]) => { const e = document.getElementById(id); if (e) { e.scrollTop = t; e.scrollLeft = l; } });
+    if (currentView === v && v !== "leads" && !moved && window.scrollY !== y) window.scrollTo(0, y);
+    if (!moved) inner.forEach(([id, t, l, old]) => { const e = document.getElementById(id); if (e && e !== old) { e.scrollTop = t; e.scrollLeft = l; } });
     if (currentView === v) {
-      inner2.forEach(([p, t, l, c]) => { const e = byPath(p); if (e && e.className === c) { e.scrollTop = t; e.scrollLeft = l; } });
+      if (!moved) inner2.forEach(([p, t, l, c, old]) => { const e = byPath(p); if (e && e !== old && e.className === c) { e.scrollTop = t; e.scrollLeft = l; } });
       opened.forEach(([p, o]) => { const d = byPath(p); if (d && d.tagName === "DETAILS" && d.open !== o) d.open = o; });
     }
-  } catch(e) {} finally { LIVE_BUSY = false; LIVE_QUIET = false; if (root) root.style.minHeight = ""; }
+  } catch(e) {} finally { LIVE_BUSY = false; LIVE_QUIET = false; if (root) root.style.minHeight = ""; MV_EV.forEach(t => window.removeEventListener(t, mv, { capture: true })); }
 }
 setInterval(() => liveRefresh(), 15000);
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { liveRefresh(15000); if (ME && ME.role !== "instructor") inboxPoll(false); } });
