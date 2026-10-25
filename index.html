@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.132">
+<meta name="app-version" content="5.19.133">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -7101,6 +7101,7 @@ function openMarathonEditor(m, inPanel, pre){
       let mid = m && m.id, created = null;
       if (m) await patch("marathons", "id=eq." + m.id, body);
       else { created = (await insert("marathons", Object.assign({ school_year: CONFIG.schoolYear }, body)))[0]; mid = created.id; }
+      if (created && created.code && ME.role === "admin") makeShort(lkMarCode(created.code)).catch(() => {});   // 5.19.133 (נועה 25.10): הקישור הקצר נוצר ונשמר יחד עם המרתון
       const newIds = [];
       try {
         for (let i = 0; i < GRPS.length; i++) {
@@ -9248,13 +9249,13 @@ const lkRow = (name, u, msg, extra) => `<div class="lk-row"><span class="lk-name
 // 5.19.132 (נועה 25.10): קישור קצר ב-TinyURL (פונקציה short-link + טבלה short_links, קובץ 111). קישור שכבר קוצר – "העתקה" ו"וואטסאפ" משתמשים בקצר.
 let SHORT = null, SHORT_P = null;
 const shortOf = (u) => (SHORT && SHORT[u]) || "";
-const lk2Btns = (label, u, msg, sw) => { const sh = shortOf(u), uu = sh || u;
-  return `<span class="lk2-cell${sw ? " has-sw" : ""}" data-u="${esc(u)}" data-msg="${esc(msg)}"><span class="lk2-l">${label}</span><button type="button" class="btn small" data-copy="${esc(uu)}" title="${esc(uu)}">העתקה</button><a class="btn small" data-wa target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + uu)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a>${!sh && ME.role === "admin" ? `<button type="button" class="btn small" data-short title="קישור קצר (TinyURL) – נוצר פעם אחת, ואחר כך העתקה ווואטסאפ משתמשים בו">🔗 קצר</button>` : ""}${sw || ""}</span>`; };
+const lk2Btns = (label, u, msg, sw) => { const sh = shortOf(u), uu = sh || u, canS = ME.role === "admin";
+  // 5.19.133 (נועה 25.10): "העתקה" (הכי בימין) = הקישור הקצר (נוצר בלחיצה הראשונה); "קישור מלא" = הכתובת הרגילה; אחר כך וואטסאפ ו-👁
+  return `<span class="lk2-cell${sw ? " has-sw" : ""}" data-u="${esc(u)}" data-msg="${esc(msg)}"><span class="lk2-l">${label}</span><button type="button" class="btn small" ${canS ? "data-scopy" : `data-copy="${esc(uu)}"`} title="${esc(sh || (canS ? "העתקת קישור קצר (TinyURL)" : u))}">העתקה</button><button type="button" class="btn small" data-copy="${esc(u)}" title="${esc(u)}">קישור מלא</button><a class="btn small" data-wa target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + uu)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a>${sw || ""}</span>`; };
 function lkApplyShort(root){
   root.querySelectorAll(".lk2-cell[data-u]").forEach(c => { const sh = shortOf(c.dataset.u); if (!sh) return;
-    const cp = c.querySelector("[data-copy]"); if (cp) { cp.dataset.copy = sh; cp.title = sh; }
-    const wa = c.querySelector("a[data-wa]"); if (wa) wa.href = "https://wa.me/?text=" + encodeURIComponent((c.dataset.msg || "") + sh);
-    const sb = c.querySelector("[data-short]"); if (sb) sb.remove(); });
+    const cp = c.querySelector("[data-scopy]"); if (cp) cp.title = sh;
+    const wa = c.querySelector("a[data-wa]"); if (wa) wa.href = "https://wa.me/?text=" + encodeURIComponent((c.dataset.msg || "") + sh); });
 }
 async function makeShort(u){
   const t = await token();
@@ -9265,11 +9266,26 @@ async function makeShort(u){
 }
 const lk2Row = (name, u1, m1, u2, m2, extra, sw1, sw2) => `<div class="lk2-row"><div class="lk-name">${name}${extra ? `<span class="lk2-x">${extra}</span>` : ""}</div>${lk2Btns("התעניינות", u1, m1, sw1)}${lk2Btns("הרשמה", u2, m2, sw2)}</div>`;
 const wireLk = (root) => { root.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
-  root.querySelectorAll("[data-short]").forEach(b => b.onclick = async () => { const c = b.closest(".lk2-cell"); if (!c) return; b.disabled = true; b.textContent = "…";
-    try { const sh = await makeShort(c.dataset.u); lkApplyShort(document); copyText(sh, "הקישור הקצר הועתק: " + sh.replace(/^https?:\/\//, "")); }
-    catch(e) { b.disabled = false; b.textContent = "🔗 קצר"; toast(e.status === 404 || /Failed to fetch/.test(e.message) ? "עוד לא הועלתה הפונקציה short-link ב-Supabase" : "לא נוצר קישור קצר: " + e.message); } });
-  if (SHORT === null && ME.role === "admin") { SHORT_P = SHORT_P || get("short_links", "select=url,short").then(r => { SHORT = {}; r.forEach(x => { SHORT[x.url] = x.short; }); }).catch(() => { SHORT = {}; }); SHORT_P.then(() => lkApplyShort(document)); }
-  else if (SHORT) lkApplyShort(root); };
+  root.querySelectorAll("[data-scopy]").forEach(b => b.onclick = async () => { const c = b.closest(".lk2-cell"); if (!c) return; const u = c.dataset.u;
+    if (shortOf(u)) { copyText(shortOf(u), "הקישור הקצר הועתק: " + shortOf(u).replace(/^https?:\/\//, "")); return; }
+    b.disabled = true; b.textContent = "…";
+    try { const sh = await makeShort(u); lkApplyShort(document); copyText(sh, "הקישור הקצר הועתק: " + sh.replace(/^https?:\/\//, "")); }
+    catch(e) { copyText(u, "לא נוצר קישור קצר – הועתק הקישור המלא"); console.warn("short-link", e); }
+    finally { b.disabled = false; b.textContent = "העתקה"; } });
+  if (SHORT === null && ME.role === "admin") { SHORT_P = SHORT_P || get("short_links", "select=url,short").then(r => { SHORT = {}; r.forEach(x => { SHORT[x.url] = x.short; }); }).catch(() => { SHORT = {}; }); SHORT_P.then(() => { lkApplyShort(document); lkAutoShort(); }); }
+  else if (SHORT) { lkApplyShort(root); lkAutoShort(); } };
+// 5.19.133 (נועה 25.10): הקישורים הקצרים נוצרים לבד ונשמרים (short_links) – לכל קישור שמוצג ועוד אין לו קצר, אחד-אחד ברקע
+let SHORT_RUN = false, SHORT_FAIL = new Set();
+async function lkAutoShort(){
+  if (SHORT_RUN || !SHORT || ME.role !== "admin") return; SHORT_RUN = true;
+  try {
+    for (let n = 0; n < 60; n++) {
+      const c = [...document.querySelectorAll(".lk2-cell[data-u]")].find(x => !shortOf(x.dataset.u) && !SHORT_FAIL.has(x.dataset.u) && /^https:\/\/telem-tirgul\.github\.io\//.test(x.dataset.u));
+      if (!c) break;
+      try { await makeShort(c.dataset.u); lkApplyShort(document); } catch(e) { SHORT_FAIL.add(c.dataset.u); if (e.status === 404 || e.status === 403 || /Failed to fetch|TINYURL/.test(e.message)) break; }
+    }
+  } finally { SHORT_RUN = false; }
+}
 // מחירים לכל עיר - מהטבלה reg_prices (קובץ 44). אם עוד לא הורץ - המחירים שכתובים בטפסים.
 const REG_PRICES_FALLBACK = {
   "ראש העין": { single: { early: 348, regular: 393 }, "unlimited-single": { early: 514, regular: 584 }, double: { early: 684, regular: 742 }, registrationFee: 118, materialsFee: null, activityStartDate: "2026-10-11" },
