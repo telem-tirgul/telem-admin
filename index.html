@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.136">
+<meta name="app-version" content="5.19.137">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3899,10 +3899,28 @@ $("leadsTbl").addEventListener("change", async (e) => {
   const old0 = l.status_id;
   try { await patch("leads", "id=eq." + l.id, { status_id: v }); l.status_id = v; l.updated_at = new Date().toISOString();
         paintStatus(e.target, v); toast(`הסטטוס של ${l.student.first_name} ${l.student.last_name || ""} עודכן ל"${statusName(v) || "ללא"}"`);
-        planWarn(l.student.id, [l.student.first_name, l.student.last_name].filter(Boolean).join(" "), old0, v); }
+        planWarn(l.student.id, [l.student.first_name, l.student.last_name].filter(Boolean).join(" "), old0, v);
+        await regHowAsk(l.id, old0, v); if (currentView === "leads" && updSafe()) leadsKeepRow(renderLeads); }
   catch(err) { toast("לא נשמר: " + err.message); e.target.value = l.status_id || ""; }
 });
 
+// 5.19.137 (נועה 25.10): מעבר ידני לסטטוס "נרשם…" – חלון קטן "איך נרשם/ה?" (נשמר כהערה בכרטיס). אפשר לדלג.
+async function regHowAsk(leadId, oldId, newId){
+  const nw = statusName(newId) || "", od = statusName(oldId) || "";
+  if (!leadId || !/^נרשם/.test(nw) || newId === oldId) return;
+  const pr = uiChoose(`עבר/ה ל"${nw}" – איך נרשם/ה? (הסטטוס כבר נשמר)`, [
+    { v: "בטלפון – תשלום טלפוני", t: "📞 בטלפון – תשלום טלפוני" },
+    { v: "שילם/ה ישירות בריווחית", t: "💳 שילם/ה ישירות בריווחית" },
+    { v: "הועבר/ה מהמערכת הישנה", t: "↪ הועבר/ה מהמערכת הישנה" },
+    { v: "other", t: "✍ אחר…" }]);
+  { const bgs = document.querySelectorAll(".ui-dlg-bg"), nb = bgs.length && bgs[bgs.length - 1].querySelector("[data-no]"); if (nb) nb.textContent = "דילוג"; }
+  let how = await pr;
+  if (how === "other") { how = await uiPrompt("איך נרשם/ה?", ""); how = how && String(how).trim(); }
+  if (!how) return;
+  const who = (auth && auth.email || "").split("@")[0], body = `${who ? who + ": " : ""}נרשם/ה (${nw}${od && !/^נרשם/.test(od) ? ", היה: " + od : ""}) – ${how}`;
+  try { await insert("notes", { lead_id: leadId, body }); L.notesCount[leadId] = (L.notesCount[leadId] || 0) + 1; (L.notes[leadId] = L.notes[leadId] || []).push({ lead_id: leadId, body, created_at: new Date().toISOString() }); }
+  catch(e) { toast("ההערה לא נשמרה: " + e.message); }
+}
 // ---------- חלונית קטנה: פרטים מהירים / הערות ----------
 // ההערות שיובאו מה-CRM הישן מתחילות בשורה "מה-CRM הישן (...)" - לא מציגים אותה ברשימה
 const cleanNote = (b) => String(b || "").replace(/^מה-CRM הישן \([^)]*\)\n?/, "").trim();
@@ -5216,6 +5234,7 @@ $("leadForm").addEventListener("submit", async (e) => {
       await patch("students", "id=eq." + editing.student.id, student);
       await patch("leads", "id=eq." + editing.id, lead);
       leadId = editing.id;
+      await regHowAsk(leadId, editing.status_id, lead.status_id);   // 5.19.137
     } else {
       // 5.19.66 (נועה): ילד/ה שכבר קיים/ת (אותם כללים כמו בטפסים) - שואלים לפני שיוצרים כרטיס חדש
       const dups = dupFind(student, family, null);
@@ -5233,6 +5252,7 @@ $("leadForm").addEventListener("submit", async (e) => {
       const created = await get("leads", "select=id&student_id=eq." + st.id);
       if (created.length) { leadId = created[0].id; await patch("leads", "id=eq." + leadId, lead); }
       else { leadId = (await insert("leads", Object.assign({ family_id: famId, student_id: st.id }, lead)))[0].id; }
+      await regHowAsk(leadId, null, lead.status_id);   // 5.19.137
     }
     await loadLeads();
     toast("נשמר");
