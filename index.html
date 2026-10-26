@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.145">
+<meta name="app-version" content="5.19.146">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -917,7 +917,13 @@
   .cal-col{ border-inline-start:1px solid var(--border); min-width:0; }
   .cal-col.cal-times{ border-inline-start:0; }
   .hol-tbl input, .hol-tbl select{ padding:5px 8px; font-size:14px; width:100%; box-sizing:border-box; min-width:90px; } .hol-tbl input[type=checkbox]{ width:auto; min-width:0; }
-  .hol-tbl tr.past td{ opacity:.5; } .hol-k-holiday{ color:#4A4542; font-weight:800; } .hol-k-vacation{ font-weight:700; }
+  .hol-tbl tr.hol-past td{ opacity:.5; } .hol-tbl .hol-n{ font-weight:700; } .hol-tbl td.hol-a{ text-align:end; white-space:nowrap; width:1%; } .hol-sp{ flex:1; } .hol-tbl tr.hol-ed > td, .hol-tbl tr.hol-ed:hover > td{ background:color-mix(in srgb, var(--accent) 5%, var(--paper)); padding:10px 12px; }
+  .hol-form{ display:grid; grid-template-columns:minmax(160px,2fr) repeat(2, minmax(130px,1fr)) repeat(2, minmax(110px,1fr)) minmax(130px,1.3fr); gap:8px 10px; align-items:end; }
+  .hol-fl{ display:flex; flex-direction:column; gap:3px; min-width:0; } .hol-fl > span{ font-size:12px; font-weight:700; color:var(--ink-soft); }
+  .hol-btns{ grid-column:1 / -1; display:flex; gap:6px; align-items:center; }
+  @media (max-width:760px){ .hol-tbl thead{ display:none; } .hol-tbl, .hol-tbl tbody{ display:block; width:100%; min-width:0 !important; } .hol-tbl tr{ width:100%; box-sizing:border-box; } .hol-tbl tr.hol-v td.hol-a{ width:auto; } .hol-tbl tr.hol-v{ display:flex; flex-wrap:wrap; align-items:center; gap:2px 10px; padding:9px 12px; border-top:1px solid var(--border); }
+    .hol-tbl tr.hol-v td{ border:0; padding:0; order:2; color:var(--ink-soft); font-size:13px; } .hol-tbl tr.hol-v td:empty{ display:none; } .hol-tbl tr.hol-v td.hol-n{ order:0; flex:1 1 calc(100% - 110px); color:var(--ink); font-size:14.5px; } .hol-tbl tr.hol-v td.hol-a{ order:1; }
+    .hol-tbl tr.hol-ed{ display:block; } .hol-tbl tr.hol-ed > td{ display:block; } .hol-form{ grid-template-columns:1fr 1fr; } .hol-form .hol-fl:first-child{ grid-column:1 / -1; } } .hol-k-holiday{ color:#4A4542; font-weight:800; } .hol-k-vacation{ font-weight:700; }
   #view-holidays .tbl{ min-width:860px; }
   .hol-chips{ display:flex; flex-wrap:wrap; gap:2px; justify-content:center; margin-top:2px; }
   .hol-chip{ font-family:var(--font-body); font-size:10.5px; font-weight:800; border-radius:999px; padding:0 6px; line-height:1.6; white-space:nowrap; }
@@ -2763,7 +2769,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== בתי ספר (מידע, מנהלים בלבד) ===== -->
     <section id="view-holidays" hidden>
       <div class="page-head"><h1>חגים וחופשות</h1><button class="btn small primary" type="button" id="holAdd">+ יום חדש</button></div>
-      <div class="muted" style="font-size:13.5px; margin:-6px 0 10px;"><b>חג</b> ו<b>חופשה</b> - כל קבוצה שוטפת מסומנת אוטומטית "לא התקיים תרגול" (מרתונים לא). אם בכל זאת היה תרגול - מבטלים בדף הנוכחות של הקבוצה. <b>יום ציון</b> - רק תזכורת. השינויים נשמרים מיד.</div>
+      <div class="muted" style="font-size:13.5px; margin:-6px 0 10px;"><b>חג</b> ו<b>חופשה</b> - כל קבוצה שוטפת מסומנת אוטומטית "לא התקיים תרגול" (מרתונים לא). אם בכל זאת היה תרגול - מבטלים בדף הנוכחות של הקבוצה. <b>יום ציון</b> - רק תזכורת.</div>
       <div class="tbl-wrap"><table class="tbl hol-tbl" id="holTbl"></table></div>
     </section>
     <!-- ===== 5.19.17: דוח נוכחות - בתלמידים (לפי ילד/ה) ובקבוצות ונוכחות (לפי קבוצה). אותו דוח, עובר בין המקומות ===== -->
@@ -3309,7 +3315,7 @@ function go(view){
   else if (view === "att") { A.ret = null; showAttList(); loadAttGroups(); }
   if (view === "staff") loadStaff();
   if (view === "schools") loadSchools();
-  if (view === "holidays") renderHolidays(true);
+  if (view === "holidays") { HOL.edit = null; HOL.draft = null; renderHolidays(true); }
   if (view === "exams") {   // 5.19.94 (נועה): תמיד נפתח על היום
     // 5.19.99 (נועה: "כשאני נכנסת למסך הלוח קופץ"): הלוח כבר מצויר (במחשב) – גוללים אותו מיד להיום, והטעינה ברקע לא מציירת מחדש אם לא השתנה כלום
     if (!isMobile() && EX.rows && document.querySelector("#exCal .ex-cal-wrap")) { EX.enterQuiet = true; EX.scrollTo = null; exScrollTo(exHome(), true, false); renderExams(true); }
@@ -5439,36 +5445,51 @@ $("gWkNext").addEventListener("click", () => { G.week = addDays(G.week, 7); rend
 $("gWkNow").addEventListener("click", () => { G.week = thisWeek(); renderGrid(); });
 // ---------- חגים וחופשות (קובץ 46) ----------
 async function renderHolidays(reload){
+  // 5.19.146 (נועה 26.10): תצוגה + "✎ עריכה" לכל שורה; שומרים רק ב"שמירה" (עד עכשיו – כל שינוי נשמר מיד)
   const T = $("holTbl");
   if (reload || !HOL.rows) { T.innerHTML = "<tr><td class='empty-state'>טוען...</td></tr>";
     try { HOL.rows = await getAll("days_off", "select=*&order=date_from"); }
     catch(e) { T.innerHTML = `<tr><td class='empty-state'>${e.status === 404 || e.code === "PGRST205" ? "צריך להריץ את קובץ 46." : "לא ניתן לטעון."}</td></tr>`; return; } }
-  const today = todayIL(), rows = HOL.rows.slice().sort((a, b) => a.date_from.localeCompare(b.date_from));
+  const today = todayIL(), KN = { holiday: "חג", vacation: "חופשה", note: "יום ציון" };
+  const rows = HOL.rows.slice().sort((a, b) => a.date_from.localeCompare(b.date_from));
+  if (HOL.edit === "new") rows.unshift(HOL.draft);
+  const dt = (d) => d ? d.slice(8, 10) + "." + d.slice(5, 7) + "." + d.slice(2, 4) : "";
+  const view = (h) => `<tr data-h="${h.id}" class="hol-v${h.date_to < today ? " hol-past" : ""}">
+      <td class="hol-n">${esc(h.name)}</td><td>${dt(h.date_from)}</td><td>${h.date_to !== h.date_from ? dt(h.date_to) : ""}</td>
+      <td><span class="hol-k-${h.kind}">${KN[h.kind] || esc(h.kind)}</span></td>
+      <td>${h.city ? esc(h.city) : `<span class="muted">כל הערים</span>`}</td><td>${h.school ? esc(h.school) : `<span class="muted">כל בתי הספר</span>`}</td>
+      <td class="hol-a"><button type="button" class="btn small" data-hed="${h.id}">✎ עריכה</button></td></tr>`;
+  const fld = (l, h) => `<label class="hol-fl"><span>${l}</span>${h}</label>`;
+  const edit = (h) => `<tr data-h="${h.id}" class="hol-ed"><td colspan="7"><div class="hol-form">
+      ${fld("שם", `<input data-f="name" value="${esc(h.name)}" placeholder="למשל: חנוכה">`)}
+      ${fld("מתאריך", `<input type="date" data-f="date_from" value="${esc(h.date_from)}">`)}
+      ${fld("עד", `<input type="date" data-f="date_to" value="${esc(h.date_to)}">`)}
+      ${fld("סוג", `<select data-f="kind">${Object.entries(KN).map(([k, t]) => `<option value="${k}" ${k === h.kind ? "selected" : ""}>${t}</option>`).join("")}</select>`)}
+      ${fld("עיר", `<select data-f="city"><option value="">כל הערים</option>${CONFIG.cities.map(c => `<option ${c === h.city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select>`)}
+      ${fld("בית ספר", `<input data-f="school" value="${esc(h.school || "")}" placeholder="כל בתי הספר">`)}
+      <div class="hol-btns">${h.id !== "new" ? `<button type="button" class="btn small danger" data-hdel="${h.id}">מחיקה</button>` : ""}<span class="hol-sp"></span><button type="button" class="btn small" data-hcx>ביטול</button><button type="button" class="btn small primary" data-hsv>שמירה</button></div>
+    </div></td></tr>`;
   T.innerHTML = `<thead><tr><th>שם</th><th>מתאריך</th><th>עד</th><th>סוג</th><th>עיר</th><th>בית ספר</th><th></th></tr></thead><tbody>` +
-    (rows.length ? rows.map(h => `<tr data-h="${h.id}" class="${h.date_to < today ? "past" : ""}">
-      <td><input data-f="name" value="${esc(h.name)}"></td>
-      <td><input type="date" data-f="date_from" value="${esc(h.date_from)}"></td>
-      <td><input type="date" data-f="date_to" value="${esc(h.date_to)}"></td>
-      <td><select data-f="kind" class="hol-k hol-k-${h.kind}">${Object.entries({ holiday: "חג", vacation: "חופשה", note: "יום ציון" }).map(([k, t]) => `<option value="${k}" ${k === h.kind ? "selected" : ""}>${t}</option>`).join("")}</select></td>
-      <td><select data-f="city"><option value="">כל הערים</option>${CONFIG.cities.map(c => `<option ${c === h.city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></td>
-      <td><input data-f="school" value="${esc(h.school || "")}" placeholder="כל בתי הספר"></td>
-      <td><button type="button" class="btn small danger" data-hdel="${h.id}">מחיקה</button></td></tr>`).join("") : "<tr><td colspan='7' class='empty-state'>אין ימים מיוחדים.</td></tr>") + "</tbody>";
-  T.querySelectorAll("[data-f]").forEach(el => el.onchange = async () => {
-    const id = Number(el.closest("tr").dataset.h), f = el.dataset.f, h = HOL.rows.find(x => x.id === id);
-    const v = el.type === "checkbox" ? el.checked : (el.value.trim() || null);
-    if ((f === "name" || f === "date_from" || f === "date_to") && !v) { toast("השדה הזה חובה"); el.value = h[f] || ""; return; }
-    const body = { [f]: v }; if (f === "date_from" && h.date_to < v) body.date_to = v; if (f === "date_to" && v < h.date_from) { toast("תאריך הסיום לפני ההתחלה"); el.value = h.date_to; return; }
-    try { await patch("days_off", "id=eq." + id, body); Object.assign(h, body); toast("נשמר"); if (f === "kind" || body.date_to) renderHolidays(false); }
-    catch(e) { toast("לא נשמר: " + e.message); el.value = h[f] || ""; }
-  });
+    (rows.length ? rows.map(h => String(h.id) === String(HOL.edit) ? edit(h) : view(h)).join("") : "<tr><td colspan='7' class='empty-state'>אין ימים מיוחדים.</td></tr>") + "</tbody>";
+  T.querySelectorAll("[data-hed]").forEach(b => b.onclick = () => { HOL.edit = Number(b.dataset.hed); renderHolidays(false); const i = T.querySelector(".hol-ed [data-f=name]"); if (i) i.focus(); });
+  const cx = T.querySelector("[data-hcx]"); if (cx) cx.onclick = () => { HOL.edit = null; HOL.draft = null; renderHolidays(false); };
+  const sv = T.querySelector("[data-hsv]");
+  if (sv) sv.onclick = async () => { const tr = sv.closest("tr"), v = (f) => (tr.querySelector(`[data-f=${f}]`).value || "").trim() || null;
+    const body = { name: v("name"), date_from: v("date_from"), date_to: v("date_to") || v("date_from"), kind: v("kind"), city: v("city"), school: v("school") };
+    if (!body.name) { toast("צריך שם"); return; } if (!body.date_from) { toast("צריך תאריך"); return; }
+    if (body.date_to < body.date_from) { toast("תאריך הסיום לפני ההתחלה"); return; }
+    sv.disabled = true;
+    try { if (HOL.edit === "new") { const r = await insert("days_off", Object.assign({ school_year: CONFIG.schoolYear }, body)); HOL.rows.push(r[0]); }
+          else { await patch("days_off", "id=eq." + HOL.edit, body); Object.assign(HOL.rows.find(x => x.id === HOL.edit), body); }
+          HOL.edit = null; HOL.draft = null; renderHolidays(false); toast("נשמר"); }
+    catch(e) { sv.disabled = false; toast(e.status === 404 ? "צריך להריץ את קובץ 46" : "לא נשמר: " + e.message); } };
   T.querySelectorAll("[data-hdel]").forEach(b => b.onclick = async () => { const h = HOL.rows.find(x => x.id === Number(b.dataset.hdel));
     if (!await uiConfirm(`למחוק את "${h.name}"?`)) return;
-    try { await del("days_off", "id=eq." + h.id); HOL.rows = HOL.rows.filter(x => x.id !== h.id); renderHolidays(false); toast("נמחק"); } catch(e) { toast("לא נמחק: " + e.message); } });
+    try { await del("days_off", "id=eq." + h.id); HOL.rows = HOL.rows.filter(x => x.id !== h.id); HOL.edit = null; renderHolidays(false); toast("נמחק"); } catch(e) { toast("לא נמחק: " + e.message); } });
 }
-$("holAdd").addEventListener("click", async () => {
-  try { const r = await insert("days_off", { school_year: CONFIG.schoolYear, name: "יום חופש", date_from: todayIL(), date_to: todayIL(), kind: "vacation" });
-        (HOL.rows = HOL.rows || []).push(r[0]); renderHolidays(false); const tr = $("holTbl").querySelector(`[data-h="${r[0].id}"] [data-f=name]`); if (tr) { tr.focus(); tr.select(); } }
-  catch(e) { toast(e.status === 404 ? "צריך להריץ את קובץ 46" : "לא נשמר: " + e.message); }
+$("holAdd").addEventListener("click", () => {
+  HOL.edit = "new"; HOL.draft = { id: "new", name: "", date_from: todayIL(), date_to: todayIL(), kind: "vacation", city: null, school: null };
+  HOL.rows = HOL.rows || []; renderHolidays(false); const i = $("holTbl").querySelector(".hol-ed [data-f=name]"); if (i) i.focus();
 });
 // ---------- מבחנים בבתי הספר (קובץ 50) ----------
 // הנתונים מגיעים מהקובץ "לוח מבחני מתמטיקה - כל בתי הספר" (ייבוא אוטומטי כל בוקר / כפתור ייבוא), ומבחנים שהוספו ידנית.
