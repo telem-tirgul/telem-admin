@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.143">
+<meta name="app-version" content="5.19.144">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1050,7 +1050,8 @@
     #leadsTbl .c-id{ order:10; color:var(--ink-soft); font-size:12px; } #leadsTbl .c-upd{ order:11; color:var(--ink-soft); font-size:12px; }
     #leadsTbl .c-star{ order:12; margin-inline-start:auto; } #leadsTbl .c-act{ order:13; }
     /* 5.19.21: כרטיס תלמיד בנייד - השם בולט ונוח ללחיצה, הסטטוס קטן, בשיבוצים גם המקום (בצבע בית הספר), בלי מתג "פעיל" ומספר */
-    #leadsTbl .c-name{ order:1; flex:1 1 calc(100% - 130px); min-width:0; } #leadsTbl .c-name .name-link{ font-size:17px; font-weight:800; padding:3px 0; text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--accent) 30%, transparent); text-underline-offset:3px; }
+    #leadsTbl .c-name{ order:1; flex:1 1 calc(100% - 180px); min-width:0; }   /* 5.19.144: מקום גם ל-📱 – כל האייקונים בשורה של השם */
+    #leadsTbl .c-ts, #leadsTbl .c-star, #leadsTbl .c-notes, #leadsTbl .c-info{ flex:none; white-space:nowrap; } #leadsTbl .c-ts{ order:1; width:auto; } #leadsTbl .c-name .name-link{ font-size:17px; font-weight:800; padding:3px 0; text-decoration:underline; text-decoration-color:color-mix(in srgb, var(--accent) 30%, transparent); text-underline-offset:3px; }
     #leadsTbl .c-star{ order:2; margin-inline-start:0; } #leadsTbl .c-notes{ order:3; } #leadsTbl .c-info{ order:4; }
     #leadsTbl .c-status{ order:5; flex:0 0 auto; } #leadsTbl .c-status select{ width:auto !important; field-sizing:content; flex:none !important; min-width:0 !important; max-width:170px; text-overflow:ellipsis; font-size:12.5px !important; padding:3px 8px !important; }
     #leadsTbl .c-grade{ order:6; } #leadsTbl .c-school{ order:7; } #leadsTbl .c-asg{ order:8; flex:1 1 100%; } #leadsTbl .c-src{ order:9; }
@@ -5579,7 +5580,7 @@ function exMarPop(e, mm){
     <div class="ex-pop-btns"><button type="button" class="btn small" data-mpkids>👥 נרשמים ונוכחות</button><button type="button" class="btn small primary" data-mpedit>פרטי המרתון</button></div></div>`;
   o.hidden = false;
   const q = (sel, fn) => { const b = o.querySelector(sel); if (b) b.onclick = fn; };
-  q("[data-mpcopy]", () => { const msg = "הרשמה ל" + (mm.name || "מרתון") + (mm.school && !String(mm.name || "").includes(mm.school) ? " · " + mm.school : "") + ": "; copyText(msg + (shortOf(url) || url), "הועתק עם שם המרתון"); });
+  q("[data-mpcopy]", () => copyText(shortOf(url) || url, shortOf(url) ? "הקישור הקצר הועתק" : undefined));   // 5.19.144: רק הקישור
   // 5.19.135 (נועה 25.10): הקישור הקצר (נטען / נוצר אם עוד אין)
   if (url && !shortOf(url) && ME.role === "admin") (async () => {
     try { if (SHORT === null) { SHORT_P = SHORT_P || get("short_links", "select=url,short").then(r => { SHORT = {}; r.forEach(x => { SHORT[x.url] = x.short; }); }).catch(() => { SHORT = {}; }); await SHORT_P; }
@@ -9401,11 +9402,11 @@ async function makeShort(u){
 const lk2Row = (name, u1, m1, u2, m2, extra, sw1, sw2) => `<div class="lk2-row"><div class="lk-name">${name}${extra ? `<span class="lk2-x">${extra}</span>` : ""}</div>${lk2Btns("התעניינות", u1, m1, sw1)}${lk2Btns("הרשמה", u2, m2, sw2)}</div>`;
 const wireLk = (root) => { root.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
   root.querySelectorAll("[data-scopy]").forEach(b => b.onclick = async () => { const c = b.closest(".lk2-cell"); if (!c) return; const u = c.dataset.u;
-    const msg = c.dataset.msg || "";   // 5.19.141 (נועה 25.10): מעתיקים גם את השורה (שם / בית ספר / תאריכים) – בוואטסאפ התצוגה המקדימה זהה לכל המרתונים
-    if (shortOf(u)) { copyText(msg + shortOf(u), "הועתק: " + (msg + shortOf(u).replace(/^https?:\/\//, "")).slice(0, 90)); return; }
+    const msg = "";   // 5.19.144 (נועה 26.10): "העתקה" – רק הקישור הקצר (כדי שאפשר יהיה לפתוח אותו ישר); השורה עם השם – רק ב"וואטסאפ"
+    if (shortOf(u)) { copyText(shortOf(u), "הקישור הקצר הועתק: " + shortOf(u).replace(/^https?:\/\//, "")); return; }
     b.disabled = true; b.textContent = "…";
-    try { const sh = await makeShort(u); lkApplyShort(document); copyText(msg + sh, "הועתק: " + (msg + sh.replace(/^https?:\/\//, "")).slice(0, 90)); }
-    catch(e) { copyText(msg + u, "לא נוצר קישור קצר – הועתק הקישור המלא"); console.warn("short-link", e); }
+    try { const sh = await makeShort(u); lkApplyShort(document); copyText(sh, "הקישור הקצר הועתק: " + sh.replace(/^https?:\/\//, "")); }
+    catch(e) { copyText(u, "לא נוצר קישור קצר – הועתק הקישור המלא"); console.warn("short-link", e); }
     finally { b.disabled = false; b.textContent = "העתקה"; } });
   if (SHORT === null && ME.role === "admin") { SHORT_P = SHORT_P || get("short_links", "select=url,short").then(r => { SHORT = {}; r.forEach(x => { SHORT[x.url] = x.short; }); }).catch(() => { SHORT = {}; }); SHORT_P.then(() => { lkApplyShort(document); lkAutoShort(); }); }
   else if (SHORT) { lkApplyShort(root); lkAutoShort(); } };
