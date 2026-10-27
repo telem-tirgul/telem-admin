@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.146">
+<meta name="app-version" content="5.19.147">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -376,7 +376,7 @@
   .reg-tabs a.rt-pay:hover{ background:color-mix(in srgb, var(--accent) 8%, transparent); }
   /* 5.19.29: מסך אחד - קבוצות ונוכחות */
   .att-adm{ display:flex; gap:6px; flex-wrap:wrap; margin-inline-start:auto; align-self:center; }
-  @media (max-width:760px){ .att-adm, .att-mode, .att-dsk{ display:none !important; } }
+  @media (max-width:760px){ .att-adm, .att-dsk{ display:none !important; } .att-head{ flex-wrap:wrap; } #attWeekNav{ flex-wrap:nowrap; justify-content:space-between; gap:6px; } }
   .att-mode{ align-self:center; } .att-filt #attKind button{ padding:6px 14px; }
   .ev-ed{ position:absolute; top:2px; left:2px; width:20px; height:20px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; background:rgba(255,255,255,.85); border:1px solid rgba(0,0,0,.15); font-size:11px; color:#333; cursor:pointer; z-index:2; }
   .ev-ed:hover{ background:#fff; border-color:var(--accent); color:var(--accent); }
@@ -1013,6 +1013,8 @@
   .icon-btn.info{ background:#2b6cb0; color:#fff; font-family:Georgia, serif; font-style:italic; }
   .icon-btn.note{ background:transparent; color:#999; font-size:17px; }
   .icon-btn.note.has{ color:#b7791f; }
+  /* 5.19.147 (נועה 27.10): tooltip מיידי במעבר עכבר (ההערות בטבלת התלמידים) */
+  #hTip{ position:fixed; z-index:9999; max-width:340px; background:var(--paper); color:var(--ink); border:1px solid var(--border); border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.16); padding:8px 11px; font-size:13px; line-height:1.5; white-space:pre-line; pointer-events:none; text-align:start; }
   .icon-btn .cnt{ position:absolute; top:-4px; left:-6px; background:#b7791f; color:#fff; font-size:10px; font-style:normal; border-radius:999px; padding:0 4px; line-height:15px; }
   td.lastnote{ max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#555; font-size:13px; }
   .toast .toast-undo{ margin-inline-start:10px; background:transparent; color:#FFD27A; border:1px solid #FFD27A; border-radius:8px; padding:2px 10px; font:inherit; font-weight:800; cursor:pointer; }
@@ -2552,7 +2554,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         </div>
         <div class="att-filt" data-admin><div class="tabs" role="tablist" id="attCities"></div><select id="attLoc" class="att-dsk" aria-label="מוקד"><option value="">כל המוקדים</option></select><select id="attIns" aria-label="מתרגל"></select><span class="gseg att-dsk" id="attKind" role="group" aria-label="אילו קבוצות"><button type="button" data-akind="שוטף">שוטפים</button><button type="button" data-akind="מרתון">מרתונים</button></span><select id="attFill" class="att-dsk" aria-label="אילו קבוצות להציג" hidden><option value="full">קבוצות עם ילדים</option><option value="empty">רק קבוצות ריקות</option><option value="all">כל הקבוצות</option></select></div>
         </div>
-        <div class="week-nav" id="attWeekNav" hidden style="margin-top:10px;"><button type="button" class="btn small" id="attWkPrev">→ שבוע קודם</button><b id="attWkLbl"></b><button type="button" class="btn small" id="attWkNow">השבוע</button><button type="button" class="btn small" id="attWkNext">שבוע הבא ←</button></div>
+        <div class="week-nav" id="attWeekNav" hidden style="margin-top:10px;"><button type="button" class="btn small" id="attWkPrev" aria-label="שבוע קודם">→<span class="lg-t"> שבוע קודם</span></button><b id="attWkLbl"></b><button type="button" class="btn small" id="attWkNow">השבוע</button><button type="button" class="btn small" id="attWkNext" aria-label="שבוע הבא"><span class="lg-t">שבוע הבא </span>←</button></div>
         <div id="attGroups" class="att-groups"></div>
         <div class="cal" id="attCal" hidden></div>
         </div>
@@ -3266,7 +3268,7 @@ function go(view){
   if (view === "groups") view = "att";
   if (ME && ME.role === "instructor" && (view === "att" || view === "attg")) view = "home";   // 5.19.110: הנוכחות – בתלם שלי
   if (ME && ME.role && view === "ws") view = "home";   // 5.19.110: המאגר – בתלם שלי   // 5.19.29
-  if (view === "att" && currentView !== "att") { try { A.mode = "a"; } catch(e) {} }   // 5.19.111 (נועה): כניסה למסך – תמיד על "✓ נוכחות": מסך הקבוצות אוחד עם הנוכחות   // 5.19.27: דוח נוכחות אחד (בקבוצות ונוכחות) - לפי ילד/ה או לפי קבוצה
+  if (view === "att" && currentView !== "att") { try { A.mode = isMobile() && ME && ME.role !== "instructor" ? "g" : "a"; } catch(e) {} }   // 5.19.147 (נועה 27.10): בנייד – נפתח על "👥 קבוצות"   // 5.19.111 (נועה): כניסה למסך – תמיד על "✓ נוכחות": מסך הקבוצות אוחד עם הנוכחות   // 5.19.27: דוח נוכחות אחד (בקבוצות ונוכחות) - לפי ילד/ה או לפי קבוצה
   if (view !== "lead" && typeof LEAD_DIRTY !== "undefined" && LEAD_DIRTY && !LEAD_SAVING && currentView === "lead") { const v = view; askLeadSave(() => go(v)); return; }
   try { if (!NAV_POP && view !== "home") RESUME = null; } catch(e) {}
   try { if (document.body.classList.contains("ws-vopen")) wsViewerOff(); } catch(e) {}   // 5.19.21: מעבר מסך מהתפריט כשדף פתוח - סוגרים את הדף   // המשתמש עבר למסך בעצמו - לא לחזור אחר כך למסך שלפני הרענון
@@ -3854,7 +3856,7 @@ function renderLeads(){
       <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
       <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="${stSoft(statusColor(l.status_id))}"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select>${marIcon(s)}</td>
       <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
-      <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" title="${esc(ns.length ? ns.slice(-3).reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n").slice(0, 600) + (ns.length > 3 ? "\n(ועוד " + (ns.length - 3) + " - לחיצה לכל ההערות)" : "") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
+      <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" data-htip="${esc(ns.length ? ns.slice(-3).reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n").slice(0, 600) + (ns.length > 3 ? "\n(ועוד " + (ns.length - 3) + " - לחיצה לכל ההערות)" : "") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
       <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
       <td class="c-ts">${tsCell(l)}</td>
       <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
@@ -3910,6 +3912,19 @@ $("leadsTbl").addEventListener("click", async (e) => {
     catch(err) { toast("לא נשמר: " + err.message); }
   }
 });
+// 5.19.147 (נועה 27.10): tooltip מיידי לכל [data-htip] (במחשב – עכבר); בטלפון לחיצה פותחת את ההערות כרגיל
+(function(){ let tip = null, cur = null;
+  const hide = () => { cur = null; if (tip) tip.hidden = true; };
+  document.addEventListener("pointerover", (e) => { if (e.pointerType !== "mouse") return; const el = e.target.closest && e.target.closest("[data-htip]");
+    if (el === cur) return; if (!el) { hide(); return; } cur = el;
+    if (!tip) { tip = document.createElement("div"); tip.id = "hTip"; tip.setAttribute("role", "tooltip"); document.body.appendChild(tip); }
+    tip.textContent = el.dataset.htip; tip.hidden = false;
+    const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = r.left + r.width / 2 - w / 2; x = Math.max(8, Math.min(x, innerWidth - w - 8));
+    let y = r.bottom + 6; if (y + h > innerHeight - 8) y = r.top - h - 6;
+    tip.style.left = x + "px"; tip.style.top = y + "px"; }, true);
+  document.addEventListener("scroll", hide, true); document.addEventListener("pointerdown", hide, true);
+})();
 $("leadsTbl").addEventListener("change", async (e) => {
   if (e.target.dataset.act === "source") {   // מקור ליד - משנים ישר מהטבלה
     const tr = e.target.closest("tr"), l = L.leads.find(x => String(x.id) === tr.dataset.id), v = e.target.value ? Number(e.target.value) : null;
@@ -7567,7 +7582,7 @@ $("attIns").addEventListener("change", () => { A.ins = $("attIns").value; store(
 // 5.19.29: מסך אחד - מצב נוכחות / קבוצות (מנהלים, במחשב) + סינונים משותפים
 A.mode = "a"; A.loc = ""; A.fill = "all";   // 5.19.37: תמיד כל הקבוצות (ריקות - במסגרת מקווקוות)
 try { A.kinds = JSON.parse(store("telem_att_kinds") || "null"); } catch(e) {} if (!Array.isArray(A.kinds) || !A.kinds.length) A.kinds = ["שוטף", "מרתון"];
-const attMode = () => (ME.role !== "instructor" && !isMobile() && A.mode === "g") ? "g" : "a";
+const attMode = () => (ME.role !== "instructor" && A.mode === "g") ? "g" : "a";   // 5.19.147: גם בנייד
 function paintAttMode(){
   document.querySelectorAll("[data-amode]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.amode === attMode())));
   document.querySelectorAll("[data-akind]").forEach(b => b.setAttribute("aria-pressed", String(A.kinds.includes(b.dataset.akind))));
@@ -7637,9 +7652,21 @@ async function loadAttWeek(){
   } else
   $("attSum").innerHTML = ev.length ? `קבוצות השבוע: <b>${nOk}</b> סומנה נוכחות · <span class="miss"><b>${nMiss}</b> כבר היו ולא סומנו</span>${nFut ? ` · <b>${nFut}</b> עוד לא התקיימו` : ""}` : "";
   if (!ev.length) { $("attCal").innerHTML = `<div class="card muted">${ME.role === "instructor" ? "אין לך קבוצות בשבוע הזה." : "אין קבוצות בשבוע הזה."}</div>`; return; }
+  const multi = ME.role !== "instructor" && A.cities.length > 1;
   const showDates = dates.filter((d, i) => i < 5 || ev.some(x => x.date === d));
+  // 5.19.147 (נועה 27.10): בנייד – "👥 קבוצות" כרשימה לפי ימים (כמו לוח הקבוצות הישן בנייד); לחיצה = חלון הקבוצה (צפייה + "✎ עריכה")
+  if (MODE === "g" && isMobile()) {
+    const h = showDates.map(d => { const de = ev.filter(x => x.date === d).sort((a, b) => a.s - b.s || String(a.g.location).localeCompare(String(b.g.location), "he"));
+      return `<h3 class="mob-day${d === today ? " today" : ""}">יום ${DAY_NAMES[dayLetter(d)]} · ${fmtDM(d)} ${holChips(d)}</h3>` + (de.length ? de.map(x => { const g = x.g, mar = g.kind === "מרתון";
+        return `<button type="button" class="group mob-group ${scCls(g.location)}${x.st === "hol" ? " hol-fade" : ""}" data-s="${g.session_id}">
+          <span class="loc">${mar ? `<span class="mar-tag" style="margin:0">מרתון</span> ` : ""}<b>${rng(hm(g.start_time), hm(g.end_time))}</b> · ${esc(g.location)}${multi ? " (" + esc(g.city) + ")" : ""}${g.room ? " · 📍 " + esc(g.room) : ""}${mar && g.time_label ? " · " + esc(g.time_label) : ""}</span>${noAdm(g) ? `<span class="noadm noadm-ic" title="אין מנהל/ת משובץ/ת בקבוצה">⚠</span>` : ""}${g.instructors ? `<span class="ins">👤 ${esc(g.instructors)}</span>` : ""}<span class="cnt">${g.kids || 0} ילדים</span></button>`; }).join("") : `<div class="muted" style="padding:4px 2px 8px;">אין קבוצות</div>`); }).join("");
+    $("attCal").classList.remove("att-m-a");
+    $("attCal").innerHTML = `<div class="mob-days att-mob-g">${h}</div>`;
+    $("attCal").querySelectorAll("[data-s]").forEach(b => b.onclick = () => grpEdit(Number(b.dataset.s)));
+    return;
+  }
   const t0 = Math.floor(Math.min(...ev.map(x => x.s)) / 60) * 60, t1 = Math.ceil(Math.max(...ev.map(x => x.e)) / 60) * 60;
-  const PPM = 2, H = (t1 - t0) * PPM + 14, multi = ME.role !== "instructor" && A.cities.length > 1;
+  const PPM = 2, H = (t1 - t0) * PPM + 14;
   let hours = ""; for (let t = t0; t <= t1; t += 60) hours += `<div class="cal-h" style="top:${(t - t0) * PPM}px">${String(t / 60).padStart(2, "0")}:00</div>`;
   const CS = multi ? calCities(A.cities) : [];
   const cols = showDates.map(d => {
@@ -7699,7 +7726,7 @@ async function loadAttGroups(){
   loadExams();   // 5.19.29: ברקע - שדף הקבוצה ייפתח מהר
   { const f = document.querySelector("#attList .att-filt"); if (f) f.hidden = false; }
   if (ME.role !== "instructor" && attMode() === "a" && isMobile()) return attEmbed();   // 5.19.112 – בטלפון: מסך הנוכחות של תלם שלי; במחשב: הלוח השבועי, ולחיצה על קבוצה – תלם שלי בחלון בצד (5.19.113)
-  if (!isMobile()) { $("attDate").value = A.date; return loadAttWeek(); }
+  if (!isMobile() || attMode() === "g") { $("attDate").value = A.date; return loadAttWeek(); }
   return attEmbed();   // 5.19.116: רשימת היום הישנה (דף הנוכחות של המערכת) הוסרה
 }
 
