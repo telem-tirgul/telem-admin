@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.147">
+<meta name="app-version" content="5.19.148">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1014,7 +1014,8 @@
   .icon-btn.note{ background:transparent; color:#999; font-size:17px; }
   .icon-btn.note.has{ color:#b7791f; }
   /* 5.19.147 (נועה 27.10): tooltip מיידי במעבר עכבר (ההערות בטבלת התלמידים) */
-  #hTip{ position:fixed; z-index:9999; max-width:340px; background:var(--paper); color:var(--ink); border:1px solid var(--border); border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.16); padding:8px 11px; font-size:13px; line-height:1.5; white-space:pre-line; pointer-events:none; text-align:start; }
+  #hTip{ position:fixed; z-index:9999; max-width:440px; background:var(--paper); color:var(--ink); border:1px solid var(--border); border-radius:10px; box-shadow:0 6px 20px rgba(0,0,0,.16); padding:8px 11px; font-size:13px; line-height:1.5; white-space:pre-line; pointer-events:none; text-align:start; }
+  #hTip .htip-b{ max-height:calc(80vh - 30px); overflow:hidden; } #hTip .htip-b > div + div{ margin-top:5px; padding-top:5px; border-top:1px solid var(--border); } #hTip b{ color:var(--accent); font-weight:700; } #hTip .htip-more{ margin-top:6px; color:var(--ink-soft); font-size:12px; }
   .icon-btn .cnt{ position:absolute; top:-4px; left:-6px; background:#b7791f; color:#fff; font-size:10px; font-style:normal; border-radius:999px; padding:0 4px; line-height:15px; }
   td.lastnote{ max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#555; font-size:13px; }
   .toast .toast-undo{ margin-inline-start:10px; background:transparent; color:#FFD27A; border:1px solid #FFD27A; border-radius:8px; padding:2px 10px; font:inherit; font-weight:800; cursor:pointer; }
@@ -3856,7 +3857,7 @@ function renderLeads(){
       <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
       <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="${stSoft(statusColor(l.status_id))}"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select>${marIcon(s)}</td>
       <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
-      <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" data-htip="${esc(ns.length ? ns.slice(-3).reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n").slice(0, 600) + (ns.length > 3 ? "\n(ועוד " + (ns.length - 3) + " - לחיצה לכל ההערות)" : "") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
+      <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" data-htip="${esc(ns.length ? ns.slice().reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
       <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
       <td class="c-ts">${tsCell(l)}</td>
       <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
@@ -3918,7 +3919,12 @@ $("leadsTbl").addEventListener("click", async (e) => {
   document.addEventListener("pointerover", (e) => { if (e.pointerType !== "mouse") return; const el = e.target.closest && e.target.closest("[data-htip]");
     if (el === cur) return; if (!el) { hide(); return; } cur = el;
     if (!tip) { tip = document.createElement("div"); tip.id = "hTip"; tip.setAttribute("role", "tooltip"); document.body.appendChild(tip); }
-    tip.textContent = el.dataset.htip; tip.hidden = false;
+    // 5.19.148: כל ההערות – כל הערה בשורה משלה, התאריך מודגש; אם לא נכנס – "… לחיצה לכל ההערות"
+    tip.innerHTML = ""; const box = document.createElement("div"); box.className = "htip-b";
+    el.dataset.htip.split("\n").forEach(t => { const d = document.createElement("div"), m = t.match(/^(\d\d\.\d\d\.\d{4}) · ([\s\S]*)$/);
+      if (m) { const b = document.createElement("b"); b.textContent = m[1]; d.append(b, " · " + m[2]); } else d.textContent = t; box.appendChild(d); });
+    tip.appendChild(box); tip.hidden = false;
+    if (box.scrollHeight > box.clientHeight + 2) { const mr = document.createElement("div"); mr.className = "htip-more"; mr.textContent = "… לחיצה לכל ההערות"; tip.appendChild(mr); }
     const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
     let x = r.left + r.width / 2 - w / 2; x = Math.max(8, Math.min(x, innerWidth - w - 8));
     let y = r.bottom + 6; if (y + h > innerHeight - 8) y = r.top - h - 6;
