@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.149">
+<meta name="app-version" content="5.19.150">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3397,7 +3397,7 @@ window.addEventListener("popstate", (e) => {
   } finally { NAV_POP = false; }
 });
 document.querySelectorAll(".nav button").forEach(b => b.addEventListener("click", () => {
-  if (b.dataset.view === "leads") { if (LEAD_DIRTY && currentView === "lead") { askLeadSave(() => { go("leads"); renderLeads(); }); return; } go("leads"); renderLeads(); } else go(b.dataset.view); }));
+  if (b.dataset.view === "leads") { if (LEAD_DIRTY && currentView === "lead") { askLeadSave(() => { go("leads"); resetLeadFilters(); renderLeads(); }); return; } go("leads"); resetLeadFilters(); renderLeads(); } else go(b.dataset.view); }));
 document.querySelectorAll("[data-gv]").forEach(b => b.addEventListener("click", () => go(b.dataset.gv)));
 document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click", leadBack));
 
@@ -3657,12 +3657,14 @@ $("fRemindDate").addEventListener("change", () => { if ($("fRemindDate").value) 
   $(id).addEventListener(id === "fSearch" ? "input" : "change", () => { if (id === "fAsg" && $("fAsg").value === "wkchg") { WC.map = null; WC.p = null; }
     pastSync();   // 5.19.129: שנים קודמות – לפי שנת הלימוד / התאריכים
     F.page = 0; saveLeadFilters(); renderLeads(); }));
-$("clearFilters").addEventListener("click", () => {
+// 5.19.150 (נועה 28.10): גם לחיצה על "תלמידים" בתפריט – חוזרים לסינון ברירת המחדל
+function resetLeadFilters(){
   ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear"].forEach(id => $(id).value = "");
   $("fStar").checked = false; $("fRemind").checked = false; $("fActive").checked = true; $("fPast").checked = false;
   $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-  F.statuses.clear(); F.sources.clear(); sstore(LF_KEY, null); setupFilters(); F.page = 0; renderLeads();
-});
+  F.statuses.clear(); F.sources.clear(); sstore(LF_KEY, null); setupFilters(); F.page = 0;
+}
+$("clearFilters").addEventListener("click", () => { resetLeadFilters(); renderLeads(); });
 
 function filtered(){
   const q = $("fSearch").value.trim().toLowerCase(), qd = digits(q);
@@ -7019,10 +7021,24 @@ async function renderInbox(reload){
       fixed.forEach(r => { r.status = "handled"; r.note = "טופל – שובץ/ה"; });
       patch("form_inbox", "id=in.(" + fixed.map(r => r.id).join(",") + ")", { status: "handled", handled_at: now, handled_by: ME.full_name || "", note: "טופל – שובץ/ה" }).catch(() => {}); } }
   // 5.19.143 (נועה 26.10): שורה אחת לכל אירוע – "תשלום טלפוני ממתין" מצטרף לשורת ההרשמה שלו (מרתון / תרגולים), עם "✔ שולם" שם
-  IB.pair = {}; const payHide = new Set();
+  // 5.19.150 (נועה 28.10): הרשמה שכבר שולמה (סומן "✔ שולם" במקום אחר) – השורה שלה נסגרת לבד: "טופל – שולם"
+  { const mr = IB.rows.filter(r => r.status !== "handled" && ((r.kind === "marathon" && r.ref_table === "marathon_registrations") || (r.kind === "registration" && r.ref_table === "enrollments")) && /^\d+$/.test(String(r.ref_id || "")));
+    if (mr.length && !IB.paidChk) { IB.paidChk = true;
+      const q = (t, ids) => ids.length ? get(t, "select=id,status&id=in.(" + ids.join(",") + ")").catch(() => []) : Promise.resolve([]);
+      Promise.all([q("marathon_registrations", mr.filter(r => r.kind === "marathon").map(r => r.ref_id)), q("enrollments", mr.filter(r => r.kind === "registration").map(r => r.ref_id))]).then(([a, b]) => {
+        const paid = new Set(a.filter(x => x.status === "שולם").map(x => "marathon:" + x.id).concat(b.filter(x => x.status === "שולם").map(x => "registration:" + x.id)));
+        const fix = mr.filter(r => paid.has(r.kind + ":" + r.ref_id)); if (!fix.length) return;
+        fix.forEach(r => { r.status = "handled"; r.note = "טופל – שולם"; r.handled_by = r.handled_by || "אוטומטי"; });
+        patch("form_inbox", "id=in.(" + fix.map(r => r.id).join(",") + ")", { status: "handled", handled_at: new Date().toISOString(), handled_by: "אוטומטי", note: "טופל – שולם" }).catch(() => {});
+        if (currentView === "inbox") renderInbox(false); }).finally(() => { setTimeout(() => { IB.paidChk = false; }, 30000); }); } }
+  IB.pair = {}; IB.pairInt = {}; const payHide = new Set();
   IB.rows.forEach(p => { if (p.kind !== "payment" || p.ref_table !== "phone_pending" || p.status === "handled") return;
     const [k, oid] = String(p.ref_id || "").split(":"), f = IB.rows.find(x => x.status !== "handled" && String(x.ref_id) === oid && x.kind === (k === "marathon" ? "marathon" : "registration"));
     if (f) { IB.pair[f.id] = p; payHide.add(p.id); } });
+  // 5.19.150 (נועה 28.10): התעניינות ואחריה הרשמה של אותו ילד/ה – מסגרת אחת (שורת ההרשמה, עם "קודם: השאירו פרטים")
+  IB.rows.forEach(r => { if (r.status === "handled" || !r.student_id || (r.kind !== "marathon" && r.kind !== "registration")) return;
+    const it = IB.rows.find(x => x.kind === "interest" && x.status !== "handled" && x.student_id === r.student_id && x.created_at <= r.created_at && !payHide.has(x.id));
+    if (it) { IB.pairInt[r.id] = it; payHide.add(it.id); } });
   const nNew = ibCountKids(IB.rows.filter(r => r.status === "new" && !payHide.has(r.id))); ibPaint(nNew);
   // 5.19.145 (נועה 26.10, של-87): רשימה אחת – בלי "חדשות" / "לא תואמות"; חדשה = בבולד, לא תואמת = ⚠ בשורה
   { const ko = $("ibKind"); if (ko && ko.options.length <= 1) ko.innerHTML = `<option value="">כל סוגי ההתראות</option>` + Object.entries(IB_KIND).map(([k, v]) => `<option value="${k}">${v[0]} ${esc(v[1])}</option>`).join(""); if (ko) ko.value = IB.k; }
@@ -7040,15 +7056,19 @@ async function renderInbox(reload){
   box.innerHTML = `<div class="ib-list">` + rows.map(r => { if (r.kind === "group_diff") { const g = r.student_id ? gdBy[r.student_id] : null;
       if (!g) return ibGdCard(r, when);   // 5.19.122: גם אירוע אחד – אותו כרטיס (שבוע, נוכחות בקבוצה הקבועה, לאן הגיע/ה)
       if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = r.issues || [];
-    const pr = IB.pair && IB.pair[r.id], ids = r.id + (pr ? "," + pr.id : "");
-    const tags = (r.flags || []).concat(pr ? ["phone_pending"] : []).filter((f, i, a) => IB_FLAG[f] && a.indexOf(f) === i).map(f => `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
+    const pr = IB.pair && IB.pair[r.id], pi = IB.pairInt && IB.pairInt[r.id], ids = r.id + (pr ? "," + pr.id : "") + (pi ? "," + pi.id : "");
+    // 5.19.150 (נועה 28.10): בשורת הרשמה / תשלום – הסטטוס של הכרטיס בצבע שלו (במקום "תשלום טלפוני ממתין")
+    const stOn = lead && lead.status_id && (r.kind === "marathon" || r.kind === "registration" || r.kind === "payment"), stC = stOn ? statusColor(lead.status_id) : "";
+    const tags = (stOn && statusName(lead.status_id) ? `<span class="ib-tag ib-st"${stC ? ` style="${stSoft(stC)}"` : ""}>${esc(statusName(lead.status_id))}</span>` : "")
+      + (pi ? `<span class="ib-tag t-old" title="${esc(ibWhat(pi))}">קודם: השאירו פרטים ${esc(when(pi.created_at))}</span>` : "")
+      + (r.flags || []).filter((f, i, a) => IB_FLAG[f] && a.indexOf(f) === i && !(stOn && f === "phone_pending")).map(f => `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
       + (iss.length || (r.flags || []).includes("mismatch") ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}" title="לחיצה – מה כתוב אצלנו ומה בטופס">⚠ ${esc(ibIssTxt(iss))} ▾</button>` : "");
     return `<div class="ib-row ${r.status}${w ? " warn" : ""}" data-ib="${r.id}">
       <span class="ib-ic" title="${esc(k[1])}">${k[0]}</span><span class="ib-k">${esc(k[1])}</span>
       <span class="ib-n">${ibNameLink(r, lead)}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
       <span class="ib-time">${esc(when(r.created_at))}</span>
-      <span class="ib-acts">${r.kind === "payment" && (r.flags || []).includes("plan_withdrawn") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}" data-ibpay="1" title="בכרטיס – 💳 תשלומים והוראות קבע (הביטול / ההשהיה עצמם – בריווחית)">לכרטיס – הוראת קבע</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${ids}">✓ נקרא</button>` : ""}${(w || pr) && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
+      <span class="ib-acts">${r.kind === "payment" && (r.flags || []).includes("plan_withdrawn") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}" data-ibpay="1" title="בכרטיס – 💳 תשלומים והוראות קבע (הביטול / ההשהיה עצמם – בריווחית)">לכרטיס – הוראת קבע</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${ids}">✓ נקרא</button>` : ""}${(w || pr || pi || r.kind === "marathon" || r.kind === "registration") && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
       ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>` + more;
   if ($("ibMore")) $("ibMore").onclick = async () => { $("ibMore").disabled = true; await ibLoadDone(false); renderInbox(false); };
@@ -7065,7 +7085,8 @@ async function renderInbox(reload){
     const ok = await markPaid({ kind: d.order_kind, order_id: d.order_id, first_name: ibName(r), last_name: "", what: d.title || "", amount: d.amount });
     b.disabled = false; if (ok) { r.status = "handled"; r.note = "טופל – שולם";
       const fid = Object.keys(IB.pair || {}).find(k => IB.pair[k].id === r.id);   // 5.19.143: גם שורת ההרשמה שהתשלום מצורף אליה
-      if (fid) { try { await patch("form_inbox", "id=eq." + fid, { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note: "טופל – שולם" }); } catch(e) {} }
+      if (fid) { const pi = IB.pairInt && IB.pairInt[fid], idl = fid + (pi ? "," + pi.id : "");   // 5.19.150: גם ההתעניינות שצורפה
+        try { await patch("form_inbox", "id=in.(" + idl + ")", { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note: "טופל – שולם" }); } catch(e) {} }
       renderInbox(true); } });
   box.querySelectorAll("[data-gdmv]").forEach(b => b.onclick = () => ibGdAct(b, "move"));
   box.querySelectorAll("[data-gdadd]").forEach(b => b.onclick = () => ibGdAct(b, "add"));
