@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.150">
+<meta name="app-version" content="5.19.151">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -7035,6 +7035,12 @@ async function renderInbox(reload){
   IB.rows.forEach(p => { if (p.kind !== "payment" || p.ref_table !== "phone_pending" || p.status === "handled") return;
     const [k, oid] = String(p.ref_id || "").split(":"), f = IB.rows.find(x => x.status !== "handled" && String(x.ref_id) === oid && x.kind === (k === "marathon" ? "marathon" : "registration"));
     if (f) { IB.pair[f.id] = p; payHide.add(p.id); } });
+  // 5.19.151 (נועה 28.10): אותה הרשמה שנשלחה כמה פעמים (אותו ילד/ה, אותו מרתון / מסלול) – שורה אחת (האחרונה), עם "נשלח N פעמים"
+  IB.dups = {};
+  { const grp = {}; IB.rows.forEach(r => { if (r.status === "handled" || !r.student_id || (r.kind !== "marathon" && r.kind !== "registration")) return;
+      const d = r.data || {}, key = r.kind + ":" + r.student_id + ":" + (d.marathon_id || d.track_id || ""); (grp[key] = grp[key] || []).push(r); });
+    Object.values(grp).forEach(g => { if (g.length < 2) return; g.sort((a, b) => b.id - a.id); const main = g[0], rest = g.slice(1);
+      IB.dups[main.id] = rest; rest.forEach(x => { payHide.add(x.id); const xp = IB.pair[x.id]; if (xp) payHide.add(xp.id); }); }); }
   // 5.19.150 (נועה 28.10): התעניינות ואחריה הרשמה של אותו ילד/ה – מסגרת אחת (שורת ההרשמה, עם "קודם: השאירו פרטים")
   IB.rows.forEach(r => { if (r.status === "handled" || !r.student_id || (r.kind !== "marathon" && r.kind !== "registration")) return;
     const it = IB.rows.find(x => x.kind === "interest" && x.status !== "handled" && x.student_id === r.student_id && x.created_at <= r.created_at && !payHide.has(x.id));
@@ -7056,11 +7062,13 @@ async function renderInbox(reload){
   box.innerHTML = `<div class="ib-list">` + rows.map(r => { if (r.kind === "group_diff") { const g = r.student_id ? gdBy[r.student_id] : null;
       if (!g) return ibGdCard(r, when);   // 5.19.122: גם אירוע אחד – אותו כרטיס (שבוע, נוכחות בקבוצה הקבועה, לאן הגיע/ה)
       if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = r.issues || [];
-    const pr = IB.pair && IB.pair[r.id], pi = IB.pairInt && IB.pairInt[r.id], ids = r.id + (pr ? "," + pr.id : "") + (pi ? "," + pi.id : "");
+    const pr = IB.pair && IB.pair[r.id], pi = IB.pairInt && IB.pairInt[r.id], dd = (IB.dups && IB.dups[r.id]) || [];
+    const ids = [r.id].concat(pr ? [pr.id] : [], pi ? [pi.id] : [], dd.map(x => x.id), dd.map(x => IB.pair[x.id]).filter(Boolean).map(x => x.id)).join(",");
     // 5.19.150 (נועה 28.10): בשורת הרשמה / תשלום – הסטטוס של הכרטיס בצבע שלו (במקום "תשלום טלפוני ממתין")
     const stOn = lead && lead.status_id && (r.kind === "marathon" || r.kind === "registration" || r.kind === "payment"), stC = stOn ? statusColor(lead.status_id) : "";
     const tags = (stOn && statusName(lead.status_id) ? `<span class="ib-tag ib-st"${stC ? ` style="${stSoft(stC)}"` : ""}>${esc(statusName(lead.status_id))}</span>` : "")
       + (pi ? `<span class="ib-tag t-old" title="${esc(ibWhat(pi))}">קודם: השאירו פרטים ${esc(when(pi.created_at))}</span>` : "")
+      + (dd.length ? `<span class="ib-tag t-warn" title="אותה הרשמה נשלחה שוב – ההרשמות הקודמות עדיין במערכת (אפשר לבטל אותן ב'ממתינים לתשלום')">נשלח ${dd.length + 1} פעמים · ${dd.slice().reverse().concat([r]).map(x => esc(when(x.created_at).replace(/^היום /, ""))).join(", ")}</span>` : "")
       + (r.flags || []).filter((f, i, a) => IB_FLAG[f] && a.indexOf(f) === i && !(stOn && f === "phone_pending")).map(f => `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
       + (iss.length || (r.flags || []).includes("mismatch") ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}" title="לחיצה – מה כתוב אצלנו ומה בטופס">⚠ ${esc(ibIssTxt(iss))} ▾</button>` : "");
     return `<div class="ib-row ${r.status}${w ? " warn" : ""}" data-ib="${r.id}">
@@ -7068,7 +7076,7 @@ async function renderInbox(reload){
       <span class="ib-n">${ibNameLink(r, lead)}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
       <span class="ib-time">${esc(when(r.created_at))}</span>
-      <span class="ib-acts">${r.kind === "payment" && (r.flags || []).includes("plan_withdrawn") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}" data-ibpay="1" title="בכרטיס – 💳 תשלומים והוראות קבע (הביטול / ההשהיה עצמם – בריווחית)">לכרטיס – הוראת קבע</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${ids}">✓ נקרא</button>` : ""}${(w || pr || pi || r.kind === "marathon" || r.kind === "registration") && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
+      <span class="ib-acts">${r.kind === "payment" && (r.flags || []).includes("plan_withdrawn") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}" data-ibpay="1" title="בכרטיס – 💳 תשלומים והוראות קבע (הביטול / ההשהיה עצמם – בריווחית)">לכרטיס – הוראת קבע</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : !pr && ME.role === "admin" && (r.kind === "marathon" || r.kind === "registration") && (r.flags || []).includes("phone_pending") && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${dd.length && ME.role === "admin" && r.status !== "handled" ? `<button type="button" class="btn small" data-ibdupx="${r.id}" title="ההרשמות הקודמות יסומנו &quot;בוטל&quot; – נשארת האחרונה">ביטול הכפולה</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${ids}">✓ נקרא</button>` : ""}${(w || pr || pi || r.kind === "marathon" || r.kind === "registration") && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
       ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>` + more;
   if ($("ibMore")) $("ibMore").onclick = async () => { $("ibMore").disabled = true; await ibLoadDone(false); renderInbox(false); };
@@ -7082,12 +7090,24 @@ async function renderInbox(reload){
   // 5.19.127 (תש-16): תשלום טלפוני שממתין – "✔ שולם" ישר מההתראה (השרת סוגר את ההתראה לבד)
   box.querySelectorAll("[data-ibpaid]").forEach(b => b.onclick = async () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibpaid)); if (!r) return; const d = r.data || {};
     b.disabled = true;
-    const ok = await markPaid({ kind: d.order_kind, order_id: d.order_id, first_name: ibName(r), last_name: "", what: d.title || "", amount: d.amount });
+    // 5.19.151 (תש-22, icredit-27): גם שורת ההרשמה עצמה עם phone_pending (בלי שורת תשלום נפרדת)
+    const isReg = r.kind === "marathon" || r.kind === "registration";
+    const ok = await markPaid({ kind: isReg ? r.kind : d.order_kind, order_id: isReg ? Number(r.ref_id) : d.order_id, first_name: ibName(r), last_name: "", what: d.title || (IB_KIND[r.kind] || [])[1] || "", amount: d.amount });
     b.disabled = false; if (ok) { r.status = "handled"; r.note = "טופל – שולם";
-      const fid = Object.keys(IB.pair || {}).find(k => IB.pair[k].id === r.id);   // 5.19.143: גם שורת ההרשמה שהתשלום מצורף אליה
-      if (fid) { const pi = IB.pairInt && IB.pairInt[fid], idl = fid + (pi ? "," + pi.id : "");   // 5.19.150: גם ההתעניינות שצורפה
+      const fid = isReg ? String(r.id) : Object.keys(IB.pair || {}).find(k => IB.pair[k].id === r.id);   // 5.19.143: גם שורת ההרשמה שהתשלום מצורף אליה
+      if (fid) { const pi = IB.pairInt && IB.pairInt[fid], dd = (IB.dups && IB.dups[fid]) || [], idl = [fid].concat(pi ? [pi.id] : [], dd.map(x => x.id), dd.map(x => IB.pair[x.id]).filter(Boolean).map(x => x.id)).join(",");   // 5.19.150/151: גם ההתעניינות והכפולות
         try { await patch("form_inbox", "id=in.(" + idl + ")", { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note: "טופל – שולם" }); } catch(e) {} }
       renderInbox(true); } });
+  // 5.19.151 (תש-23): הרשמה שנשלחה פעמיים – ביטול הקודמות (נשארת האחרונה)
+  box.querySelectorAll("[data-ibdupx]").forEach(b => b.onclick = async () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibdupx)), dd = r && IB.dups && IB.dups[r.id]; if (!dd || !dd.length) return;
+    const when2 = (iso) => new Date(iso).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" });
+    if (!await uiConfirm(`לבטל את ההרשמה הקודמת של ${ibName(r)} (${dd.map(x => when2(x.created_at)).join(", ")})?\n\nנשארת ההרשמה האחרונה (${when2(r.created_at)}).`, { ok: "ביטול הכפולה" })) return;
+    b.disabled = true;
+    try { for (const x of dd) await patch(x.kind === "marathon" ? "marathon_registrations" : "enrollments", "id=eq." + x.ref_id, { status: "בוטל" });
+          const idl = dd.map(x => x.id).concat(dd.map(x => IB.pair[x.id]).filter(Boolean).map(x => x.id));
+          await patch("form_inbox", "id=in.(" + idl.join(",") + ")", { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note: "טופל – ההרשמה בוטלה (כפולה)" }).catch(() => {});
+          toast("ההרשמה הכפולה בוטלה"); renderInbox(true); }
+    catch(e) { b.disabled = false; toast("לא בוטל: " + e.message); } });
   box.querySelectorAll("[data-gdmv]").forEach(b => b.onclick = () => ibGdAct(b, "move"));
   box.querySelectorAll("[data-gdadd]").forEach(b => b.onclick = () => ibGdAct(b, "add"));
   box.querySelectorAll("[data-ibts]").forEach(b => b.onclick = () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibts)); if (!r) return;   // 5.19.97: בקשת קוד מתלם שלי
