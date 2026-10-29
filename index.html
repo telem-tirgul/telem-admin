@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.158">
+<meta name="app-version" content="5.19.159">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1745,6 +1745,7 @@ table.deals td.c-todo{ white-space:nowrap; } .lp-dx{ margin-top:10px; } .lp-dx .
 .only-m{ display:none; } @media (max-width:760px){ .only-m{ display:inline; } } tr.deal-r{ cursor:pointer; } tr.deal-r.dx-open > td{ background:#FBF7F2; border-bottom-color:transparent; border-top:2px solid #B89F8A; } tr.deal-r.dx-open > td:first-child{ border-inline-start:2px solid #B89F8A; } tr.deal-r.dx-open > td:last-child{ border-inline-end:2px solid #B89F8A; }
 tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px solid #B89F8A !important; border-top:0 !important; } tr.dx-row + tr.deal-r > td{ border-top:8px solid transparent; }
 .dx-bar{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin:-4px 0 8px; } .dx-bar-b{ display:flex; gap:8px; }
+#arClear, #arCsv{ display:none !important; } .ar-tb{ display:inline-flex; align-items:center; gap:12px; margin-inline-start:auto; } .ar-legend{ align-items:center; } @media (max-width:760px){ .ar-tb .bt{ display:none; } }   /* 5.19.159 */
 #leadsBar{ margin:2px 0 8px; } #leadsBar .tbar-x{ display:flex; gap:12px; align-items:center; margin-inline-start:auto; } @media (max-width:760px){ #leadsBar .tbar-x .bt, #view-pay .dx-bar #pXls .bt{ display:none; } }   /* 5.19.154: שליטה בטבלה – אחידה */
 .dx{ display:flex; flex-direction:column; gap:4px; } .only-m-blk{ display:none !important; } @media (max-width:760px){ .only-m-blk{ display:flex !important; } } .dx-info{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; font-size:13.5px; color:#4a423b; } .dx-info .tx-pdf{ margin-inline-start:auto; }
 .dx-pay{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; background:#fff; border:1px solid #E6DDD3; border-radius:10px; padding:4px 10px; font-size:13.5px; min-height:32px; } .dx-pay .btn.small{ padding-block:3px; } .dx-pay.bad{ border-color:#EBC4C0; background:#FFFBFA; }
@@ -3393,7 +3394,7 @@ function go(view){
     else { EX.goToday = true; EX.scrollTo = null; EX.mWk = null; EX.mMon = null; EX.mDay = null; EX.mEv = null; renderExams(true); } }
   if (view === "inbox") ibTab(IB_TAB);
   if (view === "attk" || view === "attg") { $("arHostG").appendChild($("attReport")); $("attReport").hidden = false;
-    { const hd = document.querySelector("#view-" + view + " .page-head"), bk = hd && hd.querySelector("#arBackBtn, .btn:last-child"); if (hd && bk) hd.insertBefore($("arCsv"), bk); else if (hd) hd.appendChild($("arCsv")); }   // 5.19.88: "הורדה לאקסל" בשורת הכותרת, מימין ל"חזרה"
+    { const hd = document.querySelector("#view-" + view + " .page-head"); if (hd && hd.contains($("arCsv"))) $("arFilters") ? $("arFilters").appendChild($("arCsv")) : 0; }   // 5.19.159: האקסל מעל הטבלה (עותק), לא בכותרת   // 5.19.88: "הורדה לאקסל" בשורת הכותרת, מימין ל"חזרה"
     // 5.19.19: הדוח עולה מיד (בלי "הצגה"): כל הערים, מ-1.9 עד היום; אחר כך מסננים
     initAttReport().then(async () => { repAtt(); if (!AR.raw) { arDefaultRange(); await showAttReport(); } arClearState(); }); if (AR.raw) renderAttReport(); }
   navPush(view);
@@ -9272,6 +9273,7 @@ $("arShow").addEventListener("click", showAttReport);
 // 5.19.88 (נועה): בנייד הסינון מקופל כמו בתלמידים (חיפוש + "סינון נוסף"); "ניקוי סינון" תמיד מוצג, אפור כשאין סינון
 $("arTog").addEventListener("click", () => { const f = $("arFilters"), o = !f.classList.contains("open"); f.classList.toggle("open", o); $("arTog").setAttribute("aria-expanded", String(o)); });
 function arClearState(){ const b = $("arClear"); if (!b) return; b.hidden = false;
+  setTimeout(() => document.querySelectorAll("[data-arpx=arClear]").forEach(x => x.disabled = b.disabled), 0);   // 5.19.159: העותק שמעל הטבלה
   b.disabled = !(["arCity", "arSchool", "arGroup", "arAsg"].some(id => $(id) && $(id).value) || ($("arQ").value || "").trim() || AR.rng === "h1" || AR.rng === "h2" || ($("arFrom").value && $("arFrom").value !== AR_Y0)); }
 document.addEventListener("change", (e) => { if (e.target.closest && e.target.closest("#arFilters")) setTimeout(arClearState, 0); }, true);
 document.addEventListener("input", (e) => { if (e.target.id === "arQ") setTimeout(arClearState, 0); }, true);
@@ -9404,7 +9406,7 @@ function arKidHtml(q, hit, hl){
     const nm = l ? `<button type="button" class="name-link" data-lead="${l.id}" title="פתיחת כרטיס התלמיד/ה">${hl(k.name)}</button>` : hl(k.name);
     return `<tr><td class="sch ar-kn"><div class="ar-kid ar-k1">${nm}${gr ? `<span class="ar-gr">${esc(gr)}</span>` : ""}${k.school ? `<span class="school-chip sch-sm ar-ksch ${scCls(k.school)}">${esc(k.school)}</span>` : ""}${subj}${pills}<span class="ar-kp" title="אחוז נוכחות">${p + n ? Math.round(p * 100 / (p + n)) + "%" : ""}</span></div></td>${cells}</tr>`;
   }).join("");
-  return `<div class="ex-legend ar-legend"><span><b class="ar-l p">✓</b>תרגל/ה (נגיעה / מעבר עכבר - איפה ומתי)</span><span><b class="ar-l a">✗</b>חסר/ה</span><span><b class="ar-l c">—</b>לא התקיים</span><span><b class="ar-l n">·</b>לא סומן</span><span>${list.length} ילדים</span></div>
+  return `<div class="ex-legend ar-legend"><span><b class="ar-l p">✓</b>תרגל/ה (נגיעה / מעבר עכבר - איפה ומתי)</span><span><b class="ar-l a">✗</b>חסר/ה</span><span><b class="ar-l c">—</b>לא התקיים</span><span><b class="ar-l n">·</b>לא סומן</span><span class="ar-tb"><span class="muted">${list.length} ילדים</span>${AR_TB()}</span></div>
     <div class="tbl-wrap ex-cal-wrap ar-kwrap"><table class="ex-cal ar-kcal"><thead><tr><th class="sch" rowspan="3">תלמיד/ה <span class="ar-kp">נוכחות</span></th>${months.map(x => { const [yy, mm] = x.m.split("-").map(Number); return `<th class="mo" colspan="${x.n}"><span>${HE_MONTHS[mm - 1]} ${yy}</span></th>`; }).join("")}</tr>
     <tr>${days.map(x => `<th class="dl${wk(x)}${x.iso === today ? " today" : ""}${holCol(x.iso) ? " hol" : ""}">${x.dl}</th>`).join("")}</tr>
     <tr>${days.map(x => `<th class="dn${wk(x)}${x.iso === today ? " today" : ""}${holCol(x.iso) ? " hol" : ""}" data-d="${x.iso}" title="${esc(holCol(x.iso))}">${x.d}</th>`).join("")}</tr></thead>
@@ -9418,6 +9420,9 @@ function arKidScroll(){
   const sticky = (w.querySelector("thead .sch") || {}).offsetWidth || 0;
   w.scrollBy({ left: th.getBoundingClientRect().right - (w.getBoundingClientRect().right - sticky) });
 }
+// 5.19.159 (נועה): שליטה בטבלה אחידה – מספר השורות, "ניקוי סינון" ו"הורדה לאקסל" מעל הטבלה, משמאל (עותקים של הכפתורים בסינון)
+const AR_TB = () => `<button type="button" class="clear-f" data-arpx="arClear"${$("arClear") && $("arClear").disabled ? " disabled" : ""}>✕ ניקוי סינון</button><button type="button" class="btn small" data-arpx="arCsv"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>`;
+document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-arpx]"); if (b && $(b.dataset.arpx)) $(b.dataset.arpx).click(); });
 function renderAttReport(){
   const hm = (t) => String(t || "").slice(0, 5), d2 = (d) => d.slice(8, 10) + "/" + d.slice(5, 7);
   const canCard = ME.role !== "instructor", leadOf = (sid) => canCard && L.leads ? L.leads.find(l => l.student && l.student.id === sid) : null;
@@ -9443,7 +9448,7 @@ function renderAttReport(){
   const shown = AR.data.filter(x => (x.marked || AR.data.length === 1) && (!q || x.rows.some(hit))).map(x => q ? Object.assign({}, x, { rows: x.rows.filter(hit) }) : x);
   const hidden = q ? 0 : AR.data.filter(x => !(x.marked || AR.data.length === 1)).length;
   if (q && !shown.length) { $("arBody").innerHTML = $("arQ").value.trim() ? `<div class="card muted">לא נמצא ילד/ה בשם "${esc($("arQ").value.trim())}" בקבוצות ובתאריכים שנבחרו.</div>` : `<div class="card muted">אין ילדים שמתאימים לסינון.</div>`; return; }
-  $("arBody").innerHTML = vSeg + (hidden ? `<div class="muted" style="margin-bottom:6px;">${hidden} קבוצות בלי נוכחות מסומנת בתאריכים האלה לא מוצגות.</div>` : "") + shown.map(({ g, dates, rows, cx }) => { const ncx = dates.filter(d => cx[d] != null).length; return `
+  $("arBody").innerHTML = vSeg + `<div class="ex-legend ar-legend"><span class="ar-tb"><span class="muted">${shown.length} קבוצות</span>${AR_TB()}</span></div>` + (hidden ? `<div class="muted" style="margin-bottom:6px;">${hidden} קבוצות בלי נוכחות מסומנת בתאריכים האלה לא מוצגות.</div>` : "") + shown.map(({ g, dates, rows, cx }) => { const ncx = dates.filter(d => cx[d] != null).length; return `
     <div class="ar-group-h">${scChip(g.location)}${!$("arCity").value ? ` <span class="muted" style="font-weight:600;">${esc(g.city)}</span> ·` : ""} יום ${DAY_NAMES[g.day]} ${rng(hm(g.start_time), hm(g.end_time))} <span class="muted" style="font-weight:400;">${dates.length - ncx} מפגשים · ${new Set(rows.flatMap(r => r.cells.map((c, i) => c === "p" || c === "a" ? i : -1)).filter(i => i >= 0)).size} סומנו${ncx ? ` · ${ncx} לא התקיימו` : ""}</span></div>
     <div class="tbl-wrap"><table class="tbl ar-tbl"><thead><tr><th>תלמיד/ה</th><th>מקצוע</th>${dates.map(d => `<th class="d${cx[d] != null ? " cx" : ""}"${cx[d] ? ` title="${esc(cx[d])}"` : ""}>${d2(d)}${cx[d] != null ? `<span class="ar-s">לא התקיים</span>${cx[d] ? `<span class="ar-s">${esc(cx[d])}</span>` : ""}` : ""}</th>`).join("")}<th>נוכחות</th><th title="כמה פעמים סומנה מתמטיקה">מת'</th><th title="כמה פעמים סומנה אנגלית">אנג'</th></tr></thead><tbody>
       ${rows.map(r => { const p = r.cells.filter(c => c === "p").length, n = r.cells.filter(c => c === "p" || c === "a").length, l = leadOf(r.sid);
@@ -10543,7 +10548,7 @@ async function renderAll(b){
 </div>
     ${S.kid ? `<div class="kid-flt">מוצגים רק התשלומים של <b>${esc(S.kid.name || "")}</b>${leadOfSid(S.kid.id) ? ` <button type="button" class="name-link" data-lead="${leadOfSid(S.kid.id).id}">לכרטיס התלמיד/ה ←</button>` : ""}<button type="button" class="btn small" id="kidX">✕ כל התשלומים</button></div>` : ""}
     <!-- 5.19.65 (נועה): בלי שורת הסיכומים - יש בתמונת המצב -->
-    <div class="dx-bar"><span class="muted">${(S.kid || q.length >= 2) && qf !== S.pf ? `החיפוש מתחילת שנת הלימודים (${dmy(qf)} עד ${dmy(qt)}).` : `${dmy(qf)} עד ${dmy(qt)}`} · הוראות קבע פעילות מוצגות תמיד.</span>${list.length ? `<span class="dx-bar-b"><button type="button" class="btn small" id="dxAll">▾ פתיחת כל השורות</button><button type="button" class="btn small" id="pXls" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span>` : ""}</div>${list.length ? `<table class="tbl pay-all deals"><thead><tr><th class="c-todo" aria-label="פתיחה / לטיפול"></th><th>תאריך</th><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>סוג</th><th class="hide-m c-desc">פירוט</th><th class="c-amt">סכום</th><th>סטטוס</th></tr></thead><tbody>
+    <div class="dx-bar"><span class="muted">${(S.kid || q.length >= 2) && qf !== S.pf ? `החיפוש מתחילת שנת הלימודים (${dmy(qf)} עד ${dmy(qt)}).` : `${dmy(qf)} עד ${dmy(qt)}`} · הוראות קבע פעילות מוצגות תמיד.</span><span class="dx-bar-b"><span class="muted">${list.length} ${list.length === 1 ? "עסקה" : "עסקאות"}</span><button type="button" class="clear-f" id="pClear"${S.pk === "all" && !S.ps && !q && S.pr === "month" ? " disabled" : ""}>✕ ניקוי סינון</button>${list.length ? `<button type="button" class="btn small" id="dxAll">▾ פתיחת כל השורות</button><button type="button" class="btn small" id="pXls" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>` : ""}</span></div>${list.length ? `<table class="tbl pay-all deals"><thead><tr><th class="c-todo" aria-label="פתיחה / לטיפול"></th><th>תאריך</th><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>סוג</th><th class="hide-m c-desc">פירוט</th><th class="c-amt">סכום</th><th>סטטוס</th></tr></thead><tbody>
       ${list.map((d, i) => `<tr class="deal-r${d.todo ? " tr-todo" : ""}" data-dr="${i}"><td class="c-todo"><button type="button" class="dx-tg" aria-expanded="false" aria-label="פירוט"></button>${d.todo ? `<span class="todo-ic" title="${esc(d.todo)}">⚠</span>` : ""}</td>
         <td class="nowrap">${dmy(d.date)}${String(d.date || "").length > 10 ? `<div class="muted">${esc(new Date(d.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</div>` : ""}</td>
         <td>${d.leadId ? `<button type="button" class="name-link" data-lead="${d.leadId}">${esc(d.name)}</button>` : `<b>${esc(d.name)}</b>`}</td>
@@ -10555,6 +10560,7 @@ async function renderAll(b){
   $("pRng").onchange = (e) => { S.pr = e.target.value; if (S.pr) [S.pf, S.pt] = payRange(S.pr); again(); };
   if ($("pFrom")) { $("pFrom").onchange = (e) => { S.pf = e.target.value || S.pf; again(); }; $("pTo").onchange = (e) => { S.pt = e.target.value || S.pt; again(); }; }
   $("pps").onchange = (e) => { S.ps = e.target.value; again(); };
+  if ($("pClear")) $("pClear").onclick = () => { S.pk = "all"; S.ps = ""; S.pq2 = ""; S.pr = "month"; [S.pf, S.pt] = payRange("month"); again(); };   // 5.19.159
   let qT = null;
   $("pq2").oninput = (e) => { S.pq2 = e.target.value; clearTimeout(qT); qT = setTimeout(() => { const pos = e.target.selectionStart; again().then(() => { const i = $("pq2"); if (i) { i.focus(); i.setSelectionRange(pos, pos); } }); }, 250); };
   markFilters();
