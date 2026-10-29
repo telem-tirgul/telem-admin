@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.155">
+<meta name="app-version" content="5.19.156">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -598,7 +598,7 @@
   .sc{ --scb:var(--l); --sci:var(--h); --scd:var(--d, var(--h)); }
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .sc{ --scb:color-mix(in srgb, var(--l) 42%, #231B18); --sci:color-mix(in srgb, var(--l) 30%, #fff); --scd:color-mix(in srgb, var(--l) 75%, #fff); } }
   :root[data-theme="dark"] .sc{ --scb:color-mix(in srgb, var(--l) 42%, #231B18); --sci:color-mix(in srgb, var(--l) 30%, #fff); --scd:color-mix(in srgb, var(--l) 75%, #fff); }
-  select.sch-sel{ background-color:var(--scb) !important; color:var(--sci) !important; -webkit-text-fill-color:var(--sci) !important; font-weight:800; border-radius:999px; }
+  select.sch-sel{ border-inline-start:7px solid var(--scb) !important; }   /* 5.19.156 (נועה): השדה כמו שאר השדות – רק פס בצבע בית הספר */
   #leadForm.ro .lead-main select.sch-sel:disabled{ padding-inline-start:12px; width:auto; max-width:100%; }
   .asg-pill{ display:inline-flex; flex-wrap:wrap; gap:4px; }
   .ws-lv{ font-style:normal; font-size:13px; white-space:nowrap; cursor:help; } .ws-lvleg{ font-size:12.5px; color:var(--ink-soft); margin:2px 0 6px; } .ws-lvleg i{ font-style:normal; }
@@ -2445,6 +2445,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
           <button class="btn" type="button" id="leadMergeBtn" data-admin hidden title="איחוד עם כרטיס כפול">🔀 איחוד</button><!-- 5.19.84 (נועה): איחוד מימין לעריכה -->
           <button class="btn primary" type="button" id="leadEditBtn" hidden>✎ עריכה</button>
           <button class="btn primary lead-top-b" type="button" id="leadSaveTop">שמירה</button><button class="btn lead-top-b" type="button" id="leadCancelTop">ביטול</button>
+          <button class="btn primary" type="button" id="sibAdd" hidden title="ליד חדש באותה משפחה – פרטי ההורים כבר ממולאים">+ אח/ות</button><!-- 5.19.156 (נועה): עם שאר הכפתורים -->
           <button class="btn" type="button" data-back title="חזרה">→ חזרה</button><!-- 5.19.72 (נועה): "חזרה" - הכי שמאלי -->
         </div>
       </div>
@@ -4220,7 +4221,7 @@ function openLead(id){
   const isReg = (x) => statusName(x.status_id).startsWith("נרשם") || x.topic === "נרשם";
   $("siblings").innerHTML = sibs.length ? `<span class="sibs-lbl">אחים במשפחה:</span>` + sibs.map(x =>
     `<button type="button" class="sib ${isReg(x) ? "reg" : ""}" data-open="${x.id}" title="${esc(statusName(x.status_id) || "בלי סטטוס")}">${esc(x.student.first_name)} ${esc(x.student.last_name || "")}<small>${esc(statusName(x.status_id) || "בלי סטטוס")}${x.student.grade ? " · " + esc(classLabel(x.student.grade, x.student.class_num)) : ""}</small></button>`).join("") : "";
-  if (l && ME.role !== "instructor") { $("siblings").insertAdjacentHTML("beforeend", `<button type="button" class="btn small sib-add" id="sibAdd" title="ליד חדש באותה משפחה – פרטי ההורים כבר ממולאים">+ אח/ות</button>`); $("sibAdd").onclick = () => newSibling(l); }
+  $("sibAdd").hidden = !l || ME.role === "instructor";
   $("siblings").querySelectorAll("[data-open]").forEach(b => b.onclick = () => openLead(Number(b.dataset.open)));
   $("newNote").value = ""; $("noteNew").classList.remove("open"); $("notesN").textContent = ""; $("laNotes").textContent = ""; $("addNoteBtn").disabled = !l;
   $("notesList").innerHTML = l ? "<li class='muted'>טוען...</li>" : "<li class='muted'>אפשר להוסיף הערות אחרי השמירה הראשונה.</li>";
@@ -5360,6 +5361,7 @@ $("leadEditBtn").addEventListener("click", () => { setLeadEdit(true); const k = 
     new MutationObserver(place).observe(card, { attributes: true, attributeFilter: ["class"] }); mq.addEventListener ? mq.addEventListener("change", place) : mq.addListener(place); place(); }
 })();
 $("leadMergeBtn").addEventListener("click", () => { if (editing) mergeDlg(editing.student_id); });
+$("sibAdd").addEventListener("click", () => { if (editing) newSibling(editing); });
 $("leadSaveTop").addEventListener("click", () => { const f = $("leadForm"); if (f.requestSubmit) f.requestSubmit(f.querySelector('#leadActions button[type=submit]:not([data-and-back])')); else f.querySelector("#leadActions button[type=submit]").click(); });   // 5.19.58
 $("leadCancelTop").addEventListener("click", () => $("leadCancel").click());
 $("leadCancel").addEventListener("click", () => { setLeadDirty(false); if (editing) openLead(editing.id); else { go("leads"); renderLeads(); } });
