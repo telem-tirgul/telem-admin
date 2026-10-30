@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.162">
+<meta name="app-version" content="5.19.163">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1673,6 +1673,8 @@ button.ph-m{ font:inherit; font-weight:700; color:var(--accent); background:none
 @media (max-width:760px){ .crs-kids .bt, .crs-x{ display:none; } }
 .crs-src{ font:inherit; font-size:11.5px; font-weight:700; border:1px solid var(--border); background:#fff; color:var(--ink-soft); border-radius:999px; padding:0 8px; line-height:1.7; cursor:pointer; white-space:nowrap; } .crs-src.none{ border-style:dashed; }
 .lg-crs-r{ display:inline-flex; gap:6px; align-items:center; } .lc-old > summary{ cursor:pointer; color:var(--ink-soft); font-size:13px; margin:10px 0 4px; } .lc-old-r{ display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; font-size:13px; padding:4px 10px; border-bottom:1px dashed var(--border); }
+.pf-forms{ border:1px solid var(--border); border-radius:10px; padding:8px 12px; background:#fff; margin-bottom:6px; } .pf-r{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:4px 0; border-bottom:1px dashed var(--border); } .pf-r:last-child{ border-bottom:0; } .pf-n{ min-width:150px; } .pf-r .lk2-cell{ margin-inline-start:auto; }
+.ftx-gen{ margin-bottom:12px; grid-column:1 / -1; width:100%; box-sizing:border-box; padding:10px 14px; } .ftx-gen-h{ margin-bottom:6px; } #scGeneral{ margin-bottom:12px; padding:10px 14px; }
 .crs-more-b{ display:none; } @media (max-width:760px){ .crs-flt{ display:grid !important; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:end; } .crs-flt > .wide{ grid-column:1 !important; } .crs-more-b{ display:inline-flex !important; grid-column:2 !important; height:46px !important; width:auto !important; align-self:end; white-space:nowrap; align-items:center !important; justify-content:center; padding-block:0 !important; } .crs-flt:not(.more) .crs-mf{ display:none; } .crs-flt .crs-mf{ grid-column:1 / -1; } }
 .crs-split{ display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:18px; align-items:start; } .crs-pane{ padding:12px 14px; }
 .crs-tbl tr.crs-r{ cursor:pointer; } .crs-tbl tr.crs-r:hover td{ background:#FBF6EF; } .crs-tbl tr.crs-r.sel td{ background:#F3E6E2; box-shadow:inset 0 0 0 0 transparent; } .crs-tbl tr.crs-r.sel td:first-child{ border-inline-start:4px solid var(--accent); }
@@ -2417,7 +2419,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <div class="info-wrap"><button class="btn small ghost" id="infoBtn" type="button" title="מידע" aria-label="מידע" aria-haspopup="true" aria-expanded="false">ⓘ</button>
         <div class="info-menu" id="infoMenu" hidden><button type="button" data-im="reports" data-admin>📊 דוחות</button><button type="button" data-im="info">מידע למתרגלים</button><button type="button" data-im="holidays" data-admin>חגים וחופשות</button><button type="button" id="imRefresh">🔄 רענון</button></div></div>
       <button class="btn small ghost gear" id="gearBtn" type="button" title="הגדרות" aria-label="הגדרות">⚙</button>
-      <button class="btn small ghost ib-bell" id="inboxBtn" type="button" data-admin hidden title="התראות" aria-label="התראות">📥<span id="inboxN"></span></button>
+      <button class="btn small ghost ib-bell" id="inboxBtn" type="button" data-admin title="התראות" aria-label="התראות">📥<span id="inboxN"></span></button>
       <!-- 5.19.101 (נועה): "יציאה" עבר להגדרות (⚙) – כמו בתלם שלי; בכותרת קל ללחוץ בטעות, במיוחד בנייד -->
     </div>
   </aside>
@@ -2625,13 +2627,14 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
     <section id="view-issues" hidden>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <!-- 5.19.66: הדיווחים עברו למסך ההודעות (📥) -->
     </section>
     <!-- ===== 5.19.100 (נועה): נוסחי הטפסים (בהגדרות) ===== -->
     <section id="view-ftx" hidden>
-      <div class="page-head"><h1>נוסחי הטפסים</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="page-head"><h1>טפסים</h1></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="card ftx-gen" id="ftxGen"></div><!-- 5.19.163: טופס התעניינות כללי (לשעבר "קישורים") -->
       <div class="ftx-top">
         <div class="gseg ftx-forms" id="ftxForms" role="group" aria-label="טופס"></div>
         <div class="ftx-acts"><span id="ftxDirty"></span><button type="button" class="btn small danger-t" id="ftxDrop" hidden>מחיקת הטיוטות</button><button type="button" class="btn" id="ftxCancel" hidden>ביטול</button><button type="button" class="btn" id="ftxSave" disabled>שמירת טיוטה</button><button type="button" class="btn primary" id="ftxPub" disabled>פרסום לאוויר</button></div>
@@ -2645,7 +2648,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     </section>
     <section id="view-backup" hidden>
       <div class="page-head"><h1>גיבוי</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
         <p class="muted" style="font-size:13.5px; margin:0 0 10px;">כל הטבלאות בקובץ אחד. כדאי לשמור עותק גם בדרייב. הקובץ כולל טלפונים ופרטים אישיים - לא לשלוח הלאה.</p>
@@ -2665,7 +2668,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== קישורי הרשמה (בהגדרות) ===== -->
     <section id="view-sched" hidden>
       <div class="page-head"><h1>קורסים</h1></div>
-      <div class="gseg subnav reg-tabs" role="group" aria-label="קורסים"><button type="button" data-rt="courses">קורסים</button><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button></div>
+      <div class="gseg subnav reg-tabs" role="group" aria-label="קורסים"><button type="button" data-rt="courses">קורסים</button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button></div>
       <div class="card" id="scGeneral" hidden></div>
       <div class="sc-wrap">
         <nav class="sc-cities" id="scCities" aria-label="בחירת עיר"></nav>
@@ -2678,7 +2681,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== הרשמה (מנהלים): קישורים, ממתינים לאשראי, בקשות ביטול, טופסי התעניינות ===== -->
     <section id="view-reg" hidden>
       <div class="page-head"><h1>קורסים</h1><button class="btn small primary" type="button" id="rgCrsNew" hidden>+ קורס חדש</button></div>
-      <div class="gseg subnav reg-tabs" role="group" aria-label="קורסים"><button type="button" data-rt="courses">קורסים</button><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button></div>
+      <div class="gseg subnav reg-tabs" role="group" aria-label="קורסים"><button type="button" data-rt="courses">קורסים</button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button></div>
       <div class="sc-wrap">
         <nav class="sc-cities" id="rgCities" aria-label="בחירת עיר"></nav>
         <div class="sc-main" id="rgMain"></div>
@@ -2762,7 +2765,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
     <section id="view-me" hidden>
       <div class="page-head"><h1>החשבון שלי</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <!-- 5.19.101 (נועה): "החשבון שלי" מסודר; היציאה מהמערכת – כאן (לא בכותרת) -->
       <div class="card me-card">
         <div class="me-top"><span class="me-av" id="meAv"></span><div><div class="me-nm" id="meName"></div><span class="me-role" id="meRole"></span></div></div>
@@ -2893,13 +2896,13 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== צוות ומתרגלים ===== -->
     <section id="view-courses" hidden>
       <div class="page-head"><h1>קטגוריות ומחזורים</h1><button class="btn small primary" type="button" id="crsNew">+ חדש</button></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <div class="gseg crs-tabs" role="group" aria-label="קטגוריות ומחזורים"><button type="button" data-crt="cats">קטגוריות</button><button type="button" data-crt="seasons">מחזורים</button></div>
       <div id="crsBody"></div>
     </section>
     <section id="view-staff" hidden>
       <div class="page-head"><h1>צוות ומתרגלים</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <div class="card" id="stCard" style="margin-bottom:14px;" hidden>
         <div class="st-fh"><b id="stFT">משתמש חדש</b></div>
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
@@ -5416,7 +5419,13 @@ const ftxNV = (it, raw) => it.plain ? ftxNP(raw) : ftxN(ftxClean(raw));
 // בעורך: {משבצת} ⇄ "צ'יפ" שאי אפשר לערוך מבפנים
 const ftxToEd = (h) => String(h || "").replace(/\{([^{}<>]{1,40})\}/g, (m, n) => `<span class="ftx-ph" contenteditable="false" data-ph="${esc(n)}">${esc(n.trim())}</span>`);
 function ftxFromEd(el){ const c = el.cloneNode(true); c.querySelectorAll(".ftx-ph").forEach(s => s.replaceWith(document.createTextNode("{" + s.dataset.ph + "}"))); return ftxN(ftxClean(c.innerHTML)); }
-async function ftxOpen(){
+async function ftxGenPaint(){ const box = $("ftxGen"); if (!box) return;
+  if (REG_PRICES_DB === null) { try { await loadRegPrices(); } catch(e) {} }
+  if (!$("lkBase").value) $("lkBase").value = store("telem_site_url") || lkDefaultBase();
+  box.innerHTML = `<div class="ftx-gen-h muted" style="font-size:13px">קישור כללי – לכל הערים (בלי עיר). קישור לכל עיר / בית ספר / מסלול – בתוך כל קורס, במסך "קורסים".</div>
+    <div class="pf-r"><b>טופס התעניינות</b>${rpHas68() ? `<span class="all-st ${rpIntOpen() ? "on" : "off"}">${rpIntOpen() ? "● פתוח" : "○ סגור"}</span>` : ""}${lk2Btns("", lkInterest(null), "טופס התעניינות - תלם: ", rpHas68() ? swBtn("int", rpIntOpen()) : "")}</div>`;
+  wireLk(box); lkApplyShort(box); wireSwf(box); }
+async function ftxOpen(){ ftxGenPaint();
   $("ftxForms").innerHTML = FTX_FORMS.map(([k, n]) => `<button type="button" data-ftx="${k}" aria-pressed="${k === FX.form}">${esc(n)}</button>`).join("");
   $("ftxForms").querySelectorAll("[data-ftx]").forEach(b => b.onclick = async () => { if (b.dataset.ftx === FX.form) return; if (ftxUnsaved() && !await uiConfirm("יש שינויים שלא נשמרו כטיוטה. לעבור טופס בלי לשמור?")) return; FX.form = b.dataset.ftx; ftxOpen(); });
   $("ftxTyv").hidden = FX.form !== "thank-you";
@@ -6142,7 +6151,7 @@ function exShow(id){
   })();
   const lb = o.querySelector("[data-exlink]"); if (lb) lb.onclick = () => { o.hidden = true; exMakeLink(e); };
   const kb2 = o.querySelector("[data-exkids]"); if (kb2) kb2.onclick = async () => { o.hidden = true; await ensureG(true); if (G.sessions.some(x => x.session_id === e.session_id)) openPanel(e.session_id); else toast("קבוצת המרתון לא נמצאה"); };
-  const gb = o.querySelector("[data-exgomar]"); if (gb) gb.onclick = () => { o.hidden = true; RG.tab = "links"; RG.lk = "mar"; store("telem_reg_lk", "mar"); RG.city = (e.school && e.school.city) || RG.city; store("telem_reg_tab", "links"); go("reg"); };
+  const gb = o.querySelector("[data-exgomar]"); if (gb) gb.onclick = () => { o.hidden = true; RG.tab = "courses"; CRS.fc = String((CRS.cats.find(x => x.kind === "event") || {}).id || ""); RG.city = (e.school && e.school.city) || RG.city; store("telem_reg_tab", "courses"); go("reg"); };
   const db = o.querySelector("[data-expdel]"); if (db) db.onclick = async () => {
     try { if (!await exDelEvent(e, "\"" + e.kind + "\" ב-" + fmtDM(e.exam_date))) return; o.hidden = true; toast("נמחק"); EX.scrollTo = exFirstVisible(); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } };
 }
@@ -7186,7 +7195,7 @@ function wireMarBox(root, m){
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   root.querySelectorAll("[data-medit]").forEach(b => b.onclick = () => { $("roster").hidden = true; $("gEditBtn").hidden = true; openMarathonEditor(m, true); });
   // הגדרת המרתון (מחיר, פתוח/סגור) והקישור - במסך "הרשמה ושיבוץ", כמו קישורי ההרשמה לתרגולים
-  root.querySelectorAll("[data-mreg]").forEach(b => b.onclick = () => { closePanel(); RG.tab = "links"; RG.city = m.city || null; store("telem_reg_tab", "links"); go("reg"); });
+  root.querySelectorAll("[data-mreg]").forEach(b => b.onclick = () => { closePanel(); RG.tab = "courses"; RG.city = m.city || null; store("telem_reg_tab", "courses"); go("reg"); });
   root.querySelectorAll("[data-mgroup]").forEach(b => b.onclick = () => { panelFor("קבוצה חדשה · " + m.name, m.school || ""); openMarGroupEditor(m, null); });
 }
 // 5.19.44 (הלקוחה): חלון מרתון אחד - מכל מקום (לוח המבחנים, הרשמה, קבוצות ונוכחות): למעלה עריכת המרתון
@@ -7887,7 +7896,7 @@ function openMarathonEditor(m, inPanel, pre){
       toast(m ? "המרתון עודכן" : "המרתון נשמר (סגור להרשמה)" + (GRPS.length > 1 ? " עם " + GRPS.length + " קבוצות" : "")); closePanel(); RG.mar = null; EX.mar = null;
       if (currentView === "exams") renderExams(false);
       if (fromReg) { RG.mar = null; G.marathons = null; renderReg(); return; }
-      if (pre.exIds) { G.marathons = null; G.loadedAt = 0; RG.tab = "links"; RG.lk = "mar"; store("telem_reg_lk", "mar"); RG.city = body.city; store("telem_reg_tab", "links");
+      if (pre.exIds) { G.marathons = null; G.loadedAt = 0; RG.tab = "courses"; CRS.fc = String((CRS.cats.find(x => x.kind === "event") || {}).id || ""); RG.city = body.city; store("telem_reg_tab", "courses");
         toast("קישור ההרשמה נוצר (סגור להרשמה). כשמוכנים - \"פתיחה להרשמה\" ושולחים."); go("reg"); return; }   // 5.19.35: מהלוח - ישר לרשימת המרתונים
       G.city = body.city; store("telem_groups_city", G.city); if (G.kind === "שוטף") { G.kind = "all"; store("telem_groups_kind3", "all"); paintKind(); }
       await loadGroups();
@@ -10023,7 +10032,7 @@ async function regFormToggle(k){
       else body = { [col]: closed };
       await patch("reg_prices", cq, body); Object.assign(r, body);
     }
-    toast(what + (v ? " פתוח" : " סגור")); renderReg(); return true;
+    toast(what + (v ? " פתוח" : " סגור")); if (currentView === "reg") renderReg(); if ($("pfForms")) pfFormsPaint(); if ($("ftxGen")) ftxGenPaint(); return true;
   } catch(e) { toast("לא נשמר: " + e.message); return false; }
 }
 const wireSwf = (box) => box && box.querySelectorAll("[data-swf]").forEach(b => b.onclick = async () => { b.disabled = true; if (!(await regFormToggle(b.dataset.swf))) b.disabled = false; });
@@ -10087,6 +10096,18 @@ async function loadRegPrices(){
   catch(e) { REG_PRICES_DB = false; REG_PRICES = REG_PRICES_FALLBACK; }
 }
 // עריכת מחירים ותאריכים של עיר (חלון הצד)
+// 5.19.163 (נועה 30.10): פתוח/סגור של טופס ההרשמה וטופס ההתעניינות – לעיר ולכל מסלול – בחלון העריכה של העיר (לשעבר "קישורים")
+function pfFormsPaint(){ const box = $("pfForms"); if (!box) return; const city = box.dataset.city;
+  if (!rpHas68()) { box.innerHTML = ""; return; }
+  const on72 = rpHas72(), q = (o) => new URLSearchParams(o);
+  const line = (n, k, open, u, msg) => `<div class="pf-r"><span class="pf-n">${n}</span><span class="all-st ${open ? "on" : "off"}">${open ? "● פתוח" : "○ סגור"}</span>${u ? lk2Btns("", u, msg, swBtn(k, open)) : swBtn(k, open)}</div>`;
+  box.innerHTML = `<div class="lg-edit-h">הטפסים ב${esc(city)} – פתוח / סגור</div>
+    ${line("<b>טופס הרשמה</b>", "reg:" + city, rpRegOpen(city), lkReg(city, ""), "טופס ההרשמה לתלם - " + city + ": ")}
+    ${on72 ? LK.tracks.map(t => line(`<span class="trk" style="background:${t.c}"></span>${esc(t.t)}`, "regt:" + city + "|" + t.v, rpTrkOpen("reg", city, t.v), "", "")).join("") : ""}
+    ${line("<b>טופס התעניינות</b>", "intc:" + city, rpIntCityOpen(city), lkInterest(q({ city })), "טופס התעניינות - תלם " + city + ": ")}
+    ${on72 ? LK.tracks.map(t => line(`<span class="trk" style="background:${t.c}"></span>${esc(t.t)}`, "intt:" + city + "|" + t.v, rpTrkOpen("int", city, t.v), "", "")).join("") : ""}`;
+  wireLk(box); lkApplyShort(box); wireSwf(box);
+}
 function openPriceEditor(city){
   const P = REG_PRICES[city] || {}, v = (x) => x == null ? "" : x;
   panelFor("מחירים ותאריכים", city + " · " + CONFIG.schoolYear);
@@ -10103,6 +10124,7 @@ function openPriceEditor(city){
     <div class="full muted" style="font-size:13px;">בהרשמה נגבים מיד: דמי הרשמה + חומרים + החודש הראשון. השינוי מופיע מיד בטופס ההרשמה ובטופס ההתעניינות של ${esc(city)}.</div>
     <div class="err full" data-pe-err></div>
     <div class="full lg-btns"><button type="button" class="btn small primary" data-pe-save>שמירה</button><button type="button" class="btn small" data-pe-cancel>ביטול</button></div>`;
+  box.insertAdjacentHTML("afterbegin", `<div class="full pf-forms" id="pfForms" data-city="${esc(city)}"></div>`); if (!$("lkBase").value) $("lkBase").value = store("telem_site_url") || lkDefaultBase(); pfFormsPaint();
   const g = (k) => box.querySelector(`[data-pe="${k}"]`), num = (k) => g(k).value === "" ? null : Number(g(k).value);
   // 5.19.58: בלי הרשמה מוקדמת - התאריך והמחירים המוקדמים לא רלוונטיים (נשמר: מוקדם = רגיל, עד אתמול - הטפסים והשרת מציגים/גובים רגיל)
   const ek = box.querySelector("[data-pe-early]"), eSync = () => { const on = ek.checked; g("earlyUntil").disabled = !on; box.querySelectorAll('[data-pe$="|early"]').forEach(i => { i.disabled = !on; i.closest("label").style.opacity = on ? "" : ".45"; }); };
@@ -10125,6 +10147,18 @@ function openPriceEditor(city){
 // תצוגה מקדימה - תמיד בכתובת המלאה של הטפסים (המאגר telem-tirgul.github.io), לא בעותק שבמאגר המערכת
 const lkPreview = (u) => u.includes(".html?") ? u.replace(".html?", ".html?preview=1&") : u.replace(/\.html(#|$)/, ".html?preview=1$1");
 const lkBtns = (u, msg) => `<span class="lk-btns"><button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="לא נשמר ולא עובר לתשלום">תצוגה מקדימה</a></span>`;
+async function schGenPaint(){ const box = $("scGeneral"); if (!box) return;
+  if (SCH.season === null) { try { SCH.season = (await get("scheduling_seasons", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)))[0] || null; } catch(e) {} }
+  const sea = SCH.season, u = lkFix(lkBase() + "shibutz.html");
+  const sw = sea && sea.is_open !== undefined ? `<span class="lk2-sw"><button type="button" class="btn small${sea.is_open ? "" : " primary"}" id="schOpen2">${sea.is_open ? "סגירה" : "פתיחה"}</button></span>` : "";
+  box.hidden = false;
+  box.innerHTML = `<div class="pf-r"><b>טופס השיבוץ</b> <span class="muted">לכל הערים</span>${sea ? `<span class="all-st ${sea.is_open ? "on" : "off"}">${sea.is_open ? "● פתוח" : "○ סגור"}</span>` : ""}${lk2Btns("", u, "טופס השיבוץ של תלם: ", sw)}</div>`;
+  wireLk(box); lkApplyShort(box);
+  if ($("schOpen2")) $("schOpen2").onclick = async () => { const v = !sea.is_open;
+    if (!await uiConfirm(v ? "לפתוח את טופס השיבוץ? מי שייכנס לקישור יוכל לשלוח בקשת שיבוץ." : "לסגור את טופס השיבוץ? מי שייכנס לקישור יראה שהשיבוצים לשנה זו הסתיימו.")) return;
+    try { await patch("scheduling_seasons", "school_year=eq." + encodeURIComponent(sea.school_year), { is_open: v }); sea.is_open = v; toast(v ? "טופס השיבוץ פתוח" : "טופס השיבוץ סגור"); schGenPaint(); }
+    catch(e) { toast("לא נשמר: " + e.message); } };
+}
 // ---------- מסך שיבוצים: קודם בוחרים עיר (מימין), ואז קישורי ההרשמה ובקשות השיבוץ של העיר ----------
 const SCH = { city: null, reqs: null, asg: null, season: null, q: "", f: "" };
 async function renderSched(){
@@ -10134,6 +10168,7 @@ async function renderSched(){
       <table class="tbl lk-tbl"><tbody><tr><td><b>בחירת מועדים מועדפים</b>${sea ? `<div class="muted" style="font-size:12.5px;">פתוח לבקשות ${fmt(sea.opens_on)} - ${fmt(sea.closes_on)}</div>` : ""}<div class="lk-url" dir="ltr">${esc(u)}</div></td><td class="lk-act">${lkBtns(u, "טופס השיבוץ של תלם: ")}</td></tr></tbody></table>`;
     $("scGeneral").querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy)); };
   paintRegTabs();
+  schGenPaint();   // 5.19.163: טופס השיבוץ – קישור ופתוח/סגור (לשעבר "קישורים")
   if (!SCH.reqs) {
     try {
       const [rq, se] = await Promise.all([
@@ -10198,7 +10233,7 @@ function renderSchedTbl(){
 // ======================================================================
 // הרשמה (מנהלים): קישורי הרשמה, ממתינים לאשראי, בקשות ביטול, טופס התעניינות
 // ======================================================================
-const RG = { tab: ["courses", "links", "cancel", "pay"].includes(store("telem_reg_tab")) ? store("telem_reg_tab") : "courses", city: store("telem_reg_city") || null, pay: null, can: null };
+const RG = { tab: ["courses", "cancel", "pay"].includes(store("telem_reg_tab")) ? store("telem_reg_tab") : "courses", city: store("telem_reg_city") || null, pay: null, can: null };
 // לשוניות "הרשמה ושיבוץ": בקשות שיבוץ = המסך של השיבוצים, השאר במסך ההרשמה
 function paintRegTabs(){
   const cur = currentView === "sched" ? "requests" : RG.tab;
