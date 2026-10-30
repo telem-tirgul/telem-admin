@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.166">
+<meta name="app-version" content="5.19.167">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1684,6 +1684,10 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
   #leadsTbl td.c-src select{ max-width:80px !important; font-size:11.5px !important; padding:1px 4px !important; color:var(--ink-soft); } #leadsTbl td.c-status, #leadsTbl td.c-src{ width:1%; } }   /* 5.19.166 (נועה): הסטטוס ומקור הליד הישנים – קטנים (העיקר בקורסים) */
 .lg-crs-box{ border:1.5px solid var(--border); border-radius:12px; padding:4px 8px 6px; margin:8px 0; background:#FFFDFB; } .lg-crs-box > .lg-crs{ border:0; border-bottom:1px solid var(--border); border-radius:0; margin:0 0 6px; padding:4px 2px 6px; background:none; }
 .lg-crs-box .lg-card{ margin:6px 0; } .lg-none{ font-size:12.5px; padding:2px 4px 4px; }
+.crs-sum .crs-n{ font:inherit; font-weight:800; border:0; background:none; color:var(--accent); cursor:pointer; text-decoration:underline; text-underline-offset:3px; padding:2px 6px; } .crs-sum .crs-n:hover{ background:#F3E6E2; border-radius:6px; }
+.crs-sum td.num{ text-align:center; } .crs-sum th.num{ text-align:center; } .crs-sub{ border:1px solid var(--border); border-radius:10px; background:#fff; padding:6px 10px; margin:6px 0; } .crs-sub-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:14px; margin-bottom:4px; }
+#leadsTbl div.crs-chip.crs-grid{ display:grid !important; grid-template-columns:124px 104px 72px minmax(110px, auto); gap:4px; align-items:center; border:0; background:none; padding:1px 0; }
+#leadsTbl .crs-grid select.crs-sel{ width:100% !important; max-width:none !important; min-width:0 !important; } #leadsTbl .crs-grid .crs-l{ white-space:nowrap; }
 .crs-more-b{ display:none; } @media (max-width:760px){ .crs-flt{ display:grid !important; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:end; } .crs-flt > .wide{ grid-column:1 !important; } .crs-more-b{ display:inline-flex !important; grid-column:2 !important; height:46px !important; width:auto !important; align-self:end; white-space:nowrap; align-items:center !important; justify-content:center; padding-block:0 !important; } .crs-flt:not(.more) .crs-mf{ display:none; } .crs-flt .crs-mf{ grid-column:1 / -1; } }
 .crs-split{ display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:18px; align-items:start; } .crs-pane{ padding:12px 14px; }
 .crs-tbl tr.crs-r{ cursor:pointer; } .crs-tbl tr.crs-r:hover td{ background:#FBF6EF; } .crs-tbl tr.crs-r.sel td{ background:#F3E6E2; box-shadow:inset 0 0 0 0 transparent; } .crs-tbl tr.crs-r.sel td:first-child{ border-inline-start:4px solid var(--accent); }
@@ -3675,7 +3679,8 @@ function crsChipsRow(sid){ if (!CRS.ok) return ""; const act = crsActiveSeasons(
     const subSel = c.marathon_id || tk0 === "double" ? "" : `<select class="crs-sel crs-sel-sub ${SUBJ_CLS(m.subject)}" data-cmsub="${m.id}" aria-label="מקצוע"><option value="">מקצוע…</option>${["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"].map(x => `<option value="${x}" ${x === m.subject ? "selected" : ""}>${crsSubj(x)}</option>`).join("")}</select>`;
     const srcSel = CRS.hasSrc ? `<select class="crs-sel crs-sel-src" data-cmsrc="${m.id}" aria-label="מקור"><option value="">מקור…</option>${L.sources.filter(x => x.is_active || x.id === m.source_id).map(x => `<option value="${x.id}" ${x.id === m.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : "";
     const tk = mTrk(m), to = LK.tracks.find(x => x.v === tk), lab = c.marathon_id ? crsLabel(c, m) : trkSel || (to ? `<span class="trk-chip sm" style="--tc:${to.c}">${esc(CRS_TRK_S[tk])}</span>` : `<b>${esc(crsCatN(c.category_id))}</b>`);
-    return `<div class="crs-chip" title="${esc(crsShort(c, true) + " · " + crsSeasonTxt(c))}"><span class="crs-l">${lab}</span>${subSel}${stSel}${srcSel}</div>`; }).join("")}</div>` : `<span class="muted crs-none">—</span>`; }
+    // 5.19.167 (נועה): עמודות קבועות – מצב · מקור · מקצוע · מסלול (מרתון: במקום המסלול)
+    return `<div class="crs-chip crs-grid" title="${esc(crsShort(c, true) + " · " + crsSeasonTxt(c))}"><span>${stSel}</span><span>${srcSel}</span><span>${subSel}</span><span class="crs-l">${lab}</span></div>`; }).join("")}</div>` : `<span class="muted crs-none">—</span>`; }
 const SUBJ_CLS = (x) => x === "מתמטיקה ואנגלית" ? "sj-both" : x === "מתמטיקה" ? "sj-math" : x === "אנגלית" ? "sj-eng" : "";
 document.addEventListener("change", async (ev) => { const el = ev.target; if (!el || !el.matches || !el.matches("select[data-cmst], select[data-cmsub], select[data-cmsrc], select[data-cmtrk]")) return;
   const id = Number(el.dataset.cmst || el.dataset.cmsub || el.dataset.cmsrc || el.dataset.cmtrk), m = Object.values(CRS.cm).flat().find(x => x.id === id); if (!m) return;
@@ -3829,11 +3834,31 @@ async function renderCrsCourses(reload){
       <div class="crs-mf crs-chk"><label><input type="checkbox" id="crsPend" ${F.pend ? "checked" : ""}> יש ממתינים לתשלום</label><label><input type="checkbox" id="crsInt" ${F.int ? "checked" : ""}> יש מתעניינים</label></div></div>
     <div class="dx-bar"><span></span><span class="dx-bar-b"><span class="muted">${list.length} קורסים</span><button type="button" class="clear-f" id="crsClear"${dirty ? "" : " disabled"}>✕ ניקוי סינון</button><button type="button" class="btn small" id="crsXls"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span></div>
     <div class="crs-split no-sel">
-      <div class="crs-list">${list.length ? `<div class="tbl-wrap"><table class="tbl crs-tbl"><thead><tr><th></th><th class="hide-m">עיר</th><th>בית ספר</th><th>קורס</th><th title="רשומים">רשומים</th><th title="ממתינים לתשלום">ממתינים</th><th title="מתעניינים">מתעניינים</th><th class="hide-m" title="היו רשומים בשנה שעברה ולא השנה">לא חזרו</th><th></th></tr></thead><tbody>${list.map(c => {
-        // 5.19.166 (נועה: "טבלה כמו במערכת הישנה, ונשתמש בסינון"): שורה לכל קורס – עיר · בית ספר · קורס · כמויות
-        const sc = crsSch(c), chip = sc ? (c.school_text && !(c.school && c.school.name) ? esc(sc) : scChip(sc)) : `<span class="muted">—</span>`;
-        const back = !c.marathon_id && crsSeason(c.season_id).is_active && L.leads ? L.leads.filter(l => l.student && crsBack(l.student.id, crsCity(c) + "|" + sc)).length : 0;
-        return `<tr class="crs-r${c.id === CRS.sel ? " sel" : ""}" data-crs="${c.id}" tabindex="0"><td><button type="button" class="dx-tg" aria-expanded="${CRS.open.has(c.id)}" aria-label="פרטי הקורס"></button></td><td class="hide-m">${esc(crsCity(c))}</td><td class="crs-sch">${chip}</td><td class="crs-c"><span class="crs-cn">${crsTitle(c, true)}</span>${c.marathon_id ? "" : crsTrkMix(c)}${c.is_active ? "" : ` <span class="muted">(${c.marathon_id ? "לא התקיים" : "לא פעיל"})</span>`}${CRS.fs === "all" ? ` <span class="muted" style="font-size:12px">${esc(crsSeasonTxt(c))}</span>` : ""}</td><td class="num">${n(c, "רשום")}</td><td class="num">${n(c, "ממתין לתשלום")}</td><td class="num">${n(c, "מתעניין")}</td><td class="num hide-m">${back ? `<button type="button" class="crs-back-n" data-back="1" title="היו רשומים בשנה שעברה בבית הספר הזה, ולא השנה – לחיצה: הרשימה בטבלת התלמידים">↩ ${back}</button>` : ""}</td><td><button type="button" class="btn small crs-kids${c.id === CRS.sel ? " on" : ""}" data-kids="${c.id}" title="התלמידים בקורס – בצד">👥<span class="bt"> תלמידים</span></button></td></tr>${CRS.open.has(c.id) ? `<tr class="dx-row"><td colspan="9">${crsDetails(c)}</td></tr>` : ""}`; }).join("")}</tbody></table></div>`
+      <div class="crs-list">${list.length ? (() => {
+        // 5.19.167 (נועה): טבלת סיכום – כותרת לכל עיר, שורה לכל בית ספר, עמודה לכל מסלול (רשומים); פתיחת שורה – הקורסים של בית הספר עם הפרטים והקישורים
+        const regC = list.filter(c => !c.marathon_id), marC = list.filter(c => c.marathon_id);
+        const ms = (cs) => Object.values(CRS.cm).flat().filter(m => cs.some(c => c.id === m.course_id) && m.status !== "בוטל");
+        const trks = LK.tracks.map(x => x.v).concat(["summer", "summer-ext"]).filter(t => ms(regC).some(m => mTrk(m) === t));
+        const keyOf = (c) => crsCity(c) + "|" + crsSch(c), groups = [];
+        list.forEach(c => { const k = keyOf(c); let g = groups.find(x => x.k === k); if (!g) groups.push(g = { k, cs: [] }); g.cs.push(c); });
+        const cols = 6 + trks.length;
+        let out = `<div class="tbl-wrap"><table class="tbl crs-tbl crs-sum"><thead><tr><th></th><th>בית ספר</th>${trks.map(t => { const to = LK.tracks.find(x => x.v === t); return `<th class="num"${to ? ` style="color:${to.c}"` : ""}>${esc(CRS_TRK_S[t] || t)}</th>`; }).join("")}<th class="num">🏁 מרתונים</th><th class="num" title="ממתינים לתשלום">ממתינים</th><th class="num">מתעניינים</th><th class="num hide-m" title="היו רשומים בשנה שעברה ולא השנה">לא חזרו</th></tr></thead><tbody>`;
+        let lastCity = null;
+        groups.forEach(g => { const c0 = g.cs[0], city = crsCity(c0);
+          if (city !== lastCity) { lastCity = city; const all = ms(list.filter(c => crsCity(c) === city)), k = (st) => all.filter(m => m.status === st).length;
+            out += `<tr class="crs-city"><td colspan="${cols}"><b>${esc(city || "בלי עיר")}</b> <span class="muted">${k("רשום")} רשומים${k("ממתין לתשלום") ? " · " + k("ממתין לתשלום") + " ממתינים" : ""}${k("מתעניין") ? " · " + k("מתעניין") + " מתעניינים" : ""}</span></td></tr>`; }
+          const gr = g.cs.filter(c => !c.marathon_id), gm = g.cs.filter(c => c.marathon_id), mr = ms(gr), mm = ms(gm), all = mr.concat(mm);
+          const sc = crsSch(c0), chip = sc ? (c0.school_text && !(c0.school && c0.school.name) ? esc(sc) : scChip(sc)) : `<span class="muted">בלי בית ספר</span>`;
+          const back = crsSeason(c0.season_id).is_active && L.leads ? L.leads.filter(l => l.student && crsBack(l.student.id, g.k)).length : 0;
+          const open = CRS.open.has(g.k), cell = (n, attr, ttl) => n ? `<button type="button" class="crs-n" ${attr} title="${esc(ttl)}">${n}</button>` : `<span class="muted">·</span>`;
+          out += `<tr class="crs-r crs-sr${open ? " open" : ""}" data-grp="${esc(g.k)}" tabindex="0"><td><button type="button" class="dx-tg" aria-expanded="${open}" aria-label="הקורסים של בית הספר"></button></td><td class="crs-sch">${chip}</td>`
+            + trks.map(t => { const n = mr.filter(m => m.status === "רשום" && mTrk(m) === t).length; return `<td class="num">${cell(n, `data-cell="${esc(g.k)}" data-trk="${t}"`, "הרשומים במסלול – במגירה")}</td>`; }).join("")
+            + `<td class="num">${cell(mm.filter(m => m.status === "רשום").length, gm.length === 1 ? `data-kids="${gm[0].id}"` : `data-open="${esc(g.k)}"`, gm.length === 1 ? "הנרשמים למרתון – במגירה" : gm.length + " מרתונים – פתיחת השורה")}</td>`
+            + `<td class="num">${all.filter(m => m.status === "ממתין לתשלום").length || ""}</td><td class="num">${all.filter(m => m.status === "מתעניין").length || ""}</td>`
+            + `<td class="num hide-m">${back ? `<button type="button" class="crs-back-n" data-back="1" title="היו רשומים בשנה שעברה בבית הספר הזה, ולא השנה – לחיצה: הרשימה בטבלת התלמידים">↩ ${back}</button>` : ""}</td></tr>`;
+          if (open) out += `<tr class="dx-row"><td colspan="${cols}">${g.cs.map(c => `<div class="crs-sub"><div class="crs-sub-h"><span>${crsTitle(c, true)}${c.marathon_id ? "" : crsTrkMix(c)}${c.is_active ? "" : ` <span class="muted">(${c.marathon_id ? "לא התקיים" : "לא פעיל"})</span>`}</span><button type="button" class="btn small crs-kids" data-kids="${c.id}">👥<span class="bt"> תלמידים</span></button></div>${crsDetails(c)}</div>`).join("")}</td></tr>`;
+        });
+        return out + `</tbody></table></div>`; })()
         : `<div class="card empty">אין קורסים שמתאימים לסינון.</div>`}</div>
 
     </div>`;
@@ -3849,9 +3874,11 @@ async function renderCrsCourses(reload){
   $("crsPend").onchange = (e) => { F.pend = e.target.checked; re(); }; $("crsInt").onchange = (e) => { F.int = e.target.checked; re(); };
   $("crsMore").onclick = () => { CRS.more = !CRS.more; re(); };
   // לחיצה על השורה – פתיחת הפרטים (כמו בכל הטבלאות); 👥 – התלמידים בצד
-  b.querySelectorAll("tr.crs-r").forEach(tr => { const tog = () => { const id = Number(tr.dataset.crs); CRS.open.has(id) ? CRS.open.delete(id) : CRS.open.add(id); re(); };
+  b.querySelectorAll("tr.crs-r").forEach(tr => { const tog = () => { const id = tr.dataset.grp || Number(tr.dataset.crs); CRS.open.has(id) ? CRS.open.delete(id) : CRS.open.add(id); re(); };
     tr.onclick = (e) => { if (e.target.closest("[data-kids], .lk2-cell, a")) return; tog(); }; tr.onkeydown = (e) => { if (e.key === "Enter") tog(); }; });
   // 5.19.166 (נועה: "מגירה בצד"): 👥 – התלמידים במגירה (כמו חלונות העריכה); הטבלה ברוחב מלא ולא זזה
+  b.querySelectorAll("[data-cell]").forEach(x => x.onclick = (e) => { e.stopPropagation(); const c = list.find(y => !y.marathon_id && keyOf2(y) === x.dataset.cell); if (!c) return; CRS.sel = c.id; crsOpenDrawer(c, x.dataset.trk); });
+  b.querySelectorAll("[data-open]").forEach(x => x.onclick = (e) => { e.stopPropagation(); CRS.open.add(x.dataset.open); re(); });
   b.querySelectorAll("[data-kids]").forEach(x => x.onclick = (e) => { e.stopPropagation(); CRS.sel = Number(x.dataset.kids); crsOpenDrawer(CRS.byId[CRS.sel]);
     b.querySelectorAll("tr.crs-r").forEach(tr => tr.classList.toggle("sel", Number(tr.dataset.crs) === CRS.sel)); b.querySelectorAll("[data-kids]").forEach(k => k.classList.toggle("on", Number(k.dataset.kids) === CRS.sel)); });
   b.querySelectorAll(".dx-row").forEach(r => { wireLk(r); lkApplyShort(r); });
@@ -3867,6 +3894,7 @@ async function renderCrsCourses(reload){
           else { go("ftx"); if (REG_PRICES_DB === null) await loadRegPrices(); if (REG_PRICES_DB === false) { toast("כדי לערוך מחירים צריך להריץ את קובץ 44"); return; } setTimeout(() => openPriceEditor(crsCity(c)), 300); } }
     catch(err) { toast("לא נפתח: " + err.message); } });
   const pane = b.querySelector(".crs-pane") || document.createElement("div");
+  function keyOf2(c){ return crsCity(c) + "|" + crsSch(c); }
   // "בועה" (נועה 30.10): בצד – בגובה הקורס שנבחר, עם חץ אליו
   if (sel && !mob) { const r = b.querySelector("tr.crs-r.sel"), lst = b.querySelector(".crs-list");
     if (r && lst) { const off = r.getBoundingClientRect().top - lst.getBoundingClientRect().top; pane.style.marginTop = Math.max(0, off - 14) + "px"; pane.classList.add("bub"); pane.style.setProperty("--tail", (off - 14 < 0 ? off + 4 : 18) + "px"); } }
@@ -3881,17 +3909,17 @@ async function renderCrsCourses(reload){
       rows.push([plain(crsTitle(c, true)), crsSch(c), crsSeasonTxt(c), crsCity(c), ((st.first_name || "") + " " + (st.last_name || "")).trim() || "#" + m.student_id, classLabel(st.grade, st.class_num) || m.grade || "", m.subject || "", m.status, sourceName(m.source_id), m.signed === false ? "לא" : m.signed ? "כן" : "", m.source || ""]); }));
     downloadXlsx(rows, "קורסים.xlsx", "קורסים"); };
 }
-function crsOpenDrawer(c){ if (!c) return; const plain = (h) => { const d = document.createElement("div"); d.innerHTML = h; return d.textContent.replace(/\s+/g, " ").trim(); };
-  panelFor("תלמידים בקורס", [plain(crsTitle(c, true)), crsSch(c), crsCity(c), crsSeasonTxt(c)].filter(Boolean).join(" · "));
+function crsOpenDrawer(c, trk){ if (!c) return; CRS.selTrk = trk || ""; const plain = (h) => { const d = document.createElement("div"); d.innerHTML = h; return d.textContent.replace(/\s+/g, " ").trim(); };
+  panelFor("תלמידים בקורס", [plain(crsTitle(c, true)), trk ? CRS_TRK_S[trk] || trk : "", crsSch(c), crsCity(c), crsSeasonTxt(c)].filter(Boolean).join(" · "));
   const tag = $("panel").querySelector(".kind-tag"); if (tag) { tag.dataset.orig = tag.dataset.orig || tag.textContent; tag.textContent = "📚 קורס"; }
-  const box = $("gEdit"); box.hidden = false; box.classList.remove("g3"); box.innerHTML = `<div class="full crs-drawer">${crsPane(c)}</div>`;
+  const box = $("gEdit"); box.hidden = false; box.classList.remove("g3"); box.innerHTML = `<div class="full crs-drawer">${crsPane(c, trk)}</div>`;
   box.querySelectorAll("[data-lead]").forEach(x => x.onclick = (e) => { e.stopPropagation(); closePanel(); openLead(Number(x.dataset.lead)); });
   box.querySelectorAll("[data-crsadd]").forEach(x => x.onclick = () => crsAddMember(c)); }
-const crsDrawerRe = () => { if (CRS.sel && $("gEdit") && $("gEdit").querySelector(".crs-drawer")) crsOpenDrawer(CRS.byId[CRS.sel]); };
+const crsDrawerRe = () => { if (CRS.sel && $("gEdit") && $("gEdit").querySelector(".crs-drawer")) crsOpenDrawer(CRS.byId[CRS.sel], CRS.selTrk); };
 // הצד: הקורס שנבחר – כותרת, כמויות, התלמידים (מצב בלחיצה), הוספה
-function crsPane(c){
+function crsPane(c, trk){
   const ord = ["רשום", "ממתין לתשלום", "מתעניין", "פרש"];
-  const ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && m.status !== "בוטל").sort((a, b) => ord.indexOf(a.status) - ord.indexOf(b.status));
+  const ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && m.status !== "בוטל" && (!trk || mTrk(m) === trk)).sort((a, b) => ord.indexOf(a.status) - ord.indexOf(b.status));
   const nm = (sid) => { const l = L.leads.find(x => x.student_id === sid); return l ? { l, t: ((l.student.first_name || "") + " " + (l.student.last_name || "")).trim(), g: classLabel(l.student.grade, l.student.class_num) } : { l: null, t: "#" + sid, g: "" }; };
   const sums = ord.map(k => [k, ms.filter(m => m.status === k).length]).filter(x => x[1]).map(([k, v]) => `${v} ${k === "רשום" ? "רשומים" : k === "ממתין לתשלום" ? "ממתינים לתשלום" : k === "מתעניין" ? "מתעניינים" : "פרשו"}`).join(" · ");
   return `<div class="crs-pane-h"><button type="button" class="btn small crs-back" data-crsback>→ חזרה לרשימה</button><button type="button" class="crs-x" data-crsback aria-label="סגירה" title="סגירה">✕</button></div>
@@ -4617,7 +4645,7 @@ $("pop").addEventListener("click", async (e) => {
   if (b.dataset.pop === "close") { hidePop(); return; }
   if (b.dataset.pop === "lead") { hidePop(); openLead(Number(b.dataset.lead)); return; }
   const l = popLead, body = $("pop").querySelector("textarea").value.trim(); if (!l || !body) return;
-  const who = (auth && auth.email || "").split("@")[0];
+  const who = ((ME && ME.full_name) || "").trim().split(/\s+/)[0] || (auth && auth.email || "").split("@")[0];   // 5.19.167 (נועה): השם הפרטי של המנהל, לא האימייל
   b.disabled = true;
   try {
     const n = (await insert("notes", { lead_id: l.id, body: who ? `${who}: ${body}` : body }))[0];
