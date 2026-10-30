@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.159">
+<meta name="app-version" content="5.19.160">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1658,6 +1658,7 @@ td.nowrap{ white-space:nowrap; }
 .lp-box{ border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin:8px 0; background:#fff; }
 button.ph-m{ font:inherit; font-weight:700; color:var(--accent); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline; text-underline-offset:3px; } .ph-menu{ position:absolute; z-index:3000; display:flex; flex-direction:column; min-width:170px; background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.18); padding:6px; } .ph-menu > a, .ph-menu > button{ display:block; text-align:start; font:inherit; font-size:15px; font-weight:600; color:var(--ink); background:none; border:0; border-radius:8px; padding:10px 12px; text-decoration:none; cursor:pointer; } .ph-menu > a:hover, .ph-menu > button:hover{ background:var(--muted); }   /* 5.19.154 */
 .lg-pend{ border:1.5px dashed var(--accent); border-radius:10px; padding:6px 10px; margin:6px 0; font-size:13.5px; } .lg-pend-t{ display:block; color:var(--accent); font-size:12.5px; font-weight:700; }   /* 5.19.158 */
+.mar-ic.mar-int{ opacity:.55; }   /* 5.19.160: התעניינות במרתון */
 .trk-chip{ display:inline-block; border:1.5px solid var(--tc); color:var(--tc); background:#fff; font-weight:800; font-size:12.5px; border-radius:999px; padding:0 10px; line-height:1.7; white-space:nowrap; }   /* 5.19.157 */
 .lead-paywrap:empty, .lead-paywrap:not(:has(*:not(:empty))){ display:none; } #view-lead .lead-paywrap .lp-box{ border:2px solid var(--accent) !important; background:#fff !important; border-radius:14px !important; padding:12px 16px !important; margin:12px 0 !important; box-shadow:none !important; } .lead-paywrap .lp-box > summary b{ color:var(--accent); font-size:16px; } .lead-paywrap .pay-box{ margin:12px 0 0; }   /* 5.19.154 */ .lp-box summary{ cursor:pointer; display:flex; align-items:center; gap:10px; flex-wrap:wrap; } .lp-sum{ color:#6b6259; font-size:.95em; }
 .lp-list{ list-style:none; margin:10px 0 2px; padding:0; display:flex; flex-direction:column; gap:8px; }
@@ -3538,6 +3539,14 @@ async function loadLeads(){
   let marLast = {}; try { (await get("sessions", "select=marathon_id,meeting_dates&kind=eq." + encodeURIComponent("מרתון") + "&marathon_id=not.is.null")).forEach(x => { const d = (x.meeting_dates || []).slice().sort().pop(); if (d && (!marLast[x.marathon_id] || d > marLast[x.marathon_id])) marLast[x.marathon_id] = d; }); } catch(e) {}
   const marLim = addDays(todayIL(), -14), marCur = (r) => { const m = r.marathon || {}, d = [m.event_date, marLast[m.id]].filter(Boolean).sort().pop(); return !d || d >= marLim; };
   L.mar = {}; mreg.filter(marCur).forEach(r => (L.mar[r.student_id] = L.mar[r.student_id] || []).push(r));
+  // 5.19.160 (נועה 30.10): "רק להשאיר פרטים" בטופס המרתון (התעניינות) – גם 🏁, כדי לדעת במה התעניין/ה
+  L.marInt = {}; if (ME.role !== "instructor") Promise.all([
+      get("interest_submissions", "select=student_id,mc:payload->>marathon_code&payload->>marathon_code=not.is.null&order=id.desc&limit=1000"),
+      get("marathons", "select=id,code,name,school,city,grade,event_date,cancelled_at&code=not.is.null")])
+    .then(([ints, mars]) => { const byCode = {}; mars.forEach(m => { if (!m.cancelled_at) byCode[m.code] = m; });
+      L.marInt = {}; ints.forEach(x => { const m = byCode[x.mc]; if (!m || !x.student_id || !marCur({ marathon: m })) return;
+        const a = (L.marInt[x.student_id] = L.marInt[x.student_id] || []); if (!a.some(y => y.id === m.id)) a.push(m); });
+      if (currentView === "leads" && typeof updSafe === "function" && updSafe()) renderLeads(); }).catch(() => {});
   L.marAsg = {}; setMarAsg(masg); L.masgSig = null;
   if (ME.role === "admin") get("portal_accounts", "select=student_id").then(r => { L.tsAcc = new Set(r.map(x => Number(x.student_id))); if (currentView === "leads" && updSafe() && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads(); }).catch(() => {});
   await loadNotices();
@@ -3606,9 +3615,10 @@ function marTag(st){
 }
 // אייקון קטן ליד הסטטוס - רשום/ה למרתון (הפרטים במעבר עכבר)
 // 5.19.35: 🏁 ליד ילד/ה שרשום/ה למרתון (נוכחות וחלון הקבוצה השוטפת) - רק לפי הרשמה בקישור המרתון
+const marIntIc = (sid) => { const m = (L.marInt && L.marInt[sid]) || []; return m.length ? `<span class="mar-ic mar-int" title="${esc("התעניין/ה במרתון (רק השאיר/ה פרטים): " + m.map(x => [x.name, x.school, x.city].filter(Boolean).join(" · ")).join("\n"))}">🏁</span>` : ""; };   // 5.19.160
 function marFlag(sid){
   const m = ((typeof L !== "undefined" && L.mar && L.mar[sid]) || []).filter(x => x.status !== "בוטל");
-  if (!m.length) { const g = typeof L !== "undefined" ? marAsgOf(sid) : []; return g.length ? ` <span class="mar-ic" title="${esc("משובץ/ת למרתון: " + g.map(x => [x.name, x.school].filter(Boolean).join(" · ")).join(", "))}">🏁</span>` : ""; }
+  if (!m.length) { const g = typeof L !== "undefined" ? marAsgOf(sid) : []; return g.length ? ` <span class="mar-ic" title="${esc("משובץ/ת למרתון: " + g.map(x => [x.name, x.school].filter(Boolean).join(" · ")).join(", "))}">🏁</span>` : (typeof L !== "undefined" && marIntIc(sid) ? " " + marIntIc(sid) : ""); }
   return ` <span class="mar-ic" title="${esc("רשום/ה למרתון: " + m.map(x => x.marathon ? [x.marathon.name, x.marathon.school].filter(Boolean).join(" · ") : "מרתון").join(", "))}">🏁</span>`;
 }
 // 5.19.41: תשלום טלפוני שעוד לא אושר - "❓ ממתין לתשלום" ליד הילד/ה בקבוצה ובנוכחות. לחיצה (מנהלים): אישור התשלום והשיבוץ.
@@ -3634,7 +3644,7 @@ document.addEventListener("click", async (ev) => {
 }, true);
 function marIcon(st){
   const m = (L.mar && L.mar[st.id]) || [];
-  if (!m.length) { const g = marAsgOf(st.id); return g.length ? `<span class="mar-ic" title="${esc("משובץ/ת למרתון (בלי הרשמה בטופס): " + g.map(x => [x.name, x.school, x.city].filter(Boolean).join(" · ")).join("\n"))}">🏁</span>` : ""; }
+  if (!m.length) { const g = marAsgOf(st.id); return g.length ? `<span class="mar-ic" title="${esc("משובץ/ת למרתון (בלי הרשמה בטופס): " + g.map(x => [x.name, x.school, x.city].filter(Boolean).join(" · ")).join("\n"))}">🏁</span>` : marIntIc(st.id); }
   return `<span class="mar-ic" title="${esc("רשום/ה למרתון: " + m.map(x => (x.marathon ? [x.marathon.name, x.marathon.school, x.marathon.city].filter(Boolean).join(" · ") : "מרתון") + " · " + (x.status || "")).join("\n"))}">🏁</span>`;
 }
 // תאריך העדכון של הליד (כל שמירה במסך הליד מעדכנת אותו)
