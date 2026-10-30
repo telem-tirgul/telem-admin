@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.161">
+<meta name="app-version" content="5.19.162">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -285,7 +285,7 @@
   .meta-line{ display:flex; gap:18px; flex-wrap:wrap; font-size:12.5px; color:var(--ink-soft); }
   .actions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-start; margin-top:12px; position:sticky; bottom:0;
             background:var(--bg); padding-block:10px; }
-  .lead-cols{ display:grid; grid-template-columns:minmax(0,1fr) 330px; gap:16px; align-items:start; }
+  .lead-cols{ display:grid; grid-template-columns:minmax(0,1fr) 400px; gap:16px; align-items:start; }
   @media (min-width:961px){ .lead-cols{ align-items:stretch; } }
   .lead-acc{ margin-top:14px; padding:4px 14px; }
   .lead-pay:empty{ display:none; } .lead-pay{ margin-top:10px; } .lead-pay .pay-box{ margin:0; }
@@ -323,7 +323,7 @@
     #view-lead .page-head > div:last-child{ grid-column:2; grid-row:1 / span 2; align-self:start; flex-wrap:nowrap !important; gap:6px !important; }
     #view-lead .page-head > div:last-child .btn{ padding:6px 10px; font-size:13.5px; }
     #view-lead #leadSub, #view-lead #leadQuick{ grid-column:1 / -1; }
-    #view-lead.lc-view #leadGroups, #view-lead.lc-view #trackBox ~ .side-h{ display:none; }   /* השיבוצים כבר למעלה; הרשימה המלאה (לשינוי) - בעריכה */
+    #view-lead.lc-view #leadGroups :is(.lg-card, .lg-pend, .lg-add-row, .lg-edit), #view-lead.lc-view #leadGroups > .muted{ display:none !important; }   /* 5.19.162: בתצוגה – רק הקורסים (השיבוצים כבר למעלה) */   /* השיבוצים כבר למעלה; הרשימה המלאה (לשינוי) - בעריכה */
   }
   .notes-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; max-height:560px; overflow:auto; }
   /* 5.19.14: הערה חדשה - שורה קטנה שמתרחבת; רשימת הערות מקופלת (2 אחרונות + "עוד") */
@@ -752,7 +752,7 @@
   .sc-cities button{ text-align:right; font:inherit; font-weight:800; font-size:16px; padding:12px 14px; border-radius:12px; border:1.5px solid var(--border); background:var(--paper); color:var(--ink); cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px; }
   .sc-cities button small{ font-weight:600; color:var(--ink-soft); font-size:12.5px; }
   .sc-cities button[aria-pressed=true]{ background:var(--accent); border-color:var(--accent); color:#fff; } .sc-cities button[aria-pressed=true] small{ color:#fff; opacity:.85; }
-  .sc-main table.lk-tbl{ min-width:0; } .sc-main #scTbl{ min-width:860px; } #rgMain table.tbl:not(.lk-tbl){ min-width:720px; }
+  .sc-main table.lk-tbl{ min-width:0; } .sc-main #scTbl{ min-width:860px; } #rgMain table.tbl:not(.lk-tbl):not(.crs-tbl){ min-width:720px; } #rgMain table.crs-tbl{ min-width:0; } .crs-tbl th, .crs-tbl td.num, .crs-tbl td:nth-child(3){ white-space:nowrap; }
   .sc-pick{ font-size:17px; font-weight:700; line-height:1.8; padding:28px; text-align:center; }
   .sc-city-h{ font-family:var(--font-display); font-size:26px; color:var(--accent); margin:0 0 10px; }
   .sc-slots{ margin:0; padding:0; list-style:none; font-size:13px; } .sc-slots li{ white-space:nowrap; } .sc-slots li.on{ color:var(--ok); font-weight:800; }
@@ -906,7 +906,7 @@
   #leadsTbl td.c-asg{ cursor:pointer; } #leadsTbl td.c-asg:hover{ background:color-mix(in srgb, var(--gold) 12%, transparent); }
   #leadsTbl td.c-status{ white-space:nowrap; } .mar-ic{ font-size:14px; margin-inline-start:4px; cursor:help; vertical-align:middle; }
   #leadsTbl .switch{ width:24px; height:13px; } #leadsTbl .switch::after{ top:2px; width:9px; height:9px; } #leadsTbl .switch.on::after{ inset-inline-start:13px; }
-  #leadsTbl td.c-id{ font-size:11.5px; color:var(--ink-soft); } @media (min-width:761px){ #leadsTbl td.c-act, #leadsTbl th:nth-child(3){ width:1%; } }
+  #leadsTbl td.c-id{ font-size:11.5px; color:var(--ink-soft); } @media (min-width:761px){ #leadsTbl td.c-act, #leadsTbl th:nth-child(15){ width:1%; } }
   .att-ctl .subj-mini{ margin:0; align-self:center; }
   .subj-mini{ display:inline-block; margin-inline-start:8px; font-size:13px; font-weight:700; line-height:1.5; border-radius:999px; padding:1px 10px; vertical-align:middle; }
   .subj-mini.s-m{ background:#DDF5D6; color:#1F6B17; } .subj-mini.s-e{ background:#FFF6B8; color:#6B5600; } .subj-mini.s-b{ background:#DCEAFB; color:#1D4F91; } .subj-mini.s-x{ background:var(--muted); color:var(--ink-soft); }
@@ -1659,6 +1659,32 @@ td.nowrap{ white-space:nowrap; }
 button.ph-m{ font:inherit; font-weight:700; color:var(--accent); background:none; border:0; padding:0; cursor:pointer; text-decoration:underline; text-underline-offset:3px; } .ph-menu{ position:absolute; z-index:3000; display:flex; flex-direction:column; min-width:170px; background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.18); padding:6px; } .ph-menu > a, .ph-menu > button{ display:block; text-align:start; font:inherit; font-size:15px; font-weight:600; color:var(--ink); background:none; border:0; border-radius:8px; padding:10px 12px; text-decoration:none; cursor:pointer; } .ph-menu > a:hover, .ph-menu > button:hover{ background:var(--muted); }   /* 5.19.154 */
 .lg-pend{ border:1.5px dashed var(--accent); border-radius:10px; padding:6px 10px; margin:6px 0; font-size:13.5px; } .lg-pend-t{ display:block; color:var(--accent); font-size:12.5px; font-weight:700; }   /* 5.19.158 */
 /* 5.19.161 (נועה): גם התעניינות במרתון – דגל רגיל (ההבדל רק בטקסט במעבר עכבר) */
+.crs-chips{ display:flex; flex-wrap:wrap; gap:3px; margin-top:3px; flex-basis:100%; max-width:100%; white-space:normal; } .crs-chip .name-link{ color:inherit; } #leadsTbl .c-status:has(.crs-chips){ flex-wrap:wrap; } .crs-chip{ display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:0 8px; line-height:1.7; white-space:nowrap; border:1.5px solid #8A7F76; color:#4A423D; background:#fff; }
+.crs-chip.reg{ background:#2F7D32; border-color:#2F7D32; color:#fff; } .crs-chip.pend{ background:#FFF1DE; border-color:#C77A12; color:#8A5200; } .crs-chip.int{ border-style:dashed; border-color:var(--accent); color:var(--accent); } .crs-chip.off{ opacity:.55; text-decoration:line-through; }
+.sig-miss{ display:inline-block; margin-inline-start:4px; color:#B8463F; font-weight:800; font-size:13px; cursor:help; }
+.lc-crs{ margin-bottom:14px; } .lc-row{ display:flex; justify-content:space-between; gap:8px; align-items:center; border:1px solid var(--border); border-inline-start:5px solid #8A7F76; border-radius:10px; padding:6px 10px; margin:6px 0; font-size:13.5px; }
+.lc-row.reg{ border-inline-start-color:#2F7D32; } .lc-row.pend{ border-inline-start-color:#C77A12; } .lc-row.int{ border-inline-start-color:var(--accent); border-inline-start-style:dashed; } .lc-row.off{ opacity:.6; }
+.lc-n{ display:flex; flex-direction:column; min-width:0; } .lc-n .muted{ font-size:12px; } .lc-a{ display:flex; flex-direction:column; align-items:flex-end; gap:2px; } .lc-st{ font-size:12.5px; padding:2px 6px; } .lc-old > summary{ cursor:pointer; color:var(--ink-soft); font-size:13px; margin:6px 0; }
+.crs-pane.bub{ position:relative; overflow:visible; border:2px solid var(--accent); } .crs-pane.bub::before{ content:""; position:absolute; right:-11px; top:var(--tail, 18px); width:18px; height:18px; background:#fff; border-top:2px solid var(--accent); border-right:2px solid var(--accent); transform:rotate(45deg); }
+.crs-tbl tr.crs-r.sel td{ background:#F3E6E2 !important; } .crs-rng span{ display:flex; gap:6px; } .crs-rng input{ width:70px; } .crs-chk{ display:flex; flex-direction:row; flex-wrap:wrap; gap:6px 16px; align-items:flex-end; align-self:end; padding-bottom:10px; font-size:13.5px; } .crs-chk label{ display:flex; gap:6px; align-items:center; white-space:nowrap; }
+.crs-lk{ margin-top:14px; border-top:1px dashed var(--border); padding-top:10px; } .crs-lk-h{ font-weight:700; color:var(--ink-soft); font-size:13px; margin-bottom:6px; } .crs-lk-r{ display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:6px; }
+.crs-split.no-sel{ grid-template-columns:1fr; } .crs-x{ position:absolute; top:8px; left:10px; border:0; background:none; font-size:16px; cursor:pointer; color:var(--ink-soft); } .crs-pane{ position:relative; } .crs-kids.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
+.crs-det{ padding:4px 6px; } .crs-dl{ display:flex; flex-wrap:wrap; gap:4px 18px; font-size:13.5px; align-items:center; } .crs-ed{ margin-inline-start:auto; } .crs-dl b{ color:var(--ink-soft); } .crs-det .crs-lk{ margin-top:6px; padding-top:6px; } .crs-det .crs-lk-h{ display:none; } .crs-det .crs-lk-r{ justify-content:flex-start; gap:12px; margin:3px 0; } .crs-det .crs-lk-r > span:first-child{ min-width:120px; }
+@media (max-width:760px){ .crs-kids .bt, .crs-x{ display:none; } }
+.crs-src{ font:inherit; font-size:11.5px; font-weight:700; border:1px solid var(--border); background:#fff; color:var(--ink-soft); border-radius:999px; padding:0 8px; line-height:1.7; cursor:pointer; white-space:nowrap; } .crs-src.none{ border-style:dashed; }
+.lg-crs-r{ display:inline-flex; gap:6px; align-items:center; } .lc-old > summary{ cursor:pointer; color:var(--ink-soft); font-size:13px; margin:10px 0 4px; } .lc-old-r{ display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; font-size:13px; padding:4px 10px; border-bottom:1px dashed var(--border); }
+.crs-more-b{ display:none; } @media (max-width:760px){ .crs-flt{ display:grid !important; grid-template-columns:minmax(0,1fr) auto; gap:8px; align-items:end; } .crs-flt > .wide{ grid-column:1 !important; } .crs-more-b{ display:inline-flex !important; grid-column:2 !important; height:46px !important; width:auto !important; align-self:end; white-space:nowrap; align-items:center !important; justify-content:center; padding-block:0 !important; } .crs-flt:not(.more) .crs-mf{ display:none; } .crs-flt .crs-mf{ grid-column:1 / -1; } }
+.crs-split{ display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:18px; align-items:start; } .crs-pane{ padding:12px 14px; }
+.crs-tbl tr.crs-r{ cursor:pointer; } .crs-tbl tr.crs-r:hover td{ background:#FBF6EF; } .crs-tbl tr.crs-r.sel td{ background:#F3E6E2; box-shadow:inset 0 0 0 0 transparent; } .crs-tbl tr.crs-r.sel td:first-child{ border-inline-start:4px solid var(--accent); }
+.crs-pane-h{ display:flex; flex-direction:column; gap:3px; min-height:0; font-size:14.5px; } .crs-pane .crs-mt{ margin-top:14px; } .crs-back{ display:none; align-self:flex-start; margin-bottom:6px; } .crs-pane-e{ padding:30px 6px; text-align:center; }
+@media (max-width:760px){ .crs-split{ grid-template-columns:1fr; } .crs-split.has-sel .crs-list{ display:none; } .crs-split:not(.has-sel) .crs-pane{ display:none; } .crs-pane{ position:static; max-height:none; } .crs-back{ display:inline-flex; } }
+.crs-tabs{ margin:0 0 12px; } .crs-cnt-m{ display:none; font-size:12px; margin-top:2px; } @media (max-width:760px){ .crs-cnt-m{ display:block; } table.crs-tbl{ min-width:0; } } @media (max-width:760px){ .crs-tbl .hide-m, .crs-mt .hide-m{ display:none; } #crsXls .bt, #crsAll .bt{ display:none; } .crs-mt td{ padding:5px 4px; } .crs-tbl .dx-row > td{ padding:6px !important; } .crs-tbl th, .crs-tbl td{ padding:6px 5px; } .crs-flt + .dx-bar .btn{ padding:3px 10px; font-size:12.5px; } } .crs-mt{ width:100%; border-collapse:collapse; margin-bottom:8px; } .crs-mt td{ padding:5px 8px; border-bottom:1px solid var(--border); font-size:13.5px; background:#fff; } .crs-mt td.crs-mt-st{ text-align:left; width:1%; white-space:nowrap; } .crs-tbl .trk-chip, .crs-tbl .school-chip{ font-size:12px; } .crs-flt{ margin-bottom:10px; } .crs-mem{ display:flex; flex-wrap:wrap; gap:6px; padding:6px 0; } .crs-dlg .form-grid{ grid-template-columns:1fr 1fr; gap:10px; margin:10px 0; } .crs-dlg [hidden]{ display:none !important; }   /* 5.19.162 */
+.crs-chips{ display:flex; flex-direction:column; align-items:flex-start; gap:3px; } button.crs-chip{ font-family:inherit; cursor:pointer; text-align:start; } .crs-chip .ci{ margin-inline-end:4px; font-weight:800; } .crs-chip b{ font-weight:800; }
+button.crs-chip{ background:transparent; border:0; padding:0; color:var(--ink); font-size:13px; font-weight:700; line-height:1.6; } .trk-chip.sm{ font-size:11.5px; padding:0 7px; line-height:1.55; } .crs-chip .cst{ color:var(--ink-soft); font-weight:600; font-size:12px; }
+.cst-w{ font:inherit; font-size:11.5px; font-weight:800; border:0; border-radius:999px; padding:0 8px; line-height:1.7; cursor:pointer; white-space:nowrap; } div.crs-chip{ display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; box-sizing:border-box; font-size:13px; font-weight:700; line-height:1.8; background:#fff; border:1px solid var(--border); border-radius:8px; padding:2px 6px; color:var(--ink); white-space:nowrap; } .crs-chips{ align-items:stretch !important; gap:4px !important; }   /* 5.19.162: כל קורס – תת-שורה נפרדת */ .crs-chip .school-chip{ font-size:11.5px; padding:0 7px; }
+.lg-crs{ display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; margin:10px 0 6px; padding:5px 10px; border:1px solid var(--border); border-radius:10px; background:#fff; font-size:13.5px; } .lg-crs-l{ min-width:0; } .lg-crs .school-chip{ font-size:12px; padding:0 7px; } .lg-add-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+.lp-reg .btn{ margin-inline-start:auto; } .tg-lead{ display:inline-flex; align-items:center; gap:12px; flex-wrap:wrap; } .tg-lead .tg-f{ display:inline-flex; align-items:center; gap:6px; } .tg-lead label{ font-weight:700; font-size:13.5px; white-space:nowrap; } .tg-lead select{ width:auto !important; field-sizing:content; min-width:80px; max-width:170px; font-size:13.5px; padding:4px 8px; } #view-lead.lc-view .toggles .tg-lead{ display:none !important; } #leadPayments .lp-reg{ border:1px solid var(--border); border-radius:10px; padding:6px 10px; margin:6px 0; background:#fff; }   /* 5.19.162 (נועה): כל שורה – מסגרת משלה */ #leadsTbl td.c-crs{ min-width:190px; } .crs-none{ font-size:12px; }
+@media (max-width:760px){ #leadsTbl .c-crs{ order:5; flex:1 1 100%; } #leadsTbl .c-crs:has(.crs-none){ display:none !important; } .crs-chips{ flex-direction:row; flex-wrap:wrap; } }   /* 5.19.162 */
 .trk-chip{ display:inline-block; border:1.5px solid var(--tc); color:var(--tc); background:#fff; font-weight:800; font-size:12.5px; border-radius:999px; padding:0 10px; line-height:1.7; white-space:nowrap; }   /* 5.19.157 */
 .lead-paywrap:empty, .lead-paywrap:not(:has(*:not(:empty))){ display:none; } #view-lead .lead-paywrap .lp-box{ border:2px solid var(--accent) !important; background:#fff !important; border-radius:14px !important; padding:12px 16px !important; margin:12px 0 !important; box-shadow:none !important; } .lead-paywrap .lp-box > summary b{ color:var(--accent); font-size:16px; } .lead-paywrap .pay-box{ margin:12px 0 0; }   /* 5.19.154 */ .lp-box summary{ cursor:pointer; display:flex; align-items:center; gap:10px; flex-wrap:wrap; } .lp-sum{ color:#6b6259; font-size:.95em; }
 .lp-list{ list-style:none; margin:10px 0 2px; padding:0; display:flex; flex-direction:column; gap:8px; }
@@ -2383,7 +2409,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <button type="button" data-view="exams" data-admin data-ic="🗓️" data-sl="מרתונים">מרתונים</button>
       <button type="button" data-view="att" data-ic="✅" data-sl="קבוצות"><span class="lbl-a">קבוצות ונוכחות</span><span class="lbl-i">נוכחות</span></button>
       <button type="button" data-view="ws" data-ic="📚" data-sl="מאגר">מאגר תרגולים</button>
-      <button type="button" data-view="reg" data-admin data-ic="📝" data-sl="הרשמה">הרשמה</button>
+      <button type="button" data-view="reg" data-admin data-ic="📝" data-sl="קורסים">קורסים</button>
       <button type="button" data-view="pay" data-admin data-ic="💳" data-sl="תשלומים">תשלומים <span class="payNavN"></span></button>
     </nav>
     <div class="who"><span id="whoEmail"></span>
@@ -2414,6 +2440,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
           <div><label class="lbl" for="fAsg">שיבוץ</label><select id="fAsg"><option value="">הכול</option><option value="yes">משובצים</option><option value="no">לא משובצים</option><option value="one">בקבוצה אחת בלבד</option><option value="many">⚠ ביותר משתי קבוצות</option><option value="under">פחות מ-90 דק' בשבוע</option><option value="wkchg">נוכחות שונה מהשיבוץ השבוע</option><option value="prop">שיבוץ מוצע - כולם</option><option value="prop_none">מוצע - טרם נשלחה הודעה</option><option value="prop_sent">מוצע - קיבלו הודעה ולא אישרו</option></select></div>
           <div><label class="lbl">מקור ליד</label><div class="multi" id="fSource"></div></div>
           <div><label class="lbl" for="fManager">מנהל</label><select id="fManager"><option value="">הכול</option></select></div>
+          <div class="crs-f"><label class="lbl" for="fCourse">קורס</label><select id="fCourse"><option value="">הכול</option></select></div><!-- 5.19.162: קורסים (קובץ 129) -->
           <div><label class="lbl" for="fFrom">עודכן מ-</label><input id="fFrom" type="date"></div>
           <div><label class="lbl" for="fTo">עד</label><input id="fTo" type="date"></div>
           <div><label class="lbl" for="fYear">שנת לימוד</label><select id="fYear"></select></div><!-- 5.19.104 (נועה) -->
@@ -2460,11 +2487,14 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
             <div class="toggles">
               <label><button type="button" class="switch" id="lfActive" aria-pressed="true"></button> פעיל</label>
               <label><button type="button" class="star" id="lfStar" aria-pressed="false">★</button> כוכב</label>
-              <label><button type="button" class="switch" id="lfMailing" aria-pressed="false"></button> דיוור</label>
-              <label><button type="button" class="switch" id="lfCustomer" aria-pressed="false"></button> לקוח</label>
+              <label hidden><!-- 5.19.162 (נועה): מוסתר – הערך נשמר --><button type="button" class="switch" id="lfMailing" aria-pressed="false"></button> דיוור</label>
+              <label hidden><button type="button" class="switch" id="lfCustomer" aria-pressed="false"></button> לקוח</label>
+              <!-- 5.19.162 (נועה 30.10): סטטוס ומקור ליד – בשורה העליונה (לא פרטים של התלמיד) -->
+              <span class="tg-lead"><span class="tg-f"><label for="lfStatus">סטטוס</label><select id="lfStatus"></select></span>
+                <span class="tg-f"><label for="lfSource">מקור ליד</label><select id="lfSource"></select></span></span>
               <!-- 5.19.90 (נועה): שורת ניהול – תזכורת ומנהל באותה שורה, משמאל, בקטן (נשמרים מיד) -->
               <span class="tg-mng"><span class="tg-f" title="תזכורת"><label for="lfRemind">⏰ תזכורת</label><input id="lfRemind" type="datetime-local" aria-label="תזכורת"><button class="tg-x" type="button" id="clearRemind" title="ניקוי התזכורת" aria-label="ניקוי התזכורת">✕</button></span>
-                <span class="tg-f"><label for="lfManager">מנהל</label><select id="lfManager"></select></span></span>
+                <span class="tg-f" hidden><!-- 5.19.162 (נועה): מנהל – מוסתר --><label for="lfManager">מנהל</label><select id="lfManager"></select></span></span>
             </div>
             <!-- פרטים עיקריים: שם הילד, הורה, טלפון -->
             <fieldset class="key-box"><legend>פרטים עיקריים</legend>
@@ -2473,8 +2503,6 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div class="field"><label class="lbl req" for="sLast">שם משפחה</label><input id="sLast" class="big" type="text" required></div>
                 <div class="field"><label class="lbl" for="sPhone">טלפון תלמיד/ה</label><input id="sPhone" class="big" type="tel" inputmode="numeric"></div>
                 <div><label class="lbl" for="sEmail">אימייל תלמיד/ה</label><input id="sEmail" type="email" dir="ltr"></div>
-                <div><label class="lbl" for="lfStatus">סטטוס</label><select id="lfStatus"></select></div>
-                <div><label class="lbl" for="lfSource">מקור ליד</label><select id="lfSource"></select></div>
                 <div class="kg-br" aria-hidden="true"></div><!-- 5.19.70 (נועה): שורה 1 - התלמיד/ה, שורה 2 - ההורה -->
                 <div class="field"><label class="lbl req" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
                 <div><label class="lbl" for="p1Last">משפחה (הורה)</label><input id="p1Last" class="big" type="text"></div>
@@ -2524,9 +2552,10 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
           </div>
 
           <div class="card">
-            <div class="track-box tb-side" id="trackBox" hidden></div>
-            <h3 class="side-h" style="margin-top:4px;">שיבוץ לקבוצות</h3>
+            <div id="leadCourses" class="lc-crs" hidden></div><!-- 5.19.162: קורסים -->
+            <h3 class="side-h" style="margin-top:4px;">קורסים ושיבוצים</h3>
             <div id="leadGroups"></div>
+            <div class="track-box tb-side" id="trackBox" hidden style="margin-top:14px"></div><!-- 5.19.162: המעקב אחרי הקורסים -->
                       </div>
         </div>
         <!-- 5.19.154 (נועה): התשלומים – מחוץ לפרטים, מתחת לכרטיס, במסגרת בורדו -->
@@ -2596,13 +2625,13 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
     <section id="view-issues" hidden>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <!-- 5.19.66: הדיווחים עברו למסך ההודעות (📥) -->
     </section>
     <!-- ===== 5.19.100 (נועה): נוסחי הטפסים (בהגדרות) ===== -->
     <section id="view-ftx" hidden>
       <div class="page-head"><h1>נוסחי הטפסים</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <div class="ftx-top">
         <div class="gseg ftx-forms" id="ftxForms" role="group" aria-label="טופס"></div>
         <div class="ftx-acts"><span id="ftxDirty"></span><button type="button" class="btn small danger-t" id="ftxDrop" hidden>מחיקת הטיוטות</button><button type="button" class="btn" id="ftxCancel" hidden>ביטול</button><button type="button" class="btn" id="ftxSave" disabled>שמירת טיוטה</button><button type="button" class="btn primary" id="ftxPub" disabled>פרסום לאוויר</button></div>
@@ -2616,7 +2645,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     </section>
     <section id="view-backup" hidden>
       <div class="page-head"><h1>גיבוי</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
         <p class="muted" style="font-size:13.5px; margin:0 0 10px;">כל הטבלאות בקובץ אחד. כדאי לשמור עותק גם בדרייב. הקובץ כולל טלפונים ופרטים אישיים - לא לשלוח הלאה.</p>
@@ -2635,8 +2664,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== קישורי הרשמה (בהגדרות) ===== -->
     <section id="view-sched" hidden>
-      <div class="page-head"><h1>הרשמה</h1></div>
-      <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה"><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button></div>
+      <div class="page-head"><h1>קורסים</h1></div>
+      <div class="gseg subnav reg-tabs" role="group" aria-label="קורסים"><button type="button" data-rt="courses">קורסים</button><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button></div>
       <div class="card" id="scGeneral" hidden></div>
       <div class="sc-wrap">
         <nav class="sc-cities" id="scCities" aria-label="בחירת עיר"></nav>
@@ -2648,8 +2677,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== הרשמה (מנהלים): קישורים, ממתינים לאשראי, בקשות ביטול, טופסי התעניינות ===== -->
     <section id="view-reg" hidden>
-      <div class="page-head"><h1>הרשמה</h1></div>
-      <div class="gseg subnav reg-tabs" role="group" aria-label="הרשמה"><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button></div>
+      <div class="page-head"><h1>קורסים</h1><button class="btn small primary" type="button" id="rgCrsNew" hidden>+ קורס חדש</button></div>
+      <div class="gseg subnav reg-tabs" role="group" aria-label="קורסים"><button type="button" data-rt="courses">קורסים</button><button type="button" data-rt="links">קישורים</button><button type="button" data-rt="cancel" hidden>בקשות ביטול <span class="rgCanN"></span></button><button type="button" data-rt="requests">בקשות שיבוץ</button><button type="button" data-rt="pay" hidden>ממתינים לאשראי <span class="rgPayN"></span></button></div>
       <div class="sc-wrap">
         <nav class="sc-cities" id="rgCities" aria-label="בחירת עיר"></nav>
         <div class="sc-main" id="rgMain"></div>
@@ -2733,7 +2762,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
     <section id="view-me" hidden>
       <div class="page-head"><h1>החשבון שלי</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <!-- 5.19.101 (נועה): "החשבון שלי" מסודר; היציאה מהמערכת – כאן (לא בכותרת) -->
       <div class="card me-card">
         <div class="me-top"><span class="me-av" id="meAv"></span><div><div class="me-nm" id="meName"></div><span class="me-role" id="meRole"></span></div></div>
@@ -2862,9 +2891,15 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     </section>
 
     <!-- ===== צוות ומתרגלים ===== -->
+    <section id="view-courses" hidden>
+      <div class="page-head"><h1>קטגוריות ומחזורים</h1><button class="btn small primary" type="button" id="crsNew">+ חדש</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="gseg crs-tabs" role="group" aria-label="קטגוריות ומחזורים"><button type="button" data-crt="cats">קטגוריות</button><button type="button" data-crt="seasons">מחזורים</button></div>
+      <div id="crsBody"></div>
+    </section>
     <section id="view-staff" hidden>
       <div class="page-head"><h1>צוות ומתרגלים</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>נוסחי הטפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <div class="card" id="stCard" style="margin-bottom:14px;" hidden>
         <div class="st-fh"><b id="stFT">משתמש חדש</b></div>
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
@@ -3293,7 +3328,7 @@ function resumeView(force){
   if (!st || (!force && currentView !== "home")) return;
   window.dispatchEvent(new PopStateEvent("popstate", { state: st }));
 }
-const SETTINGS_VIEWS = ["staff","backup","ftx","me"];   // 5.19.66: "issues" (דיווחים) עבר למסך ההודעות
+const SETTINGS_VIEWS = ["staff","backup","ftx","courses","me"];   // 5.19.66: "issues" (דיווחים) עבר למסך ההודעות
 let IB_TAB = "forms";   // 5.19.32: "הרשמה ותשלומים" - טאב בתפריט הראשי
 const INFO_VIEWS = [];   // "מידע למתרגלים" ו"חגים וחופשות" - בתפריט הקטן ⓘ ליד ההגדרות
 let DATA_READY = true, DATA_WAIT = null;
@@ -3364,7 +3399,7 @@ function go(view){
   if (SETTINGS_VIEWS.includes(view)) store(key, view);
   if (view !== "leads" && view !== "lead" && typeof LIST_EDIT !== "undefined" && LIST_EDIT) setListEdit(false);
   const navOf = { lead: "leads" }; SETTINGS_VIEWS.forEach(v => navOf[v] = "settings"); INFO_VIEWS.forEach(v => navOf[v] = "info"); navOf.history = "leads"; navOf.sched = "reg"; navOf.attk = "leads"; navOf.groups = "att"; navOf.attg = "att"; navOf.myschools = "schools";
-  ["home","leads","lead","groups","att","sched","reg","pay","info","staff","schools","reports","history","backup","ftx","ws","me","myschools","holidays","issues","exams","attk","attg","inbox"].forEach(v => { $("view-" + v).hidden = v !== view; });
+  ["home","leads","lead","groups","att","sched","reg","pay","info","staff","courses","schools","reports","history","backup","ftx","ws","me","myschools","holidays","issues","exams","attk","attg","inbox"].forEach(v => { $("view-" + v).hidden = v !== view; });
   document.querySelectorAll(".nav button").forEach(b => b.setAttribute("aria-current", b.dataset.view === (navOf[view] || view) ? "page" : "false"));
   { const cur = document.querySelector('.nav button[aria-current="page"]'); if ($("navCur")) $("navCur").textContent = cur ? (cur.querySelector(inst ? ".lbl-i" : ".lbl-a") || cur).textContent.replace("⚙", "").trim() : (view === "home" ? "תפריט" : ({ me: "הגדרות", staff: "הגדרות", backup: "הגדרות", issues: "הגדרות", info: "מידע למתרגלים", holidays: "חגים וחופשות" }[view] || "תפריט")); }
   document.querySelectorAll("[data-sv]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.sv === view || (b.dataset.sv === "reg" && view === "sched"))));
@@ -3394,6 +3429,7 @@ function go(view){
     if (!isMobile() && EX.rows && document.querySelector("#exCal .ex-cal-wrap")) { EX.enterQuiet = true; EX.scrollTo = null; exScrollTo(exHome(), true, false); renderExams(true); }
     else { EX.goToday = true; EX.scrollTo = null; EX.mWk = null; EX.mMon = null; EX.mDay = null; EX.mEv = null; renderExams(true); } }
   if (view === "inbox") ibTab(IB_TAB);
+  if (view === "courses") renderCrsView();   // 5.19.162
   if (view === "attk" || view === "attg") { $("arHostG").appendChild($("attReport")); $("attReport").hidden = false;
     { const hd = document.querySelector("#view-" + view + " .page-head"); if (hd && hd.contains($("arCsv"))) $("arFilters") ? $("arFilters").appendChild($("arCsv")) : 0; }   // 5.19.159: האקסל מעל הטבלה (עותק), לא בכותרת   // 5.19.88: "הורדה לאקסל" בשורת הכותרת, מימין ל"חזרה"
     // 5.19.19: הדוח עולה מיד (בלי "הצגה"): כל הערים, מ-1.9 עד היום; אחר כך מסננים
@@ -3508,6 +3544,317 @@ async function loadLeadsDelta(){
   L.loadedAt = t0;
   return real + gone;
 }
+// ======================================================================
+// 5.19.162 (נועה 30.10, "החלטות-תלם": קורסים, קטגוריות ומחזורים – שלב 1; קובץ 129)
+// קורס = מחזור × קטגוריה × בית ספר (+ מסלול); שייכות ילד/ה: מתעניין · ממתין לתשלום · רשום · פרש · בוטל
+// ======================================================================
+const CRS = { cats: [], seasons: [], courses: [], byId: {}, cm: {}, ok: false, tab: store("telem_crs_tab") || "courses", q: "", fs: "", fc: "", open: new Set() };
+const CRS_ST = { "מתעניין": "int", "ממתין לתשלום": "pend", "רשום": "reg", "פרש": "off", "בוטל": "off" };
+const CRS_TRACKS = { single: "פעמיים בשבוע", "unlimited-single": "ללא הגבלה", double: "מת.+אנג.", summer: "רגיל", "summer-ext": "מורחב" };
+const crsSeason = (id) => CRS.seasons.find(x => x.id === id) || {};
+const crsCat = (id) => CRS.cats.find(x => x.id === id) || {};
+const crsSchool = (c) => (c.school && c.school.name) || c.school_text || "";
+const crsActiveSeasons = () => new Set(CRS.seasons.filter(x => x.is_active).map(x => x.id));
+// שם קצר: מרתון – שם המרתון; אחרת קטגוריה · מסלול (· בית ספר)
+function crsShort(c, withSchool){ if (!c) return "";
+  if (c.marathon_id) return "🏁 " + (c.name || "מרתון");
+  return [crsCat(c.category_id).name, CRS_TRACKS[c.track] || "", withSchool ? crsSchool(c) : ""].filter(Boolean).join(" · "); }
+const crsSeasonTxt = (c) => { const se = crsSeason(c.season_id); return se.name ? se.name + (se.label ? " (" + se.label + ")" : "") : ""; };
+async function crsLoad(force){
+  if (CRS.ok && !force) return true;
+  try {
+    const [cats, seasons, courses] = await Promise.all([get("categories", "select=*&order=sort_order,id"), get("seasons", "select=*&order=sort_order,id"),
+      getAll("courses", "select=*,school:schools(name,city)&order=id")]);
+    Object.assign(CRS, { cats, seasons, courses, ok: true }); CRS.byId = {}; courses.forEach(c => CRS.byId[c.id] = c);
+    CRS.mar = {}; try { const [mm, ss] = await Promise.all([get("marathons", "select=id,name,code,school,city,event_date,is_open,cancelled_at"), get("sessions", "select=marathon_id,meeting_dates&marathon_id=not.is.null")]);
+      mm.forEach(x => CRS.mar[x.id] = Object.assign({ dates: [] }, x)); ss.forEach(x => { const o = CRS.mar[x.marathon_id]; if (o) o.dates.push(...(x.meeting_dates || [])); });
+      Object.values(CRS.mar).forEach(o => { o.dates = [...new Set(o.dates)].sort(); o.first = o.event_date || o.dates[0] || null; }); } catch(e) {}
+    const CMS = "select=id,course_id,student_id,status,subject,grade,signed,source,note,created_at,updated_at%S%&order=id";   // 5.19.162: source_id – אחרי קובץ 130
+    let cm; try { cm = await getAll("course_members", CMS.replace("%S%", ",source_id")); CRS.hasSrc = true; } catch(e) { cm = await getAll("course_members", CMS.replace("%S%", "")); CRS.hasSrc = false; }
+    CRS.cm = {}; cm.forEach(m => (CRS.cm[m.student_id] = CRS.cm[m.student_id] || []).push(m));
+    crsFillFilter(); return true;
+  } catch(e) { CRS.ok = false; if ($("fCourse")) $("fCourse").closest(".crs-f").hidden = true; return false; }   // לפני קובץ 129
+}
+const crsOfStudent = (sid) => (CRS.cm[sid] || []);
+function crsFillFilter(){ const el = $("fCourse"); if (!el) return; el.closest(".crs-f").hidden = !CRS.ok;
+  const act = crsActiveSeasons(), cnt = {}; Object.values(CRS.cm).flat().forEach(m => { if (m.status !== "בוטל") cnt[m.course_id] = (cnt[m.course_id] || 0) + 1; });
+  const list = CRS.courses.filter(c => act.has(c.season_id) && cnt[c.id]).sort((a, b) => (crsCat(a.category_id).sort_order || 0) - (crsCat(b.category_id).sort_order || 0) || crsShort(a, true).localeCompare(crsShort(b, true), "he"));
+  fillSelect(el, list.map(c => ({ v: c.id, t: crsShort(c, true) + " (" + cnt[c.id] + ")" })), "הכול"); }
+// בטבלת התלמידים: הקורסים של המחזור הפעיל (בלי "בוטל") מתחת לסטטוס
+const CRS_IC = { "רשום": "✓", "ממתין לתשלום": "⏳", "מתעניין": "?", "פרש": "–", "בוטל": "✕" };
+const crsSubj = (x) => x ? x.replace("מתמטיקה ואנגלית", "מת.+אנג.").replace("מתמטיקה", "מת.").replace("אנגלית", "אנג.") : "";
+// עמודת "קורסים" (נועה 30.10): שורה לכל קורס במחזור הפעיל – אייקון · קורס · מקצוע · מצב במילה; לחיצה – שינוי מצב
+// תוכן קצר (נועה 30.10): מרתון – 🏁 תאריך + מקום; שוטף – המסלול בצבע שלו + מקצוע; הכנה לשנה"ל – ☀️ + רגיל/מורחב + מקצוע
+const CRS_TRK_S = { single: "פעמיים בשבוע", "unlimited-single": "ללא הגבלה", double: "מת.+אנג.", summer: "רגיל", "summer-ext": "מורחב" };
+function crsLabel(c, m){
+  if (c.marathon_id) { const o = (CRS.mar || {})[c.marathon_id] || {}, d = o.first ? fmtDM(o.first) : "";
+    return `<span class="ci">🏁</span>${d ? esc(d) + " " : ""}${o.school ? scChip(o.school) : esc(c.city || (d ? "" : c.name || "מרתון"))}`; }
+  const sum = /summer/.test(c.track || "") || (crsCat(c.category_id).tracks || []).includes("summer"), to = LK.tracks.find(x => x.v === c.track);
+  const tr = c.track ? (to ? `<span class="trk-chip sm" style="--tc:${to.c}">${esc(CRS_TRK_S[c.track])}</span>` : esc(CRS_TRK_S[c.track] || "")) : "";
+  const sub = m.subject && !(c.track === "double" && m.subject === "מתמטיקה ואנגלית") ? esc(crsSubj(m.subject)) : "";
+  return (sum ? `<span class="ci">☀️</span>` : "") + [tr, sub].filter(Boolean).join(" ") || esc(crsCat(c.category_id).name || "");
+}
+// מצב בקורס – רק המילה צבועה, בצבעי הסטטוסים הקיימים (נועה 30.10): רשום = "נרשם", ממתין = "לקחת אשראי", מתעניין = "חדש"
+const CRS_ST_COL = { "רשום": ["נרשם מת.", "#4ea30c"], "ממתין לתשלום": ["לקחת אשראי", "#2b4aa3"], "מתעניין": ["חדש", "#e8173d"], "פרש": ["פרש", "#111111"], "בוטל": ["הסרה", "#111111"] };
+function crsStWord(m){ const k = CRS_ST_COL[m.status] || ["", "#888"], c = ((L.statuses || []).find(x => x.name === k[0]) || {}).color || k[1];
+  return `<button type="button" class="cst-w" data-crsm="${m.id}" style="${stSoft(c)}" title="לחיצה – שינוי המצב בקורס">${esc(m.status === "ממתין לתשלום" ? "ממתין לתשלום" : m.status)}</button>`; }
+// מקור לכל קורס (קובץ 130) – לחיצה משנה; מקור הליד מתעדכן לבד מהרישום האחרון
+function crsSrcBtn(m){ if (!CRS.hasSrc) return ""; const n = sourceName(m.source_id);
+  return `<button type="button" class="crs-src${n ? "" : " none"}" data-crssrc="${m.id}" title="מקור (לחיצה – שינוי)">${n ? esc(n) : "+ מקור"}</button>`; }
+document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-crssrc]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
+  const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.crssrc)); if (!m) return;
+  const v = await uiChoose("מקור לקורס הזה:", L.sources.filter(x => x.is_active || x.id === m.source_id).map(x => ({ v: String(x.id), t: x.name + (x.id === m.source_id ? " (עכשיו)" : "") }))); if (!v || Number(v) === m.source_id) return;
+  try { await patch("course_members", "id=eq." + m.id, { source_id: Number(v) }); m.source_id = Number(v); toast("נשמר");
+    loadLeads().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {});
+    if (b.closest("#rgMain")) renderCrsCourses(); else if (editing) loadLeadGroups(editing.student.id); } catch(e) { toast("לא נשמר: " + e.message); } }, true);
+function crsChipsRow(sid){ if (!CRS.ok) return ""; const act = crsActiveSeasons();
+  const ms = crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id));
+  return ms.length ? `<div class="crs-chips">${ms.map(m => { const c = CRS.byId[m.course_id];
+    return `<div class="crs-chip" title="${esc(crsShort(c, true) + " · " + crsSeasonTxt(c) + (m.subject ? "\n" + m.subject : ""))}"><span class="crs-l">${crsLabel(c, m)}</span>${crsStWord(m)}</div>`; }).join("")}</div>` : `<span class="muted crs-none">—</span>`; }
+document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-crsm]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
+  const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.crsm)); if (!m) return; const c = CRS.byId[m.course_id] || {};
+  const v = await uiChoose(crsShort(c, true) + "\nמצב בקורס:", Object.keys(CRS_ST).map(x => ({ v: x, t: (CRS_IC[x] || "") + " " + x + (x === m.status ? " (עכשיו)" : "") }))); if (!v || v === m.status) return;
+  try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); m.status = v; toast("נשמר"); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain")) renderCrsCourses(); else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
+// חסרה חתימה על התנאים (רשום / ממתין במחזור פעיל, signed = false)
+function crsSigMiss(sid){ if (!CRS.ok) return ""; const act = crsActiveSeasons();
+  const ms = crsOfStudent(sid).filter(m => m.signed === false && (m.status === "רשום" || m.status === "ממתין לתשלום") && CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id));
+  return ms.length ? `<span class="sig-miss" title="${esc("חסרה חתימה על התנאים: " + ms.map(m => crsShort(CRS.byId[m.course_id], true)).join(", "))}">✍︎</span>` : ""; }
+// ---------- בכרטיס התלמיד ----------
+async function loadLeadCourses(l){
+  const box = $("leadCourses"); if (!box) return; box.hidden = true; return;   // 5.19.162 (נועה): הקורסים מוצגים מעל השיבוצים (crsGroupsHtml)
+  if (!await crsLoad()) return; if (!editing || editing.id !== l.id) return;
+  const sid = l.student.id, act = crsActiveSeasons(), ms = crsOfStudent(sid).slice().sort((a, b) => (crsSeason(CRS.byId[b.course_id] && CRS.byId[b.course_id].season_id).year_start || 0) - (crsSeason(CRS.byId[a.course_id] && CRS.byId[a.course_id].season_id).year_start || 0));
+  const cur = ms.filter(m => CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id)), old = ms.filter(m => !cur.includes(m));
+  const row = (m) => { const c = CRS.byId[m.course_id] || {};
+    return `<div class="lc-row ${CRS_ST[m.status] || ""}"><div class="lc-n"><b>${esc(crsShort(c, true))}</b><span class="muted">${esc(crsSeasonTxt(c))}${m.subject ? " · " + esc(m.subject) : ""}${m.grade ? " · " + esc(m.grade) : ""}</span></div>
+      <div class="lc-a"><select class="lc-st" data-cm="${m.id}" aria-label="מצב בקורס">${Object.keys(CRS_ST).map(x => `<option ${x === m.status ? "selected" : ""}>${x}</option>`).join("")}</select>${m.signed === false ? `<span class="sig-miss" title="חסרה חתימה על התנאים">✍︎ חסרה חתימה</span>` : m.signed ? `<span class="muted" title="חתם/ה על התנאים">✓ חתום</span>` : ""}</div></div>`; };
+  box.innerHTML = `<h3 class="side-h" style="margin-top:4px;">קורסים</h3>${cur.length ? cur.map(row).join("") : `<div class="muted">אין קורס במחזור הפעיל.</div>`}
+    ${old.length ? `<details class="lc-old"><summary>מחזורים קודמים (${old.length})</summary>${old.map(row).join("")}</details>` : ""}
+    <button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>`;
+  box.hidden = false;
+  box.querySelectorAll("[data-cm]").forEach(sel => sel.onchange = async () => { sel.disabled = true;
+    try { await patch("course_members", "id=eq." + sel.dataset.cm, { status: sel.value, updated_at: new Date().toISOString() }); toast("נשמר"); await crsLoad(true); loadLeadCourses(editing); }
+    catch(e) { sel.disabled = false; toast("לא נשמר: " + e.message); } });
+  $("lcAdd").onclick = () => crsAddDlg(l);
+}
+// חלון "הוספה לקורס": מחזור, קטגוריה, (מרתון) / בית ספר + מסלול, מקצוע, מצב
+async function crsAddDlg(l){
+  const st = l ? l.student : { id: 0, school_id: null }, act = CRS.seasons.filter(x => x.is_active), sch0 = st.school_id;
+  const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
+  const opt = (arr) => arr.map(([v, t, sel]) => `<option value="${esc(v)}"${sel ? " selected" : ""}>${esc(t)}</option>`).join("");
+  bg.innerHTML = `<div class="ui-dlg crs-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t">${l ? "הוספה לקורס – " + esc(st.first_name || "") + " " + esc(st.last_name || "") : "קורס חדש"}</div>
+    <div class="form-grid">
+      <div><label class="lbl">מחזור</label><select id="cdSe">${opt(CRS.seasons.filter(x => x.is_active || true).map(x => [x.id, x.name + (x.label ? " (" + x.label + ")" : ""), x.id === (act[0] || {}).id]))}</select></div>
+      <div><label class="lbl">קטגוריה</label><select id="cdCa">${opt(CRS.cats.filter(x => x.is_active).map(x => [x.id, x.name]))}</select></div>
+      <div class="cd-mar"><label class="lbl">מרתון</label><select id="cdMa"></select></div>
+      <div class="cd-reg"><label class="lbl">בית ספר</label><select id="cdSc">${opt([["", "—"]].concat(L.schools.map(x => [x.id, x.name + (x.city ? " · " + x.city : ""), x.id === sch0])))}</select></div>
+      <div class="cd-reg"><label class="lbl">מסלול</label><select id="cdTr"></select></div>
+      <div class="cd-st"><label class="lbl">מקצוע</label><select id="cdSu">${opt([["", "—"], ["מתמטיקה", "מתמטיקה"], ["אנגלית", "אנגלית"], ["מתמטיקה ואנגלית", "מתמטיקה ואנגלית"]])}</select></div>
+      <div class="cd-st"><label class="lbl">מצב</label><select id="cdSt">${opt(Object.keys(CRS_ST).filter(x => x !== "בוטל").map(x => [x, x, x === "רשום"]))}</select></div>
+    </div><div class="ui-dlg-b"><button type="button" class="btn primary" data-ok>שמירה</button><button type="button" class="btn" data-no>ביטול</button></div></div>`;
+  document.body.appendChild(bg);
+  const q = (id) => bg.querySelector("#" + id);
+  const paint = () => { const ca = crsCat(Number(q("cdCa").value)), ev = ca.kind === "event", se = Number(q("cdSe").value);
+    bg.querySelectorAll(".cd-mar").forEach(x => x.hidden = !ev); bg.querySelectorAll(".cd-reg").forEach(x => x.hidden = ev);
+    q("cdMa").innerHTML = opt(CRS.courses.filter(c => c.marathon_id && c.season_id === se && c.category_id === ca.id).map(c => [c.id, c.name || "מרתון"]));
+    q("cdTr").innerHTML = opt([["", "—"]].concat((ca.tracks || []).map(t => [t, CRS_TRACKS[t] || t, st.track === t]))); };
+  q("cdCa").onchange = paint; q("cdSe").onchange = paint; paint();
+  if (!l) { bg.querySelectorAll(".cd-st").forEach(x => x.remove()); [...q("cdCa").options].forEach(o => { if (crsCat(Number(o.value)).kind === "event") o.remove(); }); paint(); }
+  const close = () => bg.remove();
+  const ex0 = () => { const ca = crsCat(Number(q("cdCa").value)), se = Number(q("cdSe").value), sc = q("cdSc").value ? Number(q("cdSc").value) : null, tr = q("cdTr").value || null;
+    return CRS.courses.some(c => !c.marathon_id && c.season_id === se && c.category_id === ca.id && (c.school_id || null) === sc && !c.school_text && (c.track || null) === tr); };
+  bg.querySelector("[data-no]").onclick = close;
+  bg.querySelector("[data-ok]").onclick = async () => {
+    const ca = crsCat(Number(q("cdCa").value)), se = Number(q("cdSe").value); let cid = null;
+    try {
+      if (!l && ex0()) { toast("הקורס הזה כבר קיים"); return; }
+      if (ca.kind === "event") { cid = Number(q("cdMa").value) || null; if (!cid) { toast("אין מרתון במחזור הזה"); return; } }
+      else { const sc = q("cdSc").value ? Number(q("cdSc").value) : null, tr = q("cdTr").value || null;
+        const ex = CRS.courses.find(c => !c.marathon_id && c.season_id === se && c.category_id === ca.id && (c.school_id || null) === sc && !c.school_text && (c.track || null) === tr);
+        if (ex) cid = ex.id; else { const so = L.schools.find(x => x.id === sc), sn = crsSeason(se);
+          cid = (await insert("courses", { season_id: se, category_id: ca.id, school_id: sc, city: so ? so.city : null, track: tr,
+            name: [sn.name, ca.name, CRS_TRACKS[tr] || "", so ? so.name + " " + (so.city || "") : ""].filter(Boolean).join(" · ") }))[0].id; } }
+      if (!l) { close(); toast("הקורס נוצר"); await crsLoad(true); crsRe(); return; }
+      await insert("course_members", { course_id: cid, student_id: st.id, status: q("cdSt").value, subject: q("cdSu").value || null, grade: st.grade || null, source: "ידני" });
+      close(); toast("נוסף/ה לקורס"); await crsLoad(true); loadLeadCourses(editing);
+    } catch(e) { toast(/duplicate|23505/.test(e.message) ? "כבר בקורס הזה – אפשר לשנות את המצב ברשימה" : "לא נשמר: " + e.message); }
+  };
+}
+// ---------- הגדרות ← קורסים (קורסים · קטגוריות · מחזורים) ----------
+// הגדרות ← קטגוריות ומחזורים (הקורסים עצמם – במסך "קורסים", לשעבר "הרשמה")
+async function renderCrsView(){
+  const b = $("crsBody"); b.innerHTML = `<div class="muted">טוען…</div>`;
+  if (!await crsLoad(true)) { b.innerHTML = `<div class="card err">צריך להריץ קודם את קובץ 129.</div>`; return; }
+  if (!["cats", "seasons"].includes(CRS.tab)) CRS.tab = "cats";
+  document.querySelectorAll("[data-crt]").forEach(x => { x.setAttribute("aria-pressed", String(x.dataset.crt === CRS.tab)); x.onclick = () => { CRS.tab = x.dataset.crt; store("telem_crs_tab", CRS.tab); renderCrsView(); }; });
+  $("crsNew").textContent = CRS.tab === "cats" ? "+ קטגוריה חדשה" : "+ מחזור חדש";
+  $("crsNew").onclick = () => CRS.tab === "cats" ? crsCatEdit(null) : crsSeasonEdit(null);
+  if (CRS.tab === "cats") {
+    b.innerHTML = `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>קטגוריה</th><th>סוג</th><th>מסלולים</th><th>פעילה</th><th></th></tr></thead><tbody>${CRS.cats.map(c => `<tr>
+      <td><b>${esc(c.name)}</b></td><td>${c.kind === "event" ? "אירוע (כמו מרתון)" : "רגיל (בית ספר + מסלול)"}</td><td class="muted">${esc((c.tracks || []).map(t => CRS_TRACKS[t] || t).join(" · ") || "—")}</td>
+      <td><button type="button" class="switch ${c.is_active ? "on" : ""}" data-catact="${c.id}" aria-pressed="${c.is_active}"></button></td><td><button type="button" class="btn small" data-catedit="${c.id}">✎ עריכה</button></td></tr>`).join("")}</tbody></table></div>`;
+    b.querySelectorAll("[data-catact]").forEach(x => x.onclick = async () => { const c = crsCat(Number(x.dataset.catact)); try { await patch("categories", "id=eq." + c.id, { is_active: !c.is_active }); renderCrsView(); } catch(e) { toast("לא נשמר: " + e.message); } });
+    b.querySelectorAll("[data-catedit]").forEach(x => x.onclick = () => crsCatEdit(crsCat(Number(x.dataset.catedit))));
+    return;
+  }
+  if (CRS.tab === "seasons") {
+    b.innerHTML = `<div class="muted" style="margin-bottom:8px;">מחזור <b>פעיל</b> – מופיע בטבלת התלמידים, בסינון ובכרטיס (הקורסים "הנוכחיים"). הישנים נשארים להיסטוריה.</div>
+      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>מחזור</th><th>לועזי</th><th>סוג</th><th>פעיל</th><th></th></tr></thead><tbody>${CRS.seasons.map(x => `<tr>
+      <td><b>${esc(x.name)}</b></td><td>${esc(x.label || "")}</td><td>${x.kind === "summer" ? "קיץ" : "שנת לימוד"}</td>
+      <td><button type="button" class="switch ${x.is_active ? "on" : ""}" data-seact="${x.id}" aria-pressed="${x.is_active}"></button></td><td><button type="button" class="btn small" data-seedit="${x.id}">✎ עריכה</button></td></tr>`).join("")}</tbody></table></div>`;
+    b.querySelectorAll("[data-seact]").forEach(x => x.onclick = async () => { const se = crsSeason(Number(x.dataset.seact)); try { await patch("seasons", "id=eq." + se.id, { is_active: !se.is_active }); await crsLoad(true); renderCrsView(); } catch(e) { toast("לא נשמר: " + e.message); } });
+    b.querySelectorAll("[data-seedit]").forEach(x => x.onclick = () => crsSeasonEdit(crsSeason(Number(x.dataset.seedit))));
+    return;
+  }
+}
+const crsRe = () => { if (currentView === "reg" && RG.tab === "courses") renderCrsCourses(); else if (currentView === "courses") renderCrsView(); };
+// שם הקורס בטבלת הקורסים: קטגוריה · מסלול (בצבע) · בית ספר (בצבע) / מרתון: קטגוריה · תאריך · בית ספר
+function crsTitle(c){
+  const cat = `<b>${esc(crsCat(c.category_id).name || "")}</b>`;
+  if (c.marathon_id) return cat + " · " + crsLabel(c, {}).replace('<span class="ci">🏁</span>', "");
+  const to = LK.tracks.find(x => x.v === c.track), tr = c.track ? (to ? `<span class="trk-chip sm" style="--tc:${to.c}">${esc(CRS_TRK_S[c.track])}</span>` : esc(CRS_TRK_S[c.track] || c.track)) : "";
+  const sc = c.school && c.school.name ? scChip(c.school.name) : c.school_text ? esc(c.school_text) : "";
+  return [cat, tr, sc].filter(Boolean).join(" · ");
+}
+// מסך "קורסים" (לשונית ראשונה במסך שהיה "הרשמה") – נועה 30.10: רשימת קורסים עם כמויות, ובצד (כמו תצוגה מקדימה באימייל) – התלמידים בקורס שנבחר
+const crsCity = (c) => c.city || (c.school && c.school.city) || ((CRS.mar || {})[c.marathon_id] || {}).city || "";
+const crsSch = (c) => (c.school && c.school.name) || c.school_text || ((CRS.mar || {})[c.marathon_id] || {}).school || "";
+async function renderCrsCourses(reload){
+  const b = $("rgMain"); if (!b) return;
+  if (reload || !CRS.ok) { if (!CRS.ok) b.innerHTML = `<div class="card muted">טוען…</div>`; if (!await crsLoad(true)) { b.innerHTML = `<div class="card err">צריך להריץ קודם את קובץ 129.</div>`; return; } }
+  const act0 = String((CRS.seasons.find(x => x.is_active) || {}).id || "");
+  if (CRS.fs === "") CRS.fs = act0;
+  const F = CRS.f = CRS.f || { tr: "", city: "", sch: "", rmin: "", rmax: "", pend: false, int: false };
+  const cnt = {}; Object.values(CRS.cm).flat().forEach(m => { const k = cnt[m.course_id] = cnt[m.course_id] || {}; k[m.status] = (k[m.status] || 0) + 1; });
+  const q = CRS.q.trim(), txt = (c) => [crsShort(c, true), crsCity(c), crsSch(c)].join(" ");
+  const base = CRS.courses.filter(c => (CRS.fs === "all" || String(c.season_id) === CRS.fs) && (!CRS.fc || String(c.category_id) === CRS.fc));
+  const rc = (c) => (cnt[c.id] || {})["רשום"] || 0;
+  const list = base.filter(c => (!F.tr || c.track === F.tr) && (!F.city || crsCity(c) === F.city) && (!F.sch || crsSch(c) === F.sch) && (!q || txt(c).includes(q))
+      && (F.rmin === "" || rc(c) >= Number(F.rmin)) && (F.rmax === "" || rc(c) <= Number(F.rmax)) && (!F.pend || (cnt[c.id] || {})["ממתין לתשלום"]) && (!F.int || (cnt[c.id] || {})["מתעניין"]))
+    .sort((a, b) => (crsCat(a.category_id).sort_order || 0) - (crsCat(b.category_id).sort_order || 0) || String(((CRS.mar || {})[a.marathon_id] || {}).first || "").localeCompare(String(((CRS.mar || {})[b.marathon_id] || {}).first || "")) || crsCity(a).localeCompare(crsCity(b), "he") || crsSch(a).localeCompare(crsSch(b), "he") || String(a.track || "").localeCompare(String(b.track || "")));
+  const uniq = (f) => [...new Set(base.map(f).filter(Boolean))].sort((x, y) => x.localeCompare(y, "he"));
+  const trs = [...new Set(base.map(c => c.track).filter(Boolean))];
+  const dirty = !!(q || CRS.fc || F.tr || F.city || F.sch || F.rmin !== "" || F.rmax !== "" || F.pend || F.int || CRS.fs !== act0);
+  const n = (c, k) => (cnt[c.id] || {})[k] || "";
+  if (CRS.sel && !list.some(c => c.id === CRS.sel)) CRS.sel = null;
+  const sel = CRS.sel ? CRS.byId[CRS.sel] : null, mob = matchMedia("(max-width:760px)").matches;
+  const opt = (arr, cur, all) => `<option value="">${all}</option>` + arr.map(([v, t]) => `<option value="${esc(v)}" ${String(v) === String(cur) ? "selected" : ""}>${esc(t)}</option>`).join("");
+  b.innerHTML = `<div class="filters card crs-flt${CRS.more ? " more" : ""}"><div class="wide"><label class="lbl" for="crsQ">חיפוש</label><input id="crsQ" type="search" placeholder="בית ספר, עיר..." value="${esc(CRS.q)}"></div>
+      <button type="button" class="btn small crs-more-b" id="crsMore">סינון נוסף ${CRS.more ? "▴" : "▾"}</button>
+      <div class="crs-mf"><label class="lbl" for="crsFs">מחזור</label><select id="crsFs"><option value="all">הכול</option>${CRS.seasons.map(x => `<option value="${x.id}" ${String(x.id) === CRS.fs ? "selected" : ""}>${esc(x.name)}${x.label ? " (" + esc(x.label) + ")" : ""}</option>`).join("")}</select></div>
+      <div class="crs-mf"><label class="lbl" for="crsFc">קטגוריה</label><select id="crsFc">${opt(CRS.cats.map(x => [x.id, x.name]), CRS.fc, "הכול")}</select></div>
+      <div class="crs-mf"><label class="lbl" for="crsFt">מסלול</label><select id="crsFt">${opt(trs.map(t => [t, CRS_TRACKS[t] || t]), F.tr, "הכול")}</select></div>
+      <div class="crs-mf"><label class="lbl" for="crsFy">עיר</label><select id="crsFy">${opt(uniq(crsCity).map(x => [x, x]), F.city, "הכול")}</select></div>
+      <div class="crs-mf"><label class="lbl" for="crsFh">בית ספר</label><select id="crsFh">${opt(uniq(crsSch).map(x => [x, x]), F.sch, "הכול")}</select></div>
+      <div class="crs-mf crs-rng"><label class="lbl" for="crsRmin">רשומים</label><span><input id="crsRmin" type="number" min="0" inputmode="numeric" placeholder="מ-" value="${esc(F.rmin)}"><input id="crsRmax" type="number" min="0" inputmode="numeric" placeholder="עד" value="${esc(F.rmax)}"></span></div>
+      <div class="crs-mf crs-chk"><label><input type="checkbox" id="crsPend" ${F.pend ? "checked" : ""}> יש ממתינים לתשלום</label><label><input type="checkbox" id="crsInt" ${F.int ? "checked" : ""}> יש מתעניינים</label></div></div>
+    <div class="dx-bar"><span></span><span class="dx-bar-b"><span class="muted">${list.length} קורסים</span><button type="button" class="clear-f" id="crsClear"${dirty ? "" : " disabled"}>✕ ניקוי סינון</button><button type="button" class="btn small" id="crsXls"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span></div>
+    <div class="crs-split${sel ? " has-sel" : " no-sel"}">
+      <div class="crs-list">${list.length ? `<div class="tbl-wrap"><table class="tbl crs-tbl"><thead><tr><th></th><th>קורס</th><th class="hide-m">עיר</th><th title="רשומים">רשומים</th><th title="ממתינים לתשלום">ממתינים</th><th title="מתעניינים">מתעניינים</th><th></th></tr></thead><tbody>${list.map(c =>
+        `<tr class="crs-r${c.id === CRS.sel ? " sel" : ""}" data-crs="${c.id}" tabindex="0"><td><button type="button" class="dx-tg" aria-expanded="${CRS.open.has(c.id)}" aria-label="פרטי הקורס"></button></td><td>${crsTitle(c)}${c.is_active ? "" : ` <span class="muted">(לא פעיל)</span>`}${CRS.fs === "all" ? `<div class="muted" style="font-size:12px">${esc(crsSeasonTxt(c))}</div>` : ""}</td><td class="hide-m">${esc(crsCity(c))}</td><td class="num">${n(c, "רשום")}</td><td class="num">${n(c, "ממתין לתשלום")}</td><td class="num">${n(c, "מתעניין")}</td><td><button type="button" class="btn small crs-kids${c.id === CRS.sel ? " on" : ""}" data-kids="${c.id}" title="התלמידים בקורס – בצד">👥<span class="bt"> תלמידים</span></button></td></tr>${CRS.open.has(c.id) ? `<tr class="dx-row"><td colspan="7">${crsDetails(c)}</td></tr>` : ""}`).join("")}</tbody></table></div>`
+        : `<div class="card empty">אין קורסים שמתאימים לסינון.</div>`}</div>
+      ${sel ? `<div class="crs-pane card">${crsPane(sel)}</div>` : ""}
+    </div>`;
+  const re = () => renderCrsCourses();
+  let qt = null; $("crsQ").oninput = (e) => { CRS.q = e.target.value; clearTimeout(qt); qt = setTimeout(() => { const pos = e.target.selectionStart; renderCrsCourses().then(() => { const i = $("crsQ"); if (i) { i.focus(); i.setSelectionRange(pos, pos); } }); }, 250); };
+  $("crsFs").onchange = (e) => { CRS.fs = e.target.value; F.city = F.sch = F.tr = ""; re(); };
+  $("crsFc").onchange = (e) => { CRS.fc = e.target.value; F.tr = ""; re(); };
+  $("crsFt").onchange = (e) => { F.tr = e.target.value; re(); };
+  $("crsFy").onchange = (e) => { F.city = e.target.value; re(); };
+  $("crsFh").onchange = (e) => { F.sch = e.target.value; re(); };
+  $("crsClear").onclick = () => { CRS.q = ""; CRS.fc = ""; CRS.fs = ""; F.tr = F.city = F.sch = F.rmin = F.rmax = ""; F.pend = F.int = false; re(); };
+  let nt = null; [["crsRmin", "rmin"], ["crsRmax", "rmax"]].forEach(([id, k]) => $(id).oninput = (e) => { F[k] = e.target.value.trim(); clearTimeout(nt); nt = setTimeout(() => renderCrsCourses().then(() => { const i = $(id); if (i) { i.focus(); const v = i.value; i.value = ""; i.value = v; } }), 400); });
+  $("crsPend").onchange = (e) => { F.pend = e.target.checked; re(); }; $("crsInt").onchange = (e) => { F.int = e.target.checked; re(); };
+  $("crsMore").onclick = () => { CRS.more = !CRS.more; re(); };
+  // לחיצה על השורה – פתיחת הפרטים (כמו בכל הטבלאות); 👥 – התלמידים בצד
+  b.querySelectorAll("tr.crs-r").forEach(tr => { const tog = () => { const id = Number(tr.dataset.crs); CRS.open.has(id) ? CRS.open.delete(id) : CRS.open.add(id); re(); };
+    tr.onclick = (e) => { if (e.target.closest("[data-kids], .lk2-cell, a")) return; tog(); }; tr.onkeydown = (e) => { if (e.key === "Enter") tog(); }; });
+  b.querySelectorAll("[data-kids]").forEach(x => x.onclick = (e) => { e.stopPropagation(); const id = Number(x.dataset.kids); CRS.sel = CRS.sel === id ? null : id; re();
+    if (mob && CRS.sel) setTimeout(() => { const p = b.querySelector(".crs-pane"); if (p) p.scrollIntoView({ block: "start" }); }, 30); });
+  b.querySelectorAll(".dx-row").forEach(r => { wireLk(r); lkApplyShort(r); });
+  // ✎ עריכה: מרתון – עריכת המרתון; תרגול שוטף – המחירים וההגדרות של העיר (כמו ב"קישורים")
+  b.querySelectorAll("[data-crsedit]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); const c = CRS.byId[Number(x.dataset.crsedit)]; if (!c) return;
+    try { if (c.marathon_id) { const m = (await get("marathons", "select=*&id=eq." + c.marathon_id))[0]; if (!m) { toast("המרתון לא נמצא"); return; } openMarathonEditor(m); }
+          else { if (REG_PRICES_DB === null) await loadRegPrices(); if (REG_PRICES_DB === false) { toast("כדי לערוך מחירים צריך להריץ את קובץ 44"); return; } openPriceEditor(crsCity(c)); } }
+    catch(err) { toast("לא נפתח: " + err.message); } });
+  const pane = b.querySelector(".crs-pane") || document.createElement("div");
+  // "בועה" (נועה 30.10): בצד – בגובה הקורס שנבחר, עם חץ אליו
+  if (sel && !mob) { const r = b.querySelector("tr.crs-r.sel"), lst = b.querySelector(".crs-list");
+    if (r && lst) { const off = r.getBoundingClientRect().top - lst.getBoundingClientRect().top; pane.style.marginTop = Math.max(0, off - 14) + "px"; pane.classList.add("bub"); pane.style.setProperty("--tail", (off - 14 < 0 ? off + 4 : 18) + "px"); } }
+  wireLk(pane); lkApplyShort(pane);
+  pane.querySelectorAll("[data-lead]").forEach(x => x.onclick = (e) => { e.stopPropagation(); openLead(Number(x.dataset.lead)); });
+  pane.querySelectorAll("[data-crsadd]").forEach(x => x.onclick = () => crsAddMember(CRS.byId[Number(x.dataset.crsadd)]));
+  pane.querySelectorAll("[data-crsback]").forEach(x => x.onclick = () => { CRS.sel = null; re(); });
+  $("crsXls").onclick = async () => { try { await loadXlsxLib(); } catch(e) { toast("לא ניתן לטעון את רכיב האקסל"); return; }
+    const plain = (h) => { const d = document.createElement("div"); d.innerHTML = h; return d.textContent.replace(/\s+/g, " ").trim(); };
+    const rows = [["קורס", "מחזור", "עיר", "שם", "כיתה", "מקצוע", "מצב", "חתם/ה", "איך נרשם"]];
+    list.forEach(c => Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && m.status !== "בוטל").forEach(m => { const l = L.leads.find(x => x.student_id === m.student_id), st = l ? l.student : {};
+      rows.push([plain(crsTitle(c)), crsSeasonTxt(c), crsCity(c), ((st.first_name || "") + " " + (st.last_name || "")).trim() || "#" + m.student_id, classLabel(st.grade, st.class_num) || m.grade || "", m.subject || "", m.status, m.signed === false ? "לא" : m.signed ? "כן" : "", m.source || ""]); }));
+    downloadXlsx(rows, "קורסים.xlsx", "קורסים"); };
+}
+// הצד: הקורס שנבחר – כותרת, כמויות, התלמידים (מצב בלחיצה), הוספה
+function crsPane(c){
+  const ord = ["רשום", "ממתין לתשלום", "מתעניין", "פרש"];
+  const ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && m.status !== "בוטל").sort((a, b) => ord.indexOf(a.status) - ord.indexOf(b.status));
+  const nm = (sid) => { const l = L.leads.find(x => x.student_id === sid); return l ? { l, t: ((l.student.first_name || "") + " " + (l.student.last_name || "")).trim(), g: classLabel(l.student.grade, l.student.class_num) } : { l: null, t: "#" + sid, g: "" }; };
+  const sums = ord.map(k => [k, ms.filter(m => m.status === k).length]).filter(x => x[1]).map(([k, v]) => `${v} ${k === "רשום" ? "רשומים" : k === "ממתין לתשלום" ? "ממתינים לתשלום" : k === "מתעניין" ? "מתעניינים" : "פרשו"}`).join(" · ");
+  return `<div class="crs-pane-h"><button type="button" class="btn small crs-back" data-crsback>→ חזרה לרשימה</button><button type="button" class="crs-x" data-crsback aria-label="סגירה" title="סגירה">✕</button></div>
+    ${ms.length ? `<table class="crs-mt"><tbody>${ms.map(m => { const x = nm(m.student_id);
+      return `<tr><td>${x.l ? `<button type="button" class="name-link" data-lead="${x.l.id}">${esc(x.t)}</button>` : esc(x.t)}${m.signed === false ? ` <span class="sig-miss" title="חסרה חתימה על התנאים">✍︎</span>` : ""}</td><td class="muted">${esc(x.g || m.grade || "")}</td><td>${c.marathon_id ? "" : esc(crsSubj(m.subject))}</td><td class="hide-m">${CRS.hasSrc ? crsSrcBtn(m) : `<span class="muted" title="איך נרשם">${esc(m.source || "")}</span>`}</td><td class="crs-mt-st">${crsStWord(m)}</td></tr>`; }).join("")}</tbody></table>` : `<div class="muted" style="margin:10px 0">אין עדיין תלמידים בקורס.</div>`}
+    <button type="button" class="btn small" data-crsadd="${c.id}">+ הוספת תלמיד/ה</button>`;
+}
+// פרטי הקורס בשורה הפתוחה: מחזור, עיר, מסלול/תאריכים, כמויות, הקישורים
+function crsDetails(c){
+  const o = c.marathon_id ? (CRS.mar || {})[c.marathon_id] || {} : null, ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && m.status !== "בוטל");
+  const k = (st) => ms.filter(m => m.status === st).length, unsigned = ms.filter(m => m.signed === false && m.status !== "פרש").length;
+  const dl = [["מחזור", esc(crsSeasonTxt(c))], ["עיר", esc(crsCity(c))], o ? ["מפגשים", esc((o.dates && o.dates.length ? o.dates : o.first ? [o.first] : []).map(fmtDM).join(", ") || "—")] : ["מסלול", esc(CRS_TRACKS[c.track] || "—")],
+    ["תלמידים", `${k("רשום")} רשומים · ${k("ממתין לתשלום")} ממתינים · ${k("מתעניין")} מתעניינים${k("פרש") ? " · " + k("פרש") + " פרשו" : ""}`], unsigned ? ["חסרה חתימה", `<span class="sig-miss">✍︎</span> ${unsigned}`] : null].filter(Boolean);
+  const ed = c.marathon_id ? `<button type="button" class="btn small" data-crsedit="${c.id}">✎ עריכת המרתון</button>` : !/summer/.test(c.track || "") && crsCity(c) ? `<button type="button" class="btn small" data-crsedit="${c.id}" title="המחירים, התאריכים ופתוח/סגור של הטפסים – לכל ${esc(crsCity(c))}">✎ עריכה (${esc(crsCity(c))})</button>` : "";
+  return `<div class="crs-det"><div class="crs-dl">${dl.map(([t, v]) => `<span><b>${t}:</b> ${v}</span>`).join("")}${ed ? `<span class="crs-ed">${ed}</span>` : ""}</div>${crsLinks(c)}</div>`;
+}
+// הקישורים של הקורס (נועה 30.10: הקישורים שייכים לקורס) – מרתון: טופס המרתון; תרגול שוטף: טופס ההרשמה של העיר עם המסלול
+function crsLinks(c){
+  let rows = [];
+  if (c.marathon_id) { const o = (CRS.mar || {})[c.marathon_id] || {};
+    if (o.code) rows.push(["טופס המרתון", lkMarCode(o.code), "הרשמה ל" + (o.name || "מרתון") + ": ", o.cancelled_at ? "בוטל" : o.is_open ? "פתוח" : "סגור"]); }
+  else if (!/summer/.test(c.track || "") && crsCity(c)) {   // נועה 30.10: קישור לכל קורס (עיר + בית ספר + מסלול) – נוח לשלוח להורים
+    const sc = crsSch(c), q = (o) => new URLSearchParams(Object.entries(o).filter(([, v]) => v)).toString();
+    rows.push(["טופס התעניינות", lkFix(lkBase() + "interest.html?" + q({ city: crsCity(c), school: sc, tracks: c.track || "" })), "טופס התעניינות - תלם " + crsCity(c) + (sc ? " · " + sc : "") + ": ", ""]);
+    rows.push(["טופס הרשמה", lkFix(lkBase() + "register.html?" + q({ city: crsCity(c), school: sc, track: c.track || "" })), "טופס ההרשמה לתלם - " + crsCity(c) + (sc ? " · " + sc : "") + ": ", ""]); }
+  return rows.length ? `<div class="crs-lk"><div class="crs-lk-h">קישורים</div>${rows.map(([n, u, m, st]) => `<div class="crs-lk-r"><span><b>${esc(n)}</b>${st ? ` <span class="all-st ${st === "פתוח" ? "on" : "off"}">${st === "פתוח" ? "● פתוח" : "○ " + esc(st)}</span>` : ""}</span>${lk2Btns("", u, m)}</div>`).join("")}</div>` : "";
+}
+// הוספת תלמיד/ה לקורס מתוך מסך הקורסים: חיפוש לפי שם → בחירה → מקצוע (בשוטף)
+async function crsAddMember(c){ if (!c) return;
+  const q = await uiPrompt("הוספה לקורס – שם התלמיד/ה (או חלק ממנו):", "", { multi: false }); if (!q || !q.trim()) return;
+  const t = q.trim(), have = new Set(Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && m.status !== "בוטל").map(m => m.student_id));
+  const hits = L.leads.filter(l => l.student && ((l.student.first_name || "") + " " + (l.student.last_name || "")).includes(t)).slice(0, 12);
+  if (!hits.length) { toast("לא נמצא/ה – אפשר לחפש בשם אחר"); return; }
+  const sid = await uiChoose("מי להוסיף?", hits.map(l => ({ v: l.student.id, t: `${l.student.first_name || ""} ${l.student.last_name || ""} · ${schoolOf(l.student).name || ""} ${classLabel(l.student.grade, l.student.class_num) || ""}${have.has(l.student.id) ? " (כבר בקורס)" : ""}` }))); if (!sid) return;
+  if (have.has(Number(sid))) { toast("כבר בקורס"); return; }
+  let subject = null;
+  if (!c.marathon_id) { subject = await uiChoose("מקצוע:", (c.track === "double" ? ["מתמטיקה ואנגלית"] : ["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"]).map(x => ({ v: x, t: x }))); if (!subject) return; }
+  try { const st = (L.leads.find(l => l.student.id === Number(sid)) || {}).student || {};
+    await insert("course_members", { course_id: c.id, student_id: Number(sid), status: "רשום", subject, grade: st.grade || null, source: "ידני" });
+    toast("נוסף/ה לקורס"); await crsLoad(true); CRS.sel = c.id; renderCrsCourses(); } catch(e) { toast("לא נשמר: " + e.message); }
+}
+async function crsCatEdit(c){
+  const name = await uiPrompt(c ? "שם הקטגוריה:" : "קטגוריה חדשה – שם:", c ? c.name : "", { multi: false }); if (!name || !name.trim()) return;
+  const kind = c ? c.kind : await uiChoose("איזה סוג?", [{ v: "regular", t: "רגיל – בית ספר + מסלול (כמו תרגול שוטף)" }, { v: "event", t: "אירוע עם תאריכים (כמו מרתון)" }]); if (!kind) return;
+  try { if (c) await patch("categories", "id=eq." + c.id, { name: name.trim() }); else await insert("categories", { name: name.trim(), kind, sort_order: (Math.max(0, ...CRS.cats.map(x => x.sort_order || 0)) + 1) });
+        toast("נשמר"); await crsLoad(true); renderCrsView(); } catch(e) { toast("לא נשמר: " + e.message); }
+}
+async function crsSeasonEdit(x){
+  const name = await uiPrompt(x ? "שם המחזור (עברי):" : "מחזור חדש – שם עברי (למשל תשפ\"ח, או קיץ תשפ\"ז):", x ? x.name : "", { multi: false }); if (!name || !name.trim()) return;
+  const label = await uiPrompt("השנה הלועזית (למשל 2027/28, או 2027 לקיץ):", x ? x.label || "" : "", { multi: false }); if (label === null) return;
+  const kind = x ? x.kind : (/קיץ/.test(name) ? "summer" : "year");
+  const ys = x ? x.year_start : (Number((String(label).match(/\d{4}/) || [])[0]) || new Date().getFullYear()) - (kind === "summer" ? 1 : 0);
+  try { if (x) await patch("seasons", "id=eq." + x.id, { name: name.trim(), label: label.trim() || null });
+        else await insert("seasons", { name: name.trim(), label: label.trim() || null, kind, year_start: ys, school_year: name.trim().replace(/^קיץ\s*/, ""), is_active: false, sort_order: 0 });
+        toast("נשמר"); await crsLoad(true); renderCrsView(); } catch(e) { toast("לא נשמר: " + e.message); }
+}
+// קורס חדש (בלי ילדים) – למשל הכנה לשנה"ל בבית ספר חדש. מרתון נוצר לבד ממסך המרתונים.
+function crsCourseNew(){ crsAddDlg(null); }
+
 async function loadLeads(){
   $("countLine").textContent = "טוען...";
   const t0 = Date.now();
@@ -3540,6 +3887,7 @@ async function loadLeads(){
   const marLim = addDays(todayIL(), -14), marCur = (r) => { const m = r.marathon || {}, d = [m.event_date, marLast[m.id]].filter(Boolean).sort().pop(); return !d || d >= marLim; };
   L.mar = {}; mreg.filter(marCur).forEach(r => (L.mar[r.student_id] = L.mar[r.student_id] || []).push(r));
   // 5.19.160 (נועה 30.10): "רק להשאיר פרטים" בטופס המרתון (התעניינות) – גם 🏁, כדי לדעת במה התעניין/ה
+  if (ME.role !== "instructor") crsLoad(true).then(ok => { if (ok && currentView === "leads" && typeof updSafe === "function" && updSafe()) renderLeads(); });   // 5.19.162: קורסים
   L.marInt = {}; if (ME.role !== "instructor") Promise.all([
       get("interest_submissions", "select=student_id,mc:payload->>marathon_code&payload->>marathon_code=not.is.null&order=id.desc&limit=1000"),
       get("marathons", "select=id,code,name,school,city,grade,event_date,cancelled_at&code=not.is.null")])
@@ -3655,7 +4003,7 @@ const lastUpdate = (l) => l.updated_at;
 // ======================================================================
 const F = { statuses: new Set(), sources: new Set(), page: 0, sort: "updated", dir: -1 };
 // כל הסינונים בעמוד התלמידים נשמרים יחד (גם סטטוס, גם שיבוץ וכו') - נשארים ברענון (F5), מתאפסים ביציאה או בלשונית חדשה
-const LF_KEY = "telem_lead_filters", LF_IDS = ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear","fStar","fActive","fPast","fRemind","fRemindDate"];
+const LF_KEY = "telem_lead_filters", LF_IDS = ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fFrom","fTo","fYear","fStar","fActive","fPast","fRemind","fRemindDate"];
 try { store("telem_crm_status_filter", null); } catch(e) {}   // היה נשמר לתמיד - כבר לא
 try { const sv = JSON.parse(sstore(LF_KEY) || "null"); if (sv && sv.statuses) sv.statuses.forEach(x => F.statuses.add(x)); if (sv && sv.sources) sv.sources.forEach(x => F.sources.add(x)); if (sv && sv.sort) { F.sort = sv.sort; F.dir = sv.dir || -1; } } catch(e) {}
 function saveLeadFilters(){
@@ -3703,13 +4051,13 @@ function multiBox(box, items, set, allLbl){
 }
 $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 $("fRemindDate").addEventListener("change", () => { if ($("fRemindDate").value) $("fRemind").checked = true; });
-["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear","fStar","fActive","fPast","fRemind","fRemindDate"].forEach(id =>
+["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fFrom","fTo","fYear","fStar","fActive","fPast","fRemind","fRemindDate"].forEach(id =>
   $(id).addEventListener(id === "fSearch" ? "input" : "change", () => { if (id === "fAsg" && $("fAsg").value === "wkchg") { WC.map = null; WC.p = null; }
     pastSync();   // 5.19.129: שנים קודמות – לפי שנת הלימוד / התאריכים
     F.page = 0; saveLeadFilters(); renderLeads(); }));
 // 5.19.150 (נועה 28.10): גם לחיצה על "תלמידים" בתפריט – חוזרים לסינון ברירת המחדל
 function resetLeadFilters(){
-  ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear"].forEach(id => $(id).value = "");
+  ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fFrom","fTo","fYear"].forEach(id => $(id).value = "");
   $("fStar").checked = false; $("fRemind").checked = false; $("fActive").checked = true; $("fPast").checked = false;
   $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   F.statuses.clear(); F.sources.clear(); sstore(LF_KEY, null); setupFilters(); F.page = 0;
@@ -3718,7 +4066,7 @@ $("clearFilters").addEventListener("click", () => { resetLeadFilters(); renderLe
 
 function filtered(){
   const q = $("fSearch").value.trim().toLowerCase(), qd = digitsQ(q);
-  const city = $("fCity").value, school = $("fSchool").value, grade = $("fGrade").value, mgr = $("fManager").value;
+  const city = $("fCity").value, school = $("fSchool").value, grade = $("fGrade").value, mgr = $("fManager").value, fcrs = $("fCourse") ? $("fCourse").value : "";
   const from = $("fFrom").value, to = $("fTo").value, now = new Date();
   let list = L.leads.filter(l => {
     const s = l.student, f = s.family || {};
@@ -3739,6 +4087,7 @@ function filtered(){
       const st = propStage(s.id); if (fa === "prop_none" && st !== "none") return false; if (fa === "prop_sent" && st !== "sent") return false; }
     if (F.sources.size && !F.sources.has(l.source_id)) return false;
     if (mgr === "none" ? l.manager_id : (mgr && l.manager_id !== mgr)) return false;
+    if (fcrs && !crsOfStudent(s.id).some(m => String(m.course_id) === fcrs && m.status !== "בוטל")) return false;   // 5.19.162
     const upd = (lastUpdate(l) || "").slice(0, 10);
     if (from && upd < from) return false;
     if (to && upd > to) return false;
@@ -3783,7 +4132,7 @@ function histFiltered(leadList){
   const useDates = !!((from && from < HIST_YS() + "-09-01") || (to && to < HIST_YS() + "-09-01")), useSearch = q.length >= 2, useYear = !!yr;
   if (!useDates && !useSearch && !useYear) return [];
   // סינונים שאין להם משמעות בשנים קודמות (כוכב, תזכורת, שיבוץ, מנהל) – אז לא מציגים שנים קודמות
-  if ($("fStar").checked || $("fRemind").checked || $("fAsg").value || $("fManager").value) return [];
+  if ($("fStar").checked || $("fRemind").checked || $("fAsg").value || $("fManager").value || ($("fCourse") && $("fCourse").value)) return [];
   if (!H.rows) { if (!H.loading) loadHistRows().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); return null; }
   const city = $("fCity").value, schoolId = $("fSchool").value, grade = $("fGrade").value;
   const schName = schoolId ? hNorm(((L.schools || []).find(x => String(x.id) === schoolId) || {}).name) : "";
@@ -3845,17 +4194,20 @@ function histRowHtml(x){
   const h = x.__h, lead = h.student_id ? L.leads.find(l => l.student_id === h.student_id) : null, now = histGradeNow(h.grade, h.year_start);
   return `<tr data-h="${h.id}" class="h-past">
     <td class="c-info"><button type="button" class="icon-btn info" data-act="hinfo" aria-label="פרטים" title="פרטים">i</button></td>
-    <td class="num c-id"><span class="h-yr" title="שנים קודמות">${esc(hyLbl(h.school_year, h.year_start))}</span></td>
-    <td class="c-act" colspan="2"><span class="h-tag">שנים קודמות</span></td>
-    <td class="c-status"><span class="h-st${histReg(h) ? " reg" : ""}">${esc(h.status || "—")}</span></td>
-    <td class="c-src muted">${esc(h.source || "")}</td><td class="c-notes"></td>
     <td class="c-name"><button type="button" class="name-link" data-act="hopen">${esc(h.first_name || "")} ${esc(h.last_name || "")}</button>${lead ? ` <span class="h-has" title="יש כרטיס השנה">✓ כרטיס</span>` : ""}</td>
     <td class="c-ts"></td>
+    <td class="c-notes"></td>
+    <td class="c-status"><span class="h-st${histReg(h) ? " reg" : ""}">${esc(h.status || "—")}</span></td>
+    <td class="c-crs"></td>
+    <td class="c-src muted">${esc(h.source || "")}</td>
     <td class="c-school">${h.school ? scChip(h.school) : ""}${h.city ? ` <span class="muted">${esc(h.city)}</span>` : ""}</td>
     <td class="c-grade">${esc(h.grade || "")}${now ? `<span class="h-now" title="השכבה היום">→ ${esc(now)}</span>` : ""}</td>
     <td class="c-asg"></td>
     <td class="c-parent">${h.parent1_name ? `<span class="pn">${esc(h.parent1_name)}</span>` : ""}${h.parent1_name && h.parent1_phone ? `<span class="sep"> · </span>` : ""}${h.parent1_phone ? `<a class="pp" dir="ltr" href="tel:${esc(digits(h.parent1_phone))}" onclick="event.stopPropagation()">${esc(h.parent1_phone)}</a>` : ""}</td>
-    <td class="c-rem"></td><td class="num c-upd muted">${esc(h.school_year || "")}</td></tr>`;
+    <td class="c-rem"></td>
+    <td class="num c-upd muted">${esc(h.school_year || "")}</td>
+    <td class="c-act" colspan="2"><span class="h-tag">שנים קודמות</span></td>
+    <td class="num c-id"><span class="h-yr" title="שנים קודמות">${esc(hyLbl(h.school_year, h.year_start))}</span></td></tr>`;
 }
 function histInfoHtml(h){
   const tl = (v) => v ? String(v).split(/[,;\s]+(?=0)/).map(t => `<a href="tel:${digits(t)}" dir="ltr">${esc(t.trim())}</a>`).join(", ") : "";
@@ -3909,8 +4261,8 @@ const tsAccess = (l) => /^נרשם/.test(statusName(l.status_id)) && !/קיץ/.t
 const tsCell = (l) => { if (!L.tsAcc || !L.tsAcc.has(l.student.id)) return "";
   return tsAccess(l) ? `<span class="ts-ic" title="יש חשבון ב&quot;תלם שלי&quot; – יש גישה">📱</span>` : `<span class="ts-ic off" title="יש חשבון ב&quot;תלם שלי&quot; – אין גישה כרגע (לא משובץ/ת ולא בסטטוס &quot;נרשם&quot;)">📱</span>`; };
 const COLS = [
-  ["info",""],["id","ID"],["active","פעיל"],["star","★"],["status","סטטוס"],["source","מקור ליד"],["notes",""],["name","שם"],["ts","📱"],
-  ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","תאריך עדכון"]
+  ["info",""],["name","שם"],["ts","📱"],["notes",""],["status","סטטוס"],["crs","קורסים"],["source","מקור ליד"],   // 5.19.162 (נועה): השם מימין, אחריו סטטוס וקורסים
+  ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","תאריך עדכון"],["star","★"],["active","פעיל"],["id","ID"]
 ];
 function renderLeads(){
   fillYears();
@@ -3922,7 +4274,7 @@ function renderLeads(){
     + (LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : LR.histLoading ? " · טוען שנים קודמות…" : "")
     + (!L.inactReady && (!$("fActive").checked || $("fPast").checked) ? " · טוען כרטיסים לא פעילים…" : "");
   // "ניקוי סינון" - רק כשיש סינון פעיל
-  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || $("fStar").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
+  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || $("fStar").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
   $("pageInfo").textContent = `עמוד ${F.page + 1} מתוך ${pages}`;
   $("prevPage").disabled = F.page === 0; $("nextPage").disabled = F.page >= pages - 1;
   const sortable = ["id","status","source","name","school","grade","asg","parent","manager","remind","updated"];
@@ -3936,30 +4288,31 @@ function renderLeads(){
     const ns = L.notes[l.id] || [];
     return `<tr data-id="${l.id}" class="${l.is_active ? "" : "inactive"}">
       <td class="c-info"><button type="button" class="icon-btn info" data-act="info" aria-label="פרטים מהירים" title="פרטים מהירים">i</button></td>
-      <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
-      <td class="c-act"><button type="button" class="switch ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}"></button></td>
-      <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
-      <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="${stSoft(statusColor(l.status_id))}"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select>${marIcon(s)}</td>
-      <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
-      <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" data-htip="${esc(ns.length ? ns.slice().reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
-      <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
-      <td class="c-ts">${tsCell(l)}</td>
-      <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
-      <td class="c-grade">${esc(classLabel(s.grade, s.class_num))}</td>
-      <td class="c-asg" data-act="asg" title="לחיצה - שיבוץ לקבוצה / שינוי">${(() => { const a = asgOf(l), pr = propOf(l);
+    <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${crsSigMiss(s.id)}${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
+    <td class="c-ts">${tsCell(l)}</td>
+    <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" data-htip="${esc(ns.length ? ns.slice().reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
+    <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="${stSoft(statusColor(l.status_id))}"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select>${marIcon(s)}</td>
+    <td class="c-crs">${crsChipsRow(s.id)}</td>
+    <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
+    <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
+    <td class="c-grade">${esc(classLabel(s.grade, s.class_num))}</td>
+    <td class="c-asg" data-act="asg" title="לחיצה - שיבוץ לקבוצה / שינוי">${(() => { const a = asgOf(l), pr = propOf(l);
         const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}${x.location && x.location.name ? `<em class="asg-loc"> · ${esc(x.location.name)}</em>` : ""}${x.ends_on ? `<em class="asg-end" title="פרש/ה – השיבוץ יורד לבד אחרי התאריך"> · עד ${esc(fmtIso(x.ends_on).slice(0, 5))}</em>` : ""}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
         const mg = marAsgOf(s.id), mpill = mg.length ? `<span class="asg-pill mar" title="${esc(mg.map(x => "מרתון: " + [x.name, x.school].filter(Boolean).join(" · ") + (x.date ? " · " + fmtIso(x.date) : "")).join("\n"))}">${mg.map(x => `<span>🏁 מרתון${x.date ? " " + esc(fmtIso(x.date).replace(/\.\d{4}$/, "")) : ""}</span>`).join("")}</span>` : "";
         const ov = a.length ? weekLoadCalc(a.map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))) : "";   // 5.19.20
         return ($("fAsg").value === "wkchg" ? wkChgHtml(s.id) : "") + (ov ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : (mg.length ? "" : `<span class="asg-none">לא משובץ</span>`)) + (mpill ? (pills || props ? " " : "") + mpill : ""); })()}</td>
-      <td class="c-parent">${(() => { const fm = s.family || {}, nm = fm.parent1_first || fm.parent1_last || "", ph = fm.parent1_phone || "";   // שם פרטי + טלפון בשורה אחת
+    <td class="c-parent">${(() => { const fm = s.family || {}, nm = fm.parent1_first || fm.parent1_last || "", ph = fm.parent1_phone || "";   // שם פרטי + טלפון בשורה אחת
         return nm || ph ? `<span class="pn">${esc(nm)}</span>${nm && ph ? `<span class="sep"> · </span>` : ""}${ph ? `<a class="pp" dir="ltr" href="tel:${esc(ph)}" onclick="event.stopPropagation()">${esc(String(ph).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : ""}` : ""; })()}</td>
-      <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
-      <td class="num c-upd">${esc(fmtDate(lastUpdate(l)))}</td>
+    <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
+    <td class="num c-upd">${esc(fmtDate(lastUpdate(l)))}</td>
+    <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
+    <td class="c-act"><button type="button" class="switch ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}"></button></td>
+    <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
     </tr>`;
   }).join("");
   $("leadsTbl").classList.toggle("locked", !LIST_EDIT);
-  $("leadsTbl").innerHTML = head + "<tbody>" + (rows || `<tr><td colspan="15" class="empty-state">${$("fAsg").value === "wkchg" && !WC.map ? "טוען את הנוכחות של השבוע…" : "אין לידים שמתאימים לסינון."}</td></tr>`) + "</tbody>";
+  $("leadsTbl").innerHTML = head + "<tbody>" + (rows || `<tr><td colspan="16" class="empty-state">${$("fAsg").value === "wkchg" && !WC.map ? "טוען את הנוכחות של השבוע…" : "אין לידים שמתאימים לסינון."}</td></tr>`) + "</tbody>";
   $("leadsTbl").querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
     if (F.sort === th.dataset.sort) F.dir *= -1; else { F.sort = th.dataset.sort; F.dir = th.dataset.sort === "updated" ? -1 : 1; }
     saveLeadFilters(); renderLeads();
@@ -4270,7 +4623,7 @@ function openLead(id){
   go("lead");
   renderTrack(l); $("leadPay").innerHTML = ""; $("leadPayments").innerHTML = ""; $("leadCancel2").innerHTML = "";
   leadQuick(l ? l.student : null, null);
-  if (l) { loadNotes(l.id); loadLeadGroups(l.student.id); loadLeadSig(l); loadLeadHist(l); loadLeadLog(l); loadLeadExams(l); loadLeadPay(l); loadLeadPayments(l); loadLeadCancel(l); loadLeadTs(l); } else { $("leadSig").textContent = ""; $("leadHist").textContent = ""; $("leadTs").textContent = ""; }
+  if (l) { loadNotes(l.id); loadLeadGroups(l.student.id); loadLeadSig(l); loadLeadHist(l); loadLeadLog(l); loadLeadExams(l); loadLeadPay(l); loadLeadPayments(l); loadLeadCancel(l); loadLeadTs(l); loadLeadCourses(l); } else { $("leadSig").textContent = ""; $("leadHist").textContent = ""; $("leadTs").textContent = ""; }
 }
 // כותרת המסך: שם הילד בגדול, ומתחת - הורה, טלפון, בית ספר ושכבה. מתעדכנת תוך כדי הקלדה.
 function updateLeadHead(){
@@ -4395,13 +4748,28 @@ async function markPaid(x){
         loadLeads().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); return true; }
   catch(e) { toast("לא נשמר: " + e.message); return false; }
 }
+// ממתין לתשלום טלפוני (נועה 30.10): קודם הקטגוריה, ואז פרטי הקורס – מרתון: תאריכים · מקום · קבוצה; שוטף: מסלול (בצבע) · מקצוע
+function pendWhat(x, sid){
+  const what = String(x.what || "");
+  if (x.kind === "marathon") {
+    const mc = crsOfStudent(sid).map(m => ({ m, c: CRS.byId[m.course_id] })).filter(o => o.c && o.c.marathon_id).sort((a, b) => (b.m.status === "ממתין לתשלום") - (a.m.status === "ממתין לתשלום"))[0];
+    const o = mc ? (CRS.mar || {})[mc.c.marathon_id] || {} : {}, ds = (o.dates && o.dates.length ? o.dates : o.first ? [o.first] : []);
+    const grp = what.includes(" · ") ? what.split(" · ").slice(1).join(" · ") : "";
+    const det = [ds.length ? ds.map(fmtDM).join(", ") : "", [o.school, o.city].filter(Boolean).join(", "), grp].filter(Boolean);
+    return `<b>מרתון</b> · ${esc(det.length ? det.join(" · ") : what)}`;
+  }
+  const to = LK.tracks.find(t => t.t.split(" - ")[0] === what.split(" - ")[0] || CRS_TRK_S[t.v] === what) || null;
+  const cat = (CRS.cats.find(c => c.kind === "regular" && (c.tracks || []).includes("single")) || {}).name || "תרגול שוטף";
+  return `<b>${esc(cat)}</b> · ${to ? `<span class="trk-chip sm" style="--tc:${to.c}">${esc(CRS_TRK_S[to.v])}</span>` : esc(what)}${x.subject && !(to && to.v === "double") ? " · " + esc(x.subject) : ""}`;
+}
 async function loadLeadPay(l){
   let rows = [];
   try { rows = await get("pending_phone_payments", "select=*&student_id=eq." + l.student.id + "&order=created_at"); } catch(e) { return; }
   if (!rows.length || !editing || editing.id !== l.id) return;
+  return;   // 5.19.162 (נועה 30.10): הקופסה האדומה לא רלוונטית – "ממתין לתשלום טלפוני" (עם "שולם") בתשלומים
   // 5.19.18: מוצג רק כשהסטטוס "לקחת אשראי" (מתחת לפרטים העיקריים)
   // 5.19.158 (נועה): מוצג תמיד כשיש הרשמה שממתינה לתשלום (גם אם הסטטוס שונה ידנית)
-  $("leadPay").innerHTML = `<div class="pay-box"><b>⏳ ממתין לתשלום טלפוני</b>${rows.map((x, i) => `<div class="row"><span>${esc(x.kind === "marathon" ? x.what : (x.what || "") + (x.subject ? " · " + x.subject : ""))}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">(ואז ${fmtMoney(x.monthly_amount)} לחודש)</span>` : ""}</span>
+  $("leadPay").innerHTML = `<div class="pay-box"><b>⏳ ממתין לתשלום טלפוני</b>${rows.map((x, i) => `<div class="row"><span>${pendWhat(x, l.student.id)}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">(ואז ${fmtMoney(x.monthly_amount)} לחודש)</span>` : ""}</span>
     <button type="button" class="btn small primary" data-paid="${i}">שולם</button></div>`).join("")}</div>`;
   $("leadPay").querySelectorAll("[data-paid]").forEach(b => b.onclick = async () => { b.disabled = true; if (await markPaid(rows[Number(b.dataset.paid)])) { $("leadPay").innerHTML = ""; setTimeout(() => { const nl = L.leads.find(x => x.id === l.id); if (nl && editing && editing.id === l.id) { $("lfStatus").value = nl.status_id; paintStatus($("lfStatus"), nl.status_id); } }, 1500); } else b.disabled = false; });
 }
@@ -4569,7 +4937,7 @@ async function loadLeadPayments(l){
   // 5.19.63 (נועה): הכול בכרטיס התלמיד - גם הוראות הקבע והתשלום הטלפוני שממתין (בלי מסך נפרד)
   let plans = [], pend = [];
   try { plans = ((await rpc("recurring_plans_list")) || []).filter(p => Number(p.student_id) === Number(l.student.id)); } catch(e) {}
-  try { pend = await get("pending_phone_payments", "select=*&student_id=eq." + l.student.id); } catch(e) {}
+  try { pend = await get("pending_phone_payments", "select=*&student_id=eq." + l.student.id); } catch(e) {} if (pend.length) await crsLoad();
   if (!editing || editing.id !== l.id || (!rows.length && !paidRegs.length && !plans.length && !pend.length)) return;
   rows.sort((a, b) => String(b.date).localeCompare(String(a.date)));
   const ok = rows.filter(r => r.status === "אושר"), sum = ok.reduce((s, r) => s + Number(r.amount || 0), 0), last = rows[0];
@@ -4587,10 +4955,13 @@ async function loadLeadPayments(l){
   const PST = { creating: "בהקמה", active: "פעילה", paused: "מושהית", failed: "חיוב לא התקבל", done: "הסתיימה", cancelled: "בוטלה", error: "לא הוקמה" };
   const planHtml = plans.length ? `<div class="lp-regs"><div class="lp-regs-h">הוראות קבע <span class="muted" style="font-weight:400">· שינויים, השהיה וביטול – בריווחית</span></div>${plans.map(p => { const rem = Math.max(0, (p.total_count || 0) - (p.charged_count || 0));
       return `<div class="lp-reg lp-plan"><span><b>${fmtMoney(p.monthly_amount)}</b> לחודש · ${p.charged_count || 0}/${p.total_count || "?"} חיובים${["active", "paused", "failed"].includes(p.status) && p.next_charge_date && rem ? ` · הבא ${esc(dm(p.next_charge_date))} · נשארו ${rem}` : ""}${p.card_last4 ? ` · <span dir="ltr">•••• ${esc(p.card_last4)}</span>` : ""}${p.description ? `<div class="muted">${esc(p.description)}</div>` : ""}${planMarked(p) ? `<div class="muted">${planMarkInfo(p)}</div>` : ""}</span><span class="lp-plan-e"><span class="lp-st ${["active", "done"].includes(p.status) ? "ok" : p.status === "paused" ? "" : "no"}">${esc(PST[p.status] || p.status)}</span>${planMarkBtns(p, "lpcx")}</span></div>`; }).join("")}</div>` : "";
-  const pendHtml = pend.length ? `<div class="lp-regs"><div class="lp-regs-h">📞 ממתין לתשלום טלפוני</div>${pend.map(x => `<div class="lp-reg"><span>${esc(x.what || "")}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">+ ${fmtMoney(x.monthly_amount)} לחודש</span>` : ""}</span></div>`).join("")}</div>` : "";
+  const pendHtml = pend.length ? `<div class="lp-regs"><div class="lp-regs-h">📞 ממתין לתשלום טלפוני</div>${pend.map((x, i) => `<div class="lp-reg"><span>${pendWhat(x, l.student.id)}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">+ ${fmtMoney(x.monthly_amount)} לחודש</span>` : ""}</span><button type="button" class="btn small primary" data-lppaid="${i}">שולם</button></div>`).join("")}</div>` : "";
   box.innerHTML = `<details class="lp-box"${LP_OPEN ? " open" : ""}><summary><b><span class="lp-ic" aria-hidden="true">💳</span> תשלומים</b> <span class="lp-sum">${ok.length} שולמו · סה"כ <b>${fmtMoney(sum)}</b></span>${bad ? ` <span class="lp-st no">${bad} לא התקבל</span>` : ""}</summary>
     ${pendHtml}${planHtml}${rows.length ? `<div class="dx lp-dx">${rows.map(lpRow).join("")}</div>` : ""}${regHtml}</details>`;
   if (LP_OPEN) { LP_OPEN = false; setTimeout(() => box.scrollIntoView({ behavior: "smooth", block: "start" }), 50); }
+  if (pend.length) box.querySelector("details").open = true;   // 5.19.162: ממתין לתשלום – פתוח, עם "שולם"
+  box.querySelectorAll("[data-lppaid]").forEach(b => b.onclick = async () => { b.disabled = true;
+    if (await markPaid(pend[Number(b.dataset.lppaid)])) { setTimeout(() => { if (editing && editing.id === l.id) { loadLeadPayments(l); loadLeadGroups(l.student.id); const nl = L.leads.find(x => x.id === l.id); if (nl) { $("lfStatus").value = nl.status_id; paintStatus($("lfStatus"), nl.status_id); } } }, 1500); } else b.disabled = false; });
   box.querySelectorAll("[data-unpaid]").forEach(b => b.onclick = async () => { const x = paidRegs[Number(b.dataset.unpaid)];
     if (!await uiConfirm(`לבטל את הסימון "שולם"?\n${x.what}\nההרשמה תחזור ל"ממתין לתשלום".`, { danger: true })) return;
     b.disabled = true;
@@ -4756,15 +5127,41 @@ function leadQuick(st, cur){
     ${st.phone ? `<div class="lq-row"><span class="lq-k">תלמיד/ה</span>${ph(st.phone)}</div>` : ""}</div>`;
   box.innerHTML = sum + gs;
 }
+// כותרת קורס בכרטיס (נועה 30.10): קטגוריה · פרטים · מצב; מתחתיה השיבוצים של הקורס
+function crsHead(m){ const c = CRS.byId[m.course_id] || {};
+  const lab = c.marathon_id ? (() => { const o = (CRS.mar || {})[c.marathon_id] || {}, ds = o.dates && o.dates.length ? o.dates : o.first ? [o.first] : [];
+      return `<b>מרתון</b> · ${ds.length ? esc(ds.map(fmtDM).join(", ")) + " · " : ""}${o.school ? scChip(o.school) : esc(c.name || "")}`; })()
+    : `<b>${esc(crsCat(c.category_id).name || "")}</b> · ${crsLabel(c, m)}`;
+  return `<div class="lg-crs" data-crsmar="${c.marathon_id || ""}"><span class="lg-crs-l">${lab}<span class="lg-crs-g"></span>${m.signed === false ? ` <span class="sig-miss" title="חסרה חתימה על התנאים">✍︎</span>` : ""}</span><span class="lg-crs-r">${crsSrcBtn(m)}${crsStWord(m)}</span></div>`; }
+async function crsGroupsHtml(sid, cur, card){
+  const empty = "<div class='muted'>לא משובץ/ת לקבוצה השנה.</div>";
+  if (ME.role === "instructor" || !(await crsLoad())) return cur.length ? cur.map(card).join("") : empty;
+  const act = crsActiveSeasons(), isMar = (a) => a.session.kind === "מרתון" || a.session.marathon_id;
+  const ms = crsOfStudent(sid).filter(m => !["בוטל", "פרש"].includes(m.status) && CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id));
+  const used = new Set(); let h = "", first = true;
+  ms.filter(m => !CRS.byId[m.course_id].marathon_id).forEach(m => { h += crsHead(m);
+    if (first && !/summer/.test(CRS.byId[m.course_id].track || "")) { first = false; const rs = cur.filter(a => !isMar(a)); rs.forEach(a => used.add(a.id)); h += rs.map(card).join(""); } });
+  const td0 = todayIL(), fin = (c) => { const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td0; };
+  ms.filter(m => CRS.byId[m.course_id].marathon_id && !fin(CRS.byId[m.course_id])).forEach(m => { const c = CRS.byId[m.course_id]; h += crsHead(m);
+    const rs = cur.filter(a => !used.has(a.id) && a.session.marathon_id === c.marathon_id); rs.forEach(a => used.add(a.id)); h += rs.map(card).join(""); });
+  h += cur.filter(a => !used.has(a.id)).map(card).join("");
+  // קורסים קודמים (נועה 30.10): מחזורים קודמים, פרש, ומרתון שהסתיים – למטה, מקופל
+  const td = todayIL(), done = (c) => c.marathon_id && (() => { const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td; })();
+  const old = crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && !ms.includes(m) || (ms.includes(m) && done(CRS.byId[m.course_id])))
+    .sort((a, b) => (crsSeason(CRS.byId[b.course_id].season_id).year_start || 0) - (crsSeason(CRS.byId[a.course_id].season_id).year_start || 0));
+  if (old.length) h += `<details class="lc-old"><summary>קורסים קודמים (${old.length})</summary>${old.map(m => { const c = CRS.byId[m.course_id];
+    return `<div class="lc-old-r"><span>${c.marathon_id ? "<b>מרתון</b> · " + crsLabel(c, m) : "<b>" + esc(crsCat(c.category_id).name || "") + "</b> · " + crsLabel(c, m)}</span><span class="muted">${esc(crsSeason(c.season_id).name || "")}${m.status !== "רשום" ? " · " + esc(m.status) : ""}</span></div>`; }).join("")}</details>`;
+  return h || empty;
+}
 async function loadLeadGroups(studentId){
   $("leadGroups").innerHTML = "<div class='muted'>טוען...</div>"; delete $("leadAtt").dataset.sum; $("leadAtt").textContent = "";
   try {
     const AS_SEL = "select=id,subject,arrival_time,personal_end,status,session:sessions(id,day,time_label,start_time,end_time,room,city,school_year,%K%location:locations(name),session_instructors(staff(full_name)))&student_id=eq." + studentId;
-    const as = await get("assignments", AS_SEL.replace("%K%", "kind,meeting_dates,")).catch(() => get("assignments", AS_SEL.replace("%K%", "")));
+    const as = await get("assignments", AS_SEL.replace("%K%", "kind,meeting_dates,marathon_id,")).catch(() => get("assignments", AS_SEL.replace("%K%", "")));
     const cur = as.filter(a => a.session && a.session.school_year === CONFIG.schoolYear && (a.status === "משובץ" || a.status === "ממתין"))
       .sort((a, b) => (DAY_ORDER[a.session.day] ?? 9) - (DAY_ORDER[b.session.day] ?? 9) || String(a.session.start_time).localeCompare(String(b.session.start_time)));
     { const l0 = L.leads.find(x => x.student && x.student.id === studentId); leadQuick(l0 ? l0.student : null, cur); }
-    $("leadGroups").innerHTML = cur.length ? cur.map(a => {
+    const lgCard = (a) => {
       const se = a.session, arr = (a.arrival_time || "").slice(0, 5), start = (se.start_time || "").slice(0, 5);
       const ins = (se.session_instructors || []).map(x => x.staff && x.staff.full_name).filter(Boolean).join(", ");
       const prop = a.status === "ממתין";
@@ -4783,7 +5180,8 @@ async function loadLeadGroups(studentId){
         <div class="lg-btns"><button type="button" class="btn small" data-chg="${a.id}">✎ שינוי שיבוץ</button>
           <button type="button" class="btn small" data-gs="${se.id}" data-city="${esc(se.city)}">בלוח הקבוצות ←</button></div>
         <div class="lg-edit" data-ed="${a.id}" hidden></div></div>`;
-    }).join("") : "<div class='muted'>לא משובץ/ת לקבוצה השנה.</div>";
+    };
+    $("leadGroups").innerHTML = await crsGroupsHtml(studentId, cur, lgCard);   // 5.19.162: פרטי הקורס מעל השיבוצים
     // שיבוץ מוצע: קיבל/ה הודעה -> אישר/ה (ואז השיבוץ הופך ל"משובץ")
     $("leadGroups").querySelectorAll("[data-pcard]").forEach(box => {
       const aid = Number(box.dataset.pcard), up = (body) => api("POST", "/rest/v1/schedule_notices?on_conflict=student_id,school_year", Object.assign({ student_id: studentId, school_year: CONFIG.schoolYear }, body), { "Prefer": "resolution=merge-duplicates,return=minimal" }).then(() => { NTC.map[studentId] = Object.assign(NTC.map[studentId] || {}, body); });
@@ -4796,10 +5194,13 @@ async function loadLeadGroups(studentId){
         catch(err) { e.target.checked = false; e.target.disabled = false; toast("לא נשמר: " + err.message); } };
     });
     // 5.19.158 (נועה): הרשמה למרתון שממתינה לתשלום – רואים לאיזה מרתון (המקום בקבוצה נשמר רק אחרי "שולם")
-    try { const pm = await get("marathon_registrations", "select=id,session:sessions(time_label,start_time),marathon:marathons(name,school,cancelled_at)&student_id=eq." + studentId + "&status=eq." + encodeURIComponent("ממתין לתשלום"));
-      pm.filter(x => x.marathon && !x.marathon.cancelled_at).forEach(x => $("leadGroups").insertAdjacentHTML("beforeend",
-        `<div class="lg-pend">🏁 <b>${esc(x.marathon.name)}</b>${x.session && x.session.time_label ? " · " + esc(x.session.time_label) : ""}<span class="lg-pend-t">⏳ ממתין לתשלום – ישובץ/תשובץ אחרי "שולם"</span></div>`)); } catch(e) {}
-    $("leadGroups").insertAdjacentHTML("beforeend", `<button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button><div class="lg-edit lg-card" data-ed="new" hidden></div>`);
+    try { const pm = await get("marathon_registrations", "select=id,session:sessions(time_label,start_time),marathon:marathons(id,name,school,cancelled_at)&student_id=eq." + studentId + "&status=eq." + encodeURIComponent("ממתין לתשלום"));
+      pm.filter(x => x.marathon && !x.marathon.cancelled_at).forEach(x => { const hd = $("leadGroups").querySelector(`[data-crsmar="${x.marathon.id}"] .lg-crs-g`);
+        if (hd) { if (x.session && x.session.time_label) hd.textContent = " · " + x.session.time_label; return; }
+        $("leadGroups").insertAdjacentHTML("beforeend",
+        `<div class="lg-pend">🏁 <b>${esc(x.marathon.name)}</b>${x.session && x.session.time_label ? " · " + esc(x.session.time_label) : ""}<span class="lg-pend-t">⏳ ממתין לתשלום – ישובץ/תשובץ אחרי "שולם"</span></div>`); }); } catch(e) {}
+    $("leadGroups").insertAdjacentHTML("beforeend", `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button>${CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : ""}</div><div class="lg-edit lg-card" data-ed="new" hidden></div>`);
+    if ($("lcAdd")) $("lcAdd").onclick = () => { const l0 = L.leads.find(x => x.student && x.student.id === studentId); if (l0) crsAddDlg(l0); };
     $("leadGroups").querySelectorAll("[data-gs]").forEach(b => b.onclick = () => openGroupOnBoard(Number(b.dataset.gs), b.dataset.city));
     $("leadGroups").querySelectorAll("[data-chg]").forEach(b => b.onclick = () => openAsgEditor(studentId, cur.find(a => String(a.id) === b.dataset.chg), cur));
     $("lgAddBtn").onclick = () => openAsgEditor(studentId, null, cur);
@@ -5398,7 +5799,7 @@ $("leadEditBtn").addEventListener("click", () => { setLeadEdit(true); const k = 
   const place = () => { if (!meta) return; if (meta.parentNode !== xw) xw.insertBefore(meta, xw.firstChild); bar.hidden = false; };
   place(); mq.addEventListener ? mq.addEventListener("change", place) : mq.addListener(place); })();
 // 5.19.89 (נועה): בנייד הסינון בלי כותרות – שם השדה בתוך השדה ("עיר: הכול")
-(function(){ const mq = matchMedia("(max-width:760px)"), sels = ["fCity", "fSchool", "fGrade", "fAsg", "fManager"].map(id => $(id)).filter(Boolean);
+(function(){ const mq = matchMedia("(max-width:760px)"), sels = ["fCity", "fSchool", "fGrade", "fAsg", "fManager", "fCourse"].map(id => $(id)).filter(Boolean);
   const lblOf = (sel) => { const l = sel.parentNode.querySelector(".lbl"); return l ? l.textContent.trim() : ""; };
   const paint = () => sels.forEach(sel => { const o = sel.options[0]; if (!o) return; const base = o.dataset.base || o.textContent.replace(/^[^:]+:\s*/, ""); o.dataset.base = base; o.textContent = mq.matches ? lblOf(sel) + ": " + base : base; });
   sels.forEach(sel => new MutationObserver(() => { const o = sel.options[0]; if (o && mq.matches && !/:/.test(o.textContent)) paint(); }).observe(sel, { childList: true }));
@@ -8362,7 +8763,7 @@ function renderHome(){
     ["exams", "🗓", "מרתונים", "מרתונים ולוח המבחנים"],
     ["att", "✔", "קבוצות ונוכחות", "לוח הקבוצות, צפייה בנוכחות ודוח"],
     ["tsheli", "📄", "תלם שלי ↗", "סימון נוכחות ומאגר הדפים"],
-    ["reg", "📝", "הרשמה", "קישורי הטפסים, ממתינים לתשלום, ביטולים"],
+    ["reg", "📝", "קורסים", "הקורסים והתלמידים בהם, קישורי הטפסים, ממתינים לתשלום, ביטולים"],
     ["pay", "💳", "תשלומים", "לטיפול, עסקאות, הוראות קבע ודפי תשלום"]
   ];
   const more = inst ? [] : [["reports", "📊", "דוחות"], ["settings", "⚙", "הגדרות"]];
@@ -9797,7 +10198,7 @@ function renderSchedTbl(){
 // ======================================================================
 // הרשמה (מנהלים): קישורי הרשמה, ממתינים לאשראי, בקשות ביטול, טופס התעניינות
 // ======================================================================
-const RG = { tab: ["links", "cancel", "pay"].includes(store("telem_reg_tab")) ? store("telem_reg_tab") : "links", city: store("telem_reg_city") || null, pay: null, can: null };
+const RG = { tab: ["courses", "links", "cancel", "pay"].includes(store("telem_reg_tab")) ? store("telem_reg_tab") : "courses", city: store("telem_reg_city") || null, pay: null, can: null };
 // לשוניות "הרשמה ושיבוץ": בקשות שיבוץ = המסך של השיבוצים, השאר במסך ההרשמה
 function paintRegTabs(){
   const cur = currentView === "sched" ? "requests" : RG.tab;
@@ -9914,6 +10315,11 @@ async function renderReg(){
   const waitCan = RG.can.filter(r => r.status === "נחתם").length;
   document.querySelectorAll(".rgPayN").forEach(e => e.innerHTML = RG.pay.length ? `<span class="n">${RG.pay.length}</span>` : "");
   document.querySelectorAll(".rgCanN").forEach(e => e.innerHTML = waitCan ? `<span class="n">${waitCan}</span>` : "");
+  $("rgCrsNew").hidden = RG.tab !== "courses"; $("lkBaseBox").hidden = RG.tab === "courses";
+  if (RG.tab === "courses") {   // 5.19.162 (נועה 30.10): "הרשמה" → "קורסים"; הלשונית הראשונה – הקורסים
+    $("rgCities").hidden = true; $("rgMain").closest(".sc-wrap").classList.add("one-col");
+    $("lkBaseBox").hidden = true; $("rgCrsNew").onclick = () => crsCourseNew(); await renderCrsCourses(true); return;
+  }
   const needCity = false;
   const cityN = (c) => RG.tab === "pay" ? RG.pay.filter(x => x.city === c).length + " ממתינים" : RG.tab === "cancel" ? RG.can.filter(x => x.city === c && x.status !== "אושר").length + " פתוחות" : "";
   const opts = (needCity ? [] : [""]).concat(CONFIG.cities);
