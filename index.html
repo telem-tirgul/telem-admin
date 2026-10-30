@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.169">
+<meta name="app-version" content="5.19.170">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2527,12 +2527,12 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
             <!-- פרטים עיקריים: שם הילד, הורה, טלפון -->
             <fieldset class="key-box"><legend>פרטים עיקריים</legend>
               <div class="key-grid">
-                <div class="field"><label class="lbl req" for="sFirst">שם פרטי</label><input id="sFirst" class="big" type="text" required></div>
-                <div class="field"><label class="lbl req" for="sLast">שם משפחה</label><input id="sLast" class="big" type="text" required></div>
+                <div class="field"><label class="lbl" for="sFirst">שם פרטי</label><input id="sFirst" class="big" type="text" required></div>
+                <div class="field"><label class="lbl" for="sLast">שם משפחה</label><input id="sLast" class="big" type="text" required></div>
                 <div class="field"><label class="lbl" for="sPhone">טלפון תלמיד/ה</label><input id="sPhone" class="big" type="tel" inputmode="numeric"></div>
                 <div><label class="lbl" for="sEmail">אימייל תלמיד/ה</label><input id="sEmail" type="email" dir="ltr"></div>
                 <div class="kg-br" aria-hidden="true"></div><!-- 5.19.70 (נועה): שורה 1 - התלמיד/ה, שורה 2 - ההורה -->
-                <div class="field"><label class="lbl req" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
+                <div class="field"><label class="lbl" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
                 <div><label class="lbl" for="p1Last">משפחה (הורה)</label><input id="p1Last" class="big" type="text"></div>
                 <div class="field"><label class="lbl req" for="p1Phone">טלפון הורה</label>
                   <div class="phone-row"><input id="p1Phone" class="big" type="tel" inputmode="numeric"><a id="p1Wa" class="btn small" href="#" target="_blank" rel="noopener" hidden>וואטסאפ</a></div></div>
@@ -4464,7 +4464,7 @@ function renderLeads(){
     const ns = L.notes[l.id] || [];
     return `<tr data-id="${l.id}" class="${l.is_active ? "" : "inactive"}">
       <td class="c-info"><button type="button" class="icon-btn info" data-act="info" aria-label="פרטים מהירים" title="פרטים מהירים">i</button></td>
-    <td class="c-name"><button type="button" class="name-link" data-act="open">${esc(s.first_name)} ${esc(s.last_name || "")}</button>${crsSigMiss(s.id)}${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
+    <td class="c-name"><button type="button" class="name-link" data-act="open">${s.first_name || s.last_name ? esc(s.first_name) + " " + esc(s.last_name || "") : `<span class="muted">(בלי שם${s.family && s.family.parent1_first ? " · הורה: " + esc(s.family.parent1_first) : ""})</span>`}</button>${crsSigMiss(s.id)}${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
     <td class="c-ts">${tsCell(l)}</td>
     <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" data-htip="${esc(ns.length ? ns.slice().reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
     <td class="c-crs">${crsChipsRow(s.id)}${(() => { const w = crsMismatch(l); return w ? `<span class="crs-mis" title="בדיקה: הסטטוס מול הקורסים">⚠ ${esc(w)}</span>` : ""; })()}</td>
@@ -6086,17 +6086,17 @@ $("leadForm").addEventListener("submit", async (e) => {
   const navAfter = LEAD_NAV_AFTER; LEAD_NAV_AFTER = null;   // אם השמירה נכשלת - נשארים בכרטיס
   const err = $("leadErr"); err.textContent = "";
   let ok = true;
-  // 5.19.82 (נועה): חובה - שם פרטי, שם משפחה, שם הורה, טלפון הורה
-  ["sFirst","sLast","p1First"].forEach(id => { const bad = !$(id).value.trim(); $(id).closest(".field").classList.toggle("invalid", bad); if (bad) ok = false; });
+  // 5.19.170 (נועה): פנייה מהורה – בלי שם הילד/ה. חובה רק טלפון הורה + שם אחד (של הילד/ה או של ההורה)
+  { const none = !$("sFirst").value.trim() && !$("p1First").value.trim(); ["sFirst","p1First"].forEach(id => $(id).closest(".field").classList.toggle("invalid", none)); ["sLast"].forEach(id => $(id).closest(".field").classList.remove("invalid")); if (none) ok = false; }
   if (!validPhone("p1Phone", true)) ok = false;
   if (!validPhone("p2Phone", false)) ok = false;
   if (!validPhone("sPhone", false)) ok = false;
   { const c = $("sClass").value.trim(), bad = c !== "" && !/^[0-9]{1,2}$/.test(c); $("sClass").closest(".field").classList.toggle("invalid", bad);
     if (bad) { err.textContent = "מספר כיתה - רק מספר (למשל 3), בלי אות השכבה."; return; } }
-  if (!ok) { err.textContent = "יש למלא את השדות עם הכוכבית: שם פרטי, שם משפחה, שם הורה וטלפון הורה תקין (מתחיל ב-0)."; return; }
+  if (!ok) { err.textContent = "צריך טלפון הורה תקין (מתחיל ב-0) ושם אחד לפחות – של הילד/ה או של ההורה."; return; }
 
   const school = L.schools.find(x => String(x.id) === $("sSchool").value);
-  const family = { parent1_first: nn($("p1First").value), parent1_last: nn($("p1Last").value), parent1_phone: nn(digits($("p1Phone").value)), parent1_email: nn($("p1Email").value),
+  const family = { parent1_first: $("p1First").value.trim(), parent1_last: nn($("p1Last").value), parent1_phone: nn(digits($("p1Phone").value)), parent1_email: nn($("p1Email").value),
     parent2_first: nn($("p2First").value), parent2_last: nn($("p2Last").value), parent2_phone: nn(digits($("p2Phone").value)), parent2_email: nn($("p2Email").value),
     home_phone: nn(digits($("fHome").value)), address: nn($("fAddr").value), city: nn($("fCityIn").value) || (school && school.city) || null,
     mailing_consent: $("lfMailing").classList.contains("on") };
