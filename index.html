@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.168">
+<meta name="app-version" content="5.19.169">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1694,6 +1694,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .crs-subj{ font-size:12px !important; padding:0 8px !important; } #leadsTbl td.c-crs{ min-width:0 !important; } #leadsTbl td.c-cst, #leadsTbl td.c-csrc{ white-space:nowrap; }
 #leadsTbl .crs-cell select.crs-sel{ max-width:130px !important; }
 @media (max-width:760px){ #leadsTbl .c-cst{ order:5; } #leadsTbl .c-csrc{ order:5; } #leadsTbl .c-crs .crs-col, #leadsTbl .c-cst .crs-col, #leadsTbl .c-csrc .crs-col{ gap:2px; } }
+.lc-sign{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0 2px; } .lc-sign-st{ display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; }
 .ftx-tabs{ margin:0 0 12px; } .pe-banner{ background:var(--accent); color:#fff; border-radius:12px; padding:12px 16px; font-size:20px; display:flex; flex-direction:column; gap:2px; margin-bottom:8px; } .pe-banner span{ font-size:13px; opacity:.85; }
 .ft-lk{ display:flex; flex-direction:column; align-items:flex-start; gap:6px; } .ft-lk .lk2-cell{ display:flex; flex-wrap:wrap; gap:4px; } .ft-lk .lk2-cell .btn{ padding:2px 8px !important; font-size:12px !important; min-height:26px !important; }
 .ft-sw{ font:inherit; font-size:12.5px; font-weight:800; border-radius:999px; padding:2px 12px; cursor:pointer; border:1.5px solid; } .ft-sw.on{ color:#2F7D32; border-color:#2F7D32; background:#EAF6EA; } .ft-sw.off{ color:#8a7f76; border-color:#c9bfb5; background:#fff; }
@@ -4967,7 +4968,7 @@ async function txPdf(r, l){
   if (!phones.length) { toast("אין טופס חתום (לא נמצא התלמיד/ה)"); return; }
   const rows = await get("signatures", "select=id,kind,student_first,signed_at&parent_phone=in.(" + phones.join(",") + ")&order=signed_at.desc&limit=20");
   const norm = (t) => String(t || "").replace(/[\s'"׳״-]/g, ""), mar = r.kind === "מרתון";
-  const mine = rows.filter(x => (!st.first_name || norm(x.student_first) === norm(st.first_name)) && ((x.kind === "marathon") === mar));
+  const mine = rows.filter(x => x.kind !== "terms" && (!st.first_name || norm(x.student_first) === norm(st.first_name)) && ((x.kind === "marathon") === mar));
   const lim = new Date(new Date(r.date || Date.now()).getTime() + 864e5);
   const pick = mine.find(x => new Date(x.signed_at) <= lim) || mine[mine.length - 1];
   if (!pick) { toast("אין טופס חתום (נרשם/ה לפני הטופס החדש או מחוץ לאתר)"); return; }
@@ -5239,18 +5240,27 @@ async function loadLeadSig(l){
     const rows = await get("signatures", "select=id,kind,order_id,student_first,image,signed_at,city,school&parent_phone=in.(" + phones.join(",") + ")&order=signed_at.desc&limit=10");
     const norm = (t) => String(t || "").replace(/[\s'"׳״-]/g, "");
     const mine = rows.filter(r => !r.student_first || norm(r.student_first) === norm(l.student.first_name));
+    // 5.19.169 (נועה): גם טופס תשלום אישי שנחתם (מקישור התשלום) – באותה רשימה
+    if (ME.role === "admin") { try { ((await rpc("pay_links_list")) || []).filter(x => Number(x.student_id) === Number(l.student.id) && x.has_pdf && x.submitted_at)
+      .forEach(x => mine.push({ pay: x.code, kind: "pay", signed_at: x.submitted_at, school: x.description })); } catch(e) {}
+      mine.sort((a, b) => String(b.signed_at).localeCompare(String(a.signed_at))); }
     // 5.19.41: כרטיס לכל טופס חתום (סוג, תאריך, החתימה, הורדה); בשורה המקופלת - תקציר קצר
-    const kTxt = (r) => r.kind === "marathon" ? "טופס הרשמה למרתון" : "טופס הרשמה לתרגולים";
-    $("leadSig").dataset.sum = mine.length ? `${mine.length} ${mine.length === 1 ? "טופס חתום" : "טפסים חתומים"} · האחרון ${fmtDate(mine[0].signed_at)} (${mine[0].kind === "marathon" ? "מרתון" : "תרגולים"})` : "אין עדיין חתימה";
+    const kTxt = (r) => r.kind === "marathon" ? "טופס הרשמה למרתון" : r.kind === "terms" ? "טופס חתימה על התנאים" : r.kind === "pay" ? "טופס תשלום אישי" : "טופס הרשמה לתרגולים";
+    const kShort = (r) => r.kind === "marathon" ? "מרתון" : r.kind === "terms" ? "חתימה על התנאים" : r.kind === "pay" ? "תשלום אישי" : "תרגולים";
+    $("leadSig").dataset.sum = mine.length ? `${mine.length} ${mine.length === 1 ? "טופס חתום" : "טפסים חתומים"} · האחרון ${fmtDate(mine[0].signed_at)} (${kShort(mine[0])})` : "אין עדיין חתימה";
     $("leadSig").classList.toggle("muted", !mine.length);
     $("leadSig").innerHTML = mine.length ? `<div class="sig-list">` + mine.map(r => `<div class="sig-card"><div class="sig-h"><b>${kTxt(r)}</b>${r.school ? `<span class="muted"> · ${esc(r.school)}</span>` : ""}</div>
-      <div class="muted sig-meta">נחתם ${esc(fmtDate(r.signed_at))}${r.order_id ? " · הזמנה " + esc(r.order_id) : ""}</div>
-      <img src="${esc(r.image)}" alt="חתימה" class="sig-img"><button type="button" class="btn small" data-pdf="${r.id}">⬇ הטופס החתום (PDF)</button></div>`).join("") + `</div>` : "אין עדיין חתימה (נרשם/ה לפני הטופס החדש או מחוץ לאתר).";
+      <div class="muted sig-meta">נחתם ${esc(fmtDate(r.signed_at))}${r.order_id && r.kind !== "terms" ? " · הזמנה " + esc(r.order_id) : ""}</div>
+      ${r.image ? `<img src="${esc(r.image)}" alt="חתימה" class="sig-img">` : ""}<button type="button" class="btn small" ${r.pay ? `data-paypdf="${esc(r.pay)}"` : `data-pdf="${r.id}"`}>⬇ הטופס החתום (PDF)</button></div>`).join("") + `</div>` : "אין עדיין חתימה (נרשם/ה לפני הטופס החדש או מחוץ לאתר).";
+    $("leadSig").querySelectorAll("[data-paypdf]").forEach(b => b.onclick = async () => { b.disabled = true;
+      try { const d = await rpc("pay_link_pdf", { p_code: b.dataset.paypdf }); if (!d) { toast("אין PDF לטופס הזה"); b.disabled = false; return; }
+        const a = document.createElement("a"); a.href = String(d).startsWith("data:") ? d : "data:application/pdf;base64," + d; a.download = "טופס תשלום - " + fnSafe((l.student.first_name || "") + " " + (l.student.last_name || "")) + ".pdf"; document.body.appendChild(a); a.click(); a.remove();
+      } catch(e) { toast("לא ניתן להוריד: " + e.message); } b.disabled = false; });
     $("leadSig").querySelectorAll("[data-pdf]").forEach(b => b.onclick = async () => {
       b.disabled = true;
       try { const r = await get("signatures", "select=pdf,kind,student_first,student_last,signed_at&id=eq." + b.dataset.pdf);
         if (!r.length || !r[0].pdf) { toast("אין PDF להרשמה הזאת (נשלחה לפני שנוסף)"); b.disabled = false; return; }
-        const a = document.createElement("a"); a.href = r[0].pdf; a.download = (r[0].kind === "marathon" ? "טופס הרשמה למרתון - " : "טופס הרשמה - ") + fnSafe((r[0].student_first || "") + " " + (r[0].student_last || "")) + " - " + fmtDM(String(r[0].signed_at || "").slice(0, 10)) + ".pdf"; document.body.appendChild(a); a.click(); a.remove();
+        const a = document.createElement("a"); a.href = r[0].pdf; a.download = (r[0].kind === "marathon" ? "טופס הרשמה למרתון - " : r[0].kind === "terms" ? "טופס חתימה על התנאים - " : "טופס הרשמה - ") + fnSafe((r[0].student_first || "") + " " + (r[0].student_last || "")) + " - " + fmtDM(String(r[0].signed_at || "").slice(0, 10)) + ".pdf"; document.body.appendChild(a); a.click(); a.remove();
       } catch(e) { toast("לא ניתן להוריד: " + e.message); }
       b.disabled = false;
     });
@@ -5310,6 +5320,38 @@ function crsHead(m){ const c = CRS.byId[m.course_id] || {};
       return `<b>מרתון</b> · ${ds.length ? esc(ds.map(fmtDM).join(", ")) + " · " : ""}${o.school ? scChip(o.school) : esc(c.name || "")}`; })()
     : `<b>${esc(crsCatN(c.category_id))}</b> · ${crsLabel(c, m)}`;
   return `<div class="lg-crs" data-crsmar="${c.marathon_id || ""}"><span class="lg-crs-l">${lab}<span class="lg-crs-g"></span>${m.signed === false ? ` <span class="sig-miss" title="חסרה חתימה על התנאים">✍︎</span>` : ""}</span><span class="lg-crs-r">${crsSrcBtn(m)}${crsStWord(m)}</span></div>`; }
+// 5.19.169 (נועה, קובץ 135): טופס חתימה על התנאים בלבד – קישור אישי לכל רישום לקורס (חתימה אחת, 30 יום)
+const crsSignRow = (m) => m.signed === true || !["רשום", "ממתין לתשלום"].includes(m.status) ? "" : `<div class="lc-sign" data-sgm="${m.id}"><button type="button" class="btn small" data-sgn="${m.id}">✍ שליחת טופס חתימה</button><span class="lc-sign-st"></span></div>`;
+const signUrl = (code) => (CONFIG.formsBase || "https://telem-tirgul.github.io/") + "sign.html?c=" + code;
+async function signWire(sid){
+  const boxes = [...$("leadGroups").querySelectorAll("[data-sgm]")]; if (!boxes.length) return;
+  let links = [];
+  try { links = await get("sign_links", "select=id,code,course_member_id,created_at,opened_at,signed_at,expires_at,cancelled_at&student_id=eq." + sid + "&order=id.desc"); }
+  catch(e) { boxes.forEach(b => { b.querySelector("[data-sgn]").disabled = true; b.querySelector(".lc-sign-st").textContent = "יופיע אחרי הרצת קובץ 135"; }); return; }
+  const l0 = L.leads.find(x => x.student && x.student.id === sid), st = (l0 && l0.student) || {}, f = st.family || {};
+  const live = (k) => k && !k.signed_at && !k.cancelled_at && new Date(k.expires_at) > new Date();
+  const paint = (box) => {
+    const mid = Number(box.dataset.sgm), m = crsOfStudent(sid).find(x => x.id === mid) || {}, c = CRS.byId[m.course_id] || {};
+    const k = links.find(x => x.course_member_id === mid && live(x)), btn = box.querySelector("[data-sgn]"), stEl = box.querySelector(".lc-sign-st");
+    btn.hidden = !!k;
+    if (!k) { stEl.innerHTML = ""; return; }
+    const u = signUrl(k.code), lab = [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ");
+    const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, זה הטופס לאישור תנאי ההתקשרות ולחתימה עבור ${st.first_name || ""} (${lab}): ${u}`;
+    const pd = String(f.parent1_phone || "").replace(/\D/g, ""), wa = /^0\d{8,9}$/.test(pd) ? `https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}` : "";
+    stEl.innerHTML = `<span class="muted">✍ נשלח ${esc(fmtDM(String(k.created_at).slice(0, 10)))} · ${k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח"}</span> <button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ להורה</a>` : ""}`;
+    stEl.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
+  };
+  boxes.forEach(box => { paint(box); box.querySelector("[data-sgn]").onclick = async (e) => {
+    const b = e.currentTarget, mid = Number(box.dataset.sgm), m = crsOfStudent(sid).find(x => x.id === mid) || {}, c = CRS.byId[m.course_id] || {};
+    b.disabled = true;
+    try {
+      const r = await api("POST", "/rest/v1/sign_links", { student_id: sid, course_member_id: mid, course_label: [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ") }, { "Prefer": "return=representation" });
+      const row = Array.isArray(r) ? r[0] : r; if (!row || !row.code) throw new Error("no code");
+      links.unshift(row); paint(box); toast("נוצר קישור לחתימה – אפשר לשלוח להורה");
+    } catch(err) { toast("לא נוצר קישור: " + err.message); }
+    b.disabled = false; };
+  });
+}
 async function crsGroupsHtml(sid, cur, card){
   const empty = "<div class='muted'>לא משובץ/ת לקבוצה השנה.</div>";
   if (ME.role === "instructor" || !(await crsLoad())) return cur.length ? cur.map(card).join("") : empty;
@@ -5318,7 +5360,7 @@ async function crsGroupsHtml(sid, cur, card){
   const ms = crsOfStudent(sid).filter(m => !["בוטל", "פרש"].includes(m.status) && CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id));
   const used = new Set(); let h = "", first = true;
   // 5.19.166 (נועה): השיבוצים בתוך המסגרת של הקורס – בתרגול השוטף הקבוצות, במרתון הקבוצה של המרתון
-  ms.filter(m => !CRS.byId[m.course_id].marathon_id).forEach(m => { h += `<div class="lg-crs-box">` + crsHead(m);
+  ms.filter(m => !CRS.byId[m.course_id].marathon_id).forEach(m => { h += `<div class="lg-crs-box">` + crsHead(m) + crsSignRow(m);
     if (first && !/summer/.test(mTrk(m)) && !(crsCat(CRS.byId[m.course_id].category_id).tracks || []).includes("summer")) { first = false; const rs = cur.filter(a => !isMar(a)); rs.forEach(a => used.add(a.id));
       h += rs.length ? rs.map(card).join("") : (m.status === "רשום" ? `<div class="muted lg-none">לא משובץ/ת לקבוצה</div>` : ""); }
     h += `</div>`; });
@@ -5363,6 +5405,7 @@ async function loadLeadGroups(studentId){
         <div class="lg-edit" data-ed="${a.id}" hidden></div></div>`;
     };
     $("leadGroups").innerHTML = await crsGroupsHtml(studentId, cur, lgCard);   // 5.19.162: פרטי הקורס מעל השיבוצים
+    signWire(studentId).catch(() => {});
     // שיבוץ מוצע: קיבל/ה הודעה -> אישר/ה (ואז השיבוץ הופך ל"משובץ")
     $("leadGroups").querySelectorAll("[data-pcard]").forEach(box => {
       const aid = Number(box.dataset.pcard), up = (body) => api("POST", "/rest/v1/schedule_notices?on_conflict=student_id,school_year", Object.assign({ student_id: studentId, school_year: CONFIG.schoolYear }, body), { "Prefer": "resolution=merge-duplicates,return=minimal" }).then(() => { NTC.map[studentId] = Object.assign(NTC.map[studentId] || {}, body); });
