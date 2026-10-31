@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.9">
+<meta name="app-version" content="5.20.10">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1700,6 +1700,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 #leadsTbl div.crs-chip.crs-grid{ display:grid !important; grid-template-columns:124px 104px 72px minmax(110px, auto); gap:4px; align-items:center; border:0; background:none; padding:1px 0; }
 #leadsTbl .crs-grid select.crs-sel{ width:100% !important; max-width:none !important; min-width:0 !important; } #leadsTbl .crs-grid .crs-l{ white-space:nowrap; }
 .crs-lk-pair{ display:flex; flex-wrap:wrap; gap:6px 0; } .crs-lk-pair .crs-lk-h{ flex-basis:100%; } .crs-lk-pair .crs-lk-r{ flex:1 1 360px; justify-content:flex-start; gap:10px; padding-inline:10px; } .crs-lk-pair .crs-lk-r + .crs-lk-r{ border-inline-start:2px solid var(--border); }   /* 5.19.168 (נועה): התעניינות והרשמה זה לצד זה */
+.gbadge.gb-sm{ width:auto; min-width:32px; height:26px; padding:0 6px; border-radius:13px; font-size:12.5px; border-width:1.5px; } .crs-mgo{ font:inherit; background:none; border:0; padding:0; cursor:pointer; color:inherit; display:inline-flex; align-items:center; gap:4px; text-decoration:underline dotted; }   /* 5.20.10 */
 .crs-col{ display:flex; flex-direction:column; gap:4px; } .crs-cell{ display:flex; align-items:center; gap:6px; min-height:26px; white-space:nowrap; }
 .trk-dot{ min-width:20px; height:20px; border:0; padding:0; background:none; cursor:pointer; flex:none; display:inline-flex; align-items:center; justify-content:center; gap:3px; color:inherit; font:inherit; } .trk-dot .trk-l{ font-size:12px; font-weight:800; white-space:nowrap; } .trk-dot svg{ width:19px; height:19px; display:block; } .trk-dot.none{ color:#2B2320; } .trk-dot:disabled{ cursor:default; }
 .crs-subj{ font-size:12px !important; padding:0 8px !important; } #leadsTbl td.c-crs{ min-width:0 !important; } #leadsTbl td.c-cst, #leadsTbl td.c-csrc{ white-space:nowrap; }
@@ -3744,7 +3745,7 @@ function crsChipsRow(sid, part){ if (!CRS.ok) return ""; const act = crsActiveSe
       return `<div class="crs-cell"><select class="crs-sel crs-sel-st" data-cmst="${m.id}" style="${stSoft(st.color || "#888")}" aria-label="סטטוס בקורס">${lst.map(x => `<option value="${esc(x.name)}"${x.color ? ` style="background:${esc(x.color)}; color:${txtOn(x.color)};"` : ` style="background:#fff; color:#222;"`} ${x.name === m.status ? "selected" : ""}>${esc(x.label)}</option>`).join("")}</select></div>`; }
     if (part === "src") return `<div class="crs-cell">${CRS.hasSrc ? `<select class="crs-sel crs-sel-src" data-cmsrc="${m.id}" aria-label="מקור"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === m.source_id).map(x => `<option value="${x.id}" ${x.id === m.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}</div>`;
     if (c.marathon_id) { const o = (CRS.mar || {})[c.marathon_id] || {};   // 5.19.173 (נועה): בטבלה – בלי בית הספר (הוא בעמודה שליד)
-      return `<div class="crs-cell" title="${esc(crsShort(c, true))}"><span class="ci">🏁</span>${o.first ? esc(fmtDM(o.first)) : "מרתון"}</div>`; }
+      return `<div class="crs-cell"><button type="button" class="crs-mgo" data-act="crsgo" data-crs="${c.id}" title="${esc(crsShort(c, true))} – לחיצה: למרתון במסך הקורסים"><span class="ci">🏁</span>${o.first ? esc(fmtDM(o.first)) : "מרתון"}</button></div>`; }   // 5.20.10 (נועה): לחיצה – למרתון
     const tk = mTrk(m), to = LK.tracks.find(x => x.v === tk), trks = crsCat(c.category_id).tracks || [];
     // 5.19.172 (נועה): אייקון של תרגול שוטף (כמו 🏁 למרתון) בצבע המסלול; בלי מסלול (התעניינות כללית) – שחור
     const dot = `<button type="button" class="trk-dot${to ? "" : " none"}" data-cmtrk2="${m.id}" style="${to ? `color:${to.c}` : ""}" title="${esc((to ? to.t : "בלי מסלול") + " – לחיצה לבחירת מסלול")}" ${!CRS.hasTrk || !trks.length ? "disabled" : ""}>${TRK_IC}</button>`;
@@ -4506,6 +4507,9 @@ function histInfoHtml(h){
 }
 
 // כיתה = שכבה + מספר (למשל ח'1). אם מספר הכיתה כבר כולל אות (ח1) - מוצג כמו שהוא
+// 5.20.10 (נועה): השכבה בטבלת התלמידים – כמו בנוכחות (עיגול בצבע השכבה, ומספר הכיתה)
+function gradeTbl(grade, num){ const k = gradeKey(grade), n = String(num || "").trim(), t = classLabel(grade, num); if (!t) return "";
+  return `<span class="gbadge gb-sm g-${esc(k || "x")}" title="${esc(t)}">${esc(k ? k + "'" + (/^\d+$/.test(n) ? n : "") : t)}</span>`; }
 function classLabel(grade, num){
   const g = String(grade || "").trim(), n = String(num || "").trim();
   if (!n) return g;
@@ -4591,7 +4595,7 @@ function renderLeads(){
     <td class="c-csrc">${crsChipsRow(s.id, "src")}</td>
     <td class="c-crs">${crsChipsRow(s.id)}${(() => { const w = crsMismatch(l); return w ? `<span class="crs-mis" title="בדיקה: הסטטוס מול הקורסים">⚠ ${esc(w)}</span>` : ""; })()}</td>
     <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
-    <td class="c-grade">${esc(classLabel(s.grade, s.class_num))}</td>
+    <td class="c-grade">${gradeTbl(s.grade, s.class_num)}</td>
     <td class="c-asg" data-act="asg" title="לחיצה - שיבוץ לקבוצה / שינוי">${(() => { const a = asgOf(l), pr = propOf(l);
         const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}${x.location && x.location.name ? `<em class="asg-loc"> · ${esc(x.location.name)}</em>` : ""}${x.ends_on ? `<em class="asg-end" title="פרש/ה – השיבוץ יורד לבד אחרי התאריך"> · עד ${esc(fmtIso(x.ends_on).slice(0, 5))}</em>` : ""}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
@@ -4637,6 +4641,11 @@ $("leadsTbl").addEventListener("click", async (e) => {
   const tr = el.closest("tr"), l = L.leads.find(x => String(x.id) === tr.dataset.id); if (!l) return;
   const act = el.dataset.act;
   if (act === "open") { openLead(l.id); return; }
+  if (act === "crsgo") { const c = CRS.byId[Number(el.dataset.crs)]; if (!c) return;   // 5.20.10 (נועה): מהטבלה – לקורס (המרתון) במסך הקורסים, עם החלון שלו פתוח
+    RG.tab = "courses"; store("telem_reg_tab", "courses"); CRS.fc = String(c.category_id || ""); RG.city = c.city || RG.city; CRS.open.add(crsCity(c) + "|" + crsSch(c)); go("reg");
+    let n = 0; const t = setInterval(() => { const ready = currentView === "reg" && document.querySelector("#view-reg tr.crs-sr");
+      if (ready || ++n > 40) { clearInterval(t); CRS.sel = c.id; crsOpenDrawer(c); const k = document.querySelector(`#view-reg [data-kids="${c.id}"]`); if (k) { k.classList.add("on"); k.scrollIntoView({ block: "center" }); } } }, 150);
+    return; }
   if (act === "info") { if (!$("pop").hidden && $("pop").dataset.for === "info" + l.id) { hidePop(); return; }   // 5.19.173 (נועה): לחיצה שוב על i – סגירה
     showPop(el, infoHtml(l)); $("pop").dataset.for = "info" + l.id; return; }
   if (act === "notes") { showPop(el, notesHtml(l), l); return; }
@@ -5139,7 +5148,7 @@ function dupFind(st, fam, exceptSid){
 const dupCard = (l) => { const s = l.student || {}, f = s.family || {};
   return `<b>${esc((s.first_name || "") + " " + (s.last_name || ""))}</b> <span class="muted">#${s.id}</span><div class="muted" style="font-size:13px">${[statusName(l.status_id), s.grade ? "שכבה " + s.grade + (s.class_num ? s.class_num : "") : "", s.school || "", f.parent1_first ? "הורה: " + f.parent1_first + (f.parent1_phone ? " " + f.parent1_phone : "") : "", s.phone ? "נייד: " + s.phone : "", "נוצר " + fmtIso(String(l.created_at || s.created_at || "").slice(0, 10))].filter(Boolean).map(esc).join(" · ")}</div>`; };
 // חלון איחוד: מתחילים מילד/ה אחד/ת, בוחרים את הכפול (הצעות לפי הכללים + חיפוש בשם), ואז מי נשאר
-function mergeDlg(sid, preferKeep){
+function mergeDlg(sid, preferKeep, after){
   const me = (L.leads || []).find(l => Number(l.student_id) === Number(sid)); if (!me) { toast("לא נמצא כרטיס"); return; }
   const sug = dupFind(me.student, me.student.family, sid);
   const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
@@ -5152,7 +5161,7 @@ function mergeDlg(sid, preferKeep){
   document.body.appendChild(bg);
   const close = () => bg.remove();
   bg.querySelector("[data-x]").onclick = close; bg.addEventListener("click", e => { if (e.target === bg) close(); });
-  const pick = (other) => { close(); mergeConfirm(preferKeep === other ? other : sid, preferKeep === other ? sid : other); };
+  const pick = (other) => { close(); mergeConfirm(preferKeep === other ? other : sid, preferKeep === other ? sid : other, after); };
   bg.querySelectorAll("[data-mg]").forEach(b => b.onclick = () => pick(Number(b.dataset.mg)));
   bg.querySelector("#mgQ").oninput = (e) => { const t = e.target.value.trim(), res = bg.querySelector("#mgRes"); if (t.length < 2) { res.innerHTML = ""; return; }
     const hits = (L.leads || []).filter(l => l.student && Number(l.student_id) !== Number(sid) && ((l.student.first_name || "") + " " + (l.student.last_name || "")).includes(t)).slice(0, 8);
@@ -7795,7 +7804,8 @@ const IB_ISS_NM = { first_name: "שם פרטי", last_name: "שם משפחה", p
 const IB_ISS_SHORT = { phone_fixed: "נייד תלמיד/ה עודכן", phone_parent: "נייד בטופס – של הורה", parent2_added: "נוסף הורה 2", same_name: "אותו שם – כרטיס חדש", duplicate: "ייתכן כפילות", grade_hist: "שכבה לפי שנים קודמות" };   // 114
 const ibIssLbl = (x) => IB_ISS_SHORT[x.field] || (String(IB_ISS_NM[x.field] || x.label || x.field || "").replace(/ תלמיד\/ה$/, "") + " לא תואם");
 const ibIssTxt = (iss) => !iss.length ? "לא תואם" : iss.slice(0, 2).map(ibIssLbl).join(" · ") + (iss.length > 2 ? ` ועוד ${iss.length - 2}` : "");
-const ibWarn = (r) => (r.issues || []).length > 0 || (r.flags || []).some(f => IB_WARN_F.includes(f));
+const ibMerged = (r) => !!((r.data || {}).merged_at);   // 5.20.10: אוחד – בלי "כפילות אפשרית"
+const ibWarn = (r) => (r.issues || []).filter(x => !(ibMerged(r) && x.field === "duplicate")).length > 0 || (r.flags || []).some(f => IB_WARN_F.includes(f) && !(f === "possible_duplicate" && ibMerged(r)));
 // 5.19.125 (נועה): ספירה לפי ילדים – כמה התראות "מול הקבוצה הקבועה" של אותו ילד/ה = 1 (כמו הכרטיס במסך)
 const ibCountKids = (rows) => new Set(rows.map(r => r.kind === "group_diff" && r.student_id ? "g" + r.student_id : "r" + r.id)).size;
 function ibPaint(n){ const b = $("inboxN"); if (b) b.innerHTML = n ? `<b>${n > 99 ? "99+" : n}</b>` : ""; }
@@ -8041,22 +8051,25 @@ async function renderInbox(reload){
   const gdSeen = new Set();
   box.innerHTML = `<div class="ib-list">` + rows.map(r => { if (r.kind === "group_diff") { const g = r.student_id ? gdBy[r.student_id] : null;
       if (!g) return ibGdCard(r, when);   // 5.19.122: גם אירוע אחד – אותו כרטיס (שבוע, נוכחות בקבוצה הקבועה, לאן הגיע/ה)
-      if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = r.issues || [];
+      if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = (r.issues || []).filter(x => !(ibMerged(r) && x.field === "duplicate"));
     const pr = IB.pair && IB.pair[r.id], pi = IB.pairInt && IB.pairInt[r.id], dd = (IB.dups && IB.dups[r.id]) || [];
     const ids = [r.id].concat(pr ? [pr.id] : [], pi ? [pi.id] : [], dd.map(x => x.id), dd.map(x => IB.pair[x.id]).filter(Boolean).map(x => x.id)).join(",");
     // 5.19.150 (נועה 28.10): בשורת הרשמה / תשלום – הסטטוס של הכרטיס בצבע שלו (במקום "תשלום טלפוני ממתין")
     const stOn = lead && lead.status_id && (r.kind === "marathon" || r.kind === "registration" || r.kind === "payment" || r.kind === "interest"), stC = stOn ? statusColor(lead.status_id) : "";
-    const tags = (stOn && statusName(lead.status_id) ? `<span class="ib-tag ib-st"${stC ? ` style="${stSoft(stC)}"` : ""}>${esc(statusName(lead.status_id))}</span>` : "")
+    // 5.20.10 (נועה): הסטטוס של הקורס של ההתראה (המרתון / התרגול השוטף) – כמו במייל; אין קורס טעון – הסטטוס של הכרטיס
+    const icm = stOn && typeof CRS !== "undefined" && CRS.ok ? (() => { const ms = crsOfStudent(lead.student_id).filter(m => !crsGone(m) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id)), mid = Number((r.data || {}).marathon_id) || 0;
+      return mid ? ms.find(m => CRS.byId[m.course_id].marathon_id === mid) : ms.find(m => !CRS.byId[m.course_id].marathon_id); })() : null, icst = icm ? crsStOf(icm.status) : null;
+    const tags = (icst ? `<span class="ib-tag ib-st" style="${stSoft(icst.color || "#888")}" title="הסטטוס בקורס">${esc(icst.label || icst.name)}</span>` : stOn && statusName(lead.status_id) ? `<span class="ib-tag ib-st"${stC ? ` style="${stSoft(stC)}"` : ""}>${esc(statusName(lead.status_id))}</span>` : "")
       + (pi ? `<span class="ib-tag t-old" title="${esc(ibWhat(pi))}">קודם: השאירו פרטים ${esc(when(pi.created_at))}</span>` : "")
       + (dd.length ? `<span class="ib-tag t-warn" title="אותה הרשמה נשלחה שוב – ההרשמות הקודמות עדיין במערכת (אפשר לבטל אותן ב'ממתינים לתשלום')">נשלח ${dd.length + 1} פעמים · ${dd.slice().reverse().concat([r]).map(x => esc(when(x.created_at).replace(/^היום /, ""))).join(", ")}</span>` : "")
-      + (r.flags || []).filter((f, i, a) => IB_FLAG[f] && a.indexOf(f) === i && !(stOn && f === "phone_pending")).map(f => f === "status_mismatch" && (r.data || {}).status_mismatch ? `<span class="ib-tag t-warn" title="${esc(r.data.status_mismatch)}">⚠ ${esc(r.data.status_mismatch)}</span>` : `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
+      + (r.flags || []).filter((f, i, a) => IB_FLAG[f] && a.indexOf(f) === i && !(stOn && f === "phone_pending") && !(f === "possible_duplicate" && ibMerged(r))).map(f => f === "status_mismatch" && (r.data || {}).status_mismatch ? `<span class="ib-tag t-warn" title="${esc(r.data.status_mismatch)}">⚠ ${esc(r.data.status_mismatch)}</span>` : `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
       + (iss.length || (r.flags || []).includes("mismatch") ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}" title="לחיצה – מה כתוב אצלנו ומה בטופס">⚠ ${esc(ibIssTxt(iss))} ▾</button>` : "");
     return `<div class="ib-row ${r.status}${w ? " warn" : ""}" data-ib="${r.id}">
       <span class="ib-ic" title="${esc(k[1])}">${k[0]}</span><span class="ib-k">${esc(k[1])}</span>
       <span class="ib-n">${ibNameLink(r, lead)}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
       <span class="ib-time">${esc(when(r.created_at))}</span>
-      <span class="ib-acts">${r.kind === "payment" && (r.flags || []).includes("plan_withdrawn") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}" data-ibpay="1" title="בכרטיס – 💳 תשלומים והוראות קבע (הביטול / ההשהיה עצמם – בריווחית)">לכרטיס – הוראת קבע</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : !pr && ME.role === "admin" && (r.kind === "marathon" || r.kind === "registration") && (r.flags || []).includes("phone_pending") && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${dd.length && ME.role === "admin" && r.status !== "handled" ? `<button type="button" class="btn small" data-ibdupx="${r.id}" title="ההרשמות הקודמות יסומנו &quot;בוטל&quot; – נשארת האחרונה">ביטול הכפולה</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${ids}">✓ נקרא</button>` : ""}${(w || pr || pi || r.kind === "marathon" || r.kind === "registration" || (r.flags || []).includes("blocked_already") || (r.flags || []).includes("status_mismatch")) && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
+      <span class="ib-acts">${r.kind === "payment" && (r.flags || []).includes("plan_withdrawn") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}" data-ibpay="1" title="בכרטיס – 💳 תשלומים והוראות קבע (הביטול / ההשהיה עצמם – בריווחית)">לכרטיס – הוראת קבע</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) ? ((r.data || {}).merged_at ? `<span class="ib-tag t-new" title="${esc(fmtDate((r.data || {}).merged_at))}">✓ בוצע איחוד</span>` : ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : "") : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : !pr && ME.role === "admin" && (r.kind === "marathon" || r.kind === "registration") && (r.flags || []).includes("phone_pending") && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${dd.length && ME.role === "admin" && r.status !== "handled" ? `<button type="button" class="btn small" data-ibdupx="${r.id}" title="ההרשמות הקודמות יסומנו &quot;בוטל&quot; – נשארת האחרונה">ביטול הכפולה</button>` : ""}${r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${ids}">✓ נקרא</button>` : ""}${(w || pr || pi || r.kind === "marathon" || r.kind === "registration" || (r.flags || []).includes("blocked_already") || (r.flags || []).includes("status_mismatch")) && r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : ""}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
       ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>` + more;
   if ($("ibMore")) $("ibMore").onclick = async () => { $("ibMore").disabled = true; await ibLoadDone(false); renderInbox(false); };
@@ -8105,7 +8118,9 @@ async function renderInbox(reload){
         if (note !== "אוחד") toastUndo("נשארו שני הכרטיסים · סומן טופל", () => ibRestore([{ id: r.id, status: "new", handled_at: null, handled_by: null, note: null }])); } catch(e) { toast("לא נשמר: " + e.message); } };
       mergeConfirm(r.student_id, d.dup_id, done("אוחד"), done("לא כפילות – נשארו שניהם"));
       return; }
-    mergeDlg(Number(b.dataset.ibm)); });
+    // 5.20.10 (נועה): אחרי איחוד מהתראה (הרשמה / התעניינות) – ההתראה מסומנת "בוצע איחוד" והכפתור יורד (ההרשמה עצמה – עדיין לטיפול)
+    mergeDlg(Number(b.dataset.ibm), undefined, async () => { if (!r) return; const nd = Object.assign({}, r.data || {}, { merged_at: new Date().toISOString() });
+      try { await patch("form_inbox", "id=eq." + r.id, { data: nd }); r.data = nd; renderInbox(false); } catch(e) { toast("אוחד, אבל ההתראה לא עודכנה: " + e.message); } }); });
   box.querySelectorAll("[data-ibcx]").forEach(b => b.onclick = async () => { const p = (IB.plans || {})[b.dataset.ibcx]; if (!p) return; b.disabled = true;   // 5.19.68: סימון "בוטלה" מההודעה
     const r = IB.rows.find(x => x.ref_id === b.dataset.ibcx); if (await planMarkCancel(p, r ? ibName(r) : "")) { p.cancel_marked_at = new Date().toISOString(); renderInbox(false); } else b.disabled = false; });   // 5.19.66: כפילות אפשרית - איחוד מכאן
   box.querySelectorAll("[data-ibs]").forEach(b => b.onclick = async () => { const [st, id] = b.dataset.ibs.split(":"); b.disabled = true;
