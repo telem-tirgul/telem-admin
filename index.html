@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.6">
+<meta name="app-version" content="5.20.7">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1997,6 +1997,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .rg-lk-bar .rg-lk-seg{ display:inline-flex; gap:0; margin:0; border:1px solid var(--border); border-radius:999px; background:var(--paper); padding:2px; grid-template-columns:none; }
 .rg-lk-bar .rg-lk-seg button{ font-size:14px; font-weight:700; padding:5px 14px; border:0; border-radius:999px; box-shadow:none; background:none; white-space:nowrap; }
 .rg-lk-bar .rg-lk-seg button[aria-selected="true"]{ background:var(--accent); color:#fff; box-shadow:none; }
+.cls-new{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; } .cls-new select{ width:auto; min-width:120px; } .cls-acts{ display:flex; gap:6px; flex-wrap:wrap; }
+.cls-qr{ max-width:420px; text-align:center; } .cls-qr-t{ font-weight:900; font-size:19px; color:var(--accent); margin-bottom:12px; } .cls-qr-c{ display:flex; justify-content:center; padding:12px; background:#fff; border-radius:12px; } .cls-qr-c img, .cls-qr-c canvas{ width:300px; height:300px; } .cls-qr-u{ font-size:12.5px; color:var(--ink-soft); margin:10px 0; word-break:break-all; }   /* 5.20.7 */
 .ftx-mar .rg-city-row{ align-items:center; gap:6px; margin:0 0 10px; padding:0; border:0; } .ftx-mar .rg-city-row button{ font-size:14px; font-weight:700; padding:4px 14px; border-radius:999px; border:1px solid var(--border); } .ftx-mar .rg-city-row button[aria-pressed="true"]{ background:color-mix(in srgb, var(--accent) 14%, var(--paper)); border-color:var(--accent); color:var(--accent); }   /* 5.20.6 */
 .rg-lk-bar .rg-city-row{ display:inline-flex; align-items:center; gap:6px; margin:0; padding:0; border:0; flex-wrap:wrap; }
 .rg-lk-bar .rg-city-row button{ font-size:14px; font-weight:700; padding:4px 14px; border-radius:999px; border:1px solid var(--border); background:var(--paper); color:var(--ink); }
@@ -5805,6 +5807,11 @@ async function renderFormsTable(M){ if (!M) return;
           <tr class="rg3-lk"><th>טופס הרשמה</th>${cities.map(c => `<td><div class="ft-lk">${on68 ? ftSw("reg:" + c, rpRegOpen(c)) : ""}${lk2Btns("", lkReg(c, ""), rm(c))}</div></td>`).join("")}</tr>
           ${cities.some(c => shutTrk(c).length) ? `<tr><th>⚠ מסלול סגור</th>${cities.map(c => `<td>${shutTrk(c).map(t => `<div class="muted">${esc(t.t)} ${rTr(c, "register_closed_tracks", t.v) ? swBtn("regt:" + c + "|" + t.v, false) : ""}${rTr(c, "interest_closed_tracks", t.v) ? swBtn("intt:" + c + "|" + t.v, false) : ""}</div>`).join("")}</td>`).join("")}</tr>` : ""}
           </tbody></table></div></section>`;
+        // 5.20.7 (נועה, קובץ 149): טופס כיתה – בוחרים בית ספר ושכבה → קישור + QR; הילדים ממלאים בטלפון (class.html)
+        h += `<section class="rg-sec ftx-cls"><div class="rg-sec-h"><h3>📣 טופס כיתה <small>כשעוברים בכיתות: בוחרים בית ספר ושכבה, מציגים לילדים את ה-QR, והם ממלאים בטלפון. בית הספר והשכבה – קבועים בטופס. נכנס כ"חדש", מקור "כיתה".</small></h3></div>
+          <div class="cls-new"><select id="clsCity"><option value="">עיר</option>${CONFIG.cities.map(c => `<option>${esc(c)}</option>`).join("")}</select><select id="clsSch"><option value="">בית ספר</option></select>
+            <select id="clsGr"><option value="">שכבה</option>${GRADES.map(g => `<option>${esc(g)}</option>`).join("")}</select><button type="button" class="btn primary" id="clsMake">+ קישור לכיתה</button></div>
+          <div id="clsList" class="cls-list"><div class="muted">טוען…</div></div></section>`;
         // 5.20.6 (נועה): המרתונים – בדיוק כמו בלשונית "קישורים ← מרתונים" שהוסרה: סינון לפי עיר, כרטיס לכל מרתון
         //   (מפגשים, מחיר, קבוצות, נרשמים, פתיחה / סגירה, עריכה, לא יתקיים, החזרים, קישור, הצגה באתר), ו"מרתונים שעברו" למטה
         if (RG.marCity === undefined) RG.marCity = store("telem_reg_marcity") || "*";
@@ -5815,8 +5822,47 @@ async function renderFormsTable(M){ if (!M) return;
         wireLk(M); lkApplyShort(M); wireSwf(M);
         M.querySelectorAll("[data-ftmc]").forEach(bt => bt.onclick = () => { RG.marCity = bt.dataset.ftmc; store("telem_reg_marcity", RG.marCity);
           M.querySelectorAll("[data-ftmc]").forEach(x => x.setAttribute("aria-pressed", String(x === bt))); renderRegMarathons(RG.marCity); });
-        RG.mar = null; renderRegMarathons(RG.marCity);
+        RG.mar = null; renderRegMarathons(RG.marCity); clsWire(M);
         M.querySelectorAll("[data-pedit]").forEach(bt => bt.onclick = () => { if (REG_PRICES_DB === false) { toast("כדי לערוך מחירים צריך להריץ את קובץ 44"); return; } openPriceEditor(bt.dataset.pedit); });
+}
+// ---------- 5.20.7: טופס כיתה (class_links, קובץ 149) ----------
+const clsUrl = (code) => (CONFIG.formsBase || "https://telem-tirgul.github.io/") + "class.html?c=" + code;
+let QR_LIB = null;
+const qrLoad = () => QR_LIB || (QR_LIB = new Promise((ok, no) => { if (window.QRCode) return ok(); const sc = document.createElement("script");
+  sc.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"; sc.onload = () => ok(); sc.onerror = () => { QR_LIB = null; no(new Error("qr")); }; document.head.appendChild(sc); }));
+async function clsShowQr(k){
+  const sch = ((L.schools || []).find(x => x.id === k.school_id) || {}).name || "", u = clsUrl(k.code);
+  const bg = document.createElement("div"); bg.className = "ui-dlg-bg cls-qr-bg";
+  bg.innerHTML = `<div class="ui-dlg cls-qr" role="dialog" aria-modal="true"><div class="cls-qr-t">טופס התעניינות · ${esc(sch)} · שכבה ${esc(k.grade)}</div><div class="cls-qr-c" id="clsQrC"><div class="muted">טוען…</div></div>
+    <div class="cls-qr-u" dir="ltr">${esc(u)}</div><div class="ui-dlg-b"><button type="button" class="btn" data-cp>העתקה</button><button type="button" class="btn" data-x>סגירה</button></div></div>`;
+  document.body.appendChild(bg); const close = () => bg.remove(); bg.querySelector("[data-x]").onclick = close; bg.addEventListener("click", (e) => { if (e.target === bg) close(); });
+  bg.querySelector("[data-cp]").onclick = () => copyText(u);
+  try { await qrLoad(); const c = bg.querySelector("#clsQrC"); c.innerHTML = ""; new QRCode(c, { text: u, width: 300, height: 300, correctLevel: QRCode.CorrectLevel.M }); }
+  catch(e) { bg.querySelector("#clsQrC").innerHTML = `<div class="muted">לא ניתן להציג QR – אפשר להעתיק את הקישור.</div>`; }
+}
+async function clsWire(M){
+  const city = M.querySelector("#clsCity"), sch = M.querySelector("#clsSch"), gr = M.querySelector("#clsGr"), list = M.querySelector("#clsList"); if (!city) return;
+  const fillSch = () => { sch.innerHTML = `<option value="">בית ספר</option>` + (L.schools || []).filter(x => x.city === city.value && x.is_active !== false).sort((a, b) => String(a.name).localeCompare(String(b.name), "he")).map(x => `<option value="${x.id}">${esc(x.name)}</option>`).join(""); };
+  city.onchange = fillSch;
+  let rows = [];
+  const paint = () => { const td = new Date().toISOString(), live = rows.filter(k => !k.cancelled_at && k.expires_at >= td);
+    list.innerHTML = live.length ? `<table class="tbl cls-tbl"><thead><tr><th>בית ספר</th><th>שכבה</th><th>נוצר</th><th>בתוקף עד</th><th>מילאו</th><th></th></tr></thead><tbody>${live.map(k => { const sc = (L.schools || []).find(x => x.id === k.school_id) || {};
+      return `<tr><td>${scChip(sc.name || "")}${sc.city ? ` <span class="muted">${esc(sc.city)}</span>` : ""}</td><td><b>${esc(k.grade)}</b></td><td>${esc(fmtDM(String(k.created_at).slice(0, 10)))}</td><td>${esc(fmtDM(String(k.expires_at).slice(0, 10)))}</td><td>${k.submits || 0}</td>
+        <td class="cls-acts"><button type="button" class="btn small primary" data-clsqr="${k.id}">▦ QR</button><button type="button" class="btn small" data-clscp="${k.id}">העתקה</button><button type="button" class="btn small danger" data-clsx="${k.id}">ביטול</button></td></tr>`; }).join("")}</tbody></table>`
+      : `<div class="muted">אין קישורים פעילים. בוחרים עיר, בית ספר ושכבה ← "+ קישור לכיתה".</div>`;
+    list.querySelectorAll("[data-clsqr]").forEach(b => b.onclick = () => clsShowQr(rows.find(k => k.id === Number(b.dataset.clsqr))));
+    list.querySelectorAll("[data-clscp]").forEach(b => b.onclick = () => copyText(clsUrl(rows.find(k => k.id === Number(b.dataset.clscp)).code)));
+    list.querySelectorAll("[data-clsx]").forEach(b => b.onclick = async () => { if (!await uiConfirm("לבטל את הקישור? מי שיפתח אותו יראה שהטופס לא פעיל.")) return;
+      try { await patch("class_links", "id=eq." + b.dataset.clsx, { cancelled_at: new Date().toISOString() }); const k = rows.find(x => x.id === Number(b.dataset.clsx)); if (k) k.cancelled_at = new Date().toISOString(); paint(); } catch(e) { toast("לא נשמר: " + e.message); } }); };
+  try { rows = await get("class_links", "select=*&order=id.desc&limit=100"); }
+  catch(e) { list.innerHTML = `<div class="muted">${/class_links|404|relation/.test(String(e.message || e.status)) ? "יופיע אחרי הרצת קובץ 149." : "לא ניתן לטעון."}</div>`; M.querySelector("#clsMake").disabled = true; return; }
+  paint();
+  M.querySelector("#clsMake").onclick = async (e) => { const b = e.currentTarget; if (!sch.value || !gr.value) { toast("בוחרים בית ספר ושכבה"); return; }
+    const ex = rows.find(k => !k.cancelled_at && k.expires_at >= new Date().toISOString() && String(k.school_id) === sch.value && k.grade === gr.value);
+    if (ex) { clsShowQr(ex); return; }
+    b.disabled = true;
+    try { const r = await insert("class_links", { school_id: Number(sch.value), grade: gr.value, city: city.value || null }); const k = Array.isArray(r) ? r[0] : r; rows.unshift(k); paint(); clsShowQr(k); }
+    catch(er) { toast("לא נשמר: " + er.message); } b.disabled = false; };
 }
 async function ftxGenPaint(){ const box = $("ftxGen"); if (!box) return;
   if (REG_PRICES_DB === null) { try { await loadRegPrices(); } catch(e) {} }
