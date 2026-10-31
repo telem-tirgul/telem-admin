@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.11">
+<meta name="app-version" content="5.20.12">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -212,6 +212,8 @@
   .key-box legend{ float:right; width:100%; padding:0 0 8px; }
   .key-box legend + *{ clear:both; }
   .phone-row a.btn{ text-decoration:none; }
+  .lbl-wa .wa-ic{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#25D366; color:#fff; text-decoration:none; vertical-align:middle; margin-inline-start:4px; }   /* 5.20.12: וואטסאפ – אייקון ליד "טלפון הורה" */
+  .lbl-wa .wa-ic svg{ width:13px; height:13px; } .lbl-wa .wa-ic[hidden]{ display:none; } .lbl-wa .wa-ic:hover{ filter:brightness(.92); }
   .sibs{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px; }
   .sibs:empty{ display:none; }
   .sibs-lbl{ font-weight:700; font-size:14px; } .sib-add{ align-self:center; } .sib-new{ font-size:14px; background:#F3ECE4; border-radius:10px; padding:8px 12px; }
@@ -2058,6 +2060,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 #view-lead .lead-main :is(.form-grid, .key-grid) > div > label.lbl{ font-size:13px !important; font-weight:700; line-height:1.4; color:#6B5F55 !important; margin:0 0 4px !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #view-lead .lead-main :is(.form-grid, .key-grid) :is(input:not([type=checkbox]):not([type=radio]), select){ height:40px !important; min-height:40px; font-size:14.5px !important; padding:6px 10px !important; border-radius:8px; border:1px solid #E5DDD3; background:#fff; box-sizing:border-box; }
 #view-lead .lead-main input.big{ font-size:15.5px !important; font-weight:600; }
+#view-lead .lead-main .form-grid > .kg-br{ flex:0 0 100% !important; height:0; padding:0 !important; margin:0; border:0 !important; background:none !important; }
 #view-lead .lead-main .key-grid > .kg-br{ flex:0 0 100% !important; grid-column:1 / -1; height:0; padding:0 !important; margin:0; }
 @media (min-width:961px){
   #view-lead .lead-main .key-grid > div:is(:has(#sFirst), :has(#sLast)){ flex:1 1 88px; }
@@ -2103,6 +2106,14 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 #view-lead .lead-main .sec-remind{ margin-bottom:10px; margin-top:12px; border-top:1px solid var(--border); padding-top:10px; }
 #view-lead .lead-main .sec-remind > div{ flex:0 1 320px !important; max-width:360px; }
 @media (min-width:961px){ #view-lead .lead-main .key-grid > div:has(#sEmail){ flex:1.3 1 118px; } }
+/* 5.20.12 (נועה): שורת ההורה כמו שורת התלמיד/ה – שם · משפחה · טלפון (עם אייקון וואטסאפ בתוך השדה) · אימייל, בשורה אחת */
+#view-lead .lead-main .key-grid > div:has(#p1Phone){ flex:1 1 96px !important; } #view-lead .lead-main .key-grid > div:has(#p1Email){ flex:1.3 1 118px !important; }
+#view-lead .lead-main .key-grid > div:is(:has(#p1First), :has(#p1Last)){ flex:1 1 88px !important; }
+#view-lead .lead-main .key-grid .phone-row input#p1Phone{ max-width:none !important; }
+/* 5.20.12 (נועה): הסטטוס והמקור הישנים – באותו גודל כמו שאר השדות ב"פרטים נוספים" */
+#view-lead .lf-old{ gap:8px; padding:8px 10px; } #view-lead .lf-old .tg-f{ flex:0 1 200px; min-width:140px; }
+#view-lead .lf-old .tg-f > label{ font-size:13px; font-weight:700; color:#6B5F55; }
+#view-lead .lf-old select{ height:40px !important; min-height:40px; font-size:14.5px !important; font-weight:600 !important; padding:6px 10px !important; border-radius:8px; width:100%; }
 /* 5.19.75 (נועה): כפתורים - במחשב ובנייד פס דק קבוע למטה */
 @media all{
   .lead-top-b{ display:none !important; }
@@ -2563,8 +2574,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div class="kg-br" aria-hidden="true"></div><!-- 5.19.70 (נועה): שורה 1 - התלמיד/ה, שורה 2 - ההורה -->
                 <div class="field"><label class="lbl req" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
                 <div><label class="lbl" for="p1Last">משפחה (הורה)</label><input id="p1Last" class="big" type="text"></div>
-                <div class="field"><label class="lbl req" for="p1Phone">טלפון הורה</label>
-                  <div class="phone-row"><input id="p1Phone" class="big" type="tel" inputmode="numeric"><a id="p1Wa" class="btn small" href="#" target="_blank" rel="noopener" hidden>וואטסאפ</a></div></div>
+                <div class="field"><label class="lbl req lbl-wa" for="p1Phone">טלפון הורה <a id="p1Wa" class="wa-ic" href="#" target="_blank" rel="noopener" hidden title="וואטסאפ להורה" aria-label="וואטסאפ להורה"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg></a></label>
+                  <div class="phone-row"><input id="p1Phone" class="big" type="tel" inputmode="numeric"></div></div>
                 <div><label class="lbl" for="p1Email">אימייל הורה</label><input id="p1Email" class="big" type="email" dir="ltr"></div>
               </div>
               <div id="siblings" class="sibs"></div>
@@ -2576,9 +2587,10 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div><label class="lbl" for="sSchool">בית ספר</label><select id="sSchool"></select></div>
                 <div><label class="lbl" for="sGrade">שכבה</label><select id="sGrade"></select></div>
                 <div class="field"><label class="lbl" for="sClass">כיתה</label><input id="sClass" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]*" data-ph="מס'"></div>
-                <div><label class="lbl" for="sEng">רמה אנגלית</label><select id="sEng"></select></div>
+                <div class="kg-br" aria-hidden="true"></div><!-- 5.20.12: שורה 1 – בית ספר, שכבה, כיתה; שורה 2 – הרמות -->
                 <div><label class="lbl" for="sMath">רמה מתמטיקה</label><select id="sMath"></select></div>
-                <div class="trk-f"><label class="lbl" for="sTrack">מסלול</label><select id="sTrack"><option value="">לא ידוע</option><option value="single">1 · פעמיים בשבוע</option><option value="unlimited-single">2 · ללא הגבלה</option><option value="double">3 · שני מקצועות</option></select></div><!-- 5.19.157 (נועה): אינפורמטיבי; מהרשמה בטופס – לבד (קובץ 127) -->
+                <div><label class="lbl" for="sEng">רמה אנגלית</label><select id="sEng"></select></div>
+                <div class="trk-f" hidden><!-- 5.20.12 (נועה): המסלול – בקורס, לא בפרטי התלמיד/ה --><label class="lbl" for="sTrack">מסלול</label><select id="sTrack"><option value="">לא ידוע</option><option value="single">1 · פעמיים בשבוע</option><option value="unlimited-single">2 · ללא הגבלה</option><option value="double">3 · שני מקצועות</option></select></div><!-- 5.19.157 (נועה): אינפורמטיבי; מהרשמה בטופס – לבד (קובץ 127) -->
               </div>
             </details>
             <!-- 5.19.70 (נועה): פרטים נוספים - נפתח בחץ, כמו התשלומים -->
@@ -3637,23 +3649,31 @@ function crsShort(c, withSchool){ if (!c) return "";
 const crsSeasonTxt = (c) => { const se = crsSeason(c.season_id); return se.name ? se.name + (se.label ? " (" + se.label + ")" : "") : ""; };
 async function crsLoad(force){
   if (CRS.ok && !force) return true;
+  // 5.20.12 (נועה: "לוקח זמן לקורסים לעלות"): הכול במקביל (קטגוריות, מחזורים, קורסים, מרתונים, סטטוסים); קודם רק הרישומים של המחזור הפעיל,
+  //   והשנה שלפניו ("לא חזרו") – ברקע, ואז מרעננים
   try {
-    const [cats, seasons, courses] = await Promise.all([get("categories", "select=*&order=sort_order,id"), get("seasons", "select=*&order=sort_order,id"),
-      getAll("courses", "select=*,school:schools(name,city)&order=id")]);
+    const [cats, seasons, courses, mm, ss, sts] = await Promise.all([get("categories", "select=*&order=sort_order,id"), get("seasons", "select=*&order=sort_order,id"),
+      getAll("courses", "select=*,school:schools(name,city)&order=id"),
+      get("marathons", "select=id,name,code,school,city,event_date,is_open,cancelled_at").catch(() => null), get("sessions", "select=marathon_id,meeting_dates&marathon_id=not.is.null").catch(() => []),
+      get("course_statuses", "select=*&order=sort_order,name").catch(() => null)]);
     Object.assign(CRS, { cats, seasons, courses, ok: true }); CRS.byId = {}; courses.forEach(c => CRS.byId[c.id] = c);
-    CRS.mar = {}; try { const [mm, ss] = await Promise.all([get("marathons", "select=id,name,code,school,city,event_date,is_open,cancelled_at"), get("sessions", "select=marathon_id,meeting_dates&marathon_id=not.is.null")]);
-      mm.forEach(x => CRS.mar[x.id] = Object.assign({ dates: [] }, x)); ss.forEach(x => { const o = CRS.mar[x.marathon_id]; if (o) o.dates.push(...(x.meeting_dates || [])); });
-      Object.values(CRS.mar).forEach(o => { o.dates = [...new Set(o.dates)].sort(); o.first = o.event_date || o.dates[0] || null; }); } catch(e) {}
-    try { CRS.sts = await get("course_statuses", "select=*&order=sort_order,name"); } catch(e) { CRS.sts = null; }   // 5.19.168: קובץ 134
-    // 5.19.165 (נועה: ייעול הטעינה): בכניסה – רק הרישומים של המחזור הפעיל ושל השנה שלפניו ("לא חזרו"); השאר – כשצריך (כרטיס / מחזור אחר)
+    CRS.mar = {}; if (mm) { mm.forEach(x => CRS.mar[x.id] = Object.assign({ dates: [] }, x)); (ss || []).forEach(x => { const o = CRS.mar[x.marathon_id]; if (o) o.dates.push(...(x.meeting_dates || [])); });
+      Object.values(CRS.mar).forEach(o => { o.dates = [...new Set(o.dates)].sort(); o.first = o.event_date || o.dates[0] || null; }); }
+    CRS.sts = sts;   // 5.19.168: קובץ 134
     const act = CRS.seasons.filter(x => x.is_active), y0 = Math.max(0, ...act.filter(x => x.kind === "year").map(x => x.year_start));
-    const want = CRS.seasons.filter(x => x.is_active || (x.kind === "year" && x.year_start === y0 - 1)).map(x => x.id);
+    const actIds = act.map(x => x.id), prevIds = CRS.seasons.filter(x => !x.is_active && x.kind === "year" && x.year_start === y0 - 1).map(x => x.id);
+    const ids = (se) => CRS.courses.filter(c => se.includes(c.season_id)).map(c => c.id).join(",") || "0";
     CRS.cm = {}; CRS.cmIds = new Set(); CRS.loadedSe = new Set(); CRS.loadedSt = new Set();
-    await crsLoadMembers("course_id=in.(" + (CRS.courses.filter(c => want.includes(c.season_id)).map(c => c.id).join(",") || "0") + ")");
-    want.forEach(id => CRS.loadedSe.add(id));
-    crsFillFilter(); return true;
+    await crsLoadMembers("course_id=in.(" + ids(actIds) + ")"); actIds.forEach(id => CRS.loadedSe.add(id));
+    crsFillFilter();
+    if (prevIds.length) { const gen = CRS.gen = (CRS.gen || 0) + 1;
+      crsLoadMembers("course_id=in.(" + ids(prevIds) + ")").then(() => { if (gen !== CRS.gen) return; prevIds.forEach(id => CRS.loadedSe.add(id)); try { crsFillFilter(); } catch(e) {}
+        if (currentView === "leads" && typeof updSafe === "function" && updSafe()) renderLeads(); else if (currentView === "reg" && RG.tab === "courses") renderCrsCourses(); }).catch(() => {}); }
+    return true;
   } catch(e) { CRS.ok = false; if ($("fCourse")) $("fCourse").closest(".crs-f").hidden = true; return false; }   // לפני קובץ 129
 }
+// 5.20.12 (נועה): מרתון שהמפגש האחרון שלו עבר – הסתיים (היסטוריה)
+const crsFin = (c) => { if (!c || !c.marathon_id) return false; const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return !!d && d < todayIL(); };
 const crsOfStudent = (sid) => (CRS.cm[sid] || []);
 const CRS_CMS = "select=id,course_id,student_id,status,subject,grade,signed,source,note,created_at,updated_at%S%&order=id";
 async function crsLoadMembers(filter){   // טוען רישומים (מוסיף ל-CRS.cm בלי כפילויות); source_id – קובץ 130, track – קובץ 132
@@ -3739,7 +3759,10 @@ const CRS_ST_NAME = { "רשום": "נרשם", "ממתין לתשלום": "לקח
 const SUBJ_FULL = { "מתמטיקה": "מת.", "אנגלית": "אנג.", "מתמטיקה ואנגלית": "מת.+אנג." };   // 5.19.173 (נועה): קצר – הטבלה דחוסה
 const TRK_IC = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>`;   // Material Icons "menu_book" (Apache 2.0)
 function crsChipsRow(sid, part){ if (!CRS.ok) return ""; const act = crsActiveSeasons(); part = part || "crs";
-  const ms = crsOfStudent(sid).filter(m => !crsGone(m) && CRS.byId[m.course_id] && (CRS.byId[m.course_id].is_active !== false || m.status === "לא התקיים") && act.has(CRS.byId[m.course_id].season_id));   // 5.19.168: גם "לא התקיים"
+  let ms = crsOfStudent(sid).filter(m => !crsGone(m) && m.status !== "לא התקיים" && CRS.byId[m.course_id] && CRS.byId[m.course_id].is_active !== false && !crsFin(CRS.byId[m.course_id]) && act.has(CRS.byId[m.course_id].season_id));
+  // 5.20.12 (נועה): מרתון שהסתיים / לא התקיים – בטבלה רק כשאין קורס פעיל השנה (אז – הקורס האחרון של השנה); בכרטיס – ב"קורסים קודמים"
+  if (!ms.length) { const last = crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id))
+      .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")) || b.id - a.id)[0]; if (last) ms = [last]; }   // 5.20.12 (נועה): מרתון שלא התקיים – רק בכרטיס, ב"קורסים קודמים"   // 5.19.168: גם "לא התקיים"
   if (!ms.length) return part === "crs" ? `<span class="muted crs-none">—</span>` : "";
   return `<div class="crs-col">${ms.map(m => { const c = CRS.byId[m.course_id];
     if (part === "st") { const st = crsStOf(m.status), lst = crsStList().some(x => x.name === m.status) ? crsStList() : crsStList().concat([st]);
@@ -4946,8 +4969,7 @@ function updateLeadHead(){
   if (parent || ph) parts.push(`הורה: <b>${esc(parent)}</b>${ph ? ` · <button type="button" class="ph-m" data-phm="${esc(ph)}" dir="ltr" title="חיוג / וואטסאפ">${esc(ph)}</button>` : ""}`);   // 5.19.154: לחיצה – חיוג או וואטסאפ
   const schObj = L.schools.find(x => String(x.id) === $("sSchool").value);
   { const tk = $("sTrack") && $("sTrack").value, to = tk && LK.tracks.find(x => x.v === tk);   // 5.19.157: המסלול בכותרת, בצבע שלו
-    if ($("sTrack")) { $("sTrack").style.borderInlineStart = to ? "7px solid " + to.c : ""; $("sTrack").closest(".trk-f").hidden = !!L.noTrack; }
-    if (to) parts.push(`<span class="trk-chip" style="--tc:${to.c}">${esc(to.t)}</span>`); }
+    if ($("sTrack")) { $("sTrack").closest(".trk-f").hidden = true; } }   // 5.20.12 (נועה): המסלול רק בקורס
   if (schObj || v("sGrade")) parts.push([schObj ? scChip(schObj.name) + ` <span class="muted">${esc(schObj.city || "")}</span>` : "", v("sGrade") ? esc("כיתה " + classLabel(v("sGrade"), v("sClass"))) : ""].filter(Boolean).join(" · "));
   // צבע בית הספר גם בשדה עצמו
   const sel = $("sSchool"); sel.className = schObj ? scCls(schObj.name) + " sch-sel" : "";
