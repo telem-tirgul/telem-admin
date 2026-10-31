@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.10">
+<meta name="app-version" content="5.20.11">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1672,6 +1672,7 @@ button.ph-m{ font:inherit; font-weight:700; color:var(--accent); background:none
 .crs-chips{ display:flex; flex-wrap:wrap; gap:3px; margin-top:3px; flex-basis:100%; max-width:100%; white-space:normal; } .crs-chip .name-link{ color:inherit; } #leadsTbl .c-status:has(.crs-chips){ flex-wrap:wrap; } .crs-chip{ display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:0 8px; line-height:1.7; white-space:nowrap; border:1.5px solid #8A7F76; color:#4A423D; background:#fff; }
 .crs-chip.reg{ background:#2F7D32; border-color:#2F7D32; color:#fff; } .crs-chip.pend{ background:#FFF1DE; border-color:#C77A12; color:#8A5200; } .crs-chip.int{ border-style:dashed; border-color:var(--accent); color:var(--accent); } .crs-chip.off{ opacity:.55; text-decoration:line-through; }
 .lc-signed{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; font-size:13px; } .lc-sig-ok{ color:var(--ok); font-weight:800; }   /* 5.20.5 */
+.info-menu a.im-link{ display:block; text-decoration:none; color:var(--ink) !important; font:inherit; font-size:14.5px; padding:9px 12px; border-radius:8px; text-align:right; } .info-menu a.im-link:hover{ background:var(--muted); }   /* 5.20.11 */
 .sig-miss{ display:inline-block; margin-inline-start:4px; color:#B8463F; font-weight:800; font-size:13px; cursor:help; }
 .lc-crs{ margin-bottom:14px; } .lc-row{ display:flex; justify-content:space-between; gap:8px; align-items:center; border:1px solid var(--border); border-inline-start:5px solid #8A7F76; border-radius:10px; padding:6px 10px; margin:6px 0; font-size:13.5px; }
 .lc-row.reg{ border-inline-start-color:#2F7D32; } .lc-row.pend{ border-inline-start-color:#C77A12; } .lc-row.int{ border-inline-start-color:var(--accent); border-inline-start-style:dashed; } .lc-row.off{ opacity:.6; }
@@ -2467,7 +2468,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <div class="who"><span id="whoEmail"></span>
       <button class="btn small ghost" id="bugBtn" type="button" title="דיווח על בעיה" aria-label="דיווח על בעיה">🐞</button>
       <div class="info-wrap"><button class="btn small ghost" id="infoBtn" type="button" title="מידע" aria-label="מידע" aria-haspopup="true" aria-expanded="false">ⓘ</button>
-        <div class="info-menu" id="infoMenu" hidden><button type="button" data-im="reports" data-admin>📊 דוחות</button><button type="button" data-im="info">מידע למתרגלים</button><button type="button" id="imRefresh" hidden>🔄 רענון</button></div></div>
+        <div class="info-menu" id="infoMenu" hidden><button type="button" data-im="reports" data-admin>📊 דוחות</button><button type="button" data-im="info">מידע למתרגלים</button><a class="im-link" href="https://telem-tirgul.github.io/telem-sheli/#qr" target="_blank" rel="noopener" title="QR במסך מלא – להראות לילדים, והם סורקים (נפתח בלשונית חדשה)">🔳 QR ל"תלם שלי"</a><!-- 5.20.11 (של-110) --><button type="button" id="imRefresh" hidden>🔄 רענון</button></div></div>
       <button class="btn small ghost gear" id="gearBtn" type="button" title="הגדרות" aria-label="הגדרות">⚙</button>
       <button class="btn small ghost ib-bell" id="inboxBtn" type="button" data-admin title="התראות" aria-label="התראות">📥<span id="inboxN"></span></button>
       <!-- 5.19.101 (נועה): "יציאה" עבר להגדרות (⚙) – כמו בתלם שלי; בכותרת קל ללחוץ בטעות, במיוחד בנייד -->
@@ -5303,16 +5304,21 @@ const planMarkBtns = (p, attr) => ME && ME.role === "admin" ? (planCanMark(p) ? 
 // ---------- טופס ביטול: מכינים כאן, ההורה רק חותם/ת ----------
 const TRACK_T = (v) => (LK.tracks.find(x => x.v === v) || {}).t || v || "";
 const CAN_ST = { "נשלח": "נשלח להורה - ממתין לחתימה", "נחתם": "נחתם - ממתין לאישור", "אושר": "אושר", "בוטל": "בוטל" };
+const crsNm = (c) => c.marathon_id ? "מרתון · " + plainTxt(crsTitle(c, true)).replace(/^מרתון\s*·?\s*/, "") : (crsCatN(c.category_id) || plainTxt(crsTitle(c, true)));   // 5.20.11
+const plainTxt = (h) => { const d = document.createElement("div"); d.innerHTML = h || ""; return d.textContent.replace(/\s+/g, " ").trim(); };
 const lkCancel = (token) => lkBase() + "cancel.html?t=" + token;
 async function loadLeadCancel(l){
   const box = $("leadCancel2");
   let rows = [];
-  try { rows = await get("cancellation_requests", "select=id,token,school,track,subject,status,reason,signed_at,created_at,approved_at&student_id=eq." + l.student.id + "&order=id.desc"); }
+  try { rows = await get("cancellation_requests", "select=id,token,school,track,subject,status,reason,signed_at,created_at,approved_at,course_member_id&student_id=eq." + l.student.id + "&order=id.desc")
+          .catch(() => get("cancellation_requests", "select=id,token,school,track,subject,status,reason,signed_at,created_at,approved_at&student_id=eq." + l.student.id + "&order=id.desc")); }
   catch(e) { box.innerHTML = e.status === 404 ? "<span class='muted'>צריך להריץ את קובץ 39.</span>" : ""; return; }
+  // 5.20.11 (תש-33, icredit-32): טופס ביטול = ביטול קורס – שם הקורס
+  const canCrs = (r) => { if (!r.course_member_id || typeof CRS === "undefined" || !CRS.ok) return ""; const m = crsOfStudent(l.student.id).find(x => x.id === r.course_member_id), c = m && CRS.byId[m.course_id]; return c ? crsNm(c) : ""; };
   if (!editing || editing.id !== l.id) return;
   const f = l.student.family || {}, ph = digits(f.parent1_phone || "");
   box.dataset.sum = rows.length ? `${rows.length === 1 ? "טופס ביטול אחד" : rows.length + " טפסי ביטול"} · האחרון: ${CAN_ST[rows[0].status] || rows[0].status}` : "";   // 5.19.41: תקציר קצר
-  box.innerHTML = rows.map(r => `<div style="border-bottom:1px solid var(--border); padding:6px 0;"><b>${esc(CAN_ST[r.status] || r.status)}</b> · ${esc([r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · "))}
+  box.innerHTML = rows.map(r => `<div style="border-bottom:1px solid var(--border); padding:6px 0;"><b>${esc(CAN_ST[r.status] || r.status)}</b> · ${esc([canCrs(r), r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · "))}
       <div class="muted">${esc(fmtDate(r.created_at))}${r.reason ? " · סיבה: " + esc(r.reason) : ""}</div>
       ${r.status === "נחתם" ? `<div style="display:flex; gap:6px; margin-top:4px;"><button type="button" class="btn small" data-cpdf="${r.id}">הטופס החתום (PDF)</button><button type="button" class="btn small primary" data-capprove="${r.id}">אישור ביטול</button></div>` : ""}
       ${r.status === "נשלח" ? `<div style="display:flex; gap:6px; margin-top:4px;"><button type="button" class="btn small" data-copy="${esc(lkCancel(r.token))}">העתקת הקישור</button>${/^0\d{8,9}$/.test(ph) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${ph.slice(1)}?text=${encodeURIComponent("שלום, מצורף טופס הביטול של " + l.student.first_name + " לחתימה: " + lkCancel(r.token))}">וואטסאפ להורה</a>` : ""}</div>` : ""}</div>`).join("")
@@ -5324,7 +5330,8 @@ async function loadLeadCancel(l){
           const a = document.createElement("a"); a.href = r.pdf; a.download = "טופס ביטול - " + fnSafe((l.student.first_name || "") + " " + (l.student.last_name || "")) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
     catch(e) { toast("לא ניתן להוריד"); } });
   box.querySelectorAll("[data-capprove]").forEach(b => b.onclick = async () => {
-    if (!await uiConfirm("לאשר את הביטול? ההרשמה והשיבוצים של המקצוע יסומנו כבוטלו, והסטטוס יעבור ל\"פרש\".")) return;
+    const cr = rows.find(x => String(x.id) === b.dataset.capprove), cn = cr ? canCrs(cr) : "";
+    if (!await uiConfirm(`לאשר את הביטול${cn ? " של " + cn : ""}? הקורס יעבור ל"פרש", ההרשמות של הקורס יבוטלו, והשיבוצים בקבוצות של הקורס יוסרו.`)) return;
     b.disabled = true;
     try { await rpc("approve_cancellation", { p_id: Number(b.dataset.capprove) }); toast("הביטול אושר - הסטטוס עבר ל\"פרש\"");
           await loadLeads(); const nl = L.leads.find(x => x.id === l.id);
@@ -5334,16 +5341,24 @@ async function loadLeadCancel(l){
     const sch = (L.schools.find(x => x.id === l.student.school_id) || {});
     const city = sch.city || f.city || "", schools = LK.schools[city] || [];
     $("canNew").hidden = true;
+    const cms = (typeof CRS !== "undefined" && CRS.ok ? crsOfStudent(l.student.id) : []).filter(m => !crsGone(m) && !["פרש", "לא התקיים"].includes(m.status) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id))
+      .sort((a, b) => Number(!!CRS.byId[a.course_id].marathon_id) - Number(!!CRS.byId[b.course_id].marathon_id));
     $("canForm").innerHTML = `<div class="sp-ed" style="margin-top:6px;">
+      ${cms.length ? `<label class="lbl">איזה קורס מבטלים</label><select id="cnCrs">${cms.map(m => `<option value="${m.id}">${esc(crsNm(CRS.byId[m.course_id]) + " · " + (crsStOf(m.status).label || m.status))}</option>`).join("")}</select>` : ""}
       <label class="lbl">בית ספר</label><select id="cnSchool">${[...new Set([sch.name].concat(schools).filter(Boolean))].map(n => `<option ${n === sch.name ? "selected" : ""}>${esc(n)}</option>`).join("")}</select>
       <label class="lbl">מסלול</label><select id="cnTrack">${LK.tracks.map(x => `<option value="${x.v}">${esc(x.t)}</option>`).join("")}</select>
       <label class="lbl">מקצוע</label><select id="cnSubj">${SUBJECTS.map(s => `<option>${esc(s)}</option>`).join("")}</select>
       <div class="err" id="cnErr"></div>
       <div style="display:flex; gap:6px; margin-top:6px;"><button type="button" class="btn small primary" id="cnSave">יצירת קישור</button><button type="button" class="btn small" id="cnCancel">ביטול</button></div></div>`;
+    { const cs = $("cnCrs"), pre = () => { const m = cms.find(x => String(x.id) === (cs || {}).value); if (!m) return;   // המסלול והמקצוע – מהקורס שנבחר
+        if (mTrk(m) && [...$("cnTrack").options].some(o => o.value === mTrk(m))) $("cnTrack").value = mTrk(m); if (m.subject && [...$("cnSubj").options].some(o => o.value === m.subject)) $("cnSubj").value = m.subject; };
+      if (cs) { cs.onchange = pre; pre(); } }
     $("cnCancel").onclick = () => loadLeadCancel(l);
     $("cnSave").onclick = async () => {
       $("cnSave").disabled = true;
-      try { await insert("cancellation_requests", { student_id: l.student.id, city: city || null, school: $("cnSchool").value || null, track: $("cnTrack").value, subject: $("cnSubj").value });
+      const body = { student_id: l.student.id, city: city || null, school: $("cnSchool").value || null, track: $("cnTrack").value, subject: $("cnSubj").value };
+      if ($("cnCrs") && $("cnCrs").value) body.course_member_id = Number($("cnCrs").value);
+      try { await insert("cancellation_requests", body).catch(e => { if (body.course_member_id && /course_member_id/.test(e.message || "")) { delete body.course_member_id; return insert("cancellation_requests", body); } throw e; });
             toast("נוצר קישור לטופס ביטול - הסטטוס עבר ל\"בקשת ביטול\""); RG.can = null; loadLeadCancel(l);
             loadLeads().then(() => { if (editing && editing.id === l.id) { const nl = L.leads.find(x => x.id === l.id); if (nl && $("lfStatus")) { $("lfStatus").value = nl.status_id; paintStatus($("lfStatus"), nl.status_id); } } }).catch(() => {}); }
       catch(e) { $("cnErr").textContent = "לא נשמר: " + e.message; $("cnSave").disabled = false; }
@@ -10723,7 +10738,7 @@ async function loadRegData(){
   RG.payErr = RG.canErr = "";
   const [pay, can] = await Promise.all([
     get("pending_phone_payments", "select=*&order=created_at").catch(e => { RG.payErr = e.status === 404 ? "צריך להריץ את קובץ 39." : "לא ניתן לטעון."; return []; }),
-    get("cancellation_requests", "select=id,token,student_id,city,school,track,subject,status,reason,signed_at,created_at,approved_at,student:students(first_name,last_name)&order=id.desc").catch(e => { RG.canErr = e.status === 404 ? "צריך להריץ את קובץ 39." : "לא ניתן לטעון."; return []; })
+    get("cancellation_requests", "select=id,token,student_id,city,school,track,subject,status,reason,signed_at,created_at,approved_at,course_member_id,student:students(first_name,last_name),cm:course_members(course:courses(id))&order=id.desc").catch(() => get("cancellation_requests", "select=id,token,student_id,city,school,track,subject,status,reason,signed_at,created_at,approved_at,student:students(first_name,last_name)&order=id.desc")).catch(e => { RG.canErr = e.status === 404 ? "צריך להריץ את קובץ 39." : "לא ניתן לטעון."; return []; })
   ]);
   RG.pay = pay; RG.can = can;
 }
@@ -10979,7 +10994,7 @@ async function renderReg(){
       ${RG.canErr ? `<div class="err">${RG.canErr}</div>` : `<div class="tbl-wrap"><table class="tbl"><thead><tr><th>תלמיד/ה</th><th>מה מבטלים</th><th>מצב</th><th>סיבה</th><th>תאריך</th><th></th></tr></thead><tbody>${rows.length ? rows.map(x => {
         const lead = L.leads.find(l => l.student_id === x.student_id), st = x.student || {};
         return `<tr><td><b>${lead ? `<a class="name-link" data-lead="${lead.id}">${esc(st.first_name || "")} ${esc(st.last_name || "")}</a>` : esc((st.first_name || "") + " " + (st.last_name || ""))}</b></td>
-          <td>${scChip(x.school || "")} ${esc(TRACK_T(x.track))}<div class="muted">${esc(x.subject || "")}</div></td>
+          <td>${(() => { const c = x.cm && x.cm.course && typeof CRS !== "undefined" && CRS.byId ? CRS.byId[x.cm.course.id] : null; return c ? `<b>${esc(crsNm(c))}</b><br>` : ""; })()}${scChip(x.school || "")} ${esc(TRACK_T(x.track))}<div class="muted">${esc(x.subject || "")}</div></td>
           <td><b style="color:${x.status === "נחתם" ? "var(--full)" : "inherit"}">${esc(CAN_ST[x.status] || x.status)}</b></td><td>${esc(x.reason || "")}</td>
           <td class="muted" style="font-size:12.5px">${esc(fmtDate(x.signed_at || x.created_at))}</td>
           <td>${x.status === "נשלח" ? `<button type="button" class="btn small" data-copy="${esc(lkCancel(x.token))}">העתקת הקישור</button>`
