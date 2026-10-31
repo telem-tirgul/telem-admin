@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.0">
+<meta name="app-version" content="5.20.1">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1553,7 +1553,11 @@
 .ex-kc{ display:inline-flex; align-items:center; gap:6px; white-space:nowrap; } .ex-kc i{ width:12px; height:12px; border-radius:3px; display:inline-block; flex:0 0 auto; }
 .ex-range{ display:inline-flex; align-items:center; gap:8px; flex-wrap:wrap; } .ex-range label{ display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
 @media (max-width:700px){ .ex-range{ display:flex; width:100%; flex-wrap:nowrap; gap:6px; } .ex-range label{ flex:1 1 40%; min-width:0; } .ex-range input[type=date]{ flex:1 1 auto; min-width:0; width:100%; padding:4px 4px; font-size:13.5px; } } .ex-range[hidden]{ display:none; } .ex-range input[type=date]{ padding:4px 8px; border-radius:10px; border:1px solid var(--border); font:inherit; font-size:14px; }
-.ex-kbar{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; } .ex-kbar button{ font:inherit; font-size:13.5px; border:1.5px solid var(--border); background:var(--paper); border-radius:999px; padding:4px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+.ex-kbar{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
+.ex-dx{ margin:4px 0 8px; } .ex-dx .dx-bar-b{ flex-wrap:wrap; }
+@media (max-width:760px){ .ex-dx{ flex-wrap:wrap; min-width:0; max-width:100%; } .ex-dx .dx-bar-b{ flex:1 1 100%; min-width:0; max-width:100%; justify-content:flex-start; } .ex-dx .ex-kbar{ order:9; flex:1 1 100%; min-width:0; max-width:100%; flex-wrap:nowrap; overflow-x:auto; padding-bottom:2px; } .ex-dx .ex-kbar button{ flex:none; } .ex-dx #exXls .bt{ display:none; } .ex-dx #exXls{ margin-inline-start:auto; } } .ex-dx .ex-kbar{ margin:0; gap:4px; } .ex-dx .ex-kbar button{ font-size:12px !important; padding:2px 8px !important; gap:4px !important; } .ex-dx .ex-kbar .ex-kc i{ width:10px !important; height:10px !important; }
+#view-exams .ex-modebar:has(#exRangeL:not([hidden])) .ex-filters > label{ font-size:13px !important; font-weight:700; color:var(--ink-soft); display:inline-flex; flex-direction:column; align-items:stretch; gap:2px !important; }
+#view-exams .ex-modebar:has(#exRangeL:not([hidden])){ background:var(--paper, #fff); border:1px solid var(--border); border-radius:14px; padding:10px 12px; } .ex-kbar button{ font:inherit; font-size:13.5px; border:1.5px solid var(--border); background:var(--paper); border-radius:999px; padding:4px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
 .ex-kbar button[aria-pressed="true"]{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 8%, var(--paper)); font-weight:700; }
 .ex-tbl td{ white-space:nowrap; padding-top:6px; padding-bottom:6px; vertical-align:middle; } .ex-tbl td.ex-src{ max-width:200px; overflow:hidden; text-overflow:ellipsis; }
 .lg-m1{ background:#9FD3F5; } .lg-m2{ background:#1F5FA8; } .ex-cal td.ot{ background:#D9C8F0; color:#4A2C7A; cursor:pointer; font-size:10px; } .lg-ot{ background:#D9C8F0; }
@@ -5743,6 +5747,16 @@ async function renderFormsTable(M){ if (!M) return;
           <tr class="rg3-lk"><th>טופס הרשמה</th>${cities.map(c => `<td><div class="ft-lk">${on68 ? ftSw("reg:" + c, rpRegOpen(c)) : ""}${lk2Btns("", lkReg(c, ""), rm(c))}</div></td>`).join("")}</tr>
           ${cities.some(c => shutTrk(c).length) ? `<tr><th>⚠ מסלול סגור</th>${cities.map(c => `<td>${shutTrk(c).map(t => `<div class="muted">${esc(t.t)} ${rTr(c, "register_closed_tracks", t.v) ? swBtn("regt:" + c + "|" + t.v, false) : ""}${rTr(c, "interest_closed_tracks", t.v) ? swBtn("intt:" + c + "|" + t.v, false) : ""}</div>`).join("")}</td>`).join("")}</tr>` : ""}
           </tbody></table></div></section>`;
+        // 5.20.1 (נועה: "אני לא מוצאת את הקישור למרתון"): גם טופסי המרתונים כאן – כל מרתון שעוד לא הסתיים
+        try { if (await crsLoad()) { const td = todayIL(), mars = Object.values(CRS.mar || {}).filter(m => m.code && !m.cancelled_at)
+            .map(m => Object.assign({ ds: [...(m.dates || []), m.event_date].filter(Boolean).sort() }, m)).filter(m => !m.ds.length || m.ds[m.ds.length - 1] >= td)
+            .sort((a, b) => String(a.ds[0] || "9").localeCompare(String(b.ds[0] || "9")));
+          h += `<section class="rg-sec"><div class="rg-sec-h"><h3>🏁 מרתונים <small>טופס ההרשמה של כל מרתון שעוד לא הסתיים (פתיחה / סגירה ועריכה – במסך "מרתונים")</small></h3></div>`
+            + (mars.length ? `<div class="tbl-wrap"><table class="tbl mar-ft"><thead><tr><th>מרתון</th><th>בית ספר</th><th>מפגשים</th><th>מצב</th><th>טופס ההרשמה</th></tr></thead><tbody>${mars.map(m => `<tr>
+                <td><b>${esc(m.name || "מרתון")}</b></td><td>${m.school ? scChip(m.school) : ""}${m.city ? ` <span class="muted">${esc(m.city)}</span>` : ""}</td>
+                <td>${esc(m.ds.map(fmtDM).join(", ") || "—")}</td><td><span class="all-st ${m.is_open ? "on" : "off"}">${m.is_open ? "● פתוח" : "○ סגור"}</span></td>
+                <td><div class="ft-lk">${lk2Btns("", lkMarCode(m.code), "הרשמה ל" + (m.name || "מרתון") + ": ")}</div></td></tr>`).join("")}</tbody></table></div>`
+              : `<div class="muted" style="padding:8px 4px">אין מרתונים קרובים.</div>`) + `</section>`; } } catch(e) {}
         M.innerHTML = h;
         wireLk(M); lkApplyShort(M); wireSwf(M);
         M.querySelectorAll("[data-pedit]").forEach(bt => bt.onclick = () => { if (REG_PRICES_DB === false) { toast("כדי לערוך מחירים צריך להריץ את קובץ 44"); return; } openPriceEditor(bt.dataset.pedit); });
@@ -6579,20 +6593,27 @@ async function renderExams(reload){
   if (EX.kf && !kinds.includes(EX.kf)) EX.kf = "";
   const rows = rows0.filter(e => !EX.kf || e.kind === EX.kf);
   const kBar = kinds.length > 1 ? `<div class="ex-kbar" role="group" aria-label="סינון לפי סוג"><button type="button" data-kf="" aria-pressed="${!EX.kf}">הכל <span class="muted">${rows0.length}</span></button>${kinds.map(k => `<button type="button" data-kf="${esc(k)}" aria-pressed="${EX.kf === k}">${exKindChip(k)} <span class="muted">${rows0.filter(e => e.kind === k).length}</span></button>`).join("")}</div>` : "";
+  // 5.19.176 (נועה: "תעצב את המסך"): כמו בכל טבלה – שורה אחת מעל הטבלה: מימין טווח התאריכים; משמאל מספר השורות · ניקוי סינון · הסוגים · אקסל
+  const fOn = !(dFrom === t && dTo === y20 && !fc && !fs && !fg && !EX.kf);
+  const dxBar = `<div class="dx-bar ex-dx"><span class="muted">${dFrom ? esc(fmtDM(dFrom)) : "…"} – ${dTo ? esc(fmtDM(dTo)) : "…"}</span><span class="dx-bar-b"><span class="muted">${rows.length} אירועים</span><button type="button" class="clear-f" id="exClr2"${fOn ? "" : " disabled"}>✕ ניקוי סינון</button>${kBar}<button type="button" class="btn small" id="exXls" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span></div>`;
   // 📓 חומר שלומדים עכשיו: האחרון לכל בית ספר + שכבה
   const stMap = {}; EX.rows.filter(e => EX_STUDY.test(e.kind) && e.exam_date <= t && flt(e)).forEach(e => { stMap[schKey(exSchName(e)) + "|" + gradeKey(e.grade) + "|" + (e.class_num || "")] = e; });
   const studies = Object.values(stMap);
   let stH = studies.length ? `<div class="ex-study-box"><h3>📓 לומדים עכשיו</h3>${studies.map(e => `<button type="button" class="ex-st-item" data-ex="${e.id}">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> <span class="muted">· התקבל ${esc(fmtDM(e.exam_date))}</span>${studyAll(e).map(x => x.topics ? `<span class="ex-st-t">${esc(x.topics)}</span>` : "").join("")}</button>`).join("")}</div>` : "";
   // "לומדים עכשיו" - לא ברשימה (הלקוחה 11.10): מוצג בלוח, ביום שבו התקבל
   stH = "";
-  if (!rows.length) { box.innerHTML = stH + kBar + `<div class="empty-state">${EX.rows.length ? (dFrom || dTo ? "אין אירועים בתאריכים שנבחרו." : "אין מבחנים קרובים לפי הבחירה.") : "עוד אין מבחנים במערכת."}</div>`; return; }
+  $("exRangeX").hidden = true;
+  const exWire = () => { const c2 = $("exClr2"); if (c2) c2.onclick = () => $("exRangeX").click();
+    const xb = $("exXls"); if (xb) xb.onclick = () => downloadXlsx([["תאריך", "יום", "עיר", "בית ספר", "שכבה", "סוג", "נושאים", "חומר", "מקור"]].concat(rows.map(e => [fmtIso(e.exam_date), DAY_FULL[dayLetter(e.exam_date)] || "", (e.school && e.school.city) || "", exSchName(e), gradeKey(e.grade) + "'" + (e.class_num || ""), e.kind, String(e.topics || "").replace(/<[^>]+>/g, " "), e.material || "", e.origin === "manual" ? "נוסף במערכת" : e.source || "מהקובץ"])), "לוח מבחנים.xlsx", "לוח מבחנים");
+    box.querySelectorAll("[data-kf]").forEach(b => b.onclick = () => { EX.kf = b.dataset.kf; renderExams(false); }); };
+  if (!rows.length) { box.innerHTML = stH + dxBar + `<div class="empty-state">${EX.rows.length ? (dFrom || dTo ? "אין אירועים בתאריכים שנבחרו." : "אין מבחנים קרובים לפי הבחירה.") : "עוד אין מבחנים במערכת."}</div>`; exWire(); return; }
   const dateTxt = (e) => `<span class="ex-date">${esc(fmtIso(e.exam_date))}</span>`;   // 5.19.49 (הלקוחה): בלי צבע על התאריך - הצבע רק בעמודת הסוג
   const btns = (e) => adm && e.origin === "manual" ? `<button type="button" class="btn small" data-exed="${e.id}">✎ עריכה</button> <button type="button" class="btn small danger" data-exdel="${e.id}">מחיקה</button>` : "";
-  if (isMobile()) box.innerHTML = stH + kBar + `<div class="ex-cards">` + rows.map(e => `<div class="ex-card${e.exam_date < t ? " ex-past" : ""}${EX_MAKEUP.test(e.kind) ? " mk" : ""}">
+  if (isMobile()) box.innerHTML = stH + dxBar + `<div class="ex-cards">` + rows.map(e => `<div class="ex-card${e.exam_date < t ? " ex-past" : ""}${EX_MAKEUP.test(e.kind) ? " mk" : ""}">
       <div>${dateTxt(e)} <span class="muted">יום ${esc(DAY_FULL[dayLetter(e.exam_date)] || "")}</span></div>
       <div class="ex-c2">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> · ${exKindChip(e.kind)}</div>
       ${e.topics ? `<div class="ex-c3 ex-topics">${exTopicsHtml(e.topics)}</div>` : ""}${e.material ? `<div class="muted ex-c3">קובץ: ${esc(e.material)}</div>` : ""}${btns(e) ? `<div class="ex-c4">${btns(e)}</div>` : ""}</div>`).join("") + `</div>`;
-  else box.innerHTML = stH + kBar + `<div class="tbl-wrap"><table class="tbl ex-tbl"><thead><tr><th>תאריך</th><th>בית ספר</th><th>שכבה</th><th>סוג</th><th>נושאים / חומר</th><th>מקור</th>${adm ? "<th></th>" : ""}</tr></thead><tbody>` +
+  else box.innerHTML = stH + dxBar + `<div class="tbl-wrap"><table class="tbl ex-tbl"><thead><tr><th>תאריך</th><th>בית ספר</th><th>שכבה</th><th>סוג</th><th>נושאים / חומר</th><th>מקור</th>${adm ? "<th></th>" : ""}</tr></thead><tbody>` +
     rows.map(e => { const d = exDays(e.exam_date, t), mk = EX_MAKEUP.test(e.kind);
       return `<tr class="${e.exam_date < t ? "ex-past" : ""}${mk ? " mk" : ""}">
       <td class="ex-d">${dateTxt(e)}<span class="muted"> יום ${esc(DAY_FULL[dayLetter(e.exam_date)] || "")}</span></td>
@@ -6604,7 +6625,7 @@ async function renderExams(reload){
       ${adm ? `<td>${btns(e)}</td>` : ""}</tr>`; }).join("") + "</tbody></table></div>";
   box.querySelectorAll("[data-exed]").forEach(b => b.onclick = () => exOpenForm(EX.rows.find(x => x.id === Number(b.dataset.exed))));
   box.querySelectorAll("[data-extop]").forEach(b => b.onclick = () => exShow(Number(b.dataset.extop)));
-  box.querySelectorAll("[data-kf]").forEach(b => b.onclick = () => { EX.kf = b.dataset.kf; renderExams(false); });
+  exWire();
   box.querySelectorAll("[data-exdel]").forEach(b => b.onclick = async () => { const e = EX.rows.find(x => x.id === Number(b.dataset.exdel));
     try { if (!await exDelEvent(e, `ה${e.kind} של ${exSchName(e)} ${gradeKey(e.grade)}' ב-${fmtIso(e.exam_date)}`)) return; toast("נמחק"); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } });
 }
@@ -7655,7 +7676,7 @@ setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && M
 // ===== 5.19.56: תיבת הודעות מהטפסים (קובץ 71) =====
 // כל טופס שנשלח (הרשמה, מרתון, התעניינות, בקשת שיבוץ, ביטול חתום, תשלום אישי) = שורה. פרטים שלא תואמים (issues) - משיחת התשלומים
 const IB = { rows: null, f: "open", k: "", ks: new Set(), done: [], doneEnd: false, ok: true, lastMax: Number(store("telem_ib_max") || 0), names: {}, mars: {} };
-const IB_KIND = { registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"] };   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
+const IB_KIND = { sign: ["✍️", "אישור תנאי התקשרות"], registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"] };   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
 const IB_FLAG = { blocked_already: ["t-warn", "ניסה/תה לשלוח שוב – נחסם (כבר רשום/ה)"], status_mismatch: ["t-warn", "הסטטוס לא תואם לתשלום"], plan_withdrawn: ["t-warn", "לבטל בריווחית"], phone_pending: ["t-warn", "תשלום טלפוני ממתין"], system_issue: ["t-warn", "תקלה טכנית"], added: ["t-new", "נוסף/ה לקבוצה"],   // 5.19.127 (תש-16, icredit-24) removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], plan_paused: ["t-old", "הוראת קבע הושהתה"],
   plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"] };
@@ -7724,6 +7745,7 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
     : r.kind === "registration" ? [d.city, d.subject, d.track ? (typeof TRACK_T === "function" ? TRACK_T(d.track) : d.track) : "", amt(d.first_charge_amount)]
     : r.kind === "cancel" ? [d.school, d.subject, d.reason ? "סיבה: " + d.reason : ""]
     : r.kind === "pay_link" ? [d.description, amt(d.one_time_amount)]
+    : r.kind === "sign" ? [d.course, (d.changes || []).length ? "עודכן: " + d.changes.map(c => c.field + " " + (c.old ? c.old + " ← " : "") + c.new).join(" · ") : "בלי שינוי בפרטים"]   // 5.20.1 (קובץ 140)
     : r.kind === "payment" ? [d.title, d.description, amt(d.amount), d.text]
     : r.kind === "portal_code" ? [d.phone ? "טלפון: " + tsPhF(d.phone) : "", "שכח/ה את הקוד"]
     : r.kind === "contact" ? [d.phone, d.email, d.message ? String(d.message).slice(0, 80) + (String(d.message).length > 80 ? "…" : "") : ""]
