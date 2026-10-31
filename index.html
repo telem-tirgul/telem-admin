@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.171">
+<meta name="app-version" content="5.19.172">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1690,7 +1690,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 #leadsTbl .crs-grid select.crs-sel{ width:100% !important; max-width:none !important; min-width:0 !important; } #leadsTbl .crs-grid .crs-l{ white-space:nowrap; }
 .crs-lk-pair{ display:flex; flex-wrap:wrap; gap:6px 0; } .crs-lk-pair .crs-lk-h{ flex-basis:100%; } .crs-lk-pair .crs-lk-r{ flex:1 1 360px; justify-content:flex-start; gap:10px; padding-inline:10px; } .crs-lk-pair .crs-lk-r + .crs-lk-r{ border-inline-start:2px solid var(--border); }   /* 5.19.168 (נועה): התעניינות והרשמה זה לצד זה */
 .crs-col{ display:flex; flex-direction:column; gap:4px; } .crs-cell{ display:flex; align-items:center; gap:6px; min-height:26px; white-space:nowrap; }
-.trk-dot{ width:14px; height:14px; border-radius:50%; border:0; padding:0; cursor:pointer; flex:none; } .trk-dot.none{ background:#fff; border:1.5px dashed #aaa; } .trk-dot:disabled{ cursor:default; }
+.trk-dot{ width:20px; height:20px; border:0; padding:0; background:none; cursor:pointer; flex:none; display:inline-flex; align-items:center; justify-content:center; } .trk-dot svg{ width:19px; height:19px; display:block; } .trk-dot.none{ color:#2B2320; } .trk-dot:disabled{ cursor:default; }
 .crs-subj{ font-size:12px !important; padding:0 8px !important; } #leadsTbl td.c-crs{ min-width:0 !important; } #leadsTbl td.c-cst, #leadsTbl td.c-csrc{ white-space:nowrap; }
 #leadsTbl .crs-cell select.crs-sel{ max-width:130px !important; }
 @media (max-width:760px){ #leadsTbl .c-cst{ order:5; } #leadsTbl .c-csrc{ order:5; } #leadsTbl .c-crs .crs-col, #leadsTbl .c-cst .crs-col, #leadsTbl .c-csrc .crs-col{ gap:2px; } }
@@ -2002,7 +2002,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .ib-seg{ display:inline-flex; gap:4px; background:var(--paper); border:1px solid var(--border); border-radius:999px; padding:3px; } .ib-seg button{ border:0; background:none; font:inherit; font-size:13.5px; font-weight:700; padding:5px 12px; border-radius:999px; cursor:pointer; color:var(--ink-soft); } .ib-seg button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
 .ib-list{ background:var(--paper); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
 .ib-row{ display:grid; grid-template-columns:28px minmax(110px, 170px) 120px minmax(0, 1fr) auto 92px auto; gap:4px 12px; align-items:center; padding:7px 12px; border-top:1px solid var(--border); border-inline-start:3px solid transparent; font-size:14px; }
-#ibKind{ width:auto; min-width:150px; font-size:13.5px; padding:5px 10px; } .ib-more{ text-align:center; padding:10px; }
+#ibKind{ min-width:170px; } #ibKind > button{ font-size:13.5px; padding:5px 10px; } #ibKind .pop{ min-width:230px; } .ib-more{ text-align:center; padding:10px; }
 .ib-row:first-child{ border-top:0; } .ib-row.new{ border-inline-start-color:var(--accent); }
 /* 5.19.145 (של-87): כמו תיבת דואר – חדשה (שלא נפתחה) בבולד, שנקראה – רגיל */
 .ib-row:not(.new) .ib-n, .ib-row:not(.new) .ib-n *, .ib-gd:not(.new) .ib-gd-n, .ib-gd:not(.new) .ib-gd-n *{ font-weight:400 !important; } .ib-row.new .ib-n, .ib-row.new .ib-n *{ font-weight:800; } .ib-row.new .ib-w{ font-weight:700; color:var(--ink); } .ib-row.new .ib-k{ color:var(--ink); } .ib-row.warn{ border-inline-start-color:#C9554F; } .ib-row.seen, .ib-row.handled{ color:var(--ink-soft); }
@@ -2469,6 +2469,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
           <div class="crs-f2"><label class="lbl" for="fCrsCat">קטגוריה</label><select id="fCrsCat"><option value="">הכול</option></select></div><!-- 5.19.166: לפי הקורסים במחזור הפעיל -->
           <div class="crs-f2"><label class="lbl" for="fCrsTrk">מסלול</label><select id="fCrsTrk"><option value="">הכול</option></select></div>
           <div class="crs-f2"><label class="lbl" for="fCrsSub">מקצוע</label><select id="fCrsSub"><option value="">הכול</option><option>מתמטיקה</option><option>אנגלית</option><option>מתמטיקה ואנגלית</option></select></div>
+          <div class="crs-f2"><label class="lbl">סטטוס בקורס</label><div class="multi" id="fCrsSt"></div></div><!-- 5.19.172 (נועה): להשוואה מול הסטטוס של הכרטיס -->
+          <div class="crs-f2"><label class="lbl">מקור בקורס</label><div class="multi" id="fCrsSrc"></div></div>
           <div><label class="lbl" for="fFrom">עודכן מ-</label><input id="fFrom" type="date"></div>
           <div><label class="lbl" for="fTo">עד</label><input id="fTo" type="date"></div>
           <div><label class="lbl" for="fYear">שנת לימוד</label><select id="fYear"></select></div><!-- 5.19.104 (נועה) -->
@@ -2867,7 +2869,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <div class="ib-bar"><div class="ib-filters">
         <div class="gseg" role="group" aria-label="סוג"><button type="button" data-ibt="forms">📥 מהטפסים <span id="ibTabN"></span></button><button type="button" data-ibt="iss">🐞 דיווחים על בעיות <span id="issTabN"></span></button></div>
         <div class="ib-seg ib-f-forms" role="group" aria-label="סינון"><button type="button" data-ibf="open">לא טופלו</button><button type="button" data-ibf="done">טופלו</button></div>
-        <select id="ibKind" class="ib-f-forms" aria-label="סוג התראה"><option value="">כל סוגי ההתראות</option></select>
+        <div class="multi ib-f-forms" id="ibKind" aria-label="סוג התראה"></div><!-- 5.19.172 (נועה): כמה סוגים -->
         <div class="gseg ib-f-iss" role="group" aria-label="תצוגה" hidden><button type="button" data-iss="all" aria-pressed="false">הכול</button><button type="button" data-iss="open" aria-pressed="true">פתוחים</button></div></div>
         </div>
       <div id="ibForms">
@@ -3630,6 +3632,10 @@ async function crsEnsureSeason(se){   // מחזור שלא נטען (או "הכ�
 async function crsEnsureStudent(sid){ if (!sid || CRS.loadedSt.has(sid)) return; await crsLoadMembers("student_id=eq." + sid); CRS.loadedSt.add(sid); }
 const mTrk = (m) => (m && m.track) || ((CRS.byId[m && m.course_id] || {}).track) || "";   // 5.19.165: המסלול – ברישום (ישן: בקורס)
 function crsFillFilter(){ const el = $("fCourse"); if (!el) return; el.closest(".crs-f").hidden = !CRS.ok; document.querySelectorAll(".crs-f2").forEach(x => x.hidden = !CRS.ok);
+  if (!F.cst) F.cst = new Set(); if (!F.csrc) F.csrc = new Set();
+  const lr = () => { F.page = 0; renderLeads(); };
+  crsMulti($("fCrsSt"), crsStList().map(x => ({ id: x.name, t: x.label || x.name, c: x.color })), F.cst, "הכול", lr);
+  crsMulti($("fCrsSrc"), (L.sources || []).filter(x => x.is_active).map(x => ({ id: x.id, t: x.name })).concat([{ id: 0, t: "בלי מקור" }]), F.csrc, "הכול", lr);
   if (CRS.ok) { fillSelect($("fCrsCat"), CRS.cats.filter(x => x.is_active).map(x => ({ v: x.id, t: crsCatN(x.id) })), "הכול");
     fillSelect($("fCrsTrk"), Object.keys(CRS_TRACKS).map(t => ({ v: t, t: (LK.tracks.find(x => x.v === t) || {}).t || CRS_TRACKS[t] })), "הכול"); }
   const act = crsActiveSeasons(), cnt = {}; Object.values(CRS.cm).flat().forEach(m => { if (m.status !== "בוטל") cnt[m.course_id] = (cnt[m.course_id] || 0) + 1; });
@@ -3689,6 +3695,7 @@ document.addEventListener("click", async (ev) => { const b = ev.target.closest &
 // 5.19.168 (נועה): בטבלת התלמידים – שלוש עמודות: קורסים (נקודת מסלול + מקצוע מלא בצבע), סטטוס, מקור; שורה לכל קורס בכל עמודה
 const CRS_ST_NAME = { "רשום": "נרשם", "ממתין לתשלום": "לקחת אשראי", "מתעניין": "מתעניין", "פרש": "פרש", "בוטל": "בוטל" };   // השמות כמו בסטטוס הישן
 const SUBJ_FULL = { "מתמטיקה": "מתמטיקה", "אנגלית": "אנגלית", "מתמטיקה ואנגלית": "מת.+אנג." };
+const TRK_IC = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>`;   // Material Icons "menu_book" (Apache 2.0)
 function crsChipsRow(sid, part){ if (!CRS.ok) return ""; const act = crsActiveSeasons(); part = part || "crs";
   const ms = crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && (CRS.byId[m.course_id].is_active !== false || m.status === "לא התקיים") && act.has(CRS.byId[m.course_id].season_id));   // 5.19.168: גם "לא התקיים"
   if (!ms.length) return part === "crs" ? `<span class="muted crs-none">—</span>` : "";
@@ -3698,7 +3705,8 @@ function crsChipsRow(sid, part){ if (!CRS.ok) return ""; const act = crsActiveSe
     if (part === "src") return `<div class="crs-cell">${CRS.hasSrc ? `<select class="crs-sel crs-sel-src" data-cmsrc="${m.id}" aria-label="מקור"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === m.source_id).map(x => `<option value="${x.id}" ${x.id === m.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select>` : ""}</div>`;
     if (c.marathon_id) return `<div class="crs-cell" title="${esc(crsShort(c, true))}">${crsLabel(c, m)}</div>`;
     const tk = mTrk(m), to = LK.tracks.find(x => x.v === tk), trks = crsCat(c.category_id).tracks || [];
-    const dot = `<button type="button" class="trk-dot${to ? "" : " none"}" data-cmtrk2="${m.id}" style="${to ? `background:${to.c}` : ""}" title="${esc(to ? to.t : "מסלול – לחיצה לבחירה")}" ${!CRS.hasTrk || !trks.length ? "disabled" : ""}></button>`;
+    // 5.19.172 (נועה): אייקון של תרגול שוטף (כמו 🏁 למרתון) בצבע המסלול; בלי מסלול (התעניינות כללית) – שחור
+    const dot = `<button type="button" class="trk-dot${to ? "" : " none"}" data-cmtrk2="${m.id}" style="${to ? `color:${to.c}` : ""}" title="${esc("תרגול שוטף · " + (to ? to.t : "בלי מסלול – לחיצה לבחירה"))}" ${!CRS.hasTrk || !trks.length ? "disabled" : ""}>${TRK_IC}</button>`;
     const sub = tk === "double" ? `<span class="subj-chip s-b crs-subj">מת.+אנג.</span>`
       : `<select class="crs-sel crs-sel-sub ${SUBJ_CLS(m.subject)}" data-cmsub="${m.id}" aria-label="מקצוע"><option value="">מקצוע…</option>${["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"].map(x => `<option value="${x}" ${x === m.subject ? "selected" : ""}>${SUBJ_FULL[x]}</option>`).join("")}</select>`;
     return `<div class="crs-cell" title="${esc(crsShort(c, true) + " · " + crsSeasonTxt(c) + (to ? "\n" + to.t : ""))}">${dot}${sub}</div>`; }).join("")}</div>`; }
@@ -3836,9 +3844,11 @@ function crsMulti(box, items, set, allLbl, onCh){
   const btn = box.querySelector("button"), pop = box.querySelector(".pop");
   btn.textContent = set.size ? items.filter(x => set.has(x.id)).map(x => x.t).join(", ") || allLbl : allLbl; btn.classList.toggle("f-on", set.size > 0);
   btn.onclick = (e) => { e.stopPropagation(); pop.hidden = !pop.hidden; };
-  if (!CRS.mlW) { CRS.mlW = true; document.addEventListener("click", e => document.querySelectorAll("#rgMain .multi .pop").forEach(pp => { if (!pp.parentNode.contains(e.target)) pp.hidden = true; })); }
+  if (!CRS.mlW) { CRS.mlW = true; document.addEventListener("click", e => document.querySelectorAll(".multi[data-cm] .pop").forEach(pp => { if (!pp.parentNode.contains(e.target)) pp.hidden = true; })); }
+  box.dataset.cm = "1";
   pop.querySelectorAll("input").forEach(i => i.onchange = () => { const it = items.find(x => String(x.id) === i.value); if (!it) return; i.checked ? set.add(it.id) : set.delete(it.id);
-    onCh(); const nb = document.getElementById(box.id); if (nb) { const np = nb.querySelector(".pop"); if (np) np.hidden = false; } });
+    btn.textContent = set.size ? items.filter(x => set.has(x.id)).map(x => x.t).join(", ") || allLbl : allLbl; btn.classList.toggle("f-on", set.size > 0);
+    onCh(); const nb = document.getElementById(box.id); if (nb && nb !== box) { const np = nb.querySelector(".pop"); if (np) np.hidden = false; } });
 }
 async function renderCrsCourses(reload){
   const b = $("rgMain"); if (!b) return;
@@ -4251,7 +4261,7 @@ function resetLeadFilters(){
   ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].forEach(id => $(id).value = "");
   $("fStar").checked = false; $("fRemind").checked = false; $("fActive").checked = true; $("fPast").checked = false;
   $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-  F.statuses.clear(); F.sources.clear(); sstore(LF_KEY, null); setupFilters(); F.page = 0;
+  F.statuses.clear(); F.sources.clear(); if (F.cst) F.cst.clear(); if (F.csrc) F.csrc.clear(); sstore(LF_KEY, null); setupFilters(); if (CRS.ok) crsFillFilter(); F.page = 0;
 }
 $("clearFilters").addEventListener("click", () => { resetLeadFilters(); renderLeads(); });
 
@@ -4277,6 +4287,8 @@ function filtered(){
     if (fa === "prop" || fa === "prop_none" || fa === "prop_sent") { if (!propOf(l).length) return false;
       const st = propStage(s.id); if (fa === "prop_none" && st !== "none") return false; if (fa === "prop_sent" && st !== "sent") return false; }
     if (F.sources.size && !F.sources.has(l.source_id)) return false;
+    if ((F.cst && F.cst.size) || (F.csrc && F.csrc.size)) { if (!crsOfStudent(s.id).some(m => { const c = CRS.byId[m.course_id]; return c && crsActiveSeasons().has(c.season_id)
+      && (F.cst.size ? F.cst.has(m.status) : m.status !== "בוטל") && (!F.csrc.size || F.csrc.has(m.source_id || 0)); })) return false; }
     if (mgr === "none" ? l.manager_id : (mgr && l.manager_id !== mgr)) return false;
     if (fcrs === "__back") { if (!crsBack(s.id)) return false; }
     else if (fcrs === "__mis") { if (!crsMismatch(l)) return false; }
@@ -4471,7 +4483,7 @@ function renderLeads(){
     + (LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : LR.histLoading ? " · טוען שנים קודמות…" : "")
     + (!L.inactReady && (!$("fActive").checked || $("fPast").checked) ? " · טוען כרטיסים לא פעילים…" : "");
   // "ניקוי סינון" - רק כשיש סינון פעיל
-  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || $("fStar").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
+  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || (F.cst && F.cst.size) || (F.csrc && F.csrc.size) || $("fStar").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
   $("pageInfo").textContent = `עמוד ${F.page + 1} מתוך ${pages}`;
   $("prevPage").disabled = F.page === 0; $("nextPage").disabled = F.page >= pages - 1;
   const sortable = ["id","status","source","name","school","grade","asg","parent","manager","remind","updated"];
@@ -7599,7 +7611,7 @@ async function callCount(){ if (ME.role === "instructor") return; try { const r 
 setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && ME.role && ME.role !== "instructor") callCount(); }, 5 * 60000);   // 5.19.42: המספר מתעדכן כל 5 דקות (למשל כשהורה שילם בקישור)
 // ===== 5.19.56: תיבת הודעות מהטפסים (קובץ 71) =====
 // כל טופס שנשלח (הרשמה, מרתון, התעניינות, בקשת שיבוץ, ביטול חתום, תשלום אישי) = שורה. פרטים שלא תואמים (issues) - משיחת התשלומים
-const IB = { rows: null, f: "open", k: "", done: [], doneEnd: false, ok: true, lastMax: Number(store("telem_ib_max") || 0), names: {}, mars: {} };
+const IB = { rows: null, f: "open", k: "", ks: new Set(), done: [], doneEnd: false, ok: true, lastMax: Number(store("telem_ib_max") || 0), names: {}, mars: {} };
 const IB_KIND = { registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"] };   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
 const IB_FLAG = { blocked_already: ["t-warn", "ניסה/תה לשלוח שוב – נחסם (כבר רשום/ה)"], status_mismatch: ["t-warn", "הסטטוס לא תואם לתשלום"], plan_withdrawn: ["t-warn", "לבטל בריווחית"], phone_pending: ["t-warn", "תשלום טלפוני ממתין"], system_issue: ["t-warn", "תקלה טכנית"], added: ["t-new", "נוסף/ה לקבוצה"],   // 5.19.127 (תש-16, icredit-24) removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], plan_paused: ["t-old", "הוראת קבע הושהתה"],
@@ -7787,7 +7799,7 @@ async function ibGdAct(b, kind){
 }
 async function ibLoadDone(reset){
   if (reset) { IB.done = []; IB.doneEnd = false; }
-  try { const r = await get("form_inbox", "select=*&status=eq.handled" + (IB.k ? "&kind=eq." + encodeURIComponent(IB.k) : "") + "&order=id.desc&limit=100&offset=" + IB.done.length);
+  try { const r = await get("form_inbox", "select=*&status=eq.handled" + (IB.ks.size ? "&kind=in.(" + [...IB.ks].map(encodeURIComponent).join(",") + ")" : "") + "&order=id.desc&limit=100&offset=" + IB.done.length);
     IB.done = IB.done.concat(r); if (r.length < 100) IB.doneEnd = true;
     if (IB.rows) { const ids = new Set(IB.rows.map(x => x.id)); IB.rows = IB.rows.concat(r.filter(x => !ids.has(x.id))); }
   } catch(e) { IB.doneEnd = true; }
@@ -7840,9 +7852,10 @@ async function renderInbox(reload){
     if (it) { IB.pairInt[r.id] = it; payHide.add(it.id); } });
   const nNew = ibCountKids(IB.rows.filter(r => r.status === "new" && !payHide.has(r.id))); ibPaint(nNew);
   // 5.19.145 (נועה 26.10, של-87): רשימה אחת – בלי "חדשות" / "לא תואמות"; חדשה = בבולד, לא תואמת = ⚠ בשורה
-  { const ko = $("ibKind"); if (ko && ko.options.length <= 1) ko.innerHTML = `<option value="">כל סוגי ההתראות</option>` + Object.entries(IB_KIND).map(([k, v]) => `<option value="${k}">${v[0]} ${esc(v[1])}</option>`).join(""); if (ko) ko.value = IB.k; }
+  { const ko = $("ibKind"); if (ko && !ko.dataset.cm) crsMulti(ko, Object.entries(IB_KIND).map(([k, v]) => ({ id: k, t: v[0] + " " + v[1] })), IB.ks, "כל סוגי ההתראות",
+      () => { if (IB.f === "done") { IB.done = []; IB.doneEnd = false; } renderInbox(false); }); }
   const nOpen = ibCountKids(IB.rows.filter(r => r.status !== "handled" && !payHide.has(r.id))); document.querySelector('[data-ibf="open"]').textContent = "לא טופלו " + nOpen;
-  const kOk = (r) => !payHide.has(r.id) && (!IB.k || r.kind === IB.k);
+  const kOk = (r) => !payHide.has(r.id) && (!IB.ks.size || IB.ks.has(r.kind));
   const rows = IB.f === "done" ? IB.done.filter(kOk) : IB.rows.filter(r => kOk(r) && (IB.f === "warn" ? ibWarn(r) && r.status !== "handled" : IB.f === "new" ? r.status === "new" : r.status !== "handled"));
   const more = IB.f === "done" && !IB.doneEnd ? `<div class="ib-more"><button type="button" class="btn small" id="ibMore">טעינת עוד</button></div>` : "";
   if (!rows.length) { box.innerHTML = `<div class="empty-state">${IB.f === "new" ? "אין הודעות חדשות." : IB.f === "done" ? "אין התראות שטופלו." : "אין התראות שמחכות לטיפול 🎉"}</div>` + more; if ($("ibMore")) $("ibMore").onclick = async () => { await ibLoadDone(false); renderInbox(false); }; return; }
@@ -7936,7 +7949,7 @@ async function renderInbox(reload){
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
 }
 document.querySelectorAll("[data-ibf]").forEach(b => b.addEventListener("click", () => { IB.f = b.dataset.ibf; renderInbox(false); }));
-$("ibKind").addEventListener("change", () => { IB.k = $("ibKind").value; if (IB.f === "done") { IB.done = []; IB.doneEnd = false; } renderInbox(false); });   // 5.19.142
+// 5.19.172: סוג ההתראה – תיבות סימון (crsMulti, ב-renderInbox)
 $("ibAllSeen").addEventListener("click", async () => { const ids = (IB.rows || []).filter(r => r.status === "new").map(r => r.id); if (!ids.length) return;
   try { await patch("form_inbox", "id=in.(" + ids.join(",") + ")", { status: "seen" }); IB.rows.forEach(r => { if (r.status === "new") r.status = "seen"; }); renderInbox(false);
     toastUndo(`סומנו ${ids.length} כנקראו`, async () => { await patch("form_inbox", "id=in.(" + ids.join(",") + ")", { status: "new" }); IB.rows.forEach(r => { if (ids.includes(r.id)) r.status = "new"; }); renderInbox(false); }); } catch(e) { toast("לא נשמר: " + e.message); } });
