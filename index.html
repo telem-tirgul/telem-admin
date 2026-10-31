@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.2">
+<meta name="app-version" content="5.20.3">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -151,7 +151,7 @@
     #view-leads .filters-chk{ flex:0 0 auto; gap:4px 14px; height:34px; margin-inline-start:8px; }
     #view-leads .filters > div{ flex:0 0 auto; width:130px; }
     #view-leads .filters > div{ width:118px; } #view-leads .filters > div.wide{ width:260px; }
-    #view-leads .filters > div:has(#fStatus){ width:175px; } #view-leads .filters > div:has(#fSchool){ width:145px; }
+    #view-leads .filters > div:has(#fStatus){ width:175px; } #view-leads .filters > div:has(#fCrsSt){ width:175px; } #view-leads .filters > div:has(#fSchool){ width:145px; }
     #view-leads .filters > div:has(#fCity){ width:110px; } #view-leads .filters > div:has(#fGrade){ width:84px; }
     #view-leads .filters > div:has(#fFrom), #view-leads .filters > div:has(#fTo){ width:150px; } #view-leads .filters > div:has(#fYear){ width:170px; } #view-leads #fRemindDate{ width:150px; }
     #view-leads .filters .lbl{ font-size:11.5px; margin-bottom:2px; }
@@ -1709,6 +1709,8 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 #leadsTbl .act-dot{ width:11px; height:11px; border-radius:50%; border:1.5px solid #9AA1A9; background:#fff; padding:0; cursor:pointer; display:block; margin:auto; } #leadsTbl .act-dot.on{ background:#3E8E41; border-color:#3E8E41; }
 @media (min-width:761px){ #leadsTbl td.c-name{ min-width:135px; } }
 .set-sub{ font-size:18px; color:var(--accent); margin:2px 0 12px; font-weight:800; }
+.old-st{ display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:1px 8px; white-space:nowrap; opacity:.85; }
+.lf-old{ display:flex; flex-wrap:wrap; gap:8px 14px; align-items:flex-end; margin:6px 0 10px; padding:8px 10px; border:1px dashed var(--border); border-radius:10px; } .lf-old .tg-f{ display:flex; flex-direction:column; gap:2px; } .lf-old-n{ font-size:12px; flex:1 1 100%; }
 .side-hr{ display:flex; justify-content:space-between; align-items:center; gap:8px; } .side-hr .side-h{ margin:4px 0 8px !important; }
 .lg-crs-box.lg-trk{ border:2px solid var(--tc, #2B2320); } .lg-crs-box.lg-trk > .lg-crs{ border-bottom-color:color-mix(in srgb, var(--tc, #2B2320) 35%, transparent); }
 .lg-crs-box > .lg-crs .lg-crs-l{ font-size:15px; } .lg-ic{ display:inline-flex; vertical-align:-4px; margin-inline-end:4px; } .lg-ic svg{ width:19px; height:19px; }
@@ -2477,22 +2479,22 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         <button type="button" class="btn small mob-only" id="filtersToggle" style="margin-bottom:8px;">סינון נוסף ▾</button>
         <div class="filters">
           <div class="wide"><label class="lbl" for="fSearch">חיפוש חופשי</label><input id="fSearch" type="search" placeholder="שם, טלפון, הורה..."></div>
-          <div><label class="lbl">סטטוס</label><div class="multi" id="fStatus"></div></div>
+          <div class="crs-f2"><label class="lbl">סטטוס</label><div class="multi" id="fCrsSt"></div></div><!-- 5.19.172 (נועה): להשוואה מול הסטטוס של הכרטיס -->
+          <div class="crs-f2"><label class="lbl">מקור</label><div class="multi" id="fCrsSrc"></div></div>
           <div><label class="lbl" for="fCity">עיר</label><select id="fCity"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fSchool">בית ספר</label><select id="fSchool"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fGrade">שכבה</label><select id="fGrade"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fAsg">שיבוץ</label><select id="fAsg"><option value="">הכול</option><option value="yes">משובצים</option><option value="no">לא משובצים</option><option value="one">בקבוצה אחת בלבד</option><option value="many">⚠ ביותר משתי קבוצות</option><option value="under">פחות מ-90 דק' בשבוע</option><option value="wkchg">נוכחות שונה מהשיבוץ השבוע</option><option value="prop">שיבוץ מוצע - כולם</option><option value="prop_none">מוצע - טרם נשלחה הודעה</option><option value="prop_sent">מוצע - קיבלו הודעה ולא אישרו</option></select></div>
-          <div><label class="lbl">מקור ליד</label><div class="multi" id="fSource"></div></div>
-          <div><label class="lbl" for="fManager">מנהל</label><select id="fManager"><option value="">הכול</option></select></div>
           <div class="crs-f"><label class="lbl" for="fCourse">קורס</label><select id="fCourse"><option value="">הכול</option></select></div><!-- 5.19.162: קורסים (קובץ 129) -->
           <div class="crs-f2"><label class="lbl" for="fCrsCat">קטגוריה</label><select id="fCrsCat"><option value="">הכול</option></select></div><!-- 5.19.166: לפי הקורסים במחזור הפעיל -->
           <div class="crs-f2"><label class="lbl" for="fCrsTrk">מסלול</label><select id="fCrsTrk"><option value="">הכול</option></select></div>
           <div class="crs-f2"><label class="lbl" for="fCrsSub">מקצוע</label><select id="fCrsSub"><option value="">הכול</option><option>מתמטיקה</option><option>אנגלית</option><option>מתמטיקה ואנגלית</option></select></div>
-          <div class="crs-f2"><label class="lbl">סטטוס בקורס</label><div class="multi" id="fCrsSt"></div></div><!-- 5.19.172 (נועה): להשוואה מול הסטטוס של הכרטיס -->
-          <div class="crs-f2"><label class="lbl">מקור בקורס</label><div class="multi" id="fCrsSrc"></div></div>
+          <div><label class="lbl" for="fManager">מנהל</label><select id="fManager"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fFrom">עודכן מ-</label><input id="fFrom" type="date"></div>
           <div><label class="lbl" for="fTo">עד</label><input id="fTo" type="date"></div>
           <div><label class="lbl" for="fYear">שנת לימוד</label><select id="fYear"></select></div><!-- 5.19.104 (נועה) -->
+          <div><label class="lbl">סטטוס (ישן)</label><div class="multi" id="fStatus"></div></div><!-- 5.20.3 (נועה): הישנים – בסוף -->
+          <div><label class="lbl">מקור ליד (ישן)</label><div class="multi" id="fSource"></div></div>
         </div>
         <div class="filters-chk">
           <label class="chk"><input type="checkbox" id="fActive" checked> רק פעילים</label>
@@ -2539,8 +2541,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
               <label hidden><!-- 5.19.162 (נועה): מוסתר – הערך נשמר --><button type="button" class="switch" id="lfMailing" aria-pressed="false"></button> דיוור</label>
               <label hidden><button type="button" class="switch" id="lfCustomer" aria-pressed="false"></button> לקוח</label>
               <!-- 5.19.162 (נועה 30.10): סטטוס ומקור ליד – בשורה העליונה (לא פרטים של התלמיד) -->
-              <span class="tg-lead"><span class="tg-f"><label for="lfStatus">סטטוס</label><select id="lfStatus"></select></span>
-                <span class="tg-f"><label for="lfSource">מקור ליד</label><select id="lfSource"></select></span></span>
+              <span class="tg-lead" id="lfOldTop"></span>
               <!-- 5.19.90 (נועה): שורת ניהול – תזכורת ומנהל באותה שורה, משמאל, בקטן (נשמרים מיד) -->
               <span class="tg-mng"><span class="tg-f" title="תזכורת"><label for="lfRemind">⏰ תזכורת</label><input id="lfRemind" type="datetime-local" aria-label="תזכורת"><button class="tg-x" type="button" id="clearRemind" title="ניקוי התזכורת" aria-label="ניקוי התזכורת">✕</button></span>
                 <span class="tg-f" hidden><!-- 5.19.162 (נועה): מנהל – מוסתר --><label for="lfManager">מנהל</label><select id="lfManager"></select></span></span>
@@ -2575,6 +2576,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
             </details>
             <!-- 5.19.70 (נועה): פרטים נוספים - נפתח בחץ, כמו התשלומים -->
             <details class="sec-d" id="moreBox"><summary>פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(הורה 2, טלפון בית, כתובת · ממלא/ת, נושא והודעה מטופס ההתעניינות)</span></summary>
+              <div class="lf-old"><span class="tg-f"><label for="lfStatus">סטטוס (ישן)</label><select id="lfStatus"></select></span>
+                <span class="tg-f"><label for="lfSource">מקור ליד (ישן)</label><select id="lfSource"></select></span>
+                <span class="muted lf-old-n">מתעדכנים מהקורס – שינוי סטטוס / מקור – בקורס (למעלה, ב"קורסים ושיבוצים")</span></div>
               <div class="form-grid">
                 <div><label class="lbl" for="p2First">שם פרטי הורה 2</label><input id="p2First" type="text"></div>
                 <div><label class="lbl" for="p2Last">משפחה (הורה 2)</label><input id="p2Last" type="text"></div>
@@ -3738,6 +3742,17 @@ function crsChipsRow(sid, part){ if (!CRS.ok) return ""; const act = crsActiveSe
     const sub = tk === "double" ? `<span class="subj-chip s-b crs-subj">מת.+אנג.</span>`
       : `<select class="crs-sel crs-sel-sub ${SUBJ_CLS(m.subject)}" data-cmsub="${m.id}" aria-label="מקצוע"><option value="">מקצוע</option>${["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"].map(x => `<option value="${x}" ${x === m.subject ? "selected" : ""}>${SUBJ_FULL[x]}</option>`).join("")}</select>`;
     return `<div class="crs-cell" title="${esc(crsShort(c, true) + " · " + crsSeasonTxt(c) + (to ? "\n" + to.t : ""))}">${dot}${sub}</div>`; }).join("")}</div>`; }
+// 5.20.3 (נועה, קובץ 142): הסטטוס של הקורס – הראשי. אחרי שינוי – הסטטוס הישן בכרטיס מתעדכן בשרת; כאן: טוענים אותו מחדש,
+// ומפעילים את מה שהיה קורה בשינוי סטטוס בכרטיס ("איך נרשם/ה?" + סימון "שולם", "פרש – עד מתי?")
+async function crsAfterStatus(sid){
+  const l = (L.leads || []).find(x => x.student_id === sid); if (!l) return;
+  const old0 = l.status_id;
+  try { const r = await get("leads", "select=id,status_id,is_active,updated_at&id=eq." + l.id); if (!r.length) return; Object.assign(l, r[0]); } catch(e) { return; }
+  if (l.status_id === old0) return;
+  const nm = [l.student.first_name, l.student.last_name].filter(Boolean).join(" ");
+  try { await regHowAsk(l.id, old0, l.status_id); await withdrawAsk(sid, nm, old0, l.status_id); } catch(e) {}
+  if (editing && editing.id === l.id && $("lfStatus")) { $("lfStatus").value = l.status_id || ""; paintStatus($("lfStatus"), l.status_id); editing.status_id = l.status_id; }
+}
 // נקודת המסלול – לחיצה: בחירת מסלול
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-cmtrk2]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
   const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.cmtrk2)); if (!m) return; const c = CRS.byId[m.course_id] || {};
@@ -3751,13 +3766,13 @@ document.addEventListener("change", async (ev) => { const el = ev.target; if (!e
   const body = el.dataset.cmst ? { status: el.value } : el.dataset.cmsub ? { subject: el.value || null } : el.dataset.cmtrk ? Object.assign({ track: el.value || null }, el.value === "double" ? { subject: "מתמטיקה ואנגלית" } : m.subject === "מתמטיקה ואנגלית" ? { subject: null } : {}) : { source_id: el.value ? Number(el.value) : null };
   el.disabled = true;
   try { await patch("course_members", "id=eq." + id, Object.assign({ updated_at: new Date().toISOString() }, body)); Object.assign(m, body); toast("נשמר");
-    if (el.dataset.cmst) el.style.cssText = stSoft(crsStOf(el.value).color || "#888");   // 5.19.173: הצבע של הסטטוס החדש מיד
+    if (el.dataset.cmst) { el.style.cssText = stSoft(crsStOf(el.value).color || "#888"); await crsAfterStatus(m.student_id); }   // 5.19.173: הצבע של הסטטוס החדש מיד; 5.20.3: הסטטוס הישן מתעדכן
     if (body.source_id !== undefined) loadLeads().then(() => { if (currentView === "leads" && updSafe()) renderLeads(); }).catch(() => {}); else if (currentView === "leads") renderLeads(); }
   catch(e) { toast("לא נשמר: " + e.message); } finally { el.disabled = false; } });
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-crsm]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
   const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.crsm)); if (!m) return; const c = CRS.byId[m.course_id] || {};
   const v = await uiChoose(crsShort(c, true) + "\nמצב בקורס:", crsStList().map(x => x.name).map(x => ({ v: x, t: (CRS_IC[x] || "") + " " + crsStOf(x).label + (x === m.status ? " (עכשיו)" : "") }))); if (!v || v === m.status) return;
-  try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); m.status = v; toast("נשמר"); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain") || b.closest(".crs-drawer")) { renderCrsCourses(); crsDrawerRe(); } else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
+  try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); m.status = v; toast("נשמר"); crsAfterStatus(m.student_id); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain") || b.closest(".crs-drawer")) { renderCrsCourses(); crsDrawerRe(); } else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
 // חסרה חתימה על התנאים (רשום / ממתין במחזור פעיל, signed = false)
 // 5.19.173 (נועה): נרשם / לקחת אשראי בלי חתימה על התנאים (גם מי שסומן "נרשם" ידנית) – מסומן בטבלה ובכרטיס
 function crsNeedSig(m){ const c = CRS.byId[m.course_id]; return !!c && m.signed !== true && (m.status === "רשום" || m.status === "ממתין לתשלום") && crsActiveSeasons().has(c.season_id); }
@@ -4569,8 +4584,8 @@ function renderLeads(){
     <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
     <td class="c-act"><button type="button" class="act-dot ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}" title="${l.is_active ? "פעיל" : "לא פעיל"}"></button></td>
     <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
-    <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="${stSoft(statusColor(l.status_id))}"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select>${marIcon(s)}</td>
-    <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
+    <td class="c-status">${l.status_id ? `<span class="old-st" style="${stSoft(statusColor(l.status_id) || "#888")}" title="הסטטוס הישן – מתעדכן מהסטטוס של הקורס">${esc(statusName(l.status_id))}</span>` : `<span class="muted">—</span>`}</td>
+    <td class="c-src"><span class="muted" style="font-size:12.5px">${esc(sourceName(l.source_id) || "—")}</span></td>
     </tr>`;
   }).join("");
   $("leadsTbl").classList.toggle("locked", !LIST_EDIT);
@@ -4858,6 +4873,7 @@ function openLead(id){
   $("lfStar").classList.toggle("on", !!(l && l.is_starred));
   $("lfTopic").value = (l && l.topic) || "ליד";
   $("lfStatus").value = (l && l.status_id) || (L.statuses.find(x => x.name === "חדש") || {}).id || "";
+  { const ro = !!(l && CRS.ok); $("lfStatus").disabled = ro; $("lfSource").disabled = ro; $("lfStatus").dataset.lock = $("lfSource").dataset.lock = ro ? "1" : ""; const n = document.querySelector(".lf-old-n"); if (n) n.hidden = !ro; }   // 5.20.3 (קובץ 142): בכרטיס קיים – מתעדכנים מהקורס
   $("lfStatus").classList.add("status-big"); paintStatus($("lfStatus"), Number($("lfStatus").value));
   [...$("lfStatus").options].forEach(o => { const c = statusColor(Number(o.value)); if (c) { o.style.background = c; o.style.color = txtOn(c); } else { o.style.background = "#fff"; o.style.color = "#222"; } });
   $("lfSource").value = (l && l.source_id) || "";
@@ -6152,7 +6168,7 @@ const LEAD_MOB = () => !!(window.matchMedia && matchMedia("(max-width:760px)").m
 function setLeadEdit(on){
   const card = document.querySelector("#leadForm .lead-main");
   card.classList.toggle("editing", on); $("leadForm").classList.toggle("ro", !on); $("view-lead").classList.toggle("ro", !on);
-  card.querySelectorAll("input, select, textarea, button.switch, button.star, #clearRemind").forEach(el => { if (!el.closest("#siblings")) el.disabled = !on; });
+  card.querySelectorAll("input, select, textarea, button.switch, button.star, #clearRemind").forEach(el => { if (!el.closest("#siblings")) el.disabled = !on || el.dataset.lock === "1"; });
   $("leadEditBtn").hidden = on; $("leadActions").hidden = !on; $("view-lead").classList.toggle("lc-view", !on); $("editBanner").hidden = !LEAD_DIRTY;
   // 5.19.72 (נועה): התזכורת תמיד מופיעה (גם בצפייה בנייד - אפשר לקבוע בלי "עריכה")
    // 5.19.72: בצפייה בלי תזכורת - בלי שטח ריק
