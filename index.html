@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.170">
+<meta name="app-version" content="5.19.171">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2527,12 +2527,12 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
             <!-- פרטים עיקריים: שם הילד, הורה, טלפון -->
             <fieldset class="key-box"><legend>פרטים עיקריים</legend>
               <div class="key-grid">
-                <div class="field"><label class="lbl" for="sFirst">שם פרטי</label><input id="sFirst" class="big" type="text" required></div>
-                <div class="field"><label class="lbl" for="sLast">שם משפחה</label><input id="sLast" class="big" type="text" required></div>
+                <div class="field"><label class="lbl req" for="sFirst">שם פרטי</label><input id="sFirst" class="big" type="text" required></div>
+                <div class="field"><label class="lbl req" for="sLast">שם משפחה</label><input id="sLast" class="big" type="text" required></div>
                 <div class="field"><label class="lbl" for="sPhone">טלפון תלמיד/ה</label><input id="sPhone" class="big" type="tel" inputmode="numeric"></div>
                 <div><label class="lbl" for="sEmail">אימייל תלמיד/ה</label><input id="sEmail" type="email" dir="ltr"></div>
                 <div class="kg-br" aria-hidden="true"></div><!-- 5.19.70 (נועה): שורה 1 - התלמיד/ה, שורה 2 - ההורה -->
-                <div class="field"><label class="lbl" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
+                <div class="field"><label class="lbl req" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
                 <div><label class="lbl" for="p1Last">משפחה (הורה)</label><input id="p1Last" class="big" type="text"></div>
                 <div class="field"><label class="lbl req" for="p1Phone">טלפון הורה</label>
                   <div class="phone-row"><input id="p1Phone" class="big" type="tel" inputmode="numeric"><a id="p1Wa" class="btn small" href="#" target="_blank" rel="noopener" hidden>וואטסאפ</a></div></div>
@@ -3826,6 +3826,20 @@ function crsTitle(c, noSch){
 // מסך "קורסים" (לשונית ראשונה במסך שהיה "הרשמה") – נועה 30.10: רשימת קורסים עם כמויות, ובצד (כמו תצוגה מקדימה באימייל) – התלמידים בקורס שנבחר
 const crsCity = (c) => c.city || (c.school && c.school.city) || ((CRS.mar || {})[c.marathon_id] || {}).city || "";
 const crsSch = (c) => (c.school && c.school.name) || c.school_text || ((CRS.mar || {})[c.marathon_id] || {}).school || "";
+// 5.19.171: מתעניין = כל סטטוס בשלב "התעניינות" (חדש, מתנדנד, ט. התעניינות…)
+const crsIsInt = (m) => (crsStOf(m.status).stage || (m.status === "מתעניין" ? "interest" : "")) === "interest";
+function crsMOk(m){ const F = CRS.f || {}; const st = F.st || new Set(), src = F.src || new Set();
+  return (st.size ? st.has(m.status) : m.status !== "בוטל") && (!src.size || src.has(m.source_id || 0)); }
+function crsMulti(box, items, set, allLbl, onCh){
+  if (!box) return;
+  box.innerHTML = `<button type="button" aria-haspopup="true"></button><div class="pop" hidden>` + items.map(x => `<label><input type="checkbox" value="${esc(String(x.id))}" ${set.has(x.id) ? "checked" : ""}>${x.c ? `<span class="dot" style="background:${esc(x.c)}"></span>` : ""}${esc(x.t)}</label>`).join("") + `</div>`;
+  const btn = box.querySelector("button"), pop = box.querySelector(".pop");
+  btn.textContent = set.size ? items.filter(x => set.has(x.id)).map(x => x.t).join(", ") || allLbl : allLbl; btn.classList.toggle("f-on", set.size > 0);
+  btn.onclick = (e) => { e.stopPropagation(); pop.hidden = !pop.hidden; };
+  if (!CRS.mlW) { CRS.mlW = true; document.addEventListener("click", e => document.querySelectorAll("#rgMain .multi .pop").forEach(pp => { if (!pp.parentNode.contains(e.target)) pp.hidden = true; })); }
+  pop.querySelectorAll("input").forEach(i => i.onchange = () => { const it = items.find(x => String(x.id) === i.value); if (!it) return; i.checked ? set.add(it.id) : set.delete(it.id);
+    onCh(); const nb = document.getElementById(box.id); if (nb) { const np = nb.querySelector(".pop"); if (np) np.hidden = false; } });
+}
 async function renderCrsCourses(reload){
   const b = $("rgMain"); if (!b) return;
   if (reload && REG_PRICES_DB === null) { try { await loadRegPrices(); } catch(e) {} }
@@ -3834,17 +3848,20 @@ async function renderCrsCourses(reload){
   if (CRS.fs === "") CRS.fs = act0;
   if (CRS.fs && (CRS.fs === "all" || !CRS.loadedSe.has(Number(CRS.fs)))) { b.querySelector(".crs-split") && b.querySelector(".crs-split").classList.add("loading"); try { await crsEnsureSeason(CRS.fs); } catch(e) {} }
   const F = CRS.f = CRS.f || { tr: "", city: "", sch: "", rmin: "", rmax: "", pend: false, int: false };
+  if (!F.st) F.st = new Set(); if (!F.src) F.src = new Set();
+  // 5.19.171 (נועה): סינון לפי כמה סטטוסים / כמה מקורות – כמו בתלמידים. הספירות בטבלה – רק של מי שמתאים
+  const mOk = crsMOk, fOn = F.st.size || F.src.size, allM = Object.values(CRS.cm).flat();
   const cnt = {}; Object.values(CRS.cm).flat().forEach(m => { const k = cnt[m.course_id] = cnt[m.course_id] || {}; k[m.status] = (k[m.status] || 0) + 1; });
   const q = CRS.q.trim(), txt = (c) => [crsShort(c, true), crsCity(c), crsSch(c)].join(" ");
   const base = CRS.courses.filter(c => (CRS.fs === "all" || String(c.season_id) === CRS.fs) && (!CRS.fc || String(c.category_id) === CRS.fc));
   const rc = (c) => (cnt[c.id] || {})["רשום"] || 0;
   const hasTrk = (c, t) => c.track === t || Object.values(CRS.cm).flat().some(m => m.course_id === c.id && m.status !== "בוטל" && mTrk(m) === t);
-  const list = base.filter(c => (c.is_active || Object.values(CRS.cm).flat().some(m => m.course_id === c.id && m.status !== "בוטל")) && (!F.tr || hasTrk(c, F.tr)) && (!F.city || crsCity(c) === F.city) && (!F.sch || crsSch(c) === F.sch) && (!q || txt(c).includes(q))
-      && (F.rmin === "" || rc(c) >= Number(F.rmin)) && (F.rmax === "" || rc(c) <= Number(F.rmax)) && (!F.pend || (cnt[c.id] || {})["ממתין לתשלום"]) && (!F.int || (cnt[c.id] || {})["מתעניין"]))
+  const list = base.filter(c => (c.is_active || allM.some(m => m.course_id === c.id && m.status !== "בוטל")) && (!fOn || allM.some(m => m.course_id === c.id && mOk(m))) && (!F.tr || hasTrk(c, F.tr)) && (!F.city || crsCity(c) === F.city) && (!F.sch || crsSch(c) === F.sch) && (!q || txt(c).includes(q))
+      && (F.rmin === "" || rc(c) >= Number(F.rmin)) && (F.rmax === "" || rc(c) <= Number(F.rmax)) && (!F.pend || (cnt[c.id] || {})["ממתין לתשלום"]) && (!F.int || allM.some(m => m.course_id === c.id && crsIsInt(m) && mOk(m))))
     .sort((a, b) => crsCity(a).localeCompare(crsCity(b), "he") || crsSch(a).localeCompare(crsSch(b), "he") || (crsCat(a.category_id).sort_order || 0) - (crsCat(b.category_id).sort_order || 0) || String(((CRS.mar || {})[a.marathon_id] || {}).first || "").localeCompare(String(((CRS.mar || {})[b.marathon_id] || {}).first || "")) || LK.tracks.findIndex(x => x.v === a.track) - LK.tracks.findIndex(x => x.v === b.track));   // 5.19.164 (נועה): מקובץ לפי בית ספר (+ עיר), ובפנים לפי קטגוריה ומסלול
   const uniq = (f) => [...new Set(base.map(f).filter(Boolean))].sort((x, y) => x.localeCompare(y, "he"));
   const trs = [...new Set(base.map(c => c.track).concat(Object.values(CRS.cm).flat().map(m => m.track)).filter(Boolean))].sort((a, b) => Object.keys(CRS_TRACKS).indexOf(a) - Object.keys(CRS_TRACKS).indexOf(b));
-  const dirty = !!(q || CRS.fc || F.tr || F.city || F.sch || F.rmin !== "" || F.rmax !== "" || F.pend || F.int || CRS.fs !== act0);
+  const dirty = !!(q || CRS.fc || F.tr || F.city || F.sch || F.rmin !== "" || F.rmax !== "" || F.pend || F.int || fOn || CRS.fs !== act0);
   const n = (c, k) => (cnt[c.id] || {})[k] || "";
   if (CRS.sel && !list.some(c => c.id === CRS.sel)) CRS.sel = null;
   const mob = matchMedia("(max-width:760px)").matches;
@@ -3858,13 +3875,15 @@ async function renderCrsCourses(reload){
       <div class="crs-mf"><label class="lbl" for="crsFy">עיר</label><select id="crsFy">${opt(uniq(crsCity).map(x => [x, x]), F.city, "הכול")}</select></div>
       <div class="crs-mf"><label class="lbl" for="crsFh">בית ספר</label><select id="crsFh">${opt(uniq(crsSch).map(x => [x, x]), F.sch, "הכול")}</select></div>
       <div class="crs-mf crs-rng"><label class="lbl" for="crsRmin">רשומים</label><span><input id="crsRmin" type="number" min="0" inputmode="numeric" placeholder="מ-" value="${esc(F.rmin)}"><input id="crsRmax" type="number" min="0" inputmode="numeric" placeholder="עד" value="${esc(F.rmax)}"></span></div>
+      <div class="crs-mf"><label class="lbl">סטטוס</label><div class="multi" id="crsFst"></div></div>
+      <div class="crs-mf"><label class="lbl">מקור</label><div class="multi" id="crsFsrc"></div></div>
       <div class="crs-mf crs-chk"><label><input type="checkbox" id="crsPend" ${F.pend ? "checked" : ""}> יש ממתינים לתשלום</label><label><input type="checkbox" id="crsInt" ${F.int ? "checked" : ""}> יש מתעניינים</label></div></div>
     <div class="dx-bar"><span></span><span class="dx-bar-b"><span class="muted">${list.length} קורסים</span><button type="button" class="clear-f" id="crsClear"${dirty ? "" : " disabled"}>✕ ניקוי סינון</button><button type="button" class="btn small" id="crsXls"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span></div>
     <div class="crs-split no-sel">
       <div class="crs-list">${list.length ? (() => {
         // 5.19.167 (נועה): טבלת סיכום – כותרת לכל עיר, שורה לכל בית ספר, עמודה לכל מסלול (רשומים); פתיחת שורה – הקורסים של בית הספר עם הפרטים והקישורים
         const regC = list.filter(c => !c.marathon_id), marC = list.filter(c => c.marathon_id);
-        const ms = (cs) => Object.values(CRS.cm).flat().filter(m => cs.some(c => c.id === m.course_id) && m.status !== "בוטל");
+        const ms = (cs) => allM.filter(m => cs.some(c => c.id === m.course_id) && mOk(m));
         const trks = LK.tracks.map(x => x.v).concat(["summer", "summer-ext"]).filter(t => ms(regC).some(m => mTrk(m) === t));
         const keyOf = (c) => crsCity(c) + "|" + crsSch(c), groups = [];
         list.forEach(c => { const k = keyOf(c); let g = groups.find(x => x.k === k); if (!g) groups.push(g = { k, cs: [] }); g.cs.push(c); });
@@ -3873,7 +3892,7 @@ async function renderCrsCourses(reload){
         let lastCity = null;
         groups.forEach(g => { const c0 = g.cs[0], city = crsCity(c0);
           if (city !== lastCity) { lastCity = city; const all = ms(list.filter(c => crsCity(c) === city)), k = (st) => all.filter(m => m.status === st).length;
-            out += `<tr class="crs-city"><td colspan="${cols}"><b>${esc(city || "בלי עיר")}</b> <span class="muted">${k("רשום")} רשומים${k("ממתין לתשלום") ? " · " + k("ממתין לתשלום") + " ממתינים" : ""}${k("מתעניין") ? " · " + k("מתעניין") + " מתעניינים" : ""}</span></td></tr>`; }
+            out += `<tr class="crs-city"><td colspan="${cols}"><b>${esc(city || "בלי עיר")}</b> <span class="muted">${k("רשום")} רשומים${k("ממתין לתשלום") ? " · " + k("ממתין לתשלום") + " ממתינים" : ""}${all.filter(crsIsInt).length ? " · " + all.filter(crsIsInt).length + " מתעניינים" : ""}</span></td></tr>`; }
           const gr = g.cs.filter(c => !c.marathon_id), gm = g.cs.filter(c => c.marathon_id), mr = ms(gr), mm = ms(gm), all = mr.concat(mm);
           const sc = crsSch(c0), chip = sc ? (c0.school_text && !(c0.school && c0.school.name) ? esc(sc) : scChip(sc)) : `<span class="muted">בלי בית ספר</span>`;
           const back = crsSeason(c0.season_id).is_active && L.leads ? L.leads.filter(l => l.student && crsBack(l.student.id, g.k)).length : 0;
@@ -3881,7 +3900,7 @@ async function renderCrsCourses(reload){
           out += `<tr class="crs-r crs-sr${open ? " open" : ""}" data-grp="${esc(g.k)}" tabindex="0"><td><button type="button" class="dx-tg" aria-expanded="${open}" aria-label="הקורסים של בית הספר"></button></td><td class="crs-sch">${chip}</td>`
             + trks.map(t => { const n = mr.filter(m => m.status === "רשום" && mTrk(m) === t).length; return `<td class="num">${cell(n, `data-cell="${esc(g.k)}" data-trk="${t}"`, "הרשומים במסלול – במגירה")}</td>`; }).join("")
             + `<td class="num">${cell(mm.filter(m => m.status === "רשום").length, gm.length === 1 ? `data-kids="${gm[0].id}"` : `data-open="${esc(g.k)}"`, gm.length === 1 ? "הנרשמים למרתון – במגירה" : gm.length + " מרתונים – פתיחת השורה")}</td>`
-            + `<td class="num">${all.filter(m => m.status === "ממתין לתשלום").length || ""}</td><td class="num">${all.filter(m => m.status === "מתעניין").length || ""}</td>`
+            + `<td class="num">${all.filter(m => m.status === "ממתין לתשלום").length || ""}</td><td class="num">${all.filter(crsIsInt).length || ""}</td>`
             + `<td class="num hide-m">${back ? `<button type="button" class="crs-back-n" data-back="1" title="היו רשומים בשנה שעברה בבית הספר הזה, ולא השנה – לחיצה: הרשימה בטבלת התלמידים">↩ ${back}</button>` : ""}</td></tr>`;
           if (open) out += `<tr class="dx-row"><td colspan="${cols}">${g.cs.map(c => `<div class="crs-sub"><div class="crs-sub-h"><span>${crsTitle(c, true)}${c.marathon_id ? "" : crsTrkMix(c)}${c.is_active ? "" : ` <span class="muted">(${c.marathon_id ? "לא התקיים" : "לא פעיל"})</span>`}</span><button type="button" class="btn small crs-kids" data-kids="${c.id}">👥<span class="bt"> תלמידים</span></button></div>${crsDetails(c)}</div>`).join("")}</td></tr>`;
         });
@@ -3896,7 +3915,9 @@ async function renderCrsCourses(reload){
   $("crsFt").onchange = (e) => { F.tr = e.target.value; re(); };
   $("crsFy").onchange = (e) => { F.city = e.target.value; re(); };
   $("crsFh").onchange = (e) => { F.sch = e.target.value; re(); };
-  $("crsClear").onclick = () => { CRS.q = ""; CRS.fc = ""; CRS.fs = ""; F.tr = F.city = F.sch = F.rmin = F.rmax = ""; F.pend = F.int = false; re(); };
+  $("crsClear").onclick = () => { CRS.q = ""; CRS.fc = ""; CRS.fs = ""; F.tr = F.city = F.sch = F.rmin = F.rmax = ""; F.pend = F.int = false; F.st.clear(); F.src.clear(); re(); };
+  crsMulti($("crsFst"), crsStList().map(x => ({ id: x.name, t: x.label || x.name, c: x.color })), F.st, "כל הסטטוסים", re);
+  crsMulti($("crsFsrc"), (L.sources || []).filter(x => x.is_active).map(x => ({ id: x.id, t: x.name })).concat([{ id: 0, t: "בלי מקור" }]), F.src, "כל המקורות", re);
   let nt = null; [["crsRmin", "rmin"], ["crsRmax", "rmax"]].forEach(([id, k]) => $(id).oninput = (e) => { F[k] = e.target.value.trim(); clearTimeout(nt); nt = setTimeout(() => renderCrsCourses().then(() => { const i = $(id); if (i) { i.focus(); const v = i.value; i.value = ""; i.value = v; } }), 400); });
   $("crsPend").onchange = (e) => { F.pend = e.target.checked; re(); }; $("crsInt").onchange = (e) => { F.int = e.target.checked; re(); };
   $("crsMore").onclick = () => { CRS.more = !CRS.more; re(); };
@@ -3945,10 +3966,10 @@ function crsOpenDrawer(c, trk){ if (!c) return; CRS.selTrk = trk || ""; const pl
 const crsDrawerRe = () => { if (CRS.sel && $("gEdit") && $("gEdit").querySelector(".crs-drawer")) crsOpenDrawer(CRS.byId[CRS.sel], CRS.selTrk); };
 // הצד: הקורס שנבחר – כותרת, כמויות, התלמידים (מצב בלחיצה), הוספה
 function crsPane(c, trk){
-  const ord = ["רשום", "ממתין לתשלום", "מתעניין", "פרש"];
-  const ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && m.status !== "בוטל" && (!trk || mTrk(m) === trk)).sort((a, b) => ord.indexOf(a.status) - ord.indexOf(b.status));
+  const ord = ["רשום", "ממתין לתשלום", "מתעניין", "פרש"], stg = { registered: 0, pending: 1, interest: 2, other: 3 }, rk = (m) => stg[crsStOf(m.status).stage] ?? (ord.indexOf(m.status) + 10);
+  const ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && crsMOk(m) && (!trk || mTrk(m) === trk)).sort((a, b) => rk(a) - rk(b) || String(a.status).localeCompare(String(b.status), "he"));
   const nm = (sid) => { const l = L.leads.find(x => x.student_id === sid); return l ? { l, t: ((l.student.first_name || "") + " " + (l.student.last_name || "")).trim(), g: classLabel(l.student.grade, l.student.class_num) } : { l: null, t: "#" + sid, g: "" }; };
-  const sums = ord.map(k => [k, ms.filter(m => m.status === k).length]).filter(x => x[1]).map(([k, v]) => `${v} ${k === "רשום" ? "רשומים" : k === "ממתין לתשלום" ? "ממתינים לתשלום" : k === "מתעניין" ? "מתעניינים" : "פרשו"}`).join(" · ");
+  const sums = [...new Set(ms.map(m => m.status))].map(k => `${ms.filter(m => m.status === k).length} ${esc(crsStOf(k).label || k)}`).join(" · ");
   return `<div class="crs-pane-h"><button type="button" class="btn small crs-back" data-crsback>→ חזרה לרשימה</button><button type="button" class="crs-x" data-crsback aria-label="סגירה" title="סגירה">✕</button></div>
     ${ms.length ? `<table class="crs-mt"><tbody>${ms.map(m => { const x = nm(m.student_id);
       return `<tr><td>${x.l ? `<button type="button" class="name-link" data-lead="${x.l.id}">${esc(x.t)}</button>` : esc(x.t)}${m.signed === false ? ` <span class="sig-miss" title="חסרה חתימה על התנאים">✍︎</span>` : ""}</td><td class="muted">${esc(x.g || m.grade || "")}</td><td>${c.marathon_id ? "" : crsLabel(c, m)}${m.note ? ` <span class="crs-note" title="${esc(m.note)}">💬</span>` : ""}</td><td class="hide-m">${CRS.hasSrc ? crsSrcBtn(m) : `<span class="muted" title="איך נרשם">${esc(m.source || "")}</span>`}</td><td class="crs-mt-st">${crsStWord(m)}</td></tr>`; }).join("")}</tbody></table>` : `<div class="muted" style="margin:10px 0">אין עדיין תלמידים בקורס.</div>`}
@@ -6086,14 +6107,14 @@ $("leadForm").addEventListener("submit", async (e) => {
   const navAfter = LEAD_NAV_AFTER; LEAD_NAV_AFTER = null;   // אם השמירה נכשלת - נשארים בכרטיס
   const err = $("leadErr"); err.textContent = "";
   let ok = true;
-  // 5.19.170 (נועה): פנייה מהורה – בלי שם הילד/ה. חובה רק טלפון הורה + שם אחד (של הילד/ה או של ההורה)
-  { const none = !$("sFirst").value.trim() && !$("p1First").value.trim(); ["sFirst","p1First"].forEach(id => $(id).closest(".field").classList.toggle("invalid", none)); ["sLast"].forEach(id => $(id).closest(".field").classList.remove("invalid")); if (none) ok = false; }
+  // 5.19.82 (נועה): חובה - שם פרטי, שם משפחה, שם הורה, טלפון הורה (5.19.171: פנייה בלי פרטי הילד/ה – נשארת בהתראות; להרשמה – טופס הרשמה)
+  ["sFirst","sLast","p1First"].forEach(id => { const bad = !$(id).value.trim(); $(id).closest(".field").classList.toggle("invalid", bad); if (bad) ok = false; });
   if (!validPhone("p1Phone", true)) ok = false;
   if (!validPhone("p2Phone", false)) ok = false;
   if (!validPhone("sPhone", false)) ok = false;
   { const c = $("sClass").value.trim(), bad = c !== "" && !/^[0-9]{1,2}$/.test(c); $("sClass").closest(".field").classList.toggle("invalid", bad);
     if (bad) { err.textContent = "מספר כיתה - רק מספר (למשל 3), בלי אות השכבה."; return; } }
-  if (!ok) { err.textContent = "צריך טלפון הורה תקין (מתחיל ב-0) ושם אחד לפחות – של הילד/ה או של ההורה."; return; }
+  if (!ok) { err.textContent = "יש למלא את השדות עם הכוכבית: שם פרטי, שם משפחה, שם הורה וטלפון הורה תקין (מתחיל ב-0)."; return; }
 
   const school = L.schools.find(x => String(x.id) === $("sSchool").value);
   const family = { parent1_first: $("p1First").value.trim(), parent1_last: nn($("p1Last").value), parent1_phone: nn(digits($("p1Phone").value)), parent1_email: nn($("p1Email").value),
