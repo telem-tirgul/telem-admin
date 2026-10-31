@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.1">
+<meta name="app-version" content="5.20.2">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1556,8 +1556,11 @@
 .ex-kbar{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 10px; }
 .ex-dx{ margin:4px 0 8px; } .ex-dx .dx-bar-b{ flex-wrap:wrap; }
 @media (max-width:760px){ .ex-dx{ flex-wrap:wrap; min-width:0; max-width:100%; } .ex-dx .dx-bar-b{ flex:1 1 100%; min-width:0; max-width:100%; justify-content:flex-start; } .ex-dx .ex-kbar{ order:9; flex:1 1 100%; min-width:0; max-width:100%; flex-wrap:nowrap; overflow-x:auto; padding-bottom:2px; } .ex-dx .ex-kbar button{ flex:none; } .ex-dx #exXls .bt{ display:none; } .ex-dx #exXls{ margin-inline-start:auto; } } .ex-dx .ex-kbar{ margin:0; gap:4px; } .ex-dx .ex-kbar button{ font-size:12px !important; padding:2px 8px !important; gap:4px !important; } .ex-dx .ex-kbar .ex-kc i{ width:10px !important; height:10px !important; }
-#view-exams .ex-modebar:has(#exRangeL:not([hidden])) .ex-filters > label{ font-size:13px !important; font-weight:700; color:var(--ink-soft); display:inline-flex; flex-direction:column; align-items:stretch; gap:2px !important; }
-#view-exams .ex-modebar:has(#exRangeL:not([hidden])){ background:var(--paper, #fff); border:1px solid var(--border); border-radius:14px; padding:10px 12px; } .ex-kbar button{ font:inherit; font-size:13.5px; border:1.5px solid var(--border); background:var(--paper); border-radius:999px; padding:4px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+#view-exams .ex-modebar .ex-filters > label{ font-size:13px !important; font-weight:700; color:var(--ink-soft); display:inline-flex; flex-direction:column; align-items:stretch; gap:2px !important; }
+#view-exams .ex-modebar .ex-kdot{ display:inline-block; width:11px; height:11px; border-radius:3px; flex:none; }
+#view-exams .ex-modebar > .gseg{ order:5; margin-inline-start:auto; align-self:flex-end; } #view-exams .ex-modebar > .ex-filters{ order:1; align-items:flex-end; }
+#view-exams .ex-modebar > .ex-monthnav{ order:9; flex:1 1 100%; } #exKinds{ min-width:160px; } #exKinds > button{ font-size:13.5px; padding:6px 10px; }
+#view-exams .ex-modebar{ background:var(--paper, #fff); border:1px solid var(--border); border-radius:14px; padding:10px 12px; } .ex-kbar button{ font:inherit; font-size:13.5px; border:1.5px solid var(--border); background:var(--paper); border-radius:999px; padding:4px 12px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
 .ex-kbar button[aria-pressed="true"]{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 8%, var(--paper)); font-weight:700; }
 .ex-tbl td{ white-space:nowrap; padding-top:6px; padding-bottom:6px; vertical-align:middle; } .ex-tbl td.ex-src{ max-width:200px; overflow:hidden; text-overflow:ellipsis; }
 .lg-m1{ background:#9FD3F5; } .lg-m2{ background:#1F5FA8; } .ex-cal td.ot{ background:#D9C8F0; color:#4A2C7A; cursor:pointer; font-size:10px; } .lg-ot{ background:#D9C8F0; }
@@ -1705,6 +1708,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .crs-all-l{ display:grid; gap:6px; margin-top:8px; min-width:280px; max-height:360px; overflow:auto; } .crs-all-r{ display:grid; grid-template-columns:62px 1fr auto; gap:8px; align-items:center; font-size:13px; }
 #leadsTbl .act-dot{ width:11px; height:11px; border-radius:50%; border:1.5px solid #9AA1A9; background:#fff; padding:0; cursor:pointer; display:block; margin:auto; } #leadsTbl .act-dot.on{ background:#3E8E41; border-color:#3E8E41; }
 @media (min-width:761px){ #leadsTbl td.c-name{ min-width:135px; } }
+.set-sub{ font-size:18px; color:var(--accent); margin:2px 0 12px; font-weight:800; }
 .side-hr{ display:flex; justify-content:space-between; align-items:center; gap:8px; } .side-hr .side-h{ margin:4px 0 8px !important; }
 .lg-crs-box.lg-trk{ border:2px solid var(--tc, #2B2320); } .lg-crs-box.lg-trk > .lg-crs{ border-bottom-color:color-mix(in srgb, var(--tc, #2B2320) 35%, transparent); }
 .lg-crs-box > .lg-crs .lg-crs-l{ font-size:15px; } .lg-ic{ display:inline-flex; vertical-align:-4px; margin-inline-end:4px; } .lg-ic svg{ width:19px; height:19px; }
@@ -2455,7 +2459,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <div class="who"><span id="whoEmail"></span>
       <button class="btn small ghost" id="bugBtn" type="button" title="דיווח על בעיה" aria-label="דיווח על בעיה">🐞</button>
       <div class="info-wrap"><button class="btn small ghost" id="infoBtn" type="button" title="מידע" aria-label="מידע" aria-haspopup="true" aria-expanded="false">ⓘ</button>
-        <div class="info-menu" id="infoMenu" hidden><button type="button" data-im="reports" data-admin>📊 דוחות</button><button type="button" data-im="info">מידע למתרגלים</button><button type="button" data-im="holidays" data-admin>חגים וחופשות</button><button type="button" id="imRefresh">🔄 רענון</button></div></div>
+        <div class="info-menu" id="infoMenu" hidden><button type="button" data-im="reports" data-admin>📊 דוחות</button><button type="button" data-im="info">מידע למתרגלים</button><button type="button" id="imRefresh" hidden>🔄 רענון</button></div></div>
       <button class="btn small ghost gear" id="gearBtn" type="button" title="הגדרות" aria-label="הגדרות">⚙</button>
       <button class="btn small ghost ib-bell" id="inboxBtn" type="button" data-admin title="התראות" aria-label="התראות">📥<span id="inboxN"></span></button>
       <!-- 5.19.101 (נועה): "יציאה" עבר להגדרות (⚙) – כמו בתלם שלי; בכותרת קל ללחוץ בטעות, במיוחד בנייד -->
@@ -2670,13 +2674,14 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== גיבוי (בהגדרות) ===== -->
     <section id="view-issues" hidden>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <!-- 5.19.66: הדיווחים עברו למסך ההודעות (📥) -->
     </section>
     <!-- ===== 5.19.100 (נועה): נוסחי הטפסים (בהגדרות) ===== -->
     <section id="view-ftx" hidden>
-      <div class="page-head"><h1>טפסים</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="page-head"><h1>הגדרות</h1></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <h2 class="set-sub">טפסים</h2>
       <div class="gseg ftx-tabs" role="group" aria-label="טפסים"><button type="button" data-ftab="forms">טפסים ומחירים</button><button type="button" data-ftab="texts">נוסחי טפסים</button></div><!-- 5.19.168 (נועה): שתי לשוניות -->
       <div class="ftx-pane-forms"><div class="card ftx-gen" id="ftxGen"></div><!-- 5.19.163: טופס התעניינות כללי (לשעבר "קישורים") --></div>
       <div class="ftx-pane-texts">
@@ -2693,8 +2698,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     </div><!-- /ftx-pane-texts -->
     </section>
     <section id="view-backup" hidden>
-      <div class="page-head"><h1>גיבוי</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="page-head"><h1>הגדרות</h1></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <h2 class="set-sub">גיבוי</h2>
       <div class="card">
         <h3 class="rep-h" style="margin-top:0;">הורדת גיבוי למחשב</h3>
         <p class="muted" style="font-size:13.5px; margin:0 0 10px;">כל הטבלאות בקובץ אחד. כדאי לשמור עותק גם בדרייב. הקובץ כולל טלפונים ופרטים אישיים - לא לשלוח הלאה.</p>
@@ -2810,8 +2816,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== הפרטים שלי (בהגדרות, לכולם) ===== -->
     <section id="view-me" hidden>
-      <div class="page-head"><h1>החשבון שלי</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="page-head"><h1>הגדרות</h1></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <h2 class="set-sub">החשבון שלי</h2>
       <!-- 5.19.101 (נועה): "החשבון שלי" מסודר; היציאה מהמערכת – כאן (לא בכותרת) -->
       <div class="card me-card">
         <div class="me-top"><span class="me-av" id="meAv"></span><div><div class="me-nm" id="meName"></div><span class="me-role" id="meRole"></span></div></div>
@@ -2864,7 +2871,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== בתי ספר (מידע, מנהלים בלבד) ===== -->
     <section id="view-holidays" hidden>
-      <div class="page-head"><h1>חגים וחופשות</h1><button class="btn small primary" type="button" id="holAdd">+ יום חדש</button></div>
+      <div class="page-head"><h1>הגדרות</h1><button class="btn small primary" type="button" id="holAdd">+ יום חדש</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <h2 class="set-sub">חגים וחופשות</h2>
       <div class="muted" style="font-size:13.5px; margin:-6px 0 10px;"><b>חג</b> ו<b>חופשה</b> - כל קבוצה שוטפת מסומנת אוטומטית "לא התקיים תרגול" (מרתונים לא). אם בכל זאת היה תרגול - מבטלים בדף הנוכחות של הקבוצה. <b>יום ציון</b> - רק תזכורת.</div>
       <div class="tbl-wrap"><table class="tbl hol-tbl" id="holTbl"></table></div>
     </section>
@@ -2910,7 +2919,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         <label>עיר <select id="exCity"></select></label>
         <label>בית ספר <select id="exSch"></select></label>
         <label>שכבה <select id="exGrade"></select></label>
-        <span class="ex-range" id="exRangeL"><label>מתאריך <input type="date" id="exFrom"></label><label>עד <input type="date" id="exTo"></label></span>
+        <label class="ex-kl">סוג <div class="multi" id="exKinds"></div></label><!-- 5.20.2 (נועה): הסוגים – סינון, בשורת הסינון -->
+        <span class="ex-range" id="exRangeL" hidden><label>מתאריך <input type="date" id="exFrom"></label><label>עד <input type="date" id="exTo"></label></span>
         <button type="button" class="clear-f" id="exRangeX" hidden>✕ ניקוי סינון</button>
       </div>
       </div>
@@ -2941,14 +2951,16 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== צוות ומתרגלים ===== -->
     <section id="view-courses" hidden>
-      <div class="page-head"><h1>קטגוריות ומחזורים</h1><button class="btn small primary" type="button" id="crsNew">+ חדש</button></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="page-head"><h1>הגדרות</h1><button class="btn small primary" type="button" id="crsNew">+ חדש</button></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <h2 class="set-sub">קטגוריות ומחזורים</h2>
       <div class="gseg crs-tabs" role="group" aria-label="קטגוריות ומחזורים"><button type="button" data-crt="cats">קטגוריות</button><button type="button" data-crt="seasons">מחזורים</button></div>
       <div id="crsBody"></div>
     </section>
     <section id="view-staff" hidden>
-      <div class="page-head"><h1>צוות ומתרגלים</h1></div>
-      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <div class="page-head"><h1>הגדרות</h1></div>
+      <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
+      <h2 class="set-sub">צוות ומתרגלים</h2>
       <div class="card" id="stCard" style="margin-bottom:14px;" hidden>
         <div class="st-fh"><b id="stFT">משתמש חדש</b></div>
         <div class="muted" style="margin-bottom:10px; line-height:1.7;">
@@ -3377,7 +3389,7 @@ function resumeView(force){
   if (!st || (!force && currentView !== "home")) return;
   window.dispatchEvent(new PopStateEvent("popstate", { state: st }));
 }
-const SETTINGS_VIEWS = ["staff","backup","ftx","courses","me"];   // 5.19.66: "issues" (דיווחים) עבר למסך ההודעות
+const SETTINGS_VIEWS = ["ftx","courses","holidays","staff","backup","me"];   // 5.20.2 (נועה): טפסים ראשון; חגים וחופשות – בהגדרות   // 5.19.66: "issues" (דיווחים) עבר למסך ההודעות
 let IB_TAB = "forms";   // 5.19.32: "הרשמה ותשלומים" - טאב בתפריט הראשי
 const INFO_VIEWS = [];   // "מידע למתרגלים" ו"חגים וחופשות" - בתפריט הקטן ⓘ ליד ההגדרות
 let DATA_READY = true, DATA_WAIT = null;
@@ -3438,8 +3450,8 @@ function go(view){
   document.body.dataset.view = view;
   const inst = ME.role === "instructor", key = inst ? "telem_settings_view_i" : "telem_settings_view";
   if (inst && !["att","ws","home","settings","me","myschools","info"].includes(view)) view = "home";
-  if (view === "settings") { view = store(key) || ""; if (!SETTINGS_VIEWS.includes(view)) view = inst ? "me" : "staff"; }
-  $("infoMenu").hidden = true; $("infoBtn").setAttribute("aria-expanded", "false"); $("infoBtn").classList.toggle("on", view === "info" || view === "holidays" || view === "reports");
+  if (view === "settings") { view = store(key) || ""; if (!SETTINGS_VIEWS.includes(view)) view = inst ? "me" : "ftx"; }
+  $("infoMenu").hidden = true; $("infoBtn").setAttribute("aria-expanded", "false"); $("infoBtn").classList.toggle("on", view === "info" || view === "reports");
   if (inst && SETTINGS_VIEWS.includes(view)) view = "me";
   // בתי ספר והיסטוריה - תחת "מידע"
   if (inst && (view === "schools" || view === "history")) view = "myschools";
@@ -5398,7 +5410,7 @@ function crsHead(m){ const c = CRS.byId[m.course_id] || {};
         return `<span class="lg-ic" style="color:${to ? to.c : "#2B2320"}">${sum ? "☀️" : TRK_IC}</span><b>${esc(crsCat(c.category_id).name || crsCatN(c.category_id))}</b>${tn ? ` · <b style="color:${to ? to.c : "inherit"}">${esc(tn)}</b>` : ` · <span class="muted">בלי מסלול</span>`}${sub ? ` · <b>${esc(sub)}</b>` : ""}`; })();
   return `<div class="lg-crs" data-crsmar="${c.marathon_id || ""}"><span class="lg-crs-l">${lab}<span class="lg-crs-g"></span>${crsNeedSig(m) ? ` <span class="sig-miss" title="חסרה חתימה על התנאים">✍︎</span>` : ""}</span><span class="lg-crs-r">${crsSrcBtn(m)}${crsStWord(m)}</span>${c.marathon_id ? "" : crsSignRow(m)}</div>`; }
 // 5.19.169 (נועה, קובץ 135): טופס חתימה על התנאים בלבד – קישור אישי לכל רישום לקורס (חתימה אחת, 30 יום)
-const crsSignRow = (m) => m.signed === true || !["רשום", "ממתין לתשלום"].includes(m.status) ? "" : `<div class="lc-sign" data-sgm="${m.id}"><button type="button" class="btn small" data-sgn="${m.id}">✍ שליחת טופס חתימה</button><span class="lc-sign-st"></span></div>`;
+const crsSignRow = (m) => m.signed === true || !["רשום", "ממתין לתשלום"].includes(m.status) ? "" : `<div class="lc-sign" data-sgm="${m.id}"><button type="button" class="btn small" data-sgn="${m.id}">✍ שליחת טופס חתימה</button><button type="button" class="btn small" data-sgok="${m.id}" title="הטופס החתום התקבל מחוץ למערכת (נייר / מייל / וואטסאפ)">✓ התקבל טופס חתום</button><span class="lc-sign-st"></span></div>`;
 const signUrl = (code) => (CONFIG.formsBase || "https://telem-tirgul.github.io/") + "sign.html?c=" + code;
 async function signWire(sid){
   const boxes = [...$("leadGroups").querySelectorAll("[data-sgm]")]; if (!boxes.length) return;
@@ -5410,7 +5422,7 @@ async function signWire(sid){
   const paint = (box) => {
     const mid = Number(box.dataset.sgm), m = crsOfStudent(sid).find(x => x.id === mid) || {}, c = CRS.byId[m.course_id] || {};
     const k = links.find(x => x.course_member_id === mid && live(x)), btn = box.querySelector("[data-sgn]"), stEl = box.querySelector(".lc-sign-st");
-    btn.hidden = !!k;
+    btn.hidden = !!k; { const okb = box.querySelector("[data-sgok]"); if (okb) okb.hidden = false; }
     if (!k) { stEl.innerHTML = ""; return; }
     const u = signUrl(k.code), lab = [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ");
     const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, זה הטופס לאישור תנאי ההתקשרות ולחתימה עבור ${st.first_name || ""} (${lab}): ${u}`;
@@ -5418,7 +5430,13 @@ async function signWire(sid){
     stEl.innerHTML = `<span class="muted">✍ נשלח ${esc(fmtDM(String(k.created_at).slice(0, 10)))} · ${k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח"}</span> <button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ להורה</a>` : ""}`;
     stEl.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
   };
-  boxes.forEach(box => { paint(box); box.querySelector("[data-sgn]").onclick = async (e) => {
+  boxes.forEach(box => { const ok = box.querySelector("[data-sgok]"); if (ok) ok.onclick = async () => {   // 5.20.2 (נועה): טופס שהתקבל מחוץ למערכת
+      if (!await uiConfirm("לסמן שהתקבל טופס הרשמה חתום (מחוץ למערכת)?")) return; ok.disabled = true; const mid = Number(box.dataset.sgm), m = crsOfStudent(sid).find(x => x.id === mid) || {};
+      const body = { signed: true, signed_via: "manual", updated_at: new Date().toISOString() };
+      try { await patch("course_members", "id=eq." + mid, body).catch(async (e) => { if (/signed_via/.test(e.message || "")) { delete body.signed_via; return patch("course_members", "id=eq." + mid, body); } throw e; });
+            Object.assign(m, body); toast("סומן: התקבל טופס חתום"); loadLeadGroups(sid); if (currentView === "leads") renderLeads(); }
+      catch(e) { toast("לא נשמר: " + e.message); ok.disabled = false; } };
+    paint(box); box.querySelector("[data-sgn]").onclick = async (e) => {
     const b = e.currentTarget, mid = Number(box.dataset.sgm), m = crsOfStudent(sid).find(x => x.id === mid) || {}, c = CRS.byId[m.course_id] || {};
     b.disabled = true;
     try {
@@ -5738,7 +5756,7 @@ async function renderFormsTable(M){ if (!M) return;
         const shutTrk = (c) => on72 ? LK.tracks.filter(t => rTr(c, "register_closed_tracks", t.v) || rTr(c, "interest_closed_tracks", t.v)) : [];
         let h = `<section class="rg-sec rg-all3"><div class="rg-sec-h"><h3>תרגולים שוטפים · כל הערים <small>המחירים וההגדרות מופיעים בטופס ההתעניינות ובטופס ההרשמה של כל עיר</small></h3></div>
           <div class="rg3-wrap"><table class="rg3"><thead><tr><th></th>${cities.map(c => `<th>${esc(c)}<button type="button" class="btn small" data-pedit="${esc(c)}">✎ עריכה</button></th>`).join("")}</tr></thead><tbody>
-          ${LK.tracks.map(x => row(`<span class="trk" style="background:${x.c}"></span>${esc(x.t)}`, (P, c) => P[x.v] ? (earlyOn(c) ? `<span class="rg3-pr"><span class="muted">מוקדם</span> <b>${nis(P[x.v].early)}</b><span class="rg3-sep">·</span><span class="muted">רגיל</span> <b>${nis(P[x.v].regular)}</b></span>` : `<b>${nis(P[x.v].regular)}</b>`) : "—")).join("")}
+          ${LK.tracks.map(x => row(`<span class="lg-ic" style="color:${x.c}">${TRK_IC}</span>${esc(x.t)}`, (P, c) => P[x.v] ? (earlyOn(c) ? `<span class="rg3-pr"><span class="muted">מוקדם</span> <b>${nis(P[x.v].early)}</b><span class="rg3-sep">·</span><span class="muted">רגיל</span> <b>${nis(P[x.v].regular)}</b></span>` : `<b>${nis(P[x.v].regular)}</b>`) : "—")).join("")}
           ${row("דמי הרשמה", P => nis(P.registrationFee))}
           ${row("חומרי תרגול", P => P.materialsFee ? nis(P.materialsFee) : "<span class='muted'>אין</span>")}
           ${row("תחילת פעילות", P => sh(P.activityStartDate) || "—")}
@@ -5754,11 +5772,13 @@ async function renderFormsTable(M){ if (!M) return;
           h += `<section class="rg-sec"><div class="rg-sec-h"><h3>🏁 מרתונים <small>טופס ההרשמה של כל מרתון שעוד לא הסתיים (פתיחה / סגירה ועריכה – במסך "מרתונים")</small></h3></div>`
             + (mars.length ? `<div class="tbl-wrap"><table class="tbl mar-ft"><thead><tr><th>מרתון</th><th>בית ספר</th><th>מפגשים</th><th>מצב</th><th>טופס ההרשמה</th></tr></thead><tbody>${mars.map(m => `<tr>
                 <td><b>${esc(m.name || "מרתון")}</b></td><td>${m.school ? scChip(m.school) : ""}${m.city ? ` <span class="muted">${esc(m.city)}</span>` : ""}</td>
-                <td>${esc(m.ds.map(fmtDM).join(", ") || "—")}</td><td><span class="all-st ${m.is_open ? "on" : "off"}">${m.is_open ? "● פתוח" : "○ סגור"}</span></td>
+                <td>${esc(m.ds.map(fmtDM).join(", ") || "—")}</td><td><button type="button" class="ft-sw ${m.is_open ? "on" : "off"}" data-marsw="${m.id}" title="${m.is_open ? "לחיצה – סגירה להרשמה" : "לחיצה – פתיחה להרשמה"}">${m.is_open ? "● פתוח" : "○ סגור"}</button></td>
                 <td><div class="ft-lk">${lk2Btns("", lkMarCode(m.code), "הרשמה ל" + (m.name || "מרתון") + ": ")}</div></td></tr>`).join("")}</tbody></table></div>`
               : `<div class="muted" style="padding:8px 4px">אין מרתונים קרובים.</div>`) + `</section>`; } } catch(e) {}
         M.innerHTML = h;
         wireLk(M); lkApplyShort(M); wireSwf(M);
+        M.querySelectorAll("[data-marsw]").forEach(bt => bt.onclick = async () => { const o = (CRS.mar || {})[Number(bt.dataset.marsw)]; if (!o) return; bt.disabled = true;
+          try { await patch("marathons", "id=eq." + o.id, { is_open: !o.is_open }); o.is_open = !o.is_open; G.marathons = null; toast(o.is_open ? "המרתון פתוח להרשמה" : "המרתון נסגר להרשמה"); renderFormsTable(M); } catch(e) { toast("לא נשמר: " + e.message); bt.disabled = false; } });
         M.querySelectorAll("[data-pedit]").forEach(bt => bt.onclick = () => { if (REG_PRICES_DB === false) { toast("כדי לערוך מחירים צריך להריץ את קובץ 44"); return; } openPriceEditor(bt.dataset.pedit); });
 }
 async function ftxGenPaint(){ const box = $("ftxGen"); if (!box) return;
@@ -6564,7 +6584,7 @@ async function renderExams(reload){
   $("exInfo").innerHTML = im ? `עודכן מהקובץ: <b>${esc(fmtDate(im.at))}</b> · ${esc(im.by_name || "")} · ${im.rows_in} שורות (מתוכן "חומר נלמד": ${EX.rows.filter(e => EX_STUDY.test(e.kind)).length})${im.unmatched ? `<div class="ex-warn">⚠ בתי ספר שלא זוהו במערכת: ${esc(im.unmatched)}</div>` : ""}` : "";
   EX.mode = EX.mode || store("telem_ex_mode") || "cal"; if (!EX.month) EX.month = todayIL().slice(0, 7);
   document.querySelectorAll("[data-exm]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.exm === EX.mode)));
-  const cal = EX.mode === "cal"; exPalRender(); $("exMonthNav").hidden = !cal; $("exRangeL").hidden = cal; $("exCal").hidden = !cal; if (cal) $("exRangeX").hidden = true; $("exList").hidden = cal;
+  const cal = EX.mode === "cal"; exPalRender(); $("exMonthNav").hidden = !cal; $("exRangeL").hidden = true; { const kl = $("exKinds") && $("exKinds").closest("label"); if (kl) kl.hidden = cal; } $("exCal").hidden = !cal; if (cal) $("exRangeX").hidden = true; $("exList").hidden = cal;
   const exCity = (e) => (e.school && e.school.city) || "";
   const cities = CONFIG.cities.filter(c => EX.rows.some(e => exCity(e) === c));
   // 5.19.95 (נועה): הסינון (עיר / בית ספר / שכבה) נשמר – גם אחרי עדכון גרסה / רענון
@@ -6586,16 +6606,18 @@ async function renderExams(reload){
   // 5.19.49 (הלקוחה): סינון מתאריך-עד תאריך. "מתאריך" גובר על "גם מבחנים שעברו"
   // ברירת מחדל: מהיום עד 20.6 של שנת הלימודים
   const y20 = (Number(t.slice(0, 4)) + (Number(t.slice(5, 7)) >= 7 ? 1 : 0)) + "-06-20";
-  if (!EX.rangeInit) { EX.rangeInit = true; $("exFrom").value = t; $("exTo").value = y20; }
-  const dFrom = $("exFrom").value, dTo = $("exTo").value; $("exRangeX").hidden = dFrom === t && dTo === y20 && !fc && !fs && !fg && !EX.kf;   // "ניקוי סינון" - רק כשיש סינון פעיל
-  const rows0 = EX.rows.filter(e => !EX_STUDY.test(e.kind) && (mk || !EX_MAKEUP.test(e.kind)) && (dFrom ? e.exam_date >= dFrom : (past || e.exam_date >= t)) && (!dTo || e.exam_date <= dTo) && flt(e));
+  if (!EX.kfs) EX.kfs = new Set();
+  const dFrom = "", dTo = ""; $("exRangeX").hidden = true;   // 5.20.2 (נועה): בלי סינון תאריכים – כל האירועים   // "ניקוי סינון" - רק כשיש סינון פעיל
+  const rows0 = EX.rows.filter(e => !EX_STUDY.test(e.kind) && (mk || !EX_MAKEUP.test(e.kind)) && (dFrom ? e.exam_date >= dFrom : true) && (!dTo || e.exam_date <= dTo) && flt(e));
   const kinds = [...new Set(rows0.map(e => e.kind))];
-  if (EX.kf && !kinds.includes(EX.kf)) EX.kf = "";
-  const rows = rows0.filter(e => !EX.kf || e.kind === EX.kf);
+  [...EX.kfs].forEach(k => { if (!kinds.includes(k)) EX.kfs.delete(k); });
+  const rows = rows0.filter(e => !EX.kfs.size || EX.kfs.has(e.kind));
+  crsMulti($("exKinds"), kinds.map(k => ({ id: k, t: k + " (" + rows0.filter(e => e.kind === k).length + ")" })), EX.kfs, "כל הסוגים", () => renderExams(false));
+  $("exKinds").querySelectorAll(".pop label").forEach((lb, i) => { const sp = document.createElement("i"); sp.className = "ex-kdot " + exKindCls(kinds[i]); lb.insertBefore(sp, lb.childNodes[1] || null); });
   const kBar = kinds.length > 1 ? `<div class="ex-kbar" role="group" aria-label="סינון לפי סוג"><button type="button" data-kf="" aria-pressed="${!EX.kf}">הכל <span class="muted">${rows0.length}</span></button>${kinds.map(k => `<button type="button" data-kf="${esc(k)}" aria-pressed="${EX.kf === k}">${exKindChip(k)} <span class="muted">${rows0.filter(e => e.kind === k).length}</span></button>`).join("")}</div>` : "";
   // 5.19.176 (נועה: "תעצב את המסך"): כמו בכל טבלה – שורה אחת מעל הטבלה: מימין טווח התאריכים; משמאל מספר השורות · ניקוי סינון · הסוגים · אקסל
-  const fOn = !(dFrom === t && dTo === y20 && !fc && !fs && !fg && !EX.kf);
-  const dxBar = `<div class="dx-bar ex-dx"><span class="muted">${dFrom ? esc(fmtDM(dFrom)) : "…"} – ${dTo ? esc(fmtDM(dTo)) : "…"}</span><span class="dx-bar-b"><span class="muted">${rows.length} אירועים</span><button type="button" class="clear-f" id="exClr2"${fOn ? "" : " disabled"}>✕ ניקוי סינון</button>${kBar}<button type="button" class="btn small" id="exXls" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span></div>`;
+  const fOn = !!(fc || fs || fg || EX.kfs.size);
+  const dxBar = `<div class="dx-bar ex-dx"><span></span><span class="dx-bar-b"><span class="muted">${rows.length} אירועים</span><button type="button" class="clear-f" id="exClr2"${fOn ? "" : " disabled"}>✕ ניקוי סינון</button><button type="button" class="btn small" id="exXls" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span></div>`;
   // 📓 חומר שלומדים עכשיו: האחרון לכל בית ספר + שכבה
   const stMap = {}; EX.rows.filter(e => EX_STUDY.test(e.kind) && e.exam_date <= t && flt(e)).forEach(e => { stMap[schKey(exSchName(e)) + "|" + gradeKey(e.grade) + "|" + (e.class_num || "")] = e; });
   const studies = Object.values(stMap);
@@ -6604,6 +6626,7 @@ async function renderExams(reload){
   stH = "";
   $("exRangeX").hidden = true;
   const exWire = () => { const c2 = $("exClr2"); if (c2) c2.onclick = () => $("exRangeX").click();
+    const c3 = $("exClr2"); if (c3) c3.onclick = () => { EX.kfs.clear(); $("exRangeX").click(); };
     const xb = $("exXls"); if (xb) xb.onclick = () => downloadXlsx([["תאריך", "יום", "עיר", "בית ספר", "שכבה", "סוג", "נושאים", "חומר", "מקור"]].concat(rows.map(e => [fmtIso(e.exam_date), DAY_FULL[dayLetter(e.exam_date)] || "", (e.school && e.school.city) || "", exSchName(e), gradeKey(e.grade) + "'" + (e.class_num || ""), e.kind, String(e.topics || "").replace(/<[^>]+>/g, " "), e.material || "", e.origin === "manual" ? "נוסף במערכת" : e.source || "מהקובץ"])), "לוח מבחנים.xlsx", "לוח מבחנים");
     box.querySelectorAll("[data-kf]").forEach(b => b.onclick = () => { EX.kf = b.dataset.kf; renderExams(false); }); };
   if (!rows.length) { box.innerHTML = stH + dxBar + `<div class="empty-state">${EX.rows.length ? (dFrom || dTo ? "אין אירועים בתאריכים שנבחרו." : "אין מבחנים קרובים לפי הבחירה.") : "עוד אין מבחנים במערכת."}</div>`; exWire(); return; }
@@ -6630,7 +6653,7 @@ async function renderExams(reload){
     try { if (!await exDelEvent(e, `ה${e.kind} של ${exSchName(e)} ${gradeKey(e.grade)}' ב-${fmtIso(e.exam_date)}`)) return; toast("נמחק"); renderExams(true); } catch(err) { toast("לא נמחק: " + err.message); } });
 }
 ["exCity", "exSch", "exGrade", "exFrom", "exTo"].forEach(id => $(id).addEventListener("change", () => { EX.fS = { c: $("exCity").value, s: $("exSch").value, g: $("exGrade").value }; store("telem_ex_f", JSON.stringify(EX.fS)); renderExams(false); }));   // 5.19.49: בלי "גם שעברו" / "גם השלמה" (הלקוחה)
-$("exRangeX").addEventListener("click", () => { EX.rangeInit = false; EX.kf = ""; EX.fS = {}; store("telem_ex_f", "{}"); ["exCity", "exSch", "exGrade"].forEach(id => { $(id).value = ""; }); renderExams(false); });
+$("exRangeX").addEventListener("click", () => { EX.rangeInit = false; EX.kf = ""; if (EX.kfs) EX.kfs.clear(); EX.fS = {}; store("telem_ex_f", "{}"); ["exCity", "exSch", "exGrade"].forEach(id => { $(id).value = ""; }); renderExams(false); });
 document.querySelectorAll("[data-exm]").forEach(b => b.addEventListener("click", () => { EX.mode = b.dataset.exm; store("telem_ex_mode", EX.mode); renderExams(false); }));
 const exMonthAdd = (m, n) => { const [y, mo] = m.split("-").map(Number), d = new Date(Date.UTC(y, mo - 1 + n, 1)); return d.toISOString().slice(0, 7); };
 // החודשים בגלילה אחת (כל השנה). הכפתורים גוללים לחודש הקודם / הבא / להיום
@@ -10815,7 +10838,7 @@ async function renderReg(){
         const shutTrk = (c) => on72 ? LK.tracks.filter(t => rTr(c, "register_closed_tracks", t.v) || rTr(c, "interest_closed_tracks", t.v)) : [];
         h += `<section class="rg-sec rg-all3"><div class="rg-sec-h"><h3>תרגולים שוטפים · כל הערים <small>המחירים וההגדרות מופיעים בטופס ההתעניינות ובטופס ההרשמה של כל עיר</small></h3></div>
           <div class="rg3-wrap"><table class="rg3"><thead><tr><th></th>${cities.map(c => `<th>${esc(c)}<button type="button" class="btn small" data-pedit="${esc(c)}">✎ עריכה</button></th>`).join("")}</tr></thead><tbody>
-          ${LK.tracks.map(x => row(`<span class="trk" style="background:${x.c}"></span>${esc(x.t)}`, (P, c) => P[x.v] ? (earlyOn(c) ? `<span class="rg3-pr"><span class="muted">מוקדם</span> <b>${nis(P[x.v].early)}</b><span class="rg3-sep">·</span><span class="muted">רגיל</span> <b>${nis(P[x.v].regular)}</b></span>` : `<b>${nis(P[x.v].regular)}</b>`) : "—")).join("")}
+          ${LK.tracks.map(x => row(`<span class="lg-ic" style="color:${x.c}">${TRK_IC}</span>${esc(x.t)}`, (P, c) => P[x.v] ? (earlyOn(c) ? `<span class="rg3-pr"><span class="muted">מוקדם</span> <b>${nis(P[x.v].early)}</b><span class="rg3-sep">·</span><span class="muted">רגיל</span> <b>${nis(P[x.v].regular)}</b></span>` : `<b>${nis(P[x.v].regular)}</b>`) : "—")).join("")}
           ${row("דמי הרשמה", P => nis(P.registrationFee))}
           ${row("חומרי תרגול", P => P.materialsFee ? nis(P.materialsFee) : "<span class='muted'>אין</span>")}
           ${row("תחילת פעילות", P => sh(P.activityStartDate) || "—")}
