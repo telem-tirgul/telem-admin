@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.19.174">
+<meta name="app-version" content="5.20.0">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1699,6 +1699,8 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 @media (max-width:760px){ #leadsTbl .c-cst{ order:5; } #leadsTbl .c-csrc{ order:5; } #leadsTbl .c-crs .crs-col, #leadsTbl .c-cst .crs-col, #leadsTbl .c-csrc .crs-col{ gap:2px; } }
 .crs-all{ font:inherit; font-size:11.5px; font-weight:700; color:var(--accent); background:none; border:0; padding:2px 0; cursor:pointer; text-decoration:underline; display:block; }
 .crs-all-l{ display:grid; gap:6px; margin-top:8px; min-width:280px; max-height:360px; overflow:auto; } .crs-all-r{ display:grid; grid-template-columns:62px 1fr auto; gap:8px; align-items:center; font-size:13px; }
+#leadsTbl .act-dot{ width:11px; height:11px; border-radius:50%; border:1.5px solid #9AA1A9; background:#fff; padding:0; cursor:pointer; display:block; margin:auto; } #leadsTbl .act-dot.on{ background:#3E8E41; border-color:#3E8E41; }
+@media (min-width:761px){ #leadsTbl td.c-name{ min-width:135px; } }
 .side-hr{ display:flex; justify-content:space-between; align-items:center; gap:8px; } .side-hr .side-h{ margin:4px 0 8px !important; }
 .lg-crs-box.lg-trk{ border:2px solid var(--tc, #2B2320); } .lg-crs-box.lg-trk > .lg-crs{ border-bottom-color:color-mix(in srgb, var(--tc, #2B2320) 35%, transparent); }
 .lg-crs-box > .lg-crs .lg-crs-l{ font-size:15px; } .lg-ic{ display:inline-flex; vertical-align:-4px; margin-inline-end:4px; } .lg-ic svg{ width:19px; height:19px; }
@@ -3716,8 +3718,8 @@ function crsChipsRow(sid, part){ if (!CRS.ok) return ""; const act = crsActiveSe
       return `<div class="crs-cell" title="${esc(crsShort(c, true))}"><span class="ci">🏁</span>${o.first ? esc(fmtDM(o.first)) : "מרתון"}</div>`; }
     const tk = mTrk(m), to = LK.tracks.find(x => x.v === tk), trks = crsCat(c.category_id).tracks || [];
     // 5.19.172 (נועה): אייקון של תרגול שוטף (כמו 🏁 למרתון) בצבע המסלול; בלי מסלול (התעניינות כללית) – שחור
-    const dot = `<button type="button" class="trk-dot${to ? "" : " none"}" data-cmtrk2="${m.id}" style="${to ? `color:${to.c}` : ""}" title="${esc((to ? to.t : "בלי מסלול") + " – לחיצה לבחירת מסלול")}" ${!CRS.hasTrk || !trks.length ? "disabled" : ""}>${TRK_IC}${to || CRS_TRK_S[tk] ? `<span class="trk-l">${esc(CRS_TRK_S[tk] || to.t)}</span>` : ""}</button>`;
-    const sub = tk === "double" ? ""
+    const dot = `<button type="button" class="trk-dot${to ? "" : " none"}" data-cmtrk2="${m.id}" style="${to ? `color:${to.c}` : ""}" title="${esc((to ? to.t : "בלי מסלול") + " – לחיצה לבחירת מסלול")}" ${!CRS.hasTrk || !trks.length ? "disabled" : ""}>${TRK_IC}</button>`;
+    const sub = tk === "double" ? `<span class="subj-chip s-b crs-subj">מת.+אנג.</span>`
       : `<select class="crs-sel crs-sel-sub ${SUBJ_CLS(m.subject)}" data-cmsub="${m.id}" aria-label="מקצוע"><option value="">מקצוע</option>${["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"].map(x => `<option value="${x}" ${x === m.subject ? "selected" : ""}>${SUBJ_FULL[x]}</option>`).join("")}</select>`;
     return `<div class="crs-cell" title="${esc(crsShort(c, true) + " · " + crsSeasonTxt(c) + (to ? "\n" + to.t : ""))}">${dot}${sub}</div>`; }).join("")}</div>`; }
 // נקודת המסלול – לחיצה: בחירת מסלול
@@ -4325,8 +4327,8 @@ function filtered(){
     id: l => Number(l.legacy_user_id) || l.id + 1e6, name: l => (l.student.first_name + " " + (l.student.last_name || "")),
     status: l => statusName(l.status_id), source: l => sourceName(l.source_id), school: l => schoolOf(l.student).name,
     grade: l => String(GRADES.indexOf(l.student.grade)).padStart(2, "0") + String(l.student.class_num || "").replace(/\D/g, "").padStart(3, "0"), asg: l => asgOf(l).length, parent: l => [(l.student.family || {}).parent1_first, (l.student.family || {}).parent1_last].filter(Boolean).join(" "), manager: l => staffName(l.manager_id), remind: l => l.remind_at || "~",
-    updated: l => lastUpdate(l) || ""
-  }[F.sort];
+    updated: l => lastUpdate(l) || "", ...LEAD_XKEY
+  }[F.sort] || (l => lastUpdate(l) || "");
   list.sort((a, b) => { const x = key(a), y = key(b); return (x > y ? 1 : x < y ? -1 : 0) * F.dir; });
   return list;
 }
@@ -4388,6 +4390,15 @@ function histFiltered(leadList){
   byLead.forEach(v => { LR.years.set(v.lead.id, v.hs); rows.push(v.lead); });
   return rows;
 }
+// 5.19.175 (נועה): מיון גם לפי הקורס – סטטוס בקורס (לפי השלב), מקור בקורס, קורס (מסלול → מקצוע); וגם כוכב / פעיל / תלם שלי
+const crsCurM = (sid) => (typeof CRS !== "undefined" && CRS.ok ? crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id)) : [])
+  .sort((a, b) => Number(!!CRS.byId[a.course_id].marathon_id) - Number(!!CRS.byId[b.course_id].marathon_id))[0];
+const LEAD_XKEY = {
+  cst: l => { const m = crsCurM(l.student_id); if (!m) return "9"; const st = crsStOf(m.status); return ({ registered: 0, pending: 1, interest: 2, other: 3 }[st.stage] ?? 4) + (st.label || m.status); },
+  csrc: l => { const m = crsCurM(l.student_id); return m ? (sourceName(m.source_id) || "ת") : "תת"; },
+  crs: l => { const m = crsCurM(l.student_id); if (!m) return "9"; const t = ["single", "unlimited-single", "double", "summer", "summer-ext"].indexOf(mTrk(m)); return (CRS.byId[m.course_id].marathon_id ? "8" : String(t < 0 ? 7 : t)) + (m.subject || "ת"); },
+  star: l => l.is_starred ? 0 : 1, active: l => l.is_active ? 0 : 1, ts: l => (typeof tsAccess === "function" && tsAccess(l)) ? 0 : 1
+};
 const H_KEY = {
   id: () => 9e15, name: x => (x.__h.first_name || "") + " " + (x.__h.last_name || ""), status: x => x.__h.status || "", source: x => x.__h.source || "",
   school: x => x.__h.school || "", grade: x => String(GRADES.findIndex(g => gradeKey(g) === gradeKey(x.__h.grade))).padStart(2, "0"), asg: () => -1,
@@ -4403,7 +4414,7 @@ function leadRows(){
   if (!hs || !hs.length) return list;
   const lk = { id: l => Number(l.legacy_user_id) || l.id + 1e6, name: l => (l.student.first_name + " " + (l.student.last_name || "")), status: l => statusName(l.status_id), source: l => sourceName(l.source_id),
     school: l => schoolOf(l.student).name, grade: l => String(GRADES.indexOf(l.student.grade)).padStart(2, "0"), asg: l => asgOf(l).length,
-    parent: l => [(l.student.family || {}).parent1_first, (l.student.family || {}).parent1_last].filter(Boolean).join(" "), manager: l => staffName(l.manager_id), remind: l => l.remind_at || "", updated: l => lastUpdate(l) || "" };
+    parent: l => [(l.student.family || {}).parent1_first, (l.student.family || {}).parent1_last].filter(Boolean).join(" "), manager: l => staffName(l.manager_id), remind: l => l.remind_at || "", updated: l => lastUpdate(l) || "", ...LEAD_XKEY };
   const kf = (x) => x.__h ? (H_KEY[F.sort] || H_KEY.updated)(x) : F.sort === "updated" && LR.years.has(x.id) ? LR.years.get(x.id)[0].year_start + "-09-01" : (lk[F.sort] || lk.updated)(x);
   return list.concat(hs).sort((a, b) => { const x = kf(a), y = kf(b); return (x > y ? 1 : x < y ? -1 : 0) * F.dir; });
 }
@@ -4510,7 +4521,7 @@ function renderLeads(){
   $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || (F.cst && F.cst.size) || (F.csrc && F.csrc.size) || $("fStar").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
   $("pageInfo").textContent = `עמוד ${F.page + 1} מתוך ${pages}`;
   $("prevPage").disabled = F.page === 0; $("nextPage").disabled = F.page >= pages - 1;
-  const sortable = ["id","status","source","name","school","grade","asg","parent","manager","remind","updated"];
+  const sortable = ["id","status","source","name","school","grade","asg","parent","manager","remind","updated","cst","csrc","crs","star","active","ts"];
   const head = "<thead><tr>" + COLS.map(([k, t]) => `<th ${k === "active" ? 'title="פעיל" ' : ""}${sortable.includes(k) ? `data-sort="${k}"` : ""}>${t} ${F.sort === k ? `<span class="arr">${F.dir > 0 ? "▲" : "▼"}</span>` : ""}</th>`).join("") + "</tr></thead>";
   const now = new Date();
   const rows = slice.map(l => {
@@ -4540,7 +4551,7 @@ function renderLeads(){
     <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
     <td class="num c-upd" title="${esc(fmtDate(lastUpdate(l)))}">${esc(fmtDate(lastUpdate(l)).split(" ")[0])}</td>
     <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
-    <td class="c-act"><button type="button" class="switch ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}"></button></td>
+    <td class="c-act"><button type="button" class="act-dot ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}" title="${l.is_active ? "פעיל" : "לא פעיל"}"></button></td>
     <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
     <td class="c-status"><select class="status" data-act="status" aria-label="סטטוס"${statusColor(l.status_id) ? ` style="${stSoft(statusColor(l.status_id))}"` : ""}><option value="" style="background:#fff; color:#222;">-</option>${statusOpts}</select>${marIcon(s)}</td>
     <td class="c-src"><select class="src-sel" data-act="source" aria-label="מקור ליד"><option value="">—</option>${L.sources.filter(x => x.is_active || x.id === l.source_id).map(x => `<option value="${x.id}" ${x.id === l.source_id ? "selected" : ""}>${esc(x.name)}</option>`).join("")}</select></td>
