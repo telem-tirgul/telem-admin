@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.3">
+<meta name="app-version" content="5.20.4">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4315,8 +4315,10 @@ function filtered(){
   const q = $("fSearch").value.trim().toLowerCase(), qd = digitsQ(q);
   const city = $("fCity").value, school = $("fSchool").value, grade = $("fGrade").value, mgr = $("fManager").value, fcrs = $("fCourse") ? $("fCourse").value : "";
   const from = $("fFrom").value, to = $("fTo").value, now = new Date();
+  const hid = /^#\d{1,7}$/.test(q) ? q.slice(1) : "";   // 5.20.4 (נועה): "#529" – הכרטיס הזה, בלי שאר הסינונים (פעילים, סטטוס, קורס…)
   let list = L.leads.filter(l => {
     const s = l.student, f = s.family || {};
+    if (hid) return String(l.id) === hid || String(l.legacy_user_id) === hid || HID.map[hid] === s.id;   // + כרטיס שאוחד (HID)
     if ($("fActive").checked && !l.is_active && fcrs !== "__back") return false;   // "לא חזרו" – גם כרטיסים לא פעילים
     if ($("fStar").checked && !l.is_starred) return false;
     if ($("fRemind").checked) { const rd = $("fRemindDate").value; const lim = rd ? new Date(rd + "T23:59:59") : new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
@@ -4361,7 +4363,19 @@ function filtered(){
     updated: l => lastUpdate(l) || "", ...LEAD_XKEY
   }[F.sort] || (l => lastUpdate(l) || "");
   list.sort((a, b) => { const x = key(a), y = key(b); return (x > y ? 1 : x < y ? -1 : 0) * F.dir; });
+  if (hid && !list.length && !(hid in HID.map)) hidLookup(hid);
   return list;
+}
+// 5.20.4 (נועה): "#מספר" של כרטיס שאוחד ונמחק → הכרטיס שנשאר (מספר ליד ישן מההיסטוריה, או מספר התלמיד/ה שנמחק ביומן האיחוד)
+const HID = { map: {} };
+async function hidLookup(n){
+  HID.map[n] = null;
+  try {
+    const [h, c] = await Promise.all([get("student_history", "select=student_id&legacy_id=eq." + n + "&student_id=not.is.null&limit=1").catch(() => []),
+      get("change_log", "select=student_id&kind=eq." + encodeURIComponent("איחוד") + "&new_value=like." + encodeURIComponent("#" + n + " *") + "&limit=1").catch(() => [])]);
+    const sid = (h[0] || c[0] || {}).student_id; if (!sid) return;
+    HID.map[n] = sid; if (currentView === "leads") renderLeads();
+  } catch(e) {}
 }
 
 // ---------- 5.19.103 (נועה): "שנים קודמות" באותה טבלה ----------
