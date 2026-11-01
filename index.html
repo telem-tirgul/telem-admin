@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.26">
+<meta name="app-version" content="5.20.27">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -965,7 +965,7 @@
   #leadsTbl td.c-asg{ cursor:pointer; } #leadsTbl td.c-asg:hover{ background:color-mix(in srgb, var(--gold) 12%, transparent); }
   #leadsTbl td.c-status{ white-space:nowrap; } .mar-ic{ font-size:14px; margin-inline-start:4px; cursor:help; vertical-align:middle; }
   #leadsTbl .switch{ width:24px; height:13px; } #leadsTbl .switch::after{ top:2px; width:9px; height:9px; } #leadsTbl .switch.on::after{ inset-inline-start:13px; }
-  #leadsTbl td.c-id{ font-size:11.5px; color:var(--ink-soft); } @media (min-width:761px){ #leadsTbl td.c-act, #leadsTbl th:nth-child(15){ width:1%; } }
+  #leadsTbl td.c-id{ font-size:11.5px; color:var(--ink-soft); } @media (min-width:761px){ #leadsTbl td.c-act, #leadsTbl td.c-id, #leadsTbl td.c-star{ width:1%; } }
   .att-ctl .subj-mini{ margin:0; align-self:center; }
   .subj-mini{ display:inline-block; margin-inline-start:8px; font-size:13px; font-weight:700; line-height:1.5; border-radius:999px; padding:1px 10px; vertical-align:middle; }
   .subj-mini.s-m{ background:#DDF5D6; color:#1F6B17; } .subj-mini.s-e{ background:#FFF6B8; color:#6B5600; } .subj-mini.s-b{ background:#DCEAFB; color:#1D4F91; } .subj-mini.s-x{ background:var(--muted); color:var(--ink-soft); }
@@ -3949,7 +3949,10 @@ async function crsAddDlg(l, inline){
           cid = (await insert("courses", { season_id: se, category_id: ca.id, school_id: sc, city: so ? so.city : null, track: CRS.hasTrk ? null : tr,
             name: [sn.name, ca.name, CRS.hasTrk ? "" : CRS_TRACKS[tr] || "", so ? so.name + " " + (so.city || "") : ""].filter(Boolean).join(" · ") }))[0].id; } }
       if (!mem) { close(); toast("הקורס נוצר"); await crsLoad(true); crsRe(); return true; }
-      await insert("course_members", Object.assign({ course_id: cid, student_id: stu.id, status: q("cdSt").value, subject: q("cdSu").value || null, grade: stu.grade || null, source: "ידני" }, q("cdSrc") && q("cdSrc").value ? { source_id: Number(q("cdSrc").value) } : {}, CRS.hasTrk && ca.kind !== "event" && (q("cdTr") || {}).value ? { track: (q("cdTr") || {}).value } : {}));
+      { const body = Object.assign({ course_id: cid, student_id: stu.id, status: q("cdSt").value, subject: q("cdSu").value || null, grade: stu.grade || null, source: "ידני" }, q("cdSrc") && q("cdSrc").value ? { source_id: Number(q("cdSrc").value) } : {}, CRS.hasTrk && ca.kind !== "event" && (q("cdTr") || {}).value ? { track: (q("cdTr") || {}).value } : {});   // 5.20.27: כרטיס חדש – הטריגר lead_course_ins (קובץ 144) כבר יצר רישום "חדש" לתרגול השוטף; מעבירים אותו לקורס שנבחר (בלי כפילות)
+        const auto = inline ? (await get("course_members", "select=id&student_id=eq." + stu.id + "&note=eq." + encodeURIComponent("כרטיס חדש – נוסף לקורס של השנה") + "&order=id.desc&limit=1").catch(() => []))[0] : null;
+        if (auto) { delete body.student_id; await patch("course_members", "id=eq." + auto.id, Object.assign({ source_id: null }, body, { note: null, updated_at: new Date().toISOString() })); }   // מקור שלא נבחר – ריק (לא "טופס הרשמה" שנקבע אוטומטית)
+        else await insert("course_members", body); }
       return true; };
   const check = () => { const ca = crsCat(Number(q("cdCa").value)); if (!q("cdCa").value) return "בוחרים קטגוריה";
     if (ca.kind === "event" && !q("cdMa").value) return "אין מרתון במחזור הזה – בוחרים מחזור / קטגוריה אחרים";
@@ -4604,6 +4607,7 @@ const lrYears = (l) => { const hs = LR.years.get(l.id); if (!hs || !hs.length) r
 function histRowHtml(x){
   const h = x.__h, lead = h.student_id ? L.leads.find(l => l.student_id === h.student_id) : null, now = histGradeNow(h.grade, h.year_start);
   return `<tr data-h="${h.id}" class="h-past">
+    <td class="num c-id"><span class="h-yr" title="שנים קודמות">${esc(hyLbl(h.school_year, h.year_start))}</span></td><td class="c-star"></td>
     <td class="c-name"><button type="button" class="name-link" data-act="hopen">${esc(h.first_name || "")} ${esc(h.last_name || "")}</button>${lead ? ` <span class="h-has" title="יש כרטיס השנה">✓ כרטיס</span>` : ""}</td>
     <td class="c-ts"></td>
     <td class="c-notes"><button type="button" class="icon-btn info" data-act="hinfo" aria-label="פרטים" title="פרטים">i</button></td>
@@ -4614,8 +4618,7 @@ function histRowHtml(x){
     <td class="c-parent">${h.parent1_name ? `<span class="pn">${esc(h.parent1_name)}</span>` : ""}${h.parent1_name && h.parent1_phone ? `<span class="sep"> · </span>` : ""}${h.parent1_phone ? `<a class="pp" dir="ltr" href="tel:${esc(digits(h.parent1_phone))}" data-phm="${esc(digits(h.parent1_phone))}" onclick="event.stopPropagation()">${esc(h.parent1_phone)}</a>` : ""}</td>
     <td class="c-rem"></td>
     <td class="num c-upd muted">${esc(h.school_year || "")}</td>
-    <td class="c-act" colspan="2"><span class="h-tag">שנים קודמות</span></td>
-    <td class="num c-id"><span class="h-yr" title="שנים קודמות">${esc(hyLbl(h.school_year, h.year_start))}</span></td></tr>`;
+    <td class="c-act"><span class="h-tag">שנים קודמות</span></td></tr>`;
 }
 function histInfoHtml(h){
   const tl = (v) => v ? String(v).split(/[,;\s]+(?=0)/).map(t => `<a href="tel:${digits(t)}" dir="ltr">${esc(t.trim())}</a>`).join(", ") : "";
@@ -4674,8 +4677,8 @@ const tsAccess = (l) => /^נרשם/.test(statusName(l.status_id)) && !/קיץ/.t
 const tsCell = (l) => { if (!L.tsAcc || !L.tsAcc.has(l.student.id)) return "";
   return tsAccess(l) ? `<span class="ts-ic" title="יש חשבון ב&quot;תלם שלי&quot; – יש גישה">📱</span>` : `<span class="ts-ic off" title="יש חשבון ב&quot;תלם שלי&quot; – אין גישה כרגע (לא משובץ/ת ולא בסטטוס &quot;נרשם&quot;)">📱</span>`; };
 const COLS = [
-  ["name","שם"],["ts","📱"],["notes",""],["cst","סטטוס"],["csrc","מקור"],["crs","קורסים"],   // 5.19.173 (נועה): סטטוס · מקור · קורס · בית ספר   // 5.19.166 (נועה): הסטטוס ומקור הליד הישנים – בסוף (משמאל), עד שנוריד אותם
-  ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","עודכן"],["star","★"],["active","✓"],["id","ID"]
+  ["id","ID"],["star","★"],["name","שם"],["ts","📱"],["notes",""],["cst","סטטוס"],["csrc","מקור"],["crs","קורסים"],   // 5.19.173 (נועה): סטטוס · מקור · קורס · בית ספר   // 5.19.166 (נועה): הסטטוס ומקור הליד הישנים – בסוף (משמאל), עד שנוריד אותם
+  ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","עודכן"],["active","✓"]
 ];   // 5.20.5 (נועה): הסטטוס ומקור הליד הישנים – הוסרו מהטבלה ומהסינון (נשארים בכרטיס, ב"פרטים נוספים", ובאקסל)
 // 5.19.173 (נועה): כמה קורסים לכל ילד/ה (כל השנים) – כמו במערכת הישנה; לחיצה – הרשימה
 function crsCountLoad(){ if (CRS.nAllReq || !CRS.ok || ME.role === "instructor") return; CRS.nAllReq = true;
@@ -4712,6 +4715,8 @@ function renderLeads(){
     const due = l.remind_at && new Date(l.remind_at) <= now;
     const ns = L.notes[l.id] || [];
     return `<tr data-id="${l.id}" class="${l.is_active ? "" : "inactive"}">
+    <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
+    <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
     <td class="c-name"><button type="button" class="name-link" data-act="open">${s.first_name || s.last_name ? esc(s.first_name) + " " + esc(s.last_name || "") : `<span class="muted">(בלי שם${s.family && s.family.parent1_first ? " · הורה: " + esc(s.family.parent1_first) : ""})</span>`}</button>${crsSigMiss(s.id)}${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
     <td class="c-ts">${tsCell(l)}</td>
     <td class="c-notes"><button type="button" class="icon-btn note${ns.length ? " has" : ""}" data-act="info" aria-label="פרטים והערות${ns.length ? " (" + ns.length + " הערות)" : ""} – לחיצה: הוספה ועריכה">✎</button></td>
@@ -4730,9 +4735,7 @@ function renderLeads(){
         return nm || ph ? `<span class="pn">${esc(nm)}</span>${nm && ph ? `<span class="sep"> · </span>` : ""}${ph ? `<a class="pp" dir="ltr" href="tel:${esc(ph)}" data-phm="${esc(ph)}" onclick="event.stopPropagation()">${esc(String(ph).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : ""}` : ""; })()}</td>
     <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
     <td class="num c-upd" title="${esc(fmtDate(lastUpdate(l)))}">${updShort(lastUpdate(l))}</td>
-    <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
     <td class="c-act"><button type="button" class="act-dot ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}" title="${l.is_active ? "פעיל" : "לא פעיל"}"></button></td>
-    <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
     </tr>`;
   }).join("");
   $("leadsTbl").classList.toggle("locked", !LIST_EDIT);
