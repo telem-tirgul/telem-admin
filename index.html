@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.29">
+<meta name="app-version" content="5.20.30">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4674,7 +4674,8 @@ const propStage = (sid) => { const n = (NTC.ok && NTC.map[sid]) || {}; return n.
 const PROP_ST = { none: "טרם נשלחה הודעה", sent: "קיבל הודעה", ok: "אישר" };
 const asgText = (x) => `${x.day}' ${String(x.start_time || "").slice(0, 5)} ${(x.location && x.location.name) || ""}`;
 // 5.19.139 (נועה 25.10): עמודת "תלם שלי" – 📱 למי שיש חשבון ויש לו/ה גישה עכשיו (משובץ/ת לקבוצה או סטטוס "נרשם…", כמו TS-10); חשבון בלי גישה – אפור
-const tsAccess = (l) => /^נרשם/.test(statusName(l.status_id)) && !/קיץ/.test(statusName(l.status_id)) || asgOf(l).length > 0 || marAsgOf(l.student.id).length > 0;
+const tsAccess = (l) => (typeof CRS !== "undefined" && CRS.ok ? crsOfStudent(l.student.id).some(m => m.status === "רשום" && !crsGone(m) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id))   // 5.20.30 (נועה): "נרשם" – בקורס
+  : /^נרשם/.test(statusName(l.status_id)) && !/קיץ/.test(statusName(l.status_id))) || asgOf(l).length > 0 || marAsgOf(l.student.id).length > 0;
 const tsCell = (l) => { if (!L.tsAcc || !L.tsAcc.has(l.student.id)) return "";
   return tsAccess(l) ? `<span class="ts-ic" title="יש חשבון ב&quot;תלם שלי&quot; – יש גישה">📱</span>` : `<span class="ts-ic off" title="יש חשבון ב&quot;תלם שלי&quot; – אין גישה כרגע (לא משובץ/ת ולא בסטטוס &quot;נרשם&quot;)">📱</span>`; };
 const COLS = [
