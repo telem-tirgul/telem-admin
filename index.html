@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.30">
+<meta name="app-version" content="5.20.31">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -349,7 +349,7 @@
     .lead-quick .lq-ph{ color:var(--accent); font-weight:700; text-decoration:none; } .lead-quick .lq-wa{ font-size:12.5px; font-weight:700; color:#1f8a4c; text-decoration:none; border:1px solid #bfe3cc; border-radius:999px; padding:0 8px; }
     .lead-quick .lq-g b{ font-weight:800; } .lead-quick .lq-pt{ background:#fff8d6; border:1px solid #e9cf62; color:#5c4500; border-radius:7px; padding:0 6px; font-weight:700; font-size:13px; }
   }
-  @media (max-width:960px){ .lead-cols{ grid-template-columns:1fr; } }
+  @media (max-width:960px){ .lead-cols{ grid-template-columns:minmax(0,1fr); } .lead-cols > *{ min-width:0; } #leadGroups .lg-btns{ flex-wrap:wrap; } #leadGroups .lg-btns .btn{ white-space:nowrap; } }   /* 5.20.31: בנייד – בלי גלילה לצד */
   /* 5.19.23: בנייד - כרטיס התלמיד נפתח לצפייה: הפרטים בקצרה למעלה, הטופס מוסתר עד "✎ עריכה" */
   @media (max-width:760px){
     #view-lead.lc-view .lead-quick .lq-sum{ display:flex; } #view-lead.lc-view #leadSub{ display:none; } #view-lead.lc-view .lead-main :is(.toggles, .key-box, #editBanner, .meta-line){ display:none; } #view-lead.lc-view .lead-main{ padding-top:2px; } #view-lead.lc-view .lead-cols > .card:not(.lead-main){ order:-1; }   /* 5.19.72 (נועה): בצפייה בנייד - מעקב ותזכורת מעל התשלומים */   /* 5.19.72 (נועה): בצפייה בנייד - גם תשלומים, סטטוס ומעקב ופרטים נוספים (הפרטים העיקריים כבר בסיכום למעלה) */
@@ -367,7 +367,8 @@
     #view-lead .page-head > div:last-child .btn:not(.lead-top-b){ min-width:40px; padding:6px 9px; justify-content:center; }
     #view-lead #leadSub, #view-lead #leadQuick{ grid-column:1 / -1; }
     #view-lead.lc-view #leadGroups :is(.lg-add-row, .lg-edit, .lg-btns){ display:none !important; }   /* 5.20.19 (נועה): בנייד בצפייה – השיבוצים בתוך הקורס (גם במרתון), בלי כפתורי השינוי; למעלה בלי כפילות */
-    #view-lead.lc-view .lead-quick :is(.lq-gs, .lq-none){ display:none !important; }   /* 5.19.162: בתצוגה – רק הקורסים (השיבוצים כבר למעלה) */   /* השיבוצים כבר למעלה; הרשימה המלאה (לשינוי) - בעריכה */
+    #view-lead .lead-quick :is(.lq-gs, .lq-none){ display:none !important; }   /* 5.20.31 (נועה): בנייד – השיבוצים רק בתוך הקורס (גם בעריכה; מנע גלילה לצד) */
+    #view-lead .page-head > *, #view-lead .page-head > div:first-child > *{ min-width:0; max-width:100%; } #view-lead #leadSub{ overflow-wrap:anywhere; }   /* 5.19.162: בתצוגה – רק הקורסים (השיבוצים כבר למעלה) */   /* השיבוצים כבר למעלה; הרשימה המלאה (לשינוי) - בעריכה */
   }
   .notes-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; max-height:560px; overflow:auto; }
   /* 5.19.14: הערה חדשה - שורה קטנה שמתרחבת; רשימת הערות מקופלת (2 אחרונות + "עוד") */
@@ -1709,6 +1710,7 @@ td.nowrap{ white-space:nowrap; }
 .seg-mini button[aria-pressed="true"]{ background:var(--maroon,#5A1216); border-color:var(--maroon,#5A1216); color:#fff; } .seg-mini.kinds{ margin-bottom:10px; }
 .pay-q{ display:inline-flex; align-items:center; gap:3px; font-size:11.5px; font-weight:800; color:#8A5A12; background:#FBF1E2; border:1px solid #E8CFA0; border-radius:999px; padding:0 7px; margin-inline-start:4px; white-space:nowrap; } .pay-q[role=button]{ cursor:pointer; } .pay-q[role=button]:hover{ background:#F6E3C2; }
 .call-ph{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; white-space:nowrap; } td.acts{ white-space:nowrap; }
+.lg-need{ color:#b3261e; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:8px 0; } .lg-need .btn{ font-weight:600; }
 .mar-wait-h{ border-top:2px dashed var(--border) !important; margin-top:8px; } .mar-wait .crs-st{ font-size:12px; font-weight:700; border-radius:999px; padding:1px 9px; background:#EEE; }
 .mar-kids-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0 6px; border-top:2px solid var(--border); margin-top:6px; list-style:none; } .mar-kids-h b{ font-size:16px; }
 .mar-g-btns{ display:inline-flex; gap:6px; flex-wrap:wrap; } .ms-name{ list-style:none; margin:6px 0 10px; } .ms-name input{ max-width:260px; }
@@ -3880,13 +3882,13 @@ document.addEventListener("change", async (ev) => { const el = ev.target; if (!e
   const body = el.dataset.cmst ? { status: el.value } : el.dataset.cmsub ? { subject: el.value || null } : el.dataset.cmtrk ? Object.assign({ track: el.value || null }, el.value === "double" ? { subject: "מתמטיקה ואנגלית" } : m.subject === "מתמטיקה ואנגלית" ? { subject: null } : {}) : { source_id: el.value ? Number(el.value) : null };
   el.disabled = true;
   try { await patch("course_members", "id=eq." + id, Object.assign({ updated_at: new Date().toISOString() }, body)); Object.assign(m, body); toast("נשמר");
-    if (el.dataset.cmst) { el.style.cssText = stSoft(crsStOf(el.value).color || "#888"); await crsAfterStatus(m.student_id); }   // 5.19.173: הצבע של הסטטוס החדש מיד; 5.20.3: הסטטוס הישן מתעדכן
+    if (el.dataset.cmst) { el.style.cssText = stSoft(crsStOf(el.value).color || "#888"); await crsAfterStatus(m.student_id); marAskGroup(m); }   // 5.19.173: הצבע של הסטטוס החדש מיד; 5.20.3: הסטטוס הישן מתעדכן
     if (body.source_id !== undefined) loadLeads().then(() => { if (currentView === "leads" && updSafe()) renderLeads(); }).catch(() => {}); else if (currentView === "leads") renderLeads(); }
   catch(e) { toast("לא נשמר: " + e.message); } finally { el.disabled = false; } });
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-crsm]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
   const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.crsm)); if (!m) return; const c = CRS.byId[m.course_id] || {};
   const v = await uiChoose(crsShort(c, true) + "\nמצב בקורס:", crsStList().map(x => x.name).map(x => ({ v: x, t: (CRS_IC[x] || "") + " " + crsStOf(x).label + (x === m.status ? " (עכשיו)" : "") }))); if (!v || v === m.status) return;
-  try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); m.status = v; toast("נשמר"); crsAfterStatus(m.student_id); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain") || b.closest(".crs-drawer")) { renderCrsCourses(); crsDrawerRe(); } else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
+  try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); m.status = v; toast("נשמר"); crsAfterStatus(m.student_id).then(() => marAskGroup(m)); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain") || b.closest(".crs-drawer")) { renderCrsCourses(); crsDrawerRe(); } else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
 // חסרה חתימה על התנאים (רשום / ממתין במחזור פעיל, signed = false)
 // 5.19.173 (נועה): נרשם / לקחת אשראי בלי חתימה על התנאים (גם מי שסומן "נרשם" ידנית) – מסומן בטבלה ובכרטיס
 function crsNeedSig(m){ const c = CRS.byId[m.course_id]; return !!c && m.signed !== true && (m.status === "רשום" || m.status === "ממתין לתשלום") && crsActiveSeasons().has(c.season_id); }
@@ -3907,7 +3909,7 @@ async function loadLeadCourses(l){
     <button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>`;
   box.hidden = false;
   box.querySelectorAll("[data-cm]").forEach(sel => sel.onchange = async () => { sel.disabled = true;
-    try { await patch("course_members", "id=eq." + sel.dataset.cm, { status: sel.value, updated_at: new Date().toISOString() }); toast("נשמר"); await crsLoad(true); loadLeadCourses(editing); }
+    try { await patch("course_members", "id=eq." + sel.dataset.cm, { status: sel.value, updated_at: new Date().toISOString() }); toast("נשמר"); await crsLoad(true); loadLeadCourses(editing); { const m2 = Object.values(CRS.cm).flat().find(x => x.id === Number(sel.dataset.cm)); if (m2) marAskGroup(m2); } }
     catch(e) { sel.disabled = false; toast("לא נשמר: " + e.message); } });
   $("lcAdd").onclick = () => crsAddDlg(l);
 }
@@ -5760,7 +5762,7 @@ async function crsGroupsHtml(sid, cur, card){
     h += crsFoot(m) + `</div>`; });
   const td0 = todayIL(), fin = (c) => { if (c.is_active === false) return true; const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td0; };
   ms.filter(m => CRS.byId[m.course_id].marathon_id && !fin(CRS.byId[m.course_id])).forEach(m => { const c = CRS.byId[m.course_id]; h += `<div class="lg-crs-box" data-cbm="${m.id}">` + crsHead(m) + crsTrackHtml(m);
-    const rs = cur.filter(a => !used.has(a.id) && a.session.marathon_id === c.marathon_id); rs.forEach(a => used.add(a.id)); h += crsCards(rs, card) + crsFoot(m) + `</div>`; });
+    const rs = cur.filter(a => !used.has(a.id) && a.session.marathon_id === c.marathon_id); rs.forEach(a => used.add(a.id)); h += crsCards(rs, card) + (!rs.length && m.status === "רשום" && ME.role !== "instructor" ? `<div class="lg-none lg-need">⚠ נרשם/ה למרתון ועוד לא בקבוצה <button type="button" class="btn small" data-margrp="${c.marathon_id}">+ שיבוץ לקבוצת המרתון</button></div>` : "") + crsFoot(m) + `</div>`; });
   h += cur.filter(a => !used.has(a.id)).map(card).join("");
   // קורסים קודמים (נועה 30.10): מחזורים קודמים, פרש, ומרתון שהסתיים – למטה, מקופל
   const td = todayIL(), done = (c) => c.marathon_id && (c.is_active === false || (() => { const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td; })());
@@ -5803,7 +5805,8 @@ async function loadLeadGroups(studentId){
     };
     $("leadGroups").innerHTML = await crsGroupsHtml(studentId, cur, lgCard);   // 5.19.162: פרטי הקורס מעל השיבוצים
     { const sl = $("leadGroups").querySelector(".lg-reg .lg-trk-slot"); if (sl) sl.replaceWith($("trackBox")); else if (ME.role === "instructor" || !CRS.ok) $("leadGroups").prepend($("trackBox")); }   // 5.20.18 (נועה): המעקב – בתוך הקורס של התרגול השוטף (אין קורס כזה – בלי מעקב בכרטיס)
-    canPaint(studentId); crsTrackWire(studentId); if (LP_CACHE && LP_CACHE.sid === studentId) LP_CACHE.place();
+    canPaint(studentId); crsTrackWire(studentId);
+    $("leadGroups").querySelectorAll("[data-margrp]").forEach(b => b.onclick = () => marGrpAdd(studentId, Number(b.dataset.margrp), () => loadLeadGroups(studentId))); if (LP_CACHE && LP_CACHE.sid === studentId) LP_CACHE.place();
     signWire(studentId).catch(() => {});
     // שיבוץ מוצע: קיבל/ה הודעה -> אישר/ה (ואז השיבוץ הופך ל"משובץ")
     $("leadGroups").querySelectorAll("[data-pcard]").forEach(box => {
@@ -7720,6 +7723,25 @@ async function asgRegOk(studentId, se){ try { if (!(await crsLoad())) return tru
   if (!ok) await uiAlert(mar ? "אפשר לשבץ לקבוצה במרתון רק ילד/ה בסטטוס \"נרשם\" במרתון.\nקודם מסמנים שולם / משנים את הסטטוס בקורס של המרתון (בכרטיס)." : "אפשר לשבץ לקבוצה רק ילד/ה בסטטוס \"נרשם\" בתרגול השוטף.\nקודם משנים את הסטטוס בקורס (בכרטיס).");
   return ok; }
 const uiAlert = (t) => uiDialog(t, { ok: "הבנתי", single: true });
+// 5.20.31 (נועה): נרשם/ה למרתון (למשל ידנית, בלי טופס) ועוד לא בקבוצה – שיבוץ לקבוצת המרתון (קבוצה אחת – ישר; כמה – בוחרים)
+// הרשמה טלפונית / ידנית למרתון: סימנו "נרשם" בקורס של מרתון והילד/ה עוד לא בקבוצה – שואלים מיד לאיזו קבוצה
+async function marAskGroup(m){ try { if (!m || m.status !== "רשום") return; const c = CRS.byId[m.course_id]; if (!c || !c.marathon_id) return;
+    try { await ensureG(); } catch(e) {}
+    const inG = (G.roster || []).some(k => k.student_id === m.student_id && (G.sessions || []).some(x => x.session_id === k.session_id && x.marathon_id === c.marathon_id)); if (inG) return;
+    if (!(G.sessions || []).some(x => x.marathon_id === c.marathon_id)) return;
+    marGrpAdd(m.student_id, c.marathon_id, () => { if (editing && editing.student && editing.student.id === m.student_id) loadLeadGroups(m.student_id); if (currentView === "leads") renderLeads(); }); } catch(e) {} }
+async function marGrpAdd(studentId, marId, after){
+  try { await ensureG(); } catch(e) {}
+  const gs = (G.sessions || []).filter(x => x.kind === "מרתון" && x.marathon_id === marId); if (!gs.length) { toast("אין קבוצות במרתון הזה – קודם מוסיפים קבוצה"); return; }
+  const lbl = (g) => (g.time_label || "קבוצה") + " · " + (g.meeting_dates || []).map(fmtDM).join(", ") + (g.capacity ? ` · ${g.assigned_count || 0}/${g.capacity}` : "");
+  let sid = gs[0].session_id;
+  if (gs.length > 1) { const ch = await uiChoose("לאיזו קבוצה במרתון?", gs.map(g => ({ v: g.session_id, t: lbl(g) }))); if (ch == null) return; sid = Number(ch); }
+  else if (!await uiConfirm(`לשבץ לקבוצה: ${lbl(gs[0])}?`)) return;
+  const se = gs.find(g => g.session_id === sid);
+  if (!(await asgRegOk(studentId, se))) return;
+  try { await insert("assignments", { session_id: sid, student_id: studentId, status: "משובץ" }); toast("שובץ/ה לקבוצת המרתון");
+    G.loadedAt = 0; LG_SESSIONS = null; try { setMarAsg(await MASG_Q()); } catch(e) {} if (after) after(); }
+  catch(e) { toast(/duplicate|23505/.test(e.message) ? "כבר בקבוצה הזאת" : "לא נשמר: " + e.message); } }
 // 5.19.88 (נועה): "+ הוספת ילד/ה לקבוצה" – שיבוץ קבוע (גם בנייד)
 $("roAddBtn").addEventListener("click", () => { const pn = $("roAddPanel"); pn.hidden = !pn.hidden; if (!pn.hidden) $("roAddQ").focus(); });
 $("roAddQ").addEventListener("input", () => {
@@ -8021,10 +8043,15 @@ async function openMarathonPanel(m){
   // 5.20.29 (נועה): מי שעוד לא "נרשם" במרתון (ממתין לתשלום / מתעניין…) – בנפרד, לא בקבוצה
   try { if (CRS.ok) { const c = CRS.courses.find(x => x.marathon_id === m.id), inG = new Set([].concat(...gs.map(g => kidsOf(g.session_id).map(k => k.student_id))));
       const ws = c ? Object.values(CRS.cm).flat().filter(x => x.course_id === c.id && !crsGone(x) && x.status !== "רשום" && !["פרש", "לא התקיים", "לא מעוניין"].includes(x.status) && !inG.has(x.student_id)) : [];
+      const rg = c ? Object.values(CRS.cm).flat().filter(x => x.course_id === c.id && !crsGone(x) && x.status === "רשום" && !inG.has(x.student_id)) : [];
+      if (rg.length) R.insertAdjacentHTML("beforeend", `<li class="mar-g-h mar-wait-h"><div><b>⚠ נרשמו ועוד לא בקבוצה (${rg.length})</b></div></li>`
+        + rg.map(x => { const l = L.leads.find(y => y.student_id === x.student_id);
+          return `<li class="ro-k mar-wait"><div class="ro-main"><div class="row-top"><span>${l ? `<button type="button" class="name-link" data-lead="${l.id}">${esc(l.student.first_name)} ${esc(l.student.last_name || "")}</button>` : "#" + x.student_id}</span><button type="button" class="btn small" data-mgadd="${x.student_id}">+ שיבוץ לקבוצה</button></div></div></li>`; }).join(""));
       if (ws.length) R.insertAdjacentHTML("beforeend", `<li class="mar-g-h mar-wait-h"><div><b>⏳ עוד לא נרשמו (${ws.length})</b> <span class="muted">– ייכנסו לקבוצה אחרי "נרשם" (שולם)</span></div></li>`
         + ws.map(x => { const l = L.leads.find(y => y.student_id === x.student_id), st = crsStOf(x.status);
           return `<li class="ro-k mar-wait"><div class="ro-main"><div class="row-top"><span>${l ? `<button type="button" class="name-link" data-lead="${l.id}">${esc(l.student.first_name)} ${esc(l.student.last_name || "")}</button>` : "#" + x.student_id}</span><span class="crs-st" style="${st.color ? `background:${st.color}; color:#fff;` : ""}">${esc(st.label || x.status)}</span></div></div></li>`; }).join("")); } } catch(e) {}
   wireLk(R);
+  R.querySelectorAll("[data-mgadd]").forEach(b => b.onclick = () => marGrpAdd(Number(b.dataset.mgadd), m.id, async () => { await loadGroups(); openMarathonPanel(m); }));
   R.querySelectorAll("[data-lead]").forEach(b => b.onclick = () => { closePanel(); openLead(Number(b.dataset.lead)); });
   // 5.19.129 (נועה 24.10): מתרגלים בקבוצת מרתון – כמו בקבוצה שוטפת (אותה בחירה); לכל קבוצה צריך מנהל/ת
   R.querySelectorAll("[data-mins]").forEach(b => b.onclick = () => { const se = gs.find(x => x.session_id === Number(b.dataset.mins)); if (!se) return;
