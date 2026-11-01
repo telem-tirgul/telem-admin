@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.21">
+<meta name="app-version" content="5.20.22">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3265,6 +3265,7 @@ const rpc = (fn, body) => api("POST", "/rest/v1/rpc/" + fn, body || {});
 var LIVE_QUIET = false;   // 5.19.88: בעדכון האוטומטי - בלי "טוען..." (שהמסך לא יקפוץ)
 let ME = { role: "admin", full_name: "" };
 // 5.20.20 (נועה): מי כתב/ה את ההערה – השם הפרטי מ"המשתמשים" (⚙), לא האימייל (בכל מקום שנכתבת הערה)
+const noteBody = (who, body) => !who || new RegExp("^\\s*" + who.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*:").test(body) ? body : who + ": " + body;   // בלי שם כפול ("אמיר: אמיר:")
 const noteWho = () => ((ME && ME.full_name) || "").trim().split(/\s+/)[0] || (auth && auth.email || "").split("@")[0];
 
 // ======================================================================
@@ -4907,7 +4908,7 @@ $("pop").addEventListener("click", async (e) => {
   const who = noteWho();   // 5.19.167 (נועה): השם הפרטי של המנהל, לא האימייל
   b.disabled = true;
   try {
-    const n = (await insert("notes", { lead_id: l.id, body: who ? `${who}: ${body}` : body }))[0];
+    const n = (await insert("notes", { lead_id: l.id, body: noteBody(who, body) }))[0];
     (L.notes[l.id] = L.notes[l.id] || []).push(n); L.notesCount[l.id] = (L.notesCount[l.id] || 0) + 1;
     hidePop(); renderLeads(); toast("ההערה נשמרה");
   } catch(err) { b.disabled = false; toast("ההערה לא נשמרה: " + err.message); }
@@ -6386,8 +6387,8 @@ $("newNote").addEventListener("blur", () => setTimeout(() => { if (!$("newNote")
 $("addNoteBtn").addEventListener("click", async () => {
   const body = $("newNote").value.trim(); if (!body || !editing) return;
   const who = noteWho();
-  try { await insert("notes", { lead_id: editing.id, body: who ? `${who}: ${body}` : body });
-        $("newNote").value = ""; $("noteNew").classList.remove("open"); L.notesCount[editing.id] = (L.notesCount[editing.id] || 0) + 1; (L.notes[editing.id] = L.notes[editing.id] || []).push({ lead_id: editing.id, body: who ? `${who}: ${body}` : body, created_at: new Date().toISOString() }); loadNotes(editing.id); toast("ההערה נשמרה"); }
+  try { await insert("notes", { lead_id: editing.id, body: noteBody(who, body) });
+        $("newNote").value = ""; $("noteNew").classList.remove("open"); L.notesCount[editing.id] = (L.notesCount[editing.id] || 0) + 1; (L.notes[editing.id] = L.notes[editing.id] || []).push({ lead_id: editing.id, body: noteBody(who, body), created_at: new Date().toISOString() }); loadNotes(editing.id); toast("ההערה נשמרה"); }
   catch(err) { toast("ההערה לא נשמרה: " + err.message); }
 });
 
