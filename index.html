@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.22">
+<meta name="app-version" content="5.20.23">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -313,6 +313,8 @@
   .lg-att .att-mini{ font-size:13px; }
   .lg-foot{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; border-top:1px dashed #E6DDD3; margin-top:10px; padding-top:8px; }
   .lg-foot:empty{ display:none; } .lg-foot .lc-sign{ margin:0 !important; padding:0 !important; border:0 !important; }
+  .lg-can-panel{ border:1px solid #EAE1D4; border-radius:10px; background:#fff; padding:8px 12px; margin-top:8px; } .lg-can-panel .can-row:last-of-type{ border-bottom:0 !important; }
+  .lg-cmtrk{ margin:8px 0 4px !important; }
   .lg-can{ display:inline-flex; align-items:center; gap:6px; margin-inline-start:auto; } .lg-can-st{ font-size:12.5px; font-weight:700; color:var(--full,#b3261e); }
   .lead-pay:empty{ display:none; } .lead-pay{ margin-top:10px; } .lead-pay .pay-box{ margin:0; }
   .la-row{ border-bottom:1px solid var(--border); } .la-row:last-child{ border-bottom:0; }
@@ -935,7 +937,8 @@
 .pop-notes.in-info{ margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
 .note-ed{ font:inherit; font-size:12px; border:0; background:none; color:var(--ink-soft); cursor:pointer; padding:0 4px; border-radius:6px; } .note-ed:hover{ color:var(--accent); background:var(--muted); }
 .pop .note-ed, #pop .note-ed{ color:#fff; background:#b7791f; border:0; font-size:13px; width:24px; height:24px; padding:0; border-radius:50%; margin-inline-start:6px; display:inline-flex; align-items:center; justify-content:center; vertical-align:middle; } .pop .note-ed:hover, #pop .note-ed:hover{ background:#d4952f; color:#fff; }   /* 5.20.19 (נועה): בחלון הכהה – כפתור ✎ עריכה ברור */   /* 5.20.13 */
-  #leadsTbl td.c-upd{ white-space:nowrap; font-size:12.5px; } #leadsTbl td.c-upd .upd-t{ color:var(--ink-soft); font-size:11.5px; }
+  #leadsTbl td.c-upd{ white-space:nowrap; font-size:14px; } #leadsTbl td.c-upd .upd-t{ color:var(--ink-soft); font-size:13px; } .upd-w{ display:inline-flex; gap:10px; align-items:baseline; flex-direction:row-reverse; }   /* 5.20.23 (נועה): קצת יותר גדול */
+  #leadsTbl .asg-need{ color:#b3261e; font-weight:700; font-size:12.5px; white-space:nowrap; }
   #leadsTbl .src-sel{ font:inherit; font-size:13px; border:1px solid transparent; background-color:transparent; padding:3px 2px; width:112px; max-width:112px; border-radius:6px; cursor:pointer; color:var(--ink); }
   #leadsTbl .src-sel:hover, #leadsTbl .src-sel:focus{ border-color:var(--border); background-color:var(--paper); } .rem-ic{ font-size:15px; opacity:.55; cursor:help; } .rem-ic.due{ opacity:1; filter:drop-shadow(0 0 2px #e53935); }
   .ex-pop-meta{ margin-top:10px; font-size:11.5px; color:var(--ink-soft); line-height:1.4; }
@@ -1100,7 +1103,7 @@
     #leadsTbl .c-src{ order:7; color:var(--ink-soft); }
     #leadsTbl .c-parent:empty, #leadsTbl .c-rem:empty{ display:none; }
     #leadsTbl .c-parent{ order:8; } #leadsTbl .c-rem{ order:9; }
-    #leadsTbl .c-id{ order:10; color:var(--ink-soft); font-size:12px; } #leadsTbl .c-upd{ order:11; color:var(--ink-soft); font-size:12px; }
+    #leadsTbl .c-id{ order:10; color:var(--ink-soft); font-size:12px; } #leadsTbl .c-upd{ order:11; color:var(--ink-soft); font-size:13px; }
     #leadsTbl .c-star{ order:12; margin-inline-start:auto; } #leadsTbl .c-act{ order:13; }
     /* 5.19.21: כרטיס תלמיד בנייד - השם בולט ונוח ללחיצה, הסטטוס קטן, בשיבוצים גם המקום (בצבע בית הספר), בלי מתג "פעיל" ומספר */
     #leadsTbl .c-name{ order:1; flex:1 1 calc(100% - 180px); min-width:0; }   /* 5.19.144: מקום גם ל-📱 – כל האייקונים בשורה של השם */
@@ -2685,8 +2688,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         <div class="card lead-acc" id="leadAcc">
           <details class="la-row"><summary><b>מבחנים קרובים במתמטיקה</b><span class="la-sum" data-of="leadExams"></span></summary><div class="la-body"><div id="leadExams" style="font-size:13.5px;"></div></div></details>
           <details class="la-row"><summary><b>נוכחות אחרונה</b><span class="la-sum" data-of="leadAtt"></span></summary><div class="la-body"><div id="leadAtt" class="muted" style="font-size:13.5px;"></div></div></details>
-          <details class="la-row"><summary><b>חתימה על טופס ההרשמה</b><span class="la-sum" data-of="leadSig"></span></summary><div class="la-body"><div id="leadSig" class="muted" style="font-size:13.5px;"></div></div></details>
-          <details class="la-row"><summary><b>טופס ביטול</b><span class="la-sum" data-of="leadCancel2"></span></summary><div class="la-body"><div id="leadCancel2" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row"><summary><b>כל הטפסים החתומים</b><span class="la-sum" data-of="leadSig"></span></summary><div class="la-body"><div id="leadSig" class="muted" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row"><summary><b>טפסי ביטול ישנים</b><span class="la-sum" data-of="leadCancel2"></span></summary><div class="la-body" id="canHome"><div id="leadCancel2" style="font-size:13.5px;"></div></div></details>
           <details class="la-row" id="leadTsRow" data-admin><summary><b>📱 תלם שלי</b><span class="la-sum" data-of="leadTs"></span></summary><div class="la-body"><div id="leadTs" style="font-size:13.5px;"></div></div></details><!-- 5.19.97 (של-21/32): ניהול החשבון עבר לכאן -->
           <details class="la-row"><summary><b>שנים קודמות</b><span class="la-sum" data-of="leadHist"></span></summary><div class="la-body"><div id="leadHist" class="muted" style="font-size:13.5px;"></div></div></details>
           <details class="la-row"><summary><b>היסטוריית שינויים</b><span class="la-sum" data-of="leadLog"></span></summary><div class="la-body"><div id="leadLog" class="lead-log"></div></div></details>
@@ -3150,7 +3153,7 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") { const m 
 // 5.20.13 (נועה): "עודכן" בטבלה – תאריך + שעה (השנה רק כשהיא לא השנה הנוכחית)
 const WA_IC = '<svg class="wa-svg" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';   // 5.20.13 (נועה): בכל מקום – אייקון וואטסאפ במקום המילה
 const updShort = (iso) => { if (!iso) return ""; const d = new Date(iso), dd = d.toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit" }), y = d.getFullYear() !== new Date().getFullYear() ? "." + String(d.getFullYear()).slice(2) : "";
-  return `${esc(dd + y)} <span class="upd-t">${esc(d.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</span>`; };
+  return `<span class="upd-w"><span class="upd-t">${esc(d.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</span><span class="upd-d">${esc(dd + y)}</span></span>`; };   // 5.20.23 (נועה): השעה מימין לתאריך, עם רווח
 const fmtDate = (iso) => { if (!iso) return ""; const d = new Date(iso); return d.toLocaleDateString("he-IL", {day:"2-digit", month:"2-digit", year:"numeric"}) + " " + d.toLocaleTimeString("he-IL", {hour:"2-digit", minute:"2-digit"}); };
 const fmtDay = (iso) => iso ? new Date(iso).toLocaleDateString("he-IL", {day:"2-digit", month:"2-digit", year:"2-digit"}) : "";
 // 5.19.127 (נועה): הודעה עם "↩ ביטול" ל-8 שניות (סומן בטעות)
@@ -3732,9 +3735,9 @@ async function crsLoadMembers(filter){   // טוען רישומים (מוסיף 
   let cm; const q = (x) => CRS_CMS.replace("%S%", x) + "&" + filter;
   if (CRS.hasTrk === undefined) { CRS.hasTrk = CRS.hasSrc = true; }
   // 5.20.8: + signed_via (קובץ 141), history_at / history_note (קובץ 148) – כל שלב נופל לקודם אם העמודה עוד לא קיימת
-  const tiers = [",source_id,track,signed_via,history_at,history_note", ",source_id,track,signed_via", ",source_id,track", ",source_id", ""].slice(CRS.cmTier || 0);
+  const tiers = [",source_id,track,signed_via,history_at,history_note,tracking", ",source_id,track,signed_via,history_at,history_note", ",source_id,track,signed_via", ",source_id,track", ",source_id", ""].slice(CRS.cmTier || 0);
   for (let i = 0; i < tiers.length; i++) { try { cm = await getAll("course_members", q(tiers[i])); CRS.cmTier = (CRS.cmTier || 0) + i; break; } catch(e) { if (i === tiers.length - 1) throw e; } }
-  CRS.hasTrk = CRS.cmTier <= 2; CRS.hasSrc = CRS.cmTier <= 3; CRS.hasHist = CRS.cmTier === 0;
+  CRS.hasTrk = CRS.cmTier <= 3; CRS.hasSrc = CRS.cmTier <= 4; CRS.hasHist = CRS.cmTier <= 1; CRS.hasCmTrack = CRS.cmTier === 0;   // 5.20.23: + tracking (קובץ 155)
   cm.forEach(m => { if (CRS.cmIds.has(m.id)) { const a = CRS.cm[m.student_id] || [], i = a.findIndex(x => x.id === m.id); if (i >= 0) a[i] = m; return; }
     CRS.cmIds.add(m.id); (CRS.cm[m.student_id] = CRS.cm[m.student_id] || []).push(m); });
 }
@@ -3763,7 +3766,8 @@ function crsFillFilter(){ const el = $("fCourse"); if (!el) return; el.closest("
   fillSelect(el, [{ v: "__mis", t: "⚠ הסטטוס לא תואם לקורס (" + nm + ")" }].concat(nb ? [{ v: "__back", t: "↩ היו רשומים בשנה שעברה ולא השנה (" + nb + ")" }] : []), "הכול"); el.value = ""; void list; }   // 5.20.18 (נועה): בלי רשימת קורסים (כפול לקטגוריה + מסלול + בית ספר) – רק התצוגות המיוחדות
 // בדיקה (נועה 30.10: משאירים את הסטטוס כדי לבדוק שהקורסים + המסלול תואמים): "נרשם מת./אנג." בלי רישום בתרגול השוטף במחזור הפעיל,
 // רישום "רשום" בלי סטטוס "נרשם", או מקצוע שונה בין הסטטוס לרישום
-function crsMismatch(l){ if (!CRS.ok || !l || !l.student) return false;
+function crsMismatch(l){ return false;   // 5.20.23 (נועה): הסטטוס הישן ירד – אין מול מה לבדוק (סטטוס אחד, בקורס)
+  if (!CRS.ok || !l || !l.student) return false;
   const st = statusName(l.status_id) || "", isReg = /^נרשם (מת|אנג)/.test(st) && !/קיץ|מרתון/.test(st);
   const act = CRS.seasons.find(x => x.is_active && x.kind === "year"); if (!act) return false;
   const cur = crsOfStudent(l.student.id).filter(m => { const c = CRS.byId[m.course_id]; return c && c.season_id === act.id && crsCat(c.category_id).kind !== "event" && (m.status === "רשום" || m.status === "ממתין לתשלום"); });
@@ -4597,6 +4601,8 @@ function classLabel(grade, num){
   return (g || "") + n;
 }
 const asgOf = (l) => (L.asg && L.asg[l.student.id]) || [];
+// 5.20.23 (נועה): בלי שיבוץ – "–"; רשום/ה לקורס תרגול (לא מרתון) במחזור הפעיל ועוד לא שובץ/ה – "יש לעדכן שיבוץ"
+const asgNeed = (sid) => typeof CRS !== "undefined" && CRS.ok && crsOfStudent(sid).some(m => { const c = CRS.byId[m.course_id]; return c && !c.marathon_id && m.status === "רשום" && !crsGone(m) && crsActiveSeasons().has(c.season_id) && crsCat(c.category_id).kind !== "event"; });
 // 5.19.32: "נוכחות שונה מהשיבוץ השבוע" (א'-ש' של השבוע הנוכחי): נוסף/ה לשיעור של קבוצה אחרת, "לא מגיע/ה היום", או סומן/ה נוכח/ת בקבוצה שלא משובץ/ת אליה
 const WC = { map: null, p: null, err: null };
 function wkRange(){ let d = todayIL(); while (dayLetter(d) !== "א") d = addDays(d, -1); return [d, addDays(d, 6)]; }
@@ -4681,7 +4687,7 @@ function renderLeads(){
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
         const mg = marAsgOf(s.id), mpill = mg.length ? `<span class="asg-pill mar" title="${esc(mg.map(x => "מרתון: " + [x.name, x.school].filter(Boolean).join(" · ") + (x.date ? " · " + fmtIso(x.date) : "")).join("\n"))}">${mg.map(x => `<span>🏁 ${x.grp ? esc(x.grp) : "מרתון"}${x.hrs ? " · " + esc(x.hrs) : ""}</span>`).join("")}</span>` : "";   // 5.19.168 (נועה): הקבוצה והשעות (המרתון עצמו – בעמודת הקורסים)
         const ov = a.length ? weekLoadCalc(a.map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))) : "";   // 5.19.20
-        return ($("fAsg").value === "wkchg" ? wkChgHtml(s.id) : "") + (ov ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : (mg.length ? "" : `<span class="asg-none">לא משובץ</span>`)) + (mpill ? (pills || props ? " " : "") + mpill : ""); })()}</td>
+        return ($("fAsg").value === "wkchg" ? wkChgHtml(s.id) : "") + (ov ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : (mg.length ? "" : asgNeed(s.id) ? `<span class="asg-need" title="רשום/ה לתרגול השוטף ועוד לא שובץ/ה לקבוצה">יש לעדכן שיבוץ</span>` : `<span class="asg-none">–</span>`)) + (mpill ? (pills || props ? " " : "") + mpill : ""); })()}</td>
     <td class="c-parent">${(() => { const fm = s.family || {}, nm = fm.parent1_first || fm.parent1_last || "", ph = fm.parent1_phone || "";   // שם פרטי + טלפון בשורה אחת
         return nm || ph ? `<span class="pn">${esc(nm)}</span>${nm && ph ? `<span class="sep"> · </span>` : ""}${ph ? `<a class="pp" dir="ltr" href="tel:${esc(ph)}" data-phm="${esc(ph)}" onclick="event.stopPropagation()">${esc(String(ph).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : ""}` : ""; })()}</td>
     <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
@@ -5436,11 +5442,21 @@ function canPaint(sid){ const rows = CAN_ROWS[sid]; const g = $("leadGroups"); i
   g.querySelectorAll("[data-cnm]").forEach(sp => { const mid = Number(sp.dataset.cnm), r = (rows || []).find(x => x.course_member_id === mid && x.status !== "בוטל");
     sp.querySelector(".lg-can-st").textContent = r ? "טופס ביטול: " + (CAN_ST[r.status] || r.status) : "";
     const b = sp.querySelector("[data-cnew]"); b.hidden = !!r && r.status !== "אושר";
-    b.onclick = () => { const d = $("leadCancel2").closest("details"); if (d) d.open = true;
-      const go2 = () => { const n = $("canNew"); if (!n) return; if (!n.hidden) n.click(); const cs = $("cnCrs"); if (cs && [...cs.options].some(o => o.value === String(mid))) { cs.value = String(mid); cs.dispatchEvent(new Event("change")); }
-        $("leadCancel2").scrollIntoView({ block: "center", behavior: "smooth" }); };
-      go2(); }; });
+    b.textContent = r ? "פתיחה" : "✕ טופס ביטול"; b.hidden = false;
+    b.onclick = () => { const pn = g.querySelector(`[data-cpm="${mid}"]`); if (!pn) return;
+      if (!pn.hidden && pn.contains($("leadCancel2"))) { canPark(); return; }
+      canPark(); pn.appendChild($("leadCancel2")); pn.hidden = false; CAN_ONLY = mid; canFilter();
+      if (!r) { const n = $("canNew"); if (n && !n.hidden) n.click(); const cs = $("cnCrs"); if (cs && [...cs.options].some(o => o.value === String(mid))) { cs.value = String(mid); cs.dispatchEvent(new Event("change")); } }
+      pn.scrollIntoView({ block: "nearest", behavior: "smooth" }); }; });
+  canFilter();
 }
+// 5.20.23 (נועה): טופס הביטול נפתח בתוך הקורס (רק הטפסים של הקורס הזה); השורה המקופלת למטה – רק לטפסים ישנים בלי קורס
+let CAN_ONLY = null;
+function canPark(){ const c = $("leadCancel2"), home = $("canHome"); if (!c || !home) return; document.querySelectorAll(".lg-can-panel").forEach(p => p.hidden = true); if (c.parentElement !== home) home.appendChild(c); CAN_ONLY = null; canFilter(); }
+function canFilter(){ const c = $("leadCancel2"); if (!c) return; const g = $("leadGroups"), inCrs = new Set([...(g ? g.querySelectorAll("[data-cnm]") : [])].map(x => x.dataset.cnm));
+  let rest = 0; c.querySelectorAll(".can-row").forEach(r => { const cm = r.dataset.cm || ""; const show = CAN_ONLY ? cm === String(CAN_ONLY) : !inCrs.has(cm); r.hidden = !show; if (!CAN_ONLY && show) rest++; });
+  const nb = $("canNew"); if (nb && !(nb.parentElement && $("canForm") && $("canForm").innerHTML.trim())) nb.hidden = CAN_ONLY ? false : inCrs.size > 0;
+  const row = $("canHome") && $("canHome").closest("details"); if (row) row.hidden = inCrs.size > 0 && rest === 0; }
 async function loadLeadCancel(l){
   const box = $("leadCancel2");
   let rows = [];
@@ -5453,7 +5469,7 @@ async function loadLeadCancel(l){
   CAN_ROWS[l.student.id] = rows; canPaint(l.student.id);
   const f = l.student.family || {}, ph = digits(f.parent1_phone || "");
   box.dataset.sum = rows.length ? `${rows.length === 1 ? "טופס ביטול אחד" : rows.length + " טפסי ביטול"} · האחרון: ${CAN_ST[rows[0].status] || rows[0].status}` : "";   // 5.19.41: תקציר קצר
-  box.innerHTML = rows.map(r => `<div style="border-bottom:1px solid var(--border); padding:6px 0;"><b>${esc(CAN_ST[r.status] || r.status)}</b> · ${esc([canCrs(r), r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · "))}
+  box.innerHTML = rows.map(r => `<div class="can-row" data-cm="${r.course_member_id || ""}" style="border-bottom:1px solid var(--border); padding:6px 0;"><b>${esc(CAN_ST[r.status] || r.status)}</b> · ${esc([canCrs(r), r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · "))}
       <div class="muted">${esc(fmtDate(r.created_at))}${r.reason ? " · סיבה: " + esc(r.reason) : ""}</div>
       ${r.status === "נחתם" ? `<div style="display:flex; gap:6px; margin-top:4px;"><button type="button" class="btn small" data-cpdf="${r.id}">הטופס החתום (PDF)</button><button type="button" class="btn small primary" data-capprove="${r.id}">אישור ביטול</button></div>` : ""}
       ${r.status === "נשלח" ? `<div style="display:flex; gap:6px; margin-top:4px;"><button type="button" class="btn small" data-copy="${esc(lkCancel(r.token))}">העתקת הקישור</button>${/^0\d{8,9}$/.test(ph) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${ph.slice(1)}?text=${encodeURIComponent("שלום, מצורף טופס הביטול של " + l.student.first_name + " לחתימה: " + lkCancel(r.token))}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}</div>` : ""}</div>`).join("")
@@ -5606,7 +5622,18 @@ function crsHead(m){ const c = CRS.byId[m.course_id] || {};
         return `<span class="lg-ic" style="color:${to ? to.c : "#2B2320"}">${sum ? "☀️" : TRK_IC}</span><b>${esc(crsCat(c.category_id).name || crsCatN(c.category_id))}</b>${tn ? ` · <b style="color:${to ? to.c : "inherit"}">${esc(tn)}</b>` : ` · <span class="muted">בלי מסלול</span>`}${sub ? ` · <b>${esc(sub)}</b>` : ""}`; })();
   return `<div class="lg-crs" data-crsmar="${c.marathon_id || ""}"><span class="lg-crs-l">${lab}<span class="lg-crs-g"></span>${crsNeedSig(m) ? ` <span class="sig-miss" title="חסרה חתימה על התנאים">✍︎</span>` : ""}</span><span class="lg-crs-r">${crsSrcBtn(m)}${crsStWord(m)}</span></div>`; }
 // 5.20.18 (נועה): שורה תחתונה בקורס – החתימה (בתרגול) והביטול
-const crsFoot = (m) => { const c = CRS.byId[m.course_id] || {}; return `<div class="lg-att-slot" data-am="${m.id}"></div><div class="lg-pay-slot" data-pm="${m.id}"></div><div class="lg-foot">${c.marathon_id ? "" : crsSignRow(m)}${ME.role === "instructor" ? "" : `<span class="lg-can" data-cnm="${m.id}"><span class="lg-can-st"></span><button type="button" class="btn small" data-cnew="${m.id}" title="טופס ביטול לקורס הזה – ההורה רק חותם/ת">✕ טופס ביטול</button></span>`}</div>`; };
+const crsFoot = (m) => { const c = CRS.byId[m.course_id] || {}; return `<div class="lg-att-slot" data-am="${m.id}"></div><div class="lg-pay-slot" data-pm="${m.id}"></div><div class="lg-foot">${crsSignRow(m)}${ME.role === "instructor" ? "" : `<span class="lg-can" data-cnm="${m.id}"><span class="lg-can-st"></span><button type="button" class="btn small" data-cnew="${m.id}" title="טופס ביטול לקורס הזה – ההורה רק חותם/ת">✕ טופס ביטול</button></span>`}</div><div class="lg-can-panel" data-cpm="${m.id}" hidden></div>`; };
+// 5.20.23 (נועה): מעקב לכל קורס (קובץ 155) – בתרגול השוטף המעקב של הכרטיס (מסונכרן), בשאר הקורסים – course_members.tracking
+const crsTrackHtml = (m) => !CRS.hasCmTrack || ME.role === "instructor" ? "" : `<div class="track-box tb-side lg-cmtrk" data-cmtk="${m.id}"><div class="tb-h"><span>📌 מעקב${m.tracking ? "" : " <span class='muted' style='font-weight:500'>- אין</span>"}</span><button type="button" class="btn small" data-cmtke="${m.id}">${m.tracking ? "✎ עריכה" : "+ הוספה"}</button></div>${m.tracking ? `<div class="tb-txt">${esc(m.tracking)}</div>` : ""}</div>`;
+function crsTrackWire(sid){ const g = $("leadGroups"); if (!g) return;
+  g.querySelectorAll("[data-cmtke]").forEach(b => b.onclick = () => { const box = b.closest("[data-cmtk]"), m = crsOfStudent(sid).find(x => x.id === Number(b.dataset.cmtke)); if (!m) return;
+    box.innerHTML = `<div class="tb-h"><span>📌 מעקב <span class="muted" style="font-weight:500">- לקורס הזה</span></span></div><textarea maxlength="2000" data-cmtkt>${esc(m.tracking || "")}</textarea>
+      <div style="display:flex; gap:6px; margin-top:6px;"><button type="button" class="btn small primary" data-cmtks>שמירה</button><button type="button" class="btn small" data-cmtkc>ביטול</button></div>`;
+    const ta = box.querySelector("textarea"); ta.focus();
+    box.querySelector("[data-cmtkc]").onclick = () => { box.outerHTML = crsTrackHtml(m); crsTrackWire(sid); };
+    box.querySelector("[data-cmtks]").onclick = async (e) => { const v = nn(ta.value); e.target.disabled = true;
+      try { await patch("course_members", "id=eq." + m.id, { tracking: v }); m.tracking = v; toast("המעקב נשמר"); box.outerHTML = crsTrackHtml(m); crsTrackWire(sid); }
+      catch(err) { toast("לא נשמר: " + err.message); e.target.disabled = false; } }; }); }
 const crsCards = (rs, card) => rs.length ? `<div class="lg-sub">שיבוצים</div>` + rs.map(card).join("") : "";
 // 5.19.169 (נועה, קובץ 135): טופס חתימה על התנאים בלבד – קישור אישי לכל רישום לקורס (חתימה אחת, 30 יום)
 // 5.20.5 (נועה): חתום – שורה "✓ טופס חתום" ואיך (טופס הרשמה / טופס חתימה / ידני / לפני המערכת); ידני / לפני המערכת – אפשר לבטל את הסימון
@@ -5676,11 +5703,12 @@ async function crsGroupsHtml(sid, cur, card){
   ms.filter(m => !CRS.byId[m.course_id].marathon_id).forEach(m => { const to = LK.tracks.find(x => x.v === mTrk(m));
     const reg = first && !/summer/.test(mTrk(m)) && !(crsCat(CRS.byId[m.course_id].category_id).tracks || []).includes("summer");
     h += `<div class="lg-crs-box lg-trk${reg ? " lg-reg" : ""}" data-cbm="${m.id}"${to ? ` style="--tc:${to.c}"` : ""}>` + crsHead(m);
+    if (!reg) h += crsTrackHtml(m);
     if (reg) { first = false; const rs = cur.filter(a => !isMar(a)); rs.forEach(a => used.add(a.id));
       h += `<div class="lg-trk-slot"></div>` + (rs.length ? crsCards(rs, card) : (m.status === "רשום" ? `<div class="muted lg-none">לא משובץ/ת לקבוצה</div>` : "")) + `<div class="lg-add-slot"></div>`; }
     h += crsFoot(m) + `</div>`; });
   const td0 = todayIL(), fin = (c) => { if (c.is_active === false) return true; const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td0; };
-  ms.filter(m => CRS.byId[m.course_id].marathon_id && !fin(CRS.byId[m.course_id])).forEach(m => { const c = CRS.byId[m.course_id]; h += `<div class="lg-crs-box" data-cbm="${m.id}">` + crsHead(m);
+  ms.filter(m => CRS.byId[m.course_id].marathon_id && !fin(CRS.byId[m.course_id])).forEach(m => { const c = CRS.byId[m.course_id]; h += `<div class="lg-crs-box" data-cbm="${m.id}">` + crsHead(m) + crsTrackHtml(m);
     const rs = cur.filter(a => !used.has(a.id) && a.session.marathon_id === c.marathon_id); rs.forEach(a => used.add(a.id)); h += crsCards(rs, card) + crsFoot(m) + `</div>`; });
   h += cur.filter(a => !used.has(a.id)).map(card).join("");
   // קורסים קודמים (נועה 30.10): מחזורים קודמים, פרש, ומרתון שהסתיים – למטה, מקופל
@@ -5692,7 +5720,8 @@ async function crsGroupsHtml(sid, cur, card){
   return h || empty;
 }
 async function loadLeadGroups(studentId){
-  if ($("trackPark") && $("trackBox").parentElement !== $("trackPark")) $("trackPark").appendChild($("trackBox"));   // 5.20.18: המעקב – חוזר לחניה לפני שמציירים מחדש
+  if ($("trackPark") && $("trackBox").parentElement !== $("trackPark")) $("trackPark").appendChild($("trackBox"));
+  canPark();   // 5.20.18: המעקב – חוזר לחניה לפני שמציירים מחדש
   $("leadGroups").innerHTML = "<div class='muted'>טוען...</div>"; delete $("leadAtt").dataset.sum; $("leadAtt").textContent = "";
   try {
     const AS_SEL = "select=id,subject,arrival_time,personal_end,status,session:sessions(id,day,time_label,start_time,end_time,room,city,school_year,%K%location:locations(name),session_instructors(staff(full_name)))&student_id=eq." + studentId;
@@ -5722,7 +5751,7 @@ async function loadLeadGroups(studentId){
     };
     $("leadGroups").innerHTML = await crsGroupsHtml(studentId, cur, lgCard);   // 5.19.162: פרטי הקורס מעל השיבוצים
     { const sl = $("leadGroups").querySelector(".lg-reg .lg-trk-slot"); if (sl) sl.replaceWith($("trackBox")); else if (ME.role === "instructor" || !CRS.ok) $("leadGroups").prepend($("trackBox")); }   // 5.20.18 (נועה): המעקב – בתוך הקורס של התרגול השוטף (אין קורס כזה – בלי מעקב בכרטיס)
-    canPaint(studentId); if (LP_CACHE && LP_CACHE.sid === studentId) LP_CACHE.place();
+    canPaint(studentId); crsTrackWire(studentId); if (LP_CACHE && LP_CACHE.sid === studentId) LP_CACHE.place();
     signWire(studentId).catch(() => {});
     // שיבוץ מוצע: קיבל/ה הודעה -> אישר/ה (ואז השיבוץ הופך ל"משובץ")
     $("leadGroups").querySelectorAll("[data-pcard]").forEach(box => {
