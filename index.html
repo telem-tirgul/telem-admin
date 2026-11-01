@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.28">
+<meta name="app-version" content="5.20.29">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1709,6 +1709,7 @@ td.nowrap{ white-space:nowrap; }
 .seg-mini button[aria-pressed="true"]{ background:var(--maroon,#5A1216); border-color:var(--maroon,#5A1216); color:#fff; } .seg-mini.kinds{ margin-bottom:10px; }
 .pay-q{ display:inline-flex; align-items:center; gap:3px; font-size:11.5px; font-weight:800; color:#8A5A12; background:#FBF1E2; border:1px solid #E8CFA0; border-radius:999px; padding:0 7px; margin-inline-start:4px; white-space:nowrap; } .pay-q[role=button]{ cursor:pointer; } .pay-q[role=button]:hover{ background:#F6E3C2; }
 .call-ph{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; white-space:nowrap; } td.acts{ white-space:nowrap; }
+.mar-wait-h{ border-top:2px dashed var(--border) !important; margin-top:8px; } .mar-wait .crs-st{ font-size:12px; font-weight:700; border-radius:999px; padding:1px 9px; background:#EEE; }
 .mar-kids-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0 6px; border-top:2px solid var(--border); margin-top:6px; list-style:none; } .mar-kids-h b{ font-size:16px; }
 .mar-g-btns{ display:inline-flex; gap:6px; flex-wrap:wrap; } .ms-name{ list-style:none; margin:6px 0 10px; } .ms-name input{ max-width:260px; }
 #marKids li.acts{ list-style:none; display:flex; gap:8px; margin-top:10px; }
@@ -6015,6 +6016,8 @@ async function openAsgEditor(studentId, a, cur, opts){
     if (from && to && to <= from) { f("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
     // אם שינו את הסטטוס בכרטיס אחרי שנפתח החלון - לוקחים את המקצוע מהסטטוס העדכני
     const body = { session_id: sid, subject: subjFromStatus(statusName(curStatus())) || f("subject").value || null, arrival_time: from, personal_end: to };
+    { const st0 = a ? a.status : ((box.querySelector("input[name=lgSt]:checked") || {}).value || "משובץ");
+      if (st0 === "משובץ" && (!a || (a.session && sid !== a.session.id)) && !(await asgRegOk(studentId, g))) return; }
     f("save").disabled = true;
     // 5.19.20: עד 2 קבוצות ועד 90 דק' בשבוע - מעבר לזה שואלים
     { const st = a ? a.status : ((box.querySelector("input[name=lgSt]:checked") || {}).value || "משובץ");
@@ -6433,9 +6436,18 @@ async function tsSendMsg(first, phone, code, reset){
 }
 // 5.19.128 (של-59, נועה 24.10): חשבונות "תלם שלי" לכל הילדים בקבוצה / במרתון – בבת אחת (portal_create_accounts, TS-05).
 // לפי הנייד שבכרטיס; מי שכבר יש לו חשבון / אין נייד תקין – ברשימת "לא נוצר" עם הסיבה. אחר כך הודעת וואטסאפ לכל אחד/ת.
-function tsBulkBtn(ids, what){
+function tsBulkBtn(ids, what, se){
   const b = $("panelTsBtn"); ids = [...new Set(ids.filter(Boolean).map(String))];
-  b.hidden = ME.role !== "admin" || !ids.length; b.onclick = () => tsBulk(ids, what);
+  b.hidden = ME.role !== "admin" || !ids.length; b.onclick = async () => {   // 5.20.29 (נועה): רק מי שבסטטוס "נרשם" (במרתון – במרתון; בשוטף – בתרגול)
+    let ok = ids, out = [];
+    try { if (se && await crsLoad()) { await Promise.all(ids.map(i => crsEnsureStudent(Number(i)).catch(() => {})));
+      const mar = se.marathon_id || se.kind === "מרתון";
+      const reg = (sid) => crsOfStudent(Number(sid)).some(m => { const c = CRS.byId[m.course_id]; return c && !crsGone(m) && m.status === "רשום" && (mar ? c.marathon_id === se.marathon_id : !c.marathon_id && crsActiveSeasons().has(c.season_id)); });
+      ok = ids.filter(reg); out = ids.filter(i => !reg(i)); } } catch(e) {}
+    if (!ok.length) { await uiAlert("אין בקבוצה ילדים בסטטוס \"נרשם\" – חשבון \"תלם שלי\" נפתח רק לנרשמים."); return; }
+    if (out.length) { const nm = (sid) => { const l = L.leads.find(x => String(x.student_id) === String(sid)); return l ? (l.student.first_name + " " + (l.student.last_name || "")).trim() : "#" + sid; };
+      if (!await uiConfirm(`לא ייפתח חשבון ל-${out.length} שלא בסטטוס "נרשם":\n${out.map(nm).join(", ")}\n\nלהמשיך עם ${ok.length} הנרשמים?`, { ok: "המשך" })) return; }
+    tsBulk(ok, what); };
 }
 async function tsBulk(ids, what){
   let shared = ""; try { const st = await rpc("portal_settings_get"); shared = (st && st.initial_code) || ""; } catch(e) {}
@@ -7692,13 +7704,21 @@ function openPanel(id){
   {
     $("panelAttBtn").hidden = false; $("panelAttBtn").textContent = "✓ נוכחות";
     $("panelAttBtn").onclick = () => openAttFor(se); }
-  tsBulkBtn(G.roster.filter(k => k.session_id === id).map(k => k.student_id), se.kind === "מרתון" ? "קבוצת המרתון" : "הקבוצה");
+  tsBulkBtn(G.roster.filter(k => k.session_id === id).map(k => k.student_id), se.kind === "מרתון" ? "קבוצת המרתון" : "הקבוצה", se);
   // פיצול לתת-קבוצות - הוסר מהלוח (הלקוחה 12.10, לא בשימוש בנוכחות). הקוד נשאר: loadPanelSplits(se)
   loadPanelSchool(se);
   gViewDetails(se, mOf);
   $("panel").hidden = false; $("panelBg").hidden = false; $("panelClose").focus();
   if (G.autoEdit && !$("gEditBtn").hidden) $("gEditBtn").click();   // 5.19.31: החלון נשאר במצב עריכה גם אחרי פעולה (העברה, אישור, שמירה)
 }
+// 5.20.29 (נועה): לקבוצה (שוטף ומרתון) – רק מי שבסטטוס "נרשם" בקורס: מרתון – בקורס של המרתון; שוטף – בתרגול של המחזור הפעיל
+async function asgRegOk(studentId, se){ try { if (!(await crsLoad())) return true; await crsEnsureStudent(studentId); } catch(e) { return true; }
+  const mar = se && (se.marathon_id || se.kind === "מרתון"), ms = crsOfStudent(studentId).filter(m => !crsGone(m) && m.status === "רשום" && CRS.byId[m.course_id]);
+  const ok = mar ? ms.some(m => CRS.byId[m.course_id].marathon_id === se.marathon_id)
+    : ms.some(m => { const c = CRS.byId[m.course_id]; return !c.marathon_id && crsActiveSeasons().has(c.season_id) && crsCat(c.category_id).kind !== "event"; });
+  if (!ok) await uiAlert(mar ? "אפשר לשבץ לקבוצה במרתון רק ילד/ה בסטטוס \"נרשם\" במרתון.\nקודם מסמנים שולם / משנים את הסטטוס בקורס של המרתון (בכרטיס)." : "אפשר לשבץ לקבוצה רק ילד/ה בסטטוס \"נרשם\" בתרגול השוטף.\nקודם משנים את הסטטוס בקורס (בכרטיס).");
+  return ok; }
+const uiAlert = (t) => uiDialog(t, { ok: "הבנתי", single: true });
 // 5.19.88 (נועה): "+ הוספת ילד/ה לקבוצה" – שיבוץ קבוע (גם בנייד)
 $("roAddBtn").addEventListener("click", () => { const pn = $("roAddPanel"); pn.hidden = !pn.hidden; if (!pn.hidden) $("roAddQ").focus(); });
 $("roAddQ").addEventListener("input", () => {
@@ -7712,6 +7732,7 @@ $("roAddQ").addEventListener("input", () => {
     : "<li class='muted'>לא נמצא.</li>";
   box.querySelectorAll("[data-roadd]").forEach(b => b.onclick = async () => {
     const l = L.leads.find(x => x.id === Number(b.dataset.roadd)); if (!l) return; const st = l.student;
+    if (!(await asgRegOk(st.id, se))) return;
     if (!await uiConfirm(`להוסיף את ${st.first_name} ${st.last_name || ""} לקבוצה ${se.location} יום ${DAY_NAMES[se.day]} ${se.time_label} (שיבוץ קבוע)?`)) return;
     if (!(await weekLoadOk(st.id, [{ status: "משובץ", session: Object.assign({ id: sid, school_year: CONFIG.schoolYear }, se), arrival_time: null, personal_end: null }]))) return;
     b.disabled = true;
@@ -7964,6 +7985,7 @@ function wireMarBox(root, m){
 async function openMarathonPanel(m){
   if (!m) return;
   if (!G.sessions || !G.roster) await ensureG();
+  try { if (typeof CRS !== "undefined") await crsLoad(); } catch(e) {}   // 5.20.29: "עוד לא נרשמו"
   const fresh = (G.marathons || []).find(x => x.id === m.id); if (fresh) m = fresh;
   panelFor(m.name, [m.school, m.city].filter(Boolean).join(" · "));
   G.panel = null; G.marPanel = m.id;
@@ -7981,7 +8003,7 @@ async function openMarathonPanel(m){
   const gs = (G.sessions || []).filter(x => x.kind === "מרתון" && x.marathon_id === m.id).sort((a, b) => gFirstDate(a).localeCompare(gFirstDate(b)) || String(a.start_time).localeCompare(String(b.start_time)));
   const kidsOf = (sid) => (G.roster || []).filter(k => k.session_id === sid).sort(attSort);
   const total = gs.reduce((n, g) => n + kidsOf(g.session_id).length, 0);
-  tsBulkBtn([].concat(...gs.map(g => kidsOf(g.session_id).map(k => k.student_id))), "נרשמי " + m.name);
+  tsBulkBtn([].concat(...gs.map(g => kidsOf(g.session_id).map(k => k.student_id))), "נרשמי " + m.name, { marathon_id: m.id, kind: "מרתון" });
   $("roster").hidden = true; $("roster").innerHTML = "";
   $("gEdit").insertAdjacentHTML("beforeend", `<div class="full mar-kids"><ul class="roster" id="marKids"></ul></div>`);
   const R = $("marKids");
@@ -7995,6 +8017,12 @@ async function openMarathonPanel(m){
             <span class="ro-btns"><button type="button" class="btn small" data-mwd="${k.id}">פרישה מהמרתון</button></span></div>
             <div class="meta">${k.school ? `<span class="school-chip sch-sm ${scCls(k.school)}">${esc(k.school)}</span>` : ""}${k.parent1_phone ? ` · ${esc(k.parent1_first || "הורה")}: <span dir="ltr">${esc(k.parent1_phone)}</span>` : ""}</div></div></li>`; }).join("")
           : `<li class="meta">עוד אין נרשמים בקבוצה הזאת.</li>`); }).join("") : `<li class="meta">אין קבוצות במרתון.</li>`);
+  // 5.20.29 (נועה): מי שעוד לא "נרשם" במרתון (ממתין לתשלום / מתעניין…) – בנפרד, לא בקבוצה
+  try { if (CRS.ok) { const c = CRS.courses.find(x => x.marathon_id === m.id), inG = new Set([].concat(...gs.map(g => kidsOf(g.session_id).map(k => k.student_id))));
+      const ws = c ? Object.values(CRS.cm).flat().filter(x => x.course_id === c.id && !crsGone(x) && x.status !== "רשום" && !["פרש", "לא התקיים", "לא מעוניין"].includes(x.status) && !inG.has(x.student_id)) : [];
+      if (ws.length) R.insertAdjacentHTML("beforeend", `<li class="mar-g-h mar-wait-h"><div><b>⏳ עוד לא נרשמו (${ws.length})</b> <span class="muted">– ייכנסו לקבוצה אחרי "נרשם" (שולם)</span></div></li>`
+        + ws.map(x => { const l = L.leads.find(y => y.student_id === x.student_id), st = crsStOf(x.status);
+          return `<li class="ro-k mar-wait"><div class="ro-main"><div class="row-top"><span>${l ? `<button type="button" class="name-link" data-lead="${l.id}">${esc(l.student.first_name)} ${esc(l.student.last_name || "")}</button>` : "#" + x.student_id}</span><span class="crs-st" style="${st.color ? `background:${st.color}; color:#fff;` : ""}">${esc(st.label || x.status)}</span></div></div></li>`; }).join("")); } } catch(e) {}
   wireLk(R);
   R.querySelectorAll("[data-lead]").forEach(b => b.onclick = () => { closePanel(); openLead(Number(b.dataset.lead)); });
   // 5.19.129 (נועה 24.10): מתרגלים בקבוצת מרתון – כמו בקבוצה שוטפת (אותה בחירה); לכל קבוצה צריך מנהל/ת
@@ -8260,6 +8288,7 @@ async function ibGdAct(b, kind){
     if (ch == null) return;
     if (ch === "add") kind = "add"; else from = Number(ch);
   } else if (!await uiConfirm(`לשבץ את ${ibName(r)} באופן קבוע בקבוצה ${grp}?`)) return;
+  if (kind !== "move") { try { await ensureG(); } catch(e) {} if (!(await asgRegOk(sid, (G.sessions || []).find(x => x.session_id === target) || {}))) return; }
   b.disabled = true;
   try {
     if (kind === "move") { const a = await get("assignments", `select=id&student_id=eq.${sid}&session_id=eq.${from}&status=eq.${encodeURIComponent("משובץ")}`);
