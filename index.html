@@ -2,11 +2,12 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
+<script>/* 5.20.33 (אבטחה, כל-17 G-2): מערכת הניהול לא נפתחת בתוך אתר זר (clickjacking) */(function(){var ok=true;try{ok=window.top===window.self||window.top.location.origin===location.origin;}catch(e){ok=false;}if(!ok){document.documentElement.style.display="none";throw new Error("framed");}})();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.32">
+<meta name="app-version" content="5.20.33">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3443,12 +3444,23 @@ let PENDING_PW = null;
   }
   const at = h.get("access_token"), type = h.get("type");
   if (!at || !["recovery", "invite", "signup", "magiclink"].includes(type)) return;
-  saveAuth({ access_token: at, refresh_token: h.get("refresh_token") || "",
-             expires_at: Number(h.get("expires_at")) || (Math.floor(Date.now() / 1000) + Number(h.get("expires_in") || 3600)), email: "" });
-  store("telem_crm_last_activity", String(Date.now()));
-  PENDING_PW = type;
+  // 5.20.33 (אבטחה, כל-17 2.6): לא נכנסים מקישור לפני שמראים לאיזה אימייל הוא שייך ומאשרים (קישור מזויף – כניסה לחשבון של מישהו אחר)
+  AUTH_LINK = { at, rt: h.get("refresh_token") || "", exp: Number(h.get("expires_at")) || (Math.floor(Date.now() / 1000) + Number(h.get("expires_in") || 3600)), type };
   clean();
 })();
+var AUTH_LINK;
+async function authLinkConfirm(){
+  const k = AUTH_LINK; AUTH_LINK = null; if (!k) return;
+  let email = "";
+  try { const r = await fetch(CONFIG.supabaseUrl + "/auth/v1/user", { headers: Object.assign(baseHeaders(), { Authorization: "Bearer " + k.at }) }); const u = r.ok ? await r.json() : null; email = (u && u.email) || ""; } catch(e) {}
+  if (!email) { $("lgMsg").textContent = "הקישור מהמייל לא תקין או שפג תוקפו. אפשר לבקש קישור חדש: כותבים את האימייל ולוחצים \"שכחתי סיסמה\"."; return; }
+  const ok = await uiDialog(`להיכנס למערכת הניהול כ-${email}?\n\nאם זה לא האימייל שלך – לא להמשיך.`, { ok: "כן, להיכנס", no: "לא" });
+  if (!ok) { $("lgMsg").textContent = "הכניסה מהקישור בוטלה."; return; }
+  saveAuth({ access_token: k.at, refresh_token: k.rt, expires_at: k.exp, email });
+  store("telem_crm_last_activity", String(Date.now()));
+  PENDING_PW = k.type;
+  await boot();
+}
 async function afterAuthLink(){
   if (!PENDING_PW) return;
   const type = PENDING_PW; PENDING_PW = null;
@@ -5532,7 +5544,7 @@ async function loadLeadCancel(l){
   box.querySelectorAll("[data-cpdf]").forEach(b => b.onclick = async () => {
     try { const r = (await get("cancellation_requests", "select=pdf&id=eq." + b.dataset.cpdf))[0];
           if (!r || !r.pdf) { toast("אין PDF לבקשה הזאת"); return; }
-          const a = document.createElement("a"); a.href = r.pdf; a.download = "טופס ביטול - " + fnSafe((l.student.first_name || "") + " " + (l.student.last_name || "")) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
+          const a = document.createElement("a"); a.href = pdfUrl(r.pdf); a.download = "טופס ביטול - " + fnSafe((l.student.first_name || "") + " " + (l.student.last_name || "")) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
     catch(e) { toast("לא ניתן להוריד"); } });
   box.querySelectorAll("[data-capprove]").forEach(b => b.onclick = async () => {
     const cr = rows.find(x => String(x.id) === b.dataset.capprove), cn = cr ? canCrs(cr) : "";
@@ -5613,7 +5625,7 @@ async function loadLeadSig(l){
       b.disabled = true;
       try { const r = await get("signatures", "select=pdf,kind,student_first,student_last,signed_at&id=eq." + b.dataset.pdf);
         if (!r.length || !r[0].pdf) { toast("אין PDF להרשמה הזאת (נשלחה לפני שנוסף)"); b.disabled = false; return; }
-        const a = document.createElement("a"); a.href = r[0].pdf; a.download = (r[0].kind === "marathon" ? "טופס הרשמה למרתון - " : r[0].kind === "terms" ? "טופס חתימה על התנאים - " : "טופס הרשמה - ") + fnSafe((r[0].student_first || "") + " " + (r[0].student_last || "")) + " - " + fmtDM(String(r[0].signed_at || "").slice(0, 10)) + ".pdf"; document.body.appendChild(a); a.click(); a.remove();
+        const a = document.createElement("a"); a.href = pdfUrl(r[0].pdf); a.download = (r[0].kind === "marathon" ? "טופס הרשמה למרתון - " : r[0].kind === "terms" ? "טופס חתימה על התנאים - " : "טופס הרשמה - ") + fnSafe((r[0].student_first || "") + " " + (r[0].student_last || "")) + " - " + fmtDM(String(r[0].signed_at || "").slice(0, 10)) + ".pdf"; document.body.appendChild(a); a.click(); a.remove();
       } catch(e) { toast("לא ניתן להוריד: " + e.message); }
       b.disabled = false;
     });
@@ -5704,7 +5716,7 @@ async function signWire(sid){
         const r = sig ? await get("signatures", "select=pdf,kind,student_first,student_last,signed_at&id=eq." + sig)
           : ors.length ? await get("signatures", "select=pdf,kind,student_first,student_last,signed_at&or=(" + ors.join(",") + ")&order=signed_at.desc&limit=1") : [];
         if (!r.length || !r[0].pdf) { toast("לא נמצא PDF לקורס הזה – אפשר לחפש למטה, ב\"חתימה על טופס ההרשמה\""); pb.disabled = false; return; }
-        const a = document.createElement("a"); a.href = r[0].pdf; a.download = (r[0].kind === "marathon" ? "טופס הרשמה למרתון - " : r[0].kind === "terms" ? "אישור תנאי התקשרות - " : "טופס הרשמה - ") + fnSafe((r[0].student_first || "") + " " + (r[0].student_last || "")) + " - " + fmtDM(String(r[0].signed_at || "").slice(0, 10)) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
+        const a = document.createElement("a"); a.href = pdfUrl(r[0].pdf); a.download = (r[0].kind === "marathon" ? "טופס הרשמה למרתון - " : r[0].kind === "terms" ? "אישור תנאי התקשרות - " : "טופס הרשמה - ") + fnSafe((r[0].student_first || "") + " " + (r[0].student_last || "")) + " - " + fmtDM(String(r[0].signed_at || "").slice(0, 10)) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
       catch(e) { toast("לא ניתן להוריד"); } pb.disabled = false; };
     const ub = box.querySelector("[data-sgun]"); if (ub) ub.onclick = async () => {
       if (!await uiConfirm("לבטל את הסימון \"טופס חתום\"? (יופיע ✍︎ חסרה חתימה, ואפשר לשלוח טופס חתימה)")) return; ub.disabled = true;
@@ -6073,7 +6085,7 @@ const FTX_FORMS = [["register", "הרשמה לתרגולים"], ["marathon", "מ
 const FTX_TYV = [["reg", "ההרשמה נשלחה"], ["phone", "תשלום טלפוני"], ["paid", "שולם באשראי"]];
 const FX = { form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "reg", mar: null };
 const ftxN = (h) => String(h == null ? "" : h).replace(/ /g, " ").replace(/\s+/g, " ").replace(/\s*<br>\s*/g, "<br>").trim();
-const ftxClean = (h) => FX.w && FX.w.TX ? FX.w.TX.clean(h) : String(h || "");
+const ftxClean = (h) => FX.w && FX.w.TX ? FX.w.TX.clean(h) : esc(TXplain(h));
 // 5.19.102: טקסט פשוט (בלי עיצוב) – שומרים על השורות (למשל "ניסוח המשבצות": שורה לכל מספר)
 const ftxNP = (s) => String(s == null ? "" : s).replace(/\r/g, "").split("\n").map(l => l.replace(/\s+/g, " ").trim()).join("\n").trim();
 const ftxNV = (it, raw) => it.plain ? ftxNP(raw) : ftxN(ftxClean(raw));
@@ -6259,7 +6271,7 @@ function ftxRender(){
   }
   $("ftxList").innerHTML = h;
   FX.items.forEach((it, i) => { const ed = document.querySelector(`[data-ed="${i}"]`); if (!ed) return;
-    if (it.plain) { ed.value = it.attr || it.opt ? TXplain(ftxVal(it)) : ftxVal(it); ed.rows = Math.max(1, ed.value.split("\n").length); } else ed.innerHTML = it.tpl ? ftxToEd(ftxVal(it)) : ftxVal(it);
+    if (it.plain) { ed.value = it.attr || it.opt ? TXplain(ftxVal(it)) : ftxVal(it); ed.rows = Math.max(1, ed.value.split("\n").length); } else ed.innerHTML = it.tpl ? ftxToEd(ftxClean(ftxVal(it))) : ftxClean(ftxVal(it));   // 5.20.33 (אבטחה 2.3): דרך המסנן של texts.js
     const upd = () => { FX.edit[it.key] = it.plain ? ftxNP(ed.value) : ftxFromEd(ed); ftxMark(i); ftxPaintState(); it.tpl || FX.form === "thank-you" || /^w\./.test(it.key) ? ftxReloadSoon() : ftxPreview(); };
     ed.addEventListener("input", upd); ed.__upd = upd;
     ed.addEventListener("focus", () => { FX.active = ed; FX.activeI = i; ftxToolbar(); ftxShowInPreview(it); });
@@ -6271,7 +6283,7 @@ function ftxRender(){
     document.execCommand("insertHTML", false, ftxToEd("{" + b.dataset.v + "}") + "&nbsp;"); ed.__upd(); });
   ftxToolbar();
 }
-const TXplain = (h) => { const d = document.createElement("div"); d.innerHTML = String(h || "").replace(/<br\s*\/?>/gi, "\n"); return d.textContent || ""; };
+const TXplain = (h) => { try { return new DOMParser().parseFromString(String(h || "").replace(/<br\s*\/?>/gi, "\n"), "text/html").body.textContent || ""; } catch(e) { return ""; } };   // 5.20.33 (אבטחה 2.3): בלי div חי (<img onerror> לא רץ)
 // סטטוס לכל טקסט: שונה (לא נשמר) / טיוטה / באוויר – שונה מהמקור
 function ftxMark(i){
   const it = FX.items[i], box = document.querySelector(`.ftx-it[data-i="${i}"]`); if (!box) return;
@@ -8248,7 +8260,7 @@ function ibGdCard(r, when){
     acts += `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ נקרא</button>`;
   }
   // 5.19.97 (נועה): כל אירוע בשורה אחת – ילד/ה | מה קרה | שיבוצים קבועים | פעולות (בנייד – זה מתחת לזה)
-  return `<div class="ib-gd ${r.status}" data-ib="${r.id}">
+  return `<div class="ib-gd ${ibCls(r.status)}" data-ib="${r.id}">
     <div class="ib-gd-c1"><span class="ib-ic">🔀</span><span><b class="ib-gd-n">${ibNameLink(r, lead)}</b><small class="ib-time">${esc(when(r.created_at))}</small></span></div>
     <div class="ib-gd-c2"><span class="ib-gd-k">מה קרה</span><span class="ib-gd-v">${tag}${lesson}${what}</span></div>
     <div class="ib-gd-c3"><span class="ib-gd-k">שיבוצים קבועים</span><span class="ib-gd-v">${fxH}</span></div>
@@ -8305,6 +8317,10 @@ function ibGdGroup(g, when){
     ${patH}
     <table class="gdg-t"><thead><tr><th>שבוע</th>${fx.length ? fx.map(se => { const st0 = String(se.start_time || "").slice(0, 5); return `<th>${gdPill(se.location && se.location.name, `${sessWhen(se)} ${st0} · ${esc((se.location && se.location.name) || "")}`)}</th>`; }).join("") : `<th>בקבוצה הקבועה</th>`}<th>הגיע/ה במקום</th><th>סה״כ</th></tr></thead><tbody>${rowsH}</tbody></table></div>`;
 }
+// 5.20.33 (אבטחה, כל-17 2.5): הסטטוס כמחלקת CSS – רק מרשימה קבועה
+// 5.20.33 (אבטחה, כל-17 2.4): קישור ל-PDF רק אם הוא באמת PDF / https / blob
+const pdfUrl = (u) => /^(data:application\/pdf[;,]|https:\/\/|blob:)/i.test(String(u || "")) ? String(u) : "about:blank";
+const ibCls = (st) => ["new", "handled", "snoozed", "seen", "open", "closed"].includes(st) ? st : "";
 async function ibGdAct(b, kind){
   const r = (IB.rows || []).find(x => x.id === Number(kind === "move" ? b.dataset.gdmv : b.dataset.gdadd)); if (!r) return;
   const d = r.data || {}, sid = r.student_id, target = Number(d.session_id), grp = `${d.location || ""} ${d.time_label || ""}`.trim();
@@ -8412,7 +8428,7 @@ async function renderInbox(reload){
       + (dd.length ? `<span class="ib-tag t-warn" title="אותה הרשמה נשלחה שוב – ההרשמות הקודמות עדיין במערכת (אפשר לבטל אותן ב'ממתינים לתשלום')">נשלח ${dd.length + 1} פעמים · ${dd.slice().reverse().concat([r]).map(x => esc(when(x.created_at).replace(/^היום /, ""))).join(", ")}</span>` : "")
       + (r.flags || []).filter((f, i, a) => IB_FLAG[f] && a.indexOf(f) === i && !(stOn && f === "phone_pending") && !(f === "possible_duplicate" && ibMerged(r))).map(f => f === "status_mismatch" && (r.data || {}).status_mismatch ? `<span class="ib-tag t-warn" title="${esc(r.data.status_mismatch)}">⚠ ${esc(r.data.status_mismatch)}</span>` : `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
       + (iss.length || (r.flags || []).includes("mismatch") ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}" title="לחיצה – מה כתוב אצלנו ומה בטופס">⚠ ${esc(ibIssTxt(iss))} ▾</button>` : "");
-    return `<div class="ib-row ${r.status}${w ? " warn" : ""}" data-ib="${r.id}">
+    return `<div class="ib-row ${ibCls(r.status)}${w ? " warn" : ""}" data-ib="${r.id}">
       <span class="ib-ic" title="${esc(k[1])}">${k[0]}</span><span class="ib-k">${esc(k[1])}</span>
       <span class="ib-n">${ibNameLink(r, lead)}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
@@ -11336,7 +11352,7 @@ async function renderReg(){
     M.querySelectorAll("[data-pdf]").forEach(b => b.onclick = async () => {
       try { const r = (await get("cancellation_requests", "select=pdf,student:students(first_name,last_name)&id=eq." + b.dataset.pdf))[0];
             if (!r || !r.pdf) { toast("אין PDF לבקשה הזאת"); return; }
-            const a = document.createElement("a"); a.href = r.pdf; a.download = "טופס ביטול - " + fnSafe(((r.student || {}).first_name || "") + " " + ((r.student || {}).last_name || "")) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
+            const a = document.createElement("a"); a.href = pdfUrl(r.pdf); a.download = "טופס ביטול - " + fnSafe(((r.student || {}).first_name || "") + " " + ((r.student || {}).last_name || "")) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
       catch(e) { toast("לא ניתן להוריד"); } });
     M.querySelectorAll("[data-approve]").forEach(b => b.onclick = async () => {
       if (!await uiConfirm("לאשר את הביטול? ההרשמה למקצוע תסומן כבוטלה והסטטוס יעבור ל\"פרש\".")) return;
@@ -11596,7 +11612,7 @@ document.addEventListener("visibilitychange", () => { if (document.visibilitySta
 setInterval(updTry, 15000);
 if (sstore("telem_updated")) { sstore("telem_updated", null); setTimeout(() => toast("המערכת עודכנה לגרסה החדשה"), 800); }
 checkUpdate();
-boot();
+if (AUTH_LINK) { showLogin(); authLinkConfirm(); } else boot();
 
 // ======================================================================
 // 5.19.34: תשלומים והוראות קבע (איקרדיט) - לשוניות בתוך "הרשמה ותשלומים" (לשעבר payments.html)
