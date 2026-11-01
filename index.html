@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.17">
+<meta name="app-version" content="5.20.18">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -292,6 +292,24 @@
   .lead-cols{ display:grid; grid-template-columns:minmax(0,1fr) minmax(400px,.95fr); gap:16px; align-items:start; }   /* 5.19.173 (נועה): עמודת הקורסים רחבה יותר */
   @media (min-width:961px){ .lead-cols{ align-items:stretch; } }
   .lead-acc{ margin-top:14px; padding:4px 14px; }
+  /* 5.20.18 (נועה, הכרטיס החדש – שלב 1): הפרטים העיקריים למעלה לכל הרוחב; מתחת – הקורסים (רחב, מימין) ופרטי התלמיד/ה + הערות (צר, משמאל) */
+  @media (min-width:961px){
+    #view-lead .lead-cols{ grid-template-columns:minmax(0,1.6fr) minmax(330px,1fr); grid-template-areas:"top top" "crs side"; align-items:start; }
+    #view-lead .lead-cols > .lead-main{ display:contents; }
+    #view-lead .lead-top{ grid-area:top; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:12px 16px 14px; }
+    #view-lead .lead-side{ grid-area:side; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:4px 14px 12px; }
+    #view-lead .lead-cols > .lead-crs{ grid-area:crs; } #view-lead .lead-top > .key-box{ margin-bottom:0 !important; } #view-lead .lead-top #siblings:empty{ display:none; }
+    #view-lead .lead-top .key-grid{ display:flex !important; flex-wrap:nowrap; } #view-lead .lead-top .key-grid > .kg-br{ display:none !important; }
+    #view-lead #leadForm .lead-main .lead-top .key-grid > div{ flex:1 1 0 !important; min-width:0; }
+  }
+  .ls-notes{ border:1px solid var(--border) !important; border-radius:12px; background:#fff; padding:2px 12px; margin:10px 0 0; }
+  .ls-notes > summary b{ font-family:var(--font-display); color:var(--accent); font-size:15px; }
+  /* בתוך הקורס: מעקב, "שיבוצים", ושורה תחתונה – חתימה וביטול */
+  .lg-crs-box .track-box{ margin:8px 0 4px !important; }
+  .lg-sub{ font-size:12.5px; font-weight:700; color:#6B5F55; margin:10px 0 4px; }
+  .lg-foot{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; border-top:1px dashed #E6DDD3; margin-top:10px; padding-top:8px; }
+  .lg-foot:empty{ display:none; } .lg-foot .lc-sign{ margin:0 !important; padding:0 !important; border:0 !important; }
+  .lg-can{ display:inline-flex; align-items:center; gap:6px; margin-inline-start:auto; } .lg-can-st{ font-size:12.5px; font-weight:700; color:var(--full,#b3261e); }
   .lead-pay:empty{ display:none; } .lead-pay{ margin-top:10px; } .lead-pay .pay-box{ margin:0; }
   .la-row{ border-bottom:1px solid var(--border); } .la-row:last-child{ border-bottom:0; }
   .la-row > summary{ list-style:none; cursor:pointer; display:flex; align-items:baseline; gap:12px; padding:10px 2px; }
@@ -843,7 +861,7 @@
   .ar-rng .gseg button{ height:40px; padding:0 10px; } .ar-filters .ar-btns .btn{ padding:0 14px; }
   .ar-tbl td.c, .ar-tbl th.cx{ background:color-mix(in srgb, var(--ink-soft) 10%, transparent); color:var(--ink-soft); text-align:center; } .ar-tbl td.ar-subj{ font-size:12.5px; white-space:nowrap; } .ar-tbl tfoot td{ font-size:12.5px; font-weight:800; color:var(--accent); background:color-mix(in srgb, var(--accent) 12%, var(--paper)); border-top:2px solid var(--accent); } .ar-tbl td.ar-sum{ text-align:center; direction:ltr; }
   /* סינון פעיל */
-  select.f-on, input[type=search].f-on, input[type=date].f-on, button.f-on{ border-color:var(--accent) !important; box-shadow:0 0 0 1px var(--accent); background-color:color-mix(in srgb, var(--accent) 9%, var(--paper)); font-weight:700; }
+  select.f-on, input[type=search].f-on, input[type=date].f-on, input[type=number].f-on, input[type=text].f-on, button.f-on{ border-color:var(--accent) !important; box-shadow:0 0 0 1px var(--accent); background-color:color-mix(in srgb, var(--accent) 9%, var(--paper)); font-weight:700; }
   label.f-on{ color:var(--accent); font-weight:800; }
   /* לוח מבחנים חודשי */
   .ex-modebar{ display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center; margin:4px 0 10px; }
@@ -2513,7 +2531,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
           <div class="crs-f2"><label class="lbl">קטגוריה</label><div class="multi" id="fCrsCatM"></div></div><!-- 5.20.15 (נועה): קטגוריה → מסלול → מקצוע, בחירה מרובה; ואז קורס מסוים -->
           <div class="crs-f2"><label class="lbl">מסלול</label><div class="multi" id="fCrsTrkM"></div></div>
           <div class="crs-f2"><label class="lbl">מקצוע</label><div class="multi" id="fCrsSubM"></div></div>
-          <div class="crs-f"><label class="lbl" for="fCourse">קורס</label><select id="fCourse"><option value="">הכול</option></select></div><!-- 5.19.162: קורסים (קובץ 129) -->
+          <div class="crs-f"><label class="lbl" for="fCourse">תצוגה מיוחדת</label><select id="fCourse"><option value="">הכול</option></select></div><!-- 5.19.162: קורסים (קובץ 129) -->
           <span hidden><select id="fCrsCat"></select><select id="fCrsTrk"></select><select id="fCrsSub"></select></span>
           <div><label class="lbl" for="fManager">מנהל</label><select id="fManager"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fFrom">עודכן מ-</label><input id="fFrom" type="date"></div>
@@ -2560,6 +2578,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <form id="leadForm" novalidate>
         <div class="lead-cols">
           <div class="card lead-main">
+            <div class="lead-top"><!-- 5.20.18 (נועה, הכרטיס החדש – שלב 1): הפרטים העיקריים בשורה למעלה, לכל הרוחב -->
             <div class="edit-banner" id="editBanner" hidden>יש שינויים שלא נשמרו - לוחצים "שמירה"</div>
             <div class="toggles">
               <label><button type="button" class="switch" id="lfActive" aria-pressed="true"></button> פעיל</label>
@@ -2588,6 +2607,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
               </div>
               <div id="siblings" class="sibs"></div>
             </fieldset>
+            </div>
+            <div class="lead-side"><!-- 5.20.18: העמודה הצרה (משמאל) – פרטי התלמיד/ה, הערות, פרטים נוספים -->
 
             <!-- 5.19.72 (נועה): פרטי התלמיד - מתחת לפרטים העיקריים (הסטטוס ומקור הליד עלו לפרטים העיקריים) -->
             <details class="sec-d" id="studentBox" open><summary>פרטי התלמיד/ה</summary>
@@ -2601,6 +2622,15 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div class="trk-f" hidden><!-- 5.20.12 (נועה): המסלול – בקורס, לא בפרטי התלמיד/ה --><label class="lbl" for="sTrack">מסלול</label><select id="sTrack"><option value="">לא ידוע</option><option value="single">1 · פעמיים בשבוע</option><option value="unlimited-single">2 · ללא הגבלה</option><option value="double">3 · שני מקצועות</option></select></div><!-- 5.19.157 (נועה): אינפורמטיבי; מהרשמה בטופס – לבד (קובץ 127) -->
               </div>
             </details>
+            <!-- 5.20.18: הערות – בעמודה הצרה, פתוח -->
+          <details class="la-row ls-notes" data-la="notes" open><summary><b>הערות <span class="muted" id="notesN"></span></b><span class="la-sum" id="laNotes"></span></summary>
+            <div class="la-body">
+              <div class="note-new" id="noteNew">
+                <textarea id="newNote" placeholder="+ הערה חדשה..." rows="1" aria-label="הערה חדשה"></textarea>
+                <button class="btn small primary" type="button" id="addNoteBtn">הוספה</button>
+              </div>
+              <ul class="notes-list" id="notesList"></ul>
+            </div></details>
             <!-- 5.19.70 (נועה): פרטים נוספים - נפתח בחץ, כמו התשלומים -->
             <details class="sec-d" id="moreBox"><summary>פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(הורה 2, טלפון בית, כתובת · ממלא/ת, נושא והודעה מטופס ההתעניינות)</span></summary>
               <div class="lf-old" hidden><!-- 5.20.13 (נועה): "סטטוס אחד" – הסטטוס ומקור הליד הישנים ירדו מהכרטיס (ממשיכים להתעדכן מהקורס ברקע) --><span class="tg-f"><label for="lfStatus">סטטוס (ישן)</label><select id="lfStatus"></select></span>
@@ -2629,12 +2659,13 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
               <button class="btn" type="submit" data-and-back="1">שמירה וחזרה לרשימה</button>
               <button class="btn" type="button" id="leadCancel">ביטול</button>
             </div></div>
+            </div>
           </div>
 
-          <div class="card">
+          <div class="card lead-crs">
             <div id="leadCourses" class="lc-crs" hidden></div><!-- 5.19.162: קורסים -->
             <div class="side-hr"><h3 class="side-h" style="margin:4px 0 8px;">קורסים ושיבוצים</h3><span id="lcAddSlot"></span></div>
-            <div class="track-box tb-side" id="trackBox" hidden style="margin-bottom:12px"></div><!-- 5.19.173 (נועה): המעקב – למעלה -->
+            <div id="trackPark" hidden><div class="track-box tb-side" id="trackBox" hidden></div></div><!-- 5.20.18 (נועה): המעקב – בתוך הקורס של התרגול השוטף --><!-- 5.19.173 (נועה): המעקב – למעלה -->
             <div id="leadGroups"></div>
                       </div>
         </div>
@@ -2642,14 +2673,6 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
         <div class="lead-paywrap"><div id="leadPay" class="lead-pay"></div><div id="leadPayments"></div></div>
         <!-- 5.19.18: הערות והיסטוריה - שורות מקופלות (שורה עם תקציר, נפתחת בלחיצה), מתחת לכרטיס, לכל הרוחב -->
         <div class="card lead-acc" id="leadAcc">
-          <details class="la-row" data-la="notes"><summary><b>הערות <span class="muted" id="notesN"></span></b><span class="la-sum" id="laNotes"></span></summary>
-            <div class="la-body">
-              <div class="note-new" id="noteNew">
-                <textarea id="newNote" placeholder="+ הערה חדשה..." rows="1" aria-label="הערה חדשה"></textarea>
-                <button class="btn small primary" type="button" id="addNoteBtn">הוספה</button>
-              </div>
-              <ul class="notes-list" id="notesList"></ul>
-            </div></details>
           <details class="la-row"><summary><b>מבחנים קרובים במתמטיקה</b><span class="la-sum" data-of="leadExams"></span></summary><div class="la-body"><div id="leadExams" style="font-size:13.5px;"></div></div></details>
           <details class="la-row"><summary><b>נוכחות אחרונה</b><span class="la-sum" data-of="leadAtt"></span></summary><div class="la-body"><div id="leadAtt" class="muted" style="font-size:13.5px;"></div></div></details>
           <details class="la-row"><summary><b>חתימה על טופס ההרשמה</b><span class="la-sum" data-of="leadSig"></span></summary><div class="la-body"><div id="leadSig" class="muted" style="font-size:13.5px;"></div></div></details>
@@ -3263,12 +3286,16 @@ async function logout(msg){
 document.querySelectorAll("[data-logout]").forEach(b => b.addEventListener("click", async () => { if (await uiConfirm("לצאת מהמערכת?", { ok: "יציאה" })) logout(); }));
 $("gearBtn").addEventListener("click", () => go("settings"));
 // סינון פעיל - מסומן בצבע (בכל המסכים): רשימה שבחרו בה משהו שאינו "הכול", תיבה שסומנה/בוטלה לעומת ברירת המחדל, חיפוש עם טקסט
-const FILT_SEL = ".filters, .filters-chk, .g-filters, .ex-filters, .ar-filters, .att-filt, #repCity, #scF";
+const FILT_SEL = ".filters, .filters-chk, .filters-card, .g-filters, .ex-filters, .ar-filters, .att-filt, .ib-filters, .crs-flt, .pay-flt, .crs-mf, #repCity, #scF";
+// 5.20.18 (נועה): כל סינון פעיל – מסגרת בצבע, בכל הטבלאות: מסמנים גם אחרי כל שינוי / ציור של המסך
+{ let mfT = 0; const mfRun = () => { if (mfT) return; mfT = requestAnimationFrame(() => { mfT = 0; try { markFilters(); } catch(e) {} }); };
+  document.addEventListener("change", mfRun, true); document.addEventListener("input", mfRun, true);
+  new MutationObserver((ms) => { if (ms.some(m => m.target.closest && m.target.closest(FILT_SEL))) mfRun(); }).observe(document.documentElement, { childList: true, subtree: true }); }
 function markFilters(){
   document.querySelectorAll(FILT_SEL).forEach(box => {
-    const els = box.matches("select") ? [box] : box.querySelectorAll(box.matches(".filters") ? "select, input[type=checkbox], input[type=search], input[type=date]" : "select, input[type=checkbox], input[type=search]");
+    const els = box.matches("select") ? [box] : box.querySelectorAll(box.matches(".filters") ? "select, input[type=checkbox]:not(.pop input), input[type=search], input[type=date], input[type=number], input[type=text]" : "select, input[type=checkbox]:not(.pop input), input[type=search], input[type=number]");
     els.forEach(el => {
-      if (el.tagName === "SELECT") { const f = el.options[0]; el.classList.toggle("f-on", !!f && ((f.value === "" && el.value !== "") || (el.id === "gFill" && el.selectedIndex > 0))); }
+      if (el.tagName === "SELECT") { const f = el.options[0]; el.classList.toggle("f-on", !!f && (((f.value === "" || f.value === "all") && el.value !== f.value) || (el.id === "gFill" && el.selectedIndex > 0))); }
       else if (el.type === "checkbox") { const l = el.closest("label") || el; l.classList.toggle("f-on", el.checked !== el.defaultChecked); }
       else el.classList.toggle("f-on", !!el.value.trim());
     });
@@ -3720,7 +3747,7 @@ function crsFillFilter(){ const el = $("fCourse"); if (!el) return; el.closest("
   const list = CRS.courses.filter(c => act.has(c.season_id) && cnt[c.id] && (!fc || crsCity(c) === fc) && (!sch || c.school_id === sch.id || crsSch(c) === sch.name)).sort((a, b) => (crsCat(a.category_id).sort_order || 0) - (crsCat(b.category_id).sort_order || 0) || crsShort(a, true).localeCompare(crsShort(b, true), "he"));
   const nb = L.leads ? L.leads.filter(l => l.student && crsBack(l.student.id)).length : 0;
   const nm = L.leads ? L.leads.filter(l => l.is_active && crsMismatch(l)).length : 0;
-  fillSelect(el, [{ v: "__mis", t: "⚠ הסטטוס לא תואם לקורס (" + nm + ")" }].concat(nb ? [{ v: "__back", t: "↩ היו רשומים בשנה שעברה ולא השנה (" + nb + ")" }] : []).concat(list.map(c => ({ v: c.id, t: crsShort(c, true) + " (" + cnt[c.id] + ")" }))), "הכול"); }
+  fillSelect(el, [{ v: "__mis", t: "⚠ הסטטוס לא תואם לקורס (" + nm + ")" }].concat(nb ? [{ v: "__back", t: "↩ היו רשומים בשנה שעברה ולא השנה (" + nb + ")" }] : []), "הכול"); void list; }   // 5.20.18 (נועה): בלי רשימת קורסים (כפול לקטגוריה + מסלול + בית ספר) – רק התצוגות המיוחדות
 // בדיקה (נועה 30.10: משאירים את הסטטוס כדי לבדוק שהקורסים + המסלול תואמים): "נרשם מת./אנג." בלי רישום בתרגול השוטף במחזור הפעיל,
 // רישום "רשום" בלי סטטוס "נרשם", או מקצוע שונה בין הסטטוס לרישום
 function crsMismatch(l){ if (!CRS.ok || !l || !l.student) return false;
@@ -5365,6 +5392,17 @@ const CAN_ST = { "נשלח": "נשלח להורה - ממתין לחתימה", "�
 const crsNm = (c) => c.marathon_id ? "מרתון · " + plainTxt(crsTitle(c, true)).replace(/^מרתון\s*·?\s*/, "") : (crsCatN(c.category_id) || plainTxt(crsTitle(c, true)));   // 5.20.11
 const plainTxt = (h) => { const d = document.createElement("div"); d.innerHTML = h || ""; return d.textContent.replace(/\s+/g, " ").trim(); };
 const lkCancel = (token) => lkBase() + "cancel.html?t=" + token;
+// 5.20.18 (נועה): הביטול – בקורס: מצב טופס הביטול של הקורס, ו"✕ טופס ביטול" פותח את הטופס עם הקורס שנבחר
+const CAN_ROWS = {};
+function canPaint(sid){ const rows = CAN_ROWS[sid]; const g = $("leadGroups"); if (!g) return;
+  g.querySelectorAll("[data-cnm]").forEach(sp => { const mid = Number(sp.dataset.cnm), r = (rows || []).find(x => x.course_member_id === mid && x.status !== "בוטל");
+    sp.querySelector(".lg-can-st").textContent = r ? "טופס ביטול: " + (CAN_ST[r.status] || r.status) : "";
+    const b = sp.querySelector("[data-cnew]"); b.hidden = !!r && r.status !== "אושר";
+    b.onclick = () => { const d = $("leadCancel2").closest("details"); if (d) d.open = true;
+      const go2 = () => { const n = $("canNew"); if (!n) return; if (!n.hidden) n.click(); const cs = $("cnCrs"); if (cs && [...cs.options].some(o => o.value === String(mid))) { cs.value = String(mid); cs.dispatchEvent(new Event("change")); }
+        $("leadCancel2").scrollIntoView({ block: "center", behavior: "smooth" }); };
+      go2(); }; });
+}
 async function loadLeadCancel(l){
   const box = $("leadCancel2");
   let rows = [];
@@ -5374,6 +5412,7 @@ async function loadLeadCancel(l){
   // 5.20.11 (תש-33, icredit-32): טופס ביטול = ביטול קורס – שם הקורס
   const canCrs = (r) => { if (!r.course_member_id || typeof CRS === "undefined" || !CRS.ok) return ""; const m = crsOfStudent(l.student.id).find(x => x.id === r.course_member_id), c = m && CRS.byId[m.course_id]; return c ? crsNm(c) : ""; };
   if (!editing || editing.id !== l.id) return;
+  CAN_ROWS[l.student.id] = rows; canPaint(l.student.id);
   const f = l.student.family || {}, ph = digits(f.parent1_phone || "");
   box.dataset.sum = rows.length ? `${rows.length === 1 ? "טופס ביטול אחד" : rows.length + " טפסי ביטול"} · האחרון: ${CAN_ST[rows[0].status] || rows[0].status}` : "";   // 5.19.41: תקציר קצר
   box.innerHTML = rows.map(r => `<div style="border-bottom:1px solid var(--border); padding:6px 0;"><b>${esc(CAN_ST[r.status] || r.status)}</b> · ${esc([canCrs(r), r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · "))}
@@ -5527,7 +5566,10 @@ function crsHead(m){ const c = CRS.byId[m.course_id] || {};
     : (() => { const tk = mTrk(m), to = LK.tracks.find(x => x.v === tk), sum = /summer/.test(tk) || (crsCat(c.category_id).tracks || []).includes("summer");   // 5.19.174 (נועה): גדול וברור – הקטגוריה, המסלול בצבע, המקצוע
         const tn = CRS_TRK_S[tk] || (to && to.t) || "", sub = m.subject && tk !== "double" ? m.subject : "";
         return `<span class="lg-ic" style="color:${to ? to.c : "#2B2320"}">${sum ? "☀️" : TRK_IC}</span><b>${esc(crsCat(c.category_id).name || crsCatN(c.category_id))}</b>${tn ? ` · <b style="color:${to ? to.c : "inherit"}">${esc(tn)}</b>` : ` · <span class="muted">בלי מסלול</span>`}${sub ? ` · <b>${esc(sub)}</b>` : ""}`; })();
-  return `<div class="lg-crs" data-crsmar="${c.marathon_id || ""}"><span class="lg-crs-l">${lab}<span class="lg-crs-g"></span>${crsNeedSig(m) ? ` <span class="sig-miss" title="חסרה חתימה על התנאים">✍︎</span>` : ""}</span><span class="lg-crs-r">${crsSrcBtn(m)}${crsStWord(m)}</span>${c.marathon_id ? "" : crsSignRow(m)}</div>`; }
+  return `<div class="lg-crs" data-crsmar="${c.marathon_id || ""}"><span class="lg-crs-l">${lab}<span class="lg-crs-g"></span>${crsNeedSig(m) ? ` <span class="sig-miss" title="חסרה חתימה על התנאים">✍︎</span>` : ""}</span><span class="lg-crs-r">${crsSrcBtn(m)}${crsStWord(m)}</span></div>`; }
+// 5.20.18 (נועה): שורה תחתונה בקורס – החתימה (בתרגול) והביטול
+const crsFoot = (m) => { const c = CRS.byId[m.course_id] || {}; return `<div class="lg-foot">${c.marathon_id ? "" : crsSignRow(m)}${ME.role === "instructor" ? "" : `<span class="lg-can" data-cnm="${m.id}"><span class="lg-can-st"></span><button type="button" class="btn small" data-cnew="${m.id}" title="טופס ביטול לקורס הזה – ההורה רק חותם/ת">✕ טופס ביטול</button></span>`}</div>`; };
+const crsCards = (rs, card) => rs.length ? `<div class="lg-sub">שיבוצים</div>` + rs.map(card).join("") : "";
 // 5.19.169 (נועה, קובץ 135): טופס חתימה על התנאים בלבד – קישור אישי לכל רישום לקורס (חתימה אחת, 30 יום)
 // 5.20.5 (נועה): חתום – שורה "✓ טופס חתום" ואיך (טופס הרשמה / טופס חתימה / ידני / לפני המערכת); ידני / לפני המערכת – אפשר לבטל את הסימון
 const SIG_VIA = { form: "בטופס ההרשמה", sign_link: "בטופס החתימה", manual: "סומן ידנית – התקבל מחוץ למערכת", legacy: "רשום/ה לפני המערכת – סומן אוטומטית, אין טופס במערכת" };
@@ -5593,13 +5635,15 @@ async function crsGroupsHtml(sid, cur, card){
   const ms = crsOfStudent(sid).filter(m => !["בוטל", "פרש"].includes(m.status) && !m.history_at && CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id));
   const used = new Set(); let h = "", first = true;
   // 5.19.166 (נועה): השיבוצים בתוך המסגרת של הקורס – בתרגול השוטף הקבוצות, במרתון הקבוצה של המרתון
-  ms.filter(m => !CRS.byId[m.course_id].marathon_id).forEach(m => { const to = LK.tracks.find(x => x.v === mTrk(m)); h += `<div class="lg-crs-box lg-trk"${to ? ` style="--tc:${to.c}"` : ""}>` + crsHead(m);
-    if (first && !/summer/.test(mTrk(m)) && !(crsCat(CRS.byId[m.course_id].category_id).tracks || []).includes("summer")) { first = false; h = h.replace(/<div class="lg-crs-box lg-trk"(?![\s\S]*<div class="lg-crs-box)/, `<div class="lg-crs-box lg-trk lg-reg"`); const rs = cur.filter(a => !isMar(a)); rs.forEach(a => used.add(a.id));
-      h += rs.length ? rs.map(card).join("") : (m.status === "רשום" ? `<div class="muted lg-none">לא משובץ/ת לקבוצה</div>` : ""); }
-    h += `</div>`; });
+  ms.filter(m => !CRS.byId[m.course_id].marathon_id).forEach(m => { const to = LK.tracks.find(x => x.v === mTrk(m));
+    const reg = first && !/summer/.test(mTrk(m)) && !(crsCat(CRS.byId[m.course_id].category_id).tracks || []).includes("summer");
+    h += `<div class="lg-crs-box lg-trk${reg ? " lg-reg" : ""}" data-cbm="${m.id}"${to ? ` style="--tc:${to.c}"` : ""}>` + crsHead(m);
+    if (reg) { first = false; const rs = cur.filter(a => !isMar(a)); rs.forEach(a => used.add(a.id));
+      h += `<div class="lg-trk-slot"></div>` + (rs.length ? crsCards(rs, card) : (m.status === "רשום" ? `<div class="muted lg-none">לא משובץ/ת לקבוצה</div>` : "")) + `<div class="lg-add-slot"></div>`; }
+    h += crsFoot(m) + `</div>`; });
   const td0 = todayIL(), fin = (c) => { if (c.is_active === false) return true; const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td0; };
-  ms.filter(m => CRS.byId[m.course_id].marathon_id && !fin(CRS.byId[m.course_id])).forEach(m => { const c = CRS.byId[m.course_id]; h += `<div class="lg-crs-box">` + crsHead(m);
-    const rs = cur.filter(a => !used.has(a.id) && a.session.marathon_id === c.marathon_id); rs.forEach(a => used.add(a.id)); h += rs.map(card).join("") + `</div>`; });
+  ms.filter(m => CRS.byId[m.course_id].marathon_id && !fin(CRS.byId[m.course_id])).forEach(m => { const c = CRS.byId[m.course_id]; h += `<div class="lg-crs-box" data-cbm="${m.id}">` + crsHead(m);
+    const rs = cur.filter(a => !used.has(a.id) && a.session.marathon_id === c.marathon_id); rs.forEach(a => used.add(a.id)); h += crsCards(rs, card) + crsFoot(m) + `</div>`; });
   h += cur.filter(a => !used.has(a.id)).map(card).join("");
   // קורסים קודמים (נועה 30.10): מחזורים קודמים, פרש, ומרתון שהסתיים – למטה, מקופל
   const td = todayIL(), done = (c) => c.marathon_id && (c.is_active === false || (() => { const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td; })());
@@ -5610,6 +5654,7 @@ async function crsGroupsHtml(sid, cur, card){
   return h || empty;
 }
 async function loadLeadGroups(studentId){
+  if ($("trackPark") && $("trackBox").parentElement !== $("trackPark")) $("trackPark").appendChild($("trackBox"));   // 5.20.18: המעקב – חוזר לחניה לפני שמציירים מחדש
   $("leadGroups").innerHTML = "<div class='muted'>טוען...</div>"; delete $("leadAtt").dataset.sum; $("leadAtt").textContent = "";
   try {
     const AS_SEL = "select=id,subject,arrival_time,personal_end,status,session:sessions(id,day,time_label,start_time,end_time,room,city,school_year,%K%location:locations(name),session_instructors(staff(full_name)))&student_id=eq." + studentId;
@@ -5638,6 +5683,8 @@ async function loadLeadGroups(studentId){
         <div class="lg-edit" data-ed="${a.id}" hidden></div></div>`;
     };
     $("leadGroups").innerHTML = await crsGroupsHtml(studentId, cur, lgCard);   // 5.19.162: פרטי הקורס מעל השיבוצים
+    { const sl = $("leadGroups").querySelector(".lg-reg .lg-trk-slot"); if (sl) sl.replaceWith($("trackBox")); else if (ME.role === "instructor" || !CRS.ok) $("leadGroups").prepend($("trackBox")); }   // 5.20.18 (נועה): המעקב – בתוך הקורס של התרגול השוטף (אין קורס כזה – בלי מעקב בכרטיס)
+    canPaint(studentId);
     signWire(studentId).catch(() => {});
     // שיבוץ מוצע: קיבל/ה הודעה -> אישר/ה (ואז השיבוץ הופך ל"משובץ")
     $("leadGroups").querySelectorAll("[data-pcard]").forEach(box => {
@@ -5659,7 +5706,7 @@ async function loadLeadGroups(studentId){
     // 5.19.173 (נועה): "+ הוספה לקורס" – מעל הקורסים; "+ הוספה לקבוצה" – בתוך הקורס של התרגול השוטף (אין – למטה)
     if ($("lcAddSlot")) $("lcAddSlot").innerHTML = CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : "";   // 5.19.174: בשורת הכותרת
     { const gb = $("leadGroups").querySelector(".lg-crs-box.lg-reg"), html = `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></div><div class="lg-edit lg-card" data-ed="new" hidden></div>`;
-      if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
+      const gs = gb && gb.querySelector(".lg-add-slot"); if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
     if ($("lcAdd")) $("lcAdd").onclick = () => { const l0 = L.leads.find(x => x.student && x.student.id === studentId); if (l0) crsAddDlg(l0); };
     $("leadGroups").querySelectorAll("[data-gs]").forEach(b => b.onclick = () => openGroupOnBoard(Number(b.dataset.gs), b.dataset.city));
     $("leadGroups").querySelectorAll("[data-chg]").forEach(b => b.onclick = () => openAsgEditor(studentId, cur.find(a => String(a.id) === b.dataset.chg), cur));
@@ -6306,8 +6353,8 @@ function setLeadDirty(on){
   LEAD_DIRTY = !!on; const card = document.querySelector("#leadForm .lead-main");
   if (card) card.classList.toggle("dirty", LEAD_DIRTY); if ($("editBanner")) $("editBanner").hidden = !LEAD_DIRTY;
 }
-document.querySelector("#leadForm .lead-main").addEventListener("input", (e) => { if (!e.target.closest("#siblings")) setLeadDirty(true); });
-document.querySelector("#leadForm .lead-main").addEventListener("change", (e) => { if (!e.target.closest("#siblings")) setLeadDirty(true); });
+document.querySelector("#leadForm .lead-main").addEventListener("input", (e) => { if (!e.target.closest("#siblings, .ls-notes")) setLeadDirty(true); });
+document.querySelector("#leadForm .lead-main").addEventListener("change", (e) => { if (!e.target.closest("#siblings, .ls-notes")) setLeadDirty(true); });
 document.querySelector("#leadForm .lead-main").addEventListener("click", (e) => { if (e.target.closest("button.switch, button.star, #clearRemind")) setLeadDirty(true); });
 window.addEventListener("beforeunload", (e) => { if (LEAD_DIRTY && currentView === "lead") { e.preventDefault(); e.returnValue = ""; } });
 // חלון: לשמור את השינויים? -> שמירה / בלי לשמור / ביטול (נשארים)
@@ -6330,15 +6377,15 @@ const LEAD_MOB = () => !!(window.matchMedia && matchMedia("(max-width:760px)").m
 function setLeadEdit(on){
   const card = document.querySelector("#leadForm .lead-main");
   card.classList.toggle("editing", on); $("leadForm").classList.toggle("ro", !on); $("view-lead").classList.toggle("ro", !on);
-  card.querySelectorAll("input, select, textarea, button.switch, button.star, #clearRemind").forEach(el => { if (!el.closest("#siblings")) el.disabled = !on || el.dataset.lock === "1"; });
+  card.querySelectorAll("input, select, textarea, button.switch, button.star, #clearRemind").forEach(el => { if (!el.closest("#siblings, .ls-notes")) el.disabled = !on || el.dataset.lock === "1"; });
   $("leadEditBtn").hidden = on; $("leadActions").hidden = !on; $("view-lead").classList.toggle("lc-view", !on); $("editBanner").hidden = !LEAD_DIRTY;
   // 5.19.72 (נועה): התזכורת תמיד מופיעה (גם בצפייה בנייד - אפשר לקבוע בלי "עריכה")
    // 5.19.72: בצפייה בלי תזכורת - בלי שטח ריק
   $("lfMessage").closest(".msg-cell").hidden = !on && !$("lfMessage").value.trim();
-  card.querySelectorAll("input:not([type=datetime-local])").forEach(el => { if (!el.closest("#siblings")) el.placeholder = on ? (el.dataset.ph || "") : "—"; });
+  card.querySelectorAll("input:not([type=datetime-local])").forEach(el => { if (!el.closest("#siblings, .ls-notes")) el.placeholder = on ? (el.dataset.ph || "") : "—"; });
 }
 $("sClass").addEventListener("input", () => { const v = $("sClass").value.replace(/\D/g, "").slice(0, 2); if (v !== $("sClass").value) $("sClass").value = v; });
-$("leadEditBtn").addEventListener("click", () => { setLeadEdit(true); const k = document.querySelector("#leadForm .lead-main"); if (k) k.scrollIntoView({ block: "start" }); });
+$("leadEditBtn").addEventListener("click", () => { setLeadEdit(true); const k = document.querySelector("#leadForm .lead-top"); if (k) k.scrollIntoView({ block: "start" }); });
 // 5.19.86 (נועה): נייד – כפתורי הרשימה (עריכה ברשימה / אקסל / רענון) עוברים לשורת הכותרת, ליד "+ ליד חדש", כאייקונים קטנים
 // 5.19.88 (נועה): "מה שעושים בנייד – גם במחשב": הכפתורים ליד "+ ליד חדש" גם במחשב (שם עם טקסט);
 // מספר השורות + ניקוי סינון + שנים קודמות – במחשב משמאל לשורת הסינון (בלי שורה נוספת), בנייד שורה קטנה מתחת לסינון
