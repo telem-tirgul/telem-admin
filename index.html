@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.15">
+<meta name="app-version" content="5.20.16">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4519,9 +4519,9 @@ const lrYears = (l) => { const hs = LR.years.get(l.id); if (!hs || !hs.length) r
 function histRowHtml(x){
   const h = x.__h, lead = h.student_id ? L.leads.find(l => l.student_id === h.student_id) : null, now = histGradeNow(h.grade, h.year_start);
   return `<tr data-h="${h.id}" class="h-past">
-    <td class="c-info"><button type="button" class="icon-btn info" data-act="hinfo" aria-label="פרטים" title="פרטים">i</button></td>
     <td class="c-name"><button type="button" class="name-link" data-act="hopen">${esc(h.first_name || "")} ${esc(h.last_name || "")}</button>${lead ? ` <span class="h-has" title="יש כרטיס השנה">✓ כרטיס</span>` : ""}</td>
     <td class="c-ts"></td>
+    <td class="c-notes"><button type="button" class="icon-btn info" data-act="hinfo" aria-label="פרטים" title="פרטים">i</button></td>
     <td class="c-cst"><span class="h-st${histReg(h) ? " reg" : ""}">${esc(h.status || "—")}</span></td><td class="c-csrc muted">${esc(h.source || "")}</td><td class="c-crs"></td>
     <td class="c-school">${h.school ? scChip(h.school) : ""}${h.city ? ` <span class="muted">${esc(h.city)}</span>` : ""}</td>
     <td class="c-grade">${esc(h.grade || "")}${now ? `<span class="h-now" title="השכבה היום">→ ${esc(now)}</span>` : ""}</td>
@@ -4587,7 +4587,7 @@ const tsAccess = (l) => /^נרשם/.test(statusName(l.status_id)) && !/קיץ/.t
 const tsCell = (l) => { if (!L.tsAcc || !L.tsAcc.has(l.student.id)) return "";
   return tsAccess(l) ? `<span class="ts-ic" title="יש חשבון ב&quot;תלם שלי&quot; – יש גישה">📱</span>` : `<span class="ts-ic off" title="יש חשבון ב&quot;תלם שלי&quot; – אין גישה כרגע (לא משובץ/ת ולא בסטטוס &quot;נרשם&quot;)">📱</span>`; };
 const COLS = [
-  ["info",""],["name","שם"],["ts","📱"],["cst","סטטוס"],["csrc","מקור"],["crs","קורסים"],   // 5.19.173 (נועה): סטטוס · מקור · קורס · בית ספר   // 5.19.166 (נועה): הסטטוס ומקור הליד הישנים – בסוף (משמאל), עד שנוריד אותם
+  ["name","שם"],["ts","📱"],["notes",""],["cst","סטטוס"],["csrc","מקור"],["crs","קורסים"],   // 5.19.173 (נועה): סטטוס · מקור · קורס · בית ספר   // 5.19.166 (נועה): הסטטוס ומקור הליד הישנים – בסוף (משמאל), עד שנוריד אותם
   ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","עודכן"],["star","★"],["active","✓"],["id","ID"]
 ];   // 5.20.5 (נועה): הסטטוס ומקור הליד הישנים – הוסרו מהטבלה ומהסינון (נשארים בכרטיס, ב"פרטים נוספים", ובאקסל)
 // 5.19.173 (נועה): כמה קורסים לכל ילד/ה (כל השנים) – כמו במערכת הישנה; לחיצה – הרשימה
@@ -4625,9 +4625,9 @@ function renderLeads(){
     const due = l.remind_at && new Date(l.remind_at) <= now;
     const ns = L.notes[l.id] || [];
     return `<tr data-id="${l.id}" class="${l.is_active ? "" : "inactive"}">
-      <td class="c-info"><button type="button" class="icon-btn info note${ns.length ? " has" : ""}" data-act="info" aria-label="פרטים והערות${ns.length ? " (" + ns.length + " הערות)" : ""} – לחיצה: הוספה ועריכה">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
     <td class="c-name"><button type="button" class="name-link" data-act="open">${s.first_name || s.last_name ? esc(s.first_name) + " " + esc(s.last_name || "") : `<span class="muted">(בלי שם${s.family && s.family.parent1_first ? " · הורה: " + esc(s.family.parent1_first) : ""})</span>`}</button>${crsSigMiss(s.id)}${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
     <td class="c-ts">${tsCell(l)}</td>
+    <td class="c-notes"><button type="button" class="icon-btn note${ns.length ? " has" : ""}" data-act="info" aria-label="פרטים והערות${ns.length ? " (" + ns.length + " הערות)" : ""} – לחיצה: הוספה ועריכה">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
     <td class="c-cst">${crsChipsRow(s.id, "st")}</td>
     <td class="c-csrc">${crsChipsRow(s.id, "src")}</td>
     <td class="c-crs">${crsChipsRow(s.id)}${(() => { const w = crsMismatch(l); return w ? `<span class="crs-mis" title="בדיקה: הסטטוס מול הקורסים">⚠ ${esc(w)}</span>` : ""; })()}</td>
