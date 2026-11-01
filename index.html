@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.13">
+<meta name="app-version" content="5.20.14">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11149,14 +11149,15 @@ async function boot(){
   // רענון במסך שלא צריך את רשימת התלמידים (מאגר, נוכחות, מידע...) - חוזרים אליו מיד, בלי לעבור בדף הבית
   const quick = RESUME && !NEED_DATA.includes(RESUME.view);
   // מסך שצריך את רשימת התלמידים (תלמידים, קבוצות, דוחות...): לא עוברים בדף הבית - מציגים "טוען" במקום, וחוזרים למסך כשהנתונים מוכנים
-  const slow = RESUME && !quick;
+  const toLeads = !RESUME;   // 5.20.14 (נועה): כניסה ראשונה – ישר למסך התלמידים (במקום דף הבית)
+  const slow = (RESUME && !quick) || toLeads;
   if (slow) { hideViews(); let ld = $("resumeLoad"); if (!ld) { ld = document.createElement("div"); ld.id = "resumeLoad"; ld.className = "card muted resume-load"; ld.textContent = "טוען נתונים…"; document.querySelector("main.main").prepend(ld); } ld.hidden = false; }
   else if (!quick) { go("home"); $("homeLoad").hidden = false; }
   DATA_WAIT = (async () => { await loadLists(); await loadLeads(); setupFilters(); restoreLeadFilters(); })();
   if (quick) resumeView(true);
   try { await DATA_WAIT; DATA_READY = true; $("homeLoad").hidden = true; }
   catch(e) { /* מטופל למטה */ }
-  finally { if ($("resumeLoad")) $("resumeLoad").hidden = true; if (slow && RESUME) resumeView(true); }
+  finally { if ($("resumeLoad")) $("resumeLoad").hidden = true; if (slow && RESUME) resumeView(true); else if (toLeads) go("leads"); }
   try { await DATA_WAIT; }
   catch(e) { DATA_READY = true; DATA_WAIT = null; $("homeLoad").hidden = true; $("leadsTbl").innerHTML = "<tr><td class='empty-state'>לא ניתן לטעון נתונים. ייתכן שהמשתמש לא מוגדר כאיש צוות, או שעוד לא הורץ קובץ 5.</td></tr>"; go("leads"); return; }
   if (currentView === "leads") renderLeads();
