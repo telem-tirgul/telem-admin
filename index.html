@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.12">
+<meta name="app-version" content="5.20.13">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -212,6 +212,7 @@
   .key-box legend{ float:right; width:100%; padding:0 0 8px; }
   .key-box legend + *{ clear:both; }
   .phone-row a.btn{ text-decoration:none; }
+  .lbl-wa .req-st{ color:#B3241F; font-weight:800; }
   .lbl-wa .wa-ic{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#25D366; color:#fff; text-decoration:none; vertical-align:middle; margin-inline-start:4px; }   /* 5.20.12: וואטסאפ – אייקון ליד "טלפון הורה" */
   .lbl-wa .wa-ic svg{ width:13px; height:13px; } .lbl-wa .wa-ic[hidden]{ display:none; } .lbl-wa .wa-ic:hover{ filter:brightness(.92); }
   .sibs{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px; }
@@ -901,7 +902,9 @@
   #leadsTbl td.c-school{ white-space:nowrap; } #leadsTbl td.c-ts, #leadsTbl th.c-ts, #leadsTbl td.c-act, #leadsTbl th.c-act{ padding-inline:3px; width:1%; } #leadsTbl th.c-act{ font-size:12px; }
   #leadsTbl .c-parent .pn{ max-width:64px; overflow:hidden; text-overflow:ellipsis; vertical-align:bottom; }
   #leadsTbl .c-parent{ white-space:nowrap; font-size:13.5px; min-width:0; } #leadsTbl .c-parent .pn{ display:inline-block; } #leadsTbl .c-parent .sep{ color:var(--ink-soft); } #leadsTbl .c-parent .pp{ color:var(--ink); font-size:13.5px; text-decoration:none; }   /* 5.19.81 (נועה): שם ההורה והטלפון בגדול יותר */
-  #leadsTbl .c-rem{ text-align:center; } #leadsTbl .asg-none{ white-space:nowrap; } #leadsTbl td.c-upd{ white-space:nowrap; font-size:12.5px; }
+  #leadsTbl .c-rem{ text-align:center; } #leadsTbl .asg-none{ white-space:nowrap; } a:has(> .wa-svg):not([role=menuitem]){ display:inline-flex !important; align-items:center; justify-content:center; background:#25D366 !important; color:#fff !important; border-color:#25D366 !important; min-width:32px; padding-inline:8px !important; } a[role=menuitem] .wa-svg{ color:#25D366; vertical-align:middle; }   /* 5.20.13 */
+  .note-ed{ font:inherit; font-size:12px; border:0; background:none; color:var(--ink-soft); cursor:pointer; padding:0 4px; border-radius:6px; } .note-ed:hover{ color:var(--accent); background:var(--muted); }   /* 5.20.13 */
+  #leadsTbl td.c-upd{ white-space:nowrap; font-size:12.5px; } #leadsTbl td.c-upd .upd-t{ color:var(--ink-soft); font-size:11.5px; }
   #leadsTbl .src-sel{ font:inherit; font-size:13px; border:1px solid transparent; background-color:transparent; padding:3px 2px; width:112px; max-width:112px; border-radius:6px; cursor:pointer; color:var(--ink); }
   #leadsTbl .src-sel:hover, #leadsTbl .src-sel:focus{ border-color:var(--border); background-color:var(--paper); } .rem-ic{ font-size:15px; opacity:.55; cursor:help; } .rem-ic.due{ opacity:1; filter:drop-shadow(0 0 2px #e53935); }
   .ex-pop-meta{ margin-top:10px; font-size:11.5px; color:var(--ink-soft); line-height:1.4; }
@@ -1715,7 +1718,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 @media (min-width:761px){ #leadsTbl td.c-name{ min-width:135px; } }
 .set-sub{ font-size:18px; color:var(--accent); margin:2px 0 12px; font-weight:800; }
 .old-st{ display:inline-block; font-size:11.5px; font-weight:700; border-radius:999px; padding:1px 8px; white-space:nowrap; opacity:.85; }
-.lf-old{ display:flex; flex-wrap:wrap; gap:8px 14px; align-items:flex-end; margin:6px 0 10px; padding:8px 10px; border:1px dashed var(--border); border-radius:10px; } .lf-old .tg-f{ display:flex; flex-direction:column; gap:2px; } .lf-old-n{ font-size:12px; flex:1 1 100%; }
+.lf-old[hidden]{ display:none !important; } .lf-old{ display:flex; flex-wrap:wrap; gap:8px 14px; align-items:flex-end; margin:6px 0 10px; padding:8px 10px; border:1px dashed var(--border); border-radius:10px; } .lf-old .tg-f{ display:flex; flex-direction:column; gap:2px; } .lf-old-n{ font-size:12px; flex:1 1 100%; }
 .side-hr{ display:flex; justify-content:space-between; align-items:center; gap:8px; } .side-hr .side-h{ margin:4px 0 8px !important; }
 .lg-crs-box.lg-trk{ border:2px solid var(--tc, #2B2320); } .lg-crs-box.lg-trk > .lg-crs{ border-bottom-color:color-mix(in srgb, var(--tc, #2B2320) 35%, transparent); }
 .lg-crs-box > .lg-crs .lg-crs-l{ font-size:15px; } .lg-ic{ display:inline-flex; vertical-align:-4px; margin-inline-end:4px; } .lg-ic svg{ width:19px; height:19px; }
@@ -2574,7 +2577,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
                 <div class="kg-br" aria-hidden="true"></div><!-- 5.19.70 (נועה): שורה 1 - התלמיד/ה, שורה 2 - ההורה -->
                 <div class="field"><label class="lbl req" for="p1First">שם הורה</label><input id="p1First" class="big" type="text" required></div>
                 <div><label class="lbl" for="p1Last">משפחה (הורה)</label><input id="p1Last" class="big" type="text"></div>
-                <div class="field"><label class="lbl req lbl-wa" for="p1Phone">טלפון הורה <a id="p1Wa" class="wa-ic" href="#" target="_blank" rel="noopener" hidden title="וואטסאפ להורה" aria-label="וואטסאפ להורה"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg></a></label>
+                <div class="field"><label class="lbl lbl-wa" for="p1Phone">טלפון הורה <span class="req-st">*</span><a id="p1Wa" class="wa-ic" href="#" target="_blank" rel="noopener" hidden title="וואטסאפ להורה" aria-label="וואטסאפ להורה"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg></a></label>
                   <div class="phone-row"><input id="p1Phone" class="big" type="tel" inputmode="numeric"></div></div>
                 <div><label class="lbl" for="p1Email">אימייל הורה</label><input id="p1Email" class="big" type="email" dir="ltr"></div>
               </div>
@@ -2595,7 +2598,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
             </details>
             <!-- 5.19.70 (נועה): פרטים נוספים - נפתח בחץ, כמו התשלומים -->
             <details class="sec-d" id="moreBox"><summary>פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(הורה 2, טלפון בית, כתובת · ממלא/ת, נושא והודעה מטופס ההתעניינות)</span></summary>
-              <div class="lf-old"><span class="tg-f"><label for="lfStatus">סטטוס (ישן)</label><select id="lfStatus"></select></span>
+              <div class="lf-old" hidden><!-- 5.20.13 (נועה): "סטטוס אחד" – הסטטוס ומקור הליד הישנים ירדו מהכרטיס (ממשיכים להתעדכן מהקורס ברקע) --><span class="tg-f"><label for="lfStatus">סטטוס (ישן)</label><select id="lfStatus"></select></span>
                 <span class="tg-f"><label for="lfSource">מקור ליד (ישן)</label><select id="lfSource"></select></span>
                 <span class="muted lf-old-n">מתעדכנים מהקורס – שינוי סטטוס / מקור – בקורס (למעלה, ב"קורסים ושיבוצים")</span></div>
               <div class="form-grid">
@@ -3098,7 +3101,7 @@ document.addEventListener("click", (e) => {
   e.preventDefault(); const ph = digits(t.dataset.phm); if (!ph) return;
   const m = document.createElement("div"); m.id = "phMenu"; m.className = "ph-menu"; m.dataset.for = t.dataset.phm; m.setAttribute("role", "menu");
   const mob = /^05\d{8}$/.test(ph);
-  m.innerHTML = `<a role="menuitem" href="tel:${ph}">📞 חיוג</a>${mob ? `<a role="menuitem" href="https://wa.me/972${ph.slice(1)}" target="_blank" rel="noopener">💬 וואטסאפ</a>` : ""}<button type="button" role="menuitem" data-phcopy>📋 העתקת המספר</button>`;
+  m.innerHTML = `<a role="menuitem" href="tel:${ph}">📞 חיוג</a>${mob ? `<a role="menuitem" href="https://wa.me/972${ph.slice(1)}" target="_blank" rel="noopener">${WA_IC} וואטסאפ</a>` : ""}<button type="button" role="menuitem" data-phcopy>📋 העתקת המספר</button>`;
   document.body.appendChild(m);
   const r = t.getBoundingClientRect(), w = m.offsetWidth;
   m.style.top = (window.scrollY + r.bottom + 4) + "px"; m.style.left = Math.max(8, Math.min(window.scrollX + r.left + r.width / 2 - w / 2, window.scrollX + document.documentElement.clientWidth - w - 8)) + "px";
@@ -3106,6 +3109,10 @@ document.addEventListener("click", (e) => {
   m.querySelectorAll("a").forEach(x => x.addEventListener("click", () => setTimeout(() => m.remove(), 50)));
 }, true);   // 5.19.166: capture – גם בטבלת התלמידים (שם הקישור עוצר את הלחיצה)
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") { const m = document.getElementById("phMenu"); if (m) m.remove(); } });
+// 5.20.13 (נועה): "עודכן" בטבלה – תאריך + שעה (השנה רק כשהיא לא השנה הנוכחית)
+const WA_IC = '<svg class="wa-svg" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2 5 5 0 0 0 1.1 2.7 11.6 11.6 0 0 0 4.4 3.9c1.6.7 2.3.8 3.1.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';   // 5.20.13 (נועה): בכל מקום – אייקון וואטסאפ במקום המילה
+const updShort = (iso) => { if (!iso) return ""; const d = new Date(iso), dd = d.toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit" }), y = d.getFullYear() !== new Date().getFullYear() ? "." + String(d.getFullYear()).slice(2) : "";
+  return `${esc(dd + y)} <span class="upd-t">${esc(d.toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</span>`; };
 const fmtDate = (iso) => { if (!iso) return ""; const d = new Date(iso); return d.toLocaleDateString("he-IL", {day:"2-digit", month:"2-digit", year:"numeric"}) + " " + d.toLocaleTimeString("he-IL", {hour:"2-digit", minute:"2-digit"}); };
 const fmtDay = (iso) => iso ? new Date(iso).toLocaleDateString("he-IL", {day:"2-digit", month:"2-digit", year:"2-digit"}) : "";
 // 5.19.127 (נועה): הודעה עם "↩ ביטול" ל-8 שניות (סומן בטעות)
@@ -3675,7 +3682,7 @@ async function crsLoad(force){
 // 5.20.12 (נועה): מרתון שהמפגש האחרון שלו עבר – הסתיים (היסטוריה)
 const crsFin = (c) => { if (!c || !c.marathon_id) return false; const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return !!d && d < todayIL(); };
 const crsOfStudent = (sid) => (CRS.cm[sid] || []);
-const CRS_CMS = "select=id,course_id,student_id,status,subject,grade,signed,source,note,created_at,updated_at%S%&order=id";
+const CRS_CMS = "select=id,course_id,student_id,status,subject,grade,signed,source,note,created_at,updated_at,enrollment_id,marathon_registration_id%S%&order=id";   // 5.20.13: + ההרשמה (לטופס החתום של הקורס)
 async function crsLoadMembers(filter){   // טוען רישומים (מוסיף ל-CRS.cm בלי כפילויות); source_id – קובץ 130, track – קובץ 132
   let cm; const q = (x) => CRS_CMS.replace("%S%", x) + "&" + filter;
   if (CRS.hasTrk === undefined) { CRS.hasTrk = CRS.hasSrc = true; }
@@ -4629,7 +4636,7 @@ function renderLeads(){
     <td class="c-parent">${(() => { const fm = s.family || {}, nm = fm.parent1_first || fm.parent1_last || "", ph = fm.parent1_phone || "";   // שם פרטי + טלפון בשורה אחת
         return nm || ph ? `<span class="pn">${esc(nm)}</span>${nm && ph ? `<span class="sep"> · </span>` : ""}${ph ? `<a class="pp" dir="ltr" href="tel:${esc(ph)}" data-phm="${esc(ph)}" onclick="event.stopPropagation()">${esc(String(ph).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</a>` : ""}` : ""; })()}</td>
     <td class="c-rem">${l.remind_at ? `<span class="rem-ic ${due ? "due" : ""}" title="תזכורת: ${esc(fmtDate(l.remind_at))}">🔔</span>` : ""}</td>
-    <td class="num c-upd" title="${esc(fmtDate(lastUpdate(l)))}">${esc(fmtDate(lastUpdate(l)).split(" ")[0])}</td>
+    <td class="num c-upd" title="${esc(fmtDate(lastUpdate(l)))}">${updShort(lastUpdate(l))}</td>
     <td class="c-star"><button type="button" class="star ${l.is_starred ? "on" : ""}" data-act="star" aria-label="כוכב" aria-pressed="${l.is_starred}">★</button></td>
     <td class="c-act"><button type="button" class="act-dot ${l.is_active ? "on" : ""}" data-act="active" aria-label="פעיל" aria-pressed="${l.is_active}" title="${l.is_active ? "פעיל" : "לא פעיל"}"></button></td>
     <td class="num c-id">${esc(l.legacy_user_id || "#" + l.id)}</td>
@@ -4785,6 +4792,12 @@ async function regHowAsk(leadId, oldId, newId){
 }
 // ---------- חלונית קטנה: פרטים מהירים / הערות ----------
 // ההערות שיובאו מה-CRM הישן מתחילות בשורה "מה-CRM הישן (...)" - לא מציגים אותה ברשימה
+// 5.20.13 (נועה): עריכת הערה קודמת – בטבלה ובכרטיס
+async function noteEdit(n){
+  const v = await uiPrompt("עריכת ההערה:", n.body || "", { ok: "שמירה" }); if (v == null) return null;
+  const body = v.trim(); if (!body) { toast("הערה ריקה לא נשמרת"); return null; } if (body === (n.body || "").trim()) return null;
+  try { await patch("notes", "id=eq." + n.id, { body }); toast("ההערה עודכנה"); return body; } catch(e) { toast("לא נשמר: " + e.message); return null; }
+}
 const cleanNote = (b) => String(b || "").replace(/^מה-CRM הישן \([^)]*\)\n?/, "").trim();
 const fullName = (a, b) => [a, b].filter(Boolean).join(" ");
 function infoHtml(l){
@@ -4800,7 +4813,7 @@ function infoHtml(l){
 function notesHtml(l){
   const ns = L.notes[l.id] || [];
   return `<div class="pop-notes"><div class="pop-title">הערות - ${esc(fullName(l.student.first_name, l.student.last_name))}</div>
-    <div class="pop-list">${ns.slice().reverse().map(n => `<div class="pn"><span class="when">${esc(fmtDate(n.created_at))}</span> ${esc(cleanNote(n.body))}</div>`).join("") || "<div class='muted'>אין הערות עדיין.</div>"}</div>
+    <div class="pop-list">${ns.slice().reverse().map(n => `<div class="pn"><span class="when">${esc(fmtDate(n.created_at))}</span> ${esc(cleanNote(n.body))}${n.id ? ` <button type="button" class="note-ed" data-pop="edit" data-nid="${n.id}" title="עריכת ההערה" aria-label="עריכת ההערה">✎</button>` : ""}</div>`).join("") || "<div class='muted'>אין הערות עדיין.</div>"}</div>
     <textarea rows="3" placeholder="הערה חדשה..."></textarea>
     <div style="display:flex; gap:8px; margin-top:6px;"><button type="button" class="btn small primary" data-pop="save">הוספת הערה</button></div></div>`;
 }
@@ -4827,6 +4840,8 @@ $("pop").addEventListener("click", async (e) => {
   const b = e.target.closest("[data-pop]"); if (!b) return;
   if (b.dataset.pop === "close") { hidePop(); return; }
   if (b.dataset.pop === "lead") { hidePop(); openLead(Number(b.dataset.lead)); return; }
+  if (b.dataset.pop === "edit") { const l = popLead, n = l && (L.notes[l.id] || []).find(x => String(x.id) === b.dataset.nid); if (!n) return;   // 5.20.13 (נועה): עריכת הערה קודמת
+    const nb = await noteEdit(n); if (nb != null) { n.body = nb; showPop(document.querySelector(`#leadsTbl tr[data-id="${l.id}"] [data-act="notes"]`) || b, notesHtml(l), l); renderLeads(); } return; }
   const l = popLead, body = $("pop").querySelector("textarea").value.trim(); if (!l || !body) return;
   const who = ((ME && ME.full_name) || "").trim().split(/\s+/)[0] || (auth && auth.email || "").split("@")[0];   // 5.19.167 (נועה): השם הפרטי של המנהל, לא האימייל
   b.disabled = true;
@@ -4925,7 +4940,8 @@ function openLead(id){
   $("lfStar").classList.toggle("on", !!(l && l.is_starred));
   $("lfTopic").value = (l && l.topic) || "ליד";
   $("lfStatus").value = (l && l.status_id) || (L.statuses.find(x => x.name === "חדש") || {}).id || "";
-  { const ro = !!(l && CRS.ok); $("lfStatus").disabled = ro; $("lfSource").disabled = ro; $("lfStatus").dataset.lock = $("lfSource").dataset.lock = ro ? "1" : ""; const n = document.querySelector(".lf-old-n"); if (n) n.hidden = !ro; }   // 5.20.3 (קובץ 142): בכרטיס קיים – מתעדכנים מהקורס
+  { const ro = !!(l && CRS.ok); const ob = document.querySelector(".lf-old"); if (ob) ob.hidden = ro;   // 5.20.13: בכרטיס קיים – לא מוצגים; בכרטיס חדש – בוחרים סטטוס ומקור (נכנסים לקורס)
+    $("lfStatus").disabled = ro; $("lfSource").disabled = ro; $("lfStatus").dataset.lock = $("lfSource").dataset.lock = ro ? "1" : ""; const n = document.querySelector(".lf-old-n"); if (n) n.hidden = !ro; }   // 5.20.3 (קובץ 142): בכרטיס קיים – מתעדכנים מהקורס
   $("lfStatus").classList.add("status-big"); paintStatus($("lfStatus"), Number($("lfStatus").value));
   [...$("lfStatus").options].forEach(o => { const c = statusColor(Number(o.value)); if (c) { o.style.background = c; o.style.color = txtOn(c); } else { o.style.background = "#fff"; o.style.color = "#222"; } });
   $("lfSource").value = (l && l.source_id) || "";
@@ -5343,7 +5359,7 @@ async function loadLeadCancel(l){
   box.innerHTML = rows.map(r => `<div style="border-bottom:1px solid var(--border); padding:6px 0;"><b>${esc(CAN_ST[r.status] || r.status)}</b> · ${esc([canCrs(r), r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · "))}
       <div class="muted">${esc(fmtDate(r.created_at))}${r.reason ? " · סיבה: " + esc(r.reason) : ""}</div>
       ${r.status === "נחתם" ? `<div style="display:flex; gap:6px; margin-top:4px;"><button type="button" class="btn small" data-cpdf="${r.id}">הטופס החתום (PDF)</button><button type="button" class="btn small primary" data-capprove="${r.id}">אישור ביטול</button></div>` : ""}
-      ${r.status === "נשלח" ? `<div style="display:flex; gap:6px; margin-top:4px;"><button type="button" class="btn small" data-copy="${esc(lkCancel(r.token))}">העתקת הקישור</button>${/^0\d{8,9}$/.test(ph) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${ph.slice(1)}?text=${encodeURIComponent("שלום, מצורף טופס הביטול של " + l.student.first_name + " לחתימה: " + lkCancel(r.token))}">וואטסאפ להורה</a>` : ""}</div>` : ""}</div>`).join("")
+      ${r.status === "נשלח" ? `<div style="display:flex; gap:6px; margin-top:4px;"><button type="button" class="btn small" data-copy="${esc(lkCancel(r.token))}">העתקת הקישור</button>${/^0\d{8,9}$/.test(ph) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${ph.slice(1)}?text=${encodeURIComponent("שלום, מצורף טופס הביטול של " + l.student.first_name + " לחתימה: " + lkCancel(r.token))}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}</div>` : ""}</div>`).join("")
     + `<button type="button" class="btn small" id="canNew" style="margin-top:6px;">+ טופס ביטול</button><div id="canForm"></div>`;
   box.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
   box.querySelectorAll("[data-cpdf]").forEach(b => b.onclick = async () => {
@@ -5393,9 +5409,11 @@ async function loadNotes(leadId){
     const NSHOW = 2, ul = $("notesList");
     $("notesN").textContent = ns.length ? "(" + ns.length + ")" : "";
     $("laNotes").textContent = ns.length ? "האחרונה " + fmtDate(ns[0].created_at) : "אין הערות עדיין";   // 5.19.42: תקציר קצר (הטקסט - בפתיחה)
-    ul.innerHTML = ns.length ? ns.map((n, i) => `<li${i >= NSHOW ? ' class="n-old"' : ""}><span class="when">${esc(fmtDate(n.created_at))}</span>${esc(n.body)}</li>`).join("")
+    ul.innerHTML = ns.length ? ns.map((n, i) => `<li${i >= NSHOW ? ' class="n-old"' : ""}><span class="when">${esc(fmtDate(n.created_at))}</span>${esc(n.body)} <button type="button" class="note-ed" data-nedit="${n.id}" title="עריכת ההערה" aria-label="עריכת ההערה">✎</button></li>`).join("")
       + (ns.length > NSHOW ? `<li class="more-n"><button type="button" class="btn small" id="notesMore">עוד ${ns.length - NSHOW} הערות ▾</button></li>` : "") : "<li class='muted'>אין הערות עדיין.</li>";
     ul.classList.add("collapsed");
+    ul.querySelectorAll("[data-nedit]").forEach(b => b.onclick = async () => { const n = ns.find(x => String(x.id) === b.dataset.nedit); if (!n) return;
+      const nb = await noteEdit(n); if (nb == null) return; n.body = nb; const c = (L.notes[leadId] || []).find(x => x.id === n.id); if (c) c.body = nb; loadNotes(leadId); });
     if ($("notesMore")) $("notesMore").onclick = () => { const c = ul.classList.toggle("collapsed"); $("notesMore").textContent = c ? `עוד ${ns.length - NSHOW} הערות ▾` : "פחות ▴"; };
   } catch(e) { $("notesList").innerHTML = "<li class='err'>לא ניתן לטעון הערות.</li>"; }
 }
@@ -5477,7 +5495,7 @@ function leadQuick(st, cur){
   const city = l ? leadCity(l) : (f.city || "");
   const sum = `<div class="lq-sum"><div class="lq-top">${l && statusName(l.status_id) ? `<span class="lq-st"${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff;"` : ""}>${esc(statusName(l.status_id))}</span>` : ""}${city ? `<span class="muted">${esc(city)}</span>` : ""}</div>
     <div class="lq-row"><span class="lq-k">בית ספר</span>${sch ? `<span class="school-chip ${scCls(sch)}">${esc(sch)}</span>` : "<span class='muted'>לא ידוע</span>"}<span class="lq-k" style="min-width:0; margin-inline-start:8px;">כיתה</span>${st.grade ? `<b>${esc(classLabel(st.grade, st.class_num))}</b>` : "<span class='muted'>לא ידוע</span>"}</div>
-    ${f.parent1_phone || f.parent1_first ? `<div class="lq-row"><span class="lq-k">הורה</span>${esc(fullName(f.parent1_first, f.parent1_last))} ${ph(f.parent1_phone)}${/^0\d{8,9}$/.test(f.parent1_phone || "") ? ` <a class="lq-wa" target="_blank" rel="noopener" href="https://wa.me/972${esc(String(f.parent1_phone).slice(1))}">וואטסאפ</a>` : ""}</div>` : ""}
+    ${f.parent1_phone || f.parent1_first ? `<div class="lq-row"><span class="lq-k">הורה</span>${esc(fullName(f.parent1_first, f.parent1_last))} ${ph(f.parent1_phone)}${/^0\d{8,9}$/.test(f.parent1_phone || "") ? ` <a class="lq-wa" target="_blank" rel="noopener" href="https://wa.me/972${esc(String(f.parent1_phone).slice(1))}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a>` : ""}</div>` : ""}
     ${f.parent2_phone ? `<div class="lq-row"><span class="lq-k">הורה 2</span>${esc(fullName(f.parent2_first, f.parent2_last))} ${ph(f.parent2_phone)}</div>` : ""}
     ${st.phone ? `<div class="lq-row"><span class="lq-k">תלמיד/ה</span>${ph(st.phone)}</div>` : ""}</div>`;
   box.innerHTML = sum + gs;
@@ -5493,12 +5511,20 @@ function crsHead(m){ const c = CRS.byId[m.course_id] || {};
 // 5.19.169 (נועה, קובץ 135): טופס חתימה על התנאים בלבד – קישור אישי לכל רישום לקורס (חתימה אחת, 30 יום)
 // 5.20.5 (נועה): חתום – שורה "✓ טופס חתום" ואיך (טופס הרשמה / טופס חתימה / ידני / לפני המערכת); ידני / לפני המערכת – אפשר לבטל את הסימון
 const SIG_VIA = { form: "בטופס ההרשמה", sign_link: "בטופס החתימה", manual: "סומן ידנית – התקבל מחוץ למערכת", legacy: "רשום/ה לפני המערכת – סומן אוטומטית, אין טופס במערכת" };
-const crsSignRow = (m) => m.signed === true ? `<div class="lc-sign lc-signed" data-sgm="${m.id}" data-sgd="1"><span class="lc-sig-ok">✓ טופס חתום</span><span class="muted">${esc(SIG_VIA[m.signed_via] || "")}</span>${m.signed_via === "form" || m.signed_via === "sign_link" ? `<button type="button" class="btn small" data-sgpdf="1" title="הטופס החתום – בכרטיס, ב'חתימות'">📄 לטופס</button>` : `<button type="button" class="btn small" data-sgun="${m.id}" title="אין טופס חתום – לבטל את הסימון (יופיע ✍︎ חסרה חתימה)">✕ אין טופס</button>`}</div>`
+const crsSignRow = (m) => m.signed === true ? `<div class="lc-sign lc-signed" data-sgm="${m.id}" data-sgd="1"><span class="lc-sig-ok">✓ טופס חתום</span><span class="muted">${esc(SIG_VIA[m.signed_via] || "")}</span>${m.signed_via === "form" || m.signed_via === "sign_link" ? `<button type="button" class="btn small" data-sgpdf="${m.id}" title="הורדת הטופס החתום של הקורס הזה (PDF)">📄 הטופס החתום</button>` : `<button type="button" class="btn small" data-sgun="${m.id}" title="אין טופס חתום – לבטל את הסימון (יופיע ✍︎ חסרה חתימה)">✕ אין טופס</button>`}</div>`
   : !["רשום", "ממתין לתשלום"].includes(m.status) ? "" : `<div class="lc-sign" data-sgm="${m.id}"><button type="button" class="btn small" data-sgn="${m.id}">✍ שליחת טופס חתימה</button><button type="button" class="btn small" data-sgok="${m.id}" title="הטופס החתום התקבל מחוץ למערכת (נייר / מייל / וואטסאפ)">✓ התקבל טופס חתום</button><span class="lc-sign-st"></span></div>`;
 const signUrl = (code) => (CONFIG.formsBase || "https://telem-tirgul.github.io/") + "sign.html?c=" + code;
 async function signWire(sid){
   [...$("leadGroups").querySelectorAll("[data-sgd]")].forEach(box => {   // 5.20.5: חתום
-    const pb = box.querySelector("[data-sgpdf]"); if (pb) pb.onclick = () => { const t = $("leadSig"); if (t) { const d = t.closest("details"); if (d) d.open = true; t.scrollIntoView({ behavior: "smooth", block: "center" }); } else toast("הטופס – ב'חתימות' בכרטיס"); };
+    const pb = box.querySelector("[data-sgpdf]"); if (pb) pb.onclick = async () => { pb.disabled = true;   // 5.20.13 (נועה): החתימה – לפי קורס; הטופס החתום של הקורס הזה
+      try { const m = crsOfStudent(sid).find(x => x.id === Number(pb.dataset.sgpdf)) || {}; let sig = null;
+        if (m.signed_via === "sign_link") { const k = await get("sign_links", "select=signature_id&course_member_id=eq." + m.id + "&signed_at=not.is.null&order=id.desc&limit=1"); if (k[0] && k[0].signature_id) sig = k[0].signature_id; }
+        const ors = [m.enrollment_id ? "and(kind.eq.registration,order_id.eq." + m.enrollment_id + ")" : "", m.marathon_registration_id ? "and(kind.eq.marathon,order_id.eq." + m.marathon_registration_id + ")" : ""].filter(Boolean);
+        const r = sig ? await get("signatures", "select=pdf,kind,student_first,student_last,signed_at&id=eq." + sig)
+          : ors.length ? await get("signatures", "select=pdf,kind,student_first,student_last,signed_at&or=(" + ors.join(",") + ")&order=signed_at.desc&limit=1") : [];
+        if (!r.length || !r[0].pdf) { toast("לא נמצא PDF לקורס הזה – אפשר לחפש למטה, ב\"חתימה על טופס ההרשמה\""); pb.disabled = false; return; }
+        const a = document.createElement("a"); a.href = r[0].pdf; a.download = (r[0].kind === "marathon" ? "טופס הרשמה למרתון - " : r[0].kind === "terms" ? "אישור תנאי התקשרות - " : "טופס הרשמה - ") + fnSafe((r[0].student_first || "") + " " + (r[0].student_last || "")) + " - " + fmtDM(String(r[0].signed_at || "").slice(0, 10)) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
+      catch(e) { toast("לא ניתן להוריד"); } pb.disabled = false; };
     const ub = box.querySelector("[data-sgun]"); if (ub) ub.onclick = async () => {
       if (!await uiConfirm("לבטל את הסימון \"טופס חתום\"? (יופיע ✍︎ חסרה חתימה, ואפשר לשלוח טופס חתימה)")) return; ub.disabled = true;
       const mid = Number(ub.dataset.sgun), m = crsOfStudent(sid).find(x => x.id === mid) || {}, body = { signed: false, signed_via: null, updated_at: new Date().toISOString() };
@@ -5519,7 +5545,7 @@ async function signWire(sid){
     const u = signUrl(k.code), lab = [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ");
     const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, זה הטופס לאישור תנאי ההתקשרות ולחתימה עבור ${st.first_name || ""} (${lab}): ${u}`;
     const pd = String(f.parent1_phone || "").replace(/\D/g, ""), wa = /^0\d{8,9}$/.test(pd) ? `https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}` : "";
-    stEl.innerHTML = `<span class="muted">✍ נשלח ${esc(fmtDM(String(k.created_at).slice(0, 10)))} · ${k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח"}</span> <button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ להורה</a>` : ""}`;
+    stEl.innerHTML = `<span class="muted">✍ נשלח ${esc(fmtDM(String(k.created_at).slice(0, 10)))} · ${k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח"}</span> <button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}`;
     stEl.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
   };
   boxes.forEach(box => { const ok = box.querySelector("[data-sgok]"); if (ok) ok.onclick = async () => {   // 5.20.2 (נועה): טופס שהתקבל מחוץ למערכת
@@ -6224,7 +6250,7 @@ async function tsBulkDone(r, code, what){
   const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
   bg.innerHTML = `<div class="ui-dlg ts-dlg ts-bulk" role="dialog" aria-modal="true"><div class="ui-dlg-t"></div>
     ${cr.length ? `<div class="tsb-h">✓ נוצרו ${cr.length} חשבונות – הודעה לכל אחד/ת:</div><ul class="tsb-l">${cr.map((x, i) => `<li><span>${esc(x.name || "")}</span> <span class="muted" dir="ltr">${esc(tsPhF(x.phone))}</span>
-      <a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${esc(tsPh(x.phone).slice(1))}?text=${encodeURIComponent(msgOf(x.name, x.phone))}">וואטסאפ</a></li>`).join("")}</ul>` : ""}
+      <a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${esc(tsPh(x.phone).slice(1))}?text=${encodeURIComponent(msgOf(x.name, x.phone))}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a></li>`).join("")}</ul>` : ""}
     ${sk.length ? `<div class="tsb-h">לא נוצר (${sk.length}):</div><ul class="tsb-l">${sk.map(x => `<li><span>${esc(x.name || "#" + x.student_id)}</span> <span class="muted">– ${esc(x.reason || "")}</span></li>`).join("")}</ul>` : ""}
     <div class="ui-dlg-b"><button type="button" class="btn" data-cp>העתקת הודעה כללית (לקבוצה)</button><button type="button" class="btn" data-no>סגירה</button></div></div>`;
   bg.querySelector(".ui-dlg-t").textContent = `תלם שלי – ${what}`;
@@ -10555,14 +10581,14 @@ async function regFormToggle(k){
 const wireSwf = (box) => box && box.querySelectorAll("[data-swf]").forEach(b => b.onclick = async () => { b.disabled = true; if (!(await regFormToggle(b.dataset.swf))) b.disabled = false; });
 const genRow = (name, u, msg, sw) => `<div class="lk2-row lk-gen"><div class="lk-name">${name}</div>${lk2Btns("", u, msg, sw)}</div>`;
 const lkRow = (name, u, msg, extra) => `<div class="lk-row"><span class="lk-name">${name}</span><input class="lk-in" readonly dir="ltr" value="${esc(u || "")}" aria-label="קישור" onfocus="this.select()">
-  <span class="lk-ic">${extra || ""}<button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a></span></div>`;
+  <span class="lk-ic">${extra || ""}<button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a></span></div>`;
 // שני קישורים באותה שורה (התעניינות + הרשמה) - בלי תיבת הקישור, רק הכפתורים
 // 5.19.132 (נועה 25.10): קישור קצר ב-TinyURL (פונקציה short-link + טבלה short_links, קובץ 111). קישור שכבר קוצר – "העתקה" ו"וואטסאפ" משתמשים בקצר.
 let SHORT = null, SHORT_P = null;
 const shortOf = (u) => (SHORT && SHORT[u]) || "";
 const lk2Btns = (label, u, msg, sw) => { const sh = shortOf(u), uu = sh || u, canS = ME.role === "admin";
   // 5.19.133 (נועה 25.10): "העתקה" (הכי בימין) = הקישור הקצר (נוצר בלחיצה הראשונה); "קישור מלא" = הכתובת הרגילה; אחר כך וואטסאפ ו-👁
-  return `<span class="lk2-cell${sw ? " has-sw" : ""}" data-u="${esc(u)}" data-msg="${esc(msg)}"><span class="lk2-l">${label}</span><button type="button" class="btn small" ${canS ? "data-scopy" : `data-copy="${esc(uu)}"`} title="${esc(sh || (canS ? "העתקת קישור קצר (TinyURL)" : u))}">העתקה</button><button type="button" class="btn small" data-copy="${esc(u)}" title="${esc(u)}">קישור מלא</button><a class="btn small" data-wa target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + uu)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a>${sw || ""}</span>`; };
+  return `<span class="lk2-cell${sw ? " has-sw" : ""}" data-u="${esc(u)}" data-msg="${esc(msg)}"><span class="lk2-l">${label}</span><button type="button" class="btn small" ${canS ? "data-scopy" : `data-copy="${esc(uu)}"`} title="${esc(sh || (canS ? "העתקת קישור קצר (TinyURL)" : u))}">העתקה</button><button type="button" class="btn small" data-copy="${esc(u)}" title="${esc(u)}">קישור מלא</button><a class="btn small" data-wa target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + uu)}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a>${sw || ""}</span>`; };
 function lkApplyShort(root){
   root.querySelectorAll(".lk2-cell[data-u]").forEach(c => { const sh = shortOf(c.dataset.u); if (!sh) return;
     const cp = c.querySelector("[data-scopy]"); if (cp) cp.title = sh;
@@ -10662,7 +10688,7 @@ function openPriceEditor(city){
 }
 // תצוגה מקדימה - תמיד בכתובת המלאה של הטפסים (המאגר telem-tirgul.github.io), לא בעותק שבמאגר המערכת
 const lkPreview = (u) => u.includes(".html?") ? u.replace(".html?", ".html?preview=1&") : u.replace(/\.html(#|$)/, ".html?preview=1$1");
-const lkBtns = (u, msg) => `<span class="lk-btns"><button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}">וואטסאפ</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="לא נשמר ולא עובר לתשלום">תצוגה מקדימה</a></span>`;
+const lkBtns = (u, msg) => `<span class="lk-btns"><button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="לא נשמר ולא עובר לתשלום">תצוגה מקדימה</a></span>`;
 async function schGenPaint(){ const box = $("scGeneral"); if (!box) return;
   if (SCH.season === null) { try { SCH.season = (await get("scheduling_seasons", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)))[0] || null; } catch(e) {} }
   const sea = SCH.season, u = lkFix(lkBase() + "shibutz.html");
@@ -10813,7 +10839,7 @@ async function renderRegMarathons(city){   // city = "*" - כל הערים יח�
           ${paid.length ? paid.map(r => { const st = r.student || {}, f = st.family || {}, ph = f.parent1_phone || "", d = String(ph).replace(/\D/g, ""), amt = Number(r.refund_amount || r.amount || 0);
             const msg = `שלום ${f.parent1_first || ""}, לצערנו ${m.name}${m.school ? " ב" + m.school : ""} לא יתקיים${m.cancel_reason ? " (" + m.cancel_reason + ")" : ""}. הכסף ששילמתם${amt ? " (" + amt + " ₪)" : ""} יוחזר אליכם בימים הקרובים. תלם - המרכז לשיעורי תרגול`;
             return `<div class="mc-ref-r${r.refunded_at ? " done" : ""}"><b>${esc((st.first_name || "") + " " + (st.last_name || ""))}</b><span class="muted">${esc([f.parent1_first, f.parent1_last].filter(Boolean).join(" "))}${ph ? ` · <span dir="ltr">${esc(ph)}</span>` : ""}</span><span>${amt ? amt + " ₪" : ""}${r.payment_method ? " · " + esc(r.payment_method) : ""}</span>
-              ${r.refunded_at ? `<span class="ok-txt">✔ הוחזר ${esc(fmtDM(String(r.refunded_at).slice(0, 10)))}</span>` : `<span>${/^0\d{8,9}$/.test(d) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${d.slice(1)}?text=${encodeURIComponent(msg)}">וואטסאפ להורה</a>` : ""}<button type="button" class="btn small primary" data-rref="${r.id}" data-ramt="${amt}">✔ הוחזר</button></span>`}</div>`; }).join("") : `<div class="muted">אף אחד לא שילם - אין מה להחזיר.</div>`}</div>` : ""}
+              ${r.refunded_at ? `<span class="ok-txt">✔ הוחזר ${esc(fmtDM(String(r.refunded_at).slice(0, 10)))}</span>` : `<span>${/^0\d{8,9}$/.test(d) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${d.slice(1)}?text=${encodeURIComponent(msg)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}<button type="button" class="btn small primary" data-rref="${r.id}" data-ramt="${amt}">✔ הוחזר</button></span>`}</div>`; }).join("") : `<div class="muted">אף אחד לא שילם - אין מה להחזיר.</div>`}</div>` : ""}
         <div class="mc-links"${cxl ? " hidden" : ""}>${MAR_INTEREST ? `<div class="mc-lk"><span class="mc-lk-t">טופס התעניינות</span>${lk2Btns("", lkInterest(q), "התעניינות ב" + where + ": ")}</div>` : ""}
           <div class="mc-lk"><span class="mc-lk-t">טופס הרשמה</span>${m.code ? lk2Btns("", lkMarCode(m.code), "הרשמה ל" + where + ": ") : ""}${"show_on_site" in m ? (m.code && !isPast(m) ? `<button type="button" class="btn small mc-site${m.show_on_site ? " on" : ""}" data-rmsite="${m.id}" title="${m.show_on_site ? "המרתון מוצג באתר של תלם (בדף בית הספר) כל עוד ההרשמה פתוחה. לחיצה - הסתרה." : "המרתון לא מוצג באתר של תלם. לחיצה - הצגה בדף בית הספר (רק כשההרשמה פתוחה)."}">${m.show_on_site ? "🌐 מוצג באתר ✓" : "🌐 להציג באתר"}</button>`
             : `<button type="button" class="btn small mc-site" disabled title="${!m.code ? "אין עדיין קישור הרשמה למרתון" : "המרתון עבר – לא מוצג באתר"}">🌐 להציג באתר</button>`) : ""}${m.is_open ? "" : `<span class="muted mc-note">יעבוד אחרי "פתיחה להרשמה"${m.show_on_site ? " (וגם יופיע באתר)" : ""}</span>`}</div></div>
@@ -11414,7 +11440,7 @@ async function renderCall(b){
         <td class="nowrap">${esc(x.parent_first || "")}${ph ? ` · <a class="call-ph" href="tel:${esc(ph)}"><span dir="ltr">${esc(x.parent_phone)}</span> 📞</a>` : ""}</td>
         <td>${esc(x.what || "")}${x.kind !== "marathon" && x.subject ? `<div class="muted">${esc(x.subject)}</div>` : ""}</td>
         <td class="num"><b>${money(x.amount)}</b>${x.monthly_amount ? `<div class="muted">ואז ${money(x.monthly_amount)} בחודש</div>` : ""}</td>
-        <td class="acts"><button class="btn small primary" data-cpaid="${i}" type="button">✔ שולם</button> <button class="btn small" data-cl="${i}" type="button" title="יוצר קישור תשלום ומעתיק אותו - לשליחה להורה">🔗 העתקת קישור להורה</button> <button class="btn small" data-cnow="${i}" type="button" title="פותח את עמוד התשלום של ריווחית בחלון חדש - מקלידים את פרטי הכרטיס בזמן השיחה">⌨️ הזנת כרטיס עכשיו</button>${ph && waLink(ph, "x") ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(waLink(ph, `שלום ${x.parent_first || ""}, כאן תלם - המרכז לשיעורי תרגול. לגבי ההרשמה של ${nm} (${x.what || ""}) - נשמח לתאם את התשלום.`))}">וואטסאפ</a>` : ""}</td></tr>`; }).join("")}</tbody></table>`
+        <td class="acts"><button class="btn small primary" data-cpaid="${i}" type="button">✔ שולם</button> <button class="btn small" data-cl="${i}" type="button" title="יוצר קישור תשלום ומעתיק אותו - לשליחה להורה">🔗 העתקת קישור להורה</button> <button class="btn small" data-cnow="${i}" type="button" title="פותח את עמוד התשלום של ריווחית בחלון חדש - מקלידים את פרטי הכרטיס בזמן השיחה">⌨️ הזנת כרטיס עכשיו</button>${ph && waLink(ph, "x") ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(waLink(ph, `שלום ${x.parent_first || ""}, כאן תלם - המרכז לשיעורי תרגול. לגבי ההרשמה של ${nm} (${x.what || ""}) - נשמח לתאם את התשלום.`))}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a>` : ""}</td></tr>`; }).join("")}</tbody></table>`
       : `<div class="card empty">✓ אין הורים שמחכים לשיחה על תשלום.</div>`);
   b.querySelectorAll("[data-lead]").forEach(x => x.onclick = () => openLead(Number(x.dataset.lead)));
   b.querySelectorAll("[data-cpaid]").forEach(x => x.onclick = async () => { const it = list[Number(x.dataset.cpaid)]; x.disabled = true;
@@ -11827,7 +11853,7 @@ function renderFailed(b){
         <td>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(f.student_name || "")}</button>` : `<b>${esc(f.student_name || "")}</b>`}</td>
         <td class="nowrap">${esc(f.parent_name || "")}${ph ? ` · <a class="call-ph" href="tel:${esc(ph)}"><span dir="ltr">${esc(f.parent_phone)}</span> 📞</a>` : ""}</td>
         <td>${f.charge_no || "?"}/${f.total || "?"}</td><td class="num"><b>${money(f.amount)}</b></td><td class="muted">${esc(f.reason || "")}</td>
-        <td class="acts">${f.pay_link ? `<button class="btn small" data-copy="${esc(f.pay_link)}" type="button">העתקת הקישור</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ</a>` : ""}`
+        <td class="acts">${f.pay_link ? `<button class="btn small" data-copy="${esc(f.pay_link)}" type="button">העתקת הקישור</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a>` : ""}`
           : `<button class="btn small" data-link="${f.id}" type="button">קישור תשלום</button>`}
           <button class="btn small primary" data-done="${f.id}" type="button">✓ טופל</button> <button class="btn small" data-plan="${esc(f.plan_id)}" type="button" title="הוראת הקבע: סכום, חיובים שעברו, השהיה/ביטול">פרטי ההוראה</button></td></tr>`; }).join("")}</tbody></table>`
       : `<div class="card empty">✓ אין חיובים שלא התקבלו.</div>`);
@@ -11916,7 +11942,7 @@ async function renderPending(b){
     const it = list[Number(x.dataset.pl)]; x.disabled = true;
     try { const r = await plGet(Number(x.dataset.pl)); await copy(r.url);
       const wa = waLink(it.parent_phone, `שלום ${it.parent_name || ""}, לתשלום על ${it.what} של ${it.student_name} בתלם: ${r.url}`);
-      x.outerHTML = wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ להורה</a>` : `<span class="muted">הקישור הועתק</span>`; }
+      x.outerHTML = wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : `<span class="muted">הקישור הועתק</span>`; }
     catch(e) { toast("לא נוצר: " + e.message); x.disabled = false; }
   });
 }
@@ -11938,7 +11964,7 @@ async function renderLinks(b){
         return `<tr><td>${dmy(l.created_at)}<div class="muted">${esc(l.created_by_name || "")}</div></td><td><span class="par1">${esc(l.parent_name || "")}${l.parent_name && l.student_name ? " · " : ""}</span>${l.student_name ? stuCell(l.student_name, l.student_id) : ""}</td><td>${esc(l.description)}</td>
         <td class="num">${money(l.one_time_amount)}${l.monthly_amount ? `<div class="muted" dir="rtl">ועוד ${money(l.monthly_amount)} בחודש · ${l.monthly_count} תשלומים</div>` : ""}</td>
         <td><span class="chip st-${esc(l.status)}">${esc(LINK_ST[l.status] || l.status)}</span></td>
-        <td><div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקה</button>${wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}">וואטסאפ</a>` : ""}<button class="btn small danger" data-cancel="${esc(l.code)}" type="button">ביטול הקישור</button>` : ""}
+        <td><div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקה</button>${wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a>` : ""}<button class="btn small danger" data-cancel="${esc(l.code)}" type="button">ביטול הקישור</button>` : ""}
           ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button">📄 טופס חתום</button>` : ""}<button class="btn small" data-ldet="${li}" type="button">פרטים</button></div></td></tr>`; }).join("")}</tbody></table>`
       : `<div class="card empty">עוד אין טפסי תשלום אישיים.</div>`}`;
   wireCommon(b);
