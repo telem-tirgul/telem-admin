@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.27">
+<meta name="app-version" content="5.20.28">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -678,7 +678,7 @@
   .cal-ev .noadm-ic{ position:absolute; top:2px; inset-inline-end:2px; padding:0 4px; font-size:11px; }
   .stat.stat-warn{ cursor:pointer; border:1.5px solid #FDBA74; background:#FFF7ED; font:inherit; color:inherit; } .stat.stat-warn b{ color:#9A3412; }
   .asg-pill .asg-end{ font-style:normal; color:#9A3412; font-weight:800; }
-  #leadsTbl td.c-ts{ width:28px; text-align:center; padding-inline:2px; } .ts-ic{ font-size:15px; cursor:help; } .ts-ic.off{ filter:grayscale(1); opacity:.4; }
+  #leadsTbl td.c-ts{ width:28px; text-align:center; padding-inline:2px; } .ts-ic{ font-size:15px; cursor:help; } .ts-m .ts-ic{ font-size:13px; margin-inline-start:4px; } .ts-ic.off{ filter:grayscale(1); opacity:.4; }
   .asg-pill.one{ outline:2px dashed var(--warn); outline-offset:2px; border-radius:999px; }
   .asg-none{ font-size:12.5px; color:var(--ink-soft); }
   .school-chip{ display:inline-block; background:var(--scb); color:var(--sci); font-weight:800; border-radius:999px; padding:1px 10px; line-height:1.6; white-space:nowrap; }
@@ -4145,7 +4145,7 @@ function crsOpenDrawer(c, trk){ if (!c) return; CRS.selTrk = trk || ""; const pl
   box.querySelectorAll("[data-lead]").forEach(x => x.onclick = (e) => { e.stopPropagation(); closePanel(); openLead(Number(x.dataset.lead)); });
   box.querySelectorAll("[data-crsadd]").forEach(x => x.onclick = () => crsAddMember(c));
   // 5.20.25 (נועה): מהקורס ללוח הקבוצות – השיבוץ של כל תלמיד/ה ליד השם (לחיצה – הקבוצה, לעריכה); במרתון – "קבוצות המרתון"
-  box.querySelectorAll("[data-gse]").forEach(x => x.onclick = (e) => { e.stopPropagation(); grpEdit(Number(x.dataset.gse)); });
+  box.querySelectorAll("[data-gse]").forEach(x => x.onclick = (e) => { e.stopPropagation(); const tg = $("panel").querySelector(".kind-tag"); if (tg && tg.dataset.orig) tg.textContent = tg.dataset.orig; grpEdit(Number(x.dataset.gse)); });
   box.querySelectorAll("[data-crsmarg]").forEach(x => x.onclick = async () => { await ensureG(); const mm = (G.marathons || []).find(m => m.id === Number(x.dataset.crsmarg)); if (mm) openMarathonPanel(mm); else toast("המרתון לא נמצא בלוח הקבוצות"); }); }
 function crsAsgCell(c, m){ if (crsGone(m)) return "";
   if (c.marathon_id) { const o = (CRS.mar || {})[c.marathon_id] || {}, nm = c.name || o.name || ""; const gs = marAsgOf(m.student_id).filter(g => !nm || g.name === nm || nm.includes(g.name));
@@ -6404,7 +6404,7 @@ function tsAccount(l, reset, phone, nm, onDone){
     if (!/^\d{6}$/.test(cd)) { er.textContent = "הקוד צריך להיות 6 ספרות."; return; }
     b.disabled = true; er.textContent = "";
     try {
-      const r = await rpc("portal_create_account", { p_student: sid, p_phone: ph, p_code: cd });
+      const r = await rpc("portal_create_account", { p_student: sid, p_phone: ph, p_code: cd }); tsAccReload();
       if (reset) { try { await rpc("portal_code_request_done", { p_student: sid }); } catch(e) {} }
       close(); tsSendMsg(nm.split(" ")[0], (r && r.phone) || ph, cd, reset);
       if (l && l.student && editing && editing.id === l.id) loadLeadTs(l); if (onDone) onDone();
@@ -6458,7 +6458,13 @@ async function tsBulk(ids, what){
   };
   document.body.appendChild(bg);
 }
+// 5.20.28 (נועה): 📱 ליד השם בקבוצה / במרתון – יש חשבון "תלם שלי"; אחרי יצירת חשבונות – מתעדכן מיד (גם בטבלה)
+const tsMini = (sid) => ME.role === "admin" ? `<span class="ts-m" data-tsm="${sid}">${L.tsAcc && L.tsAcc.has(Number(sid)) ? `<span class="ts-ic" title="יש חשבון ב&quot;תלם שלי&quot;">📱</span>` : ""}</span>` : "";
+async function tsAccReload(){ try { const r = await get("portal_accounts", "select=student_id"); L.tsAcc = new Set(r.map(x => Number(x.student_id)));
+    document.querySelectorAll("[data-tsm]").forEach(x => { x.innerHTML = L.tsAcc.has(Number(x.dataset.tsm)) ? `<span class="ts-ic" title="יש חשבון ב&quot;תלם שלי&quot;">📱</span>` : ""; });
+    if (currentView === "leads" && typeof updSafe === "function" && updSafe()) renderLeads(); } catch(e) {} }
 async function tsBulkDone(r, code, what){
+  tsAccReload();
   const TS_APP = await tsAppLink();
   const cr = r.created || [], sk = r.skipped || [];
   const msgOf = (nm, ph) => `שלום ${String(nm || "").split(" ")[0]}! 👋\nמעכשיו דפי התרגול של תלם מגיעים אליך באפליקציה "תלם שלי":\n${TS_APP}\n\nנכנסים עם הטלפון שלך:\nטלפון: ${tsPhF(ph)}\nקוד ראשוני: ${code}\n\nבכניסה הראשונה בוחרים קוד אישי.`;
@@ -7657,7 +7663,7 @@ function openPanel(id){
     let head = "";   // כמו בנוכחות: בלי חלוקה למקצועות; כותרת לפי שעת הגעה
     { const t = roT(k); if (roMulti && t != null && t !== roPrevT) { const n = kids.filter(x => roT(x) === t).length; head = `<li class="ro-sec ro-tsec"><span>⏰ <bdi>${minHm(t)}</bdi>${t === hmMin(se.start_time) ? " · שעת הקבוצה" : ""}</span> <span>${n === 1 ? "ילד/ה 1" : n + " ילדים"}</span></li>`; roPrevT = t; } }
     const dbl = se.kind !== "מרתון" && isDouble(k.student_id, se.day, se.location, k.arrival_time, k.personal_end);
-    return head + `<li data-aid="${k.id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}${ME.role !== "instructor" ? pastBadge({ id: k.student_id }) : ""} ${dblStar(dbl)}${subjMini(k.subject)}
+    return head + `<li data-aid="${k.id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}${tsMini(k.student_id)}${ME.role !== "instructor" ? pastBadge({ id: k.student_id }) : ""} ${dblStar(dbl)}${subjMini(k.subject)}
       ${(() => { const dr = dbl ? dblRange(k.student_id, se.day, se.location) : null;
         return dr ? `<span class="tag diff">שיעור כפול ${rng(dr[0], dr[1])}</span>` : arr && arr !== start ? `<span class="tag diff">שעה אישית ${rng(arr, (k.personal_end || "").slice(0, 5) || addMin(arr, 45))}${ME.role !== "instructor" ? `<button type="button" class="pt-x" data-ptx="${k.id}" title="ביטול השעה האישית" aria-label="ביטול השעה האישית">✕</button>` : ""}</span>` : ""; })()}${k.status && k.status !== "משובץ" ? `<span class="tag">${esc(k.status)}</span>` : ""}</span>
       <span class="ro-btns"><button type="button" class="btn small trk-btn${k.tracking ? " on" : ""}" data-trk="${k.student_id}" title="הערת מעקב">📌</button> ${ME.role !== "instructor" ? `<button type="button" class="btn small" data-move="${k.id}">העברה</button>` : ""}</span></div>
@@ -7985,7 +7991,7 @@ async function openMarathonPanel(m){
           <div class="mar-g-ins">${(G.ins && G.ins[g.session_id] || []).length ? "👤 " + esc(G.ins[g.session_id].join(", ")) : '<span class="muted">אין מתרגל/ת</span>'}${noAdmIc(g)}</div></div>
           <span class="mar-g-btns"><button type="button" class="btn small" data-mins="${g.session_id}" title="מתרגלים, מפגשים ושעות של הקבוצה">✎ מתרגלים</button>${ks.length >= 2 ? `<button type="button" class="btn small" data-msplit="${g.session_id}" title="פיצול לשתי קבוצות (למשל לשתי כיתות)">✂ פיצול</button>` : ""}<button type="button" class="btn small" data-matt="${g.session_id}">✓ נוכחות</button></span></li>`
         + (ks.length ? ks.map(k => { const lead = L.leads.find(x => x.student_id === k.student_id);
-          return `<li data-aid="${k.id}" data-sid="${g.session_id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}${payPendChip(k.student_id, g.session_id, true)}</span>
+          return `<li data-aid="${k.id}" data-sid="${g.session_id}" class="ro-k">${gradeBadge(k.grade, k.class_num)}<div class="ro-main"><div class="row-top"><span>${lead ? `<button type="button" class="name-link" data-lead="${lead.id}">${esc(k.first_name)} ${esc(k.last_name || "")}</button>` : `<span class="nm">${esc(k.first_name)} ${esc(k.last_name || "")}</span>`}${tsMini(k.student_id)}${payPendChip(k.student_id, g.session_id, true)}</span>
             <span class="ro-btns"><button type="button" class="btn small" data-mwd="${k.id}">פרישה מהמרתון</button></span></div>
             <div class="meta">${k.school ? `<span class="school-chip sch-sm ${scCls(k.school)}">${esc(k.school)}</span>` : ""}${k.parent1_phone ? ` · ${esc(k.parent1_first || "הורה")}: <span dir="ltr">${esc(k.parent1_phone)}</span>` : ""}</div></div></li>`; }).join("")
           : `<li class="meta">עוד אין נרשמים בקבוצה הזאת.</li>`); }).join("") : `<li class="meta">אין קבוצות במרתון.</li>`);
