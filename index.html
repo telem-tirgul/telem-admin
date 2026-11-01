@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.23">
+<meta name="app-version" content="5.20.24">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2230,6 +2230,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   #view-lead .lead-main .key-box{ border-inline-start-width:1px !important; }
   :is(input[type=text], input[type=email], input[type=tel], input[type=password], input[type=date], input[type=datetime-local], input[type=number], input[type=time], input:not([type]), select, textarea):not(.status):not(.status-big):not(.src-sel){ border-color:#D9CFC2; }
   :is(.filters, .pay-all-f, .ex-filters, .ar-filters, .att-filt, .sc-tools, .g-filters) :is(input, select){ border-color:#E3DDD4 !important; }
+  /* 5.20.24 (נועה): סינון פעיל – מסגרת בורדו בכל המסכים (גובר על צבע המסגרת הכללי של שדות הסינון) */
+  html body :is(select, input, button).f-on.f-on.f-on.f-on{ border-color:var(--accent) !important; border-width:2px !important; box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent) !important; background-color:color-mix(in srgb, var(--accent) 7%, #fff) !important; font-weight:700; }
   /* 5.19.85 – סבב אחידות: */
   #view-lead .lead-main :is(.form-grid, .key-grid) :is(input:not([type=checkbox]):not([type=radio]), select):not(.status-big), #view-lead :is(#lfRemind, #lfManager, #newNote, #lfMessage), #view-lead .lead-main :is(input, select, textarea):not(.status-big):not([type=checkbox]){ border-color:#D9CFC2; }
   #newNote{ min-height:40px !important; }
@@ -3302,16 +3304,17 @@ async function logout(msg){
 document.querySelectorAll("[data-logout]").forEach(b => b.addEventListener("click", async () => { if (await uiConfirm("לצאת מהמערכת?", { ok: "יציאה" })) logout(); }));
 $("gearBtn").addEventListener("click", () => go("settings"));
 // סינון פעיל - מסומן בצבע (בכל המסכים): רשימה שבחרו בה משהו שאינו "הכול", תיבה שסומנה/בוטלה לעומת ברירת המחדל, חיפוש עם טקסט
-const FILT_SEL = ".filters, .filters-chk, .filters-card, .g-filters, .ex-filters, .ar-filters, .att-filt, .ib-filters, .crs-flt, .pay-flt, .crs-mf, #repCity, #scF";
+const FILT_SEL = ".filters, .filters-chk, .filters-card, .g-filters, .ex-filters, .ar-filters, .att-filt, .ib-filters, .crs-flt, .pay-flt, .crs-mf, .sc-tools, .cls-bar, #wsSearch, #repCity, #scF";
 // 5.20.18 (נועה): כל סינון פעיל – מסגרת בצבע, בכל הטבלאות: מסמנים גם אחרי כל שינוי / ציור של המסך
 { let mfT = 0; const mfRun = () => { if (mfT) return; mfT = requestAnimationFrame(() => { mfT = 0; try { markFilters(); } catch(e) {} }); };
   document.addEventListener("change", mfRun, true); document.addEventListener("input", mfRun, true);
   new MutationObserver((ms) => { if (ms.some(m => m.target.closest && m.target.closest(FILT_SEL))) mfRun(); }).observe(document.documentElement, { childList: true, subtree: true }); }
 function markFilters(){
   document.querySelectorAll(FILT_SEL).forEach(box => {
-    const els = box.matches("select") ? [box] : box.querySelectorAll(box.matches(".filters") ? "select, input[type=checkbox]:not(.pop input), input[type=search], input[type=date], input[type=number], input[type=text]" : "select, input[type=checkbox]:not(.pop input), input[type=search], input[type=number]");
+    const els = box.matches("select, input") ? [box] : box.querySelectorAll(box.matches(".filters") ? "select, input[type=checkbox]:not(.pop input), input[type=search], input[type=date], input[type=number], input[type=text]" : "select, input[type=checkbox]:not(.pop input), input[type=search], input[type=number]");
     els.forEach(el => {
-      if (el.tagName === "SELECT") { const f = el.options[0]; el.classList.toggle("f-on", !!f && (((f.value === "" || f.value === "all") && el.value !== f.value) || (el.id === "gFill" && el.selectedIndex > 0))); }
+      if (el.tagName === "SELECT" && el.dataset.fdef != null) el.classList.toggle("f-on", el.value !== el.dataset.fdef);   // 5.20.24: ברירת מחדל שאינה הראשונה (למשל "החודש")
+      else if (el.tagName === "SELECT") { const f = el.options[0]; el.classList.toggle("f-on", !!f && (((f.value === "" || f.value === "all") && el.value !== f.value) || (el.id === "gFill" && el.selectedIndex > 0))); }
       else if (el.type === "checkbox") { const l = el.closest("label") || el; l.classList.toggle("f-on", el.checked !== el.defaultChecked); }
       else el.classList.toggle("f-on", !!el.value.trim());
     });
@@ -11685,7 +11688,7 @@ async function renderAll(b){
       <div class="pf-q"><label class="lbl" for="pq2">חיפוש</label><input id="pq2" type="search" placeholder="שם הילד/ה, הורה, טלפון, חשבונית, אישור..." value="${esc(q)}"></div>
       <button type="button" class="btn pf-tog" id="pfTog">סינון נוסף ▾</button>
       <div><label class="lbl" for="pkF">סוג</label><select id="pkF">${KINDS.map(([k, t]) => `<option value="${k}" ${S.pk === k ? "selected" : ""}>${t}</option>`).join("")}</select></div>
-      <div><label class="lbl" for="pRng">תקופה</label><select id="pRng">${RNG.map(([k, t]) => `<option value="${k}" ${S.pr === k ? "selected" : ""}>${t}</option>`).join("")}</select></div>
+      <div><label class="lbl" for="pRng">תקופה</label><select id="pRng" data-fdef="month">${RNG.map(([k, t]) => `<option value="${k}" ${S.pr === k ? "selected" : ""}>${t}</option>`).join("")}</select></div>
       ${S.pr ? "" : `<div><label class="lbl" for="pFrom">מתאריך</label><input type="date" id="pFrom" value="${esc(S.pf)}"></div><div><label class="lbl" for="pTo">עד</label><input type="date" id="pTo" value="${esc(S.pt)}"></div>`}
       <div><label class="lbl" for="pps">סטטוס</label><select id="pps"><option value="">הכול</option><option value="אושר" ${S.ps === "אושר" ? "selected" : ""}>שולם</option><option value="נכשל" ${S.ps === "נכשל" ? "selected" : ""}>לא התקבל</option><option value="todo" ${S.ps === "todo" ? "selected" : ""}>⚠ לטיפול${nTodo ? " (" + nTodo + ")" : ""}</option><option value="ref" ${S.ps === "ref" ? "selected" : ""}>↩ זוכה</option></select></div>
 </div>
