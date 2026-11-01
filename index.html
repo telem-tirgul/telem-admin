@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.24">
+<meta name="app-version" content="5.20.25">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6577,7 +6577,7 @@ async function loadGroups(){
   if (!LIVE_QUIET) $("gGrid").innerHTML = "<tr><td class='empty-state'>טוען...</td></tr>";
   try {
     const year = "school_year=eq." + encodeURIComponent(CONFIG.schoolYear);
-    const [s, a, l, ins, mar] = await Promise.all([
+    let [s, a, l, ins, mar] = await Promise.all([
       get("session_summary", "select=*&" + year),
       getAll("assignments", "select=id,session_id,subject,arrival_time,personal_end,status,note,student:students(id,first_name,last_name,grade,class_num,tracking,school,family:families(parent1_first,parent1_phone))&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")&order=id"),
       get("locations", "select=id,city,name,color_class"),
@@ -6591,6 +6591,7 @@ async function loadGroups(){
     s.forEach(x => { if (!x.kind) x.kind = "שוטף"; });
     G.ins = {}; G.insAdm = {};
     ins.forEach(x => { if (x.staff) { (G.ins[x.session_id] = G.ins[x.session_id] || []).push(x.staff.full_name); if (x.staff.role === "admin") G.insAdm[x.session_id] = true; } });
+    { const cx = new Set((mar || []).filter(m => m.cancelled_at).map(m => m.id)); if (cx.size) s = s.filter(x => !(x.marathon_id && cx.has(x.marathon_id))); }   // 5.20.24 (נועה): מרתון שבוטל ("לא התקיים") – בלי הקבוצות שלו בלוח
     G.sessions = s; const ids = new Set(s.map(x => x.session_id));
     // G.roster - משובצים בלבד (כל הספירות). G.prop - שיבוצים מוצעים (ממתינים לאישור)
     const rows = a.filter(x => ids.has(x.session_id)).map(x => { const st = x.student || {}, f = st.family || {};
@@ -7855,7 +7856,7 @@ function renderMarathons(){
   if (G.kind === "שוטף" || G.mode !== "table") { box.hidden = true; box.innerHTML = ""; return; }
   box.hidden = false;
   if (!G.hasKind) { box.innerHTML = "<div class='card err'>כדי לנהל מרתונים צריך להריץ את קובץ 36.</div>"; return; }
-  const ms = (G.marathons || []).filter(m => G.cities.includes(m.city || G.city));
+  const ms = (G.marathons || []).filter(m => !m.cancelled_at && G.cities.includes(m.city || G.city));
   box.innerHTML = `<div class="mar-strip"><span class="lbl2">מרתונים${G.cities.length === 1 ? " ב" + esc(G.city) : ""}:</span>` + (ms.length ? ms.map(m => {
     const n = G.sessions.filter(x => x.kind === "מרתון" && x.marathon_id === m.id).length;
     return `<button type="button" class="mar-chip ${scCls(m.school)}" data-mar="${m.id}">${esc(m.name)}${m.school ? " · " + esc(m.school) : ""}${G.cities.length > 1 ? " · " + esc(m.city || "") : ""} <span class="muted">(${n ? n + " קבוצות" : "עוד אין קבוצות"}${m.is_open ? "" : " · סגור"})</span></button>`;
