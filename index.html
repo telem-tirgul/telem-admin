@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.14">
+<meta name="app-version" content="5.20.15">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -196,7 +196,8 @@
   select.status-big{ font-weight:700; }
   .pill{ display:inline-block; font-size:12px; font-weight:700; border-radius:999px; padding:2px 9px; background:var(--muted); }
   .pill.due{ background:var(--br); color:var(--br-ink); }
-  .pager{ display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:10px; }
+  .pager{ display:flex; gap:8px; align-items:center; justify-content:center; margin-top:12px; flex-wrap:wrap; }
+  #pageInfo{ display:inline-flex; gap:4px; align-items:center; flex-wrap:wrap; } .pg-n{ font:inherit; min-width:34px; height:32px; border:1px solid var(--border); background:var(--paper, #fff); border-radius:8px; font-weight:700; cursor:pointer; color:var(--ink); } .pg-n.on{ background:var(--accent); border-color:var(--accent); color:#fff; } .pg-gap{ color:var(--ink-soft); padding:0 2px; }   /* 5.20.15 */
 
   /* lead form */
   .form-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:12px 16px; }
@@ -903,7 +904,9 @@
   #leadsTbl .c-parent .pn{ max-width:64px; overflow:hidden; text-overflow:ellipsis; vertical-align:bottom; }
   #leadsTbl .c-parent{ white-space:nowrap; font-size:13.5px; min-width:0; } #leadsTbl .c-parent .pn{ display:inline-block; } #leadsTbl .c-parent .sep{ color:var(--ink-soft); } #leadsTbl .c-parent .pp{ color:var(--ink); font-size:13.5px; text-decoration:none; }   /* 5.19.81 (נועה): שם ההורה והטלפון בגדול יותר */
   #leadsTbl .c-rem{ text-align:center; } #leadsTbl .asg-none{ white-space:nowrap; } a:has(> .wa-svg):not([role=menuitem]){ display:inline-flex !important; align-items:center; justify-content:center; background:#25D366 !important; color:#fff !important; border-color:#25D366 !important; min-width:32px; padding-inline:8px !important; } a[role=menuitem] .wa-svg{ color:#25D366; vertical-align:middle; }   /* 5.20.13 */
-  .note-ed{ font:inherit; font-size:12px; border:0; background:none; color:var(--ink-soft); cursor:pointer; padding:0 4px; border-radius:6px; } .note-ed:hover{ color:var(--accent); background:var(--muted); }   /* 5.20.13 */
+  .icon-btn.info{ position:relative; } .icon-btn.info .cnt{ position:absolute; top:-6px; inset-inline-start:-7px; min-width:16px; height:16px; border-radius:8px; background:var(--gold, #C9962E); color:#fff; font-size:10px; font-weight:800; line-height:16px; padding:0 3px; font-style:normal; }   /* 5.20.15: מספר ההערות על ה-i */
+.pop-notes.in-info{ margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+.note-ed{ font:inherit; font-size:12px; border:0; background:none; color:var(--ink-soft); cursor:pointer; padding:0 4px; border-radius:6px; } .note-ed:hover{ color:var(--accent); background:var(--muted); }   /* 5.20.13 */
   #leadsTbl td.c-upd{ white-space:nowrap; font-size:12.5px; } #leadsTbl td.c-upd .upd-t{ color:var(--ink-soft); font-size:11.5px; }
   #leadsTbl .src-sel{ font:inherit; font-size:13px; border:1px solid transparent; background-color:transparent; padding:3px 2px; width:112px; max-width:112px; border-radius:6px; cursor:pointer; color:var(--ink); }
   #leadsTbl .src-sel:hover, #leadsTbl .src-sel:focus{ border-color:var(--border); background-color:var(--paper); } .rem-ic{ font-size:15px; opacity:.55; cursor:help; } .rem-ic.due{ opacity:1; filter:drop-shadow(0 0 2px #e53935); }
@@ -2506,10 +2509,11 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
           <div><label class="lbl" for="fSchool">בית ספר</label><select id="fSchool"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fGrade">שכבה</label><select id="fGrade"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fAsg">שיבוץ</label><select id="fAsg"><option value="">הכול</option><option value="yes">משובצים</option><option value="no">לא משובצים</option><option value="one">בקבוצה אחת בלבד</option><option value="many">⚠ ביותר משתי קבוצות</option><option value="under">פחות מ-90 דק' בשבוע</option><option value="wkchg">נוכחות שונה מהשיבוץ השבוע</option><option value="prop">שיבוץ מוצע - כולם</option><option value="prop_none">מוצע - טרם נשלחה הודעה</option><option value="prop_sent">מוצע - קיבלו הודעה ולא אישרו</option></select></div>
+          <div class="crs-f2"><label class="lbl">קטגוריה</label><div class="multi" id="fCrsCatM"></div></div><!-- 5.20.15 (נועה): קטגוריה → מסלול → מקצוע, בחירה מרובה; ואז קורס מסוים -->
+          <div class="crs-f2"><label class="lbl">מסלול</label><div class="multi" id="fCrsTrkM"></div></div>
+          <div class="crs-f2"><label class="lbl">מקצוע</label><div class="multi" id="fCrsSubM"></div></div>
           <div class="crs-f"><label class="lbl" for="fCourse">קורס</label><select id="fCourse"><option value="">הכול</option></select></div><!-- 5.19.162: קורסים (קובץ 129) -->
-          <div class="crs-f2"><label class="lbl" for="fCrsCat">קטגוריה</label><select id="fCrsCat"><option value="">הכול</option></select></div><!-- 5.19.166: לפי הקורסים במחזור הפעיל -->
-          <div class="crs-f2"><label class="lbl" for="fCrsTrk">מסלול</label><select id="fCrsTrk"><option value="">הכול</option></select></div>
-          <div class="crs-f2"><label class="lbl" for="fCrsSub">מקצוע</label><select id="fCrsSub"><option value="">הכול</option><option>מתמטיקה</option><option>אנגלית</option><option>מתמטיקה ואנגלית</option></select></div>
+          <span hidden><select id="fCrsCat"></select><select id="fCrsTrk"></select><select id="fCrsSub"></select></span>
           <div><label class="lbl" for="fManager">מנהל</label><select id="fManager"><option value="">הכול</option></select></div>
           <div><label class="lbl" for="fFrom">עודכן מ-</label><input id="fFrom" type="date"></div>
           <div><label class="lbl" for="fTo">עד</label><input id="fTo" type="date"></div>
@@ -3705,8 +3709,11 @@ function crsFillFilter(){ const el = $("fCourse"); if (!el) return; el.closest("
   const lr = () => { F.page = 0; renderLeads(); };
   crsMulti($("fCrsSt"), crsStList().map(x => ({ id: x.name, t: x.label || x.name, c: x.color })), F.cst, "הכול", lr);
   crsMulti($("fCrsSrc"), (L.sources || []).filter(x => x.is_active).map(x => ({ id: x.id, t: x.name })).concat([{ id: 0, t: "בלי מקור" }]), F.csrc, "הכול", lr);
-  if (CRS.ok) { fillSelect($("fCrsCat"), CRS.cats.filter(x => x.is_active).map(x => ({ v: x.id, t: crsCatN(x.id) })), "הכול");
-    fillSelect($("fCrsTrk"), Object.keys(CRS_TRACKS).map(t => ({ v: t, t: (LK.tracks.find(x => x.v === t) || {}).t || CRS_TRACKS[t] })), "הכול"); }
+  if (!F.ccat) F.ccat = new Set(); if (!F.ctrk) F.ctrk = new Set(); if (!F.csub) F.csub = new Set();
+  if (CRS.ok) { crsMulti($("fCrsCatM"), CRS.cats.filter(x => x.is_active).map(x => ({ id: x.id, t: crsCatN(x.id) })), F.ccat, "הכול", lr);
+    const trs = [...new Set(LK.tracks.map(x => x.v).concat(Object.keys(CRS_TRACKS)))];
+    crsMulti($("fCrsTrkM"), trs.map(t => ({ id: t, t: (LK.tracks.find(x => x.v === t) || {}).t || CRS_TRACKS[t] || t, c: (LK.tracks.find(x => x.v === t) || {}).c })).concat([{ id: "", t: "לא ידוע" }]), F.ctrk, "הכול", lr);
+    crsMulti($("fCrsSubM"), ["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"].map(x => ({ id: x, t: x })).concat([{ id: "", t: "לא ידוע" }]), F.csub, "הכול", lr); }
   const act = crsActiveSeasons(), cnt = {}; Object.values(CRS.cm).flat().forEach(m => { if (!crsGone(m)) cnt[m.course_id] = (cnt[m.course_id] || 0) + 1; });
   const fc = $("fCity") ? $("fCity").value : "", fs = $("fSchool") ? $("fSchool").value : "", sch = fs ? L.schools.find(x => String(x.id) === fs) : null;
   const list = CRS.courses.filter(c => act.has(c.season_id) && cnt[c.id] && (!fc || crsCity(c) === fc) && (!sch || c.school_id === sch.id || crsSch(c) === sch.name)).sort((a, b) => (crsCat(a.category_id).sort_order || 0) - (crsCat(b.category_id).sort_order || 0) || crsShort(a, true).localeCompare(crsShort(b, true), "he"));
@@ -4348,7 +4355,7 @@ function resetLeadFilters(){
   ["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].forEach(id => $(id).value = "");
   $("fStar").checked = false; $("fRemind").checked = false; $("fActive").checked = true; $("fPast").checked = false;
   $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-  F.statuses.clear(); F.sources.clear(); if (F.cst) F.cst.clear(); if (F.csrc) F.csrc.clear(); sstore(LF_KEY, null); setupFilters(); if (CRS.ok) crsFillFilter(); F.page = 0;
+  F.statuses.clear(); F.sources.clear(); if (F.cst) F.cst.clear(); if (F.csrc) F.csrc.clear(); [F.ccat, F.ctrk, F.csub].forEach(x => x && x.clear()); sstore(LF_KEY, null); setupFilters(); if (CRS.ok) crsFillFilter(); F.page = 0;
 }
 $("clearFilters").addEventListener("click", () => { resetLeadFilters(); renderLeads(); });
 
@@ -4382,9 +4389,9 @@ function filtered(){
     if (fcrs === "__back") { if (!crsBack(s.id)) return false; }
     else if (fcrs === "__mis") { if (!crsMismatch(l)) return false; }
     else if (fcrs && !crsOfStudent(s.id).some(m => String(m.course_id) === fcrs && !crsGone(m))) return false;   // 5.19.162
-    { const cc = $("fCrsCat").value, ct = $("fCrsTrk").value, cs = $("fCrsSub").value;   // 5.19.166: קטגוריה / מסלול / מקצוע – לפי רישום במחזור הפעיל
-      if ((cc || ct || cs) && !crsOfStudent(s.id).some(m => { const c = CRS.byId[m.course_id]; return c && !crsGone(m) && crsActiveSeasons().has(c.season_id)
-        && (!cc || String(c.category_id) === cc) && (!ct || mTrk(m) === ct) && (!cs || m.subject === cs); })) return false; }
+    { const cc = F.ccat || new Set(), ct = F.ctrk || new Set(), cs = F.csub || new Set();   // 5.20.15: קטגוריה / מסלול / מקצוע – בחירה מרובה, לפי רישום במחזור הפעיל
+      if ((cc.size || ct.size || cs.size) && !crsOfStudent(s.id).some(m => { const c = CRS.byId[m.course_id]; return c && !crsGone(m) && crsActiveSeasons().has(c.season_id)
+        && (!cc.size || cc.has(c.category_id)) && (!ct.size || ct.has(mTrk(m) || "")) && (!cs.size || cs.has(m.subject || "")); })) return false; }
     const upd = (lastUpdate(l) || "").slice(0, 10);
     if (from && upd < from) return false;
     if (to && upd > to) return false;
@@ -4515,7 +4522,6 @@ function histRowHtml(x){
     <td class="c-info"><button type="button" class="icon-btn info" data-act="hinfo" aria-label="פרטים" title="פרטים">i</button></td>
     <td class="c-name"><button type="button" class="name-link" data-act="hopen">${esc(h.first_name || "")} ${esc(h.last_name || "")}</button>${lead ? ` <span class="h-has" title="יש כרטיס השנה">✓ כרטיס</span>` : ""}</td>
     <td class="c-ts"></td>
-    <td class="c-notes"></td>
     <td class="c-cst"><span class="h-st${histReg(h) ? " reg" : ""}">${esc(h.status || "—")}</span></td><td class="c-csrc muted">${esc(h.source || "")}</td><td class="c-crs"></td>
     <td class="c-school">${h.school ? scChip(h.school) : ""}${h.city ? ` <span class="muted">${esc(h.city)}</span>` : ""}</td>
     <td class="c-grade">${esc(h.grade || "")}${now ? `<span class="h-now" title="השכבה היום">→ ${esc(now)}</span>` : ""}</td>
@@ -4581,7 +4587,7 @@ const tsAccess = (l) => /^נרשם/.test(statusName(l.status_id)) && !/קיץ/.t
 const tsCell = (l) => { if (!L.tsAcc || !L.tsAcc.has(l.student.id)) return "";
   return tsAccess(l) ? `<span class="ts-ic" title="יש חשבון ב&quot;תלם שלי&quot; – יש גישה">📱</span>` : `<span class="ts-ic off" title="יש חשבון ב&quot;תלם שלי&quot; – אין גישה כרגע (לא משובץ/ת ולא בסטטוס &quot;נרשם&quot;)">📱</span>`; };
 const COLS = [
-  ["info",""],["name","שם"],["ts","📱"],["notes",""],["cst","סטטוס"],["csrc","מקור"],["crs","קורסים"],   // 5.19.173 (נועה): סטטוס · מקור · קורס · בית ספר   // 5.19.166 (נועה): הסטטוס ומקור הליד הישנים – בסוף (משמאל), עד שנוריד אותם
+  ["info",""],["name","שם"],["ts","📱"],["cst","סטטוס"],["csrc","מקור"],["crs","קורסים"],   // 5.19.173 (נועה): סטטוס · מקור · קורס · בית ספר   // 5.19.166 (נועה): הסטטוס ומקור הליד הישנים – בסוף (משמאל), עד שנוריד אותם
   ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","עודכן"],["star","★"],["active","✓"],["id","ID"]
 ];   // 5.20.5 (נועה): הסטטוס ומקור הליד הישנים – הוסרו מהטבלה ומהסינון (נשארים בכרטיס, ב"פרטים נוספים", ובאקסל)
 // 5.19.173 (נועה): כמה קורסים לכל ילד/ה (כל השנים) – כמו במערכת הישנה; לחיצה – הרשימה
@@ -4605,8 +4611,9 @@ function renderLeads(){
     + (LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : LR.histLoading ? " · טוען שנים קודמות…" : "")
     + (!L.inactReady && (!$("fActive").checked || $("fPast").checked) ? " · טוען כרטיסים לא פעילים…" : "");
   // "ניקוי סינון" - רק כשיש סינון פעיל
-  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || (F.cst && F.cst.size) || (F.csrc && F.csrc.size) || $("fStar").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
-  $("pageInfo").textContent = `עמוד ${F.page + 1} מתוך ${pages}`;
+  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || (F.cst && F.cst.size) || (F.csrc && F.csrc.size) || [F.ccat, F.ctrk, F.csub].some(x => x && x.size) || $("fStar").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
+  { const cur = F.page, nums = [...new Set([0, cur - 2, cur - 1, cur, cur + 1, cur + 2, pages - 1].filter(x => x >= 0 && x < pages))].sort((a, b) => a - b);   // 5.20.15 (נועה): מספרי עמודים
+    $("pageInfo").innerHTML = pages > 1 ? nums.map((n, i) => (i && n - nums[i - 1] > 1 ? `<span class="pg-gap">…</span>` : "") + `<button type="button" class="pg-n${n === cur ? " on" : ""}" data-pg="${n}" aria-label="עמוד ${n + 1}"${n === cur ? ' aria-current="page"' : ""}>${n + 1}</button>`).join("") : ""; }
   $("prevPage").disabled = F.page === 0; $("nextPage").disabled = F.page >= pages - 1;
   const sortable = ["id","name","school","grade","asg","parent","manager","remind","updated","cst","csrc","crs","star","active","ts"];
   const head = "<thead><tr>" + COLS.map(([k, t]) => `<th ${k === "active" ? 'title="פעיל" ' : ""}${sortable.includes(k) ? `data-sort="${k}"` : ""}>${t} ${F.sort === k ? `<span class="arr">${F.dir > 0 ? "▲" : "▼"}</span>` : ""}</th>`).join("") + "</tr></thead>";
@@ -4618,10 +4625,9 @@ function renderLeads(){
     const due = l.remind_at && new Date(l.remind_at) <= now;
     const ns = L.notes[l.id] || [];
     return `<tr data-id="${l.id}" class="${l.is_active ? "" : "inactive"}">
-      <td class="c-info"><button type="button" class="icon-btn info" data-act="info" aria-label="פרטים מהירים" title="פרטים מהירים">i</button></td>
+      <td class="c-info"><button type="button" class="icon-btn info note${ns.length ? " has" : ""}" data-act="info" aria-label="פרטים והערות${ns.length ? " (" + ns.length + " הערות)" : ""} – לחיצה: הוספה ועריכה">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
     <td class="c-name"><button type="button" class="name-link" data-act="open">${s.first_name || s.last_name ? esc(s.first_name) + " " + esc(s.last_name || "") : `<span class="muted">(בלי שם${s.family && s.family.parent1_first ? " · הורה: " + esc(s.family.parent1_first) : ""})</span>`}</button>${crsSigMiss(s.id)}${s.tracking ? `<span class="track-pin" title="מעקב: ${esc(s.tracking)}">📌</span>` : ""}${pastBadge(s)}${lrYears(l)}</td>
     <td class="c-ts">${tsCell(l)}</td>
-    <td class="c-notes"><button type="button" class="icon-btn note ${ns.length ? "has" : ""}" data-act="notes" aria-label="הערות" data-htip="${esc(ns.length ? ns.slice().reverse().map(n => fmtDate(n.created_at).split(" ")[0] + " · " + cleanNote(n.body)).join("\n") : "הערות - לחיצה להוספה")}">✎${ns.length ? `<span class="cnt">${ns.length}</span>` : ""}</button></td>
     <td class="c-cst">${crsChipsRow(s.id, "st")}</td>
     <td class="c-csrc">${crsChipsRow(s.id, "src")}</td>
     <td class="c-crs">${crsChipsRow(s.id)}${(() => { const w = crsMismatch(l); return w ? `<span class="crs-mis" title="בדיקה: הסטטוס מול הקורסים">⚠ ${esc(w)}</span>` : ""; })()}</td>
@@ -4649,8 +4655,10 @@ function renderLeads(){
     saveLeadFilters(); renderLeads();
   }));
 }
-$("prevPage").addEventListener("click", () => { F.page--; renderLeads(); });
-$("nextPage").addEventListener("click", () => { F.page++; renderLeads(); });
+$("prevPage").addEventListener("click", () => { F.page--; renderLeads(); pgTop(); });
+$("pageInfo").addEventListener("click", (e) => { const b = e.target.closest("[data-pg]"); if (!b) return; F.page = Number(b.dataset.pg); renderLeads(); pgTop(); });
+function pgTop(){ const t = $("leadsTbl"); if (t) t.scrollIntoView({ block: "start", behavior: "smooth" }); }
+$("nextPage").addEventListener("click", () => { F.page++; renderLeads(); pgTop(); });
 // 5.19.87 (נועה): בלי כפתור רענון - הרשימה מתעדכנת לבד כל דקה, כולל כרטיסים שנמחקו או אוחדו
 
 // מצב עריכה ברשימה: עד שלוחצים "✎ עריכה ברשימה" אי אפשר לשנות סטטוס / פעיל / כוכב (מונע שינויים בטעות)
@@ -4677,8 +4685,8 @@ $("leadsTbl").addEventListener("click", async (e) => {
     let n = 0; const t = setInterval(() => { const ready = currentView === "reg" && document.querySelector("#view-reg tr.crs-sr");
       if (ready || ++n > 40) { clearInterval(t); CRS.sel = c.id; crsOpenDrawer(c); const k = document.querySelector(`#view-reg [data-kids="${c.id}"]`); if (k) { k.classList.add("on"); k.scrollIntoView({ block: "center" }); } } }, 150);
     return; }
-  if (act === "info") { if (!$("pop").hidden && $("pop").dataset.for === "info" + l.id) { hidePop(); return; }   // 5.19.173 (נועה): לחיצה שוב על i – סגירה
-    showPop(el, infoHtml(l)); $("pop").dataset.for = "info" + l.id; return; }
+  if (act === "info") { clearTimeout(HOV.t); if (!$("pop").hidden && $("pop").dataset.for === "info" + l.id && !$("pop").dataset.hover) { hidePop(); return; }   // 5.20.15: לחיצה – פתיחה לעריכה (גם אם נפתח במעבר עכבר); שוב – סגירה   // 5.20.15: לחיצה על חלון שנפתח במעבר עכבר – נשאר פתוח   // 5.19.173 (נועה): לחיצה שוב על i – סגירה
+    delete $("pop").dataset.hover; showPop(el, infoHtml(l), l); $("pop").dataset.for = "info" + l.id; return; }
   if (act === "notes") { showPop(el, notesHtml(l), l); return; }
   if (act === "crsall") { if (!$("pop").hidden && $("pop").dataset.for === "crs" + l.id) { hidePop(); return; }
     try { await crsEnsureStudent(l.student_id); } catch(e2) {} showPop(el, crsAllHtml(l.student_id, l), l); $("pop").dataset.for = "crs" + l.id; return; }
@@ -4800,25 +4808,24 @@ async function noteEdit(n){
 }
 const cleanNote = (b) => String(b || "").replace(/^מה-CRM הישן \([^)]*\)\n?/, "").trim();
 const fullName = (a, b) => [a, b].filter(Boolean).join(" ");
-function infoHtml(l){
+function infoHtml(l, ro){
   const s = l.student, f = s.family || {}, ns = L.notes[l.id] || [];
   const row = (k, v) => `<div><b>${k}:</b> ${esc(v || "")}</div>`;
   return `<div class="pop-info">${row("תאריך הוספה", fmtDate(l.created_at))}${row("תאריך עריכה", fmtDate(lastUpdate(l)))}
     ${row("שם תלמיד", fullName(s.first_name, s.last_name))}${row("טלפון תלמיד", s.phone)}
     ${row("שם הורה", fullName(f.parent1_first, f.parent1_last))}${row("טלפון הורה", f.parent1_phone)}
     ${f.parent2_phone ? row("הורה 2", fullName(f.parent2_first, f.parent2_last) + " " + f.parent2_phone) : ""}
-    ${row("הודעה", l.message)}
-    <div><b>הערות:</b></div>${ns.map(n => `<div class="pn"><span class="when">${esc(fmtDate(n.created_at))}</span> ${esc(cleanNote(n.body))}</div>`).join("") || "<div class='muted'>אין</div>"}</div>`;
+    ${row("הודעה", l.message)}</div>${ro ? `<div class="pop-notes in-info"><div class="pop-title">הערות${ns.length ? " (" + ns.length + ")" : ""}</div>${ns.slice().reverse().map(n => `<div class="pn"><span class="when">${esc(fmtDate(n.created_at))}</span> ${esc(cleanNote(n.body))}</div>`).join("") || "<div class='muted'>אין הערות. לחיצה – הוספה</div>"}</div>` : notesHtml(l, true)}`;   // 5.20.15 (נועה): במעבר עכבר – לקריאה; בלחיצה – הוספה ועריכה
 }
-function notesHtml(l){
+function notesHtml(l, inInfo){
   const ns = L.notes[l.id] || [];
-  return `<div class="pop-notes"><div class="pop-title">הערות - ${esc(fullName(l.student.first_name, l.student.last_name))}</div>
+  return `<div class="pop-notes${inInfo ? " in-info" : ""}"><div class="pop-title">${inInfo ? `הערות${ns.length ? " (" + ns.length + ")" : ""}` : "הערות - " + esc(fullName(l.student.first_name, l.student.last_name))}</div>
     <div class="pop-list">${ns.slice().reverse().map(n => `<div class="pn"><span class="when">${esc(fmtDate(n.created_at))}</span> ${esc(cleanNote(n.body))}${n.id ? ` <button type="button" class="note-ed" data-pop="edit" data-nid="${n.id}" title="עריכת ההערה" aria-label="עריכת ההערה">✎</button>` : ""}</div>`).join("") || "<div class='muted'>אין הערות עדיין.</div>"}</div>
     <textarea rows="3" placeholder="הערה חדשה..."></textarea>
     <div style="display:flex; gap:8px; margin-top:6px;"><button type="button" class="btn small primary" data-pop="save">הוספת הערה</button></div></div>`;
 }
 let popLead = null;
-function showPop(anchor, html, lead){
+function showPop(anchor, html, lead, nofocus){
   const p = $("pop"); popLead = lead || null;
   p.innerHTML = `<button type="button" class="pop-x" data-pop="close" aria-label="סגירה" title="סגירה">✕</button>` + html; p.hidden = false;   // 5.19.23: תמיד יש ✕
   // 5.19.149 (נועה 27.10): בנייד – חלון קבוע בתחתית המסך, בלי פוקוס אוטומטי (המקלדת הקפיצה את המסך וסגרה את החלון)
@@ -4829,9 +4836,21 @@ function showPop(anchor, html, lead){
   left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
   if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 6);
   p.style.left = left + "px"; p.style.top = top + "px";
-  const ta = p.querySelector("textarea"); if (ta) ta.focus();
+  const ta = p.querySelector("textarea"); if (ta && !nofocus) ta.focus();
 }
-function hidePop(){ $("pop").hidden = true; $("pop").dataset.for = ""; popLead = null; if ($("popBg")) $("popBg").hidden = true; }
+// 5.20.15 (נועה): מעבר עם העכבר על i – רואים את הפרטים וההערות בלי ללחוץ (במחשב). לחיצה – החלון נשאר פתוח.
+const HOV = { t: 0, h: 0 };
+document.addEventListener("mouseover", (e) => { if (isMobile()) return; const b = e.target.closest && e.target.closest('#leadsTbl [data-act="info"]');
+  if (b) { clearTimeout(HOV.h); const tr = b.closest("tr"), l = tr && L.leads.find(x => String(x.id) === tr.dataset.id); if (!l) return;
+    if (!$("pop").hidden && $("pop").dataset.for === "info" + l.id) return;
+    if (!$("pop").hidden && !$("pop").dataset.hover) return;   // חלון שנפתח בלחיצה – לא מחליפים
+    clearTimeout(HOV.t); HOV.t = setTimeout(() => { showPop(b, infoHtml(l, true), l, true); $("pop").dataset.for = "info" + l.id; $("pop").dataset.hover = "1"; }, 250); return; }
+  if (e.target.closest && e.target.closest("#pop")) clearTimeout(HOV.h); });
+document.addEventListener("mouseout", (e) => { if (isMobile()) return; const from = e.target.closest && e.target.closest('#leadsTbl [data-act="info"], #pop'); if (!from) return;
+  const to = e.relatedTarget; if (to && to.closest && to.closest('#pop, #leadsTbl [data-act="info"]')) return; clearTimeout(HOV.t);
+  if (!$("pop").dataset.hover) return; HOV.h = setTimeout(() => { const p = $("pop"), ta = p.querySelector("textarea");
+    if (p.dataset.hover && !(ta && (document.activeElement === ta || ta.value.trim()))) hidePop(); }, 350); });
+function hidePop(){ if ($("pop")) delete $("pop").dataset.hover; $("pop").hidden = true; $("pop").dataset.for = ""; popLead = null; if ($("popBg")) $("popBg").hidden = true; }
 document.addEventListener("mousedown", (e) => { if (!$("pop").hidden && !e.target.closest("#pop") && !e.target.closest("[data-act=info],[data-act=notes],[data-act=hinfo],[data-act=hopen],[data-act=crsall]")) hidePop(); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") hidePop(); });
 $("popBg").addEventListener("click", hidePop);
@@ -4841,7 +4860,7 @@ $("pop").addEventListener("click", async (e) => {
   if (b.dataset.pop === "close") { hidePop(); return; }
   if (b.dataset.pop === "lead") { hidePop(); openLead(Number(b.dataset.lead)); return; }
   if (b.dataset.pop === "edit") { const l = popLead, n = l && (L.notes[l.id] || []).find(x => String(x.id) === b.dataset.nid); if (!n) return;   // 5.20.13 (נועה): עריכת הערה קודמת
-    const nb = await noteEdit(n); if (nb != null) { n.body = nb; showPop(document.querySelector(`#leadsTbl tr[data-id="${l.id}"] [data-act="notes"]`) || b, notesHtml(l), l); renderLeads(); } return; }
+    const nb = await noteEdit(n); if (nb != null) { n.body = nb; renderLeads(); const a = document.querySelector(`#leadsTbl tr[data-id="${l.id}"] [data-act="info"]`); if (a) { showPop(a, infoHtml(l), l, true); $("pop").dataset.for = "info" + l.id; } } return; }
   const l = popLead, body = $("pop").querySelector("textarea").value.trim(); if (!l || !body) return;
   const who = ((ME && ME.full_name) || "").trim().split(/\s+/)[0] || (auth && auth.email || "").split("@")[0];   // 5.19.167 (נועה): השם הפרטי של המנהל, לא האימייל
   b.disabled = true;
