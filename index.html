@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.33">
+<meta name="app-version" content="5.20.34">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -7471,7 +7471,7 @@ async function downloadXlsx(aoa, name, sheet){
 }
 function loadXlsxLib(){
   if (window.XLSX) return Promise.resolve();
-  return new Promise((ok, bad) => { const sc = document.createElement("script"); sc.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"; sc.onload = ok; sc.onerror = () => bad(new Error("לא ניתן לטעון את קורא האקסל")); document.head.appendChild(sc); });
+  return new Promise((ok, bad) => { const sc = document.createElement("script"); sc.src = "vendor/xlsx-0.20.3.full.min.js";   /* 5.20.34 (אבטחה, כל-17 2.2): SheetJS 0.20.3 מתוקנת, שמורה במאגר (נועה הורידה מ-cdn.sheetjs.com; sha256 cc015130…) */ sc.onload = ok; sc.onerror = () => bad(new Error("לא ניתן לטעון את קורא האקסל")); document.head.appendChild(sc); });
 }
 function exParseSheet(aoa, study){
   const txt = (v) => v == null ? "" : String(v).trim();
@@ -8034,7 +8034,9 @@ async function openMarathonPanel(m){
       <div><span>עיר · בית ספר</span><b>${esc([m.city, m.school].filter(Boolean).join(" · ") || "—")}</b></div>
       ${m.grade ? `<div><span>שכבה</span><b>${esc(m.grade)}'</b></div>` : ""}
       <div><span>מחיר</span><b>${one ? Number(m.price_first) + " ₪" : `${Number(m.price_first)} ₪ <span class="muted">(מוזל ${Number(m.price_repeat)} ₪)</span>`}</b></div>
-      <div><span>הרשמה</span><b><span class="ib-tag ${m.is_open ? "t-new" : "t-old"}">${m.is_open ? "פתוח להרשמה" : "סגור להרשמה"}</span></b></div>
+      <div><span>הרשמה</span><b><span class="ib-tag ${m.is_open ? "t-new" : "t-old"}">${m.is_open ? "פתוח להרשמה" : "סגור להרשמה"}</span>${(() => {   // 5.20.34 (נועה, קובץ 159): נסגר לבד יום אחרי המפגש השני
+          const ds = [...new Set((G.sessions || []).filter(x => x.marathon_id === m.id).flatMap(x => x.meeting_dates || []).concat(m.event_date ? [m.event_date] : []))].sort(), d2 = ds[1] || ds[ds.length - 1];
+          return m.auto_closed_at ? ` <span class="muted" style="font-weight:400; font-size:12px;">נסגר אוטומטית ${esc(fmtDM(String(m.auto_closed_at).slice(0, 10)))}</span>` : m.is_open && d2 && !m.cancelled_at && "auto_closed_at" in m ? ` <span class="muted" style="font-weight:400; font-size:12px;">ייסגר לבד אחרי ${esc(fmtDM(d2))}</span>` : ""; })()}</b></div>
       ${m.notes ? `<div class="full"><span>הערות</span><b>${esc(m.notes)}</b></div>` : ""}</div></div>`; }
   const gs = (G.sessions || []).filter(x => x.kind === "מרתון" && x.marathon_id === m.id).sort((a, b) => gFirstDate(a).localeCompare(gFirstDate(b)) || String(a.start_time).localeCompare(String(b.start_time)));
   const kidsOf = (sid) => (G.roster || []).filter(k => k.session_id === sid).sort(attSort);
