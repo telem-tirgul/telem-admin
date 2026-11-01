@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.19">
+<meta name="app-version" content="5.20.20">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3264,6 +3264,8 @@ const rpc = (fn, body) => api("POST", "/rest/v1/rpc/" + fn, body || {});
 // המשתמש המחובר: admin = גישה מלאה, instructor = מסך נוכחות בלבד
 var LIVE_QUIET = false;   // 5.19.88: בעדכון האוטומטי - בלי "טוען..." (שהמסך לא יקפוץ)
 let ME = { role: "admin", full_name: "" };
+// 5.20.20 (נועה): מי כתב/ה את ההערה – השם הפרטי מ"המשתמשים" (⚙), לא האימייל (בכל מקום שנכתבת הערה)
+const noteWho = () => ((ME && ME.full_name) || "").trim().split(/\s+/)[0] || (auth && auth.email || "").split("@")[0];
 
 // ======================================================================
 // כניסה / יציאה / ניווט
@@ -4821,7 +4823,7 @@ async function regHowAsk(leadId, oldId, newId){
   let how = await pr;
   if (how === "other") { how = await uiPrompt("איך נרשם/ה?", ""); how = how && String(how).trim(); }
   if (!how) return;
-  const who = (auth && auth.email || "").split("@")[0], body = `${who ? who + ": " : ""}נרשם/ה (${nw}${od && !/^נרשם/.test(od) ? ", היה: " + od : ""}) – ${how}`;
+  const who = noteWho(), body = `${who ? who + ": " : ""}נרשם/ה (${nw}${od && !/^נרשם/.test(od) ? ", היה: " + od : ""}) – ${how}`;
   try { await insert("notes", { lead_id: leadId, body }); L.notesCount[leadId] = (L.notesCount[leadId] || 0) + 1; (L.notes[leadId] = L.notes[leadId] || []).push({ lead_id: leadId, body, created_at: new Date().toISOString() }); }
   catch(e) { toast("ההערה לא נשמרה: " + e.message); }
   // 5.19.158 (נועה): מעבר ידני ל"נרשם…" = נלקח תשלום → ההרשמה שממתינה לתשלום מסומנת "שולם" (ובמרתון – שיבוץ אמיתי בקבוצה)
@@ -4902,7 +4904,7 @@ $("pop").addEventListener("click", async (e) => {
   if (b.dataset.pop === "edit") { const l = popLead, n = l && (L.notes[l.id] || []).find(x => String(x.id) === b.dataset.nid); if (!n) return;   // 5.20.13 (נועה): עריכת הערה קודמת
     const nb = await noteEdit(n); if (nb != null) { n.body = nb; renderLeads(); const a = document.querySelector(`#leadsTbl tr[data-id="${l.id}"] [data-act="info"]`); if (a) { showPop(a, infoHtml(l), l, true); $("pop").dataset.for = "info" + l.id; } } return; }
   const l = popLead, body = $("pop").querySelector("textarea").value.trim(); if (!l || !body) return;
-  const who = ((ME && ME.full_name) || "").trim().split(/\s+/)[0] || (auth && auth.email || "").split("@")[0];   // 5.19.167 (נועה): השם הפרטי של המנהל, לא האימייל
+  const who = noteWho();   // 5.19.167 (נועה): השם הפרטי של המנהל, לא האימייל
   b.disabled = true;
   try {
     const n = (await insert("notes", { lead_id: l.id, body: who ? `${who}: ${body}` : body }))[0];
@@ -6383,7 +6385,7 @@ $("newNote").addEventListener("focus", () => $("noteNew").classList.add("open"))
 $("newNote").addEventListener("blur", () => setTimeout(() => { if (!$("newNote").value.trim() && document.activeElement !== $("addNoteBtn")) $("noteNew").classList.remove("open"); }, 150));
 $("addNoteBtn").addEventListener("click", async () => {
   const body = $("newNote").value.trim(); if (!body || !editing) return;
-  const who = (auth && auth.email || "").split("@")[0];
+  const who = noteWho();
   try { await insert("notes", { lead_id: editing.id, body: who ? `${who}: ${body}` : body });
         $("newNote").value = ""; $("noteNew").classList.remove("open"); L.notesCount[editing.id] = (L.notesCount[editing.id] || 0) + 1; (L.notes[editing.id] = L.notes[editing.id] || []).push({ lead_id: editing.id, body: who ? `${who}: ${body}` : body, created_at: new Date().toISOString() }); loadNotes(editing.id); toast("ההערה נשמרה"); }
   catch(err) { toast("ההערה לא נשמרה: " + err.message); }
