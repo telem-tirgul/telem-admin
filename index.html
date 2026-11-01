@@ -6,7 +6,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.31">
+<meta name="app-version" content="5.20.32">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3220,7 +3220,8 @@ async function tokenRequest(grant, body){
 // (קוד החידוש מתחלף בכל חידוש - אם שתי לשוניות מחדשות עם אותו קוד, השרת מנתק את שתיהן).
 // תקלת רשת (מחשב שהתעורר, אינטרנט שנפל) - לא מוציאה מהמערכת; מנסים שוב.
 const AUTH_BC = (typeof BroadcastChannel !== "undefined") ? new BroadcastChannel("telem_auth") : null;
-if (AUTH_BC) AUTH_BC.onmessage = (ev) => { const m = ev.data || {}; if (m.type === "refreshed" && auth && m.old === auth.refresh_token && m.auth) saveAuth(Object.assign({}, m.auth, { email: auth.email || m.auth.email })); };
+// 5.20.32 (אבטחה, כל-17 סעיף 0): בלי טוקנים בהודעה בין הלשוניות (כל האתרים ב-github.io שומעים את הערוץ) – רק "חודש"; לשונית אחרת לוקחת מהשמור
+if (AUTH_BC) AUTH_BC.onmessage = (ev) => { const m = ev.data || {}; if (m.type === "refreshed") adoptStoredAuth(); };
 let REFRESHING = null;
 // 5.19.153 (של-105): הכניסה השמורה (הלשונית / "להישאר מחובר/ת") – אם היא חדשה יותר מזו שבזיכרון, לוקחים אותה
 function adoptStoredAuth(){
@@ -3237,7 +3238,7 @@ function refreshAuth(){
     if (auth.expires_at - 120 > Date.now()/1000) return true;   // לשונית אחרת כבר חידשה בינתיים
     const old = auth.refresh_token;
     for (let i = 0; i < 3; i++) {
-      try { await tokenRequest("refresh_token", { refresh_token: old }); if (AUTH_BC) AUTH_BC.postMessage({ type: "refreshed", old, auth }); return true; }
+      try { await tokenRequest("refresh_token", { refresh_token: old }); if (AUTH_BC) AUTH_BC.postMessage({ type: "refreshed" }); return true; }
       catch(e) {
         if (auth && auth.refresh_token !== old) return true;           // התקבל חידוש מלשונית אחרת
         if (e.status === 400 || e.status === 401 || e.status === 403) {
@@ -3288,7 +3289,7 @@ const del = (table, filter) => api("DELETE", "/rest/v1/" + table + "?" + filter,
 const rpc = (fn, body) => api("POST", "/rest/v1/rpc/" + fn, body || {});
 // המשתמש המחובר: admin = גישה מלאה, instructor = מסך נוכחות בלבד
 var LIVE_QUIET = false;   // 5.19.88: בעדכון האוטומטי - בלי "טוען..." (שהמסך לא יקפוץ)
-let ME = { role: "admin", full_name: "" };
+let ME = { role: null, full_name: "" };   // 5.20.32 (אבטחה, כל-17 2.1): בלי תפקיד עד שהשרת מאשר – לא "admin" כברירת מחדל
 // 5.20.20 (נועה): מי כתב/ה את ההערה – השם הפרטי מ"המשתמשים" (⚙), לא האימייל (בכל מקום שנכתבת הערה)
 const noteBody = (who, body) => !who || new RegExp("^\\s*" + who.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\s*:").test(body) ? body : who + ": " + body;   // בלי שם כפול ("אמיר: אמיר:")
 const noteWho = () => ((ME && ME.full_name) || "").trim().split(/\s+/)[0] || (auth && auth.email || "").split("@")[0];
@@ -11419,7 +11420,11 @@ async function boot(){
   $("whoEmail").textContent = auth.email || "";
   // תפקיד: מתרגל/ת רואה רק נוכחות
   try { const r = await rpc("my_role"); ME = r || { role: null }; }
-  catch(e) { ME = { role: "admin" }; }   // לפני הרצת קובץ 16
+  catch(e) {   // 5.20.32 (אבטחה, כל-17 2.1): שגיאה בבדיקת התפקיד – לא נותנים הרשאות; הודעה ועצירה
+    try { await new Promise(r => setTimeout(r, 1500)); const r = await rpc("my_role"); ME = r || { role: null }; }
+    catch(e2) { ME = { role: null }; hideViews(); $("appView").hidden = false;
+      const m = document.querySelector("main.main"); if (m) m.insertAdjacentHTML("afterbegin", `<div class="card err" id="roleErr" style="margin:16px;">לא הצלחנו לבדוק את ההרשאות שלך (אולי אין אינטרנט). <button type="button" class="btn small" onclick="location.reload()">🔄 לנסות שוב</button></div>`);
+      return; } }
   if (!ME.role) { $("leadsTbl").innerHTML = "<tr><td class='empty-state'>המשתמש לא מוגדר בצוות. צריך להוסיף אותו במסך 'צוות ומתרגלים'.</td></tr>"; go("leads"); return; }
   document.body.classList.toggle("instructor", ME.role === "instructor");
   // 5.19.110 (נועה, של-51): המאגר – רק בתלם שלי (לכולם). מתרגלים – גם הנוכחות רק בתלם שלי. מנהלים – "קבוצות ונוכחות" נשאר (נפתח על "קבוצות")
