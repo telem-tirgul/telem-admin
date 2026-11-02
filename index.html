@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.35">
+<meta name="app-version" content="5.20.36">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1644,6 +1644,15 @@
 .ex-mp-lk{ background:#F6F3EE; border:1px solid var(--border); border-radius:10px; padding:8px 10px; display:flex; flex-direction:column; gap:4px; } .ex-mp-lk > div{ display:flex; gap:8px; align-items:center; justify-content:space-between; } .ex-mp-lk a{ font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; color:var(--accent); }
 .ex-mp-ms{ display:flex; flex-direction:column; gap:6px; } .ex-mp-m{ border:1px solid var(--border); border-radius:10px; padding:8px 10px; display:flex; flex-direction:column; gap:4px; } .ex-mp-mh{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:14.5px; } .ex-mp-mh i{ width:12px; height:12px; border-radius:3px; display:inline-block; }
 .ex-mp-t{ font-size:13.5px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; } .ex-mp-no{ color:#B42318; font-weight:700; } .ex-cal td.busy{ background:#eee !important; }
+/* 5.20.36 (נועה 2.11: "המון שורות למעלה"): במחשב – כל הסינון והניווט בשורה אחת, הכותרת צמודה; במסך מלא גם הסרגל העליון נעלם */
+@media (min-width:1000px){
+  #view-exams > .page-head{ margin-bottom:6px !important; } #view-exams > .page-head h1{ font-size:24px; }
+  #view-exams .ex-modebar{ flex-wrap:nowrap; padding:6px 10px !important; gap:10px !important; margin:0 0 6px !important; }
+  #view-exams .ex-modebar > .ex-filters > label{ font-size:0 !important; gap:0 !important; } #view-exams .ex-modebar > .ex-filters > label > *{ font-size:13.5px; }
+  #view-exams .ex-modebar > .ex-monthnav{ order:2 !important; flex:1 1 auto !important; flex-wrap:nowrap; } #view-exams .ex-modebar > .gseg{ order:3 !important; align-self:center !important; margin-inline-start:0 !important; }
+  #view-exams .ex-modebar #exMLbl{ display:none; }   /* נועה 2.11: החודש כבר בכותרות הטבלה */ #view-exams .ex-modebar .ex-zoom{ white-space:nowrap; }
+  #view-exams .ex-pal{ margin:0 0 6px; } }
+body.ex-max .app > header, body.ex-max .app > .top, body.ex-max .topbar{ display:none !important; } body.ex-max #exInfo{ display:none; }
 .ex-pal{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin:4px 0 8px; } .ex-pal[hidden]{ display:none; } .ex-pal-l{ font-weight:700; font-size:14px; }
 .ex-pal button{ display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border, #ddd); background:#fff; border-radius:999px; padding:4px 10px; font:inherit; font-size:13px; cursor:pointer; }
 .ex-pal button i{ display:inline-block; width:16px; height:14px; border-radius:4px; font-style:normal; font-size:11px; line-height:14px; text-align:center; }
@@ -1757,6 +1766,16 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
   #leadsTbl td.c-src select{ max-width:80px !important; font-size:11.5px !important; padding:1px 4px !important; color:var(--ink-soft); } #leadsTbl td.c-status, #leadsTbl td.c-src{ width:1%; } }   /* 5.19.166 (נועה): הסטטוס ומקור הליד הישנים – קטנים (העיקר בקורסים) */
 .lg-crs-box{ border:1.5px solid var(--border); border-radius:12px; padding:4px 8px 6px; margin:8px 0; background:#FFFDFB; } .lg-crs-box > .lg-crs{ border:0; border-bottom:1px solid var(--border); border-radius:0; margin:0 0 6px; padding:4px 2px 6px; background:none; }
 .lg-crs-box .lg-card{ margin:6px 0; } .lg-none{ font-size:12.5px; padding:2px 4px 4px; }
+.crs-mtbl td.mt-crs{ white-space:nowrap; } .crs-mtbl td.mt-crs .crs-mix{ white-space:normal; } .crs-mtbl .mt-hrs{ unicode-bidi:isolate; }
+.crs-mtbl .mt-lk2{ display:flex; align-items:center; gap:4px; } .crs-mtbl .mt-lk2 + .mt-lk2{ margin-top:3px; } .crs-mtbl .mt-lkl{ font-size:12px; color:var(--ink-soft); min-width:58px; }
+/* בטבלה – כפתורי הקישור קטנים (אייקון; ההסבר ב-title) */
+.crs-mtbl .lk2-cell{ gap:3px !important; } .crs-mtbl .lk2-cell > button.btn{ font-size:0 !important; padding:2px 7px !important; min-height:28px; } .crs-mtbl .lk2-cell > button.btn:nth-of-type(1)::after{ content:"⧉ העתקה"; font-size:12.5px; } .crs-mtbl .lk2-cell > button.btn:nth-of-type(2)::after{ content:"🔗"; font-size:13px; }
+.crs-mtbl .lk2-cell > a.btn{ padding:2px 6px !important; min-height:28px; } .crs-mtbl td.mt-pr{ white-space:nowrap; } @media (max-width:1500px){ .crs-mtbl .mt-act .bt{ display:none; } } .crs-mtbl td.mt-st .mst-s{ white-space:normal; } .crs-mtbl td, .crs-mtbl th{ padding-inline:6px; }
+.crs-mtbl td{ vertical-align:top; } .crs-mtbl .mt-l{ white-space:nowrap; font-size:13px; line-height:1.55; } .crs-mtbl .mt-l b{ font-weight:700; margin-inline-end:4px; } .crs-mtbl .mt-g + .mt-g{ border-top:1px dashed var(--border); margin-top:3px; padding-top:3px; } .crs-mtbl .mt-gl{ font-size:12px; font-weight:800; color:var(--accent); }
+.crs-mtbl .mst{ font-weight:700; white-space:nowrap; font-size:13px; } .crs-mtbl .mst.open{ color:#2E7D32; } .crs-mtbl .mst.closed, .crs-mtbl .mst.auto{ color:var(--ink-soft); } .crs-mtbl .mst.cxl{ color:#B3261E; } .crs-mtbl .mst-s{ font-size:11.5px; white-space:nowrap; }
+.crs-mtbl tr.crs-mr{ cursor:pointer; } .crs-mtbl tr.crs-mr:hover td{ background:#FBF6EF; } .crs-mtbl tr.crs-mr.sel td{ background:#F3E6E2; } .crs-mtbl tr.mpast td{ opacity:.6; } .crs-mtbl tr.cxl td{ text-decoration-color:#B3261E; }
+.crs-mtbl .mt-act{ white-space:nowrap; width:1%; } .crs-mtbl .mt-act .btn{ margin-inline-start:4px; } .crs-mtbl .mt-lk{ white-space:nowrap; width:1%; } .crs-mtbl td.mt-sch, .crs-mtbl td.mt-city{ white-space:nowrap; } .crs-mtbl .crs-n{ font:inherit; font-weight:800; border:0; background:none; color:var(--accent); cursor:pointer; text-decoration:underline; text-underline-offset:3px; padding:2px 4px; }
+@media (max-width:760px){ .crs-mtbl .mt-act .bt{ display:none; } .crs-mtbl td, .crs-mtbl th{ padding:6px 4px; } }
 .crs-sum .crs-n{ font:inherit; font-weight:800; border:0; background:none; color:var(--accent); cursor:pointer; text-decoration:underline; text-underline-offset:3px; padding:2px 6px; } .crs-sum .crs-n:hover{ background:#F3E6E2; border-radius:6px; }
 .crs-sum td.num{ text-align:center; } .crs-sum th.num{ text-align:center; } .crs-sub{ border:1px solid var(--border); border-radius:10px; background:#fff; padding:6px 10px; margin:6px 0; } .crs-sub-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:14px; margin-bottom:4px; }
 #leadsTbl div.crs-chip.crs-grid{ display:grid !important; grid-template-columns:124px 104px 72px minmax(110px, auto); gap:4px; align-items:center; border:0; background:none; padding:1px 0; }
@@ -2034,6 +2053,23 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .mc{ border:1px solid var(--border); border-radius:12px; padding:10px 14px; background:var(--paper); border-inline-start:4px solid var(--ok, #3f7d4f); }
 .mc.closed{ border-inline-start-color:var(--border); }
 .mc-top{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; } .mc-name{ font-size:15.5px; } .mc-top .school-chip{ font-size:16px; padding:2px 14px; }   /* 5.19.157 (נועה): בית הספר בולט */
+/* 5.20.36 (נועה 2.11): עורך המרתון דחוס */
+.g-edit .me-head{ position:sticky; top:0; z-index:5; background:#FFFDF9; border-bottom:2px solid var(--accent); margin:-4px 0 2px; padding:8px 2px; display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; font-size:18px; font-weight:800; }
+.g-edit .me-head .school-chip{ font-size:17px; padding:3px 14px; } .g-edit .me-h-t{ color:var(--ink-soft); font-size:13px; font-weight:700; } .g-edit .me-h-g{ color:var(--accent); } .g-edit .me-h-c{ color:var(--ink-soft); font-size:14px; font-weight:600; }
+.g-edit .me-r1{ display:grid; grid-template-columns:minmax(0,2.2fr) minmax(0,1fr) minmax(0,1.3fr) minmax(0,.7fr) minmax(0,.8fr); gap:8px; } .g-edit .me-r1 > div{ min-width:0; display:flex; flex-direction:column; }
+.g-edit .me-r2{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 18px; } .g-edit .me-r2 .chk{ margin:0; white-space:nowrap; } .g-edit .me-notes{ flex:1 1 220px; } .g-edit .me-notes input{ width:100%; }
+.g-edit .me-hak{ border:1px solid var(--border); border-radius:10px; padding:6px 10px; background:#fff; } .g-edit .me-hak summary{ cursor:pointer; font-size:13.5px; } .g-edit .me-hak-e{ color:var(--accent); font-size:12.5px; font-weight:700; margin-inline-start:6px; } .g-edit .me-hak[open] .me-hak-e{ display:none; } .g-edit .me-hak textarea{ width:100%; margin-top:4px; }
+.g-edit .me-desc{ border:1px solid #E6D6B8; background:#FFF8EA; border-radius:10px; padding:8px 12px; } .g-edit .me-desc-h{ display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; font-size:13px; margin-bottom:4px; } .g-edit .me-desc-h .btn{ margin-inline-start:auto; }
+.g-edit .me-desc-b{ font-size:14px; line-height:1.6; } .g-edit .me-desc-b .mar-extra{ display:block; } .g-edit .me-desc-x{ font-size:12px; margin-top:2px; } .g-edit .me-desc-x:empty{ display:none; }
+.g-edit .me-gh{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; margin-top:6px; } .g-edit .me-gh .lg-edit-h{ margin:0; } .g-edit .me-dur{ display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:700; color:var(--ink-soft); } .g-edit .me-dur input{ width:80px; }
+.g-edit .mg-row{ grid-template-columns:minmax(0,1fr) 130px; }
+.g-edit .mg-blk{ padding:6px 10px; margin-top:6px; } .g-edit .mg-h{ font-size:13.5px; } .g-edit .mg-row{ margin-bottom:4px; }
+@media (min-width:561px){
+  .g-edit .mar-dates{ gap:4px !important; } .g-edit .mar-dates > .d{ display:grid !important; grid-template-columns:62px minmax(0,1fr) auto; align-items:end; gap:8px; padding:4px 8px !important; }
+  .g-edit .mar-dates .mt-h{ display:contents; } .g-edit .mar-dates .mt-n{ grid-column:1; grid-row:1; align-self:center; } .g-edit .mar-dates .mt-f{ grid-column:2; grid-row:1; }
+  .g-edit .mar-dates .mt-h .btn{ grid-column:3; grid-row:1; align-self:center; font-size:0 !important; min-height:30px; padding:2px 9px; } .g-edit .mar-dates .mt-h .btn::after{ content:"✕"; font-size:14px; }
+  .g-edit .mar-dates > .d:not(.dh + .d) .mt-f .lbl{ display:none; } }
+@media (max-width:760px){ .g-edit .me-r1{ grid-template-columns:1fr 1fr; } .g-edit .me-r1 .me-name{ grid-column:1 / -1; } }
 .mg-blk{ border:1px solid var(--border,#E5DDD3); border-radius:12px; background:#fff; padding:10px 12px; margin-top:10px; }   /* 5.19.41: קבוצה בעורך המרתון */
 .mg-h{ display:flex; align-items:center; gap:6px; margin-bottom:6px; } .mg-h .btn{ margin-inline-start:auto; }
 .mg-row{ display:grid; grid-template-columns:2fr 1fr; gap:8px; margin-bottom:8px; } @media (max-width:560px){ .mg-row{ grid-template-columns:1fr 1fr; } .mg-row > div:first-child{ grid-column:1 / -1; } }
@@ -3761,12 +3797,15 @@ async function crsLoad(force){
   // 5.20.12 (נועה: "לוקח זמן לקורסים לעלות"): הכול במקביל (קטגוריות, מחזורים, קורסים, מרתונים, סטטוסים); קודם רק הרישומים של המחזור הפעיל,
   //   והשנה שלפניו ("לא חזרו") – ברקע, ואז מרעננים
   try {
-    const [cats, seasons, courses, mm, ss, sts] = await Promise.all([get("categories", "select=*&order=sort_order,id"), get("seasons", "select=*&order=sort_order,id"),
+    const [cats, seasons, courses, mm, ss, sts, sg] = await Promise.all([get("categories", "select=*&order=sort_order,id"), get("seasons", "select=*&order=sort_order,id"),
       getAll("courses", "select=*,school:schools(name,city)&order=id"),
-      get("marathons", "select=id,name,code,school,city,event_date,is_open,cancelled_at").catch(() => null), get("sessions", "select=marathon_id,meeting_dates&marathon_id=not.is.null").catch(() => []),
-      get("course_statuses", "select=*&order=sort_order,name").catch(() => null)]);
+      get("marathons", "select=*").catch(() => get("marathons", "select=id,name,code,school,city,event_date,is_open,cancelled_at").catch(() => null)), get("sessions", "select=id,marathon_id,meeting_dates,meetings,start_time,end_time,time_label,capacity&marathon_id=not.is.null&order=id").catch(() => get("sessions", "select=marathon_id,meeting_dates&marathon_id=not.is.null").catch(() => [])),
+      get("course_statuses", "select=*&order=sort_order,name").catch(() => null),
+      get("session_summary", "select=session_id,city,location,day,start_time,time_label,capacity,kind&kind=eq." + encodeURIComponent("שוטף") + "&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).catch(() => [])]);
+    // 5.20.36: הקבוצות של התרגול השוטף בכל בית ספר (עמודת "מועדים")
+    CRS.grp = {}; (sg || []).filter(x => x.kind === "שוטף" && x.day).forEach(x => (CRS.grp[x.city + "|" + x.location] = CRS.grp[x.city + "|" + x.location] || []).push(x));
     Object.assign(CRS, { cats, seasons, courses, ok: true }); CRS.byId = {}; courses.forEach(c => CRS.byId[c.id] = c);
-    CRS.mar = {}; if (mm) { mm.forEach(x => CRS.mar[x.id] = Object.assign({ dates: [] }, x)); (ss || []).forEach(x => { const o = CRS.mar[x.marathon_id]; if (o) o.dates.push(...(x.meeting_dates || [])); });
+    CRS.mar = {}; if (mm) { mm.forEach(x => CRS.mar[x.id] = Object.assign({ dates: [], ses: [] }, x)); (ss || []).forEach(x => { const o = CRS.mar[x.marathon_id]; if (o) { o.dates.push(...(x.meeting_dates || [])); o.ses.push(x); } });   // 5.20.36: ses – הקבוצות והמפגשים (לטבלת המרתונים)
       Object.values(CRS.mar).forEach(o => { o.dates = [...new Set(o.dates)].sort(); o.first = o.event_date || o.dates[0] || null; }); }
     CRS.sts = sts;   // 5.19.168: קובץ 134
     const act = CRS.seasons.filter(x => x.is_active), y0 = Math.max(0, ...act.filter(x => x.kind === "year").map(x => x.year_start));
@@ -4095,31 +4134,7 @@ async function renderCrsCourses(reload){
       <div class="crs-mf crs-chk"><label><input type="checkbox" id="crsPend" ${F.pend ? "checked" : ""}> יש ממתינים לתשלום</label><label><input type="checkbox" id="crsInt" ${F.int ? "checked" : ""}> יש מתעניינים</label></div></div>
     <div class="dx-bar"><span></span><span class="dx-bar-b"><span class="muted">${list.length} קורסים</span><button type="button" class="clear-f" id="crsClear"${dirty ? "" : " disabled"}>✕ ניקוי סינון</button><button type="button" class="btn small" id="crsXls"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span></div>
     <div class="crs-split no-sel">
-      <div class="crs-list">${list.length ? (() => {
-        // 5.19.167 (נועה): טבלת סיכום – כותרת לכל עיר, שורה לכל בית ספר, עמודה לכל מסלול (רשומים); פתיחת שורה – הקורסים של בית הספר עם הפרטים והקישורים
-        const regC = list.filter(c => !c.marathon_id), marC = list.filter(c => c.marathon_id);
-        const ms = (cs) => allM.filter(m => cs.some(c => c.id === m.course_id) && mOk(m));
-        const trks = LK.tracks.map(x => x.v).concat(["summer", "summer-ext"]).filter(t => ms(regC).some(m => mTrk(m) === t));
-        const keyOf = (c) => crsCity(c) + "|" + crsSch(c), groups = [];
-        list.forEach(c => { const k = keyOf(c); let g = groups.find(x => x.k === k); if (!g) groups.push(g = { k, cs: [] }); g.cs.push(c); });
-        const cols = 6 + trks.length;
-        let out = `<div class="tbl-wrap"><table class="tbl crs-tbl crs-sum"><thead><tr><th></th><th>בית ספר</th>${trks.map(t => { const to = LK.tracks.find(x => x.v === t); return `<th class="num"${to ? ` style="color:${to.c}"` : ""}>${esc(CRS_TRK_S[t] || t)}</th>`; }).join("")}<th class="num">🏁 מרתונים</th><th class="num" title="ממתינים לתשלום">ממתינים</th><th class="num">מתעניינים</th><th class="num hide-m" title="היו רשומים בשנה שעברה ולא השנה">לא חזרו</th></tr></thead><tbody>`;
-        let lastCity = null;
-        groups.forEach(g => { const c0 = g.cs[0], city = crsCity(c0);
-          if (city !== lastCity) { lastCity = city; const all = ms(list.filter(c => crsCity(c) === city)), k = (st) => all.filter(m => m.status === st).length;
-            out += `<tr class="crs-city"><td colspan="${cols}"><b>${esc(city || "בלי עיר")}</b> <span class="muted">${k("רשום")} רשומים${k("ממתין לתשלום") ? " · " + k("ממתין לתשלום") + " ממתינים" : ""}${all.filter(crsIsInt).length ? " · " + all.filter(crsIsInt).length + " מתעניינים" : ""}</span></td></tr>`; }
-          const gr = g.cs.filter(c => !c.marathon_id), gm = g.cs.filter(c => c.marathon_id), mr = ms(gr), mm = ms(gm), all = mr.concat(mm);
-          const sc = crsSch(c0), chip = sc ? (c0.school_text && !(c0.school && c0.school.name) ? esc(sc) : scChip(sc)) : `<span class="muted">בלי בית ספר</span>`;
-          const back = crsSeason(c0.season_id).is_active && L.leads ? L.leads.filter(l => l.student && crsBack(l.student.id, g.k)).length : 0;
-          const open = CRS.open.has(g.k), cell = (n, attr, ttl) => n ? `<button type="button" class="crs-n" ${attr} title="${esc(ttl)}">${n}</button>` : `<span class="muted">·</span>`;
-          out += `<tr class="crs-r crs-sr${open ? " open" : ""}" data-grp="${esc(g.k)}" tabindex="0"><td><button type="button" class="dx-tg" aria-expanded="${open}" aria-label="הקורסים של בית הספר"></button></td><td class="crs-sch">${chip}</td>`
-            + trks.map(t => { const n = mr.filter(m => m.status === "רשום" && mTrk(m) === t).length; return `<td class="num">${cell(n, `data-cell="${esc(g.k)}" data-trk="${t}"`, "הרשומים במסלול – במגירה")}</td>`; }).join("")
-            + `<td class="num">${cell(mm.filter(m => m.status === "רשום").length, gm.length === 1 ? `data-kids="${gm[0].id}"` : `data-open="${esc(g.k)}"`, gm.length === 1 ? "הנרשמים למרתון – במגירה" : gm.length + " מרתונים – פתיחת השורה")}</td>`
-            + `<td class="num">${all.filter(m => m.status === "ממתין לתשלום").length || ""}</td><td class="num">${all.filter(crsIsInt).length || ""}</td>`
-            + `<td class="num hide-m">${back ? `<button type="button" class="crs-back-n" data-back="1" title="היו רשומים בשנה שעברה בבית הספר הזה, ולא השנה – לחיצה: הרשימה בטבלת התלמידים">↩ ${back}</button>` : ""}</td></tr>`;
-          if (open) out += `<tr class="dx-row"><td colspan="${cols}">${g.cs.map(c => `<div class="crs-sub"><div class="crs-sub-h"><span>${crsTitle(c, true)}${c.marathon_id ? "" : crsTrkMix(c)}${c.is_active ? "" : ` <span class="muted">(${c.marathon_id ? "לא התקיים" : "לא פעיל"})</span>`}</span><button type="button" class="btn small crs-kids" data-kids="${c.id}">👥<span class="bt"> תלמידים</span></button></div>${crsDetails(c)}</div>`).join("")}</td></tr>`;
-        });
-        return out + `</tbody></table></div>`; })()
+      <div class="crs-list">${list.length ? crsTable(list)   // 5.20.36 (נועה 2.11): טבלה אחת – שורה לכל קורס (שוטף ומרתון) עם כל הפרטים
         : `<div class="card empty">אין קורסים שמתאימים לסינון.</div>`}</div>
 
     </div>`;
@@ -4136,6 +4151,10 @@ async function renderCrsCourses(reload){
   let nt = null; [["crsRmin", "rmin"], ["crsRmax", "rmax"]].forEach(([id, k]) => $(id).oninput = (e) => { F[k] = e.target.value.trim(); clearTimeout(nt); nt = setTimeout(() => renderCrsCourses().then(() => { const i = $(id); if (i) { i.focus(); const v = i.value; i.value = ""; i.value = v; } }), 400); });
   $("crsPend").onchange = (e) => { F.pend = e.target.checked; re(); }; $("crsInt").onchange = (e) => { F.int = e.target.checked; re(); };
   $("crsMore").onclick = () => { CRS.more = !CRS.more; re(); };
+  b.querySelectorAll("tr.crs-mr").forEach(tr => tr.onkeydown = (e) => { if (e.key === "Enter") tr.click(); });
+  b.querySelectorAll("tr.crs-mr").forEach(tr => tr.onclick = (e) => { if (e.target.closest("button, a, .lk2-cell")) return; const c = CRS.byId[Number(tr.dataset.crs)]; if (!c) return; CRS.sel = c.id; crsOpenDrawer(c);
+    b.querySelectorAll("tr.crs-mr").forEach(x => x.classList.toggle("sel", x === tr)); });
+  b.querySelectorAll(".crs-mtbl").forEach(t => { wireLk(t); lkApplyShort(t); });
   // לחיצה על השורה – פתיחת הפרטים (כמו בכל הטבלאות); 👥 – התלמידים בצד
   b.querySelectorAll("tr.crs-r").forEach(tr => { const tog = () => { const id = tr.dataset.grp || Number(tr.dataset.crs); CRS.open.has(id) ? CRS.open.delete(id) : CRS.open.add(id); re(); };
     tr.onclick = (e) => { if (e.target.closest("[data-kids], .lk2-cell, a")) return; tog(); }; tr.onkeydown = (e) => { if (e.key === "Enter") tog(); }; });
@@ -4170,7 +4189,7 @@ async function renderCrsCourses(reload){
     const rows = [["קורס", "בית ספר", "מחזור", "עיר", "שם", "כיתה", "מקצוע", "מצב", "מקור", "חתם/ה", "איך נרשם"]];
     list.forEach(c => Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && !crsGone(m)).forEach(m => { const l = L.leads.find(x => x.student_id === m.student_id), st = l ? l.student : {};
       rows.push([plain(crsTitle(c, true)), crsSch(c), crsSeasonTxt(c), crsCity(c), ((st.first_name || "") + " " + (st.last_name || "")).trim() || "#" + m.student_id, classLabel(st.grade, st.class_num) || m.grade || "", m.subject || "", m.status, sourceName(m.source_id), crsNeedSig(m) ? "לא" : m.signed ? "כן" : "", m.source || ""]); }));
-    downloadXlsx(rows, "קורסים.xlsx", "קורסים"); };
+    downloadXlsx(crsTblRows(list), "קורסים.xlsx", "קורסים", [[rows, "תלמידים"]]); };   // 5.20.36: גיליון ראשון – שורה לכל קורס (כמו בטבלה); שני – התלמידים
 }
 function crsOpenDrawer(c, trk){ if (!c) return; CRS.selTrk = trk || ""; const plain = (h) => { const d = document.createElement("div"); d.innerHTML = h; return d.textContent.replace(/\s+/g, " ").trim(); };
   panelFor("תלמידים בקורס", [plain(crsTitle(c, true)), trk ? CRS_TRK_S[trk] || trk : "", crsSch(c), crsCity(c), crsSeasonTxt(c)].filter(Boolean).join(" · "));
@@ -4207,6 +4226,91 @@ function crsTrkMix(c){ const ms = Object.values(CRS.cm).flat().filter(m => m.cou
     return to ? `<span class="trk-chip sm" style="--tc:${to.c}">${esc(CRS_TRK_S[t])} ${k[t]}</span>` : `<span class="muted">${esc(CRS_TRK_S[t] || "בלי מסלול")} ${k[t]}</span>`; });
   return parts.length ? `<div class="crs-mix">${parts.join("")}</div>` : ""; }
 // פרטי הקורס בשורה הפתוחה: מחזור, עיר, מסלול/תאריכים, כמויות, הקישורים
+// 5.20.36 (נועה 2.11: "אני רוצה עמודות של טבלה של כל הפרטים של המרתון, לא טבלת סיכום"): שורה לכל מרתון
+function crsMarInfo(c){
+  const o = (CRS.mar || {})[c.marathon_id] || {}, ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && !crsGone(m)), k = (st) => ms.filter(m => m.status === st).length;
+  const ses = (o.ses || []).slice(), meets = (x) => marMeetings(x);
+  const all = [...new Set(ses.flatMap(x => meets(x).map(z => z.date)).concat(o.dates || []))].filter(Boolean).sort();
+  const td = todayIL(), past = !!all.length && all[all.length - 1] < td, d2 = all[1] || all[all.length - 1];
+  const cap = ses.reduce((a, x) => a + (Number(x.capacity) || 0), 0);
+  const st = o.cancelled_at ? "cxl" : o.auto_closed_at ? "auto" : o.is_open ? "open" : "closed";
+  return { o, ses, all, past, d2, cap, st, reg: k("רשום"), pend: k("ממתין לתשלום"), int: ms.filter(crsIsInt).length, sig: ms.filter(crsNeedSig).length };
+}
+const crsMarStTxt = (I) => I.st === "cxl" ? "✕ לא יתקיים" : I.st === "auto" ? "○ נסגר אוטומטית " + fmtDM(String(I.o.auto_closed_at).slice(0, 10)) : I.st === "open" ? "● פתוח" : "○ סגור";
+// מועדי התרגול השוטף בבית הספר (מ-session_summary): יום → שעות
+const CRS_DAYS = ["א", "ב", "ג", "ד", "ה", "ו"];
+function crsShotefWhen(c){ const gs = (CRS.grp || {})[crsCity(c) + "|" + crsSch(c)] || []; if (!gs.length) return { n: 0, h: "" };
+  const by = {}; gs.forEach(x => { (by[x.day] = by[x.day] || []).push(String(x.start_time || "").slice(0, 5) || x.time_label || ""); });
+  const h = CRS_DAYS.filter(d => by[d]).map(d => `<div class="mt-l"><b>${d}'</b> <span dir="ltr" class="mt-hrs">${by[d].sort().map(esc).join(" · ")}</span></div>`).join("");
+  return { n: gs.length, h, cap: gs.reduce((a, x) => a + (Number(x.capacity) || 0), 0) }; }
+function crsTable(list){
+  const multiCity = new Set(list.map(crsCity)).size > 1 || !(CRS.f || {}).city;
+  const hasSite = list.some(c => c.marathon_id && "show_on_site" in ((CRS.mar || {})[c.marathon_id] || {}));
+  const dl = (d) => DAY_OF(d) + "' " + fmtDM(d).replace(/^0/, "").replace(/\.0/, ".");
+  const mline = (z) => `<div class="mt-l"><b>${esc(dl(z.date))}</b>${z.start ? ` ${rng(String(z.start).slice(0, 5), String(z.end || "").slice(0, 5))}` : ""}${z.room ? ` <span class="muted">${esc(roomTxt(z.room))}</span>` : ""}</div>`;
+  const n = (v, cls) => `<td class="num${cls ? " " + cls : ""}">${v || `<span class="muted">·</span>`}</td>`;
+  const nis = (x) => Number(x).toLocaleString("he-IL") + " ₪";
+  const act = CRS.seasons.some(x => x.is_active && x.kind === "year");
+  const backOf = (key) => act && L.leads ? L.leads.filter(l => l.student && crsBack(l.student.id, key)).length : 0, backDone = new Set();
+  const row = (c) => { const I = crsMarInfo(c), o = I.o, mar = !!c.marathon_id, sc = crsSch(c), city = crsCity(c), key = city + "|" + sc;
+    const ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && !crsGone(m) && crsMOk(m));
+    let when = "", grp = "", price = "", st = "", lk = "", back = "";
+    if (mar) {
+      when = I.ses.length ? I.ses.map(x => `<div class="mt-g">${I.ses.length > 1 ? `<div class="mt-gl">${esc(x.time_label || "קבוצה")}${x.capacity ? ` <span class="muted">· עד ${x.capacity}</span>` : ""}</div>` : ""}${marMeetings(x).map(mline).join("")}</div>`).join("")
+        : I.all.length ? I.all.map(d => mline({ date: d })).join("") : `<span class="err">⚠ אין מפגשים</span>`;
+      grp = `${I.ses.length || ""}${I.cap ? `<div class="muted mst-s">עד ${I.cap}</div>` : ""}`;
+      price = o.price_first ? nis(o.price_first) : "—";
+      st = `<span class="mst ${I.st}">${esc(crsMarStTxt(I))}</span>${I.st === "open" && I.d2 && "auto_closed_at" in o && !I.past ? `<div class="muted mst-s">ייסגר לבד אחרי ${esc(fmtDM(I.d2))}</div>` : ""}`;
+      lk = o.code && I.st !== "cxl" ? lk2Btns("", lkMarCode(o.code), "הרשמה ל" + (o.name || "מרתון") + (o.school ? " · " + o.school : "") + ": ") : "";
+    } else {
+      const summer = /summer/.test(c.track || "") || (crsCat(c.category_id).tracks || []).includes("summer"), W = crsShotefWhen(c);
+      when = W.h || `<span class="muted">—</span>`; grp = W.n ? String(W.n) : "";
+      const P = typeof REG_PRICES !== "undefined" && REG_PRICES[city];
+      if (!summer && P) { const early = (P.earlyUntil || REG_EARLY_UNTIL || "") >= todayIL(), tks = c.track ? [c.track] : LK.tracks.map(x => x.v).filter(t => ms.some(m => mTrk(m) === t));
+        price = tks.filter(t => P[t]).map(t => `<div class="mt-l">${tks.length > 1 ? `<span class="muted">${esc(CRS_TRK_S[t])}</span> ` : ""}<b>${nis(P[t].regular)}</b>${early && P[t].early ? ` <span class="muted">(מוקדם ${nis(P[t].early)})</span>` : ""}</div>`).join("") || "—"; }
+      if (!summer && city && rpHas68()) { const tc = c.track && rpHas72() && Array.isArray((rpRow(city) || {}).register_closed_tracks) && rpRow(city).register_closed_tracks.includes(c.track);
+        const op = rpRegOpen(city) && !tc; st = `<span class="mst ${op ? "open" : "closed"}">${op ? "● פתוח" : "○ סגור"}</span>${rpIntCityOpen(city) ? "" : `<div class="muted mst-s">התעניינות סגורה</div>`}`; }
+      if (!summer && city) { const q = (x) => new URLSearchParams(Object.entries(x).filter(([, v]) => v)).toString();
+        lk = `<div class="mt-lk2"><span class="mt-lkl">הרשמה</span>${lk2Btns("", lkFix(lkBase() + "register.html?" + q({ city, school: sc, track: CRS.hasTrk ? "" : c.track || "" })), "טופס ההרשמה לתלם - " + city + (sc ? " · " + sc : "") + ": ")}</div>
+          <div class="mt-lk2"><span class="mt-lkl">התעניינות</span>${lk2Btns("", lkFix(lkBase() + "interest.html?" + q({ city, school: sc, tracks: CRS.hasTrk ? "" : c.track || "" })), "טופס התעניינות - תלם " + city + (sc ? " · " + sc : "") + ": ")}</div>`; }
+      if (crsSeason(c.season_id).is_active && !backDone.has(key)) { backDone.add(key); const b = backOf(key); if (b) back = `<button type="button" class="crs-back-n" data-back="1" title="היו רשומים בשנה שעברה בבית הספר הזה, ולא השנה – לחיצה: הרשימה בטבלת התלמידים">↩ ${b}</button>`; }
+    }
+    const k = (x) => ms.filter(m => m.status === x).length, reg = k("רשום");
+    const name = mar ? `<b>🏁 ${esc(crsCatN(c.category_id) || "מרתון")}</b>${o.grade ? ` <span class="gr-b g-${esc(o.grade)}">${esc(o.grade)}'</span>` : ""}`
+      : crsTitle(c, true) + crsTrkMix(c);
+    return `<tr class="crs-mr${I.past ? " mpast" : ""}${CRS.sel === c.id ? " sel" : ""}${mar ? " is-mar" : ""}" data-crs="${c.id}" tabindex="0">
+      <td class="mt-sch">${sc ? (c.school_text && !(c.school && c.school.name) ? esc(sc) : scChip(sc)) : `<span class="muted">—</span>`}${I.past ? `<div class="muted mst-s">עבר</div>` : ""}</td>
+      <td class="mt-crs">${name}${c.is_active ? "" : ` <span class="muted mst-s">(${mar ? "לא התקיים" : "לא פעיל"})</span>`}</td>
+      <td class="mt-meet">${when}</td>
+      <td class="num hide-m">${grp}</td>
+      <td class="num hide-m mt-pr">${price}</td>
+      <td class="num"><button type="button" class="crs-n" data-kids="${c.id}" title="התלמידים – במגירה">${reg}</button>${mar && I.cap ? ` <span class="muted mst-s">מתוך ${I.cap}</span>` : ""}</td>
+      ${n(k("ממתין לתשלום"), "hide-m")}${n(ms.filter(crsIsInt).length, "hide-m")}${n(ms.filter(crsNeedSig).length ? `<span class="sig-miss" title="חסרה חתימה">✍︎ ${ms.filter(crsNeedSig).length}</span>` : "", "hide-m")}
+      <td class="num hide-m">${back}</td>
+      <td class="mt-st">${st}</td>
+      ${hasSite ? `<td class="num hide-m">${mar && o.show_on_site ? `<span title="מוצג באתר (כשההרשמה פתוחה)">🌐</span>` : ""}</td>` : ""}
+      <td class="mt-lk">${lk}</td>
+      <td class="mt-act">${mar || crsCity(c) ? `<button type="button" class="btn small" data-crsedit="${c.id}" title="${mar ? "עריכת המרתון" : "המחירים והטפסים של " + esc(city)}">✎<span class="bt"> עריכה</span></button>` : ""}${mar ? `<button type="button" class="btn small" data-crsmgmt="${c.id}" title="לא יתקיים / מתקיים, החזרים">🏁</button>` : ""}</td></tr>`; };
+  const cols = 13 + (hasSite ? 1 : 0);
+  let out = `<div class="tbl-wrap"><table class="tbl crs-tbl crs-mtbl"><thead><tr><th>בית ספר</th><th>קורס</th><th>מועדים</th><th class="num hide-m">קבוצות</th><th class="num hide-m">מחיר</th><th class="num">רשומים</th><th class="num hide-m" title="ממתינים לתשלום">ממתינים</th><th class="num hide-m">מתעניינים</th><th class="num hide-m" title="חסרה חתימה על טופס ההרשמה">חתימה</th><th class="num hide-m" title="היו רשומים בשנה שעברה ולא השנה">לא חזרו</th><th>הרשמה</th>${hasSite ? `<th class="num hide-m" title="מוצג באתר">אתר</th>` : ""}<th>קישור</th><th></th></tr></thead><tbody>`;
+  let last = null;
+  list.forEach(c => { const ci = crsCity(c);
+    if (multiCity && ci !== last) { last = ci; const all = Object.values(CRS.cm).flat().filter(m => list.some(x => x.id === m.course_id && crsCity(x) === ci) && !crsGone(m) && crsMOk(m)), k = (st) => all.filter(m => m.status === st).length;
+      out += `<tr class="crs-city"><td colspan="${cols}"><b>${esc(ci || "בלי עיר")}</b> <span class="muted">${k("רשום")} רשומים${k("ממתין לתשלום") ? " · " + k("ממתין לתשלום") + " ממתינים" : ""}${all.filter(crsIsInt).length ? " · " + all.filter(crsIsInt).length + " מתעניינים" : ""}</span></td></tr>`; }
+    out += row(c); });
+  return out + `</tbody></table></div>`;
+}
+function crsTblRows(list){
+  const plain = (h) => { const d = document.createElement("div"); d.innerHTML = String(h).replace(/<\/div>/g, " | "); return d.textContent.replace(/\s+/g, " ").replace(/(\s*\|\s*)+$/, "").trim(); };
+  const rows = [["עיר", "בית ספר", "קורס", "שכבה", "מועדים", "קבוצות", "מחיר", "רשומים", "ממתינים", "מתעניינים", "חסרה חתימה", "הרשמה", "באתר", "קישור"]];
+  list.forEach(c => { const I = crsMarInfo(c), o = I.o, mar = !!c.marathon_id, ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && !crsGone(m) && crsMOk(m)), k = (x) => ms.filter(m => m.status === x).length;
+    const W = mar ? null : crsShotefWhen(c);
+    const mt = mar ? (I.ses.length ? I.ses.map(x => (I.ses.length > 1 ? (x.time_label || "") + ": " : "") + marMeetings(x).map(z => DAY_OF(z.date) + "' " + fmtDM(z.date) + (z.start ? " " + String(z.start).slice(0, 5) + "–" + String(z.end || "").slice(0, 5) : "")).join(", ")).join(" | ") : I.all.map(fmtDM).join(", ")) : plain(W.h);
+    const P = !mar && typeof REG_PRICES !== "undefined" && REG_PRICES[crsCity(c)];
+    rows.push([crsCity(c), crsSch(c), plain(crsShort(c)), mar && o.grade ? o.grade + "'" : "", mt, mar ? I.ses.length : W.n, mar ? Number(o.price_first) || "" : P && c.track && P[c.track] ? P[c.track].regular : "",
+      k("רשום"), k("ממתין לתשלום"), ms.filter(crsIsInt).length, ms.filter(crsNeedSig).length, mar ? crsMarStTxt(I) : rpHas68() && crsCity(c) ? (rpRegOpen(crsCity(c)) ? "פתוח" : "סגור") : "", mar && o.show_on_site ? "כן" : "", mar && o.code ? lkMarCode(o.code) : ""]); });
+  return rows;
+}
 function crsDetails(c){
   const o = c.marathon_id ? (CRS.mar || {})[c.marathon_id] || {} : null, ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && !crsGone(m));
   const k = (st) => ms.filter(m => m.status === st).length, unsigned = ms.filter(crsNeedSig).length;
@@ -7010,7 +7114,8 @@ async function renderExams(reload){
   const sig = JSON.stringify(EX.rows) + "|" + JSON.stringify(EX.imp);
   if (QUIET && EX.sig === sig && document.querySelector("#exCal .ex-cal-wrap, #exCal .exm")) return;
   EX.sig = sig;
-  { const w0 = document.querySelector(".ex-cal-wrap"); EX.keepSL = QUIET && w0 ? w0.scrollLeft : null; }
+  // 5.20.36 (נועה 2.11: "עדיין קופץ ימינה ושמאלה"): בכל ציור מחדש (שמירה, מחיקה, פתיחת בית ספר, רענון) – הגלילה נשמרת בפיקסלים (לא מיושרת לעמודה), גם למטה
+  { const w0 = document.querySelector("#exCal .ex-cal-wrap"), keep = w0 && w0.isConnected && !EX.goToday; EX.keepSL = keep ? w0.scrollLeft : null; EX.keepST = keep ? w0.scrollTop : null; }
   if (EX.err && !EX.rows.length) { box.innerHTML = `<div class="empty-state">${EX.err.status === 404 || /school_exams/.test(EX.err.message || "") ? "צריך להריץ את קובץ 50." : "לא ניתן לטעון."}</div>`; return; }
   const im = EX.imp;
   $("exInfo").innerHTML = im ? `עודכן מהקובץ: <b>${esc(fmtDate(im.at))}</b> · ${esc(im.by_name || "")} · ${im.rows_in} שורות (מתוכן "חומר נלמד": ${EX.rows.filter(e => EX_STUDY.test(e.kind)).length})${im.unmatched ? `<div class="ex-warn">⚠ בתי ספר שלא זוהו במערכת: ${esc(im.unmatched)}</div>` : ""}` : "";
@@ -7034,7 +7139,7 @@ async function renderExams(reload){
   if (cal && isMobile()) { exMobile(); $("exMonthNav").hidden = true; box.innerHTML = ""; return; }   // 5.19.88 (נועה): בנייד – בית ספר ← שכבה ← ציר זמן עד המבחן
   if (cal) { await loadHol(); if (!EX.scrollTo && !EX.goToday && document.querySelector(".ex-cal-wrap")) EX.scrollTo = exFirstVisible(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_CAL_HIDE.test(e.kind) && !EX_STUDY.test(e.kind) && flt(e) && exColored(exSchName(e))), t,
       (L.schools || []).filter(x => exColored(x.name) && (!fc || x.city === fc) && (!fs || x.name === fs))
-        .flatMap(x => exGradesOf(x.name).filter(g => !fg || g === fg).map(g => ({ city: x.city, sch: x.name, gr: g })))); exFit(); { const w1 = document.querySelector(".ex-cal-wrap"); if (EX.keepSL != null && w1 && !EX.goToday) w1.scrollLeft = EX.keepSL; else exScrollTo(EX.scrollTo || exHome(), true, false); } EX.keepSL = null; EX.scrollTo = null; EX.goToday = false; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
+        .flatMap(x => exGradesOf(x.name).filter(g => !fg || g === fg).map(g => ({ city: x.city, sch: x.name, gr: g })))); exFit(); { const w1 = document.querySelector(".ex-cal-wrap"); if (EX.keepSL != null && w1 && !EX.goToday) { w1.scrollLeft = EX.keepSL; if (EX.keepST) w1.scrollTop = EX.keepST; } else exScrollTo(EX.scrollTo || exHome(), true, false); } EX.keepSL = null; EX.scrollTo = null; EX.goToday = false; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
   // 5.19.49 (הלקוחה): סינון מתאריך-עד תאריך. "מתאריך" גובר על "גם מבחנים שעברו"
   // ברירת מחדל: מהיום עד 20.6 של שנת הלימודים
   const y20 = (Number(t.slice(0, 4)) + (Number(t.slice(5, 7)) >= 7 ? 1 : 0)) + "-06-20";
@@ -7115,9 +7220,10 @@ function exFit(){
   const w = document.querySelector("#exCal .ex-cal-wrap"); if (!w || currentView !== "exams") return;
   if (window.scrollY) window.scrollTo(0, 0);
   const top = w.getBoundingClientRect().top, info = $("exInfo"), ih = info && info.textContent.trim() ? info.offsetHeight + 12 : 0;
-  let h = Math.max(260, window.innerHeight - top - ih - 14); w.style.maxHeight = h + "px";
-  const over = document.documentElement.scrollHeight - window.innerHeight;   // ריווח מתחת לטבלה (שוליים, תפריט תחתון בנייד)
-  if (over > 0 && h > 260) w.style.maxHeight = Math.max(260, h - over) + "px";
+  let h = Math.max(260, window.innerHeight - top - ih - (isMobile() ? 14 : 8)); w.style.maxHeight = h + "px";
+  // 5.20.36 (נועה 2.11: "המון מקום למטה"): במחשב – רק לפי מה שמתחת ללוח (השורה "עודכן מהקובץ"); גובה העמוד כולו הקטין את הלוח בלי סיבה
+  if (isMobile()) { const over = document.documentElement.scrollHeight - window.innerHeight;   // בנייד: התפריט התחתון
+    if (over > 0 && h > 260) w.style.maxHeight = Math.max(260, h - over) + "px"; }
   // 5.19.126 (נועה): במסך מלא – השורות מתכווצות (עד 14px) כדי שכל בתי הספר ייכנסו בגובה המסך
   const cal = $("exCal");
   if (document.body.classList.contains("ex-max") && !isMobile()) {
@@ -7479,13 +7585,13 @@ $("exForm").addEventListener("submit", async (ev) => {
 });
 // ייבוא ידני מהקובץ (גיבוי לייבוא האוטומטי): קורא את הגיליון "כל בתי הספר" ומחליף את כל השורות שהגיעו מהקובץ
 // 5.19.104 (נועה): הורדות לאקסל – קובץ xlsx אמיתי (מימין לשמאל, שורת כותרת מודגשת וקפואה, רוחב עמודות)
-async function downloadXlsx(aoa, name, sheet){
+async function downloadXlsx(aoa, name, sheet, more){   // 5.20.36: more = [[aoa, שם גיליון], ...] – גיליונות נוספים
   try { await loadXlsxLib(); } catch(e) { toast("לא הצלחתי לטעון את רכיב האקסל"); return; }
-  const ws = XLSX.utils.aoa_to_sheet(aoa.map(r => r.map(v => v == null ? "" : v)));
-  ws["!cols"] = (aoa[0] || []).map((_, c) => ({ wch: Math.min(50, Math.max(8, ...aoa.slice(0, 300).map(r => String(r[c] == null ? "" : r[c]).split("\n")[0].length + 2))) }));
-  ws["!views"] = [{ RTL: true }]; ws["!freeze"] = { xSplit: 0, ySplit: 1 };
+  const mk = (a) => { const ws = XLSX.utils.aoa_to_sheet(a.map(r => r.map(v => v == null ? "" : v)));
+    ws["!cols"] = (a[0] || []).map((_, c) => ({ wch: Math.min(50, Math.max(8, ...a.slice(0, 300).map(r => String(r[c] == null ? "" : r[c]).split("\n")[0].length + 2))) }));
+    ws["!views"] = [{ RTL: true }]; ws["!freeze"] = { xSplit: 0, ySplit: 1 }; return ws; };
   const wb = XLSX.utils.book_new(); wb.Workbook = { Views: [{ RTL: true }] };
-  XLSX.utils.book_append_sheet(wb, ws, String(sheet || "גיליון1").slice(0, 31)); XLSX.writeFile(wb, name);
+  XLSX.utils.book_append_sheet(wb, mk(aoa), String(sheet || "גיליון1").slice(0, 31)); (more || []).forEach(([a, n]) => XLSX.utils.book_append_sheet(wb, mk(a), String(n).slice(0, 31))); XLSX.writeFile(wb, name);
 }
 function loadXlsxLib(){
   if (window.XLSX) return Promise.resolve();
@@ -8616,6 +8722,17 @@ function renderPayView(){
 // 5.19.35: שכבה למרתון - העמודה קיימת רק אחרי קובץ 65
 const marHasGrade = (m) => EX.link === true || (m && "grade" in m) || (G.marathons || []).some(x => "grade" in x);
 // 5.19.35: הקבצה בטופס המרתון - העמודה קיימת רק אחרי קובץ 64
+// 5.20.36 (נועה 2.11): הטקסט שהטופס בונה מהמפגשים – מחושב בטופס עצמו (marathon.html, MAR_DESC) כדי שיהיה זהה בדיוק
+const MAR_XKEY = { "ראש העין": "mar.extra_rh", "הוד השרון": "mar.extra_hs", "כפר סבא": "mar.extra_ks" };
+let MDW = null;
+function marDescWin(){ if (MDW) return MDW;
+  MDW = new Promise((res) => { const fr = document.createElement("iframe"); fr.setAttribute("aria-hidden", "true"); fr.tabIndex = -1; fr.style.cssText = "position:absolute;width:1px;height:1px;border:0;opacity:0;pointer-events:none;inset-inline-start:-9999px;";
+    const to = setTimeout(() => { MDW = null; res(null); }, 15000);
+    fr.onload = async () => { try { const w = fr.contentWindow; for (let i = 0; i < 30 && !w.MAR_DESC; i++) await new Promise(r => setTimeout(r, 150));
+        if (w.TX && w.TX.ready) await Promise.race([w.TX.ready, new Promise(r => setTimeout(r, 3000))]);
+        clearTimeout(to); if (!w.MAR_DESC) { MDW = null; res(null); } else res(w); } catch(e) { clearTimeout(to); MDW = null; res(null); } };
+    fr.src = new URL("/marathon.html?preview=1", location.href).href; document.body.appendChild(fr); });
+  return MDW; }
 const marHasHak = (m) => (m && "hakbatsa_options" in m) || (G.marathons || []).some(x => "hakbatsa_options" in x) || (RG.mar || []).some(x => "hakbatsa_options" in x);
 function openMarathonEditor(m, inPanel, pre){
   if (m && !inPanel) panelFor("עריכת מרתון", m.name);
@@ -8624,19 +8741,19 @@ function openMarathonEditor(m, inPanel, pre){
   const schoolOpts = (c, cur) => { const names = [...new Set(((G.locs || []).filter(x => x.city === c && !x.name.includes("/")).map(x => x.name)).concat(LK.schools[c] || []))].sort((a, b) => a.localeCompare(b, "he"));
     return "<option value=''>בחירה...</option>" + names.map(n => `<option ${n === cur ? "selected" : ""}>${esc(n)}</option>`).join(""); };
   box.innerHTML = `
-    <div class="full lg-edit-h">${m ? "עריכת מרתון" : "מרתון חדש"}</div>
-    <div class="full"><label class="lbl">שם המרתון</label><input data-m="name" value="${esc(m ? m.name : "מרתון מתמטיקה" + (pre.grade ? " שכבת " + pre.grade + "'" : "") + (pre.school ? " · " + pre.school : ""))}"></div>
+    <!-- 5.20.36 (נועה 2.11): עורך דחוס – בית הספר והשכבה בגדול (נשאר למעלה בגלילה), הקבצות מקופלות, והטקסט שנבנה לטופס -->
+    <div class="full me-head" data-m="head"></div>
+    <div class="full me-r1"><div class="me-name"><label class="lbl">שם המרתון</label><input data-m="name" value="${esc(m ? m.name : "מרתון מתמטיקה" + (pre.grade ? " שכבת " + pre.grade + "'" : "") + (pre.school ? " · " + pre.school : ""))}"></div>
     <div><label class="lbl">עיר</label><select data-m="city">${CONFIG.cities.map(c => `<option ${c === city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>
     <div><label class="lbl">בית ספר</label><select data-m="school">${schoolOpts(city, m ? m.school : pre.school)}</select></div>
-    ${marHasGrade(m) ? `<div><label class="lbl">שכבה</label><select data-m="grade"><option value="">—</option>${GRADE_ORD.slice(2).map(x => `<option value="${x}" ${(m ? m.grade : pre.grade) === x ? "selected" : ""}>${x}'</option>`).join("")}</select></div>` : ""}
-    <div><label class="lbl">מחיר המרתון (₪)</label><input type="number" min="0" data-m="p1" value="${m ? Number(m.price_first) : ""}"></div>
+    ${marHasGrade(m) ? `<div class="me-sm"><label class="lbl">שכבה</label><select data-m="grade"><option value="">—</option>${GRADE_ORD.slice(2).map(x => `<option value="${x}" ${(m ? m.grade : pre.grade) === x ? "selected" : ""}>${x}'</option>`).join("")}</select></div>` : ""}
+    <div class="me-sm"><label class="lbl">מחיר (₪)</label><input type="number" min="0" data-m="p1" value="${m ? Number(m.price_first) : ""}"></div></div>
     <!-- 5.20.35 (נועה 1.11): בלי מחיר מוזל למשתתפים חוזרים – מחיר אחד לכולם (price_repeat = price_first) -->
-    <label class="chk full"><input type="checkbox" data-m="open" ${m && m.is_open ? "checked" : ""}> פתוח להרשמה</label>
-    <div class="muted fhint full" style="margin-top:-4px;">${m ? "כשמסמנים - הקישור עם התשלום עובד ומופיעות בו רק הקבוצות הפתוחות." : "מרתון חדש נשמר סגור: קודם יוצרים את כל הקבוצות והמפגשים, ורק אז פותחים להרשמה ושולחים קישור."}</div>
-    ${m && "show_on_site" in m ? `<label class="chk full"><input type="checkbox" data-m="site" ${m.show_on_site ? "checked" : ""}> 🌐 להציג באתר של תלם</label>
-    <div class="muted fhint full" style="margin-top:-4px;">בדף בית הספר באתר, רק כל עוד ההרשמה פתוחה ותאריך המבחן לא עבר.</div>` : ""}
-    <div class="full"><label class="lbl">הערות (פנימי)</label><input data-m="notes" value="${esc(m && m.notes || "")}"></div>
-    ${marHasHak(m) ? `<div class="full"><label class="lbl">אפשרויות הקבצה <span class="muted" style="font-weight:400">- אחת בכל שורה. בטופס ההרשמה ההורה בוחר/ת אחת (חובה); תמיד נוסף גם "אחר". ריק = ההקבצות של בית הספר (או הרשימה הקבועה).</span></label><textarea data-m="hak" rows="3" placeholder="הקבצה א'&#10;הקבצה ב'&#10;מצוינות">${esc(((m && m.hakbatsa_options) || []).join("\n"))}</textarea><div class="muted fhint" data-m="hakhint" hidden></div></div>` : ""}
+    <div class="full me-r2"><label class="chk" title="${m ? "כשמסמנים – הקישור עם התשלום עובד ומופיעות בו רק הקבוצות הפתוחות." : "מרתון חדש נשמר סגור: קודם יוצרים את כל הקבוצות והמפגשים, ורק אז פותחים להרשמה ושולחים קישור."}"><input type="checkbox" data-m="open" ${m && m.is_open ? "checked" : ""}> פתוח להרשמה</label>
+      ${m && "show_on_site" in m ? `<label class="chk" title="בדף בית הספר באתר, רק כל עוד ההרשמה פתוחה ותאריך המבחן לא עבר."><input type="checkbox" data-m="site" ${m.show_on_site ? "checked" : ""}> 🌐 להציג באתר</label>` : ""}
+      <div class="me-notes"><input data-m="notes" value="${esc(m && m.notes || "")}" placeholder="הערות (פנימי)" aria-label="הערות (פנימי)"></div></div>
+    ${marHasHak(m) ? `<details class="full me-hak"><summary><b>הקבצות:</b> <span data-m="haksum"></span> <span class="me-hak-e">✎ שינוי</span></summary><div class="muted fhint">אחת בכל שורה. בטופס ההורה בוחר/ת אחת (חובה); תמיד נוסף גם "אחר". ריק = ההקבצות של בית הספר (או הרשימה הקבועה).</div><textarea data-m="hak" rows="4" placeholder="הקבצה א'&#10;הקבצה ב'&#10;מצוינות">${esc(((m && m.hakbatsa_options) || []).join("\n"))}</textarea><div class="muted fhint" data-m="hakhint" hidden></div></details>` : ""}
+    <div class="full me-desc"><div class="me-desc-h"><b>📝 הטקסט בטופס</b><span class="muted">נבנה מהמפגשים של הקבוצה הראשונה ומהעיר</span><button type="button" class="btn small" data-m="txed" title="עריכת הנוסח (כל המרתונים) – בהגדרות ← נוסחי הטפסים ← מרתון">✎ עריכת הנוסח</button></div><div class="me-desc-b" data-m="desc"><span class="muted">טוען…</span></div><div class="muted me-desc-x" data-m="descx"></div></div>
     <div class="full" data-m="groups">${m ? `<div class="muted">טוען קבוצות ומפגשים...</div>` : ""}</div>
     <div class="err full" data-m="err"></div>
     <div class="full lg-btns"><button type="button" class="btn small primary" data-m="save">שמירה</button><button type="button" class="btn small" data-m="cancel">ביטול</button></div>`;
@@ -8653,6 +8770,26 @@ function openMarathonEditor(m, inPanel, pre){
     ta.value = hakAuto = list.join("\n");
     hint.hidden = !list.length; hint.textContent = list.length ? "ההקבצות נלקחו מההגדרות של " + sc + " (מסך בתי ספר). אפשר לשנות כאן." : ""; };
   if (g("hak")) { g("hak").addEventListener("input", () => { hakAuto = null; if (g("hakhint")) g("hakhint").hidden = true; }); g("school").addEventListener("change", hakFromSchool); hakFromSchool(); }
+  // 5.20.36 (נועה 2.11): בית הספר והשכבה בגדול למעלה (נשאר בגלילה); סיכום ההקבצות בשורה; הטקסט שנבנה לטופס
+  const headPaint = () => { const h = g("head"); if (!h) return; const sc = g("school").value, gr = g("grade") ? g("grade").value : "";
+    h.innerHTML = `<span class="me-h-t">${m ? "עריכת מרתון" : "מרתון חדש"}</span>${sc ? scChip(sc) : `<span class="muted">בלי בית ספר</span>`}${gr ? `<span class="me-h-g">שכבה ${esc(gr)}'</span>` : ""}<span class="me-h-c">${esc(g("city").value)}</span>`; };
+  const hakSum = () => { const ta = g("hak"), sm = g("haksum"); if (!ta || !sm) return; const l = ta.value.split("\n").map(x => x.trim()).filter(Boolean);
+    sm.textContent = l.length ? l.join(" · ") + (ta.value === hakAuto ? " (של בית הספר)" : "") : "הרשימה הקבועה"; };
+  if (g("hak")) { g("hak").addEventListener("input", hakSum); const hf = hakFromSchool; g("school").addEventListener("change", () => setTimeout(hakSum, 600)); setTimeout(hakSum, 700); hakSum(); }
+  let dT = null; const descPaint = () => { clearTimeout(dT); dT = setTimeout(async () => { const el = g("desc"); if (!el) return;
+    const ms = (() => { const w = g("groups"), b0 = w && w.querySelector(".mg-blk"); return b0 ? [...b0.querySelectorAll(".d")].map(meetRead).filter(z => z.date || z.start) : []; })();
+    const w = await marDescWin(); if (!g("desc")) return;
+    if (!w) { el.innerHTML = `<span class="muted">לא ניתן להציג כרגע (הטופס לא נטען).</span>`; return; }
+    let h = ""; try { h = w.MAR_DESC(ms, g("city").value) || ""; } catch(e) {}
+    el.innerHTML = h || `<span class="muted">יופיע אחרי שיהיו מפגשים.</span>`;
+    const xk = MAR_XKEY[g("city").value], xt = xk && w.TX ? w.TX.text(xk) : "";
+    g("descx").textContent = xk ? (xt ? "" : "אין תוספת ל" + g("city").value + " – אפשר להוסיף ב\"✎ עריכת הנוסח\" (תיאור – תוספת ב" + g("city").value + ").") : ""; }, 250); };
+  ["city", "school", "grade"].forEach(k => { if (g(k)) g(k).addEventListener("change", () => { headPaint(); descPaint(); }); });
+  box.addEventListener("input", (ev) => { if (ev.target.closest && ev.target.closest('[data-m="groups"]')) descPaint(); });
+  box.addEventListener("change", (ev) => { if (ev.target.closest && ev.target.closest('[data-m="groups"]')) descPaint(); });
+  headPaint(); descPaint();
+  g("txed").onclick = async () => { if (!await uiConfirm("לעבור לעריכת נוסח הטופס (לכל המרתונים)?\nשינויים שלא נשמרו כאן – לא יישמרו.")) return;
+    closePanel(); FTX_TAB.v = "texts"; store("telem_ftx_tab", "texts"); FX.form = "marathon"; if (m && m.code) FX.mar = m.code; FTX_TAB.textsOpen = false; go("ftx"); };
   const fromReg = currentView === "reg";
   // 5.19.41: הקבוצות של המרתון ומועדי המפגשים - במקום אחד (ביצירה ובעריכה). קבוצה = שם, מקסימום נרשמים, חדר (לא חובה) ומפגשים.
   // הקבוצה הראשונה מקושרת ללוח המבחנים: שינוי המפגשים שלה מעדכן את הלוח.
@@ -8668,8 +8805,9 @@ function openMarathonEditor(m, inPanel, pre){
       <button type="button" class="btn small" data-gadd style="margin-top:6px;">+ מפגש</button></div>`;
   const paintGroups = () => {
     const w = g("groups"); if (!w) return;
-    w.innerHTML = `<div class="lg-edit-h" style="margin-top:6px;">קבוצות ומפגשים <span class="muted" style="font-weight:400; font-size:13px;">- כל קבוצה מופיעה בטופס ההרשמה עם הימים והשעות שלה</span></div>
-      <div style="max-width:240px;"><label class="lbl">משך כל מפגש (דקות)</label><input type="number" min="15" max="600" step="15" data-dur value="${marDurOf(GRPS[0] ? GRPS[0].meets : [])}"><div class="muted fhint">שעת הסיום מתעדכנת לפי שעת ההתחלה.</div></div>
+    // 5.20.36: הכותרת והמשך בשורה אחת
+    w.innerHTML = `<div class="me-gh"><span class="lg-edit-h" title="כל קבוצה מופיעה בטופס ההרשמה עם הימים והשעות שלה">קבוצות ומפגשים</span>
+      <label class="me-dur" title="שעת הסיום מתעדכנת לפי שעת ההתחלה">משך כל מפגש <input type="number" min="15" max="600" step="15" data-dur value="${marDurOf(GRPS[0] ? GRPS[0].meets : [])}"> דק'</label></div>
       ${GRPS.map(grpBlock).join("")}
       <button type="button" class="btn small" data-gnew style="margin-top:10px;">+ קבוצה נוספת</button>`;
     w.querySelectorAll(".mg-blk").forEach(b => {
@@ -8685,7 +8823,7 @@ function openMarathonEditor(m, inPanel, pre){
       GRPS.push({ label: "קבוצה " + GL.charAt(GRPS.length) + "'", cap: f.cap, room: "", kids: 0,
         meets: prev.meets.map(z => ({ date: z.date, start: z.end || "", end: z.end && z.start ? addMin(z.end, hmMin(z.end) - hmMin(z.start)) : "" })) });
       paintGroups(); };
-    wireMarDur(w);
+    wireMarDur(w); if (typeof descPaint === "function") descPaint();
   };
   const readGroups = () => { const w = g("groups"); if (!w || !GRPS) return;
     w.querySelectorAll(".mg-blk").forEach((b, i) => { const x = GRPS[i]; if (!x) return;
@@ -8760,8 +8898,9 @@ function openMarathonEditor(m, inPanel, pre){
       toast(m ? "המרתון עודכן" : "המרתון נשמר (סגור להרשמה)" + (GRPS.length > 1 ? " עם " + GRPS.length + " קבוצות" : "")); closePanel(); RG.mar = null; EX.mar = null;
       if (currentView === "exams") renderExams(false);
       if (fromReg) { RG.mar = null; G.marathons = null; renderReg(); return; }
-      if (pre.exIds) { G.marathons = null; G.loadedAt = 0; RG.tab = "courses"; CRS.fc = String((CRS.cats.find(x => x.kind === "event") || {}).id || ""); RG.city = body.city; store("telem_reg_tab", "courses");
-        toast("קישור ההרשמה נוצר (סגור להרשמה). כשמוכנים - \"פתיחה להרשמה\" ושולחים."); go("reg"); return; }   // 5.19.35: מהלוח - ישר לרשימת המרתונים
+      // 5.20.36 (נועה 2.11): מהלוח – נשארים בלוח המבחנים (מתעדכן שם), לא קופצים למסך הקורסים
+      if (pre.exIds) { G.marathons = null; G.loadedAt = 0; if (currentView === "exams") renderExams(true);
+        toast("המרתון נוצר (סגור להרשמה). כשמוכנים – \"פתיחה להרשמה\" ושולחים את הקישור."); return; }
       G.city = body.city; store("telem_groups_city", G.city); if (G.kind === "שוטף") { G.kind = "all"; store("telem_groups_kind3", "all"); paintKind(); }
       await loadGroups();
       const saved = m ? G.marathons.find(x => x.id === m.id) : G.marathons.find(x => x.name === body.name && x.city === body.city && x.school === body.school);
