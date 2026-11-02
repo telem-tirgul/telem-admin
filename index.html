@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.38">
+<meta name="app-version" content="5.20.39">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9421,7 +9421,12 @@ async function loadAttTable(){
   const list = ses.filter(attLocOk), cities = CONFIG.cities.filter(c => A.cities.includes(c) || innerWidth <= 760);
   const nis = (x) => Number(x).toLocaleString("he-IL") + " ₪", today = todayIL();
   // מי שנרשם/ה לשוטף (בקורס של המחזור הפעיל) ועוד לא בקבוצה – לפי העיר של הקורס
-  const waits = {}; Object.values(CRS.cm || {}).flat().forEach(m => { const c = CRS.byId[m.course_id]; if (!c || c.marathon_id || m.status !== "רשום" || crsGone(m) || !asgNeed(m.student_id)) return;
+  // 5.20.39 (תיקון): "לא שובץ/ה" = אין שיבוץ לאף קבוצה שוטפת (לפי השיבוצים של כל הקבוצות + השיבוצים בטבלת התלמידים)
+  const shotefIds = new Set((G.sessions || []).filter(x => x.kind !== "מרתון").map(x => x.session_id));
+  const placed = new Set((G.roster || []).filter(k => shotefIds.has(k.session_id)).map(k => k.student_id));
+  (G.prop || []).filter(k => shotefIds.has(k.session_id)).forEach(k => placed.add(k.student_id));   // שיבוץ מוצע – כבר בטיפול
+  [L.asg, L.prop].forEach(M => Object.keys(M || {}).forEach(k => { if ((M[k] || []).length) placed.add(Number(k)); }));
+  const waits = {}; Object.values(CRS.cm || {}).flat().forEach(m => { const c = CRS.byId[m.course_id]; if (!c || c.marathon_id || m.status !== "רשום" || crsGone(m) || placed.has(m.student_id) || !asgNeed(m.student_id)) return;
     const ci = crsCity(c); (waits[ci] = waits[ci] || new Map()).set(m.student_id, { m, c }); });
   const nm = (sid) => { const l = (L.leads || []).find(x => x.student_id === sid), st = l && l.student || {}; return { l, t: ((st.first_name || "") + " " + (st.last_name || "")).trim() || "#" + sid, g: st.grade ? classLabel(st.grade, st.class_num) : "" }; };
   let h = `<div class="tbl-wrap"><table class="tbl at-tbl"><thead><tr><th>מקום התרגול</th><th>קבוצות (ילדים / מקומות)</th><th class="num">ילדים</th><th>מתרגלים</th><th>קישור להרשמה</th></tr></thead><tbody>`;
