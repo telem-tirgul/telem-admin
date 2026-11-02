@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.40">
+<meta name="app-version" content="5.20.41">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1737,7 +1737,7 @@ td.nowrap{ white-space:nowrap; }
 .all-st{ font-weight:800; font-size:13.5px; white-space:nowrap; } .all-st.on{ color:var(--ok); } .all-st.off{ color:var(--ink-soft); }
 @media (max-width:760px){ .all-row{ grid-template-columns:1fr auto; } .all-row .all-l{ grid-column:1 / -1; } }
 .sc-hak{ display:flex; flex-wrap:wrap; gap:6px; } /* 5.19.77 (נועה): הקבצות - במחשב שורה לכל הקבצה, בנייד רשימה עם פסיקים */
-#exMonthNav.exmn-off{ visibility:hidden; } .sc-room{ font-size:13.5px; margin:-2px 0 8px; } .sx-card .sx-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .sx-card .sx-h h3{ margin:0; margin-inline-end:auto; } .sx-g{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border); } .sx-g:first-of-type{ border-top:0; } .sx-b{ flex:1; min-width:0; } .sx-b .ex-row{ margin:2px 0 6px; }
+#exMonthNav.exmn-off{ visibility:hidden; } .sc-col{ display:flex; flex-direction:column; gap:12px; min-width:0; } .sc-det .sc-det-s + .sc-det-s{ border-top:1px solid var(--border); margin-top:10px; padding-top:8px; } .sc-room{ font-size:13.5px; margin:-2px 0 8px; } .sx-card .sx-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .sx-card .sx-h h3{ margin:0; margin-inline-end:auto; } .sx-g{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border); } .sx-g:first-of-type{ border-top:0; } .sx-b{ flex:1; min-width:0; } .sx-b .ex-row{ margin:2px 0 6px; }
 .sc-hak-l{ list-style:none; margin:4px 0 0; padding:0; line-height:1.7; } .sc-hak-c{ display:none; line-height:1.6; }
 @media (max-width:760px){ .sc-hak-l{ display:none; } .sc-hak-c{ display:block; } } .sc-head.lg-h-row h2{ margin:0; }
 .lp-box{ border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin:8px 0; background:#fff; }
@@ -9742,17 +9742,17 @@ function renderSchools(){
     const contH = contacts.length ? `<div class="sc-contacts">${contacts.map(c => `<div class="sc-ct"><span class="muted">${esc(c.role)}</span>${c.name ? ` <b>${esc(c.name)}</b>` : ""}<div>${tel(c.phone)}</div></div>`).join("")}</div>` : "<span class='muted'>אין</span>";
     $("scBody").innerHTML = `
       <div class="sc-head"><h2>${esc(x.name)}</h2><span class="muted">${esc(x.city)}</span>${x.phone ? `<span>טלפון בית הספר: ${tel(x.phone)}</span>` : ""}</div>
+      <!-- 5.20.41 (נועה 2.11): עמודה ראשונה – הקבוצות ופרטי בית הספר אחד מתחת לשני; שנייה – מבחנים וחומר (באורך שלה, לא דוחף את השאר) -->
       <div class="sc-main">
+        <div class="sc-col">
         <div class="card"><h3>הקבוצות שלנו כאן</h3><div class="sc-room">📍 הכיתה שלנו: ${x.rooms ? `<b>${bidiRooms(x.rooms)}</b>` : `<span class="muted">לא נכתבה</span>`} <span class="muted">· קבוצה חדשה כאן מקבלת את הכיתה הזו</span></div>${groupsHtml}</div>
-        ${scExamsHtml(x)}
-      </div>
-      <details class="card sc-more" open><summary>פרטי בית הספר <span class="muted">· הקבצות, לוח צלצולים, אנשי קשר</span></summary>
-        <div class="sc-grid">
-          <div><h3>הקבצות</h3>${(x.hakbatsa_options || []).length ? `<ul class="sc-hak-l">${x.hakbatsa_options.map(h => `<li>${esc(h)}</li>`).join("")}</ul><div class="sc-hak-c">${x.hakbatsa_options.map(esc).join(", ")}</div>` : `<span class='muted'>לא הוגדר – בטפסים מופיעה רשימת ברירת המחדל</span>`}</div>
-          <div><h3>לוח צלצולים</h3>${bellsH}</div>
-          <div><h3>אנשי קשר</h3>${contH}</div>
+        <div class="card sc-det"><div class="sc-det-s"><h3>הקבצות</h3>${(x.hakbatsa_options || []).length ? `<ul class="sc-hak-l">${x.hakbatsa_options.map(h => `<li>${esc(h)}</li>`).join("")}</ul><div class="sc-hak-c">${x.hakbatsa_options.map(esc).join(", ")}</div>` : `<span class='muted'>לא הוגדר – בטפסים מופיעה רשימת ברירת המחדל</span>`}</div>
+          <div class="sc-det-s"><h3>לוח צלצולים</h3>${bellsH}</div>
+          <div class="sc-det-s"><h3>אנשי קשר</h3>${contH}</div>
+          <div class="meta-line">עודכן: ${esc(fmtDate(x.updated_at))}</div></div>
         </div>
-        <div class="meta-line">עודכן: ${esc(fmtDate(x.updated_at))}</div></details>`;
+        ${scExamsHtml(x)}
+      </div>`;
     $("scBody").querySelectorAll(".sc-groups tr[data-sid]").forEach(tr => tr.onclick = () => openGroupOnBoard(Number(tr.dataset.sid), x.city));
     bindSchoolExams($("scBody"));
     return;
