@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.46">
+<meta name="app-version" content="5.20.47">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1779,6 +1779,9 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .at-tbl tr.at-r{ cursor:pointer; } .at-tbl tr.at-r:hover td{ background:#FBF6EF; } .at-tbl tr.at-first td{ border-top:1.5px solid #E2D6C8; } .at-tbl td.at-loc{ white-space:nowrap; vertical-align:top; }
 .at-tbl .mst{ display:block; font-weight:700; white-space:nowrap; font-size:12.5px; margin-bottom:3px; } .at-tbl .mst.open{ color:#2E7D32; } .at-tbl .mst.closed{ color:var(--ink-soft); }
 .at-tbl td.at-lk{ vertical-align:top; } .at-tag{ font-size:12px; font-weight:700; color:var(--accent); border:1px solid #E2D6C8; border-radius:999px; padding:0 7px; white-space:nowrap; }
+/* 5.20.47 (נועה 3.11): כותרות במרכז, הפרדה עדינה בין העמודות, "פתוח" באותה שורה של הקישור */
+.at-tbl th, .crs-mtbl th{ text-align:center !important; } .at-tbl th + th, .at-tbl td + td, .crs-mtbl th + th, .crs-mtbl td + td{ border-inline-start:1px solid rgba(90,18,22,.07); }
+.at-tbl tr.at-city td + td{ border-inline-start-color:rgba(90,18,22,.10); } .at-tbl .at-lkr{ display:flex; align-items:center; gap:8px; flex-wrap:nowrap; } .at-tbl .at-lkr .mst{ display:inline; margin:0; }
 .at-tbl tr.at-sch{ cursor:pointer; } .at-tbl tr.at-sch:hover td{ background:#FBF6EF; } .at-tbl tr.at-sch td{ border-top:1.5px solid #E2D6C8; }
 .at-car{ display:inline-block; width:0; height:0; border-block:5px solid transparent; border-inline-start:7px solid var(--ink-soft); margin-inline-end:8px; transition:transform .15s; vertical-align:middle; } .at-tbl tr.at-sch.open .at-car{ transform:rotate(-90deg); }
 .at-tbl tr.at-g-r td{ background:#FCFAF7; font-size:13.5px; } .at-tbl tr.at-g-r{ cursor:pointer; } .at-tbl tr.at-g-r:hover td{ background:#F6EFE6; } .at-tbl td.at-wa{ white-space:nowrap; } .at-tbl td.at-wa .btn{ margin-inline-end:4px; }
@@ -9459,7 +9462,7 @@ async function loadAttTable(){
   const waOf = (ci, lo) => { const x = (SC.list || []).find(y => y.city === ci && y.name === lo); return x && x.wa_group_url ? x.wa_group_url : ""; };
   A.atOpen = A.atOpen || new Set();
   const stT = (op) => op === null ? "" : `<span class="mst ${op ? "open" : "closed"}">${op ? "● פתוח" : "○ סגור"}</span>`;
-  const lkCell = (op, u, msg) => `<td class="at-lk">${stT(op)}${lk2Btns("", u, msg)}</td>`;
+  const lkCell = (op, u, msg) => `<td class="at-lk"><div class="at-lkr">${stT(op)}${lk2Btns("", u, msg)}</div></td>`;   // 5.20.47: פתוח / סגור באותה שורה
   const kidsTxt = (k, c, full) => `<b>${k}</b>${c ? ` <span class="muted">מתוך ${c}</span>` : ""}${full && c && k >= c ? ` <span class="at-tag">מלאה</span>` : ""}`;
   const waCell = (u, lo) => `<td class="at-wa">${u ? `<a class="btn small" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(u)}">💬 פתיחה</a><button type="button" class="btn small" data-copy="${esc(u)}" title="העתקת הקישור">העתקה</button>` : `<span class="muted" title="אפשר להוסיף במסך בתי ספר ← ✎ עריכה">—</span>`}</td>`;
   let h = `<div class="tbl-wrap"><table class="tbl at-tbl"><thead><tr><th>בית ספר</th><th>קבוצות</th><th>ילדים</th><th>מתרגלים</th><th>טופס התעניינות</th><th>טופס הרשמה</th><th>קבוצת וואטסאפ</th></tr></thead><tbody>`;
