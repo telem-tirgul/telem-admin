@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.45">
+<meta name="app-version" content="5.20.46">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1737,7 +1737,8 @@ td.nowrap{ white-space:nowrap; }
 .all-st{ font-weight:800; font-size:13.5px; white-space:nowrap; } .all-st.on{ color:var(--ok); } .all-st.off{ color:var(--ink-soft); }
 @media (max-width:760px){ .all-row{ grid-template-columns:1fr auto; } .all-row .all-l{ grid-column:1 / -1; } }
 .sc-hak{ display:flex; flex-wrap:wrap; gap:6px; } /* 5.19.77 (נועה): הקבצות - במחשב שורה לכל הקבצה, בנייד רשימה עם פסיקים */
-#exMonthNav.exmn-off{ visibility:hidden; } .sc-col{ display:flex; flex-direction:column; gap:12px; min-width:0; } .sc-det .sc-det-s + .sc-det-s{ border-top:1px solid var(--border); margin-top:10px; padding-top:8px; } .sc-room .linkish{ font:inherit; background:none; border:0; color:var(--accent); text-decoration:underline; cursor:pointer; padding:0; } .lh-wa a{ color:#1E7A3C; font-weight:700; } .sc-room{ font-size:13.5px; margin:-2px 0 8px; } .sx-card .sx-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .sx-card .sx-h h3{ margin:0; margin-inline-end:auto; } .sx-g{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border); } .sx-g:first-of-type{ border-top:0; } .sx-b{ flex:1; min-width:0; } .sx-b .ex-row{ margin:2px 0 6px; }
+#exMonthNav.exmn-off{ visibility:hidden; } .gdg .gdg-sum2{ font-size:13px; display:inline-flex; flex-wrap:wrap; gap:2px 6px; } .gdg .gdg-tg{ padding:2px 10px !important; min-height:26px; } .gdg:not(.gd-open) .gdg-h{ margin-bottom:0 !important; }
+.sc-col{ display:flex; flex-direction:column; gap:12px; min-width:0; } .sc-det .sc-det-s + .sc-det-s{ border-top:1px solid var(--border); margin-top:10px; padding-top:8px; } .sc-room .linkish{ font:inherit; background:none; border:0; color:var(--accent); text-decoration:underline; cursor:pointer; padding:0; } .lh-wa a{ color:#1E7A3C; font-weight:700; } .sc-room{ font-size:13.5px; margin:-2px 0 8px; } .sx-card .sx-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .sx-card .sx-h h3{ margin:0; margin-inline-end:auto; } .sx-g{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border); } .sx-g:first-of-type{ border-top:0; } .sx-b{ flex:1; min-width:0; } .sx-b .ex-row{ margin:2px 0 6px; }
 .sc-hak-l{ list-style:none; margin:4px 0 0; padding:0; line-height:1.7; } .sc-hak-c{ display:none; line-height:1.6; }
 @media (max-width:760px){ .sc-hak-l{ display:none; } .sc-hak-c{ display:block; } } .sc-head.lg-h-row h2{ margin:0; }
 .lp-box{ border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin:8px 0; background:#fff; }
@@ -8521,13 +8522,16 @@ function ibGdGroup(g, when){
   const fxH = fx.length ? fx.map(se => { const st0 = String(se.start_time || "").slice(0, 5); return gdPill(se.location && se.location.name, `${sessWhen(se)} ${rng(st0, String(se.end_time || "").slice(0, 5) || addMin(st0, 45))} · ${esc((se.location && se.location.name) || "")}`); }).join(" ")
     : `<span class="muted">לא משובץ/ת לקבוצה קבועה</span>`;
   const ids = g.filter(r => r.status !== "handled").map(r => r.id).join(",");
-  return `<div class="ib-gd gdg ${done ? "handled" : g.some(r => r.status === "new") ? "new" : "seen"}" data-ib="${r0.id}">
+  // 5.20.46 (נועה 3.11: "תופס המון מקום"): שורת סיכום אחת; הפרטים (הטבלה) – בלחיצה על ▸ פרטים
+  IB.gdOpen = IB.gdOpen || new Set(); const gOpen = IB.gdOpen.has(r0.student_id);
+  const sum2 = [ms.length ? `<span class="gdg-no">✗ ${ms.length === 1 ? "פעם אחת" : ms.length + " פעמים"} לא בקבוצה הקבועה</span>` : "", ad.length ? `<span class="gdg-ok">✓ ${ad.length === 1 ? "פעם אחת" : ad.length + " פעמים"} בקבוצה אחרת</span>` : "", pat.length ? `<span>⟳ אולי שיבוץ קבוע אחר</span>` : ""].filter(Boolean).join(" · ");
+  return `<div class="ib-gd gdg ${done ? "handled" : g.some(r => r.status === "new") ? "new" : "seen"}${gOpen ? " gd-open" : ""}" data-ib="${r0.id}">
     <div class="gdg-h"><span class="ib-ic">🔀</span><b class="ib-gd-n">${ibNameLink(r0, lead)}</b>
-      <span class="gdg-sum">${head}</span><small class="ib-time">${esc(when(g[g.length - 1].created_at))}</small>
+      <span class="gdg-sum">${head}</span><span class="gdg-sum2">${sum2}</span><button type="button" class="btn small gdg-tg" data-gdtg="${r0.student_id}" aria-expanded="${gOpen}">${gOpen ? "▾ סגירה" : "◂ פרטים"}</button><small class="ib-time">${esc(when(g[g.length - 1].created_at))}</small>
       <span class="gdg-a">${done ? `<span class="muted">✓ טופל</span>` : ids ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ נקרא (${ids.split(",").length})</button>` : ""}</span></div>
-    ${fx.length ? "" : `<div class="gdg-fx"><span class="gdg-l">שיבוצים קבועים:</span> ${fxH}</div>`}
+    <div class="gdg-body"${gOpen ? "" : " hidden"}>${fx.length ? "" : `<div class="gdg-fx"><span class="gdg-l">שיבוצים קבועים:</span> ${fxH}</div>`}
     ${patH}
-    <table class="gdg-t"><thead><tr><th>שבוע</th>${fx.length ? fx.map(se => { const st0 = String(se.start_time || "").slice(0, 5); return `<th>${gdPill(se.location && se.location.name, `${sessWhen(se)} ${st0} · ${esc((se.location && se.location.name) || "")}`)}</th>`; }).join("") : `<th>בקבוצה הקבועה</th>`}<th>הגיע/ה במקום</th><th>סה״כ</th></tr></thead><tbody>${rowsH}</tbody></table></div>`;
+    <table class="gdg-t"><thead><tr><th>שבוע</th>${fx.length ? fx.map(se => { const st0 = String(se.start_time || "").slice(0, 5); return `<th>${gdPill(se.location && se.location.name, `${sessWhen(se)} ${st0} · ${esc((se.location && se.location.name) || "")}`)}</th>`; }).join("") : `<th>בקבוצה הקבועה</th>`}<th>הגיע/ה במקום</th><th>סה״כ</th></tr></thead><tbody>${rowsH}</tbody></table></div></div>`;
 }
 // 5.20.33 (אבטחה, כל-17 2.5): הסטטוס כמחלקת CSS – רק מרשימה קבועה
 // 5.20.33 (אבטחה, כל-17 2.4): קישור ל-PDF רק אם הוא באמת PDF / https / blob
@@ -8702,6 +8706,8 @@ async function renderInbox(reload){
       try { await patch("form_inbox", "id=eq." + r.id, { data: nd }); r.data = nd; renderInbox(false); } catch(e) { toast("אוחד, אבל ההתראה לא עודכנה: " + e.message); } }); });
   box.querySelectorAll("[data-ibcx]").forEach(b => b.onclick = async () => { const p = (IB.plans || {})[b.dataset.ibcx]; if (!p) return; b.disabled = true;   // 5.19.68: סימון "בוטלה" מההודעה
     const r = IB.rows.find(x => x.ref_id === b.dataset.ibcx); if (await planMarkCancel(p, r ? ibName(r) : "")) { p.cancel_marked_at = new Date().toISOString(); renderInbox(false); } else b.disabled = false; });   // 5.19.66: כפילות אפשרית - איחוד מכאן
+  box.querySelectorAll("[data-gdtg]").forEach(b => b.onclick = () => { IB.gdOpen = IB.gdOpen || new Set(); const k = Number(b.dataset.gdtg), w = b.closest(".gdg"), on = !IB.gdOpen.has(k);
+    on ? IB.gdOpen.add(k) : IB.gdOpen.delete(k); w.classList.toggle("gd-open", on); w.querySelector(".gdg-body").hidden = !on; b.textContent = on ? "▾ סגירה" : "◂ פרטים"; b.setAttribute("aria-expanded", String(on)); });   // 5.20.46
   box.querySelectorAll("[data-ibs]").forEach(b => b.onclick = async () => { const [st, id] = b.dataset.ibs.split(":"); b.disabled = true;
     const prev = id.split(",").map(i => IB.rows.find(x => x.id === Number(i))).filter(Boolean).map(r => ({ id: r.id, status: r.status, handled_at: r.handled_at, handled_by: r.handled_by, note: r.note }));
     try { await patch("form_inbox", "id=" + (id.includes(",") ? "in.(" + id + ")" : "eq." + id), st === "handled" ? { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "" } : { status: "seen" });
