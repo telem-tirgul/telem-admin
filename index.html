@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.0">
+<meta name="app-version" content="5.21.1">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2603,6 +2603,14 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
 .at-tbl td.at-g-n{ padding-inline-start:38px !important; position:relative; text-align:start !important; }
 .at-tbl td.at-g-n::before{ content:""; position:absolute; inset-inline-start:22px; top:0; bottom:50%; width:11px; border-inline-start:1.5px solid #D8C3B4; border-bottom:1.5px solid #D8C3B4; border-end-start-radius:6px; }
 .at-tbl .at-g-in{ white-space:nowrap; }
+/* 5.21.1 (נועה 3.11): כרטיס תלמיד – הטלפונים צרים יותר, האימיילים (בעיקר של ההורה) רחבים יותר */
+@media (min-width:1151px){
+  #view-lead #leadForm .lead-main .lead-top .key-grid > div{ flex:1 1 0 !important; min-width:0 !important; }
+  #view-lead #leadForm .lead-main .lead-top .key-grid > div:has(#sPhone), #view-lead #leadForm .lead-main .lead-top .key-grid > div:has(#p1Phone){ flex:0.82 1 0 !important; }
+  #view-lead #leadForm .lead-main .lead-top .key-grid > div:has(#sEmail){ flex:1.15 1 0 !important; }
+  #view-lead #leadForm .lead-main .lead-top .key-grid > div:has(#p1Email){ flex:1.6 1 0 !important; }
+  #view-lead #leadForm .lead-main .lead-top .key-grid > .kg-br{ flex:0 0 0 !important; }
+}
 </style>
 </head>
 <body>
@@ -4581,7 +4589,9 @@ function marMeetings(se){
 }
 const meetTxt = (m) => `יום ${DAY_NAMES[DAY_OF(m.date)] || ""} ${fmtDM(m.date)} · ${rng(String(m.start || "").slice(0, 5), String(m.end || "").slice(0, 5))}` + (m.room ? " · " + roomTxt(m.room) : "");
 function sessWhen(se){
-  if (se && se.kind === "מרתון") return "מרתון · " + marMeetings(se).map(m => fmtDM(m.date) + " " + String(m.start || "").slice(0, 5)).join(", ");
+  // 5.21.1 (נועה 3.11): "מרתון · א' 01.11, ג' 03.11" – השעה פעם אחת (אחרי זה, אצל מי שקורא); שעה ליד תאריך רק כשהמפגשים בשעות שונות
+  if (se && se.kind === "מרתון") { const ms = marMeetings(se), same = new Set(ms.map(m => String(m.start || "").slice(0, 5))).size <= 1;
+    return "מרתון · " + ms.map(m => DAY_OF(m.date) + "' " + fmtDM(m.date) + (same ? "" : " " + String(m.start || "").slice(0, 5))).join(", "); }
   return "יום " + (DAY_NAMES[se && se.day] || "");
 }
 // מרתון: תגית ליד השם למי שנרשם/ה למרתון
