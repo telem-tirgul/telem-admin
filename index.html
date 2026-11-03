@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.55">
+<meta name="app-version" content="5.21.0">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2546,7 +2546,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     .ar-filters > div > select{ min-width:140px; } .ar-filters > div > input[type=date]{ width:150px; } }
   #view-attg .page-head #arCsv, #view-attk .page-head #arCsv{ margin-inline-start:auto; }
   #view-attg .page-head, #view-attk .page-head{ gap:8px; }
-  #view-attg .page-head h1, #view-attk .page-head h1{ margin-inline-end:auto; }
+  #view-attk .page-head h1{ margin-inline-end:auto; }
   @media (max-width:760px){
     .ar-filters:not(.open) > :not(.ar-q):not(.ar-tog){ display:none !important; }
     .ar-filters:not(.open){ flex-wrap:nowrap !important; align-items:center; }
@@ -2569,6 +2569,40 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   #view-pay #payWrap .br-rule2 > .br-f{ margin-top:8px; } #view-pay #payWrap .br-rule2 textarea{ background:#fff; border:1.5px solid #D9CFC2; }
   #view-pay #payWrap .br-rule2 .br-expl{ font-size:13px; margin-top:6px; }
   #view-pay #payWrap .br-rule2 .btn.danger{ padding:4px 12px; min-height:30px; }
+
+/* ===== 5.21 (נועה 3.11): אחידות בכל המסכים ===== */
+/* כותרת המסך: השם, מיד אחריו הלשוניות (באותו מקום בכל לשונית), הכפתור הראשי ("+ חדש") משמאל */
+.page-head.att-head, .page-head.pay-head{ display:flex !important; justify-content:flex-start !important; align-items:center !important; gap:10px 16px !important; flex-wrap:wrap; }
+.page-head.att-head > h1, .page-head.pay-head > h1{ margin:0 !important; }
+.page-head.pay-head .pay-tabs{ margin:0 !important; }
+.page-head > .att-adm{ margin-inline-start:auto !important; }
+/* הרקע הירקרק – רק בלשונית "נוכחות" */
+body[data-view="att"][data-amode]:not([data-amode="a"]){ background:var(--bg); }
+body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:var(--bg); }
+/* דוח נוכחות: בלי תיבת הסיכום; הסינון בשורה אחת קומפקטית, כולל "לפי ילד/ה / לפי קבוצה" */
+#arSum{ display:none !important; }
+.ar-vslot{ display:flex; flex-direction:column; } .ar-vslot .gseg button{ white-space:nowrap; }
+@media (min-width:901px){
+  #arFilters.ar-filters{ gap:8px !important; padding:8px 12px !important; border-top:1px solid var(--border) !important; background:var(--paper) !important; align-items:flex-end; margin-bottom:10px; }
+  #arFilters .lbl{ font-size:11.5px !important; margin:0 0 2px !important; }
+  #arFilters select, #arFilters input, #arFilters .gseg button{ height:34px !important; font-size:13.5px !important; }
+  #arFilters .gseg button{ padding:0 12px !important; }
+  #arFilters.ar-filters{ flex-wrap:wrap !important; }
+  #arFilters > div{ flex:0 0 auto !important; min-width:0 !important; }
+  #arFilters select, #arFilters input{ width:100% !important; min-width:0 !important; box-sizing:border-box; }
+  #arFilters > .ar-q{ width:140px !important; } #arFilters > div:has(#arCity){ width:110px !important; } #arFilters > div:has(#arSchool){ width:125px !important; } #arFilters > div:has(#arGroup){ width:150px !important; }
+  #arFilters > div:has(#arFrom), #arFilters > div:has(#arTo){ width:124px !important; } #arFilters > .ar-asg{ width:112px !important; } #arFilters .ar-rng .gseg button, #arFilters .ar-vslot .gseg button{ padding:0 10px !important; }
+  #arFilters > .ar-rng, #arFilters > .ar-vslot{ width:auto !important; }
+}
+/* דוח נוכחות: כל רוחב המסך וכל הגובה */
+.main > section#view-attg{ max-width:none; }
+@media (min-width:901px){ #view-attg .ar-kwrap, #view-attg .ex-cal-wrap{ max-height:calc(100vh - 235px) !important; } }
+/* טבלת השוטף: שורות הקבוצות – פירוט מתחת לבית הספר (מוזחות, בהירות וקטנות יותר) */
+.at-tbl tr.at-g-r td{ background:#FDFBF8 !important; font-size:13px; color:#5A4E47; padding-block:5px !important; border-top:1px dashed #EEE5DB !important; }
+.at-tbl tr.at-g-r:hover td{ background:#F7F0E8 !important; }
+.at-tbl td.at-g-n{ padding-inline-start:38px !important; position:relative; text-align:start !important; }
+.at-tbl td.at-g-n::before{ content:""; position:absolute; inset-inline-start:22px; top:0; bottom:50%; width:11px; border-inline-start:1.5px solid #D8C3B4; border-bottom:1.5px solid #D8C3B4; border-end-start-radius:6px; }
+.at-tbl .at-g-in{ white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -2820,6 +2854,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
             <div><label class="lbl" for="arTo">עד</label><input type="date" id="arTo"></div>
             <div class="ar-asg"><label class="lbl" for="arAsg">שיבוץ</label><select id="arAsg"><option value="">הכול</option><option value="in">משובצים בטווח</option><option value="out">לא משובצים בטווח</option></select></div>
             <div class="ar-rng"><span class="lbl">טווח מהיר</span><div class="gseg" role="group" aria-label="טווח"><button type="button" data-arr="h1">מחצית א'</button><button type="button" data-arr="h2">מחצית ב'</button><button type="button" data-arr="year">כל השנה</button></div></div>
+            <div class="ar-vslot"><span class="lbl">תצוגה</span><div id="arVSeg"></div></div>
             <div class="ar-btns"><button type="button" class="clear-f" id="arClear">✕ ניקוי סינון</button><button class="btn primary" type="button" id="arShow" hidden>רענון</button><button class="btn small" type="button" id="arCsv"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></div>
           </div>
           <div id="arBody"></div>
@@ -2876,7 +2911,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== קישורי הרשמה (בהגדרות) ===== -->
     <section id="view-sched" hidden>
-      <div class="page-head att-head"><h1>קבוצות<span class="lg-t"> ונוכחות</span></h1><span class="gseg att-mode att-tabs2" data-admin role="group" aria-label="מצב" data-cur="sched"><button type="button" data-amode="a">✓ נוכחות</button><button type="button" data-amode="g">👥 קבוצות</button><button type="button" data-amode="t" class="att-dsk">📋 טבלה</button><button type="button" data-ago="attg" class="att-dsk">📊 דוח נוכחות</button><button type="button" data-ago="sched" class="att-dsk">📨 בקשות שיבוץ</button></span><button type="button" class="btn small" id="schedBack" hidden>→ חזרה לקבוצות</button></div>
+      <div class="page-head att-head"><h1>קבוצות<span class="lg-t"> ונוכחות</span></h1><span class="gseg att-mode att-tabs2" data-admin role="group" aria-label="מצב" data-cur="sched"><button type="button" data-amode="a">✓ נוכחות</button><button type="button" data-amode="g">👥 קבוצות</button><button type="button" data-amode="t" class="att-dsk">📋 טבלה</button><button type="button" data-ago="attg" class="att-dsk">📊 דוח נוכחות</button><button type="button" data-ago="sched" class="att-dsk">📨 בקשות שיבוץ</button></span><button type="button" class="btn small" id="schedBack" hidden>→ חזרה לקבוצות</button><div class="att-adm" data-admin><button type="button" class="btn small primary" data-attnew>+ קבוצה חדשה</button></div></div>
       <!-- 5.20.38: הלשוניות של "קורסים" הוסרו – חזרה לקבוצות ונוכחות -->
       <div class="card" id="scGeneral" hidden></div>
       <div class="sc-wrap">
@@ -2900,9 +2935,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== תשלומים (5.19.35: מסך נפרד מההרשמה) ===== -->
     <section id="view-pay" hidden>
-      <div class="page-head pay-head"><h1>תשלומים</h1>
-</div>
-      <div class="gseg subnav reg-tabs pay-tabs" role="tablist" aria-label="תשלומים" id="payTop"></div><div class="pg-tabs pay-sub2" role="tablist" id="paySub2"></div>
+      <div class="page-head pay-head"><h1>תשלומים</h1><div class="gseg subnav reg-tabs pay-tabs" role="tablist" aria-label="תשלומים" id="payTop"></div><!-- 5.21 (נועה 3.11): הלשוניות בשורת הכותרת, כמו בשאר המסכים -->
+</div><div class="pg-tabs pay-sub2" role="tablist" id="paySub2"></div>
       <div id="payWrap">
         <div id="payDemo" class="demo" hidden>תצוגה לדוגמה - הנתונים כאן מדומים (שמות ומספרים לא אמיתיים). המסך יציג נתונים אמיתיים אחרי התקנת חבילת איקרדיט (קובץ 62.2).</div>
         <div class="muted pay-sub">הספק: איקרדיט (ריווחית). את החיובים החודשיים עושה איקרדיט - כאן רואים ומנהלים.</div>
@@ -3040,7 +3074,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <div class="ar-host" id="arHostK"></div>
     </section>
     <section id="view-attg" hidden>
-      <div class="page-head att-head"><h1>קבוצות<span class="lg-t"> ונוכחות</span></h1><span class="gseg att-mode att-tabs2" data-admin role="group" aria-label="מצב" data-cur="attg"><button type="button" data-amode="a">✓ נוכחות</button><button type="button" data-amode="g">👥 קבוצות</button><button type="button" data-amode="t" class="att-dsk">📋 טבלה</button><button type="button" data-ago="attg" class="att-dsk">📊 דוח נוכחות</button><button type="button" data-ago="sched" class="att-dsk">📨 בקשות שיבוץ</button></span><button type="button" class="btn small" id="arBackBtn" hidden>→ חזרה ללוח</button></div>
+      <div class="page-head att-head"><h1>קבוצות<span class="lg-t"> ונוכחות</span></h1><span class="gseg att-mode att-tabs2" data-admin role="group" aria-label="מצב" data-cur="attg"><button type="button" data-amode="a">✓ נוכחות</button><button type="button" data-amode="g">👥 קבוצות</button><button type="button" data-amode="t" class="att-dsk">📋 טבלה</button><button type="button" data-ago="attg" class="att-dsk">📊 דוח נוכחות</button><button type="button" data-ago="sched" class="att-dsk">📨 בקשות שיבוץ</button></span><button type="button" class="btn small" id="arBackBtn" hidden>→ חזרה ללוח</button><div class="att-adm" data-admin><button type="button" class="btn small primary" data-attnew>+ קבוצה חדשה</button></div></div>
       <div class="ar-host" id="arHostG"></div>
     </section>
     <!-- ===== מבחנים בבתי הספר (קובץ 50) ===== -->
@@ -3064,8 +3098,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <section id="view-exams" hidden>
       <div class="page-head att-head ex-head"><h1>מרתונים</h1><span class="gseg att-mode ex-tabs" role="group" aria-label="תצוגה"><button type="button" data-exm="cal">🗓️ לוח מבחנים</button><button type="button" data-exm="mar">📋 טבלה</button></span><!-- 5.20.53 (נועה 3.11): הלשוניות באותו מקום כמו בקבוצות ונוכחות -->
         <div style="display:flex; gap:8px; flex-wrap:wrap;" data-admin>
-          <button class="btn small" type="button" id="exScanBtn" title="קריאת קבצים חדשים מ&quot;חומר מבתי הספר&quot; בדרייב (קורה גם לבד כל שעה, 06:00–22:00)">🔄 סריקה עכשיו</button><!-- 5.19.98 -->
-          <button class="btn small" type="button" id="exImpBtn">ייבוא מהקובץ</button><input type="file" id="exImpFile" accept=".xlsx" hidden>
+          <button class="btn small" type="button" id="exScanBtn" title="קורא קבצים חדשים מ&quot;חומר מבתי הספר&quot; בדרייב ומעדכן את לוח המבחנים (קורה גם לבד כל שעה, 06:00–22:00)">🔄 סריקה וייבוא עכשיו</button><!-- 5.19.98 -->
+          <button class="btn small" type="button" id="exImpBtn" hidden>ייבוא מהקובץ</button><!-- 5.21 (נועה 3.11): הוסר – הייבוא אוטומטי (סריקת הדרייב) --><input type="file" id="exImpFile" accept=".xlsx" hidden>
           <button class="btn small primary" type="button" id="exAddBtn" hidden>+ אירוע</button>
           <button class="btn small primary" type="button" id="exMarBtn" hidden>+ מרתון</button><!-- 5.19.33: יצירת מרתון (קישור הרשמה) - רק ב"הרשמה ותשלומים"; בלוח - מפגשי מרתון כאירועים -->
         </div></div>
@@ -7717,7 +7751,7 @@ $("exScanBtn").addEventListener("click", async () => {
     const r = await fetch(CONFIG.supabaseUrl + "/functions/v1/scan-now", { method: "POST", headers: Object.assign(baseHeaders(), { Authorization: "Bearer " + t }), body: "{}" });
     const j = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(j.error || ("שגיאה " + r.status));
-    toast(j.already ? "כבר רצה סריקה – החומר יופיע בעוד כמה דקות" : "הסריקה התחילה – קבצים חדשים יופיעו בלוח בעוד כ-5 דקות");
+    toast(j.already ? "כבר רצה סריקה – החומר יופיע בעוד כמה דקות" : "הסריקה והייבוא התחילו – מבחנים וחומר חדשים יופיעו בלוח בעוד כ-5 דקות");
   } catch(e) { toast("הסריקה לא התחילה: " + e.message); }
   setTimeout(() => { b.disabled = false; }, 60000);
 });
@@ -8160,6 +8194,7 @@ function newGroup(preset){
 }
 $("gNewBtn").addEventListener("click", () => newGroup(null));
 // 5.19.29: כפתורי המנהלים במסך קבוצות ונוכחות
+document.querySelectorAll("[data-attnew]").forEach(b => b.addEventListener("click", async () => { await ensureG(); newGroup({ city: G.city }); }));   // 5.21: גם בדוח הנוכחות ובבקשות השיבוץ
 $("attNewG").addEventListener("click", async () => { await ensureG(); newGroup({ city: A.city || (A.cities.length ? A.cities[0] : null) || G.city }); });   // 5.19.36: העיר שנבחרה בלוח
 $("attNewM").addEventListener("click", async () => { await ensureG(); $("mNewBtn").click(); });
 $("attRepBtn").addEventListener("click", () => go("attg"));
@@ -9303,7 +9338,7 @@ A.mode = "a"; A.loc = ""; A.fill = "all";   // 5.19.37: תמיד כל הקבוצ
 try { A.kinds = JSON.parse(store("telem_att_kinds") || "null"); } catch(e) {} if (!Array.isArray(A.kinds) || !A.kinds.length) A.kinds = ["שוטף", "מרתון"];
 const attMode = () => ME.role === "instructor" ? "a" : isMobile() ? (A.mode === "t" ? "t" : "g") : A.mode === "g" ? "g" : A.mode === "t" ? "t" : "a";   // 5.20.38: "t" – טבלה לפי מקום תרגול   // 5.19.149 (נועה 27.10): בנייד – רק "👥 קבוצות" (הנוכחות – בתלם שלי)
 function paintAttMode(){
-  document.querySelectorAll("#view-att [data-amode]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.amode === attMode()))); document.querySelectorAll("#view-att [data-ago]").forEach(b => b.setAttribute("aria-pressed", "false"));
+  document.querySelectorAll("#view-att [data-amode]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.amode === attMode()))); document.body.dataset.amode = attMode(); document.querySelectorAll("#view-att [data-ago]").forEach(b => b.setAttribute("aria-pressed", "false"));
   document.querySelectorAll("[data-akind]").forEach(b => b.setAttribute("aria-pressed", String(A.kinds.includes(b.dataset.akind))));
   $("attFill").hidden = true;
 }
@@ -9492,6 +9527,7 @@ async function loadAttTable(){
   // 5.20.52 (נועה 3.11): "חתימה על התנאים" – למי שנרשם/ה בטלפון (ממלאים וחותמים, בלי תשלום בטופס) – עמודה נפרדת
   const sigCell = (u, where) => `<td class="at-lk" title="למי שנרשם/ה בטלפון: טופס אישור תנאי התקשרות: ממלאים את כל הפרטים וחותמים, בלי תשלום בטופס. אחר כך מסמנים &quot;שולם&quot;">${lk2Btns("", u, "טופס ההרשמה לתלם - " + where + " (מילוי הפרטים ואישור תנאי התקשרות): ")}</td>`;
   const waCell = (u, lo) => `<td class="at-wa">${u ? `<a class="btn small" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(u)}">💬 פתיחה</a><button type="button" class="btn small" data-copy="${esc(u)}" title="העתקת הקישור">העתקה</button>` : `<span class="muted" title="אפשר להוסיף במסך בתי ספר ← ✎ עריכה">—</span>`}</td>`;
+  const XR = [["עיר", "בית ספר", "קבוצה", "ילדים", "מקומות", "מתרגלים", "טופס התעניינות", "טופס הרשמה", "אישור תנאי התקשרות", "קבוצת וואטסאפ"]], KEYS = [];   // 5.21: שורת הטבלה (מספר · ניקוי · פתיחת הכל · אקסל)
   let h = `<div class="tbl-wrap"><table class="tbl at-tbl"><colgroup><col class="c-sch"><col class="c-g"><col class="c-k"><col class="c-ins"><col class="c-lk"><col class="c-lk"><col class="c-sg"><col class="c-wa"></colgroup><thead><tr><th>בית ספר</th><th>קבוצות</th><th>ילדים</th><th>מתרגלים</th><th>טופס התעניינות</th><th>טופס הרשמה</th><th title="למי שנרשם/ה בטלפון">אישור תנאי התקשרות</th><th>קבוצת וואטסאפ</th></tr></thead><tbody>`;
   let any = false;
   cities.forEach(ci => { const cl = list.filter(x => x.city === ci), P = (typeof REG_PRICES !== "undefined" && REG_PRICES[ci]) || null, W = [...(waits[ci] || new Map()).values()];
@@ -9507,6 +9543,8 @@ async function loadAttTable(){
       const k = gs.reduce((a, x) => a + (x.assigned_count || 0), 0), c2 = gs.reduce((a, x) => a + (Number(x.capacity) || 0), 0), q = (o) => new URLSearchParams(o).toString();
       const key = ci + "|" + lo, open = A.atOpen.has(key), ins = [...new Set(gs.flatMap(x => (G.ins && G.ins[x.session_id]) || []))];
       const nFull = gs.filter(x => x.capacity && (x.assigned_count || 0) >= x.capacity).length, nCl = gs.filter(x => x.is_open === false).length;
+      KEYS.push(key); XR.push([ci, lo, gs.length + " קבוצות", k, c2, ins.join(", "), lkInterest(new URLSearchParams({ city: ci, school: lo })), lkFix(lkBase() + "register.html?" + q({ city: ci, school: lo })), lkFix(lkBase() + "register.html?" + q({ city: ci, school: lo, phone: "1" })), waOf(ci, lo) || ""]);
+      gs.forEach(x => XR.push([ci, lo, x.day + "' " + gHm(x.start_time) + (x.end_time ? "–" + gHm(x.end_time) : "") + (x.room ? " · " + x.room : ""), x.assigned_count || 0, Number(x.capacity) || "", ((G.ins && G.ins[x.session_id]) || []).join(", "), "", "", "", ""]));
       h += `<tr class="at-r at-sch${open ? " open" : ""}" data-atk="${esc(key)}" tabindex="0" aria-expanded="${open}">
         <td class="at-loc"><span class="at-car" aria-hidden="true"></span>${scChip(lo)}</td>
         <td>${gs.length} קבוצות${nFull ? ` <span class="at-tag">${nFull === 1 ? "אחת מלאה" : nFull + " מלאות"}</span>` : ""}${nCl ? ` <span class="at-tag">${nCl === 1 ? "אחת סגורה" : nCl + " סגורות"}</span>` : ""}</td>
@@ -9514,13 +9552,18 @@ async function loadAttTable(){
         <td class="at-ins">${ins.length ? esc(ins.join(", ")) : `<span class="muted">—</span>`}${gs.some(noAdm) ? " " + noAdmIc(gs.find(noAdm)) : ""}</td>
         ${lkCell(io, lkInterest(new URLSearchParams({ city: ci, school: lo })), "טופס התעניינות - תלם " + ci + " · " + lo + ": ")}${lkCell(op, lkFix(lkBase() + "register.html?" + q({ city: ci, school: lo })), "טופס ההרשמה לתלם - " + ci + " · " + lo + ": ")}${sigCell(lkFix(lkBase() + "register.html?" + q({ city: ci, school: lo, phone: "1" })), ci + " · " + lo)}${waCell(waOf(ci, lo), lo)}</tr>`;
       if (open) gs.forEach(x => { const gi = (G.ins && G.ins[x.session_id]) || [];
-        h += `<tr class="at-g-r" data-sid="${x.session_id}" tabindex="0"><td></td><td><b>${esc(x.day)}'</b> ${rng(gHm(x.start_time), gHm(x.end_time))}${x.room ? ` <span class="muted">· <bdi>${esc(x.room)}</bdi></span>` : ""}</td>
+        h += `<tr class="at-g-r" data-sid="${x.session_id}" tabindex="0"><td class="at-g-n" colspan="2"><span class="at-g-in">קבוצה <b>${esc(x.day)}'</b> ${rng(gHm(x.start_time), gHm(x.end_time))}${x.room ? ` <span class="muted">· <bdi>${esc(x.room)}</bdi></span>` : ""}</span></td>
           <td>${kidsTxt(x.assigned_count || 0, Number(x.capacity) || 0, true)}${x.is_open === false ? ` <span class="at-tag">סגורה</span>` : ""}</td>
           <td class="at-ins">${gi.length ? esc(gi.join(", ")) : `<span class="muted">—</span>`}${noAdm(x) ? " " + noAdmIc(x) : ""}</td><td></td><td></td><td></td><td></td></tr>`; }); });
     if (W.length) h += `<tr class="at-wait"><td colspan="8"><b>⚠ נרשמו ועוד לא שובצו (${W.length})</b> ${W.map(({ m, c }) => { const x = nm(m.student_id); return `<button type="button" class="at-w" data-alead="${x.l ? x.l.id : ""}" title="${m.subject ? esc(m.subject) : ""}">${esc(x.t)}${x.g ? ` <span class="muted">${esc(x.g)}</span>` : ""}${crsSch(c) ? ` <span class="muted">· ${esc(crsSch(c))}</span>` : ""}</button>`; }).join("")}</td></tr>`;
   });
-  box.innerHTML = any ? h + `</tbody></table></div>` : `<div class="card muted">אין קבוצות להצגה.</div>`;
+  const allOpen = KEYS.length && KEYS.every(k => A.atOpen.has(k)), fOn = !!A.loc;
+  const bar = `<div class="dx-bar"><span></span><span class="dx-bar-b"><span class="muted">${KEYS.length} בתי ספר</span><button type="button" class="clear-f" id="atClr"${fOn ? "" : " disabled"}>✕ ניקוי סינון</button><button type="button" class="btn small" id="atAll">${allOpen ? "▴ סגירת כל השורות" : "▾ פתיחת כל השורות"}</button><button type="button" class="btn small" id="atXls"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span></div>`;
+  box.innerHTML = any ? bar + h + `</tbody></table></div>` : `<div class="card muted">אין קבוצות להצגה.</div>`;
   $("attSum").innerHTML = "";
+  if ($("atAll")) $("atAll").onclick = () => { if (allOpen) KEYS.forEach(k => A.atOpen.delete(k)); else KEYS.forEach(k => A.atOpen.add(k)); loadAttTable(); };
+  if ($("atXls")) $("atXls").onclick = () => downloadXlsx(XR, "קבוצות - טבלה.xlsx", "קבוצות");
+  if ($("atClr")) $("atClr").onclick = () => { A.loc = ""; if ($("attLoc")) $("attLoc").value = ""; loadAttTable(); };
   box.querySelectorAll("tr[data-sid]").forEach(tr => { const o = () => openPanel(Number(tr.dataset.sid)); tr.onclick = (e) => { if (e.target.closest("button, a, .lk2-cell")) return; o(); }; tr.onkeydown = (e) => { if (e.key === "Enter") o(); }; });
   box.querySelectorAll("tr[data-atk]").forEach(tr => { const t = () => { const k = tr.dataset.atk; A.atOpen.has(k) ? A.atOpen.delete(k) : A.atOpen.add(k); loadAttTable(); };
     tr.onclick = (e) => { if (e.target.closest("button, a, .lk2-cell")) return; t(); }; tr.onkeydown = (e) => { if (e.key === "Enter") t(); }; });
@@ -11067,9 +11110,10 @@ function renderAttReport(){
   const hl = (t) => { if (!q0) return esc(t); const i = wsNorm(t).indexOf(q0); return i < 0 ? esc(t) : esc(t.slice(0, i)) + "<mark>" + esc(t.slice(i, i + q0.length)) + "</mark>" + esc(t.slice(i + q0.length)); };
   // 5.19.27: מתג אחד - לפי ילד/ה / לפי קבוצה (הלקוחה: לאחד לדוח נוכחות אחד)
   const vSeg = `<div class="gseg ar-vseg" role="group" aria-label="תצוגה"><button type="button" data-arv="kid" aria-pressed="${AR.view !== "group"}">לפי ילד/ה</button><button type="button" data-arv="group" aria-pressed="${AR.view === "group"}">לפי קבוצה</button></div>`;
-  const wireV = () => $("arBody").querySelectorAll("[data-arv]").forEach(b => b.onclick = () => { AR.view = b.dataset.arv; store("telem_ar_view", AR.view); renderAttReport(); });
+  if ($("arVSeg")) $("arVSeg").innerHTML = vSeg;   // 5.21 (נועה 3.11): "לפי ילד/ה / לפי קבוצה" בשורת הסינון
+  const wireV = () => ($("arVSeg") || $("arBody")).querySelectorAll("[data-arv]").forEach(b => b.onclick = () => { AR.view = b.dataset.arv; store("telem_ar_view", AR.view); renderAttReport(); });
   if (AR.view !== "group" && AR.raw) {
-    $("arBody").innerHTML = vSeg + arKidHtml(q, hit, hl); wireV();
+    $("arBody").innerHTML = ($("arVSeg") ? "" : vSeg) + arKidHtml(q, hit, hl); wireV();
     $("arBody").querySelectorAll("[data-lead]").forEach(b => b.onclick = () => openLead(Number(b.dataset.lead)));
     // נגיעה בטלפון על ✓ / ✗ - חלונית קטנה עם המקום והשעה
     const tip = $("arTip");
@@ -11083,7 +11127,7 @@ function renderAttReport(){
   const shown = AR.data.filter(x => (x.marked || AR.data.length === 1) && (!q || x.rows.some(hit))).map(x => q ? Object.assign({}, x, { rows: x.rows.filter(hit) }) : x);
   const hidden = q ? 0 : AR.data.filter(x => !(x.marked || AR.data.length === 1)).length;
   if (q && !shown.length) { $("arBody").innerHTML = $("arQ").value.trim() ? `<div class="card muted">לא נמצא ילד/ה בשם "${esc($("arQ").value.trim())}" בקבוצות ובתאריכים שנבחרו.</div>` : `<div class="card muted">אין ילדים שמתאימים לסינון.</div>`; return; }
-  $("arBody").innerHTML = vSeg + `<div class="ex-legend ar-legend"><span class="ar-tb"><span class="muted">${shown.length} קבוצות</span>${AR_TB()}</span></div>` + (hidden ? `<div class="muted" style="margin-bottom:6px;">${hidden} קבוצות בלי נוכחות מסומנת בתאריכים האלה לא מוצגות.</div>` : "") + shown.map(({ g, dates, rows, cx }) => { const ncx = dates.filter(d => cx[d] != null).length; return `
+  $("arBody").innerHTML = ($("arVSeg") ? "" : vSeg) + `<div class="ex-legend ar-legend"><span class="ar-tb"><span class="muted">${shown.length} קבוצות</span>${AR_TB()}</span></div>` + (hidden ? `<div class="muted" style="margin-bottom:6px;">${hidden} קבוצות בלי נוכחות מסומנת בתאריכים האלה לא מוצגות.</div>` : "") + shown.map(({ g, dates, rows, cx }) => { const ncx = dates.filter(d => cx[d] != null).length; return `
     <div class="ar-group-h">${scChip(g.location)}${!$("arCity").value ? ` <span class="muted" style="font-weight:600;">${esc(g.city)}</span> ·` : ""} יום ${DAY_NAMES[g.day]} ${rng(hm(g.start_time), hm(g.end_time))} <span class="muted" style="font-weight:400;">${dates.length - ncx} מפגשים · ${new Set(rows.flatMap(r => r.cells.map((c, i) => c === "p" || c === "a" ? i : -1)).filter(i => i >= 0)).size} סומנו${ncx ? ` · ${ncx} לא התקיימו` : ""}</span></div>
     <div class="tbl-wrap"><table class="tbl ar-tbl"><thead><tr><th>תלמיד/ה</th><th>מקצוע</th>${dates.map(d => `<th class="d${cx[d] != null ? " cx" : ""}"${cx[d] ? ` title="${esc(cx[d])}"` : ""}>${d2(d)}${cx[d] != null ? `<span class="ar-s">לא התקיים</span>${cx[d] ? `<span class="ar-s">${esc(cx[d])}</span>` : ""}` : ""}</th>`).join("")}<th>נוכחות</th><th title="כמה פעמים סומנה מתמטיקה">מת'</th><th title="כמה פעמים סומנה אנגלית">אנג'</th></tr></thead><tbody>
       ${rows.map(r => { const p = r.cells.filter(c => c === "p").length, n = r.cells.filter(c => c === "p" || c === "a").length, l = leadOf(r.sid);
