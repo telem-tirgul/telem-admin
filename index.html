@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.48">
+<meta name="app-version" content="5.20.49">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3033,7 +3033,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     </section>
     <!-- ===== מבחנים בבתי הספר (קובץ 50) ===== -->
     <section id="view-inbox" hidden>
-      <div class="page-head"><h1>התראות</h1><button type="button" class="btn small ib-f-forms" id="ibAllSeen">✓ סימון הכל כנקרא</button></div>
+      <div class="page-head"><h1>התראות</h1><button type="button" class="btn small ib-f-forms" id="ibAllSeen" title="מוריד את ההדגשה (הבולד) מכל ההודעות החדשות – הן נשארות ב&quot;לא טופלו&quot;">הורדת ההדגשה מהכל</button></div>
       <!-- 5.19.69 (נועה): הסוג מתחת לכותרת, ולידו הסינון: הכל · חדשות · לא תואמות -->
       <div class="ib-bar"><div class="ib-filters">
         <div class="gseg" role="group" aria-label="סוג"><button type="button" data-ibt="forms">📥 מהטפסים <span id="ibTabN"></span></button><button type="button" data-ibt="iss">🐞 דיווחים על בעיות <span id="issTabN"></span></button></div>
@@ -8474,7 +8474,7 @@ function ibGdCard(r, when){
   if (!done) {   // 5.19.97 (נועה): כפתור אחד "העברה לקבוצה" → חלון "מאיזה שיבוץ להעביר?"
     if (t === "added") acts += fx.length ? `<button type="button" class="btn small" data-gdmv="${r.id}">העברה לקבוצה</button>`
       : `<button type="button" class="btn small" data-gdadd="${r.id}">שיבוץ קבוע בקבוצה</button>`;
-    acts += `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ נקרא</button>`;
+    acts += `<button type="button" class="btn small" data-ibs="handled:${r.id}">✓ טופל</button>`;
   }
   // 5.19.97 (נועה): כל אירוע בשורה אחת – ילד/ה | מה קרה | שיבוצים קבועים | פעולות (בנייד – זה מתחת לזה)
   return `<div class="ib-gd ${ibCls(r.status)}" data-ib="${r.id}">
@@ -8536,7 +8536,7 @@ function ibGdGroup(g, when){
   return `<div class="ib-gd gdg ${done ? "handled" : g.some(r => r.status === "new") ? "new" : "seen"}${gOpen ? " gd-open" : ""}" data-ib="${r0.id}">
     <div class="gdg-h" data-gdtg="${r0.student_id}" role="button" tabindex="0" aria-expanded="${gOpen}" title="לחיצה – הפרטים לפי שבועות"><span class="gdg-car" aria-hidden="true"></span><span class="ib-ic">🔀</span><b class="ib-gd-n">${ibNameLink(r0, lead)}</b>
       <span class="gdg-sum">${head}</span><span class="gdg-sum2">${sum2}</span><small class="ib-time">${esc(when(g[g.length - 1].created_at))}</small>
-      <span class="gdg-a">${done ? `<span class="muted">✓ טופל</span>` : ids ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ נקרא (${ids.split(",").length})</button>` : ""}</span></div>
+      <span class="gdg-a">${done ? `<span class="muted">✓ טופל</span>` : ids ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל (${ids.split(",").length})</button>` : ""}</span></div>
     <div class="gdg-body"${gOpen ? "" : " hidden"}>${fx.length ? "" : `<div class="gdg-fx"><span class="gdg-l">שיבוצים קבועים:</span> ${fxH}</div>`}
     ${patH}
     <table class="gdg-t"><thead><tr><th>שבוע</th>${fx.length ? fx.map(se => { const st0 = String(se.start_time || "").slice(0, 5); return `<th>${gdPill(se.location && se.location.name, `${sessWhen(se)} ${st0} · ${esc((se.location && se.location.name) || "")}`)}</th>`; }).join("") : `<th>בקבוצה הקבועה</th>`}<th>הגיע/ה במקום</th><th>סה״כ</th></tr></thead><tbody>${rowsH}</tbody></table></div></div>`;
@@ -8659,8 +8659,9 @@ async function renderInbox(reload){
       <span class="ib-time">${esc(when(r.created_at))}</span>
       <span class="ib-acts">${r.kind === "payment" && (r.flags || []).includes("plan_withdrawn") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}" data-ibpay="1" title="בכרטיס – 💳 תשלומים והוראות קבע (הביטול / ההשהיה עצמם – בריווחית)">לכרטיס – הוראת קבע</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) ? ((r.data || {}).merged_at ? `<span class="ib-tag t-new" title="${esc(fmtDate((r.data || {}).merged_at))}">✓ בוצע איחוד</span>` : ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : "") : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : !pr && ME.role === "admin" && (r.kind === "marathon" || r.kind === "registration") && (r.flags || []).includes("phone_pending") && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${dd.length && ME.role === "admin" && r.status !== "handled" ? `<button type="button" class="btn small" data-ibdupx="${r.id}" title="ההרשמות הקודמות יסומנו &quot;בוטל&quot; – נשארת האחרונה">ביטול הכפולה</button>` : ""}${(() => { const act = w || pr || pi || r.kind === "marathon" || r.kind === "registration" || (r.flags || []).includes("blocked_already") || (r.flags || []).includes("blocked_review") || (r.flags || []).includes("status_mismatch");
         // 5.20.40 (נועה 2.11): הודעה שרק צריך לקרוא – "✓ נקרא" מוריד אותה מהרשימה (עוברת ל"טופלו"); הודעה שצריך לטפל בה – "✓ נקרא" (מוריד את הבולד) + "✓ טופל"
-        return (act ? (r.status === "new" ? `<button type="button" class="btn small" data-ibs="seen:${ids}">✓ נקרא</button>` : "") + (r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : "")
-          : r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}" title="ההודעה תעבור ל&quot;טופלו&quot;">✓ נקרא</button>` : ""); })()}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
+        // 5.20.49 (נועה 3.11: "נקרא בהגדרה אומר שזה טופל"): רק "✓ טופל" – עובר ל"טופלו"
+        return (act ? (r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : "")
+          : r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}" title="ההודעה תעבור ל&quot;טופלו&quot;">✓ טופל</button>` : ""); })()}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
       ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>` + more;
   if ($("ibMore")) $("ibMore").onclick = async () => { $("ibMore").disabled = true; await ibLoadDone(false); renderInbox(false); };
