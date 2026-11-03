@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.54">
+<meta name="app-version" content="5.20.55">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1782,6 +1782,11 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .at-tbl td.at-lk{ vertical-align:top; } .at-tag{ font-size:12px; font-weight:700; color:var(--accent); border:1px solid #E2D6C8; border-radius:999px; padding:0 7px; white-space:nowrap; }
 /* 5.20.52 (נועה 3.11): בטבלאות – כפתורי הקישור כאייקונים (אותו עיצוב של כפתור; ההסבר ב-title) */
 :is(.at-tbl, .crs-mtbl) .lk2-cell{ gap:4px !important; flex-wrap:nowrap; } :is(.at-tbl, .crs-mtbl) .lk2-cell > :is(button, a).btn{ width:32px; min-width:32px; height:30px; min-height:30px; padding:0 !important; display:inline-flex; align-items:center; justify-content:center; }
+/* 5.20.55 (נועה 3.11): בכפתורי הקישורים – "העתקה" בולט, וואטסאפ פחות */
+.lk2-cell > :is(button, a).btn, .lk2-cell a[data-wa]:has(> .wa-svg){ background:#fff !important; color:var(--accent) !important; border-color:#DCC3C4 !important; } .lk2-cell > :is(button, a).btn:hover{ background:#F8EEEE !important; }
+.lk2-cell > button.btn:first-of-type{ background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; } .lk2-cell > button.btn:first-of-type:hover{ filter:brightness(1.12); background:var(--accent) !important; }
+/* מה שאי אפשר ללחוץ (מרתון שהתקיים) – לבן ואפור */
+.crs-mtbl tr.mpast .lk2-cell > :is(button, a).btn{ background:#fff !important; color:#C9C1BA !important; border-color:#EEE8E2 !important; pointer-events:none; filter:grayscale(1); opacity:.55; }
 :is(.at-tbl, .crs-mtbl) .lk2-cell > button.btn{ font-size:0 !important; } :is(.at-tbl, .crs-mtbl) .lk2-cell > button.btn:nth-of-type(1)::after{ content:"⧉"; font-size:16px; } :is(.at-tbl, .crs-mtbl) .lk2-cell > button.btn:nth-of-type(2)::after{ content:"🔗"; font-size:14px; }
 :is(.at-tbl) .at-wa .btn{ font-size:0 !important; width:32px; height:30px; padding:0 !important; display:inline-flex; align-items:center; justify-content:center; } .at-tbl .at-wa a.btn::after{ content:"💬"; font-size:15px; } .at-tbl .at-wa button.btn::after{ content:"⧉"; font-size:16px; }
 /* 5.20.47 (נועה 3.11): כותרות במרכז, הפרדה עדינה בין העמודות, "פתוח" באותה שורה של הקישור */
@@ -1790,12 +1795,15 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .at-tbl tr.at-sch{ cursor:pointer; } .at-tbl tr.at-sch:hover td{ background:#FBF6EF; } .at-tbl tr.at-sch td{ border-top:1.5px solid #E2D6C8; }
 .at-car{ display:inline-block; width:0; height:0; border-block:5px solid transparent; border-inline-start:7px solid var(--ink-soft); margin-inline-end:8px; transition:transform .15s; vertical-align:middle; } .at-tbl tr.at-sch.open .at-car{ transform:rotate(-90deg); }
 .at-tbl tr.at-g-r td{ background:#FCFAF7; font-size:13.5px; } .at-tbl tr.at-g-r{ cursor:pointer; } .at-tbl tr.at-g-r:hover td{ background:#F6EFE6; } .at-tbl td.at-wa{ white-space:nowrap; } .at-tbl td.at-wa .btn{ margin-inline-end:4px; }
+/* 5.20.55 (נועה 3.11): רוחב קבוע לעמודות – פתיחת בית ספר לא מזיזה את הטבלה */
+@media (min-width:901px){ .at-tbl{ table-layout:fixed; width:100%; } .at-tbl col.c-sch{ width:auto; } .at-tbl col.c-g{ width:120px; } .at-tbl col.c-k{ width:100px; } .at-tbl col.c-ins{ width:15%; } .at-tbl col.c-lk{ width:225px; } .at-tbl col.c-sg{ width:175px; } .at-tbl col.c-wa{ width:120px; }
+  .at-tbl td{ overflow-wrap:anywhere; } }
 .at-tbl td.at-ins{ font-size:13px; } .at-tbl tr.at-wait td{ background:#FFF6F3; font-size:13.5px; } .at-w{ font:inherit; font-size:13px; border:1px solid #E8C9BF; background:#fff; border-radius:999px; padding:2px 10px; margin:2px; cursor:pointer; }
 .crs-mtbl td.mt-crs{ white-space:nowrap; } .crs-mtbl td.mt-crs .crs-mix{ white-space:normal; } .crs-mtbl .mt-hrs{ unicode-bidi:isolate; }
 .crs-mtbl .mt-lk2{ display:flex; align-items:center; gap:4px; } .crs-mtbl .mt-lk2 + .mt-lk2{ margin-top:3px; } .crs-mtbl .mt-lkl{ font-size:12px; color:var(--ink-soft); min-width:58px; }
 .crs-mtbl td.mt-pr{ white-space:nowrap; } @media (max-width:1500px){ .crs-mtbl .mt-act .bt{ display:none; } } .crs-mtbl td.mt-st .mst-s{ white-space:normal; } .crs-mtbl td, .crs-mtbl th{ padding-inline:6px; }
 .crs-mtbl td{ vertical-align:top; } .crs-mtbl .mt-l{ white-space:nowrap; font-size:13px; line-height:1.55; } .crs-mtbl .mt-l b{ font-weight:700; margin-inline-end:4px; } .crs-mtbl .mt-g + .mt-g{ border-top:1px dashed var(--border); margin-top:3px; padding-top:3px; } .crs-mtbl .mt-gl{ font-size:12px; font-weight:800; color:var(--accent); }
-.crs-mtbl .mst{ font-weight:700; white-space:nowrap; font-size:13px; } .crs-mtbl .mst.open{ color:#2E7D32; } .crs-mtbl .mst.closed, .crs-mtbl .mst.auto{ color:var(--ink-soft); } .crs-mtbl .mst.cxl{ color:#B3261E; } .crs-mtbl .mst-s{ font-size:11.5px; white-space:nowrap; }
+.crs-mtbl .mst{ font-weight:700; white-space:nowrap; font-size:13px; } .crs-mtbl .mst.open{ color:#2E7D32; } .crs-mtbl .mst.closed, .crs-mtbl .mst.auto{ color:var(--ink-soft); } .crs-mtbl .mst.cxl{ color:#B3261E; } .crs-mtbl .mst.past{ color:var(--ink-soft); font-weight:600; } .crs-mtbl .mst-s{ font-size:11.5px; white-space:nowrap; }
 .crs-mtbl tr.crs-mr{ cursor:pointer; } .crs-mtbl tr.crs-mr:hover td{ background:#FBF6EF; } .crs-mtbl tr.crs-mr.sel td{ background:#F3E6E2; } .crs-mtbl tr.mpast td{ opacity:.6; } .crs-mtbl tr.cxl td{ text-decoration-color:#B3261E; }
 .crs-mtbl .mt-act{ white-space:nowrap; width:1%; } .crs-mtbl .mt-act .btn{ margin-inline-start:4px; } .crs-mtbl .mt-lk{ white-space:nowrap; width:1%; } .crs-mtbl td.mt-sch, .crs-mtbl td.mt-city{ white-space:nowrap; } .crs-mtbl .crs-n{ font:inherit; font-weight:800; border:0; background:none; color:var(--accent); cursor:pointer; text-decoration:underline; text-underline-offset:3px; padding:2px 4px; }
 @media (max-width:760px){ .crs-mtbl .mt-act .bt{ display:none; } .crs-mtbl td, .crs-mtbl th{ padding:6px 4px; } }
@@ -4300,12 +4308,12 @@ function crsMarInfo(c){
   const o = (CRS.mar || {})[c.marathon_id] || {}, ms = Object.values(CRS.cm).flat().filter(m => m.course_id === c.id && !crsGone(m)), k = (st) => ms.filter(m => m.status === st).length;
   const ses = (o.ses || []).slice(), meets = (x) => marMeetings(x);
   const all = [...new Set(ses.flatMap(x => meets(x).map(z => z.date)).concat(o.dates || []))].filter(Boolean).sort();
-  const td = todayIL(), past = !!all.length && all[all.length - 1] < td, d2 = all[1] || all[all.length - 1];
+  const td = todayIL(), past = !!all.length && all[all.length - 1] < td, d2 = all[1] || all[all.length - 1], now = !!all.length && all[0] <= td && !past;   // 5.20.55 (נועה 3.11): מתקיים עכשיו
   const cap = ses.reduce((a, x) => a + (Number(x.capacity) || 0), 0);
   const st = o.cancelled_at ? "cxl" : o.auto_closed_at ? "auto" : o.is_open ? "open" : "closed";
-  return { o, ses, all, past, d2, cap, st, reg: k("רשום"), pend: k("ממתין לתשלום"), int: ms.filter(crsIsInt).length, sig: ms.filter(crsNeedSig).length };
+  return { o, ses, all, past, now, d2, cap, st, reg: k("רשום"), pend: k("ממתין לתשלום"), int: ms.filter(crsIsInt).length, sig: ms.filter(crsNeedSig).length };
 }
-const crsMarStTxt = (I) => I.st === "cxl" ? "✕ לא יתקיים" : I.st === "auto" ? "○ נסגר אוטומטית " + fmtDM(String(I.o.auto_closed_at).slice(0, 10)) : I.st === "open" ? "● פתוח" : "○ סגור";
+const crsMarStTxt = (I) => I.st === "cxl" ? "✕ לא יתקיים" : I.past ? "✓ התקיים" : I.st === "auto" ? "○ נסגר אוטומטית " + fmtDM(String(I.o.auto_closed_at).slice(0, 10)) : I.now && I.st === "open" ? "● מתקיים עכשיו" : I.st === "open" ? "● פתוח" : "○ סגור";   // 5.20.55 (נועה 3.11): כמה מרתונים לאותה שכבה – רואים מה מתקיים ומה כבר התקיים
 // מועדי התרגול השוטף בבית הספר (מ-session_summary): יום → שעות
 const CRS_DAYS = ["א", "ב", "ג", "ד", "ה", "ו"];
 function crsShotefWhen(c){ const gs = (CRS.grp || {})[crsCity(c) + "|" + crsSch(c)] || []; if (!gs.length) return { n: 0, h: "" };
@@ -4329,7 +4337,7 @@ function crsTable(list, opt){ opt = opt || {}; const onlyMar = list.every(c => c
         : I.all.length ? I.all.map(d => mline({ date: d })).join("") : `<span class="err">⚠ אין מפגשים</span>`;
       grp = `${I.ses.length || ""}${I.cap ? `<div class="muted mst-s">עד ${I.cap}</div>` : ""}`;
       price = o.price_first ? nis(o.price_first) : "—";
-      st = `<span class="mst ${I.st}">${esc(crsMarStTxt(I))}</span>${I.st === "open" && I.d2 && "auto_closed_at" in o && !I.past ? `<div class="muted mst-s">ייסגר לבד אחרי ${esc(fmtDM(I.d2))}</div>` : ""}`;
+      st = `<span class="mst ${I.past && I.st !== "cxl" ? "past" : I.st}">${esc(crsMarStTxt(I))}</span>${I.now && I.st !== "open" && I.st !== "cxl" ? `<div class="muted mst-s">מתקיים עכשיו</div>` : ""}${I.st === "open" && I.d2 && "auto_closed_at" in o && !I.past ? `<div class="muted mst-s">ייסגר לבד אחרי ${esc(fmtDM(I.d2))}</div>` : ""}`;
       lk = o.code && I.st !== "cxl" ? lk2Btns("", lkMarCode(o.code), "הרשמה ל" + (o.name || "מרתון") + (o.school ? " · " + o.school : "") + ": ") : "";
       sg = o.code && I.st !== "cxl" ? lk2Btns("", lkMarCode(o.code) + "&phone=1", "טופס ההרשמה ל" + (o.name || "מרתון") + (o.school ? " · " + o.school : "") + " (מילוי הפרטים ואישור תנאי התקשרות): ") : "";   // 5.20.52 (נועה 3.11): "חתימה על התנאים" – עמודה נפרדת
     } else {
@@ -7192,7 +7200,7 @@ async function renderExams(reload){
   if (QUIET && EX.sig === sig && document.querySelector("#exCal .ex-cal-wrap, #exCal .exm")) return;
   EX.sig = sig;
   // 5.20.36 (נועה 2.11: "עדיין קופץ ימינה ושמאלה"): בכל ציור מחדש (שמירה, מחיקה, פתיחת בית ספר, רענון) – הגלילה נשמרת בפיקסלים (לא מיושרת לעמודה), גם למטה
-  { const w0 = document.querySelector("#exCal .ex-cal-wrap"), keep = w0 && w0.isConnected && !EX.goToday; EX.keepSL = keep ? w0.scrollLeft : null; EX.keepST = keep ? w0.scrollTop : null; }
+  { const w0 = document.querySelector("#exCal .ex-cal-wrap"), keep = w0 && w0.isConnected && !EX.goToday && !$("exCal").hidden; EX.keepSL = keep ? w0.scrollLeft : null; EX.keepST = keep ? w0.scrollTop : null; }
   if (EX.err && !EX.rows.length) { box.innerHTML = `<div class="empty-state">${EX.err.status === 404 || /school_exams/.test(EX.err.message || "") ? "צריך להריץ את קובץ 50." : "לא ניתן לטעון."}</div>`; return; }
   const im = EX.imp;
   $("exInfo").innerHTML = im ? `עודכן מהקובץ: <b>${esc(fmtDate(im.at))}</b> · ${esc(im.by_name || "")} · ${im.rows_in} שורות (מתוכן "חומר נלמד": ${EX.rows.filter(e => EX_STUDY.test(e.kind)).length})${im.unmatched ? `<div class="ex-warn">⚠ בתי ספר שלא זוהו במערכת: ${esc(im.unmatched)}</div>` : ""}` : "";
@@ -7201,6 +7209,7 @@ async function renderExams(reload){
   if (EX.mode === "list") EX.mode = "cal";   // 5.20.38 (נועה 2.11): בלי "רשימה" – המבחנים של כל בית ספר במסך בתי הספר
   const cal = EX.mode === "cal"; exPalRender(); if (!cal) $("exPal").hidden = true;
   setTimeout(() => { const mn = $("exMonthNav"); if (EX.mode === "mar") { mn.hidden = false; mn.classList.add("exmn-off"); } else mn.classList.remove("exmn-off"); }, 0);   // 5.20.38 (נועה): הכפתורים למעלה לא זזים בין "לוח" ל"מרתונים"
+  const calWas = !$("exCal").hidden && !!document.querySelector("#exCal .ex-cal-wrap");
   $("exMonthNav").hidden = !cal; $("exRangeL").hidden = true; { const kl = $("exKinds") && $("exKinds").closest("label"); if (kl) kl.hidden = true; }   /* 5.20.38: הסוגים היו רק ברשימה */ $("exCal").hidden = !cal; if (cal) $("exRangeX").hidden = true; $("exList").hidden = cal;
   const exCity = (e) => (e.school && e.school.city) || "";
   const marM = EX.mode === "mar"; if (marM && !CRS.ok) { box.innerHTML = "<div class='empty-state'>טוען...</div>"; await crsLoad(true); }
@@ -7220,7 +7229,7 @@ async function renderExams(reload){
   if (cal && EX.link && !EX.cxl) { EX.cxl = new Set(); EX.mopen = new Set(); try { (await get("sessions", "select=id,marathon:marathons!inner(cancelled_at,is_open)&kind=eq." + encodeURIComponent("מרתון"))).forEach(x => { if (x.marathon.cancelled_at) EX.cxl.add(x.id); else if (x.marathon.is_open) EX.mopen.add(x.id); }); } catch(e) {} }   // 5.19.141: גם פתוח / סגור להרשמה   // 5.19.36
   $("view-exams").classList.toggle("exm-on", cal && isMobile());
   if (cal && isMobile()) { exMobile(); $("exMonthNav").hidden = true; box.innerHTML = ""; return; }   // 5.19.88 (נועה): בנייד – בית ספר ← שכבה ← ציר זמן עד המבחן
-  if (cal) { await loadHol(); if (!EX.scrollTo && !EX.goToday && document.querySelector(".ex-cal-wrap")) EX.scrollTo = exFirstVisible(); $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_CAL_HIDE.test(e.kind) && !EX_STUDY.test(e.kind) && flt(e) && exColored(exSchName(e))), t,
+  if (cal) { await loadHol(); { const w0 = document.querySelector("#exCal .ex-cal-wrap"); if (!EX.scrollTo && !EX.goToday && w0 && calWas) EX.scrollTo = exFirstVisible(); } /* 5.20.55 (נועה 3.11): לוח שהיה מוסתר (לשונית הטבלה) – חוזר להתחלה הרגילה (שבועיים אחורה), לא ל-1.9 */ $("exCal").innerHTML = exCalHtml(EX.rows.filter(e => !EX_CAL_HIDE.test(e.kind) && !EX_STUDY.test(e.kind) && flt(e) && exColored(exSchName(e))), t,
       (L.schools || []).filter(x => exColored(x.name) && (!fc || x.city === fc) && (!fs || x.name === fs))
         .flatMap(x => exGradesOf(x.name).filter(g => !fg || g === fg).map(g => ({ city: x.city, sch: x.name, gr: g })))); exFit(); { const w1 = document.querySelector(".ex-cal-wrap"); if (EX.keepSL != null && w1 && !EX.goToday) { w1.scrollLeft = EX.keepSL; if (EX.keepST) w1.scrollTop = EX.keepST; } else exScrollTo(EX.scrollTo || exHome(), true, false); } EX.keepSL = null; EX.scrollTo = null; EX.goToday = false; $("exMonthNav").hidden = !document.querySelector(".ex-cal-wrap"); return; }
   // 5.19.49 (הלקוחה): סינון מתאריך-עד תאריך. "מתאריך" גובר על "גם מבחנים שעברו"
@@ -9483,7 +9492,7 @@ async function loadAttTable(){
   // 5.20.52 (נועה 3.11): "חתימה על התנאים" – למי שנרשם/ה בטלפון (ממלאים וחותמים, בלי תשלום בטופס) – עמודה נפרדת
   const sigCell = (u, where) => `<td class="at-lk" title="למי שנרשם/ה בטלפון: טופס אישור תנאי התקשרות: ממלאים את כל הפרטים וחותמים, בלי תשלום בטופס. אחר כך מסמנים &quot;שולם&quot;">${lk2Btns("", u, "טופס ההרשמה לתלם - " + where + " (מילוי הפרטים ואישור תנאי התקשרות): ")}</td>`;
   const waCell = (u, lo) => `<td class="at-wa">${u ? `<a class="btn small" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(u)}">💬 פתיחה</a><button type="button" class="btn small" data-copy="${esc(u)}" title="העתקת הקישור">העתקה</button>` : `<span class="muted" title="אפשר להוסיף במסך בתי ספר ← ✎ עריכה">—</span>`}</td>`;
-  let h = `<div class="tbl-wrap"><table class="tbl at-tbl"><thead><tr><th>בית ספר</th><th>קבוצות</th><th>ילדים</th><th>מתרגלים</th><th>טופס התעניינות</th><th>טופס הרשמה</th><th title="למי שנרשם/ה בטלפון">אישור תנאי התקשרות</th><th>קבוצת וואטסאפ</th></tr></thead><tbody>`;
+  let h = `<div class="tbl-wrap"><table class="tbl at-tbl"><colgroup><col class="c-sch"><col class="c-g"><col class="c-k"><col class="c-ins"><col class="c-lk"><col class="c-lk"><col class="c-sg"><col class="c-wa"></colgroup><thead><tr><th>בית ספר</th><th>קבוצות</th><th>ילדים</th><th>מתרגלים</th><th>טופס התעניינות</th><th>טופס הרשמה</th><th title="למי שנרשם/ה בטלפון">אישור תנאי התקשרות</th><th>קבוצת וואטסאפ</th></tr></thead><tbody>`;
   let any = false;
   cities.forEach(ci => { const cl = list.filter(x => x.city === ci), P = (typeof REG_PRICES !== "undefined" && REG_PRICES[ci]) || null, W = [...(waits[ci] || new Map()).values()];
     if (!cl.length && !W.length) return; any = true;
@@ -11042,7 +11051,7 @@ function arKidHtml(q, hit, hl){
 function arKidScroll(){
   const w = document.querySelector(".ar-kwrap"); if (!w) return;
   const ths = [...w.querySelectorAll("th.dn[data-d]")]; if (!ths.length) return;
-  const target = todayIL(), th = ths.find(x => x.dataset.d >= target) || ths[ths.length - 1];   // 5.19.27: היום בתחילת התצוגה
+  const target = addDays(exWeekStart(todayIL()), -7), th = ths.find(x => x.dataset.d >= target) || ths[ths.length - 1];   // 5.20.55 (נועה 3.11): מיום ראשון של השבוע הקודם (כמו לוח המבחנים)
   const sticky = (w.querySelector("thead .sch") || {}).offsetWidth || 0;
   w.scrollBy({ left: th.getBoundingClientRect().right - (w.getBoundingClientRect().right - sticky) });
 }
