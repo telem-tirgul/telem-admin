@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.49">
+<meta name="app-version" content="5.20.50">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1739,7 +1739,7 @@ td.nowrap{ white-space:nowrap; }
 .sc-hak{ display:flex; flex-wrap:wrap; gap:6px; } /* 5.19.77 (נועה): הקבצות - במחשב שורה לכל הקבצה, בנייד רשימה עם פסיקים */
 #exMonthNav.exmn-off{ visibility:hidden; } .gdg .gdg-sum2{ font-size:13px; display:inline-flex; flex-wrap:wrap; gap:2px 6px; } .gdg .gdg-h{ cursor:pointer; } .gdg-streak{ color:#B3261E; font-weight:800; }
 .gdg-car{ display:inline-block; width:0; height:0; border-block:5px solid transparent; border-inline-start:7px solid var(--ink-soft); transition:transform .15s; } .gdg.gd-open .gdg-car{ transform:rotate(-90deg); } .gdg:not(.gd-open) .gdg-h{ margin-bottom:0 !important; }
-.sc-col{ display:flex; flex-direction:column; gap:12px; min-width:0; } .sc-det .sc-det-s + .sc-det-s{ border-top:1px solid var(--border); margin-top:10px; padding-top:8px; } .sc-room .linkish{ font:inherit; background:none; border:0; color:var(--accent); text-decoration:underline; cursor:pointer; padding:0; } .lh-wa a{ color:#1E7A3C; font-weight:700; } .sc-room{ font-size:13.5px; margin:-2px 0 8px; } .sx-card .sx-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .sx-card .sx-h h3{ margin:0; margin-inline-end:auto; } .sx-g{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border); } .sx-g:first-of-type{ border-top:0; } .sx-b{ flex:1; min-width:0; } .sx-b .ex-row{ margin:2px 0 6px; }
+#view-attg > .page-head, #view-sched > .page-head{ justify-content:flex-start !important; gap:10px 16px; flex-wrap:wrap; } .sc-col{ display:flex; flex-direction:column; gap:12px; min-width:0; } .sc-det .sc-det-s + .sc-det-s{ border-top:1px solid var(--border); margin-top:10px; padding-top:8px; } .sc-room .linkish{ font:inherit; background:none; border:0; color:var(--accent); text-decoration:underline; cursor:pointer; padding:0; } .lh-wa a{ color:#1E7A3C; font-weight:700; } .sc-room{ font-size:13.5px; margin:-2px 0 8px; } .sx-card .sx-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .sx-card .sx-h h3{ margin:0; margin-inline-end:auto; } .sx-g{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border); } .sx-g:first-of-type{ border-top:0; } .sx-b{ flex:1; min-width:0; } .sx-b .ex-row{ margin:2px 0 6px; }
 .sc-hak-l{ list-style:none; margin:4px 0 0; padding:0; line-height:1.7; } .sc-hak-c{ display:none; line-height:1.6; }
 @media (max-width:760px){ .sc-hak-l{ display:none; } .sc-hak-c{ display:block; } } .sc-head.lg-h-row h2{ margin:0; }
 .lp-box{ border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin:8px 0; background:#fff; }
@@ -2777,8 +2777,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
     <!-- ===== נוכחות ===== -->
     <section id="view-att" hidden>
       <div id="attList">
-        <div class="page-head att-head"><h1>קבוצות<span class="lg-t"> ונוכחות</span></h1><span class="gseg att-mode" data-admin role="group" aria-label="מצב"><button type="button" data-amode="a">✓ נוכחות</button><button type="button" data-amode="g">👥 קבוצות</button><button type="button" data-amode="t" class="att-dsk">📋 טבלה</button></span><div id="attSum" class="att-sum"></div>
-          <div class="att-adm" data-admin><button type="button" class="btn small" id="attSchedBtn" title="בקשות השיבוץ (טופס השיבוץ)">📨 בקשות שיבוץ</button><button type="button" class="btn small" id="attRepBtn">📊 דוח נוכחות</button><button type="button" class="btn small primary" id="attNewM" hidden>+ מרתון חדש</button><button type="button" class="btn small primary" id="attNewG">+ קבוצה חדשה</button></div></div>
+        <div class="page-head att-head"><h1>קבוצות<span class="lg-t"> ונוכחות</span></h1><span class="gseg att-mode" data-admin role="group" aria-label="מצב"><button type="button" data-amode="a">✓ נוכחות</button><button type="button" data-amode="g">👥 קבוצות</button><button type="button" data-amode="t" class="att-dsk">📋 טבלה</button><button type="button" data-ago="attg" class="att-dsk">📊 דוח נוכחות</button><button type="button" data-ago="sched" class="att-dsk">📨 בקשות שיבוץ</button></span><div id="attSum" class="att-sum"></div>
+          <div class="att-adm" data-admin><button type="button" class="btn small" id="attSchedBtn" hidden></button><button type="button" class="btn small" id="attRepBtn" hidden></button><button type="button" class="btn small primary" id="attNewM" hidden>+ מרתון חדש</button><button type="button" class="btn small primary" id="attNewG">+ קבוצה חדשה</button></div></div>
         <div id="attMark">
         <div class="att-stick">
         <div class="att-date card">
@@ -2864,7 +2864,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 
     <!-- ===== קישורי הרשמה (בהגדרות) ===== -->
     <section id="view-sched" hidden>
-      <div class="page-head"><h1>בקשות שיבוץ</h1><button type="button" class="btn small" id="schedBack">→ חזרה לקבוצות</button></div>
+      <div class="page-head att-head"><h1>קבוצות<span class="lg-t"> ונוכחות</span></h1><span class="gseg att-mode att-tabs2" data-admin role="group" aria-label="מצב" data-cur="sched"><button type="button" data-amode="a">✓ נוכחות</button><button type="button" data-amode="g">👥 קבוצות</button><button type="button" data-amode="t" class="att-dsk">📋 טבלה</button><button type="button" data-ago="attg" class="att-dsk">📊 דוח נוכחות</button><button type="button" data-ago="sched" class="att-dsk">📨 בקשות שיבוץ</button></span><button type="button" class="btn small" id="schedBack" hidden>→ חזרה לקבוצות</button></div>
       <!-- 5.20.38: הלשוניות של "קורסים" הוסרו – חזרה לקבוצות ונוכחות -->
       <div class="card" id="scGeneral" hidden></div>
       <div class="sc-wrap">
@@ -3028,7 +3028,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       <div class="ar-host" id="arHostK"></div>
     </section>
     <section id="view-attg" hidden>
-      <div class="page-head"><h1>דוח נוכחות</h1><button type="button" class="btn small" id="arBackBtn">→ חזרה ללוח</button></div>
+      <div class="page-head att-head"><h1>קבוצות<span class="lg-t"> ונוכחות</span></h1><span class="gseg att-mode att-tabs2" data-admin role="group" aria-label="מצב" data-cur="attg"><button type="button" data-amode="a">✓ נוכחות</button><button type="button" data-amode="g">👥 קבוצות</button><button type="button" data-amode="t" class="att-dsk">📋 טבלה</button><button type="button" data-ago="attg" class="att-dsk">📊 דוח נוכחות</button><button type="button" data-ago="sched" class="att-dsk">📨 בקשות שיבוץ</button></span><button type="button" class="btn small" id="arBackBtn" hidden>→ חזרה ללוח</button></div>
       <div class="ar-host" id="arHostG"></div>
     </section>
     <!-- ===== מבחנים בבתי הספר (קובץ 50) ===== -->
@@ -3625,6 +3625,7 @@ function go(view){
   if (ME && ME.role && view === "ws") view = "home";   // 5.19.110: המאגר – בתלם שלי   // 5.19.29
   if (view === "att" && currentView !== "att") { try { A.mode = isMobile() && ME && ME.role !== "instructor" ? "g" : "a"; } catch(e) {} }   // 5.19.147 (נועה 27.10): בנייד – נפתח על "👥 קבוצות"   // 5.19.111 (נועה): כניסה למסך – תמיד על "✓ נוכחות": מסך הקבוצות אוחד עם הנוכחות   // 5.19.27: דוח נוכחות אחד (בקבוצות ונוכחות) - לפי ילד/ה או לפי קבוצה
   if (attT) A.mode = "t";
+  if (view === "att" && A.forceMode) { A.mode = A.forceMode; A.forceMode = null; }
   if (view === "exams" && currentView !== "exams") { if (EX.keepMar) EX.keepMar = false; else if (EX.mode !== "cal") { EX.mode = "cal"; EX.sig = null; } }   // 5.20.38 (נועה 2.11): מסך המרתונים נפתח תמיד על הלוח
   if (view !== "lead" && typeof LEAD_DIRTY !== "undefined" && LEAD_DIRTY && !LEAD_SAVING && currentView === "lead") { const v = view; askLeadSave(() => go(v)); return; }
   try { if (!NAV_POP && view !== "home") RESUME = null; } catch(e) {}
@@ -9289,11 +9290,15 @@ A.mode = "a"; A.loc = ""; A.fill = "all";   // 5.19.37: תמיד כל הקבוצ
 try { A.kinds = JSON.parse(store("telem_att_kinds") || "null"); } catch(e) {} if (!Array.isArray(A.kinds) || !A.kinds.length) A.kinds = ["שוטף", "מרתון"];
 const attMode = () => ME.role === "instructor" ? "a" : isMobile() ? (A.mode === "t" ? "t" : "g") : A.mode === "g" ? "g" : A.mode === "t" ? "t" : "a";   // 5.20.38: "t" – טבלה לפי מקום תרגול   // 5.19.149 (נועה 27.10): בנייד – רק "👥 קבוצות" (הנוכחות – בתלם שלי)
 function paintAttMode(){
-  document.querySelectorAll("[data-amode]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.amode === attMode())));
+  document.querySelectorAll("#view-att [data-amode]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.amode === attMode()))); document.querySelectorAll("#view-att [data-ago]").forEach(b => b.setAttribute("aria-pressed", "false"));
   document.querySelectorAll("[data-akind]").forEach(b => b.setAttribute("aria-pressed", String(A.kinds.includes(b.dataset.akind))));
   $("attFill").hidden = true;
 }
-document.querySelectorAll("[data-amode]").forEach(b => b.onclick = () => { A.mode = b.dataset.amode; loadAttGroups(); });   // 5.19.111: לא נשמר – תמיד נפתח על "נוכחות"
+document.querySelectorAll("#view-att [data-amode]").forEach(b => b.onclick = () => { A.mode = b.dataset.amode; loadAttGroups(); });
+// 5.20.50 (נועה 3.11): דוח נוכחות ובקשות שיבוץ – לשוניות באותה שורה (נוכחות · קבוצות · טבלה · דוח · בקשות); מהמסכים האחרים – חזרה עם המצב שנבחר
+document.querySelectorAll("[data-ago]").forEach(b => b.onclick = () => go(b.dataset.ago));
+document.querySelectorAll(".att-tabs2").forEach(sg => { sg.querySelectorAll("[data-ago]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ago === sg.dataset.cur)));
+  sg.querySelectorAll("[data-amode]").forEach(b => { b.setAttribute("aria-pressed", "false"); b.onclick = () => { A.forceMode = b.dataset.amode; go("att"); }; }); });   // 5.19.111: לא נשמר – תמיד נפתח על "נוכחות"
 document.querySelectorAll("[data-akind]").forEach(b => b.onclick = () => { const k = b.dataset.akind, n = A.kinds.includes(k) ? A.kinds.filter(x => x !== k) : A.kinds.concat(k);
   if (!n.length) return; A.kinds = n; store("telem_att_kinds", JSON.stringify(n)); loadAttGroups(); });
 $("attLoc").addEventListener("change", () => { A.loc = $("attLoc").value; loadAttGroups(); });
