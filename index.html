@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.42">
+<meta name="app-version" content="5.20.43">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1737,7 +1737,7 @@ td.nowrap{ white-space:nowrap; }
 .all-st{ font-weight:800; font-size:13.5px; white-space:nowrap; } .all-st.on{ color:var(--ok); } .all-st.off{ color:var(--ink-soft); }
 @media (max-width:760px){ .all-row{ grid-template-columns:1fr auto; } .all-row .all-l{ grid-column:1 / -1; } }
 .sc-hak{ display:flex; flex-wrap:wrap; gap:6px; } /* 5.19.77 (נועה): הקבצות - במחשב שורה לכל הקבצה, בנייד רשימה עם פסיקים */
-#exMonthNav.exmn-off{ visibility:hidden; } .sc-col{ display:flex; flex-direction:column; gap:12px; min-width:0; } .sc-det .sc-det-s + .sc-det-s{ border-top:1px solid var(--border); margin-top:10px; padding-top:8px; } .sc-room{ font-size:13.5px; margin:-2px 0 8px; } .sx-card .sx-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .sx-card .sx-h h3{ margin:0; margin-inline-end:auto; } .sx-g{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border); } .sx-g:first-of-type{ border-top:0; } .sx-b{ flex:1; min-width:0; } .sx-b .ex-row{ margin:2px 0 6px; }
+#exMonthNav.exmn-off{ visibility:hidden; } .sc-col{ display:flex; flex-direction:column; gap:12px; min-width:0; } .sc-det .sc-det-s + .sc-det-s{ border-top:1px solid var(--border); margin-top:10px; padding-top:8px; } .sc-room .linkish{ font:inherit; background:none; border:0; color:var(--accent); text-decoration:underline; cursor:pointer; padding:0; } .lh-wa a{ color:#1E7A3C; font-weight:700; } .sc-room{ font-size:13.5px; margin:-2px 0 8px; } .sx-card .sx-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .sx-card .sx-h h3{ margin:0; margin-inline-end:auto; } .sx-g{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border); } .sx-g:first-of-type{ border-top:0; } .sx-b{ flex:1; min-width:0; } .sx-b .ex-row{ margin:2px 0 6px; }
 .sc-hak-l{ list-style:none; margin:4px 0 0; padding:0; line-height:1.7; } .sc-hak-c{ display:none; line-height:1.6; }
 @media (max-width:760px){ .sc-hak-l{ display:none; } .sc-hak-c{ display:block; } } .sc-head.lg-h-row h2{ margin:0; }
 .lp-box{ border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin:8px 0; background:#fff; }
@@ -5288,12 +5288,21 @@ function updateLeadHead(){
   { const tk = $("sTrack") && $("sTrack").value, to = tk && LK.tracks.find(x => x.v === tk);   // 5.19.157: המסלול בכותרת, בצבע שלו
     if ($("sTrack")) { $("sTrack").closest(".trk-f").hidden = true; } }   // 5.20.12 (נועה): המסלול רק בקורס
   if (schObj || v("sGrade")) parts.push([schObj ? scChip(schObj.name) + ` <span class="muted">${esc(schObj.city || "")}</span>` : "", v("sGrade") ? esc("כיתה " + classLabel(v("sGrade"), v("sClass"))) : ""].filter(Boolean).join(" · "));
+  // 5.20.43 (כל-22): קבוצת העדכונים (וואטסאפ) של בית הספר – פתיחה ושליחה להורה
+  { const wu = schObj ? schWaUrl(schObj.name, schObj.city) : ""; if (wu) { const wl = /^0\d{8,9}$/.test(ph) ? "https://wa.me/972" + ph.slice(1) + "?text=" + encodeURIComponent(`שלום${v("p1First") ? " " + v("p1First") : ""}, זו קבוצת העדכונים של תלם ב${schObj.name} (קבוצה שקטה – רק הודעות מאיתנו). להצטרפות:\n${wu}`) : "";
+      parts.push(`<span class="lh-wa">💬 <a href="${esc(wu)}" target="_blank" rel="noopener" title="${esc(wu)}">קבוצת העדכונים</a>${wl ? ` · <a href="${esc(wl)}" target="_blank" rel="noopener">שליחה להורה</a>` : ""}</span>`); } }
   // צבע בית הספר גם בשדה עצמו
   const sel = $("sSchool"); sel.className = schObj ? scCls(schObj.name) + " sch-sel" : "";
   $("leadSub").innerHTML = parts.join(" &nbsp;|&nbsp; ");
   const ok = /^0\d{8,9}$/.test(ph);
   $("p1Wa").hidden = !ok;
   if (ok) { $("p1Wa").href = "https://wa.me/972" + ph.slice(1); }
+}
+// 5.20.43 (כל-22, קובץ 160): הקישור לקבוצת הוואטסאפ השקטה של בית הספר (site_info.wa_group_url)
+let SC_WA_LOADING = null;
+function schWaUrl(name, city){
+  if (!SC.list || !SC.list.length) { if (!SC_WA_LOADING) SC_WA_LOADING = get("site_info", "select=*&order=city,name").then(r => { if (!SC.list || !SC.list.length) SC.list = r; try { if (currentView === "lead") updateLeadHead(); } catch(e) {} }).catch(() => {}); return ""; }
+  const x = SC.list.find(y => y.name === name && (!city || y.city === city)); return x && x.wa_group_url ? x.wa_group_url : "";
 }
 ["sFirst","sLast","p1First","p1Last","p1Phone","sSchool","sGrade"].forEach(id => $(id).addEventListener(id.startsWith("sS") || id === "sGrade" ? "change" : "input", updateLeadHead));
 $("sTrack").addEventListener("change", updateLeadHead);
@@ -9745,7 +9754,7 @@ function renderSchools(){
       <!-- 5.20.41 (נועה 2.11): עמודה ראשונה – הקבוצות ופרטי בית הספר אחד מתחת לשני; שנייה – מבחנים וחומר (באורך שלה, לא דוחף את השאר) -->
       <div class="sc-main">
         <div class="sc-col">
-        <div class="card"><h3>הקבוצות שלנו כאן</h3><div class="sc-room">📍 הכיתה שלנו: ${x.rooms ? `<b>${bidiRooms(x.rooms)}</b>` : `<span class="muted">לא נכתבה</span>`} <span class="muted">· קבוצה חדשה כאן מקבלת את הכיתה הזו</span></div>${groupsHtml}</div>
+        <div class="card"><h3>הקבוצות שלנו כאן</h3><div class="sc-room">📍 הכיתה שלנו: ${x.rooms ? `<b>${bidiRooms(x.rooms)}</b>` : `<span class="muted">לא נכתבה</span>`} <span class="muted">· קבוצה חדשה כאן מקבלת את הכיתה הזו</span></div>${"wa_group_url" in x ? `<div class="sc-room">💬 קבוצת העדכונים: ${x.wa_group_url ? `<a href="${esc(x.wa_group_url)}" target="_blank" rel="noopener">פתיחה</a> · <button type="button" class="linkish" data-copy="${esc(x.wa_group_url)}">העתקת הקישור</button>` : `<span class="muted">אין קישור (✎ עריכה)</span>`}</div>` : ""}${groupsHtml}</div>
         <div class="card sc-det"><div class="sc-det-s"><h3>הקבצות</h3>${(x.hakbatsa_options || []).length ? `<ul class="sc-hak-l">${x.hakbatsa_options.map(h => `<li>${esc(h)}</li>`).join("")}</ul><div class="sc-hak-c">${x.hakbatsa_options.map(esc).join(", ")}</div>` : `<span class='muted'>לא הוגדר – בטפסים מופיעה רשימת ברירת המחדל</span>`}</div>
           <div class="sc-det-s"><h3>לוח צלצולים</h3>${bellsH}</div>
           <div class="sc-det-s"><h3>אנשי קשר</h3>${contH}</div>
@@ -9754,6 +9763,7 @@ function renderSchools(){
         ${scExamsHtml(x)}
       </div>`;
     $("scBody").querySelectorAll(".sc-groups tr[data-sid]").forEach(tr => tr.onclick = () => openGroupOnBoard(Number(tr.dataset.sid), x.city));
+    $("scBody").querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
     bindSchoolExams($("scBody"));
     return;
   }
@@ -9764,7 +9774,7 @@ function renderSchools(){
     <div class="sc-grid">
       <div class="card"><h3>פרטים</h3>
         <label class="lbl">טלפון בית הספר</label><input id="scPhone" value="${esc(x.phone || "")}">
-        <label class="lbl" style="margin-top:8px;">הכיתה שלנו (מקום התרגולים)</label><input id="scRooms" value="${esc(x.rooms || "")}" placeholder="למשל: ז2, ז6"><div class="muted fhint">קבוצה חדשה בבית הספר מקבלת את הכיתה הזו (אפשר לשנות בקבוצה).</div>
+        ${"wa_group_url" in x ? `<label class="lbl" style="margin-top:8px;">קישור לקבוצת העדכונים (וואטסאפ)</label><input id="scWa" dir="ltr" value="${esc(x.wa_group_url || "")}" placeholder="https://chat.whatsapp.com/..."><div class="muted fhint">מופיע בכרטיס התלמיד ובדף התודה אחרי הרשמה.</div>` : ""}<label class="lbl" style="margin-top:8px;">הכיתה שלנו (מקום התרגולים)</label><input id="scRooms" value="${esc(x.rooms || "")}" placeholder="למשל: ז2, ז6"><div class="muted fhint">קבוצה חדשה בבית הספר מקבלת את הכיתה הזו (אפשר לשנות בקבוצה).</div>
         <label class="lbl" style="margin-top:8px;" for="scHak">הקבצות <span class="muted" style="font-weight:400">(אחת בכל שורה · לטופס ההתעניינות ולמרתון)</span></label>
         <textarea id="scHak" rows="5" placeholder="${esc(SCHOOL_HAK_DEFAULT.join("\n"))}">${esc((x.hakbatsa_options || []).join("\n"))}</textarea>
         <div class="muted" style="font-size:12.5px;">ריק = רשימת ברירת המחדל (${esc(SCHOOL_HAK_DEFAULT.join(", "))}). בטופס ההתעניינות נוסף תמיד גם "אחר".</div>
@@ -9783,9 +9793,11 @@ function renderSchools(){
   $("scAddContact").onclick = () => { $("scContacts").tBodies[0].insertAdjacentHTML("beforeend", row("", inp("role", "") + inp("name", "") + inp("phone", ""))); bindRm(); };
   $("scSave").onclick = async () => {
     const rows = (id) => [...$(id).querySelectorAll("tbody tr")].map(tr => { const o = {}; tr.querySelectorAll("[data-k]").forEach(i => o[i.dataset.k] = i.value.trim() || null); return o; });
+    if ($("scWa")) { const wv = $("scWa").value.trim(); if (wv && !/^https:\/\/chat\.whatsapp\.com\/[A-Za-z0-9]{10,40}$/.test(wv)) { toast("הקישור צריך להיות קישור לקבוצת וואטסאפ (https://chat.whatsapp.com/...)"); $("scWa").focus(); return; } }
     const body = { phone: nn($("scPhone").value), rooms: nn($("scRooms").value),
       bells: rows("scBells").filter(b => b.label || b.start), contacts: rows("scContacts").filter(c => c.role || c.name || c.phone),
       updated_at: new Date().toISOString() };
+    if ($("scWa")) body.wa_group_url = nn($("scWa").value.trim());   // 5.20.43 (קובץ 160)
     if ("hakbatsa_options" in x || $("scHak").value.trim()) { const hk = [...new Set($("scHak").value.split("\n").map(t => t.trim()).filter(Boolean))]; body.hakbatsa_options = hk.length ? hk : null; }   // 5.19.70 (קובץ 78)
     $("scSave").disabled = true;
     try { await patch("site_info", "id=eq." + x.id, body); Object.assign(x, body); SC.edit = false; renderSchools(); toast("נשמר"); }
