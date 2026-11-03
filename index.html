@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.50">
+<meta name="app-version" content="5.20.51">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1783,12 +1783,12 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 /* 5.20.47 (נועה 3.11): כותרות במרכז, הפרדה עדינה בין העמודות, "פתוח" באותה שורה של הקישור */
 .at-tbl th, .crs-mtbl th{ text-align:center !important; } .at-tbl th + th, .at-tbl td + td, .crs-mtbl th + th, .crs-mtbl td + td{ border-inline-start:1px solid rgba(90,18,22,.07); }
 .at-tbl tr.at-city td + td{ border-inline-start-color:rgba(90,18,22,.10); } .at-tbl .at-lkr{ display:flex; align-items:center; gap:8px; flex-wrap:nowrap; } .at-tbl .at-lkr .mst{ display:inline; margin:0; }
-.at-tbl tr.at-sch{ cursor:pointer; } .at-tbl tr.at-sch:hover td{ background:#FBF6EF; } .at-tbl tr.at-sch td{ border-top:1.5px solid #E2D6C8; }
+.at-tbl .at-ph{ margin-top:6px; padding-top:6px; border-top:1px dashed #D9C8B4; } .at-tbl .at-phl{ font-size:12.5px; font-weight:700; color:var(--accent); white-space:nowrap; } .at-tbl tr.at-sch{ cursor:pointer; } .at-tbl tr.at-sch:hover td{ background:#FBF6EF; } .at-tbl tr.at-sch td{ border-top:1.5px solid #E2D6C8; }
 .at-car{ display:inline-block; width:0; height:0; border-block:5px solid transparent; border-inline-start:7px solid var(--ink-soft); margin-inline-end:8px; transition:transform .15s; vertical-align:middle; } .at-tbl tr.at-sch.open .at-car{ transform:rotate(-90deg); }
 .at-tbl tr.at-g-r td{ background:#FCFAF7; font-size:13.5px; } .at-tbl tr.at-g-r{ cursor:pointer; } .at-tbl tr.at-g-r:hover td{ background:#F6EFE6; } .at-tbl td.at-wa{ white-space:nowrap; } .at-tbl td.at-wa .btn{ margin-inline-end:4px; }
 .at-tbl td.at-ins{ font-size:13px; } .at-tbl tr.at-wait td{ background:#FFF6F3; font-size:13.5px; } .at-w{ font:inherit; font-size:13px; border:1px solid #E8C9BF; background:#fff; border-radius:999px; padding:2px 10px; margin:2px; cursor:pointer; }
 .crs-mtbl td.mt-crs{ white-space:nowrap; } .crs-mtbl td.mt-crs .crs-mix{ white-space:normal; } .crs-mtbl .mt-hrs{ unicode-bidi:isolate; }
-.crs-mtbl .mt-lk2{ display:flex; align-items:center; gap:4px; } .crs-mtbl .mt-lk2 + .mt-lk2{ margin-top:3px; } .crs-mtbl .mt-lkl{ font-size:12px; color:var(--ink-soft); min-width:58px; }
+.crs-mtbl .mt-ph{ margin-top:6px; padding-top:6px; border-top:1px dashed #D9C8B4; } .crs-mtbl .mt-ph .mt-lkl{ font-weight:700; color:var(--accent); white-space:nowrap; } .crs-mtbl .mt-lk2{ display:flex; align-items:center; gap:4px; } .crs-mtbl .mt-lk2 + .mt-lk2{ margin-top:3px; } .crs-mtbl .mt-lkl{ font-size:12px; color:var(--ink-soft); min-width:58px; }
 .crs-mtbl td.mt-pr{ white-space:nowrap; } @media (max-width:1500px){ .crs-mtbl .mt-act .bt{ display:none; } } .crs-mtbl td.mt-st .mst-s{ white-space:normal; } .crs-mtbl td, .crs-mtbl th{ padding-inline:6px; }
 .crs-mtbl td{ vertical-align:top; } .crs-mtbl .mt-l{ white-space:nowrap; font-size:13px; line-height:1.55; } .crs-mtbl .mt-l b{ font-weight:700; margin-inline-end:4px; } .crs-mtbl .mt-g + .mt-g{ border-top:1px dashed var(--border); margin-top:3px; padding-top:3px; } .crs-mtbl .mt-gl{ font-size:12px; font-weight:800; color:var(--accent); }
 .crs-mtbl .mst{ font-weight:700; white-space:nowrap; font-size:13px; } .crs-mtbl .mst.open{ color:#2E7D32; } .crs-mtbl .mst.closed, .crs-mtbl .mst.auto{ color:var(--ink-soft); } .crs-mtbl .mst.cxl{ color:#B3261E; } .crs-mtbl .mst-s{ font-size:11.5px; white-space:nowrap; }
@@ -4327,7 +4327,8 @@ function crsTable(list, opt){ opt = opt || {}; const onlyMar = list.every(c => c
       grp = `${I.ses.length || ""}${I.cap ? `<div class="muted mst-s">עד ${I.cap}</div>` : ""}`;
       price = o.price_first ? nis(o.price_first) : "—";
       st = `<span class="mst ${I.st}">${esc(crsMarStTxt(I))}</span>${I.st === "open" && I.d2 && "auto_closed_at" in o && !I.past ? `<div class="muted mst-s">ייסגר לבד אחרי ${esc(fmtDM(I.d2))}</div>` : ""}`;
-      lk = o.code && I.st !== "cxl" ? lk2Btns("", lkMarCode(o.code), "הרשמה ל" + (o.name || "מרתון") + (o.school ? " · " + o.school : "") + ": ") : "";
+      lk = o.code && I.st !== "cxl" ? lk2Btns("", lkMarCode(o.code), "הרשמה ל" + (o.name || "מרתון") + (o.school ? " · " + o.school : "") + ": ")
+        + `<div class="mt-lk2 mt-ph" title="למי שנרשם/ה בטלפון: ממלאים את כל הפרטים וחותמים, בלי בחירת תשלום. אחר כך מסמנים &quot;שולם&quot;"><span class="mt-lkl">📞 נרשמו בטלפון</span>${lk2Btns("", lkMarCode(o.code) + "&phone=1", "טופס ההרשמה ל" + (o.name || "מרתון") + (o.school ? " · " + o.school : "") + " (להשלמת הפרטים והחתימה): ")}</div>` : "";   // 5.20.51 (נועה 3.11)
     } else {
       const summer = /summer/.test(c.track || "") || (crsCat(c.category_id).tracks || []).includes("summer"), W = crsShotefWhen(c);
       when = W.h || `<span class="muted">—</span>`; grp = W.n ? String(W.n) : "";
@@ -9487,7 +9488,8 @@ async function loadAttTable(){
     const locs = [...new Set(cl.map(x => x.location))].sort((a, b) => a.localeCompare(b, "he"));
     h += `<tr class="at-city"><td colspan="2"><div class="at-ch"><b class="at-cn">${esc(ci)}</b><span class="muted">${locs.length} בתי ספר · ${cl.length} קבוצות</span><button type="button" class="btn small" data-atprice="${esc(ci)}" title="המחירים, הטפסים ופתיחה / סגירה של ${esc(ci)}">✎ מחירים וטפסים</button></div>${pr ? `<div class="at-prs">${pr}</div>` : ""}</td>
       <td>${kidsTxt(kids, cap)}</td><td></td>
-      ${lkCell(io, lkInterest(new URLSearchParams({ city: ci })), "טופס התעניינות - תלם " + ci + ": ")}${lkCell(op, lkReg(ci, ""), "טופס ההרשמה לתלם - " + ci + ": ")}<td></td></tr>`;
+      ${lkCell(io, lkInterest(new URLSearchParams({ city: ci })), "טופס התעניינות - תלם " + ci + ": ")}<td class="at-lk"><div class="at-lkr">${stT(op)}${lk2Btns("", lkReg(ci, ""), "טופס ההרשמה לתלם - " + ci + ": ")}</div>
+        <div class="at-lkr at-ph" title="למי שנרשם/ה בטלפון: ממלאים את כל הפרטים וחותמים, בלי תשלום באשראי בטופס. אחר כך מסמנים &quot;שולם&quot;"><span class="at-phl">📞 נרשמו בטלפון</span>${lk2Btns("", lkReg(ci, "") + "&phone=1", "טופס ההרשמה לתלם - " + ci + " (להשלמת הפרטים והחתימה): ")}</div></td><td></td></tr>`;   // 5.20.51 (נועה 3.11)
     locs.forEach(lo => { const gs = cl.filter(x => x.location === lo).sort((a, b) => DAY_ORDER[a.day] - DAY_ORDER[b.day] || String(a.start_time).localeCompare(String(b.start_time)));
       const k = gs.reduce((a, x) => a + (x.assigned_count || 0), 0), c2 = gs.reduce((a, x) => a + (Number(x.capacity) || 0), 0), q = (o) => new URLSearchParams(o).toString();
       const key = ci + "|" + lo, open = A.atOpen.has(key), ins = [...new Set(gs.flatMap(x => (G.ins && G.ins[x.session_id]) || []))];
