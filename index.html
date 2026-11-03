@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.43">
+<meta name="app-version" content="5.20.44">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4208,14 +4208,20 @@ $("schedBack").addEventListener("click", () => go("att")); $("attSchedBtn").addE
 // 5.20.38: למרתון – מסך המרתונים ← לשונית "מרתונים", והמגירה של הקורס פתוחה
 function goMarTab(c){ EX.mode = "mar"; EX.keepMar = true; EX.sig = null; go("exams");
   if (!c) return; let n = 0; const t = setInterval(() => { const r = document.querySelector(`#exList tr.crs-mr[data-crs="${c.id}"]`);
-    if (r || ++n > 40) { clearInterval(t); if (r) { r.scrollIntoView({ block: "center" }); CRS.sel = c.id; crsOpenDrawer(c); r.classList.add("sel"); } } }, 150); }
+    if (r || ++n > 40) { clearInterval(t); if (r) { r.scrollIntoView({ block: "center" }); CRS.sel = c.id; crsOpenCourse(c); r.classList.add("sel"); } } }, 150); }
 // 5.20.38: חיבור הכפתורים של טבלת הקורסים (crsTable) – במסך המרתונים (לשונית "מרתונים") ובכל מקום אחר
+// 5.20.44 (נועה 3.11: "תמיד להשתמש במסכים קיימים"): מרתון – החלון הקיים של פרטי המרתון (צפייה, הקבוצות והנרשמים, ✎ עריכה בכותרת)
+async function crsOpenCourse(c){ if (!c) return;
+  if (!c.marathon_id) { crsOpenDrawer(c); return; }
+  await ensureG(); let m = (G.marathons || []).find(x => x.id === c.marathon_id);
+  if (!m) { try { m = (await get("marathons", "select=*&id=eq." + c.marathon_id))[0]; } catch(e) {} }
+  if (m) openMarathonPanel(m); else toast("המרתון לא נמצא"); }
 function crsWireTable(b, re){
   b.querySelectorAll("tr.crs-mr").forEach(tr => { tr.onkeydown = (e) => { if (e.key === "Enter") tr.click(); };
-    tr.onclick = (e) => { if (e.target.closest("button, a, .lk2-cell")) return; const c = CRS.byId[Number(tr.dataset.crs)]; if (!c) return; CRS.sel = c.id; crsOpenDrawer(c);
+    tr.onclick = (e) => { if (e.target.closest("button, a, .lk2-cell")) return; const c = CRS.byId[Number(tr.dataset.crs)]; if (!c) return; CRS.sel = c.id; crsOpenCourse(c);
       b.querySelectorAll("tr.crs-mr").forEach(x => x.classList.toggle("sel", x === tr)); }; });
   b.querySelectorAll(".crs-mtbl").forEach(t => { wireLk(t); lkApplyShort(t); });
-  b.querySelectorAll("[data-kids]").forEach(x => x.onclick = (e) => { e.stopPropagation(); CRS.sel = Number(x.dataset.kids); crsOpenDrawer(CRS.byId[CRS.sel]);
+  b.querySelectorAll("[data-kids]").forEach(x => x.onclick = (e) => { e.stopPropagation(); CRS.sel = Number(x.dataset.kids); crsOpenCourse(CRS.byId[CRS.sel]);
     b.querySelectorAll("tr.crs-mr").forEach(tr => tr.classList.toggle("sel", Number(tr.dataset.crs) === CRS.sel)); });
   b.querySelectorAll("[data-back]").forEach(x => x.onclick = (e) => { e.stopPropagation(); go("leads"); setTimeout(() => { if (!F.ccat) F.ccat = new Set(); F.ccat.clear(); F.ccat.add("__back"); F.page = 0; try { crsFillFilter(); } catch(e2) {} renderLeads(); }, 50); });
   b.querySelectorAll("[data-crsmgmt]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); const c = CRS.byId[Number(x.dataset.crsmgmt)], o = (CRS.mar || {})[c && c.marathon_id] || {};
@@ -4341,7 +4347,7 @@ function crsTable(list, opt){ opt = opt || {}; const onlyMar = list.every(c => c
       <td class="mt-st">${st}</td>
       ${hasSite ? `<td class="num hide-m">${mar && o.show_on_site ? `<span title="מוצג באתר (כשההרשמה פתוחה)">🌐</span>` : ""}</td>` : ""}
       <td class="mt-lk">${lk}</td>
-      <td class="mt-act">${mar || crsCity(c) ? `<button type="button" class="btn small" data-crsedit="${c.id}" title="${mar ? "עריכת המרתון" : "המחירים והטפסים של " + esc(city)}">✎<span class="bt"> עריכה</span></button>` : ""}${mar ? `<button type="button" class="btn small" data-crsmgmt="${c.id}" title="לא יתקיים / מתקיים, החזרים">🏁</button>` : ""}</td></tr>`; };
+      <td class="mt-act">${!mar && crsCity(c) ? `<button type="button" class="btn small" data-crsedit="${c.id}" title="${mar ? "עריכת המרתון" : "המחירים והטפסים של " + esc(city)}">✎<span class="bt"> עריכה</span></button>` : ""}${mar ? `<button type="button" class="btn small" data-crsmgmt="${c.id}" title="לא יתקיים / מתקיים, החזרים">🏁</button>` : ""}</td></tr>`; };
   const cols = 13 + (hasSite ? 1 : 0) - (onlyMar ? 1 : 0);
   let out = `<div class="tbl-wrap"><table class="tbl crs-tbl crs-mtbl"><thead><tr><th>בית ספר</th><th${onlyMar ? ` class="num"` : ""}>${onlyMar ? "שכבה" : "קורס"}</th><th>מועדים</th><th class="num hide-m">קבוצות</th><th class="num hide-m">מחיר</th><th class="num">רשומים</th><th class="num hide-m" title="ממתינים לתשלום">ממתינים</th><th class="num hide-m">מתעניינים</th><th class="num hide-m" title="חסרה חתימה על טופס ההרשמה">חתימה</th>${onlyMar ? "" : `<th class="num hide-m" title="היו רשומים בשנה שעברה ולא השנה">לא חזרו</th>`}<th>הרשמה</th>${hasSite ? `<th class="num hide-m" title="מוצג באתר">אתר</th>` : ""}<th>קישור</th><th></th></tr></thead><tbody>`;
   let last = null;
