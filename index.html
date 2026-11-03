@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.20.52">
+<meta name="app-version" content="5.20.53">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1739,7 +1739,7 @@ td.nowrap{ white-space:nowrap; }
 .sc-hak{ display:flex; flex-wrap:wrap; gap:6px; } /* 5.19.77 (נועה): הקבצות - במחשב שורה לכל הקבצה, בנייד רשימה עם פסיקים */
 #exMonthNav.exmn-off{ visibility:hidden; } .gdg .gdg-sum2{ font-size:13px; display:inline-flex; flex-wrap:wrap; gap:2px 6px; } .gdg .gdg-h{ cursor:pointer; } .gdg-streak{ color:#B3261E; font-weight:800; }
 .gdg-car{ display:inline-block; width:0; height:0; border-block:5px solid transparent; border-inline-start:7px solid var(--ink-soft); transition:transform .15s; } .gdg.gd-open .gdg-car{ transform:rotate(-90deg); } .gdg:not(.gd-open) .gdg-h{ margin-bottom:0 !important; }
-#view-attg > .page-head, #view-sched > .page-head{ justify-content:flex-start !important; gap:10px 16px; flex-wrap:wrap; } .sc-col{ display:flex; flex-direction:column; gap:12px; min-width:0; } .sc-det .sc-det-s + .sc-det-s{ border-top:1px solid var(--border); margin-top:10px; padding-top:8px; } .sc-room .linkish{ font:inherit; background:none; border:0; color:var(--accent); text-decoration:underline; cursor:pointer; padding:0; } .lh-wa a{ color:#1E7A3C; font-weight:700; } .sc-room{ font-size:13.5px; margin:-2px 0 8px; } .sx-card .sx-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .sx-card .sx-h h3{ margin:0; margin-inline-end:auto; } .sx-g{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border); } .sx-g:first-of-type{ border-top:0; } .sx-b{ flex:1; min-width:0; } .sx-b .ex-row{ margin:2px 0 6px; }
+#view-exams > .page-head.ex-head{ justify-content:flex-start !important; gap:10px 16px; flex-wrap:wrap; } #view-exams > .page-head.ex-head > div:last-child{ margin-inline-start:auto; } #view-attg > .page-head, #view-sched > .page-head{ justify-content:flex-start !important; gap:10px 16px; flex-wrap:wrap; } .sc-col{ display:flex; flex-direction:column; gap:12px; min-width:0; } .sc-det .sc-det-s + .sc-det-s{ border-top:1px solid var(--border); margin-top:10px; padding-top:8px; } .sc-room .linkish{ font:inherit; background:none; border:0; color:var(--accent); text-decoration:underline; cursor:pointer; padding:0; } .lh-wa a{ color:#1E7A3C; font-weight:700; } .sc-room{ font-size:13.5px; margin:-2px 0 8px; } .sx-card .sx-h{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .sx-card .sx-h h3{ margin:0; margin-inline-end:auto; } .sx-g{ display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-top:1px solid var(--border); } .sx-g:first-of-type{ border-top:0; } .sx-b{ flex:1; min-width:0; } .sx-b .ex-row{ margin:2px 0 6px; }
 .sc-hak-l{ list-style:none; margin:4px 0 0; padding:0; line-height:1.7; } .sc-hak-c{ display:none; line-height:1.6; }
 @media (max-width:760px){ .sc-hak-l{ display:none; } .sc-hak-c{ display:block; } } .sc-head.lg-h-row h2{ margin:0; }
 .lp-box{ border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin:8px 0; background:#fff; }
@@ -3054,7 +3054,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
       </div>
     </section>
     <section id="view-exams" hidden>
-      <div class="page-head"><h1>מרתונים · לוח מבחנים</h1>
+      <div class="page-head att-head ex-head"><h1>מרתונים</h1><span class="gseg att-mode ex-tabs" role="group" aria-label="תצוגה"><button type="button" data-exm="cal">🗓️ לוח מבחנים</button><button type="button" data-exm="mar">📋 טבלה</button></span><!-- 5.20.53 (נועה 3.11): הלשוניות באותו מקום כמו בקבוצות ונוכחות -->
         <div style="display:flex; gap:8px; flex-wrap:wrap;" data-admin>
           <button class="btn small" type="button" id="exScanBtn" title="קריאת קבצים חדשים מ&quot;חומר מבתי הספר&quot; בדרייב (קורה גם לבד כל שעה, 06:00–22:00)">🔄 סריקה עכשיו</button><!-- 5.19.98 -->
           <button class="btn small" type="button" id="exImpBtn">ייבוא מהקובץ</button><input type="file" id="exImpFile" accept=".xlsx" hidden>
@@ -3062,7 +3062,6 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
           <button class="btn small primary" type="button" id="exMarBtn" hidden>+ מרתון</button><!-- 5.19.33: יצירת מרתון (קישור הרשמה) - רק ב"הרשמה ותשלומים"; בלוח - מפגשי מרתון כאירועים -->
         </div></div>
       <div class="ex-modebar">
-        <div class="gseg" role="group" aria-label="תצוגה"><button type="button" data-exm="cal">לוח</button><button type="button" data-exm="mar">📋 טבלה</button></div>
         <div class="ex-monthnav" id="exMonthNav"><button type="button" class="btn small" id="exMPrev" hidden>→ חודש קודם</button><b id="exMLbl"></b><button type="button" class="btn small" id="exMNow">היום</button><button type="button" class="btn small" id="exMNext" hidden>חודש הבא ←</button><span class="ex-zoom" role="group" aria-label="גודל הלוח"><button type="button" class="btn small" id="exZOut" title="להקטין – לראות יותר חודשים">🔍−</button><button type="button" class="btn small" id="exZIn" title="להגדיל">🔍+</button><button type="button" class="btn small ex-maxb" id="exMax" title="הלוח על כל המסך – בלי התפריט העליון והכותרת (עוד שורות). לחיצה שוב או Esc – חזרה">⛶ מסך מלא</button><button type="button" class="btn small" id="exCalXls" title="הורדה לאקסל – האירועים שבלוח (לפי הסינון)">⬇</button></span></div><!-- 5.19.103 (נועה): זום לטבלה בלבד -->
       <div class="ex-filters">
         <label>עיר <select id="exCity"></select></label>
