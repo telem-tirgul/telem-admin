@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.4">
+<meta name="app-version" content="5.21.5">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2623,6 +2623,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
 .lg-chg{ all:unset; cursor:pointer; border-radius:6px; padding:1px 4px; margin:-1px -4px; } .lg-chg:hover, .lg-chg:focus-visible{ background:#F3E9E4; outline:none; } #view-lead.ro .lg-chg{ pointer-events:auto; }   /* 5.21.4 */
 .lead-ld{ display:inline-flex; align-items:center; gap:6px; margin-inline-start:8px; font-size:13px; font-weight:600; color:var(--ink-soft); vertical-align:middle; } .lead-ld[hidden]{ display:none; } .lead-ld::before{ content:""; width:12px; height:12px; border:2px solid #E3D6CF; border-top-color:var(--accent); border-radius:50%; animation:ldspin .8s linear infinite; } @keyframes ldspin{ to{ transform:rotate(360deg); } }   /* 5.21.4 */
 .lg-crs-err{ padding:10px 12px; margin:6px 0; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.crs-inl-host{ margin:4px 0 10px; } .crs-inl-b{ display:flex; gap:8px; justify-content:flex-end; align-items:flex-end; grid-column:-3 / -1; } @media (max-width:760px){ .crs-inl-b{ grid-column:-2 / -1; } .crs-inl-b .btn{ min-width:0; flex:1; } } .crs-inl-b .btn{ min-width:84px; justify-content:center; }   /* 5.21.5: שמירה הכי שמאלית, ביטול מימין לה */
 </style>
 </head>
 <body>
@@ -4088,11 +4089,11 @@ async function loadLeadCourses(l){
 }
 // חלון "הוספה לקורס": מחזור, קטגוריה, (מרתון) / בית ספר + מסלול, מקצוע, מצב
 // 5.20.26 (נועה): inline – בכרטיס חדש, בעמודת הקורסים (בלי חלון קופץ); מחזיר { save(student) } – נקרא בשמירת הכרטיס
-async function crsAddDlg(l, inline){
+async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+ הוספה לקורס" בכרטיס קיים: בתוך המסך, לא בחלון קופץ
   const mem = !!l || !!inline, st = l ? l.student : { id: 0, school_id: inline && $("sSchool").value ? Number($("sSchool").value) : null }, act = CRS.seasons.filter(x => x.is_active), sch0 = st.school_id;
   const bg = inline || document.createElement("div"); if (!inline) bg.className = "ui-dlg-bg";
   const opt = (arr) => arr.map(([v, t, sel]) => `<option value="${esc(v)}"${sel ? " selected" : ""}>${esc(t)}</option>`).join("");
-  bg.innerHTML = (inline ? `<div class="crs-inl"><div class="crs-inl-h">קורס <span class="req-st">*</span> <span class="muted">– לכל כרטיס חדש: הקורס, המצב והמקור (הסטטוס של הכרטיס נקבע לפי הקורס)</span></div>` : `<div class="ui-dlg crs-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t">${l ? "הוספה לקורס – " + esc(st.first_name || "") + " " + esc(st.last_name || "") : "קורס חדש"}</div>`) + `
+  bg.innerHTML = (inlEx ? `<div class="crs-inl crs-inl-ex"><div class="crs-inl-h">הוספה לקורס</div>` : inline ? `<div class="crs-inl"><div class="crs-inl-h">קורס <span class="req-st">*</span> <span class="muted">– לכל כרטיס חדש: הקורס, המצב והמקור (הסטטוס של הכרטיס נקבע לפי הקורס)</span></div>` : `<div class="ui-dlg crs-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t">${l ? "הוספה לקורס – " + esc(st.first_name || "") + " " + esc(st.last_name || "") : "קורס חדש"}</div>`) + `
     <div class="form-grid">
       <div><label class="lbl">מחזור</label><select id="cdSe">${opt(CRS.seasons.filter(x => x.is_active || true).map(x => [x.id, x.name + (x.label ? " (" + x.label + ")" : ""), x.id === (act[0] || {}).id]))}</select></div>
       <div><label class="lbl">קטגוריה</label><select id="cdCa">${opt(CRS.cats.filter(x => x.is_active).map(x => [x.id, x.name]))}</select></div>
@@ -4102,7 +4103,7 @@ async function crsAddDlg(l, inline){
       <div class="cd-st"><label class="lbl">מקצוע</label><select id="cdSu">${opt([["", "—"], ["מתמטיקה", "מתמטיקה"], ["אנגלית", "אנגלית"], ["מתמטיקה ואנגלית", "מתמטיקה ואנגלית"]])}</select></div>
       ${mem && CRS.hasSrc ? `<div class="cd-st"><label class="lbl">מקור</label><select id="cdSrc">${opt([["", "—"]].concat((L.sources || []).filter(x => x.is_active).map(x => [x.id, x.name])))}</select></div>` : ""}
       <div class="cd-st"><label class="lbl">מצב</label><select id="cdSt">${opt(crsStList().map(x => x.name).filter(x => x !== "בוטל").map(x => [x, crsStOf(x).label, x === "רשום"]))}</select></div>
-    </div>${inline ? "" : `<div class="ui-dlg-b"><button type="button" class="btn primary" data-ok>שמירה</button><button type="button" class="btn" data-no>ביטול</button></div>`}</div>`;
+    ${inlEx ? `<div class="crs-inl-b"><button type="button" class="btn" data-no>ביטול</button><button type="button" class="btn primary" data-ok>שמירה</button></div>` : ""}</div>${inline ? "" : `<div class="ui-dlg-b"><button type="button" class="btn primary" data-ok>שמירה</button><button type="button" class="btn" data-no>ביטול</button></div>`}</div>`;
   if (!inline) document.body.appendChild(bg);
   const q = (id) => bg.querySelector("#" + id);
   const paint = () => { const ca = crsCat(Number(q("cdCa").value)), ev = ca.kind === "event", se = Number(q("cdSe").value);
@@ -4126,13 +4127,19 @@ async function crsAddDlg(l, inline){
             name: [sn.name, ca.name, CRS.hasTrk ? "" : CRS_TRACKS[tr] || "", so ? so.name + " " + (so.city || "") : ""].filter(Boolean).join(" · ") }))[0].id; } }
       if (!mem) { close(); toast("הקורס נוצר"); await crsLoad(true); crsRe(); return true; }
       { const body = Object.assign({ course_id: cid, student_id: stu.id, status: q("cdSt").value, subject: q("cdSu").value || null, grade: stu.grade || null, source: "ידני" }, q("cdSrc") && q("cdSrc").value ? { source_id: Number(q("cdSrc").value) } : {}, CRS.hasTrk && ca.kind !== "event" && (q("cdTr") || {}).value ? { track: (q("cdTr") || {}).value } : {});   // 5.20.27: כרטיס חדש – הטריגר lead_course_ins (קובץ 144) כבר יצר רישום "חדש" לתרגול השוטף; מעבירים אותו לקורס שנבחר (בלי כפילות)
-        const auto = inline ? (await get("course_members", "select=id&student_id=eq." + stu.id + "&note=eq." + encodeURIComponent("כרטיס חדש – נוסף לקורס של השנה") + "&order=id.desc&limit=1").catch(() => []))[0] : null;
+        const auto = inline && !inlEx ? (await get("course_members", "select=id&student_id=eq." + stu.id + "&note=eq." + encodeURIComponent("כרטיס חדש – נוסף לקורס של השנה") + "&order=id.desc&limit=1").catch(() => []))[0] : null;
         if (auto) { delete body.student_id; await patch("course_members", "id=eq." + auto.id, Object.assign({ source_id: null }, body, { note: null, updated_at: new Date().toISOString() })); }   // מקור שלא נבחר – ריק (לא "טופס הרשמה" שנקבע אוטומטית)
         else await insert("course_members", body); }
       return true; };
   const check = () => { const ca = crsCat(Number(q("cdCa").value)); if (!q("cdCa").value) return "בוחרים קטגוריה";
     if (ca.kind === "event" && !q("cdMa").value) return "אין מרתון במחזור הזה – בוחרים מחזור / קטגוריה אחרים";
     if (ca.kind !== "event" && !q("cdSc").value) return "בוחרים בית ספר לקורס"; if (q("cdSt") && !q("cdSt").value) return "בוחרים מצב"; return ""; };
+  if (inlEx) { const sid = st.id;
+    bg.querySelector("[data-no]").onclick = () => bg.remove();
+    bg.querySelector("[data-ok]").onclick = async (e) => { const er = check(); if (er) { toast(er); return; } e.currentTarget.disabled = true;
+      try { if (await save(st)) { bg.remove(); toast("נוסף/ה לקורס"); await crsLoad(true, true); CRS.loadedSt.delete(sid); if (editing && editing.student && editing.student.id === sid) loadLeadGroups(sid); if (currentView === "leads") renderLeads(); } else e.currentTarget.disabled = false; }
+      catch(err) { e.currentTarget.disabled = false; toast(/duplicate|23505/.test(err.message) ? "כבר בקורס הזה – אפשר לשנות את המצב בקורס" : "לא נשמר: " + err.message); } };
+    bg.scrollIntoView({ behavior: "smooth", block: "nearest" }); return; }
   if (inline) { const sc = $("sSchool"); if (sc) sc.addEventListener("change", () => { if (q("cdSc") && sc.value) q("cdSc").value = sc.value; }); return { save, check }; }
   bg.querySelector("[data-no]").onclick = close;
   bg.querySelector("[data-ok]").onclick = async () => {
@@ -5991,7 +5998,7 @@ const crsCards = (rs, card) => rs.length ? `<div class="lg-sub">שיבוצים</
 // 5.20.5 (נועה): חתום – שורה "✓ טופס חתום" ואיך (טופס הרשמה / טופס חתימה / ידני / לפני המערכת); ידני / לפני המערכת – אפשר לבטל את הסימון
 const SIG_VIA = { form: "בטופס ההרשמה", sign_link: "בטופס החתימה", manual: "סומן ידנית – התקבל מחוץ למערכת", legacy: "רשום/ה לפני המערכת – סומן אוטומטית, אין טופס במערכת" };
 const crsSignRow = (m) => m.signed === true ? `<div class="lc-sign lc-signed" data-sgm="${m.id}" data-sgd="1"><span class="lc-sig-ok">✓ טופס חתום</span><span class="muted">${esc(SIG_VIA[m.signed_via] || "")}</span>${m.signed_via === "form" || m.signed_via === "sign_link" ? `<button type="button" class="btn small" data-sgpdf="${m.id}" title="הורדת הטופס החתום של הקורס הזה (PDF)">📄 הטופס החתום</button>` : `<button type="button" class="btn small" data-sgun="${m.id}" title="אין טופס חתום – לבטל את הסימון (יופיע ✍︎ חסרה חתימה)">✕ אין טופס</button>`}</div>`
-  : !["רשום", "ממתין לתשלום"].includes(m.status) ? "" : `<div class="lc-sign" data-sgm="${m.id}"><button type="button" class="btn small" data-sgn="${m.id}">✍ שליחת טופס חתימה</button><button type="button" class="btn small" data-sgok="${m.id}" title="הטופס החתום התקבל מחוץ למערכת (נייר / מייל / וואטסאפ)">✓ התקבל טופס חתום</button><span class="lc-sign-st"></span></div>`;
+  : !["רשום", "ממתין לתשלום"].includes(m.status) ? "" : `<div class="lc-sign" data-sgm="${m.id}"><button type="button" class="btn small" data-sgn="${m.id}">✍ שליחת טופס חתימה</button><span class="lc-sign-st"></span><button type="button" class="btn small" data-sgok="${m.id}" title="הטופס החתום התקבל מחוץ למערכת (נייר / מייל / וואטסאפ)">✓ התקבל טופס חתום</button></div>`;   /* 5.21.5 (נועה): אחרי יצירת הקישור – "העתקה" באותו מקום של הכפתור; "התקבל טופס חתום" לא זז לשם */
 const signUrl = (code) => (CONFIG.formsBase || "https://telem-tirgul.github.io/") + "sign.html?c=" + code;
 async function signWire(sid){
   [...$("leadGroups").querySelectorAll("[data-sgd]")].forEach(box => {   // 5.20.5: חתום
@@ -6024,7 +6031,7 @@ async function signWire(sid){
     const u = signUrl(k.code), lab = [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ");
     const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, זה הטופס לאישור תנאי ההתקשרות ולחתימה עבור ${st.first_name || ""} (${lab}): ${u}`;
     const pd = String(f.parent1_phone || "").replace(/\D/g, ""), wa = /^0\d{8,9}$/.test(pd) ? `https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}` : "";
-    stEl.innerHTML = `<span class="muted">✍ נשלח ${esc(fmtDM(String(k.created_at).slice(0, 10)))} · ${k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח"}</span> <button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}`;
+    stEl.innerHTML = `<button type="button" class="btn small primary" data-copy="${esc(u)}" title="העתקת הקישור לטופס">⧉ העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""} <span class="muted">✍ נשלח ${esc(fmtDM(String(k.created_at).slice(0, 10)))} · ${k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח"}</span>`;
     stEl.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
   };
   boxes.forEach(box => { const ok = box.querySelector("[data-sgok]"); if (ok) ok.onclick = async () => {   // 5.20.2 (נועה): טופס שהתקבל מחוץ למערכת
@@ -6136,7 +6143,9 @@ async function loadLeadGroups(studentId){
     if ($("lcAddSlot")) $("lcAddSlot").innerHTML = CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : "";   // 5.19.174: בשורת הכותרת
     { const gb = $("leadGroups").querySelector(".lg-crs-box.lg-reg"), html = `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></div><div class="lg-edit lg-card" data-ed="new" hidden></div>`;
       const gs = gb && gb.querySelector(".lg-add-slot"); if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
-    if ($("lcAdd")) $("lcAdd").onclick = () => { const sid = editing && editing.student && editing.student.id; if (sid !== studentId) { toast("הכרטיס התחלף – פותחים שוב"); return; } const l0 = L.leads.find(x => x.student && x.student.id === sid); if (l0) crsAddDlg(l0); };   // 5.21.4: תמיד התלמיד/ה שבכרטיס הפתוח
+    if ($("lcAdd")) $("lcAdd").onclick = () => { const sid = editing && editing.student && editing.student.id; if (sid !== studentId) { toast("הכרטיס התחלף – פותחים שוב"); return; } const l0 = L.leads.find(x => x.student && x.student.id === sid); if (!l0) return;
+      let bx = $("leadGroups").querySelector(".crs-inl-host"); if (bx) { bx.remove(); return; }   // לחיצה שנייה – סוגר
+      bx = document.createElement("div"); bx.className = "crs-inl-host"; $("leadGroups").prepend(bx); crsAddDlg(l0, bx, true); };   // 5.21.4: תמיד התלמיד/ה שבכרטיס הפתוח
     $("leadGroups").querySelectorAll("[data-gs]").forEach(b => b.onclick = () => openGroupOnBoard(Number(b.dataset.gs), b.dataset.city));
     $("leadGroups").querySelectorAll("[data-chg]").forEach(b => b.onclick = () => openAsgEditor(studentId, cur.find(a => String(a.id) === b.dataset.chg), cur));
     // 5.20.26 (נועה): ⏰ שעה אישית – על השיבוץ עצמו
