@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.8">
+<meta name="app-version" content="5.21.9">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1830,6 +1830,22 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .lg-crs-box.lg-trk{ border:2px solid var(--tc, #2B2320); } .lg-crs-box.lg-trk > .lg-crs{ border-bottom-color:color-mix(in srgb, var(--tc, #2B2320) 35%, transparent); }
 .lg-crs-box > .lg-crs .lg-crs-l{ font-size:15px; } .lg-ic{ display:inline-flex; vertical-align:-4px; margin-inline-end:4px; } .lg-ic svg{ width:19px; height:19px; }
 .lg-crs .lc-sign{ flex-basis:100%; margin:2px 0 0; } .lg-crs .lc-sign:has(.lc-sign-st:empty){ flex-basis:auto; margin:0; } .lg-crs-box .lg-add-row{ margin-top:8px; }
+/* 5.21.9: פס השלבים בקורס */
+.stp-box{ border-top:1px dashed #E6DDD3; margin-top:10px; padding-top:8px; }
+.stp-hd{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px; margin-bottom:2px; } .stp-hd .lg-can{ margin:0; }
+.stp{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); }
+.stp-s{ position:relative; padding:22px 4px 4px; text-align:center; font-size:13px; color:#888; min-width:0; }
+.stp-s::before{ content:""; position:absolute; top:11px; left:50%; right:-50%; height:3px; background:#E4DCD3; } .stp-s:first-child::before{ display:none; }
+.stp-s.ok::before, .stp-s.cur::before{ background:var(--ok,#4ea30c); }
+.stp-d{ position:absolute; top:1px; right:calc(50% - 12px); width:24px; height:24px; box-sizing:border-box; border-radius:50%; background:#fff; border:2px solid #D5CBC0; display:grid; place-items:center; font-size:12px; font-weight:800; color:#999; z-index:1; }
+.stp-s.ok .stp-d{ background:var(--ok,#4ea30c); border-color:var(--ok,#4ea30c); color:#fff; }
+.stp-s.cur .stp-d{ border-color:#2b4aa3; color:#2b4aa3; box-shadow:0 0 0 4px rgba(43,74,163,.14); }
+.stp-t{ font-weight:800; color:#333; margin-top:6px; } .stp-s.ok .stp-t{ color:#3d7f0a; } .stp-s.cur .stp-t{ color:#2b4aa3; }
+.stp-m{ font-size:12px; color:#777; margin-top:2px; min-height:16px; overflow-wrap:anywhere; }
+.stp-a{ margin-top:6px; display:flex; justify-content:center; } .stp-a:empty{ display:none; }
+.stp-a .lc-sign{ justify-content:center; margin:0; gap:6px; } .stp-a .lc-sign-st{ gap:6px; } .stp-a .lc-sign-st:empty{ display:none; }
+.stp-wa{ background:#25d366 !important; border-color:#25d366 !important; color:#fff !important; }
+@media (max-width:700px){ .stp-s{ font-size:12px; padding-inline:2px; } .stp-a .btn{ font-size:12px; padding:4px 6px; max-width:100%; white-space:normal; } .stp-m{ font-size:11px; } .stp-a .lc-sign{ flex-direction:column; align-items:stretch; } .stp-a .lc-sign-st{ justify-content:center; } }
 .lc-sign{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0 2px; } .lc-sign-st{ display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; }
 .ftx-tabs{ margin:0 0 12px; } .pe-banner{ background:var(--accent); color:#fff; border-radius:12px; padding:12px 16px; font-size:20px; display:flex; flex-direction:column; gap:2px; margin-bottom:8px; } .pe-banner span{ font-size:13px; opacity:.85; }
 .ft-lk{ display:flex; flex-direction:column; align-items:flex-start; gap:6px; } .ft-lk .lk2-cell{ display:flex; flex-wrap:wrap; gap:4px; } .ft-lk .lk2-cell .btn{ padding:2px 8px !important; font-size:12px !important; min-height:26px !important; }
@@ -5747,7 +5763,7 @@ async function loadLeadPayments(l){
   plans.forEach((p, i) => put(regCm, "plans", i));
   const sumOf = (b) => { const ok2 = b.rows.filter(i => rows[i].status === "אושר"), bad2 = b.rows.length - ok2.length;
     return `<span class="lp-sum">${ok2.length} שולמו · סה"כ <b>${fmtMoney(ok2.reduce((s2, i) => s2 + Number(rows[i].amount || 0), 0))}</b></span>${bad2 ? ` <span class="lp-st no">${bad2} לא התקבל</span>` : ""}${b.pend.length ? ` <span class="lp-st no">📞 ממתין לתשלום</span>` : ""}`; };
-  const bodyOf = (b) => `${pendHtml(b.pend)}${planHtml(b.plans)}${b.rows.length ? `<div class="dx lp-dx">${b.rows.map(i => lpRow(rows[i], i)).join("")}</div>` : ""}${regHtml(b.regs)}`;
+  const bodyOf = (b, inCrs) => `${inCrs ? "" : pendHtml(b.pend)}${planHtml(b.plans)}${b.rows.length ? `<div class="dx lp-dx">${b.rows.map(i => lpRow(rows[i], i)).join("")}</div>` : ""}${regHtml(b.regs)}`;
   const rest = B.rest, open0 = LP_OPEN; LP_OPEN = false;
   if (rest) box.innerHTML = `<details class="lp-box"${open0 || rest.pend.length ? " open" : ""}><summary><b><span class="lp-ic" aria-hidden="true">💳</span> ${Object.keys(B).length > 1 ? "תשלומים נוספים" : "תשלומים"}</b> ${sumOf(rest)}</summary>${bodyOf(rest)}</details>`;
   const wire = (root) => {
@@ -5770,8 +5786,21 @@ async function loadLeadPayments(l){
   if (rest) wire(box);
   LP_CACHE = { sid, place: () => { const g = $("leadGroups"); if (!g) return; let first = true;
       g.querySelectorAll(".lg-pay-slot[data-pm]").forEach(sl => { const b = B[sl.dataset.pm]; if (!b) { sl.innerHTML = ""; return; }
-        sl.innerHTML = `<details class="lp-box lg-pay"${b.pend.length || (open0 && first) ? " open" : ""}><summary><b><span class="lp-ic" aria-hidden="true">💳</span> תשלומים</b> ${sumOf(b)}</summary>${bodyOf(b)}</details>`;
-        if (open0 && first) { first = false; setTimeout(() => sl.scrollIntoView({ behavior: "smooth", block: "center" }), 50); } wire(sl); }); } };
+        const inCrs = !!g.querySelector(`.stp-s[data-stk="pay"][data-stm="${sl.dataset.pm}"]`);
+        sl.innerHTML = (inCrs && !b.rows.length && !b.plans.length && !b.regs.length) ? "" : `<details class="lp-box lg-pay"${(!inCrs && b.pend.length) || (open0 && first) ? " open" : ""}><summary><b><span class="lp-ic" aria-hidden="true">💳</span> תשלומים</b> ${inCrs ? sumOf({ ...b, pend: [] }) : sumOf(b)}</summary>${bodyOf(b, inCrs)}</details>`;
+        if (open0 && first) { first = false; setTimeout(() => sl.scrollIntoView({ behavior: "smooth", block: "center" }), 50); } wire(sl); });
+      /* 5.21.9: שלב התשלום בפס השלבים – "✔ שולם" לתשלום טלפוני שממתין; אחרי – מתי ואיך שולם */
+      g.querySelectorAll('.stp-s[data-stk="pay"]').forEach(ps => { const b = B[ps.dataset.stm]; if (!b) return;
+        const tEl = ps.querySelector(".stp-t"), mEl = ps.querySelector(".stp-m"), aEl = ps.querySelector(".stp-a");
+        if (ps.classList.contains("cur") && b.pend.length) { const i = b.pend[0], x = pend[i];
+          tEl.textContent = x.paid_before ? "לוודא תשלום" : "לקחת אשראי";
+          mEl.innerHTML = (x.paid_before ? "ההורה סימן \"כבר שילמתי\"" + (x.amount ? " · " : "") : "") + (x.amount ? fmtMoney(x.amount) : "") + (x.monthly_amount ? " + " + fmtMoney(x.monthly_amount) + " לחודש" : "");
+          aEl.innerHTML = `<button type="button" class="btn small primary" data-stpaid="${i}">✔ שולם</button>`;
+          aEl.querySelector("[data-stpaid]").onclick = async (e) => { const bt = e.currentTarget; bt.disabled = true;
+            if (await markPaid(x)) { setTimeout(() => { if (editing && editing.id === l.id) { loadLeadPayments(l); loadLeadGroups(l.student.id); const nl = L.leads.find(y => y.id === l.id); if (nl) { $("lfStatus").value = nl.status_id; paintStatus($("lfStatus"), nl.status_id); } } }, 1500); } else bt.disabled = false; }; }
+        else if (ps.classList.contains("ok")) { const rg = b.regs.length ? paidRegs[b.regs[0]] : null, r1 = b.rows.map(i => rows[i]).filter(r => r.status === "אושר" && r.kind !== "חיוב חודשי").pop();
+          mEl.textContent = rg ? "סומן ידנית · " + dm(rg.at) : r1 ? "אשראי · " + dm(r1.date) : ""; } });
+    } };
   LP_CACHE.place();
   if (open0 && rest) setTimeout(() => box.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
 }
@@ -5986,7 +6015,27 @@ function crsHead(m){ const c = CRS.byId[m.course_id] || {};
         return (trkOk ? `<button type="button" class="lg-chg" data-cmtrk2="${m.id}" title="לחיצה – שינוי המסלול">${ic}</button>` : ic) + `<b>${esc(crsCat(c.category_id).name || crsCatN(c.category_id))}</b> · ${trkOk ? `<button type="button" class="lg-chg" data-cmtrk2="${m.id}" title="לחיצה – שינוי המסלול">${trH}</button>` : trH}${subH ? " · " + (ed ? `<button type="button" class="lg-chg" data-cmsub2="${m.id}" title="לחיצה – שינוי המקצוע">${subH}</button>` : subH) : ""}`; })();
   return `<div class="lg-crs" data-crsmar="${c.marathon_id || ""}"><span class="lg-crs-l">${lab}<span class="lg-crs-g"></span>${crsNeedSig(m) ? ` <span class="sig-miss" title="חסר אישור תנאי התקשרות">✍︎</span>` : ""}</span><span class="lg-crs-r">${crsSrcBtn(m)}${crsStWord(m)}</span></div>`; }
 // 5.20.18 (נועה): שורה תחתונה בקורס – החתימה (בתרגול) והביטול
-const crsFoot = (m) => { const c = CRS.byId[m.course_id] || {}; return `<div class="lg-att-slot" data-am="${m.id}"></div><div class="lg-pay-slot" data-pm="${m.id}"></div><div class="lg-foot">${crsSignRow(m)}${ME.role === "instructor" ? "" : `<span class="lg-can" data-cnm="${m.id}"><span class="lg-can-st"></span><button type="button" class="btn small" data-cnew="${m.id}" title="טופס ביטול לקורס הזה – ההורה רק חותם/ת">✕ טופס ביטול</button></span>`}</div><div class="lg-can-panel" data-cpm="${m.id}" hidden></div>`; };
+const crsCanSpan = (m) => ME.role === "instructor" ? "" : `<span class="lg-can" data-cnm="${m.id}"><span class="lg-can-st"></span><button type="button" class="btn small" data-cnew="${m.id}" title="טופס ביטול לקורס הזה – ההורה רק חותם/ת">✕ טופס ביטול</button></span>`;
+/* 5.21.9 (נועה 4.11): פס שלבים לכל קורס – הרשמה ← תשלום ← חתימה ← אישור להורה. השלב הנוכחי בכחול, והכפתור שלו רק מתחתיו (לא זז). כמו שופיפיי: סטטוס לכל שלב + הפעולה הבאה */
+function crsStepper(m){
+  if (ME.role === "instructor" || !["רשום", "ממתין לתשלום"].includes(m.status)) return "";
+  const reg = m.status === "רשום", sig = m.signed === true, c = CRS.byId[m.course_id] || {}, d = (x) => x ? fmtDM(String(x).slice(0, 10)) : "";
+  const st = (k, cls, n, t, meta, act) => `<div class="stp-s ${cls}" data-stk="${k}" data-stm="${m.id}"><span class="stp-d" aria-hidden="true">${cls === "ok" ? "✓" : n}</span><div class="stp-t">${t}</div><div class="stp-m">${meta || ""}</div><div class="stp-a">${act || ""}</div></div>`;
+  const s3 = sig ? st("sig", "ok", 3, "חתימה", esc(SIG_VIA_S[m.signed_via] || "סומן"), crsSignRow(m))
+    : st("sig", reg ? "cur" : "", 3, "חתימה", `<span class="lc-sign-meta"></span>`, crsSignRow(m));
+  let s4 = st("conf", "", 4, "אישור להורה", "", "");
+  if (reg && sig) { const l0 = L.leads.find(x => x.student && x.student.id === m.student_id), s0 = (l0 && l0.student) || {}, f = s0.family || {};
+    const lab = c.marathon_id ? crsCatN(c.category_id) : [crsCatN(c.category_id), CRS_TRK_S[mTrk(m)]].filter(Boolean).join(" – ");
+    const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, ההרשמה של ${s0.first_name || ""} ל${lab} אושרה ✓ התשלום התקבל והטופס נחתם. נתראה! תלם`;
+    const pd = String(f.parent1_phone || "").replace(/\D/g, ""), wa = /^0\d{8,9}$/.test(pd) ? `https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}` : "";
+    s4 = st("conf", "cur", 4, "אישור להורה", "הסטטוס: נרשם", wa ? `<a class="btn small stp-wa" target="_blank" rel="noopener" href="${esc(wa)}">💬 שליחת אישור</a>` : `<button type="button" class="btn small" data-copy="${esc(msg)}">⧉ העתקת האישור</button>`); }
+  return `<div class="stp-box"><div class="stp-hd"><b>מצב ההרשמה</b>${crsCanSpan(m)}</div><div class="stp">`
+    + st("reg", "ok", 1, "הרשמה", d(m.created_at), "")
+    + (reg ? st("pay", "ok", 2, "שולם", "", "") : st("pay", "cur", 2, "לקחת אשראי", "", ""))
+    + s3 + s4 + `</div></div>`;
+}
+const SIG_VIA_S = { form: "בטופס ההרשמה", sign_link: "בקישור לחתימה", manual: "התקבל מחוץ למערכת", legacy: "לפני המערכת" };
+const crsFoot = (m) => { const sp = crsStepper(m); return `<div class="lg-att-slot" data-am="${m.id}"></div><div class="lg-pay-slot" data-pm="${m.id}"></div>${sp || `<div class="lg-foot">${crsCanSpan(m)}</div>`}<div class="lg-can-panel" data-cpm="${m.id}" hidden></div>`; };
 // 5.20.23 (נועה): מעקב לכל קורס (קובץ 155) – בתרגול השוטף המעקב של הכרטיס (מסונכרן), בשאר הקורסים – course_members.tracking
 const crsTrackHtml = (m) => !CRS.hasCmTrack || ME.role === "instructor" ? "" : `<div class="track-box tb-side lg-cmtrk" data-cmtk="${m.id}"><div class="tb-h"><span>📌 מעקב${m.tracking ? "" : " <span class='muted' style='font-weight:500'>- אין</span>"}</span><button type="button" class="btn small" data-cmtke="${m.id}">${m.tracking ? "✎ עריכה" : "+ הוספה"}</button></div>${m.tracking ? `<div class="tb-txt">${esc(m.tracking)}</div>` : ""}</div>`;
 function crsTrackWire(sid){ const g = $("leadGroups"); if (!g) return;
@@ -6002,8 +6051,8 @@ const crsCards = (rs, card) => rs.length ? `<div class="lg-sub">שיבוצים</
 // 5.19.169 (נועה, קובץ 135): טופס חתימה על התנאים בלבד – קישור אישי לכל רישום לקורס (חתימה אחת, 30 יום)
 // 5.20.5 (נועה): חתום – שורה "✓ טופס חתום" ואיך (טופס הרשמה / טופס חתימה / ידני / לפני המערכת); ידני / לפני המערכת – אפשר לבטל את הסימון
 const SIG_VIA = { form: "בטופס ההרשמה", sign_link: "בטופס החתימה", manual: "סומן ידנית – התקבל מחוץ למערכת", legacy: "רשום/ה לפני המערכת – סומן אוטומטית, אין טופס במערכת" };
-const crsSignRow = (m) => m.signed === true ? `<div class="lc-sign lc-signed" data-sgm="${m.id}" data-sgd="1"><span class="lc-sig-ok">✓ טופס חתום</span><span class="muted">${esc(SIG_VIA[m.signed_via] || "")}</span>${m.signed_via === "form" || m.signed_via === "sign_link" ? `<button type="button" class="btn small" data-sgpdf="${m.id}" title="הורדת הטופס החתום של הקורס הזה (PDF)">📄 הטופס החתום</button>` : `<button type="button" class="btn small" data-sgun="${m.id}" title="אין טופס חתום – לבטל את הסימון (יופיע ✍︎ חסרה חתימה)">✕ אין טופס</button>`}</div>`
-  : !["רשום", "ממתין לתשלום"].includes(m.status) ? "" : `<div class="lc-sign" data-sgm="${m.id}"><button type="button" class="btn small" data-sgn="${m.id}">✍ שליחת טופס חתימה</button><span class="lc-sign-st"></span><button type="button" class="btn small" data-sgok="${m.id}" title="הטופס החתום התקבל מחוץ למערכת (נייר / מייל / וואטסאפ)">✓ התקבל טופס חתום</button></div>`;   /* 5.21.5 (נועה): אחרי יצירת הקישור – "העתקה" באותו מקום של הכפתור; "התקבל טופס חתום" לא זז לשם */
+const crsSignRow = (m) => m.signed === true ? `<div class="lc-sign lc-signed" data-sgm="${m.id}" data-sgd="1">${m.signed_via === "form" || m.signed_via === "sign_link" ? `<button type="button" class="btn small" data-sgpdf="${m.id}" title="הורדת הטופס החתום של הקורס הזה (PDF)">📄 הטופס</button>` : `<button type="button" class="btn small" data-sgun="${m.id}" title="אין טופס חתום – לבטל את הסימון (יופיע ✍︎ חסרה חתימה)">✕ אין טופס</button>`}</div>`
+  : !["רשום", "ממתין לתשלום"].includes(m.status) ? "" : `<div class="lc-sign" data-sgm="${m.id}"><button type="button" class="btn small" data-sgn="${m.id}">✍ קישור לחתימה</button><span class="lc-sign-st"></span><button type="button" class="btn small" data-sgok="${m.id}" title="הטופס החתום התקבל מחוץ למערכת (נייר / מייל / וואטסאפ)">✓ התקבל חתום</button></div>`;   /* 5.21.5 (נועה): אחרי יצירת הקישור – "העתקה" באותו מקום של הכפתור; "התקבל טופס חתום" לא זז לשם */
 const signUrl = (code) => (CONFIG.formsBase || "https://telem-tirgul.github.io/") + "sign.html?c=" + code;
 async function signWire(sid){
   [...$("leadGroups").querySelectorAll("[data-sgd]")].forEach(box => {   // 5.20.5: חתום
@@ -6022,6 +6071,7 @@ async function signWire(sid){
       try { await patch("course_members", "id=eq." + mid, body); Object.assign(m, body); toast("בוטל הסימון – חסרה חתימה"); loadLeadGroups(sid); if (currentView === "leads") renderLeads(); }
       catch(e) { toast("לא נשמר: " + e.message); ub.disabled = false; } };
   });
+  $("leadGroups").querySelectorAll('.stp-s[data-stk="conf"] [data-copy]').forEach(b => b.onclick = () => copyText(b.dataset.copy));
   const boxes = [...$("leadGroups").querySelectorAll("[data-sgm]:not([data-sgd])")]; if (!boxes.length) return;
   let links = [];
   try { links = await get("sign_links", "select=id,code,course_member_id,created_at,opened_at,signed_at,expires_at,cancelled_at&student_id=eq." + sid + "&order=id.desc"); }
@@ -6030,13 +6080,13 @@ async function signWire(sid){
   const live = (k) => k && !k.signed_at && !k.cancelled_at && new Date(k.expires_at) > new Date();
   const paint = (box) => {
     const mid = Number(box.dataset.sgm), m = crsOfStudent(sid).find(x => x.id === mid) || {}, c = CRS.byId[m.course_id] || {};
-    const k = links.find(x => x.course_member_id === mid && live(x)), btn = box.querySelector("[data-sgn]"), stEl = box.querySelector(".lc-sign-st");
+    const k = links.find(x => x.course_member_id === mid && live(x)), btn = box.querySelector("[data-sgn]"), stEl = box.querySelector(".lc-sign-st"); const mtEl = (box.closest(".stp-s") || box).querySelector(".lc-sign-meta") || { set textContent(v){} };
     btn.hidden = !!k; { const okb = box.querySelector("[data-sgok]"); if (okb) okb.hidden = false; }
-    if (!k) { stEl.innerHTML = ""; return; }
+    if (!k) { stEl.innerHTML = ""; mtEl.textContent = ""; return; }
     const u = c.marathon_id || !crsCity(c) ? signUrl(k.code) : lkReg(crsCity(c), "") + "&phone=1&c=" + k.code, lab = [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ");   // 5.21.6 (נועה): תרגול שוטף – טופס ההרשמה עצמו, ממולא מהכרטיס (עם המחירים); מרתון – עדיין טופס החתימה
     const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, זה טופס ההרשמה של ${st.first_name || ""} (${lab}) – הפרטים כבר ממולאים, נשאר לאשר ולחתום: ${u}`;
     const pd = String(f.parent1_phone || "").replace(/\D/g, ""), wa = /^0\d{8,9}$/.test(pd) ? `https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}` : "";
-    stEl.innerHTML = `<button type="button" class="btn small primary" data-copy="${esc(u)}" title="העתקת הקישור לטופס">⧉ העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""} <span class="muted">✍ נשלח ${esc(fmtDM(String(k.created_at).slice(0, 10)))} · ${k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח"}</span>`;
+    stEl.innerHTML = `<button type="button" class="btn small primary" data-copy="${esc(u)}" title="העתקת הקישור לטופס">⧉ העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}`; mtEl.textContent = "נשלח " + fmtDM(String(k.created_at).slice(0, 10)) + " · " + (k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח");
     stEl.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
   };
   boxes.forEach(box => { const ok = box.querySelector("[data-sgok]"); if (ok) ok.onclick = async () => {   // 5.20.2 (נועה): טופס שהתקבל מחוץ למערכת
