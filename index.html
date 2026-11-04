@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.1">
+<meta name="app-version" content="5.21.2">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2611,6 +2611,14 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
   #view-lead #leadForm .lead-main .lead-top .key-grid > div:has(#p1Email){ flex:1.6 1 0 !important; }
   #view-lead #leadForm .lead-main .lead-top .key-grid > .kg-br{ flex:0 0 0 !important; }
 }
+/* 5.21.2: נייד – כרטיס התלמיד לא רחב מהמסך (כרטיס "קורסים ושיבוצים" דחף 22px הצידה) */
+@media (max-width:760px){ #view-lead .lead-cols > *{ min-width:0 !important; max-width:100% !important; box-sizing:border-box; } #view-lead .lead-crs *{ min-width:0; } #view-lead .lead-crs{ overflow-wrap:anywhere; } }
+/* 5.21.2: הגדרות ודוחות – הלשוניות בשורת הכותרת */
+.page-head.tab-head{ display:flex !important; justify-content:flex-start !important; align-items:center !important; gap:10px 16px !important; flex-wrap:wrap; }
+.page-head.tab-head > h1{ margin:0 !important; } .page-head.tab-head > .set-nav{ margin:0 !important; } .page-head.tab-head > :last-child:not(h1):not(.set-nav):not(.rep-tabs){ margin-inline-start:auto; }
+.page-head.tab-head > .set-nav, .page-head.tab-head > .rep-tabs{ min-width:0; max-width:100%; } @media (max-width:760px){ .page-head.tab-head > .set-nav, .page-head.tab-head > .rep-tabs{ flex:1 1 100%; } }
+.page-head.tab-head .rep-tabs{ margin:0 !important; border:0 !important; } .rep-tabs.gseg .tab{ border:0 !important; border-radius:999px; padding:6px 14px; font-weight:700; background:transparent; color:var(--ink-soft); box-shadow:none !important; } .rep-tabs.gseg .tab[aria-pressed="true"]{ background:var(--accent); color:#fff; }
+@media (max-width:760px){ #view-reports .tiles{ display:grid !important; grid-template-columns:1fr 1fr; gap:8px; } #view-reports .tiles > *{ width:auto !important; min-width:0; margin:0 !important; } }   /* 5.21.2: דוחות בנייד – האריחים בשתי עמודות שוות */
 </style>
 </head>
 <body>
@@ -3059,7 +3067,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
           <select id="repCity" style="width:auto;" aria-label="עיר"><option value="">כל הערים</option></select>
           <button class="btn small" type="button" id="repReload" hidden>רענון</button>
         </div></div>
-      <div class="tabs rep-tabs" role="tablist" id="repTabs">
+      <div class="tabs rep-tabs gseg" role="tablist" id="repTabs">
         <button class="tab" role="tab" data-rep="reg">נרשמים</button>
         <button class="tab" role="tab" data-rep="leads">לידים</button>
         <button class="tab" role="tab" data-rep="hours">שעות מתרגלים</button>
@@ -8204,6 +8212,8 @@ function newGroup(preset){
 }
 $("gNewBtn").addEventListener("click", () => newGroup(null));
 // 5.19.29: כפתורי המנהלים במסך קבוצות ונוכחות
+// 5.21.2 (נועה 3.11): בהגדרות ובדוחות – הלשוניות בשורת הכותרת, כמו בשאר המסכים
+document.querySelectorAll(".set-nav, #repTabs").forEach(n => { const sec = n.closest("section"), ph = sec && sec.querySelector(":scope > .page-head"), h1 = ph && ph.querySelector("h1"); if (!h1) return; ph.classList.add("tab-head"); h1.after(n); });
 document.querySelectorAll("[data-attnew]").forEach(b => b.addEventListener("click", async () => { await ensureG(); newGroup({ city: G.city }); }));   // 5.21: גם בדוח הנוכחות ובבקשות השיבוץ
 $("attNewG").addEventListener("click", async () => { await ensureG(); newGroup({ city: A.city || (A.cities.length ? A.cities[0] : null) || G.city }); });   // 5.19.36: העיר שנבחרה בלוח
 $("attNewM").addEventListener("click", async () => { await ensureG(); $("mNewBtn").click(); });
@@ -10779,7 +10789,7 @@ function barList(items, opts){
 const countBy = (arr, fn) => { const m = new Map(); arr.forEach(x => { const k = fn(x); if (k == null || k === "") return; m.set(k, (m.get(k) || 0) + 1); }); return [...m.entries()].map(([t, v]) => ({ t, v })).sort((a, b) => b.v - a.v); };
 const tile = (v, t, act) => `<div class="tile ${act ? "clickable" : ""}" ${act ? `data-act="${act}"` : ""}><b>${v}</b><span>${esc(t)}</span></div>`;
 function renderReports(){
-  document.querySelectorAll("[data-rep]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.rep === R.tab)));
+  document.querySelectorAll("[data-rep]").forEach(b => { b.setAttribute("aria-selected", String(b.dataset.rep === R.tab)); b.setAttribute("aria-pressed", String(b.dataset.rep === R.tab)); });
   if (R.tab === "att") R.tab = "reg";   // 5.19.17: דוח הנוכחות עבר לתלמידים / קבוצות ונוכחות
   $("attReport").hidden = true;
   const city = $("repCity").value;
