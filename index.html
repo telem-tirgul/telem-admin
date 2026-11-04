@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.9">
+<meta name="app-version" content="5.21.10">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -218,12 +218,12 @@
   .lbl-wa .req-st{ color:#B3241F; font-weight:800; }
   .lbl-wa .wa-ic{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#25D366; color:#fff; text-decoration:none; vertical-align:middle; margin-inline-start:4px; }   /* 5.20.12: וואטסאפ – אייקון ליד "טלפון הורה" */
   .lbl-wa .wa-ic svg{ width:13px; height:13px; } .lbl-wa .wa-ic[hidden]{ display:none; } .lbl-wa .wa-ic:hover{ filter:brightness(.92); }
-  .sibs{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:12px; }
+  .sibs{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-top:8px; }
   .sibs:empty{ display:none; }
   .sibs-lbl{ font-weight:700; font-size:14px; } .sib-add{ align-self:center; } .sib-new{ font-size:14px; background:#F3ECE4; border-radius:10px; padding:8px 12px; }
-  .sib{ display:inline-flex; flex-direction:column; align-items:flex-start; gap:0; padding:6px 12px; border-radius:10px; cursor:pointer;
-        font-size:15px; font-weight:700; line-height:1.3; background:var(--paper); color:var(--ink-soft); border:1.5px dashed #b9aea4; }
-  .sib small{ font-size:11.5px; font-weight:500; opacity:.85; }
+  .sib{ display:inline-flex; flex-direction:row; align-items:baseline; gap:5px; padding:3px 10px; border-radius:999px; cursor:pointer;   /* 5.21.10 (נועה): שורה אחת, לא כפתור גבוה */
+        font-size:13.5px; font-weight:700; line-height:1.4; background:var(--paper); color:var(--ink-soft); border:1.5px dashed #b9aea4; }
+  .sib small{ font-size:12px; font-weight:500; opacity:.85; } .sib small::before{ content:"· "; }
   .sib.reg{ background:#4ea30c; color:#fff; border:1.5px solid #4ea30c; }
   .sib:hover{ filter:brightness(.95); }
   fieldset.sec input, fieldset.sec select{ font-size:13.5px; }
@@ -301,6 +301,9 @@
     #view-lead .lead-top{ grid-area:top; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:12px 16px 14px; }
     #view-lead .lead-side{ grid-area:side; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:4px 14px 12px; }
     #view-lead .lead-cols > .lead-crs{ grid-area:crs; } #view-lead .lead-top > .key-box{ margin-bottom:0 !important; } #view-lead .lead-top #siblings:empty{ display:none; }
+    /* 5.21.10 (נועה 4.11): פחות גובה – פעיל / כוכב / תזכורת בשורת הכותרת "פרטים עיקריים" (משמאל) */
+    #view-lead .lead-top{ position:relative; } #view-lead .lead-top > .toggles{ position:absolute; top:21px; left:30px; margin:0; gap:16px; z-index:2; }
+    #view-lead .lead-top .key-box{ padding-top:8px; } #view-lead .lead-top .key-box legend{ padding-bottom:6px; }
     #view-lead .lead-top .key-grid{ display:flex !important; flex-wrap:nowrap; } #view-lead .lead-top .key-grid > .kg-br{ display:none !important; }
     #view-lead #leadForm .lead-main .lead-top .key-grid > div{ flex:1 1 0 !important; min-width:0; }
   }
@@ -5387,7 +5390,7 @@ function openLead(id){
   $("leadMeta").innerHTML = l ? `<span>מספר ליד: ${esc(l.legacy_user_id || "#" + l.id)}</span><span>נוצר: ${esc(fmtDate(l.created_at))}</span><span>עודכן: ${esc(fmtDate(lastUpdate(l)))}</span>` : "";
   const sibs = l ? L.leads.filter(x => x.family_id === l.family_id && x.id !== l.id) : [];
   const isReg = (x) => statusName(x.status_id).startsWith("נרשם") || x.topic === "נרשם";
-  $("siblings").innerHTML = sibs.length ? `<span class="sibs-lbl">אחים במשפחה:</span>` + sibs.map(x =>
+  $("siblings").innerHTML = sibs.length ? `<span class="sibs-lbl">👪 אחים:</span>` + sibs.map(x =>
     `<button type="button" class="sib ${isReg(x) ? "reg" : ""}" data-open="${x.id}" title="${esc(statusName(x.status_id) || "בלי סטטוס")}">${esc(x.student.first_name)} ${esc(x.student.last_name || "")}<small>${esc(statusName(x.status_id) || "בלי סטטוס")}${x.student.grade ? " · " + esc(classLabel(x.student.grade, x.student.class_num)) : ""}</small></button>`).join("") : "";
   $("sibAdd").hidden = !l || ME.role === "instructor";
   $("siblings").querySelectorAll("[data-open]").forEach(b => b.onclick = () => openLead(Number(b.dataset.open)));
@@ -5794,6 +5797,7 @@ async function loadLeadPayments(l){
         const tEl = ps.querySelector(".stp-t"), mEl = ps.querySelector(".stp-m"), aEl = ps.querySelector(".stp-a");
         if (ps.classList.contains("cur") && b.pend.length) { const i = b.pend[0], x = pend[i];
           tEl.textContent = x.paid_before ? "לוודא תשלום" : "לקחת אשראי";
+          if (x.paid_before) { const cb = g.querySelector(`[data-cbm="${ps.dataset.stm}"]`); if (cb) [...cb.querySelectorAll("span,b,button")].filter(e => !e.children.length && e.textContent.trim() === "לקחת אשראי" && !e.closest(".stp")).forEach(e => { e.textContent = "לוודא תשלום"; }); }
           mEl.innerHTML = (x.paid_before ? "ההורה סימן \"כבר שילמתי\"" + (x.amount ? " · " : "") : "") + (x.amount ? fmtMoney(x.amount) : "") + (x.monthly_amount ? " + " + fmtMoney(x.monthly_amount) + " לחודש" : "");
           aEl.innerHTML = `<button type="button" class="btn small primary" data-stpaid="${i}">✔ שולם</button>`;
           aEl.querySelector("[data-stpaid]").onclick = async (e) => { const bt = e.currentTarget; bt.disabled = true;
