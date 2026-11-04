@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.7">
+<meta name="app-version" content="5.21.8">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2357,7 +2357,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
   .ib-gd-c1{ display:flex; align-items:center; gap:8px; min-width:0; } .ib-gd-c1 > span:last-child{ display:flex; flex-direction:column; line-height:1.25; } .ib-gd-n{ font-size:14.5px; } .ib-gd-c1 .ib-time{ font-size:11.5px; color:var(--ink-soft); }
   .ib-gd-c2, .ib-gd-c3{ display:flex; align-items:center; gap:6px; min-width:0; } .ib-gd-k{ display:none; flex:none; color:var(--ink-soft); font-weight:700; font-size:12.5px; } .ib-gd-v{ display:flex; flex-wrap:wrap; gap:3px 6px; align-items:center; }
   .ftx-top{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between; margin:10px 0 6px; } .ftx-forms{ flex-wrap:wrap; } .ftx-acts{ display:flex; gap:8px; align-items:center; }
-  .ftx-help{ font-size:13px; margin:2px 0 10px; } .ftx-help b{ font-family:monospace; }
+  .ftx-help{ font-size:13px; margin:2px 0 10px; }
   .ftx-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; align-items:start; }
   .ftx-side{ padding:0; } .ftx-list{ padding:10px 14px; max-height:calc(100vh - 270px); overflow:auto; } .ftx-prev{ padding:8px; position:sticky; top:10px; }
   .ftx-tb{ display:flex; gap:4px; align-items:center; flex-wrap:wrap; padding:7px 10px; border-bottom:1px solid var(--border); background:var(--bg-soft, #FAF7F2); border-radius:12px 12px 0 0; }
@@ -2624,6 +2624,11 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
 .lead-ld{ display:inline-flex; align-items:center; gap:6px; margin-inline-start:8px; font-size:13px; font-weight:600; color:var(--ink-soft); vertical-align:middle; } .lead-ld[hidden]{ display:none; } .lead-ld::before{ content:""; width:12px; height:12px; border:2px solid #E3D6CF; border-top-color:var(--accent); border-radius:50%; animation:ldspin .8s linear infinite; } @keyframes ldspin{ to{ transform:rotate(360deg); } }   /* 5.21.4 */
 .lg-crs-err{ padding:10px 12px; margin:6px 0; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .crs-inl-host{ margin:4px 0 10px; } .crs-inl-b{ display:flex; gap:8px; justify-content:flex-end; align-items:flex-end; grid-column:-3 / -1; } @media (max-width:760px){ .crs-inl-b{ grid-column:-2 / -1; } .crs-inl-b .btn{ min-width:0; flex:1; } } .crs-inl-b .btn{ min-width:84px; justify-content:center; }   /* 5.21.5: שמירה הכי שמאלית, ביטול מימין לה */
+  /* 5.21.8 (נועה 4.11): עריכה על הטופס – בלי הרשימה בצד (אפשר לפתוח אותה בכפתור) */
+  .ftx-grid:not(.ftx-showlist){ grid-template-columns:minmax(0,1fr); } .ftx-grid:not(.ftx-showlist) > .ftx-side{ display:none; }
+  .ftx-grid:not(.ftx-showlist) .ftx-prev{ position:static; } .ftx-grid:not(.ftx-showlist) .ftx-prev iframe{ height:calc(100vh - 230px); }
+  @media (max-width:900px){ .ftx-grid:not(.ftx-showlist) .ftx-prev{ display:block; } }
+  #ftxListTg[aria-pressed="true"]{ background:var(--accent); color:#fff; }
 </style>
 </head>
 <body>
@@ -2903,11 +2908,11 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
         <div class="gseg ftx-forms" id="ftxForms" role="group" aria-label="טופס"></div>
         <div class="ftx-acts"><span id="ftxDirty"></span><button type="button" class="btn small danger-t" id="ftxDrop" hidden>מחיקת הטיוטות</button><button type="button" class="btn" id="ftxCancel" hidden>ביטול</button><button type="button" class="btn" id="ftxSave" disabled>שמירת טיוטה</button><button type="button" class="btn primary" id="ftxPub" disabled>פרסום לאוויר</button></div>
       </div>
-      <p class="muted ftx-help"><b>שמירת טיוטה</b> – נשמר רק כאן; בטופס באתר לא משתנה כלום. <b>פרסום לאוויר</b> – אחרי בדיקה אוטומטית (טקסט חשוב שהתרוקן, משבצת חובה שנמחקה) הנוסח החדש עולה לטופס באתר. <b>↺ מקור</b> – חזרה לנוסח המקורי.</p>
+      <p class="muted ftx-help"><b>לוחצים על טקסט בטופס</b> ועורכים אותו במקום. <b>שמירת טיוטה</b> – נשמר רק כאן; בטופס באתר לא משתנה כלום. <b>פרסום לאוויר</b> – אחרי בדיקה אוטומטית, הנוסח החדש עולה לטופס באתר. <b>↺ הנוסח המקורי</b> – חזרה למה שהיה.</p>
       <div class="ftx-grid">
         <div class="card ftx-side"><div class="ftx-tb" id="ftxTb"><button type="button" data-cmd="bold" title="מודגש"><b>B</b></button><button type="button" data-cmd="underline" title="קו תחתון"><u>U</u></button><button type="button" data-cmd="italic" title="נטוי"><i>I</i></button><span class="ftx-sep"></span><button type="button" data-cmd="color" data-v="#5A1216" title="בורדו" class="ftx-cl" style="--c:#5A1216"></button><button type="button" data-cmd="color" data-v="#B07A0C" title="זהב" class="ftx-cl" style="--c:#B07A0C"></button><button type="button" data-cmd="color" data-v="#6B6B6B" title="אפור" class="ftx-cl" style="--c:#6B6B6B"></button><button type="button" data-cmd="color" data-v="#2E7D32" title="ירוק" class="ftx-cl" style="--c:#2E7D32"></button><span class="ftx-sep"></span><button type="button" data-cmd="link" title="קישור">🔗</button><button type="button" data-cmd="clear" title="ניקוי עיצוב">⌫ עיצוב</button><span class="muted ftx-tbn" id="ftxTbNote"></span></div>
           <div class="ftx-list" id="ftxList"><div class="muted">טוען...</div></div></div>
-        <div class="card ftx-prev"><div class="ftx-prev-h"><b>תצוגה מקדימה</b><span class="muted">(כולל הטיוטה)</span><span class="gseg ftx-tyv" id="ftxTyv" hidden></span><a class="btn small" id="ftxOpenNew" target="_blank" rel="noopener">פתיחה בלשונית ↗</a></div><iframe id="ftxFrame" title="תצוגה מקדימה של הטופס"></iframe></div>
+        <div class="card ftx-prev"><div class="ftx-prev-h"><b>תצוגה מקדימה</b><span class="muted">(כולל הטיוטה)</span><span class="gseg ftx-tyv" id="ftxTyv" hidden></span><button type="button" class="btn small" id="ftxListTg" aria-pressed="false" title="כל הטקסטים ברשימה (גם מה שאי אפשר ללחוץ עליו בטופס)">📋 רשימה</button><a class="btn small" id="ftxOpenNew" target="_blank" rel="noopener">פתיחה בלשונית ↗</a></div><iframe id="ftxFrame" title="תצוגה מקדימה של הטופס"></iframe></div>
       </div>
     </div><!-- /ftx-pane-texts -->
     </section>
@@ -6387,7 +6392,8 @@ $("addLeadBtn").addEventListener("click", () => openLead(null));
 //  ומה שנבנה בקוד ולא נערך – מוצג לקריאה בלבד. שמירה = טיוטה (form_text_drafts); "פרסום" = publish_form_texts (קובץ 88) – רק אז זה באוויר.
 const FTX_FORMS = [["register", "הרשמה לתרגולים"], ["marathon", "מרתון"], ["interest", "התעניינות"], ["pay", "תשלום אישי"], ["cancel", "ביטול"], ["shibutz", "שיבוץ"], ["thank-you", "תודה"], ["payment-failed", "תשלום לא הושלם"]];
 const FTX_TYV = [["reg", "ההרשמה נשלחה"], ["phone", "תשלום טלפוני"], ["paid", "שולם באשראי"]];
-const FX = { form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "reg", mar: null };
+const FTX_RV = [["reg", "רגיל"], ["paid", "שילמו בטלפון"], ["card", "מהכרטיס (דוגמה)"]];   // 5.21.8 (נועה 4.11): טופס ההרשמה – שלושת הקישורים
+const FX = { form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "reg", rv: "reg", mar: null };
 const ftxN = (h) => String(h == null ? "" : h).replace(/ /g, " ").replace(/\s+/g, " ").replace(/\s*<br>\s*/g, "<br>").trim();
 const ftxClean = (h) => FX.w && FX.w.TX ? FX.w.TX.clean(h) : esc(TXplain(h));
 // 5.19.102: טקסט פשוט (בלי עיצוב) – שומרים על השורות (למשל "ניסוח המשבצות": שורה לכל מספר)
@@ -6492,9 +6498,13 @@ function ftxTabPaint(){ document.querySelectorAll("[data-ftab]").forEach(b => { 
 async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint(); if (FTX_TAB.v === "class") clsPaint(); if (FTX_TAB.v !== "texts" && !onlyTexts) return; FTX_TAB.textsOpen = true;
   $("ftxForms").innerHTML = FTX_FORMS.map(([k, n]) => `<button type="button" data-ftx="${k}" aria-pressed="${k === FX.form}">${esc(n)}</button>`).join("");
   $("ftxForms").querySelectorAll("[data-ftx]").forEach(b => b.onclick = async () => { if (b.dataset.ftx === FX.form) return; if (ftxUnsaved() && !await uiConfirm("יש שינויים שלא נשמרו כטיוטה. לעבור טופס בלי לשמור?")) return; FX.form = b.dataset.ftx; ftxOpen(); });
-  $("ftxTyv").hidden = FX.form !== "thank-you";
-  $("ftxTyv").innerHTML = FTX_TYV.map(([k, n]) => `<button type="button" data-tyv="${k}" aria-pressed="${k === FX.tyv}">${esc(n)}</button>`).join("");
-  $("ftxTyv").querySelectorAll("[data-tyv]").forEach(b => b.onclick = () => { FX.tyv = b.dataset.tyv; $("ftxTyv").querySelectorAll("[data-tyv]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); ftxLoadFrame(false); });
+  $("ftxTyv").hidden = FX.form !== "thank-you" && FX.form !== "register";
+  { const rv = FX.form === "register", L0 = rv ? FTX_RV : FTX_TYV, cur = rv ? FX.rv : FX.tyv;
+    $("ftxTyv").innerHTML = L0.map(([k, n]) => `<button type="button" data-tyv="${k}" aria-pressed="${k === cur}">${esc(n)}</button>`).join("");
+    $("ftxTyv").querySelectorAll("[data-tyv]").forEach(b => b.onclick = async () => { $("ftxTyv").querySelectorAll("[data-tyv]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      if (!rv) { FX.tyv = b.dataset.tyv; ftxLoadFrame(false); return; }
+      if (ftxUnsaved()) { try { await ftxSaveDrafts(); ftxPaintState(); } catch(e) { toast("לא נשמר: " + e.message); return; } }   // בכל גרסה יש טקסטים אחרים – שומרים לפני שעוברים
+      FX.rv = b.dataset.tyv; ftxInlEnd(); ftxLoadFrame(true); }); }
   FX.edit = {}; FX.items = []; FX.auto = []; FX.w = null; ftxPaintState(); $("ftxList").innerHTML = `<div class="muted">טוען את הטופס...</div>`;
   try {
     FX.live = {}; (await get("form_texts", "select=key,value&form=eq." + encodeURIComponent(FX.form))).forEach(r => FX.live[r.key] = r.value);
@@ -6508,6 +6518,7 @@ function ftxUrl(){
   if (FX.form === "marathon" && FX.mar) q += "&m=" + encodeURIComponent(FX.mar);
   if (FX.form === "interest") q += "&city=" + encodeURIComponent("ראש העין") + (FX.mar ? "&m=" + encodeURIComponent(FX.mar) + "&tracks=single,unlimited-single,double,marathon" : "");
   if (FX.form === "thank-you") q = "?tyv=" + FX.tyv;
+  if (FX.form === "register" && FX.rv !== "reg") q = "?city=" + encodeURIComponent("ראש העין") + "&phone=1&preview=1" + (FX.rv === "card" ? "&c=sample" : "");
   return "/" + FX.form + ".html" + q;
 }
 // טוען את הטופס בתצוגה. collect – לאסוף מחדש את רשימת הטקסטים (בפתיחה); אחרת – רק רענון התצוגה (תבניות / דף התודה)
@@ -6550,7 +6561,7 @@ function ftxCollect(fr){
     const key = grp + "|" + s; if (seen.has(key)) continue; seen.add(key);
     auto.push({ grp, text: s });
   }
-  FX.items = items; FX.auto = auto; ftxRender(); ftxPreview();
+  FX.items = items; FX.auto = auto; ftxRender(); ftxPreview(); ftxInlineInit();
 }
 const ftxLiveOrDef = (it) => FX.live[it.key] != null ? ftxNV(it, FX.live[it.key]) : it.def;
 // הנוסח שמוצג עכשיו לעריכה: עריכה שלא נשמרה ← טיוטה ← באוויר ← מקור
@@ -6610,7 +6621,7 @@ function ftxPaintState(){
 function ftxMap(){ const m = {}; (FX.items || []).forEach(it => { const v = ftxVal(it); if (v !== it.def) m[it.key] = v === "" ? " " : v; }); return m; }
 function ftxPreview(){ if (!FX.w || !FX.w.TX) return; try { sessionStorage.setItem("telem_tx_edit_" + FX.form, JSON.stringify(ftxMap())); FX.w.TX.preview(ftxMap()); } catch(e) {} }
 let ftxRT = null; function ftxReloadSoon(){ clearTimeout(ftxRT); ftxRT = setTimeout(() => ftxLoadFrame(false), 700); }
-function ftxRebind(){ FX.items.forEach(it => { if (it.el && !it.el.isConnected) { const k = it.key.split(".")[0], el = FX.w.document.querySelector(`[data-t="${k}"]`); if (el) it.el = el; } }); ftxPreview(); }
+function ftxRebind(){ setTimeout(ftxInlineInit, 0); FX.items.forEach(it => { if (it.el && !it.el.isConnected) { const k = it.key.split(".")[0], el = FX.w.document.querySelector(`[data-t="${k}"]`); if (el) it.el = el; } }); ftxPreview(); }
 function ftxShowInPreview(it){
   let el = it.el; if ((!el || !el.isConnected) && FX.w) el = FX.w.document.querySelector(`[data-tx="${it.key}"]`) || FX.w.document.querySelector(`[data-t="${it.key}"]`);
   if (!el) return; try { el.scrollIntoView({ block: "center", behavior: "smooth" }); el.style.outline = "3px solid #C9A227"; el.style.outlineOffset = "2px"; clearTimeout(el.__ftxT); el.__ftxT = setTimeout(() => { el.style.outline = ""; el.style.outlineOffset = ""; }, 1800); } catch(e) {}
@@ -6628,6 +6639,68 @@ function ftxCmd(c, v){ const ed = FX.active; if (!ed || !ed.isConnected) return;
   else document.execCommand(c);
   ed.__upd && ed.__upd(); }
 $("ftxTb").querySelectorAll("[data-cmd]").forEach(b => b.onmousedown = (ev) => { ev.preventDefault(); ftxCmd(b.dataset.cmd, b.dataset.v); });
+$("ftxListTg").addEventListener("click", () => { const g = document.querySelector(".ftx-grid"), on = !g.classList.contains("ftx-showlist"); g.classList.toggle("ftx-showlist", on); $("ftxListTg").setAttribute("aria-pressed", String(on)); });   // 5.21.8
+// ---------------------------------------------------------------- 5.21.8 (נועה 4.11): עריכה על הטופס עצמו
+//  מעבירים את העכבר על טקסט – מסומן; לחיצה – חלונית קטנה מעליו (עיצוב, משבצות, "הנוסח המקורי", סיום). כל שינוי – כמו ברשימה: לא נשמר → טיוטה → פרסום.
+const ftxNorm = (t) => String(t || "").replace(/\s+/g, " ").trim();
+function ftxFind(t){ const w = FX.w; if (!w || !t || !t.closest) return null;
+  const byKey = (k) => FX.items.find(x => x.key === k && !x.attr && !x.opt);
+  let el = t.closest("[data-tx]"); if (el) { const it = byKey(el.getAttribute("data-tx")); if (it) return { el, it }; }
+  el = t.closest("[data-t]"); if (el && !el.hasAttribute("data-ta")) { const it = byKey(el.getAttribute("data-t")); if (it) return { el, it }; }
+  const seen = (w.TX && w.TX.seen) || {}; if (!FX.seenN || FX.seenSrc !== Object.keys(seen).length) { FX.seenN = {}; Object.keys(seen).forEach(k => FX.seenN[ftxNorm(k)] = seen[k]); FX.seenSrc = Object.keys(seen).length; }
+  for (let x = t, i = 0; x && i < 5 && x !== w.document.body; i++, x = x.parentElement) { const k = FX.seenN[ftxNorm(x.textContent)]; if (k) { const it = byKey(k); if (it) return { el: x, it, seen: true }; } }
+  return null; }
+const FTX_ICSS = `.ftx-hov{ outline:2px dashed #C9A227 !important; outline-offset:2px; cursor:text !important; }
+ .ftx-on{ outline:2.5px solid #5A1216 !important; outline-offset:3px; }
+ .ftx-ibox{ position:absolute; z-index:99999; background:#fff; border:1.5px solid #5A1216; border-radius:12px; box-shadow:0 8px 28px rgba(0,0,0,.18); padding:8px; font:15px/1.5 Heebo, Arial, sans-serif; color:#2B2320; text-align:right; }
+ .ftx-itb{ display:flex; gap:4px; align-items:center; flex-wrap:wrap; margin-bottom:6px; } .ftx-itb button{ min-width:30px; height:30px; border:1px solid #E5DBD0; border-radius:7px; background:#fff; cursor:pointer; font-size:14px; padding:0 6px; }
+ .ftx-itb .cl{ min-width:24px; width:24px; height:24px; border-radius:50%; } .ftx-itb .w{ font-size:12px; color:#6B5F55; margin-inline-start:auto; }
+ .ftx-ied{ display:block; width:100%; box-sizing:border-box; min-height:38px; border:1px solid #E2C766; background:#FFFBEA; border-radius:8px; padding:7px 10px; font:inherit; outline:none; white-space:pre-wrap; }
+ textarea.ftx-ied{ resize:vertical; } .ftx-ph{ display:inline-block; background:#EFE6FA; color:#4B2A7B; border:1px solid #D4C2EE; border-radius:6px; padding:0 6px; margin:0 1px; font-size:12.5px; font-weight:700; }
+ .ftx-ph::before{ content:"{"; opacity:.5; } .ftx-ph::after{ content:"}"; opacity:.5; } .ftx-ivars{ margin-top:5px; font-size:12px; color:#6B5F55; } .ftx-ivars button{ cursor:pointer; }
+ .ftx-ib{ display:flex; gap:6px; align-items:center; margin-top:8px; } .ftx-ib .sp{ flex:1; } .ftx-ib button{ border:1px solid #E5DBD0; background:#fff; border-radius:8px; padding:5px 12px; cursor:pointer; font:inherit; font-size:13.5px; }
+ button:disabled{ pointer-events:none; }
+ .ftx-ib .pri{ background:#5A1216; color:#fff; border-color:#5A1216; font-weight:700; } .ftx-ist{ font-size:12px; color:#8A6A00; }`;
+function ftxInlineInit(){ const w = FX.w; let d; try { d = w && w.document; } catch(e) { return; } if (!d || !d.body || d.__ftxIn) return; d.__ftxIn = 1;
+  const st = d.createElement("style"); st.textContent = FTX_ICSS; d.head.appendChild(st);
+  let hov = null; const inBox = (t) => FX.inl && FX.inl.box.contains(t);
+  d.addEventListener("mouseover", (e) => { if (inBox(e.target)) return; const f = ftxFind(e.target), el = f && f.el; if (hov && hov !== el) hov.classList.remove("ftx-hov"); hov = el; if (el) el.classList.add("ftx-hov"); }, true);
+  ["mousedown", "pointerdown"].forEach(ev => d.addEventListener(ev, (e) => { if (!inBox(e.target) && ftxFind(e.target)) e.preventDefault(); }, true));   // שלא ייפתח / יסומן משהו בטופס
+  const at = (e) => { const f = ftxFind(e.target); if (f) return f; const b = [...d.querySelectorAll("button:disabled")].find(x => { const r = x.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; }); return b ? ftxFind(b) : null; };   // כפתור שעוד לא פעיל (למשל "שליחה") – גם נערך
+  d.addEventListener("click", (e) => { if (inBox(e.target)) return; const f = at(e); if (!f) { ftxInlEnd(); return; } e.preventDefault(); e.stopPropagation(); ftxInlOpen(f); }, true);
+  d.addEventListener("keydown", (e) => { if (e.key === "Escape") ftxInlEnd(); }, true);
+}
+function ftxInlEnd(){ const x = FX.inl; if (!x) return; FX.inl = null; try { x.box.remove(); x.el.classList.remove("ftx-on"); } catch(e) {}
+  if (x.changed && (x.seen || FX.form === "thank-you")) ftxReloadSoon(); }   // טקסט שנכנס כ-textContent – מתעדכן אחרי טעינה מחדש
+function ftxInlOpen(f){ ftxInlEnd(); const d = FX.w.document, it = f.it, el = f.el, i = FX.items.indexOf(it), C = (FX.w.TX && FX.w.TX.COLORS) || {};
+  const box = d.createElement("div"); box.className = "ftx-ibox"; box.dir = "rtl";
+  const tb = it.plain ? "" : `<button type="button" data-c="bold" title="מודגש"><b>B</b></button><button type="button" data-c="underline" title="קו תחתון"><u>U</u></button><button type="button" data-c="italic" title="נטוי"><i>I</i></button>`
+    + Object.keys(C).map(k => `<button type="button" class="cl" data-c="color" data-v="${C[k]}" style="background:${C[k]}" title="צבע"></button>`).join("") + `<button type="button" data-c="link" title="קישור">🔗</button><button type="button" data-c="clear" title="בלי עיצוב">⌫</button>`;
+  const vars = it.tpl && Object.keys(it.vars || {}).length ? `<div class="ftx-ivars">משבצות (מתמלאות לבד): ${Object.keys(it.vars).map(v => `<button type="button" class="ftx-ph" data-ph="${esc(v)}" title="הוספה לטקסט">${esc(v.trim())}</button>`).join(" ")}</div>` : "";
+  box.innerHTML = `<div class="ftx-itb">${tb}<span class="w">${esc(it.what || "")}</span></div>${it.plain ? `<textarea class="ftx-ied" rows="2"></textarea>` : `<div class="ftx-ied" contenteditable="true"></div>`}${vars}
+    <div class="ftx-ib"><button type="button" data-rs>↺ הנוסח המקורי</button><span class="ftx-ist"></span><span class="sp"></span><button type="button" class="pri" data-done>סיום</button></div>`;
+  d.body.appendChild(box);
+  const ed = box.querySelector(".ftx-ied"), stE = box.querySelector(".ftx-ist");
+  const fill = (v) => { if (it.plain) ed.value = it.attr || it.opt ? TXplain(v) : v; else ed.innerHTML = it.tpl ? ftxToEd(ftxClean(v)) : ftxClean(v); };
+  fill(ftxVal(it));
+  const paint = () => { const r = el.getBoundingClientRect(), vw = d.documentElement.clientWidth, bw = Math.min(560, vw - 16); box.style.width = bw + "px";
+    box.style.top = (r.bottom + FX.w.scrollY + 8) + "px"; box.style.left = Math.max(8, Math.min(vw - bw - 8, r.right - bw)) + "px"; };
+  paint();
+  const upd = () => { FX.edit[it.key] = it.plain ? ftxNP(ed.value) : ftxFromEd(ed); FX.inl.changed = true; if (i >= 0) ftxMark(i); ftxPaintState(); ftxPreview(); stE.textContent = "· לא נשמר"; requestAnimationFrame(paint); };
+  ed.addEventListener("input", upd);
+  ed.addEventListener("paste", (ev) => { if (it.plain) return; ev.preventDefault(); d.execCommand("insertText", false, (ev.clipboardData || FX.w.clipboardData).getData("text/plain")); });
+  box.querySelectorAll("[data-c]").forEach(b => b.onmousedown = (ev) => { ev.preventDefault(); ed.focus(); const c = b.dataset.c;
+    if (c === "link") { const u = prompt("כתובת הקישור (https://… / tel:05… / mailto:…)", "https://"); if (!u) return; if (!/^(https:\/\/|tel:|mailto:)/i.test(u)) { toast("רק https:// / tel: / mailto:"); return; } d.execCommand("createLink", false, u); }
+    else if (c === "color") { d.execCommand("styleWithCSS", false, false); d.execCommand("foreColor", false, b.dataset.v); }
+    else if (c === "clear") { d.execCommand("removeFormat"); d.execCommand("unlink"); }
+    else d.execCommand(c); upd(); });
+  box.querySelectorAll("[data-ph]").forEach(b => b.onmousedown = (ev) => { ev.preventDefault(); ed.focus(); d.execCommand("insertHTML", false, ftxToEd("{" + b.dataset.ph + "}") + "&nbsp;"); upd(); });
+  box.querySelector("[data-rs]").onclick = () => { fill(it.def); upd(); };
+  box.querySelector("[data-done]").onclick = () => ftxInlEnd();
+  FX.inl = { box, el, it, seen: !!f.seen, changed: false }; el.classList.add("ftx-on"); el.classList.remove("ftx-hov");
+  FX.active = null; FX.activeI = i;
+  ed.focus(); if (!it.plain) { const r = d.createRange(); r.selectNodeContents(ed); r.collapse(false); const sel = FX.w.getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+}
 // בדיקות לפני פרסום
 function ftxCheck(){
   const err = [], warn = [];
