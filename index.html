@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.10">
+<meta name="app-version" content="5.21.11">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1847,7 +1847,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .stp-m{ font-size:12px; color:#777; margin-top:2px; min-height:16px; overflow-wrap:anywhere; }
 .stp-a{ margin-top:6px; display:flex; justify-content:center; } .stp-a:empty{ display:none; }
 .stp-a .lc-sign{ justify-content:center; margin:0; gap:6px; } .stp-a .lc-sign-st{ gap:6px; } .stp-a .lc-sign-st:empty{ display:none; }
-.stp-wa{ background:#25d366 !important; border-color:#25d366 !important; color:#fff !important; }
+.stp-wa{ background:#25d366 !important; border-color:#25d366 !important; color:#fff !important; text-decoration:none !important; }
 @media (max-width:700px){ .stp-s{ font-size:12px; padding-inline:2px; } .stp-a .btn{ font-size:12px; padding:4px 6px; max-width:100%; white-space:normal; } .stp-m{ font-size:11px; } .stp-a .lc-sign{ flex-direction:column; align-items:stretch; } .stp-a .lc-sign-st{ justify-content:center; } }
 .lc-sign{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin:6px 0 2px; } .lc-sign-st{ display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:13px; }
 .ftx-tabs{ margin:0 0 12px; } .pe-banner{ background:var(--accent); color:#fff; border-radius:12px; padding:12px 16px; font-size:20px; display:flex; flex-direction:column; gap:2px; margin-bottom:8px; } .pe-banner span{ font-size:13px; opacity:.85; }
@@ -6445,8 +6445,8 @@ $("addLeadBtn").addEventListener("click", () => openLead(null));
 //  הטופס נטען בתצוגה (אותו אתר) עם ?txedit=1. texts.js בטופס אוסף: טקסטים קבועים (data-t), תבניות של טקסט שנבנה בקוד (TX.reg, עם {משבצות}),
 //  ומה שנבנה בקוד ולא נערך – מוצג לקריאה בלבד. שמירה = טיוטה (form_text_drafts); "פרסום" = publish_form_texts (קובץ 88) – רק אז זה באוויר.
 const FTX_FORMS = [["register", "הרשמה לתרגולים"], ["marathon", "מרתון"], ["interest", "התעניינות"], ["pay", "תשלום אישי"], ["cancel", "ביטול"], ["shibutz", "שיבוץ"], ["thank-you", "תודה"], ["payment-failed", "תשלום לא הושלם"]];
-const FTX_TYV = [["reg", "ההרשמה נשלחה"], ["phone", "תשלום טלפוני"], ["paid", "שולם באשראי"]];
-const FTX_RV = [["reg", "רגיל"], ["paid", "שילמו בטלפון"], ["card", "מהכרטיס (דוגמה)"]];   // 5.21.8 (נועה 4.11): טופס ההרשמה – שלושת הקישורים
+const FTX_TYV = [["reg", "ההרשמה נשלחה"], ["phone", "תשלום טלפוני"], ["phpaid", "כבר שילמתי"], ["paid", "שולם באשראי"]];
+const FTX_RV = [["reg", "רגיל"], ["card", "מהכרטיס (דוגמה)"]];   // 5.21.11 (נועה 4.11): "שילמו בטלפון" – עכשיו אפשרות בטופס הרגיל ("כבר שילמתי"), לא קישור נפרד
 const FX = { form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "reg", rv: "reg", mar: null };
 const ftxN = (h) => String(h == null ? "" : h).replace(/ /g, " ").replace(/\s+/g, " ").replace(/\s*<br>\s*/g, "<br>").trim();
 const ftxClean = (h) => FX.w && FX.w.TX ? FX.w.TX.clean(h) : esc(TXplain(h));
