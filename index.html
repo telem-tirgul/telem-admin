@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.5">
+<meta name="app-version" content="5.21.6">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6028,8 +6028,8 @@ async function signWire(sid){
     const k = links.find(x => x.course_member_id === mid && live(x)), btn = box.querySelector("[data-sgn]"), stEl = box.querySelector(".lc-sign-st");
     btn.hidden = !!k; { const okb = box.querySelector("[data-sgok]"); if (okb) okb.hidden = false; }
     if (!k) { stEl.innerHTML = ""; return; }
-    const u = signUrl(k.code), lab = [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ");
-    const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, זה הטופס לאישור תנאי ההתקשרות ולחתימה עבור ${st.first_name || ""} (${lab}): ${u}`;
+    const u = c.marathon_id || !crsCity(c) ? signUrl(k.code) : lkReg(crsCity(c), "") + "&phone=1&c=" + k.code, lab = [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ");   // 5.21.6 (נועה): תרגול שוטף – טופס ההרשמה עצמו, ממולא מהכרטיס (עם המחירים); מרתון – עדיין טופס החתימה
+    const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, זה טופס ההרשמה של ${st.first_name || ""} (${lab}) – הפרטים כבר ממולאים, נשאר לאשר ולחתום: ${u}`;
     const pd = String(f.parent1_phone || "").replace(/\D/g, ""), wa = /^0\d{8,9}$/.test(pd) ? `https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}` : "";
     stEl.innerHTML = `<button type="button" class="btn small primary" data-copy="${esc(u)}" title="העתקת הקישור לטופס">⧉ העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""} <span class="muted">✍ נשלח ${esc(fmtDM(String(k.created_at).slice(0, 10)))} · ${k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח"}</span>`;
     stEl.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
