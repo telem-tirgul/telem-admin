@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.14">
+<meta name="app-version" content="5.21.15">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6026,7 +6026,7 @@ function crsHead(m){ const c = CRS.byId[m.course_id] || {};
         const tn = CRS_TRK_S[tk] || (to && to.t) || "", sub = m.subject && tk !== "double" ? m.subject : "";
         const ed = ME.role !== "instructor", trkOk = ed && CRS.hasTrk && (crsCat(c.category_id).tracks || []).length;   // 5.21.4 (נועה): המסלול והמקצוע – לחיצה לשינוי, כמו בטבלה
         const trH = tn ? `<b style="color:${to ? to.c : "inherit"}">${esc(tn)}</b>` : `<span class="muted">בלי מסלול</span>`;
-        const subH = tk === "double" ? "" : sub ? `<b>${esc(sub)}</b>` : ed ? `<span class="muted">בלי מקצוע</span>` : "";
+        const subH = tk === "double" ? "" : sub ? `<span class="subj-chip ${sub === "מתמטיקה" ? "s-m" : sub === "אנגלית" ? "s-e" : "s-b"} crs-subj">${esc(sub)}</span>` : ed ? `<span class="muted">בלי מקצוע</span>` : "";
         const ic = `<span class="lg-ic" style="color:${to ? to.c : "#2B2320"}">${sum ? "☀️" : TRK_IC}</span>`;   // 5.21.4 (נועה): לחיצה על האייקון / המסלול – שינוי המסלול; על המקצוע – שינוי המקצוע (בלי ✎)
         return (trkOk ? `<button type="button" class="lg-chg" data-cmtrk2="${m.id}" title="לחיצה – שינוי המסלול">${ic}</button>` : ic) + `<b>${esc(crsCat(c.category_id).name || crsCatN(c.category_id))}</b> · ${trkOk ? `<button type="button" class="lg-chg" data-cmtrk2="${m.id}" title="לחיצה – שינוי המסלול">${trH}</button>` : trH}${subH ? " · " + (ed ? `<button type="button" class="lg-chg" data-cmsub2="${m.id}" title="לחיצה – שינוי המקצוע">${subH}</button>` : subH) : ""}`; })();
   return `<div class="lg-crs" data-crsmar="${c.marathon_id || ""}"><span class="lg-crs-l">${lab}<span class="lg-crs-g"></span>${crsNeedSig(m) ? ` <span class="sig-miss" title="חסר אישור תנאי התקשרות">✍︎</span>` : ""}</span><span class="lg-crs-r">${crsSrcBtn(m)}${crsStWord(m)}</span></div>`; }
