@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.13">
+<meta name="app-version" content="5.21.14">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4154,16 +4154,21 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
       { const body = Object.assign({ course_id: cid, student_id: stu.id, status: q("cdSt").value, subject: q("cdSu").value || null, grade: stu.grade || null, source: "ידני" }, q("cdSrc") && q("cdSrc").value ? { source_id: Number(q("cdSrc").value) } : {}, CRS.hasTrk && ca.kind !== "event" && (q("cdTr") || {}).value ? { track: (q("cdTr") || {}).value } : {});   // 5.20.27: כרטיס חדש – הטריגר lead_course_ins (קובץ 144) כבר יצר רישום "חדש" לתרגול השוטף; מעבירים אותו לקורס שנבחר (בלי כפילות)
         const auto = inline && !inlEx ? (await get("course_members", "select=id&student_id=eq." + stu.id + "&note=eq." + encodeURIComponent("כרטיס חדש – נוסף לקורס של השנה") + "&order=id.desc&limit=1").catch(() => []))[0] : null;
         if (auto) { delete body.student_id; await patch("course_members", "id=eq." + auto.id, Object.assign({ source_id: null }, body, { note: null, updated_at: new Date().toISOString() })); }   // מקור שלא נבחר – ריק (לא "טופס הרשמה" שנקבע אוטומטית)
-        else await insert("course_members", body); }
+        else { /* 5.21.14 (נועה 5.11): כבר היה/תה בקורס הזה (פרש / בוטל / היסטוריה) – מעדכנים את אותה שורה (קורס + תלמיד/ה ייחודיים), לא שורה חדשה שנכשלת */
+          const old = (await get("course_members", "select=id,status&student_id=eq." + stu.id + "&course_id=eq." + cid + "&limit=1").catch(() => []))[0];
+          if (old) { if (["רשום", "ממתין לתשלום", "מתעניין"].includes(old.status) && old.status === body.status) { toast("כבר בקורס הזה – אפשר לשנות את המצב בקורס"); return false; }
+            const up = Object.assign({}, body, { history_at: null, history_note: null, updated_at: new Date().toISOString() }); delete up.student_id; delete up.course_id; delete up.source; if (up.grade == null) delete up.grade;
+            await patch("course_members", "id=eq." + old.id, up); }
+          else await insert("course_members", body); } }
       return true; };
   const check = () => { const ca = crsCat(Number(q("cdCa").value)); if (!q("cdCa").value) return "בוחרים קטגוריה";
     if (ca.kind === "event" && !q("cdMa").value) return "אין מרתון במחזור הזה – בוחרים מחזור / קטגוריה אחרים";
     if (ca.kind !== "event" && !q("cdSc").value) return "בוחרים בית ספר לקורס"; if (q("cdSt") && !q("cdSt").value) return "בוחרים מצב"; return ""; };
   if (inlEx) { const sid = st.id;
     bg.querySelector("[data-no]").onclick = () => bg.remove();
-    bg.querySelector("[data-ok]").onclick = async (e) => { const er = check(); if (er) { toast(er); return; } e.currentTarget.disabled = true;
-      try { if (await save(st)) { bg.remove(); toast("נוסף/ה לקורס"); await crsLoad(true, true); CRS.loadedSt.delete(sid); if (editing && editing.student && editing.student.id === sid) loadLeadGroups(sid); if (currentView === "leads") renderLeads(); } else e.currentTarget.disabled = false; }
-      catch(err) { e.currentTarget.disabled = false; toast(/duplicate|23505/.test(err.message) ? "כבר בקורס הזה – אפשר לשנות את המצב בקורס" : "לא נשמר: " + err.message); } };
+    bg.querySelector("[data-ok]").onclick = async (e) => { const er = check(); if (er) { toast(er); return; } const okb = e.currentTarget; okb.disabled = true;   /* 5.21.14: אחרי await – e.currentTarget כבר null (ההודעה על שגיאה לא הופיעה) */
+      try { if (await save(st)) { bg.remove(); toast("נוסף/ה לקורס"); await crsLoad(true, true); CRS.loadedSt.delete(sid); if (editing && editing.student && editing.student.id === sid) loadLeadGroups(sid); if (currentView === "leads") renderLeads(); } else okb.disabled = false; }
+      catch(err) { okb.disabled = false; toast(/duplicate|23505/.test(err.message) ? "כבר בקורס הזה – אפשר לשנות את המצב בקורס" : "לא נשמר: " + err.message); } };
     bg.scrollIntoView({ behavior: "smooth", block: "nearest" }); return; }
   if (inline) { const sc = $("sSchool"); if (sc) sc.addEventListener("change", () => { if (q("cdSc") && sc.value) q("cdSc").value = sc.value; }); return { save, check }; }
   bg.querySelector("[data-no]").onclick = close;
