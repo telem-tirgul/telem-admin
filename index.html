@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.15">
+<meta name="app-version" content="5.21.16">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -371,7 +371,7 @@
     #view-lead .page-head > div:last-child{ grid-row:1; } #view-lead .page-head .bt-t{ display:none; }
     #view-lead .page-head > div:last-child .btn:not(.lead-top-b){ min-width:40px; padding:6px 9px; justify-content:center; }
     #view-lead #leadSub, #view-lead #leadQuick{ grid-column:1 / -1; }
-    #view-lead.lc-view #leadGroups :is(.lg-add-row, .lg-edit, .lg-btns){ display:none !important; }   /* 5.20.19 (נועה): בנייד בצפייה – השיבוצים בתוך הקורס (גם במרתון), בלי כפתורי השינוי; למעלה בלי כפילות */
+    /* 5.21.16 (נועה, של-130): בנייד בצפייה – גם "+ הוספה לקבוצה" ו"✎ שינוי שיבוץ" (היה מוסתר עד "✎ עריכה") */   /* 5.20.19 (נועה): בנייד בצפייה – השיבוצים בתוך הקורס (גם במרתון), בלי כפתורי השינוי; למעלה בלי כפילות */
     #view-lead .lead-quick :is(.lq-gs, .lq-none){ display:none !important; }   /* 5.20.31 (נועה): בנייד – השיבוצים רק בתוך הקורס (גם בעריכה; מנע גלילה לצד) */
     #view-lead .page-head > *, #view-lead .page-head > div:first-child > *{ min-width:0; max-width:100%; } #view-lead #leadSub{ overflow-wrap:anywhere; }   /* 5.19.162: בתצוגה – רק הקורסים (השיבוצים כבר למעלה) */   /* השיבוצים כבר למעלה; הרשימה המלאה (לשינוי) - בעריכה */
   }
@@ -1608,7 +1608,7 @@
   /* מצב עריכה ברשימת התלמידים ובקבוצות */
   #leadsTbl.locked .switch, #leadsTbl.locked .star{ pointer-events:none; }
   /* הסטטוס נשאר לשינוי גם כשהרשימה נעולה */
-  #view-lead.ro #lgAddBtn, #view-lead.ro [data-chg]{ display:none !important; }
+  /* 5.21.16 (נועה 5.11, של-130): שיבוץ לקבוצה ושינוי שיבוץ – גם בלי "✎ עריכה" (כמו הוספה לקורס); מצב העריכה – רק לפרטי הכרטיס */
   /* 5.19.88 (נועה): "העברה" מוצגת תמיד (גם בנייד, גם בלי עריכה) – כמו "+ הוספת ילד/ה לקבוצה" */
   .list-edit-on{ background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
 .wk-chg{display:flex;flex-direction:column;gap:2px;margin-bottom:3px;font-size:12px}.wk-chg span{border-radius:6px;padding:1px 6px;width:max-content;white-space:nowrap}.wk-chg .ad{background:#e3f1e6;color:#1d5a2c}.wk-chg .sk{background:#f7e3e1;color:#8a2a1f}
@@ -6351,7 +6351,10 @@ async function openAsgEditor(studentId, a, cur, opts){
   try { const en = await get("enrollments", "select=subject&student_id=eq." + studentId + "&status=neq." + encodeURIComponent("בוטל") + "&subject=not.is.null&order=id.desc&limit=1"); enrSubj = (en[0] && en[0].subject) || ""; } catch(e) {}
   // קודם - הסטטוס שמסומן עכשיו בכרטיס (גם אם עוד לא נשמר), למשל "נרשם מת. + אנג."
   const stSubj = subjFromStatus(statusName(curStatus()));
-  const subj = stSubj || enrSubj || (a && a.subject) || (cur.find(x => x.subject) || {}).subject || "";
+  /* 5.21.16 (החלטת נועה 5.11): "אין משמעות בשיבוצים למקצוע" – המקצוע מהקורס (רשום / ממתין), ורק אם אין – כמו קודם; לא מוצג במסך השיבוץ */
+  const crsSubj = (() => { try { const m = crsOfStudent(studentId).filter(x => !crsGone(x) && ["רשום", "ממתין לתשלום"].includes(x.status) && CRS.byId[x.course_id] && !CRS.byId[x.course_id].marathon_id).sort((p1, p2) => (p1.status === "רשום" ? 0 : 1) - (p2.status === "רשום" ? 0 : 1) || p2.id - p1.id)[0];
+      return !m ? "" : mTrk(m) === "double" ? "מתמטיקה ואנגלית" : (m.subject || ""); } catch(e) { return ""; } })();
+  const subj = crsSubj || stSubj || enrSubj || (a && a.subject) || (cur.find(x => x.subject) || {}).subject || "";
   box.innerHTML = `
     <div class="lg-edit-h">${a ? "שינוי שיבוץ" : "הוספה לקבוצה"}</div>
     <label class="lbl">קבוצה <span class="muted" style="font-weight:400">- מצמצמים לפי עיר, יום ובית ספר</span></label>
@@ -6361,9 +6364,7 @@ async function openAsgEditor(studentId, a, cur, opts){
       <select data-p="loc" aria-label="בית ספר"></select>
     </div>
     <select data-f="session"></select>
-    <label class="lbl">מקצוע</label>
-    ${subj ? `<div class="lg-subj"><b>${esc(subj)}</b> <span class="muted">${stSubj ? "(לפי הסטטוס)" : enrSubj ? "(לפי ההרשמה)" : "(לפי השיבוץ הקיים)"}</span></div><input type="hidden" data-f="subject" value="${esc(subj)}">`
-      : `<select data-f="subject"><option value="">בחירה...</option>${SUBJECTS.map(x => `<option>${x}</option>`).join("")}</select><div class="muted" style="font-size:12.5px;">לא ידוע במה הילד/ה נרשם/ה - בוחרים פעם אחת.</div>`}
+    <input type="hidden" data-f="subject" value="${esc(subj)}">
     ${a ? "" : `<label class="lbl">מצב</label><div class="lg-st"><label><input type="radio" name="lgSt" value="משובץ" checked> שיבוץ מאושר</label><label><input type="radio" name="lgSt" value="ממתין"> מוצע – ממתין לאישור</label></div>`}
     <label class="lbl">שעה אישית <span class="muted">(רק אם שונה משעת הקבוצה)</span></label>
     <div class="lg-times"><input type="time" data-f="from" value="${a && a.arrival_time ? hm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-f="to" value="${a && a.personal_end ? hm(a.personal_end) : ""}" aria-label="עד שעה"><button type="button" class="pt-x pt-x-l" data-ptclr title="ביטול השעה האישית">✕ ביטול</button></div>
@@ -6407,7 +6408,7 @@ async function openAsgEditor(studentId, a, cur, opts){
     if (!from) to = null; else if (!to) to = addMin(from, 45);
     if (from && to && to <= from) { f("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
     // אם שינו את הסטטוס בכרטיס אחרי שנפתח החלון - לוקחים את המקצוע מהסטטוס העדכני
-    const body = { session_id: sid, subject: subjFromStatus(statusName(curStatus())) || f("subject").value || null, arrival_time: from, personal_end: to };
+    const body = { session_id: sid, subject: f("subject").value || subjFromStatus(statusName(curStatus())) || null, arrival_time: from, personal_end: to };
     { const st0 = a ? a.status : ((box.querySelector("input[name=lgSt]:checked") || {}).value || "משובץ");
       if (st0 === "משובץ" && (!a || (a.session && sid !== a.session.id)) && !(await asgRegOk(studentId, g))) return; }
     f("save").disabled = true;
