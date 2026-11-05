@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.16">
+<meta name="app-version" content="5.21.17">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -575,6 +575,30 @@
   /* 5.20.26 (נועה): כרטיס השיבוץ בתוך הקורס – קומפקטי: הפרטים בשורה אחת (שם השדה קטן, הערך ליד) */
   #leadGroups .lg-crs-box .lg-dl{ display:flex; flex-wrap:wrap; align-items:center; gap:4px 6px; margin-top:6px; font-size:13px; }
   #leadGroups .lg-crs-box .lg-dl dt{ font-size:11.5px; font-weight:500; } #leadGroups .lg-crs-box .lg-dl dd{ margin-inline-end:10px; }
+  /* 5.21.17 (נועה 5.11): כל שיבוץ בשורה אחת (בנייד – נשבר לשורה שנייה): יום ושעה · שעה אישית · בית ספר · עיר · מתרגל/ת · כיתה, והכפתורים משמאל. המקצוע – רק בראש הקורס */
+  @media all{
+    #leadGroups .lg-card{ display:flex; flex-wrap:wrap; align-items:center; gap:4px 12px; padding:6px 10px !important; margin-bottom:6px; }
+    #leadGroups .lg-card .lg-when{ font-size:15px; white-space:nowrap; }
+    #leadGroups .lg-card .lg-personal{ margin:0; padding:2px 8px; font-size:13px; }
+    #leadGroups .lg-card .lg-dl{ margin:0 !important; flex:0 1 auto; } #leadGroups .lg-card .lg-bl{ display:none; }
+    #leadGroups .lg-card .lg-dl :is(.lg-k-x, .lg-sj){ display:none; }
+    #leadGroups .lg-card .lg-btns{ margin:0 !important; margin-inline-start:auto !important; gap:4px; }
+    #leadGroups .lg-card :is(.lg-prop-h, .lg-pt-ed, .lg-edit){ flex-basis:100%; }
+  }
+  /* 5.21.17 (נועה 5.11): בנייד – פחות גלילה בכרטיס התלמיד */
+  @media (max-width:760px){
+    #leadGroups .lg-card{ gap:3px 8px; } #leadGroups .lg-card .lg-dl{ font-size:12.5px; gap:2px 6px !important; } #leadGroups .lg-card .lg-dl dd{ margin-inline-end:6px !important; }
+    #leadGroups .lg-card .lg-btns .btn{ padding:4px 9px; font-size:12.5px; }
+    #leadGroups .lg-crs-box{ padding:8px 10px !important; }
+    #leadGroups .lg-crs-box .lg-dl{ margin-top:3px !important; }
+    #view-lead .la-row > summary{ padding:7px 2px; gap:8px; align-items:center; flex-wrap:nowrap !important; }
+    #view-lead .la-row > summary b{ min-width:0; font-size:14px; white-space:nowrap; }
+    #view-lead .la-row > summary .la-sum{ font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; flex:1 1 auto !important; flex-basis:auto !important; padding-inline-start:0 !important; }
+    #view-lead #studentBox .form-grid{ gap:4px 8px !important; } #view-lead #studentBox .lbl{ font-size:12px; margin-bottom:1px; }
+    #view-lead #studentBox :is(input, select){ height:36px !important; min-height:36px !important; padding-block:4px !important; font-size:14px !important; }
+    #view-lead.lc-view .lead-top{ padding:6px 10px !important; }
+    #view-lead .stp-box{ margin-top:6px; padding-top:6px; } #view-lead .stp-s{ padding-top:20px; }
+  }
   #leadGroups .lg-crs-box .lg-dl dt:has(+ dd:empty){ display:none; }
   #leadGroups .lg-crs-box .lg-card{ padding:10px 12px; } #leadGroups .lg-crs-box .lg-btns{ margin-top:8px; }
   .lg-time{ margin-inline-start:6px; }
@@ -4789,7 +4813,8 @@ function filtered(){
     if (school && String(s.school_id) !== school) return false;
     if (grade && s.grade !== grade) return false;
     const na = asgOf(l).length, fa = $("fAsg").value;
-    if (fa === "yes" && !na) return false; if (fa === "no" && na) return false; if (fa === "one" && na !== 1) return false;
+    if (fa === "yes" && !na) return false; if (fa === "no" && na) return false;
+    if (fa === "no" && typeof CRS !== "undefined" && CRS.ok && !crsOfStudent(s.id).some(m => !crsGone(m) && ["רשום", "ממתין לתשלום"].includes(m.status) && CRS.byId[m.course_id] && !CRS.byId[m.course_id].marathon_id && crsCat(CRS.byId[m.course_id].category_id).kind !== "event" && crsActiveSeasons().has(CRS.byId[m.course_id].season_id))) return false;   /* 5.21.17 (נועה 5.11): "לא משובצים" – רק מי שרשום / ממתין לתרגול שוטף השנה (לא ילדי מרתון) */ if (fa === "one" && na !== 1) return false;
     if (fa === "many" && na <= 2) return false;   // 5.19.20
     if (fa === "under") { const m = weekMin(asgOf(l).map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))); if (m == null || m >= WEEK_MAX_MIN) return false; }
     if (fa === "wkchg") { if (!WC.map) { loadWeekChg(); return false; } if (!WC.map.has(s.id)) return false; }   // 5.19.32
@@ -6173,17 +6198,17 @@ async function loadLeadGroups(studentId){
         ${prop ? `<div class="lg-prop-h"><span class="mar-tag" style="margin:0">מוצע</span> <span class="prop-st ${propStage(studentId)}">${PROP_ST[propStage(studentId)]}</span>
           <span class="ntc" data-pcard="${a.id}"><label><input type="checkbox" data-cn ${((NTC.map || {})[studentId] || {}).notified_at ? "checked" : ""}> קיבל/ה הודעה</label><label><input type="checkbox" data-cc> אישר/ה – למשובצים</label></span></div>` : ""}
         <div class="lg-when">${sessWhen(se)} <span class="lg-time">${rng(start, (se.end_time || "").slice(0, 5) || addMin(start, 45))}</span></div>
-        ${arr && arr !== start ? `<div class="lg-personal">⏰ שעה אישית: <b>${rng(arr, (a.personal_end || "").slice(0, 5) || addMin(arr, 45))}</b></div>` : ""}
+        ${arr && arr !== start ? `<div class="lg-personal" title="שעה אישית">⏰<span class="lg-bl"> שעה אישית:</span> <b>${rng(arr, (a.personal_end || "").slice(0, 5) || addMin(arr, 45))}</b></div>` : ""}
         <dl class="lg-dl">
-          <dt>בית ספר</dt><dd>${scChip(se.location && se.location.name)}</dd>
-          <dt>עיר</dt><dd>${esc(se.city || "")}</dd>
-          <dt>מקצוע</dt><dd>${liveSubj(studentId, a.subject) ? esc(liveSubj(studentId, a.subject)) : "<span class='muted'>—</span>"}${a.status && a.status !== "משובץ" ? ` <span class="muted">(${esc(a.status)})</span>` : ""}</dd>
+          <dt class="lg-k-x">בית ספר</dt><dd>${scChip(se.location && se.location.name)}</dd>
+          <dt class="lg-k-x">עיר</dt><dd>${esc(se.city || "")}</dd>
+          <dt class="lg-sj">מקצוע</dt><dd class="lg-sj">${liveSubj(studentId, a.subject) ? esc(liveSubj(studentId, a.subject)) : "<span class='muted'>—</span>"}${a.status && a.status !== "משובץ" ? ` <span class="muted">(${esc(a.status)})</span>` : ""}</dd>
           <dt>מתרגל/ת</dt><dd>${ins ? esc(ins) : "<span class='muted'>לא שויך</span>"}</dd>
           ${se.room ? `<dt>כיתה</dt><dd class="room"><bdi>${esc(se.room)}</bdi></dd>` : ""}
         </dl>
         <div class="lg-pt-ed" data-pted="${a.id}" hidden></div>
-        <div class="lg-btns"><button type="button" class="btn small" data-chg="${a.id}">✎ שינוי שיבוץ</button>${a.status === "משובץ" && se.day ? `<button type="button" class="btn small" data-ptm="${a.id}" title="שעה אישית – רק אם שונה משעת הקבוצה">⏰ שעה אישית</button>` : ""}
-          <button type="button" class="btn small" data-gs="${se.id}" data-city="${esc(se.city)}">בלוח הקבוצות ←</button></div>
+        <div class="lg-btns"><button type="button" class="btn small" data-chg="${a.id}">✎ שינוי<span class="lg-bl"> שיבוץ</span></button>${a.status === "משובץ" && se.day ? `<button type="button" class="btn small" data-ptm="${a.id}" title="שעה אישית – רק אם שונה משעת הקבוצה">⏰<span class="lg-bl"> שעה אישית</span></button>` : ""}
+          <button type="button" class="btn small" data-gs="${se.id}" data-city="${esc(se.city)}">בלוח<span class="lg-bl"> הקבוצות</span> ←</button></div>
         <div class="lg-edit" data-ed="${a.id}" hidden></div></div>`;
     };
     { const h = await crsGroupsHtml(studentId, cur, lgCard); if (stale()) return; $("leadGroups").innerHTML = h; $("leadLoading").hidden = true;
