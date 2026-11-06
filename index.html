@@ -1991,7 +1991,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .pl-sum{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:4px; } .pl-amt{ font-weight:800; font-size:20px; margin-inline-start:4px; } .pl-amt small{ font-size:13px; font-weight:600; color:#8a8077; }
 .pl-desc{ font-size:13.5px; margin-bottom:8px; } .pl-grid{ display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px 16px; padding:10px 0; border-block:1px solid #EEE7DF; margin:6px 0 10px; } .pl-grid span{ display:block; font-size:12.5px; color:#8a8077; } .pl-grid b{ font-weight:700; font-size:14px; }
 .pl-tw{ overflow-x:auto; } @media (max-width:760px){ .pl-ch th:nth-child(2), .pl-ch td:nth-child(2){ display:none; } .pl-ch .tx-acts{ flex-direction:column; align-items:stretch; } .pl-invt{ display:none; } .pl-ch .dl-inv{ font-size:18px; } }
-.pl-acts{ margin:4px 0 8px; } .pl-acts .btn.on{ background:#F4EEE8; box-shadow:inset 0 0 0 1.5px #C9B9A9; }
+.lc-sign-st .btn.on{ background:#FFF8EC; box-shadow:inset 0 0 0 1.5px #E7C98F; } .pl-acts{ margin:4px 0 8px; } .pl-acts .btn.on{ background:#F4EEE8; box-shadow:inset 0 0 0 1.5px #C9B9A9; }
 .pl-ed{ border:1px solid #E6DDD3; border-radius:12px; background:#FCFAF7; padding:10px 12px; margin-bottom:10px; } .pl-row{ display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; } .pl-row input{ width:130px; }
 .pl-hint{ font-size:12.5px; margin-top:6px; } .pl-h{ font-size:15px; margin:14px 0 6px; }
 .dl-sec{ border:1px solid #E6DDD3; border-radius:12px; margin-bottom:10px; background:#fff; overflow:hidden; }
@@ -6129,7 +6129,8 @@ async function signWire(sid){
   $("leadGroups").querySelectorAll('.stp-s[data-stk="conf"] [data-copy]').forEach(b => b.onclick = () => copyText(b.dataset.copy));
   const boxes = [...$("leadGroups").querySelectorAll("[data-sgm]:not([data-sgd])")]; if (!boxes.length) return;
   let links = [];
-  try { links = await get("sign_links", "select=id,code,course_member_id,created_at,opened_at,signed_at,expires_at,cancelled_at&student_id=eq." + sid + "&order=id.desc"); }
+  const SLQ = "select=id,code,course_member_id,created_at,opened_at,signed_at,expires_at,cancelled_at{N}&student_id=eq." + sid + "&order=id.desc";
+  try { links = await get("sign_links", SLQ.replace("{N}", ",note")).catch(() => get("sign_links", SLQ.replace("{N}", ""))); }   // note – לאחר 167
   catch(e) { boxes.forEach(b => { b.querySelector("[data-sgn]").disabled = true; b.querySelector(".lc-sign-st").textContent = "יופיע אחרי הרצת קובץ 135"; }); return; }
   const l0 = L.leads.find(x => x.student && x.student.id === sid), st = (l0 && l0.student) || {}, f = st.family || {};
   const live = (k) => k && !k.signed_at && !k.cancelled_at && new Date(k.expires_at) > new Date();
@@ -6143,8 +6144,12 @@ async function signWire(sid){
     const mc = c.marathon_id && ((CRS.mar || {})[c.marathon_id] || {}).code, u = mc ? lkMarCode(mc) + "&c=" + k.code : c.marathon_id || !crsCity(c) ? signUrl(k.code) : lkReg(crsCity(c), "") + "&phone=1&c=" + k.code,   /* 5.21.18 (נועה 5.11): מרתון – טופס המרתון עצמו, ממולא */ lab = [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ");   // 5.21.6 (נועה): תרגול שוטף – טופס ההרשמה עצמו, ממולא מהכרטיס (עם המחירים); מרתון – עדיין טופס החתימה
     const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, זה טופס ההרשמה של ${st.first_name || ""} (${lab}) – הפרטים כבר ממולאים, נשאר לאשר ולחתום: ${u}`;
     const pd = String(f.parent1_phone || "").replace(/\D/g, ""), wa = /^0\d{8,9}$/.test(pd) ? `https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}` : "";
-    stEl.innerHTML = `<span class="muted lc-sign-exp" title="קישור חד-פעמי – ננעל כשההורה שולח">עד ${fmtDM(String(k.expires_at).slice(0, 10))}</span> <button type="button" class="btn small primary" data-copy="${esc(u)}" title="העתקת הקישור לטופס">⧉ העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}`; mtEl.textContent = "נשלח " + fmtDM(String(k.created_at).slice(0, 10)) + " · " + (k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח");
+    stEl.innerHTML = `<span class="muted lc-sign-exp" title="קישור חד-פעמי – ננעל כשההורה שולח">עד ${fmtDM(String(k.expires_at).slice(0, 10))}</span> <button type="button" class="btn small${k.note ? " on" : ""}" data-sgnote title="${esc(k.note ? "הודעה להורה: " + k.note : "הודעה להורה – במסגרת בראש הטופס")}">💬${k.note ? "" : " הודעה"}</button> <button type="button" class="btn small primary" data-copy="${esc(u)}" title="העתקת הקישור לטופס">⧉ העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}`; mtEl.textContent = "נשלח " + fmtDM(String(k.created_at).slice(0, 10)) + " · " + (k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח");
     stEl.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
+    // נועה 6.11: הודעה אישית להורה (167) – מסגרת בראש הטופס, לא חובה
+    stEl.querySelector("[data-sgnote]").onclick = async () => { const v = await uiDialog("הודעה להורה – תופיע במסגרת בראש הטופס (ריק = בלי הודעה)", { input: true, multi: true, value: k.note || "" }); if (v == null) return;
+      try { await patch("sign_links", "id=eq." + k.id, { note: v.trim().slice(0, 1000) || null }); k.note = v.trim().slice(0, 1000) || null; paint(box); toast(k.note ? "ההודעה נשמרה" : "ההודעה הוסרה"); }
+      catch(e) { toast(/note/.test(e.message || "") ? "צריך קודם להריץ את קובץ 167" : "לא נשמר: " + e.message); } };
   };
   boxes.forEach(box => { const ok = box.querySelector("[data-sgok]"); if (ok) ok.onclick = async () => {   // 5.20.2 (נועה): טופס שהתקבל מחוץ למערכת
       if (!await uiConfirm("לסמן שהתקבל טופס הרשמה חתום (מחוץ למערכת)?")) return; ok.disabled = true; const mid = Number(box.dataset.sgm), m = crsOfStudent(sid).find(x => x.id === mid) || {};
@@ -12998,6 +13003,7 @@ function newLink(src, mode, opt){
       <div class="nl-trial" hidden><label class="lbl" for="nTrStart">תאריך התחלה</label><input type="date" id="nTrStart"></div>
       <div class="nl-trial nl-trcity" hidden><label class="lbl" for="nTrCity">עיר</label><select id="nTrCity"><option value="">בחירת עיר</option>${CONFIG.cities.map(c => `<option>${esc(c)}</option>`).join("")}</select></div>
       <div class="nl-trial muted nl-hint" style="grid-column:1/-1" hidden>היום – חודש אחד לפי המסלול והעיר. אם ממשיכים – לאחר 4 שבועות: חודש + דמי הרשמה + חומרי תרגול, ואז ב-1 בכל חודש עד יוני. ממשיכים רק כשהסטטוס "נרשם". הקישור חד-פעמי – ננעל ברגע שההורה שולח את הטופס.</div>
+      <div style="grid-column:1/-1"><label class="lbl" for="nNote">הודעה להורה (לא חובה – במסגרת בראש הטופס, לא בחשבונית)</label><textarea id="nNote" rows="2" maxlength="1000" placeholder="למשל: המפגש הראשון ביום שלישי ב-16:00"></textarea></div>
       <div class="nl-pay"><label class="lbl" for="nOnce">תשלום עכשיו (₪)</label><input type="number" id="nOnce" min="1" max="20000"></div><div class="nl-pay"></div>
       <label class="chk nl-pay nl-recchk" style="grid-column:1/-1"><input type="checkbox" id="nRec"> וגם הוראת קבע חודשית אחרי התשלום</label>
       <div class="nrec" hidden><label class="lbl" for="nMAmt">סכום חודשי (₪)</label><input type="number" id="nMAmt" min="1" max="5000"></div>
@@ -13039,7 +13045,7 @@ function newLink(src, mode, opt){
       $("nStuQ").value = ""; r.hidden = true; stuPaint(); lockPaint(); }); };
   // מילוי מקישור קיים (עריכה / שכפול)
   if (src) {
-    $("nDesc").value = src.description || ""; $("nOnce").value = src.one_time_amount || "";
+    $("nDesc").value = src.description || ""; $("nOnce").value = src.one_time_amount || ""; $("nNote").value = src.note || "";
     if (src.monthly_amount) { $("nRec").checked = true; $("nRec").onchange(); $("nMAmt").value = src.monthly_amount; $("nMCnt").value = src.monthly_count || ""; $("nMFirst").value = src.first_monthly_date ? String(src.first_monthly_date).slice(0, 10) : ""; }
     FIELDS.forEach(([k]) => { if (k === "school") schools(); sv(k, F[k] && F[k].value); });
     if (src.order_kind) SID = null;   // קישור על הרשמה קיימת – ההרשמה עצמה לא משוכפלת
@@ -13075,7 +13081,7 @@ function newLink(src, mode, opt){
     try { TRK = TRK || await get("tracks", "select=id,track_type,city_group"); } catch(e) { err.textContent = "לא ניתן לטעון את המסלולים."; return; }
     const grp = city === "ראש העין" ? "ראש העין" : "שאר הערים", tr = TRK.find(x => x.track_type === tt && x.city_group === grp) || TRK.find(x => x.track_type === tt);
     if (!tr) { err.textContent = "המסלול לא נמצא."; return; }
-    const p = { track_id: tr.id, subject: tt === "double" ? "מתמטיקה ואנגלית" : $("nTrSub").value, start: $("nTrStart").value || "", description: $("nDesc").value.trim(), fields: {} };
+    const p = { track_id: tr.id, subject: tt === "double" ? "מתמטיקה ואנגלית" : $("nTrSub").value, start: $("nTrStart").value || "", description: $("nDesc").value.trim(), fields: {}, note: $("nNote").value.trim() };
     if (SID) p.student_id = SID; else p.city = city;
     FIELDS.forEach(([k]) => { if (k === "city" && !SID || k === "track" || k === "subject") return; const v = $("nf_" + k).value.trim(); p.fields[k] = { value: v, required: !v && $("nr_" + k).checked }; });
     $("nSave").disabled = true;
@@ -13088,7 +13094,7 @@ function newLink(src, mode, opt){
     const once = Number($("nOnce").value), err = $("nErr"); err.textContent = "";
     if (!$("nDesc").value.trim()) { err.textContent = "חסר תיאור."; return; }
     if (!(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
-    const p = { description: $("nDesc").value.trim(), one_time_amount: once, fields: {} };
+    const p = { description: $("nDesc").value.trim(), one_time_amount: once, fields: {}, note: $("nNote").value.trim() };
     if (SID) p.student_id = SID;
     if (ed && src.order_kind) p.order = { kind: src.order_kind, id: src.order_id };
     if ($("nRec").checked) { const a = Number($("nMAmt").value), c = Number($("nMCnt").value); if (!(a > 0) || !(c >= 1 && c <= 24)) { err.textContent = "בהוראת קבע: סכום חודשי ומספר חיובים (1-24)."; return; } p.monthly = { amount: a, count: c, first_date: $("nMFirst").value || "" }; }
