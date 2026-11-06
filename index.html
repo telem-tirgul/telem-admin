@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.30">
+<meta name="app-version" content="5.21.31">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -8693,7 +8693,11 @@ const IB = { rows: null, f: "open", k: "", ks: new Set(), done: [], doneEnd: fal
 const IB_KIND = { sign: ["✍️", "אישור תנאי התקשרות"], registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"] };   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
 const IB_FLAG = { blocked_already: ["t-warn", "ניסה/תה לשלוח שוב – נחסם (כבר רשום/ה)"], blocked_review: ["t-warn", "נעצר לבדיקה – אותו שם, בלי טלפון מוכר, וכבר רשום/ה (לא נשמר, לא שולם)"], status_mismatch: ["t-warn", "הסטטוס לא תואם לתשלום"], plan_withdrawn: ["t-warn", "לבטל בריווחית"], phone_pending: ["t-warn", "תשלום טלפוני ממתין"], system_issue: ["t-warn", "תקלה טכנית"], added: ["t-new", "נוסף/ה לקבוצה"],   // 5.19.127 (תש-16, icredit-24) removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], plan_paused: ["t-old", "הוראת קבע הושהתה"],
-  plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"] };
+  plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"],
+  // נועה 6.11 (icredit-37/38): קישורים אישיים וחודש ניסיון
+  unpaid: ["t-warn", "עוד לא שולם"], trial: ["t-new", "חודש ניסיון"], trial_ending: ["t-warn", "חודש ניסיון מסתיים – לשלוח קישור הרשמה"], trial_plan: ["t-new", "ממשיך/ה לאחר הניסיון – הוראת קבע נקבעה"],
+  trial_ended: ["t-warn", "נחתם לאחר סוף הניסיון – לשלוח קישור תשלום"], plan_same_month: ["t-warn", "שני חיובים באותו חודש"] };
+const ibKindOf = (r) => r.kind === "sign" && (r.ref_table === "pay_links" || (r.data || {}).pay_link) ? ["💳", "טופס תשלום אישי"] : IB_KIND[r.kind] || ["📥", r.kind];
 const IB_WARN_F = ["blocked_review", "plan_withdrawn", "mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check", "plan_last_check", "plan_reactivated"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
 // 5.19.134 (נועה 25.10): "שם פרטי לא תואם", "שם משפחה הורה לא תואם", "טלפון הורה לא תואם"… – בפירוש על התגית (מה היה ומה בטופס – בלחיצה)
 const IB_ISS_NM = { first_name: "שם פרטי", last_name: "שם משפחה", phone: "נייד תלמיד/ה" };
@@ -8714,7 +8718,7 @@ async function inboxPoll(first){
   const max = rows.reduce((m, r) => Math.max(m, r.id), 0);
   if (!first && max > IB.lastMax) {   // הודעה קטנה על מה שהגיע מאז הבדיקה הקודמת
     const fresh = rows.filter(r => r.id > IB.lastMax); await ibNames(fresh);
-    const r = fresh[0], k = IB_KIND[r.kind] || ["📥", r.kind], more = fresh.length > 1 ? ` (+${fresh.length - 1})` : "";
+    const r = fresh[0], k = ibKindOf(r), more = fresh.length > 1 ? ` (+${fresh.length - 1})` : "";
     ibToast(`${k[0]} <b>${esc(k[1])}:</b> ${esc(ibName(r))}${ibWarn(r) ? " · ⚠ פרטים לא תואמים" : ""}${more}`);
   }
   if (!first && max > IB.lastMax) setTimeout(() => liveRefresh(0), 300);   // 5.19.57: הודעה חדשה - המסך הפתוח מתעדכן מיד
@@ -8759,7 +8763,7 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
     : r.kind === "registration" ? [d.city, d.subject, d.track ? (typeof TRACK_T === "function" ? TRACK_T(d.track) : d.track) : "", amt(d.first_charge_amount)]
     : r.kind === "cancel" ? [d.school, d.subject, d.reason ? "סיבה: " + d.reason : ""]
     : r.kind === "pay_link" ? [d.description, amt(d.one_time_amount)]
-    : r.kind === "sign" ? [d.course, (d.changes || []).length ? "עודכן: " + d.changes.map(c => c.field + " " + (c.old ? c.old + " ← " : "") + c.new).join(" · ") : "בלי שינוי בפרטים"]   // 5.20.1 (קובץ 140)
+    : r.kind === "sign" ? [d.course || d.description, d.pay_link ? amt(d.amount) : "", d.trial && d.trial.result === "plan" ? "חיוב ראשון ב-" + fmtIso(d.trial.first_date) + (d.trial.first_amount ? " – " + amt(d.trial.first_amount) : "") : "", (d.changes || []).length ? "עודכן: " + d.changes.map(c => c.field + " " + (c.old ? c.old + " ← " : "") + c.new).join(" · ") : "בלי שינוי בפרטים"]   // 5.20.1 (קובץ 140)
     : r.kind === "payment" ? [d.title, d.description, amt(d.amount), d.text]
     : r.kind === "portal_code" ? [d.phone ? "טלפון: " + tsPhF(d.phone) : "", "שכח/ה את הקוד"]
     : r.kind === "contact" ? [d.phone, d.email, d.message ? String(d.message).slice(0, 80) + (String(d.message).length > 80 ? "…" : "") : ""]
@@ -8958,7 +8962,7 @@ async function renderInbox(reload){
   const gdSeen = new Set();
   box.innerHTML = `<div class="ib-list">` + rows.map(r => { if (r.kind === "group_diff") { const g = r.student_id ? gdBy[r.student_id] : null;
       if (!g) return ibGdCard(r, when);   // 5.19.122: גם אירוע אחד – אותו כרטיס (שבוע, נוכחות בקבוצה הקבועה, לאן הגיע/ה)
-      if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = IB_KIND[r.kind] || ["📥", r.kind], w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = (r.issues || []).filter(x => !(ibMerged(r) && x.field === "duplicate"));
+      if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = ibKindOf(r), w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = (r.issues || []).filter(x => !(ibMerged(r) && x.field === "duplicate"));
     const pr = IB.pair && IB.pair[r.id], pi = IB.pairInt && IB.pairInt[r.id], dd = (IB.dups && IB.dups[r.id]) || [];
     const ids = [r.id].concat(pr ? [pr.id] : [], pi ? [pi.id] : [], dd.map(x => x.id), dd.map(x => IB.pair[x.id]).filter(Boolean).map(x => x.id)).join(",");
     // 5.19.150 (נועה 28.10): בשורת הרשמה / תשלום – הסטטוס של הכרטיס בצבע שלו (במקום "תשלום טלפוני ממתין")
