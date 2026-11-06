@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.25">
+<meta name="app-version" content="5.21.26">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2024,6 +2024,16 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 #payWrap .br-rule-h select{ height:36px !important; min-height:36px !important; padding:0 10px !important; line-height:normal; min-width:130px; }
 #payWrap .br-wrap textarea{ width:100%; min-height:64px; border-radius:10px; padding:8px 10px; box-sizing:border-box; font:inherit; font-size:14.5px; }
 #payWrap .br-wrap > .note{ margin:0 !important; }
+#payWrap .br-hs{ font-weight:400; font-size:13px; margin-inline-start:6px; } #payWrap .br-city td{ vertical-align:middle; } #payWrap .br-money{ display:inline-flex; align-items:center; gap:4px; white-space:nowrap; } #payWrap .br-money input{ width:84px; }
+#payWrap .br-offs{ display:flex; flex-wrap:wrap; gap:4px 14px; align-items:center; } #payWrap .br-offs .muted{ font-size:13px; }
+#payWrap .br-line{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; padding:8px 0; border-bottom:1px solid #F1EBE4; } #payWrap .br-line:last-child{ border-bottom:0; }
+#payWrap .br-line .br-n{ width:64px; } #payWrap .br-line .br-txt{ flex:1 1 260px; } #payWrap .br-line .br-note-in{ flex:1 1 140px; } #payWrap .br-line .br-cityf{ width:auto; min-width:110px; } #payWrap .br-line select{ width:auto; }
+#payWrap .br-fixed{ color:var(--ink-soft); } #payWrap .br-ic{ width:20px; text-align:center; } #payWrap .br-xr > *{ flex:0 0 auto; } #payWrap .br-xr .br-txt, #payWrap .br-xr .br-note-in{ flex:1 1 140px; } #payWrap .br-del{ margin-inline-start:auto; padding:2px 9px; }
+#payWrap .br-add{ margin:8px 0 0; } #payWrap .br-notes summary{ cursor:pointer; border-bottom:0 !important; margin:0 !important; padding:0 !important; } #payWrap .br-notes[open] summary{ margin-bottom:8px !important; }
+#payWrap .br-foot{ display:flex; align-items:center; gap:12px; justify-content:space-between; flex-wrap:wrap; } #payWrap .br-foot .muted{ font-size:12.5px; flex:1 1 300px; }
+@media (max-width:760px){ #payWrap .br-city thead{ display:none; } #payWrap .br-city tr{ display:grid; grid-template-columns:1fr 1fr; gap:4px 10px; padding:8px 0; border-bottom:1px solid var(--border); } #payWrap .br-city td{ border:0 !important; padding:2px 0 !important; }
+  #payWrap .br-city td:first-child, #payWrap .br-city td.br-offs{ grid-column:1/-1; } #payWrap .br-city td:nth-child(2)::before{ content:"דמי הרשמה "; font-size:12.5px; color:var(--ink-soft); } #payWrap .br-city td:nth-child(3)::before{ content:"חומרי תרגול "; font-size:12.5px; color:var(--ink-soft); } #payWrap .br-city td.br-offs::before{ content:"יורד מהחיוב האחרון:"; font-size:12.5px; color:var(--ink-soft); width:100%; } }
+
 /* 5.19.69 (תש-11, נועה): "חוקים נוספים" - שדות קטנים בתוך המשפט. הכלל הכללי של #view-pay (פינות 12, ריפוד 9/12, גובה 40) גבר עד עכשיו */
 #view-pay #payWrap .br-rule :is(input[type=number], input[type=text], select){ min-height:32px !important; height:32px !important; padding:2px 8px !important; border-radius:8px !important; font-size:14px !important; }
 #view-pay #payWrap .br-rule input[type=number]{ width:58px !important; text-align:center; margin:0 4px; }
@@ -12996,7 +13006,7 @@ function newLink(src, mode, opt){
       <div class="nl-trial nl-trsub" hidden><label class="lbl" for="nTrSub">מקצוע</label><select id="nTrSub"><option value="">בחירת מקצוע</option><option>מתמטיקה</option><option>אנגלית</option></select></div>
       <div class="nl-trial" hidden><label class="lbl" for="nTrStart">תאריך התחלה</label><input type="date" id="nTrStart"></div>
       <div class="nl-trial nl-trcity" hidden><label class="lbl" for="nTrCity">עיר</label><select id="nTrCity"><option value="">בחירת עיר</option>${CONFIG.cities.map(c => `<option>${esc(c)}</option>`).join("")}</select></div>
-      <div class="nl-trial muted nl-hint" style="grid-column:1/-1" hidden>היום – חודש אחד לפי המסלול והעיר. אם ממשיכים – לאחר 4 שבועות: חודש + דמי הרשמה + חומרי תרגול, ואז ב-1 בכל חודש עד יוני. ממשיכים רק כשהסטטוס "נרשם". הקישור חד-פעמי – ננעל ברגע שההורה שולח את הטופס.</div>
+      <div class="nl-trial muted nl-hint" style="grid-column:1/-1" hidden>תשלום חד-פעמי על חודש אחד, לפי מחיר המסלול בעיר. בלי הוראת קבע. אם ממשיכים – שולחים קישור הרשמה מהכרטיס.</div>
       <div style="grid-column:1/-1"><label class="lbl" for="nNote">פירוט – מה כלול בתשלום (לא חובה; מופיע להורה בטופס, לא בחשבונית)</label><textarea id="nNote" rows="3" maxlength="1000" placeholder="למשל: 3 מפגשים של שעה וחצי בימי שלישי, כולל דפי תרגול"></textarea></div>
       <div class="nl-pay"><label class="lbl" for="nOnce">תשלום עכשיו (₪)</label><input type="number" id="nOnce" min="1" max="20000"></div><div class="nl-pay"></div>
       <label class="chk nl-pay nl-recchk" style="grid-column:1/-1"><input type="checkbox" id="nRec"> וגם הוראת קבע חודשית אחרי התשלום</label>
@@ -13066,22 +13076,24 @@ function newLink(src, mode, opt){
   if (!src && TY === "single") tyPaint("single");
   const stuPaint0 = stuPaint; stuPaint = () => { stuPaint0(); tyPaint(); };
   stuPaint(); lockPaint();
-  let TRK = null;   // מזהי המסלולים (tracks) – לפי קבוצת העיר
+  // נועה 6.11 (החלטה "חודש ניסיון – בשני שלבים"): חודש ניסיון = קישור תשלום רגיל על חודש אחד לפי מחיר המסלול בעיר, בלי הוראת קבע
+  const trialPrice = (city, tt) => { const P = REG_PRICES[city] || {}, x = P[tt] || {}, today = new Date().toISOString().slice(0, 10);
+    return Number(P.earlyUntil && today <= String(P.earlyUntil).slice(0, 10) && x.early ? x.early : x.regular || x.early || 0); };
   const trialSave = async () => {
     const err = $("nErr"), tt = $("nTrTrack").value, city = SID ? ((((leadOfSid(SID) || {}).student || {}).family || {}).city || "") : $("nTrCity").value;
     if (!tt) { err.textContent = "יש לבחור מסלול."; return; }
     if (tt !== "double" && !$("nTrSub").value) { err.textContent = "יש לבחור מקצוע."; return; }
     if (!city) { err.textContent = SID ? "בכרטיס אין עיר – יש להשלים אותה בכרטיס." : "יש לבחור עיר."; return; }
-    try { TRK = TRK || await get("tracks", "select=id,track_type,city_group"); } catch(e) { err.textContent = "לא ניתן לטעון את המסלולים."; return; }
-    const grp = city === "ראש העין" ? "ראש העין" : "שאר הערים", tr = TRK.find(x => x.track_type === tt && x.city_group === grp) || TRK.find(x => x.track_type === tt);
-    if (!tr) { err.textContent = "המסלול לא נמצא."; return; }
-    const p = { track_id: tr.id, subject: tt === "double" ? "מתמטיקה ואנגלית" : $("nTrSub").value, start: $("nTrStart").value || "", description: $("nDesc").value.trim(), fields: {}, note: $("nNote").value.trim() };
-    if (SID) p.student_id = SID; else p.city = city;
-    FIELDS.forEach(([k]) => { if (k === "city" && !SID || k === "track" || k === "subject") return; const v = $("nf_" + k).value.trim(); p.fields[k] = { value: v, required: !v && $("nr_" + k).checked }; });
+    if (REG_PRICES_DB === null) { try { await loadRegPrices(); } catch(e) {} }
+    const amt = trialPrice(city, tt); if (!(amt > 0)) { err.textContent = "אין מחיר למסלול הזה ב" + city + "."; return; }
+    const tn = (LK.tracks.find(x => x.v === tt) || {}).t || "", subj = tt === "double" ? "" : $("nTrSub").value, st = $("nTrStart").value;
+    const desc = $("nDesc").value.trim() || ("חודש ניסיון – " + tn + (subj ? " · " + subj : "") + (st ? " (מ-" + fmtDM(st) + ")" : ""));
+    const p = { description: desc.slice(0, 200), one_time_amount: amt, fields: {}, note: $("nNote").value.trim() };
+    if (SID) p.student_id = SID;
+    FIELDS.forEach(([k]) => { const v = k === "city" && !SID ? city : k === "track" ? tn : k === "subject" ? (subj || "מתמטיקה ואנגלית") : $("nf_" + k).value.trim(); p.fields[k] = { value: v, required: !v && $("nr_" + k).checked }; });
     $("nSave").disabled = true;
-    try { const r = await call("trial_link_create", { p }); pnlClose(); await copy(r.url); const t = r.trial || {};
-      toast(`נוצר קישור לחודש ניסיון${t.first_amount ? " – " + money(t.first_amount) : ""}. הקישור הועתק.`); render(); }
-    catch(e) { const m = String(e.message || ""); err.textContent = "לא נוצר: " + (/already registered/.test(m) ? "לתלמיד/ה כבר יש הרשמה לתרגול השוטף." : /subject required/.test(m) ? "יש לבחור מקצוע." : /no price/.test(m) ? "אין מחיר למסלול הזה בעיר הזו." : /invalid start date/.test(m) ? "תאריך ההתחלה – עד שבועיים אחורה או חודשיים קדימה." : /student or city/.test(m) ? "יש לבחור עיר או תלמיד/ה." : /function .* does not exist|Could not find the function/i.test(m) ? "צריך קודם להריץ את icredit-38." : m); $("nSave").disabled = false; }
+    try { const r = await call("pay_link_create", { p }); pnlClose(); await copy(r.url); toast(`נוצר קישור לחודש ניסיון – ${money(amt)}. הקישור הועתק.`); render(); }
+    catch(e) { err.textContent = "לא נוצר: " + e.message; $("nSave").disabled = false; }
   };
   $("nSave").onclick = async () => {
     if (TY === "trial" && !ed) { $("nErr").textContent = ""; return trialSave(); }
@@ -13114,47 +13126,64 @@ async function renderRules(b){
   const RT = { late_join: "הצטרפות מאוחרת בחודש", text: "חוק אחר (רישום בלבד)" };
   const cityOpts = (v) => `<option value="">כל הערים</option>` + CONFIG.cities.map(c => `<option ${v === c ? "selected" : ""}>${esc(c)}</option>`).join("");
   // 5.19.88 (נועה: "מסך התשלומים נראה לא טוב"): כמו שאר המסכים - שם השדה מעל השדה, שדות 40px בשורה אחת, "מחיקה" באדום ליד הכותרת (מימין)
-  const ruleHtml = (x, i) => `<div class="br-rule br-rule2" data-i="${i}"><div class="br-rule-h"><b>${esc(RT[x.type] || "חוק")}</b><button type="button" class="btn small danger" data-del="${i}">מחיקה</button></div>
-    <div class="br-fields">
-      <div class="br-f br-act"><label class="lbl">&nbsp;</label><label class="chk"><input type="checkbox" data-k="active" ${x.active !== false ? "checked" : ""}> פעיל</label></div>
-      <div class="br-f"><label class="lbl">עיר</label><select data-k="city" aria-label="עיר">${cityOpts(x.city || "")}</select></div>
-      ${x.type === "late_join" ? `<div class="br-f br-n"><label class="lbl">מהיום בחודש</label><input type="number" data-k="from_day" min="2" max="31" value="${esc(x.from_day || 20)}"></div>
-      <div class="br-f br-n"><label class="lbl">משלמים % מהחודש</label><input type="number" data-k="percent" min="0" max="100" value="${esc(x.percent == null ? 50 : x.percent)}"></div>
-      <div class="br-f"><label class="lbl">ההפרש יורד מ</label><select data-k="apply"><option value="last" ${x.apply !== "first" ? "selected" : ""}>החיוב האחרון</option><option value="first" ${x.apply === "first" ? "selected" : ""}>התשלום הראשון (בהרשמה)</option></select></div>` : ""}
-      <div class="br-f br-note"><label class="lbl">הערה</label><input type="text" class="br-note-in" data-k="note" placeholder="למשל: לברר" value="${esc(x.note || "")}"></div>
-    </div>
-    ${x.type === "late_join" ? `<div class="muted br-expl">מי ששולח/ת טופס הרשמה מה-${esc(x.from_day || 20)} בחודש ואילך משלם/ת ${esc(x.percent == null ? 50 : x.percent)}% מהחודש (במקום חודש מלא).</div>`
-      : `<div class="br-f"><label class="lbl">תיאור החוק</label><textarea data-k="text" rows="2" placeholder="תיאור החוק">${esc(x.text || "")}</textarea></div>`}</div>`;   // 5.19.69 (נועה): ההערה בשורה של "ההפרש יורד מ"
+  const ruleHtml = (x, i) => `<div class="br-line br-xr" data-i="${i}"><label class="chk" title="פעיל"><input type="checkbox" data-k="active" ${x.active !== false ? "checked" : ""}></label>
+    ${x.type === "late_join" ? `<span>הצטרפות מה-</span><input type="number" class="br-n" data-k="from_day" min="2" max="31" value="${esc(x.from_day || 20)}" aria-label="מהיום בחודש"><span>בחודש – משלמים</span><input type="number" class="br-n" data-k="percent" min="0" max="100" value="${esc(x.percent == null ? 50 : x.percent)}" aria-label="אחוז"><span>% מהחודש; ההפרש יורד מ</span><select data-k="apply" aria-label="ההפרש יורד מ"><option value="last" ${x.apply !== "first" ? "selected" : ""}>החיוב האחרון</option><option value="first" ${x.apply === "first" ? "selected" : ""}>התשלום הראשון</option></select>`
+      : `<input type="text" class="br-txt" data-k="text" placeholder="תיאור החוק (רישום בלבד)" value="${esc(x.text || "")}">`}
+    <select data-k="city" aria-label="עיר" class="br-cityf">${cityOpts(x.city || "")}</select>${x.type === "late_join" ? `<input type="text" class="br-note-in" data-k="note" placeholder="הערה" value="${esc(x.note || "")}">` : ""}<button type="button" class="btn small danger br-del" data-del="${i}" title="מחיקה" aria-label="מחיקה">✕</button></div>`;
+  // נועה 6.11: מסך מצומצם – כללי · לפי עיר (דמי הרשמה, חומרי תרגול, קיזוז) · חוקים (קבועים + נוספים)
+  const MN = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+  const nmf = /^\d{2}-\d{2}$/.test(r.no_materials_from || "") ? r.no_materials_from : (r.no_materials_from === "" ? "" : "02-15");
+  const fee = {}; CONFIG.cities.forEach(c => { const P = REG_PRICES[c] || {}; fee[c] = { reg: P.registrationFee, mat: P.materialsFee }; });
   const paint = () => {
-    b.innerHTML = `<div class="br-wrap"><div class="lg-edit-h br-title">חוקי חיוב</div><section class="br-sec"><h3 class="br-h">כללי</h3><div class="br-gen">
-      <div><label class="lbl" for="rDay">יום החיוב החודשי (1-28)</label><input type="number" id="rDay" min="1" max="28" value="${esc(r.charge_day || 1)}"></div>
-      <div><label class="lbl" for="rLast">החודש האחרון בשנה</label><select id="rLast">${[5, 6, 7].map(m => `<option value="${m}" ${Number(r.last_month || 6) === m ? "selected" : ""}>${["", "", "", "", "", "מאי", "יוני", "יולי"][m]}</option>`).join("")}</select></div>
-      <div class="br-mail"><label class="lbl" for="rMail">לאן נשלחות התראות (חיוב שלא התקבל)</label><input type="email" id="rMail" dir="ltr" value="${esc(r.alert_email || "")}" placeholder="telem.tr@gmail.com"></div></div></section>
-    <section class="br-sec"><h3 class="br-h">קיזוז בחיוב האחרון - לפי עיר</h3>
-    <div class="muted" style="margin-bottom:6px">מה יורד מהחיוב האחרון (${["", "", "", "", "", "מאי", "יוני", "יולי"][Number(r.last_month || 6)]}). אפשר לסמן את שניהם, אחד או אף אחד.</div>
-    <table class="tbl br-tbl"><thead><tr><th>עיר</th>${OFF.map(([, t]) => `<th>${t}</th>`).join("")}<th>סכום הקיזוז</th></tr></thead><tbody>
-      ${CONFIG.cities.map(c => { const P = REG_PRICES[c] || {}, sel = co[c] || [], amt = (sel.includes("materials") ? Number(P.materialsFee || 0) : 0) + (sel.includes("registration") ? Number(P.registrationFee || 0) : 0);
-        return `<tr><td><b>${esc(c)}</b></td>${OFF.map(([k]) => `<td><label class="chk"><input type="checkbox" data-off="${esc(c)}" data-ok="${k}" ${sel.includes(k) ? "checked" : ""}> ${k === "materials" ? (P.materialsFee ? P.materialsFee + " ₪" : "אין") : (P.registrationFee != null ? P.registrationFee + " ₪" : "—")}</label></td>`).join("")}<td class="num">${amt ? money(amt) : "ללא קיזוז"}</td></tr>`; }).join("")}</tbody></table>
-    </section><section class="br-sec"><h3 class="br-h">חוקים נוספים</h3>
-    <div id="brRules">${rules.length ? rules.map(ruleHtml).join("") : `<div class="muted">אין חוקים נוספים.</div>`}</div>
-    <div class="acts-row" style="margin:8px 0 4px"><button class="btn small" type="button" data-add="late_join">+ הצטרפות מאוחרת בחודש</button><button class="btn small" type="button" data-add="text">+ חוק אחר</button></div>
-    </section><section class="br-sec"><h3 class="br-h">הערות</h3><textarea id="rNote" rows="2" placeholder="הערות פנימיות (לא מופיעות להורים)">${esc(r.note || "")}</textarea></section>
-    <div class="note" style="margin:10px 0">החיוב עצמו מחושב בשרת של איקרדיט ובטופס ההרשמה - שינוי כאן נכנס לתוקף אחרי שהם מעודכנים לקרוא את החוקים (בצ'אט איקרדיט). הטקסט בטופס ההרשמה צריך להתאים.${saved ? "" : " <b>עדיין לא נשמרו חוקים לפי עיר.</b>"}</div>
-    <div class="muted" style="font-size:12.5px">${r.updated_at ? "עודכן " + dmy(r.updated_at) : ""}</div><div class="acts-row lg-btns"><button class="btn primary" id="rSave" type="button">שמירה</button></div></div>`;   // 5.19.59: מסך מסודר - כרטיס לכל חלק, שדות קומפקטיים
-    const readRules = () => { b.querySelectorAll(".br-rule").forEach(el => { const x = rules[Number(el.dataset.i)]; el.querySelectorAll("[data-k]").forEach(f => { const k = f.dataset.k; x[k] = f.type === "checkbox" ? f.checked : f.type === "number" ? Number(f.value) : f.value; }); }); };
+    const lastM = MN[Number(r.last_month || 6)];
+    b.innerHTML = `<div class="br-wrap">
+    <section class="br-sec"><h3 class="br-h">כללי</h3><div class="br-gen">
+      <div><label class="lbl" for="rDay">יום החיוב החודשי</label><input type="number" id="rDay" min="1" max="28" value="${esc(r.charge_day || 1)}"></div>
+      <div><label class="lbl" for="rLast">החודש האחרון</label><select id="rLast">${[5, 6, 7].map(m => `<option value="${m}" ${Number(r.last_month || 6) === m ? "selected" : ""}>${MN[m]}</option>`).join("")}</select></div>
+      <div class="br-mail"><label class="lbl" for="rMail">התראה על חיוב שלא התקבל – לאימייל</label><input type="email" id="rMail" dir="ltr" value="${esc(r.alert_email || "")}" placeholder="telem.tr@gmail.com"></div></div></section>
+    <section class="br-sec"><h3 class="br-h">לפי עיר <span class="muted br-hs">${esc(CONFIG.schoolYear)}</span></h3>
+    <table class="tbl br-tbl br-city"><thead><tr><th>עיר</th><th>דמי הרשמה</th><th>חומרי תרגול</th><th>יורד מהחיוב ב${lastM}</th></tr></thead><tbody>
+      ${CONFIG.cities.map(c => { const sel = co[c] || [], F = fee[c], amt = (sel.includes("materials") ? Number(F.mat || 0) : 0) + (sel.includes("registration") ? Number(F.reg || 0) : 0);
+        return `<tr><td><b>${esc(c)}</b></td>
+          <td><span class="br-money"><input type="number" min="0" max="5000" data-fee="${esc(c)}|reg" value="${esc(F.reg == null ? "" : F.reg)}" placeholder="אין"> ₪</span></td>
+          <td><span class="br-money"><input type="number" min="0" max="5000" data-fee="${esc(c)}|mat" value="${esc(F.mat == null ? "" : F.mat)}" placeholder="אין"> ₪</span></td>
+          <td class="br-offs">${OFF.map(([k, t]) => `<label class="chk"><input type="checkbox" data-off="${esc(c)}" data-ok="${k}" ${sel.includes(k) ? "checked" : ""}> ${t}</label>`).join("")}<span class="muted" data-amt="${esc(c)}">${amt ? "= " + money(amt) : "בלי קיזוז"}</span></td></tr>`; }).join("")}
+    </tbody></table></section>
+    <section class="br-sec"><h3 class="br-h">חוקים</h3>
+      <div class="br-line br-fixed"><span class="br-ic">🔒</span><span>אף פעם לא שני חיובים באותו חודש (כולל התשלום הראשון).</span></div>
+      <div class="br-line"><label class="chk"><input type="checkbox" id="rNmOn" ${nmf ? "checked" : ""}> נרשמים מתאריך</label>
+        <select id="rNmD" aria-label="יום">${Array.from({ length: 28 }, (_, i) => i + 1).map(d => `<option ${Number((nmf || "02-15").slice(3)) === d ? "selected" : ""}>${d}</option>`).join("")}</select>
+        <select id="rNmM" aria-label="חודש">${MN.slice(1).map((m, i) => `<option value="${String(i + 1).padStart(2, "0")}" ${(nmf || "02-15").slice(0, 2) === String(i + 1).padStart(2, "0") ? "selected" : ""}>ב${m}</option>`).join("")}</select>
+        <span>ואילך – בלי חומרי תרגול (ואז ${lastM} מלא).</span></div>
+      <div id="brRules">${rules.map(ruleHtml).join("")}</div>
+      <div class="acts-row br-add"><button class="btn small" type="button" data-add="late_join">+ הצטרפות מאוחרת בחודש</button><button class="btn small" type="button" data-add="text">+ חוק אחר</button></div>
+    </section>
+    <details class="br-sec br-notes"${r.note ? " open" : ""}><summary class="br-h">הערות פנימיות</summary><textarea id="rNote" rows="2" placeholder="לא מופיעות להורים">${esc(r.note || "")}</textarea></details>
+    <div class="br-foot"><span class="muted">${r.updated_at ? "עודכן " + dmy(r.updated_at) + " · " : ""}החיוב מחושב בשרת התשלומים ובטופס ההרשמה לפי מה שנשמר כאן.</span><button class="btn primary" id="rSave" type="button">שמירה</button></div></div>`;
+    const readRules = () => { b.querySelectorAll(".br-xr").forEach(el => { const x = rules[Number(el.dataset.i)]; el.querySelectorAll("[data-k]").forEach(f => { const k = f.dataset.k; x[k] = f.type === "checkbox" ? f.checked : f.type === "number" ? Number(f.value) : f.value; }); }); };
     const readCo = () => { const o = {}; CONFIG.cities.forEach(c => o[c] = []); b.querySelectorAll("[data-off]").forEach(x => { if (x.checked) o[x.dataset.off].push(x.dataset.ok); }); return o; };
-    b.querySelectorAll("[data-off]").forEach(x => x.onchange = () => { readRules(); Object.assign(co, readCo()); paint(); });
-    b.querySelectorAll("[data-add]").forEach(x => x.onclick = () => { readRules(); Object.assign(co, readCo()); rules.push(x.dataset.add === "late_join" ? { type: "late_join", active: true, city: "", from_day: 20, percent: 50, apply: "last", note: "לברר: מאיזה תשלום להוריד" } : { type: "text", active: true, city: "", text: "" }); paint(); });
-    b.querySelectorAll("[data-del]").forEach(x => x.onclick = async () => { if (!await uiConfirm("למחוק את החוק?")) return; readRules(); Object.assign(co, readCo()); rules.splice(Number(x.dataset.del), 1); paint(); });
+    const readFee = () => b.querySelectorAll("[data-fee]").forEach(x => { const [c, k] = x.dataset.fee.split("|"); fee[c][k] = x.value === "" ? null : Number(x.value); });
+    const keep = () => { readRules(); readFee(); Object.assign(co, readCo()); };
+    const amtPaint = () => { keep(); CONFIG.cities.forEach(c => { const sel = co[c] || [], F = fee[c], amt = (sel.includes("materials") ? Number(F.mat || 0) : 0) + (sel.includes("registration") ? Number(F.reg || 0) : 0), el = b.querySelector(`[data-amt="${c}"]`); if (el) el.textContent = amt ? "= " + money(amt) : "בלי קיזוז"; }); };
+    b.querySelectorAll("[data-off]").forEach(x => x.onchange = amtPaint);
+    b.querySelectorAll("[data-fee]").forEach(x => x.oninput = amtPaint);
+    b.querySelectorAll("[data-add]").forEach(x => x.onclick = () => { keep(); rules.push(x.dataset.add === "late_join" ? { type: "late_join", active: true, city: "", from_day: 20, percent: 50, apply: "last", note: "" } : { type: "text", active: true, city: "", text: "" }); paint(); });
+    b.querySelectorAll("[data-del]").forEach(x => x.onclick = async () => { if (!await uiConfirm("למחוק את החוק?")) return; keep(); rules.splice(Number(x.dataset.del), 1); paint(); });
     $("rSave").onclick = async () => {
-      const d = Number($("rDay").value); if (!(d >= 1 && d <= 28)) { toast("יום 1-28"); return; }
-      readRules(); const offs = readCo();
+      const d = Number($("rDay").value); if (!(d >= 1 && d <= 28)) { toast("יום החיוב: 1-28"); return; }
+      keep(); const offs = readCo();
       const bad = rules.find(x => x.type === "late_join" && (!(x.from_day >= 2 && x.from_day <= 31) || !(x.percent >= 0 && x.percent <= 100)));
       if (bad) { toast("בחוק ההצטרפות: יום 2-31 ואחוז 0-100"); return; }
-      const p = { charge_day: d, last_month: Number($("rLast").value), june_offset: Object.values(offs).some(a => a.length), alert_email: $("rMail").value.trim(), note: $("rNote").value, city_offsets: offs, extra_rules: rules };
+      const badFee = Object.values(fee).some(f => [f.reg, f.mat].some(v => v != null && !(v >= 0 && v <= 5000))); if (badFee) { toast("סכום לא תקין"); return; }
+      const p = { charge_day: d, last_month: Number($("rLast").value), june_offset: Object.values(offs).some(a => a.length), alert_email: $("rMail").value.trim(), note: $("rNote").value, city_offsets: offs, extra_rules: rules,
+        no_materials_from: $("rNmOn").checked ? $("rNmM").value + "-" + String($("rNmD").value).padStart(2, "0") : "" };
       $("rSave").disabled = true;
-      try { const back = await call("billing_rules_save", { p }); const got = back && typeof back === "object" ? back : await call("billing_rules_get");
-        toast(got && got.city_offsets ? "החוקים נשמרו" : "נשמר - אבל השרת עוד לא שומר חוקים לפי עיר (צריך עדכון בצ'אט איקרדיט)"); render(); }
+      try {
+        // דמי הרשמה וחומרי תרגול – בטבלת המחירים (reg_prices) של השנה, רק מה שהשתנה
+        for (const c of CONFIG.cities) { const P = REG_PRICES[c] || {}, F = fee[c], body = {};
+          if ((P.registrationFee ?? null) !== F.reg) body.registration_fee = F.reg; if ((P.materialsFee ?? null) !== F.mat) body.materials_fee = F.mat;
+          if (Object.keys(body).length) { await patch("reg_prices", "school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&city=eq." + encodeURIComponent(c), body); P.registrationFee = F.reg; P.materialsFee = F.mat; const row = rpRow(c); if (row) Object.assign(row, body); } }
+        const back = await call("billing_rules_save", { p }); toast("נשמר"); render(); }
       catch(e) { $("rSave").disabled = false; toast("לא נשמר: " + e.message); }
     };
   };
