@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.32">
+<meta name="app-version" content="5.21.33">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5702,7 +5702,7 @@ function dupFind(st, fam, exceptSid){
   return out;
 }
 const dupCard = (l) => { const s = l.student || {}, f = s.family || {};
-  return `<b>${esc((s.first_name || "") + " " + (s.last_name || ""))}</b> <span class="muted">#${s.id}</span><div class="muted" style="font-size:13px">${[statusName(l.status_id), s.grade ? "שכבה " + s.grade + (s.class_num ? s.class_num : "") : "", s.school || "", f.parent1_first ? "הורה: " + f.parent1_first + (f.parent1_phone ? " " + f.parent1_phone : "") : "", s.phone ? "נייד: " + s.phone : "", "נוצר " + fmtIso(String(l.created_at || s.created_at || "").slice(0, 10))].filter(Boolean).map(esc).join(" · ")}</div>`; };
+  return `<b>${esc((s.first_name || "") + " " + (s.last_name || ""))}</b> <span class="muted">#${s.id}</span><div class="muted" style="font-size:13px">${[statusName(l.status_id), s.grade ? "שכבת " + s.grade + (s.class_num ? s.class_num : "") : "", s.school || "", f.parent1_first ? "הורה: " + f.parent1_first + (f.parent1_phone ? " " + f.parent1_phone : "") : "", s.phone ? "נייד: " + s.phone : "", "נוצר " + fmtIso(String(l.created_at || s.created_at || "").slice(0, 10))].filter(Boolean).map(esc).join(" · ")}</div>`; };
 // חלון איחוד: מתחילים מילד/ה אחד/ת, בוחרים את הכפול (הצעות לפי הכללים + חיפוש בשם), ואז מי נשאר
 function mergeDlg(sid, preferKeep, after){
   const me = (L.leads || []).find(l => Number(l.student_id) === Number(sid)); if (!me) { toast("לא נמצא כרטיס"); return; }
@@ -6585,7 +6585,7 @@ const qrLoad = () => QR_LIB || (QR_LIB = new Promise((ok, no) => { if (window.QR
 async function clsShowQr(k){
   const sch = ((L.schools || []).find(x => x.id === k.school_id) || {}).name || "", u = clsUrl(k.code);
   const bg = document.createElement("div"); bg.className = "ui-dlg-bg cls-qr-bg";
-  bg.innerHTML = `<div class="ui-dlg cls-qr" role="dialog" aria-modal="true"><div class="cls-qr-t">טופס התעניינות · ${esc(sch)} · שכבה ${esc(k.grade)}</div><div class="cls-qr-c" id="clsQrC"><div class="muted">טוען…</div></div>
+  bg.innerHTML = `<div class="ui-dlg cls-qr" role="dialog" aria-modal="true"><div class="cls-qr-t">טופס התעניינות · ${esc(sch)} · שכבת ${esc(k.grade)}</div><div class="cls-qr-c" id="clsQrC"><div class="muted">טוען…</div></div>
     <div class="cls-qr-u" dir="ltr">${esc(u)}</div><div class="ui-dlg-b"><button type="button" class="btn" data-cp>העתקה</button><button type="button" class="btn" data-x>סגירה</button></div></div>`;
   document.body.appendChild(bg); const close = () => bg.remove(); bg.querySelector("[data-x]").onclick = close; bg.addEventListener("click", (e) => { if (e.target === bg) close(); });
   bg.querySelector("[data-cp]").onclick = () => copyText(u);
@@ -6612,7 +6612,7 @@ async function clsPaint(){
   M.querySelectorAll("[data-clsqr]").forEach(b => b.onclick = () => clsShowQr(rows.find(k => k.id === Number(b.dataset.clsqr))));
   M.querySelectorAll("[data-clscp]").forEach(b => b.onclick = () => copyText(clsUrl(rows.find(k => k.id === Number(b.dataset.clscp)).code)));
   M.querySelectorAll("[data-clsx]").forEach(b => b.onclick = async () => { const k = rows.find(x => x.id === Number(b.dataset.clsx));
-    if (!await uiConfirm(`לבטל את הקישור של ${sc(k.school_id).name || ""} שכבה ${k.grade}? מי שיפתח אותו יראה שהטופס לא פעיל. אפשר ליצור קישור חדש ב"+ הוספה".`)) return;
+    if (!await uiConfirm(`לבטל את הקישור של ${sc(k.school_id).name || ""} שכבת ${k.grade}? מי שיפתח אותו יראה שהטופס לא פעיל. אפשר ליצור קישור חדש ב"+ הוספה".`)) return;
     try { await patch("class_links", "id=eq." + k.id, { cancelled_at: new Date().toISOString() }); clsPaint(); } catch(e) { toast("לא נשמר: " + e.message); } });
   $("clsMake").onclick = async (e) => { const b = e.currentTarget; if (!sch.value || !gr.value) { toast("בוחרים עיר, בית ספר ושכבה"); return; }
     const ex = rows.find(k => String(k.school_id) === sch.value && k.grade === gr.value); if (ex) { clsShowQr(ex); return; }
@@ -7494,7 +7494,7 @@ async function loadLeadExams(l){
   delete box.dataset.sum;
   if (list.length) box.dataset.sum = `${list.length === 1 ? "מבחן אחד" : list.length + " מבחנים"} · הקרוב ${fmtIso(list[0].exam_date)} (${list[0].kind})`;   // 5.19.42
   else box.dataset.sum = stu ? "📓 לומדים עכשיו" + (stu.topics ? ": " + String(stu.topics).slice(0, 60) : "") : (sch.name && s.grade ? "אין מבחנים קרובים ידועים" : "חסרים בית ספר או כיתה בכרטיס");
-  if (!list.length) { box.innerHTML = stuH + `<span class="muted">${sch.name && s.grade ? "אין מבחנים קרובים ידועים ל" + esc(sch.name) + " שכבה " + esc(gradeKey(s.grade)) + "'." : "חסרים בית ספר או כיתה בכרטיס."}</span>`; return; }
+  if (!list.length) { box.innerHTML = stuH + `<span class="muted">${sch.name && s.grade ? "אין מבחנים קרובים ידועים ל" + esc(sch.name) + " שכבת " + esc(gradeKey(s.grade)) + "'." : "חסרים בית ספר או כיתה בכרטיס."}</span>`; return; }
   box.innerHTML = stuH + list.map(e => `<div class="ex-row${EX_MAKEUP.test(e.kind) ? " mk" : ""}">${EX_MAKEUP.test(e.kind) ? `<b>${esc(fmtIso(e.exam_date))}</b>` : `<span class="ex-date${exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span>`} · ${esc(e.kind)}${e.topics ? `<div class="ex-topics">${exTopicsHtml(e.topics)}</div>` : ""}${e.material ? `<div class="muted">קובץ: ${esc(e.material)}</div>` : ""}</div>`).join("");
 }
 
@@ -9207,7 +9207,7 @@ function openMarathonEditor(m, inPanel, pre){
   if (g("hak")) { g("hak").addEventListener("input", () => { hakAuto = null; if (g("hakhint")) g("hakhint").hidden = true; }); g("school").addEventListener("change", hakFromSchool); hakFromSchool(); }
   // 5.20.36 (נועה 2.11): בית הספר והשכבה בגדול למעלה (נשאר בגלילה); סיכום ההקבצות בשורה; הטקסט שנבנה לטופס
   const headPaint = () => { const h = g("head"); if (!h) return; const sc = g("school").value, gr = g("grade") ? g("grade").value : "";
-    h.innerHTML = `<span class="me-h-t">${m ? "עריכת מרתון" : "מרתון חדש"}</span>${sc ? scChip(sc) : `<span class="muted">בלי בית ספר</span>`}${gr ? `<span class="me-h-g">שכבה ${esc(gr)}'</span>` : ""}<span class="me-h-c">${esc(g("city").value)}</span>`; };
+    h.innerHTML = `<span class="me-h-t">${m ? "עריכת מרתון" : "מרתון חדש"}</span>${sc ? scChip(sc) : `<span class="muted">בלי בית ספר</span>`}${gr ? `<span class="me-h-g">שכבת ${esc(gr)}'</span>` : ""}<span class="me-h-c">${esc(g("city").value)}</span>`; };
   const hakSum = () => { const ta = g("hak"), sm = g("haksum"); if (!ta || !sm) return; const l = ta.value.split("\n").map(x => x.trim()).filter(Boolean);
     sm.textContent = l.length ? l.join(" · ") + (ta.value === hakAuto ? " (של בית הספר)" : "") : "הרשימה הקבועה"; };
   if (g("hak")) { g("hak").addEventListener("input", hakSum); const hf = hakFromSchool; g("school").addEventListener("change", () => setTimeout(hakSum, 600)); setTimeout(hakSum, 700); hakSum(); }
@@ -11844,7 +11844,7 @@ async function renderRegMarathons(city){   // city = "*" - כל הערים יח�
       : `<div class="muted">${ALL ? "אין מרתונים השנה." : "אין מרתונים בעיר הזאת."} יוצרים מרתון בלוח המבחנים (טאב "מרתונים").</div>`}`;
   box.querySelectorAll("[data-rmkids]").forEach(b => b.onclick = async () => { await ensureG(true); const m = (G.marathons || []).find(x => x.id === Number(b.dataset.rmkids)); if (m) openMarathonPanel(m); });
   box.querySelectorAll("[data-rmcxl]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmcxl));
-    const why = await uiPrompt(`🏫 ${m.school || "בלי בית ספר"}${m.grade ? " · שכבה " + m.grade + "'" : ""}${m.city ? " · " + m.city : ""}\n"${m.name}" לא יתקיים.\nהמרתון ייסגר להרשמה, ומי שלא שילם יסומן "בוטל". למי ששילם תופיע רשימת החזרים.\n\nסיבה (לא חובה):`, "אין מספיק נרשמים", { ok: "אישור - לא יתקיים", danger: true, multi: false });
+    const why = await uiPrompt(`🏫 ${m.school || "בלי בית ספר"}${m.grade ? " · שכבת " + m.grade + "'" : ""}${m.city ? " · " + m.city : ""}\n"${m.name}" לא יתקיים.\nהמרתון ייסגר להרשמה, ומי שלא שילם יסומן "בוטל". למי ששילם תופיע רשימת החזרים.\n\nסיבה (לא חובה):`, "אין מספיק נרשמים", { ok: "אישור - לא יתקיים", danger: true, multi: false });
     if (why === null) return;
     b.disabled = true;
     try { await patch("marathons", "id=eq." + m.id, { is_open: false, cancelled_at: new Date().toISOString(), cancel_reason: why.trim() || null });
