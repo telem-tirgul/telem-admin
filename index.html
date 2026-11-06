@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.39">
+<meta name="app-version" content="5.21.40">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4628,6 +4628,9 @@ async function loadLeads(){
       if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads();
       return L.hist; });
   if (!L.hist) L.hist = {};
+  // נועה 6.11 (מהירות): גם מועדי המרתונים וההודעות על השיבוץ – במקביל לרשימה (קודם אחריה, אחד אחרי השני)
+  const marSesP = get("sessions", "select=marathon_id,meeting_dates&kind=eq." + encodeURIComponent("מרתון") + "&marathon_id=not.is.null"); marSesP.catch(() => {});
+  const ntcP = loadNotices();
   const [leads, notes, asg, mreg, masg] = await Promise.all([
     // 5.19.103 (נועה): בכניסה – רק הכרטיסים הפעילים (מה שרואים בדיפולט); הלא פעילים (כ-11,000 עם "שנים קודמות") – ברקע, מיד אחרי
     getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.true&order=updated_at.desc,id.desc")
@@ -4646,7 +4649,7 @@ async function loadLeads(){
   L.pendReg = {}; if (ME.role !== "instructor") get("pending_phone_payments", "select=kind,order_id,student_id,first_name,last_name,what,amount&kind=eq.registration")
     .then(r => { L.pendReg = {}; r.forEach(x => { L.pendReg[x.student_id] = x; }); }).catch(() => {});
   // 5.19.143 (נועה 26.10): 🏁 ליד הסטטוס – רק מרתונים שעוד לא עברו (עד 14 יום אחרי המבחן / המפגש האחרון); מרתון של שנה שעברה – לא
-  let marLast = {}; try { (await get("sessions", "select=marathon_id,meeting_dates&kind=eq." + encodeURIComponent("מרתון") + "&marathon_id=not.is.null")).forEach(x => { const d = (x.meeting_dates || []).slice().sort().pop(); if (d && (!marLast[x.marathon_id] || d > marLast[x.marathon_id])) marLast[x.marathon_id] = d; }); } catch(e) {}
+  let marLast = {}; try { (await marSesP).forEach(x => { const d = (x.meeting_dates || []).slice().sort().pop(); if (d && (!marLast[x.marathon_id] || d > marLast[x.marathon_id])) marLast[x.marathon_id] = d; }); } catch(e) {}
   const marLim = addDays(todayIL(), -14), marCur = (r) => { const m = r.marathon || {}, d = [m.event_date, marLast[m.id]].filter(Boolean).sort().pop(); return !d || d >= marLim; };
   L.mar = {}; mreg.filter(marCur).forEach(r => (L.mar[r.student_id] = L.mar[r.student_id] || []).push(r));
   // 5.19.160 (נועה 30.10): "רק להשאיר פרטים" בטופס המרתון (התעניינות) – גם 🏁, כדי לדעת במה התעניין/ה
@@ -4660,7 +4663,7 @@ async function loadLeads(){
       if (currentView === "leads" && typeof updSafe === "function" && updSafe()) renderLeads(); }).catch(() => {});
   L.marAsg = {}; setMarAsg(masg); L.masgSig = null;
   if (ME.role === "admin") get("portal_accounts", "select=student_id").then(r => { L.tsAcc = new Set(r.map(x => Number(x.student_id))); if (currentView === "leads" && updSafe() && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads(); }).catch(() => {});
-  await loadNotices();
+  await ntcP;
   // משובצים ב-L.asg, שיבוצים מוצעים ("ממתין") ב-L.prop
   setAsg(asg); L.asgSig = null;
   L.leads = leads.filter(l => l.student);
@@ -5788,25 +5791,28 @@ async function manualPaidRows(o){
 }
 let LP_OPEN = false, LP_CACHE = null;
 const lpEmptySlots = () => { const g = $("leadGroups"); if (g) g.querySelectorAll(".lg-pay-slot").forEach(x => x.innerHTML = ""); };   // 5.19.63: לפתוח את "💳 תשלומים" בכרטיס (מהתזכורת / מהתיבה)
+// נועה 6.11 (מהירות): רשימת הוראות הקבע (של כולם) – פעם בדקה, לא בכל פתיחת כרטיס
+let PLANS_C = null;
+function plansCached(){ if (PLANS_C && Date.now() - PLANS_C.at < 60000) return PLANS_C.p; const x = { at: Date.now() }; x.p = rpc("recurring_plans_list").then(r => r || []); x.p.catch(() => { if (PLANS_C === x) PLANS_C = null; }); PLANS_C = x; return x.p; }
 async function loadLeadPayments(l){
   const box = $("leadPayments"); if (!box || ME.role === "instructor") return;
-  let rows = [];
-  try { rows = await rpc("student_payments", { p_student: l.student.id }) || []; } catch(e) { return; }
-  try { rows = rows.concat(await manualPaidRows({ sid: l.student.id })); } catch(e) {}
+  // נועה 6.11 (מהירות): כל הבקשות של התשלומים בכרטיס – במקביל (קודם 6 בקשות אחת אחרי השנייה)
+  const sid = l.student.id;
+  const [rows0, man, en, mr, plAll, pend0] = await Promise.all([
+    rpc("student_payments", { p_student: sid }).then(r => r || [], () => null),
+    manualPaidRows({ sid }).catch(() => []),
+    get("enrollments", "select=id,subject,city,paid_at&student_id=eq." + sid + "&paid_at=not.is.null&status=eq." + encodeURIComponent("פעיל") + "&order=id.desc").catch(() => []),
+    get("marathon_registrations", "select=id,paid_at,marathon:marathons(name)&student_id=eq." + sid + "&status=eq." + encodeURIComponent("שולם") + "&order=id.desc").catch(() => []),
+    plansCached().catch(() => []),
+    get("pending_phone_payments", "select=*&student_id=eq." + sid).catch(() => []),
+    crsLoad().then(ok => ok && crsEnsureStudent(sid)).catch(() => {})]);
+  if (rows0 == null) return;
+  let rows = rows0.concat(man || []);
   // 5.19.58: הרשמות שסומנו "שולם" - עם "↩ ביטול שולם" (mark_unpaid, icredit-18). השרת מסרב אם יש תשלום אמיתי.
-  let paidRegs = [];
-  try { const sid = l.student.id;
-    const [en, mr] = await Promise.all([
-      get("enrollments", "select=id,subject,city,paid_at&student_id=eq." + sid + "&paid_at=not.is.null&status=eq." + encodeURIComponent("פעיל") + "&order=id.desc").catch(() => []),
-      get("marathon_registrations", "select=id,paid_at,marathon:marathons(name)&student_id=eq." + sid + "&status=eq." + encodeURIComponent("שולם") + "&order=id.desc").catch(() => [])]);
-    paidRegs = en.map(x => ({ kind: "registration", id: x.id, what: "הרשמה לתרגולים" + (x.subject ? " · " + x.subject : ""), at: x.paid_at }))
-      .concat(mr.map(x => ({ kind: "marathon", id: x.id, what: (x.marathon && x.marathon.name) || "מרתון", at: x.paid_at })));
-  } catch(e) {}
+  const paidRegs = (en || []).map(x => ({ kind: "registration", id: x.id, what: "הרשמה לתרגולים" + (x.subject ? " · " + x.subject : ""), at: x.paid_at }))
+    .concat((mr || []).map(x => ({ kind: "marathon", id: x.id, what: (x.marathon && x.marathon.name) || "מרתון", at: x.paid_at })));
   // 5.19.63 (נועה): הכול בכרטיס התלמיד - גם הוראות הקבע והתשלום הטלפוני שממתין (בלי מסך נפרד)
-  let plans = [], pend = [];
-  try { plans = ((await rpc("recurring_plans_list")) || []).filter(p => Number(p.student_id) === Number(l.student.id)); } catch(e) {}
-  try { pend = await get("pending_phone_payments", "select=*&student_id=eq." + l.student.id); } catch(e) {}
-  try { if (await crsLoad()) await crsEnsureStudent(l.student.id); } catch(e) {}
+  const plans = (plAll || []).filter(p => Number(p.student_id) === Number(sid)), pend = pend0 || [];
   if (!editing || editing.id !== l.id) return;
   LP_CACHE = null; box.innerHTML = "";
   if (!rows.length && !paidRegs.length && !plans.length && !pend.length) { lpEmptySlots(); return; }
@@ -5828,7 +5834,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
       return `<div class="lp-reg lp-plan" data-pli="${plans.indexOf(p)}"><span><b>${fmtMoney(p.monthly_amount)}</b> לחודש · ${p.charged_count || 0}/${p.total_count || "?"} חיובים${["active", "paused", "failed"].includes(p.status) && p.next_charge_date && rem ? ` · הבא ${esc(dm(p.next_charge_date))} · נשארו ${rem}` : ""}${p.card_last4 ? ` · <span dir="ltr">•••• ${esc(p.card_last4)}</span>` : ""}${p.description ? `<div class="muted">${esc(p.description)}</div>` : ""}${planMarked(p) ? `<div class="muted">${planMarkInfo(p)}</div>` : ""}</span><span class="lp-plan-e"><span class="lp-st ${["active", "done"].includes(p.status) ? "ok" : p.status === "paused" ? "" : "no"}">${esc(PST[p.status] || p.status)}</span>${planMarkBtns(p, "lpcx")}</span></div>`; }).join("")}</div>` : "";
   const pendHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">📞 ממתין לתשלום טלפוני</div>${ix.map(i => [pend[i], i]).map(([x, i]) => `<div class="lp-reg"><span>${pendWhat(x, l.student.id)}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">+ ${fmtMoney(x.monthly_amount)} לחודש</span>` : ""}</span><button type="button" class="btn small primary" data-lppaid="${i}">שולם</button></div>`).join("")}</div>` : "";
   // 5.20.18 (נועה, הכרטיס החדש – שלב 2): התשלומים – בתוך הקורס שלהם; מה שלא שייך לקורס פעיל – בקופסה הכללית למטה
-  const sid = l.student.id, cms = CRS.ok ? crsOfStudent(sid).filter(m => !crsGone(m) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id)) : [];
+  const cms = CRS.ok ? crsOfStudent(sid).filter(m => !crsGone(m) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id)) : [];
   const marCm = (CRS.ok ? crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && CRS.byId[m.course_id].marathon_id) : []), regCm = cms.find(m => !CRS.byId[m.course_id].marathon_id && crsCat(CRS.byId[m.course_id].category_id).kind !== "event" && !/summer/.test(mTrk(m) || ""));
   const marOf = (txt) => { if (marCm.length === 1) return marCm[0]; const t = String(txt || ""); return marCm.find(m => { const c = CRS.byId[m.course_id], o = (CRS.mar || {})[c.marathon_id] || {}; return [c.name, o.name].filter(Boolean).some(n => t.includes(n)); }) || null; };
   const B = {}, put = (m, k, i) => { const key = m ? m.id : "rest"; (B[key] = B[key] || { rows: [], pend: [], regs: [], plans: [] })[k].push(i); };
