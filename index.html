@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.23">
+<meta name="app-version" content="5.21.24">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6136,12 +6136,14 @@ async function signWire(sid){
   const paint = (box) => {
     const mid = Number(box.dataset.sgm), m = crsOfStudent(sid).find(x => x.id === mid) || {}, c = CRS.byId[m.course_id] || {};
     const k = links.find(x => x.course_member_id === mid && live(x)), btn = box.querySelector("[data-sgn]"), stEl = box.querySelector(".lc-sign-st"); const mtEl = (box.closest(".stp-s") || box).querySelector(".lc-sign-meta") || { set textContent(v){} };
-    btn.hidden = !!k; { const okb = box.querySelector("[data-sgok]"); if (okb) okb.hidden = false; }
+    // נועה 6.11: קישור אישי רק לטופס ההרשמה (קורס עם עיר) או לטופס המרתון (מרתון עם קוד) – לא לטופס החתימה הכללי
+    const mc0 = c.marathon_id && ((CRS.mar || {})[c.marathon_id] || {}).code, can = c.marathon_id ? !!mc0 : !!crsCity(c);
+    btn.hidden = !!k || !can; { const okb = box.querySelector("[data-sgok]"); if (okb) okb.hidden = false; }
     if (!k) { stEl.innerHTML = ""; mtEl.textContent = ""; return; }
     const mc = c.marathon_id && ((CRS.mar || {})[c.marathon_id] || {}).code, u = mc ? lkMarCode(mc) + "&c=" + k.code : c.marathon_id || !crsCity(c) ? signUrl(k.code) : lkReg(crsCity(c), "") + "&phone=1&c=" + k.code,   /* 5.21.18 (נועה 5.11): מרתון – טופס המרתון עצמו, ממולא */ lab = [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ");   // 5.21.6 (נועה): תרגול שוטף – טופס ההרשמה עצמו, ממולא מהכרטיס (עם המחירים); מרתון – עדיין טופס החתימה
     const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, זה טופס ההרשמה של ${st.first_name || ""} (${lab}) – הפרטים כבר ממולאים, נשאר לאשר ולחתום: ${u}`;
     const pd = String(f.parent1_phone || "").replace(/\D/g, ""), wa = /^0\d{8,9}$/.test(pd) ? `https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}` : "";
-    stEl.innerHTML = `<button type="button" class="btn small primary" data-copy="${esc(u)}" title="העתקת הקישור לטופס">⧉ העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}`; mtEl.textContent = "נשלח " + fmtDM(String(k.created_at).slice(0, 10)) + " · " + (k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח");
+    stEl.innerHTML = `<span class="muted lc-sign-exp" title="קישור חד-פעמי – ננעל כשההורה שולח">עד ${fmtDM(String(k.expires_at).slice(0, 10))}</span> <button type="button" class="btn small primary" data-copy="${esc(u)}" title="העתקת הקישור לטופס">⧉ העתקה</button>${wa ? ` <a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}`; mtEl.textContent = "נשלח " + fmtDM(String(k.created_at).slice(0, 10)) + " · " + (k.opened_at ? "נפתח, עוד לא נחתם" : "עוד לא נפתח");
     stEl.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
   };
   boxes.forEach(box => { const ok = box.querySelector("[data-sgok]"); if (ok) ok.onclick = async () => {   // 5.20.2 (נועה): טופס שהתקבל מחוץ למערכת
@@ -6154,7 +6156,7 @@ async function signWire(sid){
     const b = e.currentTarget, mid = Number(box.dataset.sgm), m = crsOfStudent(sid).find(x => x.id === mid) || {}, c = CRS.byId[m.course_id] || {};
     b.disabled = true;
     try {
-      const r = await api("POST", "/rest/v1/sign_links", { student_id: sid, course_member_id: mid, course_label: [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · ") }, { "Prefer": "return=representation" });
+      const r = await api("POST", "/rest/v1/sign_links", { student_id: sid, course_member_id: mid, course_label: [crsCatN(c.category_id), crsSeason(c.season_id).name].filter(Boolean).join(" · "), expires_at: new Date(Date.now() + 7 * 864e5).toISOString() }, { "Prefer": "return=representation" });
       const row = Array.isArray(r) ? r[0] : r; if (!row || !row.code) throw new Error("no code");
       links.unshift(row); paint(box); toast("נוצר קישור לחתימה – אפשר לשלוח להורה");
     } catch(err) { toast("לא נוצר קישור: " + err.message); }
@@ -12995,7 +12997,7 @@ function newLink(src, mode, opt){
       <div class="nl-trial nl-trsub" hidden><label class="lbl" for="nTrSub">מקצוע</label><select id="nTrSub"><option value="">בחירת מקצוע</option><option>מתמטיקה</option><option>אנגלית</option></select></div>
       <div class="nl-trial" hidden><label class="lbl" for="nTrStart">תאריך התחלה</label><input type="date" id="nTrStart"></div>
       <div class="nl-trial nl-trcity" hidden><label class="lbl" for="nTrCity">עיר</label><select id="nTrCity"><option value="">בחירת עיר</option>${CONFIG.cities.map(c => `<option>${esc(c)}</option>`).join("")}</select></div>
-      <div class="nl-trial muted nl-hint" style="grid-column:1/-1" hidden>היום – חודש אחד לפי המסלול והעיר. אם ממשיכים – לאחר 4 שבועות: חודש + דמי הרשמה + חומרי תרגול, ואז ב-1 בכל חודש עד יוני. ממשיכים רק כשהסטטוס "נרשם". הקישור בתוקף 7 ימים.</div>
+      <div class="nl-trial muted nl-hint" style="grid-column:1/-1" hidden>היום – חודש אחד לפי המסלול והעיר. אם ממשיכים – לאחר 4 שבועות: חודש + דמי הרשמה + חומרי תרגול, ואז ב-1 בכל חודש עד יוני. ממשיכים רק כשהסטטוס "נרשם". הקישור חד-פעמי – ננעל ברגע שההורה שולח את הטופס.</div>
       <div class="nl-pay"><label class="lbl" for="nOnce">תשלום עכשיו (₪)</label><input type="number" id="nOnce" min="1" max="20000"></div><div class="nl-pay"></div>
       <label class="chk nl-pay nl-recchk" style="grid-column:1/-1"><input type="checkbox" id="nRec"> וגם הוראת קבע חודשית אחרי התשלום</label>
       <div class="nrec" hidden><label class="lbl" for="nMAmt">סכום חודשי (₪)</label><input type="number" id="nMAmt" min="1" max="5000"></div>
@@ -13052,7 +13054,7 @@ function newLink(src, mode, opt){
     $("payPnl").querySelector(".nl-trcity").hidden = TY !== "trial" || !!SID;
     const cf = $("payPnl").querySelector('.nl-f[data-k="city"]'); if (cf) cf.hidden = TY === "trial" && !SID;
     ["track", "subject"].forEach(k => { const f = $("payPnl").querySelector(`.nl-f[data-k="${k}"]`); if (f) f.hidden = TY === "trial"; });   // בניסיון – המסלול והמקצוע נקבעים למעלה   // בניסיון בלי כרטיס – העיר נקבעת למעלה (נעולה להורה)
-    $("nDesc").placeholder = TY === "trial" ? "ריק = \"חודש ניסיון - <המסלול>\"" : TY === "single" ? "שיעור בודד" : "למשל: שיעור פרטי – 3 מפגשים";
+    $("nDesc").placeholder = TY === "trial" ? "ריק – חודש ניסיון + שם המסלול" : TY === "single" ? "שיעור בודד" : "למשל: שיעור פרטי – 3 מפגשים";
     $("nSave").textContent = ed ? "שמירה" : TY === "trial" ? "יצירת קישור לחודש ניסיון" : "יצירת קישור";
     if (set === "single") { if (!$("nDesc").value.trim() || /^חודש ניסיון/.test($("nDesc").value)) $("nDesc").value = "שיעור בודד"; $("nOnce").value = 118; $("nRec").checked = false; $("nRec").onchange(); }
     if (set === "trial" && /^שיעור בודד$/.test($("nDesc").value.trim())) $("nDesc").value = "";
