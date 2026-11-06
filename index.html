@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.36">
+<meta name="app-version" content="5.21.37">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5817,7 +5817,7 @@ async function loadLeadPayments(l){
   // 5.19.64 (נועה): אותה שורה כמו בעסקאות (תאריך · סוג · סכום · סטטוס · כרטיס · 🧾 · טופס חתום)
   const lpRow = (r, i) => { const okr = r.status === "אושר";
     const doc = /^https:\/\//.test(r.document_url || "") ? `<a class="doc-a" href="${esc(r.document_url)}" target="_blank" rel="noopener">🧾 חשבונית${r.document_number ? " " + esc(r.document_number) : ""} ↗</a>` : (r.document_number ? `<span class="muted">🧾 ${esc(r.document_number)}</span>` : "");
-    const lbl = r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב" + (r.charge_no ? " " + r.charge_no : " חודשי") : r.kind === "הרשמה - תשלום ראשון" ? "תשלום חד-פעמי" : (r.kind || "תשלום");
+    const lbl = r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב" + (r.charge_no ? " " + r.charge_no : " חודשי") : r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : (r.kind || "תשלום");
     return `<div class="dx-pay${okr ? "" : " bad"}"><span class="dx-d">${esc(dm(r.date))}</span><span class="dx-k">${esc(lbl)}</span><b>${fmtMoney(r.amount)}</b><span class="lp-st ${okr ? "ok" : "no"}">${okr ? "✓ שולם" : "לא התקבל"}</span>${r.refund_status ? `<span class="lp-st ref">↩ ${esc(r.refund_status)}${r.refund_status !== "זוכה" && Number(r.refunded_amount) ? " " + fmtMoney(r.refunded_amount) : ""}</span>` : ""}
       ${r.card_last4 ? `<span class="muted" dir="ltr">•••• ${esc(r.card_last4)}</span>` : ""}${doc}${r.description ? `<span class="muted">${esc(r.description)}</span>` : ""}
 ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.issue)}</span>` : ""}</div>`; };
@@ -12531,14 +12531,14 @@ async function renderAll(b){
   const deals = buildDeals(rows, qf, qt, ibOpen);
   const qn = /\d/.test(q) && !/[^\d\s\-+().\u200e\u200f\u202a-\u202e\u2010-\u2015]/.test(q) ? digitsQ(q) : q.replace(/[\s\-]/g, "");
   if (!["all", "first", "plan", "mar", "pay"].includes(S.pk)) S.pk = "all";
-  const list = deals.filter(d => (!S.kid || Number(d.student_id) === Number(S.kid.id)) && (S.pk === "all" || d.group === S.pk)
+  const list = deals.filter(d => (!S.kid || Number(d.student_id) === Number(S.kid.id)) && (S.pk === "all" || (S.pk === "plan" ? !!d.plan || d.group === "plan" : d.group === S.pk))
     && (!S.ps || (S.ps === "todo" ? !!d.todo : S.ps === "ref" ? d.pays.some(r => r.refund_status) : S.ps === "נכשל" ? d.pays.some(r => r.status === "נכשל") || (d.plan && ["failed", "error"].includes(d.plan.status)) : d.pays.length && d.pays.every(r => r.status === "אושר")))
     && (!q || d.text.includes(q) || (qn.length >= 3 && /^\d+$/.test(qn) && d.phone.replace(/\D/g, "").includes(qn))));
   const inRng = (r) => { const x = String(r.date || "").slice(0, 10); return x >= qf && x <= qt; };
   const okP = list.flatMap(d => d.pays).filter(r => r.status === "אושר" && inRng(r)), sum = okP.reduce((a, r) => a + Number(r.amount || 0), 0);
-  const nTodo = deals.filter(d => (S.pk === "all" || d.group === S.pk) && d.todo).length;
+  const nTodo = deals.filter(d => (S.pk === "all" || (S.pk === "plan" ? !!d.plan || d.group === "plan" : d.group === S.pk)) && d.todo).length;
   const RNG = [["month", "החודש"], ["prev", "החודש הקודם"], ["30", "30 הימים האחרונים"], ["year", "מתחילת שנת הלימודים"], ["", "טווח תאריכים אחר..."]];
-  const KINDS = [["all", "כל הסוגים"], ["first", "תשלום ראשון (הרשמה)"], ["plan", "הוראות קבע"], ["mar", "מרתונים"], ["pay", "תשלומים אישיים"]];
+  const KINDS = [["all", "כל הסוגים"], ["first", "תרגול שוטף"], ["plan", "עם הוראת קבע"], ["mar", "מרתונים"], ["pay", "תשלומים אישיים"]];
   b.innerHTML = `<div class="filters pay-flt${S.pfOpen ? " open" : ""}">
       <div class="pf-q"><label class="lbl" for="pq2">חיפוש</label><input id="pq2" type="search" placeholder="שם הילד/ה, הורה, טלפון, חשבונית, אישור..." value="${esc(q)}"></div>
       <button type="button" class="btn pf-tog" id="pfTog">סינון נוסף ▾</button>
@@ -12575,7 +12575,7 @@ async function renderAll(b){
   if ($("kidX")) $("kidX").onclick = () => { setKid(null); again(); };
   b.querySelectorAll("tr.deal-r").forEach(tr => tr.onclick = (e) => { if (e.target.closest("a, .name-link, [data-lead]") && !e.target.closest(".dx-tg")) return; tgl(tr); });
   if (S.kid) b.querySelectorAll("tr.deal-r").forEach(tgl);
-  if (S.focus === "plan") { setTimeout(() => { S.focus = ""; }, 5000); const i = list.findIndex(d => d.group === "plan"), tr = i >= 0 && b.querySelector(`tr.deal-r[data-dr="${i}"]`);
+  if (S.focus === "plan") { setTimeout(() => { S.focus = ""; }, 5000); const i = list.findIndex(d => !!d.plan), tr = i >= 0 && b.querySelector(`tr.deal-r[data-dr="${i}"]`);
     if (tr) { tr.classList.add("dr-focus"); if (tr.nextElementSibling) tr.nextElementSibling.classList.add("dr-focus"); setTimeout(() => tr.scrollIntoView({ block: "center", behavior: "smooth" }), 60); } }
   // 5.19.154 (נועה): כפתור אחד – פתיחת / סגירת כל השורות (לפי המצב)
   if ($("dxAll")) $("dxAll").onclick = () => { const all = b.querySelectorAll("tr.deal-r").length, open = b.querySelectorAll("tr.deal-r.dx-open"); if (all && open.length === all) open.forEach(tgl); else b.querySelectorAll("tr.deal-r:not(.dx-open)").forEach(tgl); dxPaint(); };
@@ -12608,17 +12608,19 @@ function buildDeals(rows, qf, qt, ibOpen){
     deals.push(o); };
   const planHtml = (p) => `${stChip(p.status)} <span class="muted">${p.charged_count || 0}/${p.total_count || "?"}</span>`;
   // 5.19.60 (הלקוחה): עמודת הסוג = כמו בסינון (תרגולים שוטפים / מרתון / תשלום אישי); מבנה התשלום בשורה קטנה מתחת
-  const GK = { first: ["k-reg", "תשלום ראשון"], plan: ["k-mon", "הוראת קבע"], mar: ["k-mar", "מרתון"], pay: ["k-pay", "תשלום אישי"] };
+  const GK = { first: ["k-reg", "תרגול שוטף"], plan: ["k-reg", "תרגול שוטף"], mar: ["k-mar", "מרתון"], pay: ["k-pay", "תשלום אישי"] };
   const kindH = (g, sub) => `<span class="chip kchip ${GK[g][0]}">${GK[g][1]}</span>${sub ? `<div class="muted k-sub">${sub}</div>` : ""}`;
   // 5.19.61 (הלקוחה): תשלום ראשון והוראת הקבע - שתי שורות נפרדות (בפרטים רואים את שתיהן יחד)
   const firstOf = {};
+  // נועה 6.11 (תש-51): עסקה אחת לתרגול השוטף – בשורה הראשית "תרגול שוטף"; בפירוט: תשלום ראשון (עם החשבונית) בשורה אחת והוראת הקבע בשורה שנייה
   rows.filter(r => r.kind === "הרשמה - תשלום ראשון").forEach(r => { const p = planFor(r); if (p) { used.add(p.id); firstOf[p.id] = r; }
-    mk({ group: "first", date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, plan: p, pays: [r], desc: r.description || (p && p.description) || "",
-      kindTxt: "תשלום ראשון", kindHtml: kindH("first", p ? "יש הוראת קבע" : ""), amountHtml: `<b>${money(r.amount)}</b>`, statusHtml: stPay(r) }); });
+    const ch = p ? (byPlan[p.id] || []).filter(x => x !== r && x.kind !== "הרשמה - תשלום ראשון") : [];
+    mk({ group: "first", date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, plan: p, pays: [r].concat(ch), desc: r.description || (p && p.description) || "",
+      kindTxt: "תרגול שוטף", kindHtml: kindH("first", p ? "תשלום ראשון + הוראת קבע" : "תשלום ראשון"), amountHtml: `<b>${money(r.amount)}</b>${p ? `<div class="muted">+ ${money(p.monthly_amount)} × ${p.total_count || "?"}</div>` : ""}`,
+      statusHtml: stPay(r) + (p ? `<div class="st2">${planHtml(p)}</div>` : "") }); });
   const planRow = (p) => { const ch = byPlan[p.id] || [];
     mk({ group: "plan", date: p.created_at || (ch[0] && ch[0].date), student_id: p.student_id, name: p.student_name, parent: p.parent_name, phone: p.parent_phone, plan: p, first: firstOf[p.id] || null, pays: ch, desc: p.description || "",
-      kindTxt: "הוראת קבע", kindHtml: kindH("plan", ""), amountHtml: `<b>${money(p.monthly_amount)}</b><div class="muted">לחודש</div>`, statusHtml: planHtml(p) + (p.status !== "failed" && ch.some(r => r.status === "נכשל") ? `<div class="st2"><span class="chip st-failed">חיוב לא התקבל</span></div>` : "") }); };
-  plans.filter(p => used.has(p.id)).forEach(planRow);
+      kindTxt: "תרגול שוטף", kindHtml: kindH("plan", "הוראת קבע"), amountHtml: `<b>${money(p.monthly_amount)}</b><div class="muted">לחודש</div>`, statusHtml: planHtml(p) + (p.status !== "failed" && ch.some(r => r.status === "נכשל") ? `<div class="st2"><span class="chip st-failed">חיוב לא התקבל</span></div>` : "") }); };
   plans.filter(p => !used.has(p.id) && (live(p) || (byPlan[p.id] || []).length || (d10(p.created_at) >= qf && d10(p.created_at) <= qt))).forEach(p => { used.add(p.id); planRow(p); });
   rows.filter(r => r.kind !== "הרשמה - תשלום ראשון" && !(r.plan_id && used.has(r.plan_id))).forEach(r => {
     mk({ group: r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" ? "plan" : "first", date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, pays: [r], desc: r.description || "",
@@ -12646,7 +12648,7 @@ const payRowHtml = (r, opt) => { opt = opt || {}; const fail = S.failed.find(f =
     ${refHtml(r)}</div>`; };
 // 5.19.63 (נועה): מסך אחד - שורה נפתחת למטה עם פירוט קצר, בלי חלון בצד ובלי מסכי עריכה (העריכה בריווחית)
 function dealExpand(d){
-  const p = d.plan, live = p && d.group === "plan" && ["active", "paused", "failed"].includes(p.status);
+  const p = d.plan, live = p && ["active", "paused", "failed"].includes(p.status);
   const pays = (d.first && !d.pays.includes(d.first) ? [d.first] : []).concat(d.pays).sort((a, c) => String(a.date).localeCompare(String(c.date)));
   const docR = d.first || pays.find(r => r.status === "אושר" && r.kind !== "חיוב חודשי") || null;
   const tel = String(d.phone || "").replace(/[^\d+]/g, "");
@@ -12657,7 +12659,7 @@ function dealExpand(d){
   const pdfB = docR && docR.status === "אושר" ? `<button type="button" class="btn small tx-pdf" data-dxpdf="1">📄 טופס חתום</button>` : "";
   const line = (r) => { const fail = S.failed.find(f => f.id === r.id), iss = S.issues.find(f => f.id === r.id), td = payTodo(r, {});
     const tm = String(r.date || "").length > 10 ? " " + new Date(r.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
-    return `<div class="dx-pay${r.status === "אושר" ? "" : " bad"}"><span class="dx-d">${dmy(r.date)}${tm}</span><span class="dx-k">${r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב " + esc(r.charge_no || "") : esc(r.kind === "הרשמה - תשלום ראשון" ? "תשלום חד-פעמי" : r.kind || "")}</span><b>${money(r.amount)}</b>${stPay(r)}
+    return `<div class="dx-pay${r.status === "אושר" ? "" : " bad"}"><span class="dx-d">${dmy(r.date)}${tm}</span><span class="dx-k">${r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב " + esc(r.charge_no || "") : esc(r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : r.kind || "")}</span><b>${money(r.amount)}</b>${stPay(r)}
       ${r.card_last4 ? `<span class="muted">${card4(r.card_last4)}</span>` : ""}${r.approval ? `<span class="muted">אישור <span dir="ltr">${esc(r.approval)}</span></span>` : ""}${docA(r)}
       ${td || r.reason ? `<span class="dx-why">⚠ ${esc(td || "")}${td && r.reason ? " · " : ""}${esc(r.reason || "")}</span>` : ""}
       <span class="dx-acts">${r === docR ? pdfB : ""}${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי</button>` : ""}</span>
@@ -12670,7 +12672,7 @@ function dealExpand(d){
     ${p ? planLine(p) : ""}
     ${pays.filter(r => r.kind === "חיוב חודשי").map(line).join("")}
     ${live ? `<div class="dx-plan muted">שינויים בהוראת הקבע (סכום, יום חיוב, כרטיס, השהיה, ביטול) – בריווחית. מתעדכן כאן כל בוקר.${planMarkBtns(p, "dxcx")}</div>` : ""}
-    ${p && d.group === "plan" && planMarked(p) ? `<div class="dx-plan"><span class="muted">${planMarkInfo(p)}</span>${planMarkBtns(p, "dxcx")}</div>` : ""}
+    ${p && planMarked(p) ? `<div class="dx-plan"><span class="muted">${planMarkInfo(p)}</span>${planMarkBtns(p, "dxcx")}</div>` : ""}
   </div>`;
 }
 function wireExpand(box, d, reload){
