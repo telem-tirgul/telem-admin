@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.41">
+<meta name="app-version" content="5.21.42">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6682,9 +6682,11 @@ function ftxCollect(fr){
   let w; try { w = fr.contentWindow; if (!w.TX) throw 0; } catch(e) { $("ftxList").innerHTML = `<div class="err">הטופס לא נטען (צריך את גרסת הטפסים 5.19.100).</div>`; return; }
   FX.w = w; const d = w.document, TX = w.TX, items = [], auto = []; let grp = "פתיחה";
   const HDR = "legend, .sec-h, .terms-box h4, .pm-title, h2, h3, .field-title";
+  // נועה 7.11: כותרת קבוצה = רק כותרת שרואים בטופס, ולא שם של כרטיס מסלול (אחרת הקבוצות מתפצלות)
+  const isHdr = (el) => el.matches(HDR) && !el.closest(".tk, .ti-card, details.tk, [hidden]") && !!el.getClientRects().length;
   d.querySelectorAll("[data-t], " + HDR).forEach(el => {
     if (el.closest("footer")) grp = "תחתית העמוד";
-    else if (el.matches(HDR)) { const g = (el.textContent || "").replace(/\s+/g, " ").trim(); if (g) grp = g.slice(0, 60); }
+    else if (isHdr(el)) { const g = (el.textContent || "").replace(/\s+/g, " ").trim(); if (g) grp = g.slice(0, 60); }
     if (!el.hasAttribute("data-t")) return;
     const k = el.getAttribute("data-t"), ta = el.getAttribute("data-ta");
     if (ta) { ta.split(",").forEach(a => { a = a.trim(); items.push({ el, key: k + "." + a, grp, plain: true, attr: true, crit: true, def: ftxNP((el.__txA && el.__txA[a]) || el.getAttribute("data-" + a) || ""), what: a === "card" ? "נוסח האישור – כשמשלמים באשראי" : a === "phone" ? "נוסח האישור – כשמשלמים בטלפון" : a }); }); return; }
@@ -6709,6 +6711,26 @@ function ftxCollect(fr){
     const key = grp + "|" + s; if (seen.has(key)) continue; seen.add(key);
     auto.push({ grp, text: s });
   }
+  // נועה 7.11: הרשימה לפי סדר ההופעה בטופס (גם טקסטים שנבנים בקוד – לפי המקום שלהם בדף); מה שלא מופיע עכשיו – בסוף הקבוצה שלו
+  { const pos = new Map(), txtPos = []; let g = "פתיחה", n = 0;
+    d.querySelectorAll("[data-t], [data-tx], " + HDR).forEach(el => {
+      if (el.closest("footer")) g = "תחתית העמוד"; else if (isHdr(el)) { const t = (el.textContent || "").replace(/\s+/g, " ").trim(); if (t) g = t.slice(0, 60); }
+      el.__fxPos = n; const k = el.getAttribute("data-tx"); if (k && !pos.has(k) && !el.closest("[hidden]")) pos.set(k, { i: n, g }); n++; });
+    // טקסט פשוט שנבנה בקוד (בלי data-tx) – לפי התאמת הטקסט בדף
+    const vis = [...d.querySelectorAll("body *")].filter(e => !e.children.length || e.childElementCount < 3).filter(e => e.getClientRects().length);
+    const findTxt = (txt) => { const t = String(txt || "").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim(); if (t.length < 3 || /\{/.test(t)) return null;
+      const e = vis.find(x => (x.textContent || "").replace(/\s+/g, " ").trim() === t) || vis.find(x => !x.children.length && (x.textContent || "").replace(/\s+/g, " ").includes(t)); if (!e) return null; let best = null;
+      d.querySelectorAll("[data-t], [data-tx], " + HDR).forEach(x => { if (x.compareDocumentPosition(e) & Node.DOCUMENT_POSITION_FOLLOWING || x === e) best = x; }); return best ? { i: (best.__fxPos || 0) + 0.5, g: null, near: true } : { i: -0.5, g: null, near: true }; };
+    items.forEach((it, j) => { it.ord = j;
+      if (it.el) { it.pos = it.el.__fxPos; return; }
+      let p = pos.get(it.key); if (!p) { const sn = (FX.w && FX.w.TX && FX.w.TX.seen) || {}; for (const t of Object.keys(sn)) { if (sn[t] !== it.key) continue; p = findTxt(t); if (p) break; } }
+      if (p) { it.pos = p.i; it.near = !!p.near; if (p.g && FX.form !== "thank-you") it.grp = p.g; } });
+    if (FX.form === "thank-you") items.forEach(it => { if (it.pos == null) it.grp = "לא מופיע בגרסה שנבחרה (בחירת גרסה מעל התצוגה)"; else if (/^תחתית/.test(it.what || "")) it.grp = "תחתית העמוד"; else if (it.tpl || it.plain) it.grp = "בגרסה שנבחרה – לפי הסדר בדף"; });
+    const placed = items.filter(it => it.pos != null).sort((x, y) => x.pos - y.pos || x.ord - y.ord);
+    if (FX.form !== "thank-you") placed.forEach((it, j) => { if (it.near && j > 0) it.grp = placed[j - 1].grp; });   // באותה קבוצה של מה שלידו בטופס
+    const rest = items.filter(it => it.pos == null), out = placed.slice();
+    rest.forEach(it => { let k = -1; out.forEach((x, j) => { if (x.grp === it.grp) k = j; }); if (k >= 0) out.splice(k + 1, 0, it); else out.push(it); });
+    items.length = 0; out.forEach(x => items.push(x)); }
   FX.items = items; FX.auto = auto; ftxRender(); ftxPreview(); ftxInlineInit();
 }
 const ftxLiveOrDef = (it) => FX.live[it.key] != null ? ftxNV(it, FX.live[it.key]) : it.def;
