@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.29">
+<meta name="app-version" content="5.21.30">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2105,7 +2105,9 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 #payPnl .nl-req input{ width:13px; height:13px; margin:0; accent-color:var(--accent); } #payPnl .nl-f.on .nl-req{ color:#fff; background:var(--accent); border-color:var(--accent); } #payPnl .nl-f.on .nl-req input{ accent-color:#fff; }
 #payPnl .nl-req-demo{ display:inline-block; font-size:11.5px; font-weight:700; color:#fff; background:var(--accent); border-radius:999px; padding:0 8px; }
 #payPnl .nl-lock{ font-size:12px; color:var(--ink-soft); } #payPnl .nl-f.on select, #payPnl .nl-f.on input:not([type=checkbox]){ border-color:var(--accent); }
-#payPnl .nl-type{ margin-bottom:12px; } #payWrap .pl-tr{ background:#FFF3D6; color:#8A5A00; font-size:11.5px; }
+#payPnl .nl-type{ margin-bottom:12px; }
+#payPnl .nl-chk{ display:inline-flex !important; align-items:center; gap:8px; width:auto !important; justify-content:flex-start; font-weight:600; } #payPnl .nl-chk input{ margin:0 !important; width:18px !important; min-width:18px !important; height:18px !important; min-height:18px !important; flex:0 0 auto; padding:0 !important; }
+#payPnl .nl-f2 .nl-lr{ min-height:24px; margin-bottom:4px; } #payPnl #nNote{ min-height:64px; } #payPnl .sec > .grid2{ gap:12px 14px; } #payPnl .nl-type{ display:flex; width:max-content; max-width:100%; } #payWrap .pl-tr{ background:#FFF3D6; color:#8A5A00; font-size:11.5px; }
 #payPnl .nl-stu{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; background:var(--muted); border-radius:8px; padding:8px 10px; } #payPnl .nl-hint{ font-size:12.5px; margin-top:4px; }
 #payPnl .nl-res{ border:1px solid var(--border); border-radius:8px; margin-top:4px; max-height:240px; overflow:auto; background:#fff; } #payPnl .nl-res button{ display:block; width:100%; text-align:right; border:0; border-bottom:1px solid var(--border); background:none; padding:7px 10px; cursor:pointer; font:inherit; } #payPnl .nl-res button:hover{ background:var(--muted); } #payPnl .nl-res > div{ padding:7px 10px; }
 #payWrap .pl-tbl tr.pl-done > td{ opacity:.5; } #payWrap .pl-tbl tr.pl-done:hover > td{ opacity:.85; }
@@ -6274,8 +6276,7 @@ async function loadLeadGroups(studentId){
         $("leadGroups").insertAdjacentHTML("beforeend",
         `<div class="lg-pend">🏁 <b>${esc(x.marathon.name)}</b>${x.session && x.session.time_label ? " · " + esc(x.session.time_label) : ""}<span class="lg-pend-t">⏳ ממתין לתשלום – ישובץ/תשובץ אחרי "שולם"</span></div>`); }); } catch(e) {}
     // 5.19.173 (נועה): "+ הוספה לקורס" – מעל הקורסים; "+ הוספה לקבוצה" – בתוך הקורס של התרגול השוטף (אין – למטה)
-    if ($("lcAddSlot")) $("lcAddSlot").innerHTML = CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcTrial" title="קישור תשלום לחודש ניסיון – להורה">🔗 חודש ניסיון</button><button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : "";
-    if ($("lcTrial")) $("lcTrial").onclick = () => { const sid = editing && editing.student && editing.student.id; if (sid) PAY.newLink(sid, "trial"); };   // 5.19.174: בשורת הכותרת
+    if ($("lcAddSlot")) $("lcAddSlot").innerHTML = CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : "";   // 5.19.174: בשורת הכותרת
     { const gb = $("leadGroups").querySelector(".lg-crs-box.lg-reg"), html = `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></div><div class="lg-edit lg-card" data-ed="new" hidden></div>`;
       const gs = gb && gb.querySelector(".lg-add-slot"); if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
     if ($("lcAdd")) $("lcAdd").onclick = () => { const sid = editing && editing.student && editing.student.id; if (sid !== studentId) { toast("הכרטיס התחלף – פותחים שוב"); return; } const l0 = L.leads.find(x => x.student && x.student.id === sid); if (!l0) return;
@@ -12937,13 +12938,15 @@ async function renderPending(b){
 }
 
 // ---------- 6. תשלום אישי ----------
-const FIELDS = [["parent_name", "שם ההורה"], ["parent_email", "אימייל"], ["parent_phone", "טלפון"], ["student_first", "שם התלמיד/ה"], ["student_last", "שם משפחה"],
-  ["city", "עיר"], ["school", "בית ספר"], ["grade", "שכבה"], ["class_num", "כיתה"], ["track", "מסלול"], ["subject", "מקצוע"]];
+const FIELDS = [["parent_name", "שם ההורה"], ["parent_email", "אימייל"], ["parent_phone", "טלפון הורה"], ["student_first", "שם פרטי תלמיד/ה"], ["student_last", "שם משפחה תלמיד/ה"], ["student_phone", "נייד תלמיד/ה"],
+  ["city", "עיר"], ["school", "בית ספר"], ["grade", "שכבת לימוד"], ["class_num", "מספר כיתה"], ["track", "מסלול"], ["subject", "מקצוע"]];
 // 5.19.45: "פרטים בטופס" מסודר כמו טופס ההרשמה/ההתעניינות - פרטי ההרשמה · פרטי התלמיד/ה · פרטי ההורה, עם שמות ברורים
+// נועה 6.11: בדיוק כמו טופס ההרשמה – אותם שדות, אותם שמות, אותו סדר; שם ההורה בשני שדות (נשמר כ-parent_name)
 const FIELD_SECS = [
-  ["פרטי ההרשמה", [["city", "עיר", "sel"], ["school", "בית ספר", "sel"], ["grade", "שכבה", "sel"], ["class_num", "מספר כיתה", "sel"], ["track", "מסלול", "sel"], ["subject", "מקצוע", "sel"]]],
-  ["פרטי התלמיד/ה", [["student_first", "שם פרטי (תלמיד/ה)"], ["student_last", "שם משפחה (תלמיד/ה)"]]],
-  ["פרטי ההורה", [["parent_name", "שם מלא של ההורה", "", "פרטי + משפחה"], ["parent_phone", "טלפון הורה", "tel"], ["parent_email", "אימייל הורה", "email"]]]
+  ["המסלול", [["track", "מסלול", "sel"], ["subject", "מקצוע", "sel"]]],
+  ["פרטי התלמיד/ה", [["student_first", "שם פרטי תלמיד/ה"], ["student_last", "שם משפחה תלמיד/ה"], ["student_phone", "נייד תלמיד/ה", "tel"]]],
+  ["בית הספר", [["city", "עיר", "sel"], ["school", "בית ספר", "sel"], ["grade", "שכבת לימוד", "sel"], ["class_num", "מספר כיתה", "sel"]]],
+  ["פרטי ההורה", [["parent_name", "שם פרטי הורה", "name2"], ["parent_phone", "טלפון הורה", "tel"], ["parent_email", "אימייל", "email"]]]
 ];
 // 5.21.22 (נועה): טבלת הקישורים לפי תקן הטבלה (חיפוש + סטטוס, שורת מספר / ניקוי / אקסל), ✎ עריכה (לפני שההורה מילא), ⧉ שכפול, וחיבור לכרטיס תלמיד/ה קיים/ת
 // נועה 6.11: התהליך בקישור – כמו בכרטיס התלמיד: נשלח → נפתח → מולא → שולם (בוטל / פג – בלי תהליך)
@@ -13013,7 +13016,7 @@ function newLink(src, mode, opt){
   let SID = opt.sid ? Number(opt.sid) : src && src.student_id ? Number(src.student_id) : null;
   // נועה 6.11 (תש-46): סוג הקישור – תשלום רגיל / שיעור בודד (118 ₪) / חודש ניסיון (trial_link_create)
   let TY = opt.type || (src && /^חודש ניסיון/.test(src.description || "") ? "trial" : src && /^שיעור בודד/.test(src.description || "") ? "single" : "reg");
-  const reqDef = (k) => F[k] ? !!F[k].required : ["parent_name", "parent_phone", "parent_email", "student_first"].includes(k);
+  const reqDef = (k) => F[k] ? !!F[k].required : true;   // נועה 6.11: כמו בטופס ההרשמה – הכול חובה (אפשר לבטל)
   pnlOpen(`<header><div><h2>${ed ? "עריכת קישור אישי" : mode === "dup" ? "קישור חדש – שכפול" : "קישור אישי חדש"}</h2><div class="muted">${ed ? "אותו קישור – ההורה יראה את השינויים כשיפתח אותו." : "נשלח להורה כקישור. מה שממלאים כאן – נעול עבור ההורה."}</div></div><button class="btn small x" type="button">✕</button></header>
     <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${[["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"]].map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
       <div style="grid-column:1/-1"><label class="lbl" for="nDesc">תיאור (יופיע להורה ובחשבונית)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
@@ -13024,7 +13027,7 @@ function newLink(src, mode, opt){
       <div class="nl-trial muted nl-hint" style="grid-column:1/-1" hidden>תשלום חד-פעמי על חודש אחד, לפי מחיר המסלול בעיר. בלי הוראת קבע. אם ממשיכים – שולחים קישור הרשמה מהכרטיס.</div>
       <div style="grid-column:1/-1"><label class="lbl" for="nNote">פירוט – מה כלול בתשלום (לא חובה; מופיע להורה בטופס, לא בחשבונית)</label><textarea id="nNote" rows="3" maxlength="1000" placeholder="למשל: 3 מפגשים של שעה וחצי בימי שלישי, כולל דפי תרגול"></textarea></div>
       <div class="nl-pay"><label class="lbl" for="nOnce">תשלום עכשיו (₪)</label><input type="number" id="nOnce" min="1" max="20000"></div><div class="nl-pay"></div>
-      <label class="chk nl-pay nl-recchk" style="grid-column:1/-1"><input type="checkbox" id="nRec"> וגם הוראת קבע חודשית אחרי התשלום</label>
+      <div class="nl-pay nl-recchk" style="grid-column:1/-1"><label class="chk nl-chk"><input type="checkbox" id="nRec"><span>וגם הוראת קבע חודשית לאחר התשלום</span></label></div>
       <div class="nrec" hidden><label class="lbl" for="nMAmt">סכום חודשי (₪)</label><input type="number" id="nMAmt" min="1" max="5000"></div>
       <div class="nrec" hidden><label class="lbl" for="nMCnt">מספר חיובים חודשיים</label><input type="number" id="nMCnt" min="1" max="24"></div>
       <div class="nrec" hidden><label class="lbl" for="nMFirst">החיוב החודשי הראשון</label><input type="date" id="nMFirst"></div></div></div>
@@ -13034,13 +13037,14 @@ function newLink(src, mode, opt){
         <div class="muted nl-hint">בלי בחירה – ההורה ממלא/ת את הפרטים, ונפתח כרטיס חדש.</div></div></div>
     <div class="sec"><h3>פרטים בטופס</h3><div class="muted" style="margin-bottom:8px">מה שממלאים כאן – נעול להורה. שדה ריק – ההורה ימלא/תמלא.<br>לסמן <span class="nl-req-demo">חובה</span> ליד שם השדה – כשההורה חייב/ת למלא אותו.</div>
       ${FIELD_SECS.map(([h, fs]) => `<div class="nl-sec"><div class="nl-h">${h}</div><div class="nl-grid">${fs.map(([k, t, ty, ph]) => `<div class="nl-f" data-k="${k}"><div class="nl-lr"><label class="lbl" for="nf_${k}">${t}</label><label class="nl-req" title="ההורה חייב/ת למלא את השדה &quot;${t}&quot;"><input type="checkbox" id="nr_${k}" ${reqDef(k) ? "checked" : ""}><span>חובה</span></label><span class="nl-lock" hidden>🔒 נעול</span></div>
-        ${ty === "sel" ? `<select id="nf_${k}"></select>` : `<input type="${ty === "email" ? "email" : ty === "tel" ? "tel" : "text"}" id="nf_${k}"${ty === "tel" || ty === "email" ? ' dir="ltr"' : ""}${ph ? ` placeholder="${ph}"` : ""}>`}</div>`).join("")}</div></div>`).join("")}</div>
+        ${ty === "sel" ? `<select id="nf_${k}"></select>` : ty === "name2" ? `<input type="text" id="nf_${k}_f"><input type="hidden" id="nf_${k}">` : `<input type="${ty === "email" ? "email" : ty === "tel" ? "tel" : "text"}" id="nf_${k}"${ty === "tel" || ty === "email" ? ' dir="ltr"' : ""}${ph ? ` placeholder="${ph}"` : ""}>`}</div>${ty === "name2" ? `<div class="nl-f2"><div class="nl-lr"><label class="lbl" for="nf_${k}_l">שם משפחה הורה</label></div><input type="text" id="nf_${k}_l"></div>` : ""}`).join("")}</div></div>`).join("")}</div>
     <div class="err" id="nErr"></div><div class="acts-row lg-btns"><button class="btn primary" id="nSave" type="button">${ed ? "שמירה" : "יצירת קישור"}</button><button class="btn" id="nCancel" type="button">ביטול</button></div></div>`);
   $("nRec").onchange = () => document.querySelectorAll(".nrec").forEach(x => x.hidden = !$("nRec").checked || TY !== "reg");
   $("nCancel").onclick = pnlClose;
   // רשימות בחירה כמו בטופס ההרשמה (ריק = ההורה יבחר)
   const so = (id, arr) => { $(id).innerHTML = `<option value="">— ההורה יבחר —</option>` + arr.map(v => `<option>${esc(v)}</option>`).join(""); };
-  const sv = (k, v) => { const e = $("nf_" + k); v = v == null ? "" : String(v); if (e.tagName === "SELECT" && v && ![...e.options].some(o => o.value === v)) e.insertAdjacentHTML("beforeend", `<option>${esc(v)}</option>`); e.value = v; };
+  const sv = (k, v) => { const e = $("nf_" + k); v = v == null ? "" : String(v);
+    if (k === "parent_name") { const t = v.trim(), i = t.indexOf(" "); $("nf_parent_name_f").value = i > 0 ? t.slice(0, i) : t; $("nf_parent_name_l").value = i > 0 ? t.slice(i + 1).trim() : ""; e.value = t; return; } if (e.tagName === "SELECT" && v && ![...e.options].some(o => o.value === v)) e.insertAdjacentHTML("beforeend", `<option>${esc(v)}</option>`); e.value = v; };
   so("nf_city", CONFIG.cities); so("nf_school", []); so("nf_grade", GRADES); so("nf_class_num", Array.from({ length: 12 }, (_, i) => String(i + 1)));
   so("nf_track", LK.tracks.map(x => x.t)); so("nf_subject", ["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"]);
   const schools = () => so("nf_school", (LK.schools[$("nf_city").value] || []).concat($("nf_city").value ? ["אחר"] : []));
@@ -13048,9 +13052,10 @@ function newLink(src, mode, opt){
   const lockPaint = () => document.querySelectorAll("#payPnl .nl-f").forEach(f => { const has = !!$("nf_" + f.dataset.k).value.trim(); f.querySelector(".nl-req").hidden = has; f.querySelector(".nl-lock").hidden = !has; f.classList.toggle("on", !has && $("nr_" + f.dataset.k).checked); });
   $("nf_city").onchange = () => { schools(); lockPaint(); };
   $("nf_track").onchange = () => { const d = /שני מקצועות/.test($("nf_track").value); if (d) $("nf_subject").value = "מתמטיקה ואנגלית"; lockPaint(); };
+  ["nf_parent_name_f", "nf_parent_name_l"].forEach(id => $(id).addEventListener("input", () => { $("nf_parent_name").value = [$("nf_parent_name_f").value.trim(), $("nf_parent_name_l").value.trim()].filter(Boolean).join(" "); lockPaint(); }));
   document.querySelectorAll("#payPnl .nl-f input, #payPnl .nl-f select").forEach(e => { if (!e.onchange) e.addEventListener("change", lockPaint); e.addEventListener("input", lockPaint); });
   // תלמיד/ה קיים/ת: הפרטים מהכרטיס נכנסים לטופס (נעולים), והתשלום נרשם בכרטיס – לא נפתח כרטיס חדש
-  const stuOf = (ld) => { const s = ld.student || {}, f = s.family || {}; return { student_first: s.first_name, student_last: s.last_name, parent_name: fullName(f.parent1_first, f.parent1_last), parent_phone: f.parent1_phone, parent_email: f.parent1_email, city: f.city, school: s.school, grade: s.grade, class_num: s.class_num }; };
+  const stuOf = (ld) => { const s = ld.student || {}, f = s.family || {}; return { student_first: s.first_name, student_last: s.last_name, student_phone: s.phone, parent_name: fullName(f.parent1_first, f.parent1_last), parent_phone: f.parent1_phone, parent_email: f.parent1_email, city: f.city, school: s.school, grade: s.grade, class_num: s.class_num }; };
   let stuPaint = () => { const ld = SID && leadOfSid(SID), s = ld && ld.student;
     $("nStuOn").hidden = !SID; $("nStuOff").hidden = !!SID;
     if (SID) $("nStuOn").innerHTML = `<span>🔗 מחובר לכרטיס: <b>${esc(s ? fullName(s.first_name, s.last_name) : (src && src.student_name) || "")}</b>${s && s.family && s.family.parent1_first ? ` <span class="muted">· ${esc(fullName(s.family.parent1_first, s.family.parent1_last))}</span>` : ""}</span><button type="button" class="btn small" id="nStuX">✕ ביטול החיבור</button>`;
