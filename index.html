@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.19">
+<meta name="app-version" content="5.21.20">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6166,6 +6166,9 @@ async function crsGroupsHtml(sid, cur, card){
   const td0 = todayIL(), fin = (c) => { if (c.is_active === false) return true; const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td0; };
   ms.filter(m => CRS.byId[m.course_id].marathon_id && !fin(CRS.byId[m.course_id])).forEach(m => { const c = CRS.byId[m.course_id]; h += `<div class="lg-crs-box" data-cbm="${m.id}">` + crsHead(m) + crsTrackHtml(m);
     const rs = cur.filter(a => !used.has(a.id) && a.session.marathon_id === c.marathon_id); rs.forEach(a => used.add(a.id)); h += crsCards(rs, card) + (!rs.length && m.status === "רשום" && ME.role !== "instructor" ? `<div class="lg-none lg-need">⚠ נרשם/ה למרתון ועוד לא בקבוצה <button type="button" class="btn small" data-margrp="${c.marathon_id}">+ שיבוץ לקבוצת המרתון</button></div>` : "") + crsFoot(m) + `</div>`; });
+  /* 5.21.20 (נועה 6.11): שיבוץ למרתון שהסתיים – לא במסך הראשי (המרתון עצמו – ב"קורסים קודמים") */
+  cur.forEach(a => { if (used.has(a.id) || !isMar(a)) return; const o = (CRS.mar || {})[a.session.marathon_id] || {};
+    const d = [...(o.dates || []), o.first, ...(Array.isArray(a.session.meeting_dates) ? a.session.meeting_dates : [])].filter(Boolean).map(x => String(x).slice(0, 10)).sort().pop(); if (d && d < td0) used.add(a.id); });
   h += cur.filter(a => !used.has(a.id)).map(card).join("");
   // קורסים קודמים (נועה 30.10): מחזורים קודמים, פרש, ומרתון שהסתיים – למטה, מקופל
   const td = todayIL(), done = (c) => c.marathon_id && (c.is_active === false || (() => { const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td; })());
