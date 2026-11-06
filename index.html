@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.40">
+<meta name="app-version" content="5.21.41">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6013,11 +6013,12 @@ async function loadLeadSig(l){
   delete $("leadSig").dataset.sum; $("leadSig").textContent = phones.length ? "טוען..." : "אין";
   if (!phones.length) return;
   try {
+    const plP = ME.role === "admin" ? rpc("pay_links_list").catch(() => null) : null;   // נועה 6.11 (מהירות): במקביל
     const rows = await get("signatures", "select=id,kind,order_id,student_first,image,signed_at,city,school&parent_phone=in.(" + phones.join(",") + ")&order=signed_at.desc&limit=10");
     const norm = (t) => String(t || "").replace(/[\s'"׳״-]/g, "");
     const mine = rows.filter(r => !r.student_first || norm(r.student_first) === norm(l.student.first_name));
     // 5.19.169 (נועה): גם טופס תשלום אישי שנחתם (מקישור התשלום) – באותה רשימה
-    if (ME.role === "admin") { try { ((await rpc("pay_links_list")) || []).filter(x => Number(x.student_id) === Number(l.student.id) && x.has_pdf && x.submitted_at)
+    if (ME.role === "admin") { try { ((await plP) || []).filter(x => Number(x.student_id) === Number(l.student.id) && x.has_pdf && x.submitted_at)
       .forEach(x => mine.push({ pay: x.code, kind: "pay", signed_at: x.submitted_at, school: x.description })); } catch(e) {}
       mine.sort((a, b) => String(b.signed_at).localeCompare(String(a.signed_at))); }
     // 5.19.41: כרטיס לכל טופס חתום (סוג, תאריך, החתימה, הורדה); בשורה המקופלת - תקציר קצר
@@ -6653,8 +6654,9 @@ async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint();
       FX.rv = b.dataset.tyv; ftxInlEnd(); ftxLoadFrame(true); }); }
   FX.edit = {}; FX.items = []; FX.auto = []; FX.w = null; ftxPaintState(); $("ftxList").innerHTML = `<div class="muted">טוען את הטופס...</div>`;
   try {
-    FX.live = {}; (await get("form_texts", "select=key,value&form=eq." + encodeURIComponent(FX.form))).forEach(r => FX.live[r.key] = r.value);
-    FX.draft = {}; (await get("form_text_drafts", "select=key,value,updated_by,updated_at&form=eq." + encodeURIComponent(FX.form))).forEach(r => FX.draft[r.key] = r);
+    const [lv, dr] = await Promise.all([get("form_texts", "select=key,value&form=eq." + encodeURIComponent(FX.form)), get("form_text_drafts", "select=key,value,updated_by,updated_at&form=eq." + encodeURIComponent(FX.form))]);   // נועה 6.11: במקביל
+    FX.live = {}; lv.forEach(r => FX.live[r.key] = r.value);
+    FX.draft = {}; dr.forEach(r => FX.draft[r.key] = r);
   } catch(e) { $("ftxList").innerHTML = `<div class="err">${e.status === 404 || /form_text/.test(e.message) ? "צריך להריץ את קובץ 88." : "לא נטען: " + esc(e.message)}</div>`; return; }
   if (FX.mar == null) { FX.mar = ""; try { const m = await get("marathons", "select=code&cancelled_at=is.null&code=not.is.null&order=id.desc&limit=1"); if (m[0]) FX.mar = m[0].code; } catch(e) {} }
   ftxLoadFrame(true);
@@ -6907,8 +6909,9 @@ async function loadLeadTs(l){
   if (ME.role !== "admin" || !l || !l.student) { row.hidden = true; return; } row.hidden = false;
   const sid = l.student.id; delete box.dataset.sum; box.textContent = "טוען...";
   let acc = null, req = [];
-  try { acc = (await get("portal_accounts", `select=student_id,login_phone,must_change_code,last_seen_at,created_at,initial_code_at&student_id=eq.${sid}`))[0] || null;
-        req = await get("portal_code_requests", `select=id,created_at&student_id=eq.${sid}&handled_at=is.null&matched=is.true&order=created_at.desc`); }
+  try { const [a0, r0] = await Promise.all([get("portal_accounts", `select=student_id,login_phone,must_change_code,last_seen_at,created_at,initial_code_at&student_id=eq.${sid}`),
+          get("portal_code_requests", `select=id,created_at&student_id=eq.${sid}&handled_at=is.null&matched=is.true&order=created_at.desc`)]);   // נועה 6.11: במקביל
+        acc = a0[0] || null; req = r0; }
   catch(e) { box.textContent = "לא נטען: " + e.message; return; }
   if (!editing || editing.id !== l.id) return;
   const nm = ((l.student.first_name || "") + " " + (l.student.last_name || "")).trim();
@@ -8931,7 +8934,7 @@ async function renderInbox(reload){
     if (gd.length) { const ws = gd.map(r => gdWeek(r.data.lesson_date)), lo = ws.map(w => w[0]).sort()[0], hi = ws.map(w => w[1]).sort().pop();
       try { (await get("attendance", `select=student_id,session_id,lesson_date,present&student_id=in.(${[...new Set(gd.map(r => r.student_id))].join(",")})&lesson_date=gte.${lo}&lesson_date=lte.${hi}`)).forEach(x => (IB.gdAtt[x.student_id] = IB.gdAtt[x.student_id] || []).push(x)); } catch(e) {} }
     IB.plans = {};   // 5.19.68: הוראות קבע שהושהו - לכפתור "סימון: בוטלה"
-    if (ME.role === "admin" && IB.rows.some(r => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused"))) { try { ((await rpc("recurring_plans_list")) || []).forEach(p => IB.plans[p.id] = p); } catch(e) {} } }
+    if (ME.role === "admin" && IB.rows.some(r => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused"))) { try { ((await plansCached()) || []).forEach(p => IB.plans[p.id] = p); } catch(e) {} } }
   const ibPlan = (r) => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused") ? (IB.plans || {})[r.ref_id] : null;
   // 5.19.124 (נועה): "לא משובץ/ת" – ברגע שיש לילד/ה שיבוץ בקבוצה שוטפת (במערכת), ההתראה נסגרת לבד (לא מחכים לבדיקה של הערב)
   { const fixed = IB.rows.filter(r => r.kind === "unassigned" && r.status !== "handled" && r.student_id && ((L.asg || {})[r.student_id] || []).length);
@@ -11934,13 +11937,14 @@ async function renderReg(){
       // 5.19.48 (קובץ 68): פתוח/סגור לטופס ההרשמה (לכל עיר) ולטופס ההתעניינות. בלי קובץ 68 - תמיד פתוח, בלי כפתור
       const prRow = (c) => (REG_PRICES_DB || []).find(r => r.city === c), has68 = (REG_PRICES_DB || []).some(r => "register_open" in r);
       const regOpen = (c) => { const r = prRow(c); return !r || r.register_open !== false; }, intOpen = () => !(REG_PRICES_DB || []).length || (REG_PRICES_DB || []).some(r => r.interest_open !== false);
+      const mSesP = RG.marD ? null : get("sessions", "select=marathon_id,meeting_dates&kind=eq." + encodeURIComponent("מרתון") + "&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)); if (mSesP) mSesP.catch(() => {});   // נועה 6.11 (מהירות): במקביל
       let marsAll = RG.mar; if (!marsAll) { try { marsAll = await get("marathons", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&order=created_at"); } catch(e) { marsAll = []; } }
       const sea = SCH.season, st = (open, txt) => `<span class="all-st ${open ? "on" : "off"}">${open ? "● פתוח" : "○ " + (txt || "סגור")}</span>`;
       // 5.19.45: tg = אפשר לפתוח/לסגור מכאן (לחיצה על הסטטוס)
       const row = (name, sub, open, u, msg, txt, tg) => `<div class="all-row${open ? " on" : ""}"><div class="all-n"><b>${name}</b>${sub ? `<span class="muted">${sub}</span>` : ""}</div>${tg ? `<button type="button" class="all-tg sw-open${open ? " on" : ""}" data-tg="${tg}" title="${open ? "לחיצה - סגירה להרשמה" : "לחיצה - פתיחה להרשמה"}">${open ? "● פתוח" : "○ " + (txt || "סגור")}</button>` : st(open, txt)}<div class="all-l">${u ? lk2Btns("", u, msg) : ""}</div></div>`;
       let mLast = {};   // מרתונים שעברו - למטה, מקופלים
       if (RG.marD) Object.keys(RG.marD).forEach(k => mLast[k] = [...RG.marD[k]].sort().pop());
-      else { try { (await get("sessions", "select=marathon_id,meeting_dates&kind=eq." + encodeURIComponent("מרתון") + "&school_year=eq." + encodeURIComponent(CONFIG.schoolYear))).forEach(x => (x.meeting_dates || []).forEach(d => { if (!mLast[x.marathon_id] || d > mLast[x.marathon_id]) mLast[x.marathon_id] = d; })); } catch(e) {} }
+      else { try { (await mSesP).forEach(x => (x.meeting_dates || []).forEach(d => { if (!mLast[x.marathon_id] || d > mLast[x.marathon_id]) mLast[x.marathon_id] = d; })); } catch(e) {} }
       const td = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10), mPast = (m) => !!mLast[m.id] && mLast[m.id] < td;
       const marsP = (marsAll || []).filter(mPast).sort((a, b) => String(mLast[b.id]).localeCompare(String(mLast[a.id])));
       const mars = (marsAll || []).filter(m => !mPast(m)).sort((a, b) => Number(!!b.is_open && !b.cancelled_at) - Number(!!a.is_open && !a.cancelled_at) || String(a.city).localeCompare(String(b.city)));
@@ -12529,12 +12533,16 @@ async function renderAll(b){
   if (!S.pk) S.pk = "all";
   const q = (S.pq2 || "").trim();
   const [qf, qt] = (S.kid || q.length >= 2) && ["month", "prev", "30"].includes(S.pr) ? payRange("year") : [S.pf, S.pt];
+  // נועה 6.11 (מהירות): התשלומים, הסימונים הידניים, התיבה ו"להתקשר" – במקביל (היו 4 בקשות ברצף)
+  const manP = DEMO ? Promise.resolve([]) : manualPaidRows({ from: qf, to: qt }).catch(() => []);
+  const ibP = get("form_inbox", "select=ref_id,ref_table,flags&kind=eq.payment&status=neq.handled&limit=500").catch(() => []);
+  const callP = loadCall().catch(() => null);
   let rows;
   try { rows = await call("payments_list", { p_from: qf, p_to: qt }) || []; }
   catch(e) { if (e.status === 404 || e.code === "PGRST202") { b.innerHTML = `<div class="card note">כדי לראות כאן את כל התשלומים צריך להריץ ב-Supabase את קובץ 62.3 (מחבילת איקרדיט).</div>`; return; } throw e; }
-  if (!DEMO) { try { rows = rows.concat(await manualPaidRows({ from: qf, to: qt })); } catch(e) {} }   // 5.19.132 (תש-18)
-  let ibOpen = {}; try { (await get("form_inbox", "select=ref_id,ref_table,flags&kind=eq.payment&status=neq.handled&limit=500")).forEach(x => { ibOpen[x.ref_table + ":" + x.ref_id] = x.flags || []; }); } catch(e) {}
-  try { S.callList = await loadCall(); callPaint(S.callList.length); } catch(e) { S.callList = []; }
+  rows = rows.concat(await manP);   // 5.19.132 (תש-18)
+  let ibOpen = {}; (await ibP).forEach(x => { ibOpen[x.ref_table + ":" + x.ref_id] = x.flags || []; });
+  { const cl = await callP; if (cl) { S.callList = cl; callPaint(cl.length); } else S.callList = []; }
   const deals = buildDeals(rows, qf, qt, ibOpen);
   const qn = /\d/.test(q) && !/[^\d\s\-+().\u200e\u200f\u202a-\u202e\u2010-\u2015]/.test(q) ? digitsQ(q) : q.replace(/[\s\-]/g, "");
   if (!["all", "first", "plan", "mar", "pay"].includes(S.pk)) S.pk = "all";
