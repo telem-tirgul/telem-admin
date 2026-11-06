@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.18">
+<meta name="app-version" content="5.21.19">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6484,7 +6484,7 @@ $("addLeadBtn").addEventListener("click", () => openLead(null));
 //  ומה שנבנה בקוד ולא נערך – מוצג לקריאה בלבד. שמירה = טיוטה (form_text_drafts); "פרסום" = publish_form_texts (קובץ 88) – רק אז זה באוויר.
 const FTX_FORMS = [["register", "הרשמה לתרגולים"], ["marathon", "מרתון"], ["interest", "התעניינות"], ["pay", "תשלום אישי"], ["cancel", "ביטול"], ["shibutz", "שיבוץ"], ["thank-you", "תודה"], ["payment-failed", "תשלום לא הושלם"]];
 const FTX_TYV = [["reg", "ההרשמה נשלחה"], ["phone", "תשלום טלפוני"], ["phpaid", "כבר שילמתי"], ["sgunp", "נחתם, לא שולם"], ["paid", "שולם באשראי"]];
-const FTX_RV = [["reg", "רגיל"], ["card", "מהכרטיס (דוגמה)"]];   // 5.21.11 (נועה 4.11): "שילמו בטלפון" – עכשיו אפשרות בטופס הרגיל ("כבר שילמתי"), לא קישור נפרד
+const FTX_RV = [["reg", "רגיל"], ["card", "קישור אישי – שולם"], ["cardu", "קישור אישי – לא שולם"]];   /* 5.21.19 (נועה 6.11): גם במרתון */   // 5.21.11 (נועה 4.11): "שילמו בטלפון" – עכשיו אפשרות בטופס הרגיל ("כבר שילמתי"), לא קישור נפרד
 const FX = { form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "reg", rv: "reg", mar: null };
 const ftxN = (h) => String(h == null ? "" : h).replace(/ /g, " ").replace(/\s+/g, " ").replace(/\s*<br>\s*/g, "<br>").trim();
 const ftxClean = (h) => FX.w && FX.w.TX ? FX.w.TX.clean(h) : esc(TXplain(h));
@@ -6590,8 +6590,9 @@ function ftxTabPaint(){ document.querySelectorAll("[data-ftab]").forEach(b => { 
 async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint(); if (FTX_TAB.v === "class") clsPaint(); if (FTX_TAB.v !== "texts" && !onlyTexts) return; FTX_TAB.textsOpen = true;
   $("ftxForms").innerHTML = FTX_FORMS.map(([k, n]) => `<button type="button" data-ftx="${k}" aria-pressed="${k === FX.form}">${esc(n)}</button>`).join("");
   $("ftxForms").querySelectorAll("[data-ftx]").forEach(b => b.onclick = async () => { if (b.dataset.ftx === FX.form) return; if (ftxUnsaved() && !await uiConfirm("יש שינויים שלא נשמרו כטיוטה. לעבור טופס בלי לשמור?")) return; FX.form = b.dataset.ftx; ftxOpen(); });
-  $("ftxTyv").hidden = FX.form !== "thank-you" && FX.form !== "register";
-  { const rv = FX.form === "register", L0 = rv ? FTX_RV : FTX_TYV, cur = rv ? FX.rv : FX.tyv;
+  $("ftxTyv").hidden = !["thank-you", "register", "marathon"].includes(FX.form);
+  if (!["register", "marathon"].includes(FX.form)) FX.rv = "reg";
+  { const rv = FX.form === "register" || FX.form === "marathon", L0 = rv ? FTX_RV : FTX_TYV, cur = rv ? FX.rv : FX.tyv;
     $("ftxTyv").innerHTML = L0.map(([k, n]) => `<button type="button" data-tyv="${k}" aria-pressed="${k === cur}">${esc(n)}</button>`).join("");
     $("ftxTyv").querySelectorAll("[data-tyv]").forEach(b => b.onclick = async () => { $("ftxTyv").querySelectorAll("[data-tyv]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
       if (!rv) { FX.tyv = b.dataset.tyv; ftxLoadFrame(false); return; }
@@ -6607,10 +6608,10 @@ async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint();
 }
 function ftxUrl(){
   let q = "?preview=1";
-  if (FX.form === "marathon" && FX.mar) q += "&m=" + encodeURIComponent(FX.mar);
+  if (FX.form === "marathon" && FX.mar) q += "&m=" + encodeURIComponent(FX.mar) + (FX.rv && FX.rv !== "reg" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
   if (FX.form === "interest") q += "&city=" + encodeURIComponent("ראש העין") + (FX.mar ? "&m=" + encodeURIComponent(FX.mar) + "&tracks=single,unlimited-single,double,marathon" : "");
   if (FX.form === "thank-you") q = "?tyv=" + FX.tyv;
-  if (FX.form === "register" && FX.rv !== "reg") q = "?city=" + encodeURIComponent("ראש העין") + "&phone=1&preview=1" + (FX.rv === "card" ? "&c=sample" : "");
+  if (FX.form === "register" && FX.rv !== "reg") q = "?city=" + encodeURIComponent("ראש העין") + "&phone=1&preview=1" + (FX.rv === "card" || FX.rv === "cardu" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
   return "/" + FX.form + ".html" + q;
 }
 // טוען את הטופס בתצוגה. collect – לאסוף מחדש את רשימת הטקסטים (בפתיחה); אחרת – רק רענון התצוגה (תבניות / דף התודה)
