@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.21">
+<meta name="app-version" content="5.21.22">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2090,7 +2090,18 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 #payPnl .nl-sec{ border-top:1px solid var(--border); padding-top:10px; margin-top:10px; } #payPnl .nl-sec:first-of-type{ border-top:0; margin-top:0; padding-top:0; }
 #payPnl .nl-h{ font-weight:800; color:var(--accent); margin-bottom:6px; }
 #payPnl .nl-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; } #payPnl .nl-f select, #payPnl .nl-f input{ width:100%; }
-#payPnl .nl-lr{ display:flex; justify-content:space-between; align-items:center; gap:8px; } #payPnl .nl-lr .lbl{ margin:0; }
+#payPnl .nl-lr{ display:flex; justify-content:flex-start; align-items:center; gap:8px; margin-bottom:4px; min-height:24px; } #payPnl .nl-lr .lbl{ margin:0; }   /* 5.21.22: "חובה" צמוד לשם השדה */
+#payPnl .nl-req{ display:inline-flex; align-items:center; gap:4px; font-size:12px; font-weight:700; color:var(--ink-soft); border:1px solid var(--border); border-radius:999px; padding:1px 9px 1px 7px; cursor:pointer; background:#fff; user-select:none; }
+#payPnl .nl-req input{ width:13px; height:13px; margin:0; accent-color:var(--accent); } #payPnl .nl-f.on .nl-req{ color:#fff; background:var(--accent); border-color:var(--accent); } #payPnl .nl-f.on .nl-req input{ accent-color:#fff; }
+#payPnl .nl-req-demo{ display:inline-block; font-size:11.5px; font-weight:700; color:#fff; background:var(--accent); border-radius:999px; padding:0 8px; }
+#payPnl .nl-lock{ font-size:12px; color:var(--ink-soft); } #payPnl .nl-f.on select, #payPnl .nl-f.on input:not([type=checkbox]){ border-color:var(--accent); }
+#payPnl .nl-stu{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; background:var(--muted); border-radius:8px; padding:8px 10px; } #payPnl .nl-hint{ font-size:12.5px; margin-top:4px; }
+#payPnl .nl-res{ border:1px solid var(--border); border-radius:8px; margin-top:4px; max-height:240px; overflow:auto; background:#fff; } #payPnl .nl-res button{ display:block; width:100%; text-align:right; border:0; border-bottom:1px solid var(--border); background:none; padding:7px 10px; cursor:pointer; font:inherit; } #payPnl .nl-res button:hover{ background:var(--muted); } #payPnl .nl-res > div{ padding:7px 10px; }
+#payWrap .pl-flt .pl-q{ min-width:240px; } #payWrap .pl-tbl td.nw{ white-space:nowrap; } #payWrap .pl-tbl .pl-by{ font-size:12px; } #payWrap .pl-tbl .show-m{ display:none; } #payWrap .pl-acts{ gap:6px; flex-wrap:nowrap; justify-content:flex-end; } #payWrap .pl-lk{ font-size:12px; }
+@media (max-width:760px){ #payWrap .pl-tbl{ min-width:0; } #payWrap .pl-tbl thead{ display:none; } #payWrap .pl-tbl tr{ display:grid; grid-template-columns:1fr auto auto; gap:2px 10px; align-items:start; padding:8px 4px; border-bottom:1px solid var(--border); }
+  #payWrap .pl-tbl td{ border:0 !important; padding:0 !important; } #payWrap .pl-tbl td:nth-child(1){ grid-column:1/-1; grid-row:2; font-size:12px; color:var(--ink-soft); } #payWrap .pl-tbl td:nth-child(1) .pl-by{ display:inline; } #payWrap .pl-tbl td:nth-child(1) .pl-by::before{ content:" · "; }
+  #payWrap .pl-tbl td:nth-child(2){ grid-row:1; } #payWrap .pl-tbl td:nth-child(4){ grid-row:1; } #payWrap .pl-tbl td:nth-child(5){ grid-row:1; } #payWrap .pl-tbl td:nth-child(6){ grid-column:1/-1; grid-row:3; padding-top:6px !important; } #payWrap .pl-acts{ justify-content:flex-start; }
+  #payWrap .pl-tbl .show-m{ display:block; font-size:12px; } #payWrap .pl-acts .bt, #payWrap #lXls .bt{ display:none; } #payWrap .pl-acts{ flex-wrap:wrap; } #payWrap .pl-flt .pl-q{ min-width:0; flex:1 1 100%; } }
 @media (max-width:760px){ #payPnl .nl-grid{ grid-template-columns:1fr; } }
 #payWrap .br-h{ font-size:15px; color:var(--accent); margin:16px 0 8px; } #payWrap .br-h:first-child{ margin-top:0; }
 #payWrap .br-tbl td, #payWrap .br-tbl th{ text-align:right; }
@@ -12912,65 +12923,128 @@ const FIELD_SECS = [
   ["פרטי התלמיד/ה", [["student_first", "שם פרטי (תלמיד/ה)"], ["student_last", "שם משפחה (תלמיד/ה)"]]],
   ["פרטי ההורה", [["parent_name", "שם מלא של ההורה", "", "פרטי + משפחה"], ["parent_phone", "טלפון הורה", "tel"], ["parent_email", "אימייל הורה", "email"]]]
 ];
+// 5.21.22 (נועה): טבלת הקישורים לפי תקן הטבלה (חיפוש + סטטוס, שורת מספר / ניקוי / אקסל), ✎ עריכה (לפני שההורה מילא), ⧉ שכפול, וחיבור לכרטיס תלמיד/ה קיים/ת
 async function renderLinks(b){
-  const list = await call("pay_links_list") || [];
-  b.innerHTML = `<div class="page-head pl-head"><span class="muted">קישור אישי להורה: תשלום חד-פעמי, ואם צריך - גם הוראת קבע. ההורה ממלא, חותם ומשלם באיקרדיט.</span><button class="btn small primary" id="lNew" type="button">+ טופס תשלום חדש</button></div>
-    ${list.length ? `<table class="tbl"><thead><tr><th>נוצר</th><th>הורה / תלמיד/ה</th><th>על מה</th><th>סכום</th><th>סטטוס</th><th></th></tr></thead><tbody>
-      ${list.map((l, li) => { const ph = l.fields && l.fields.parent_phone && l.fields.parent_phone.value, wa = waLink(ph, `שלום, קישור לתשלום בתלם: ${l.url}`);
-        return `<tr><td>${dmy(l.created_at)}<div class="muted">${esc(l.created_by_name || "")}</div></td><td><span class="par1">${esc(l.parent_name || "")}${l.parent_name && l.student_name ? " · " : ""}</span>${l.student_name ? stuCell(l.student_name, l.student_id) : ""}</td><td>${esc(l.description)}</td>
-        <td class="num">${money(l.one_time_amount)}${l.monthly_amount ? `<div class="muted" dir="rtl">ועוד ${money(l.monthly_amount)} בחודש · ${l.monthly_count} תשלומים</div>` : ""}</td>
+  const all = await call("pay_links_list") || [];
+  if (S.lq === undefined) { S.lq = ""; S.lst = ""; }
+  const q = S.lq.trim(), list = all.filter(l => (!S.lst || l.status === S.lst) && (!q || [l.parent_name, l.student_name, l.description, l.fields && l.fields.parent_phone && l.fields.parent_phone.value].join(" ").includes(q)));
+  const dirty = !!(q || S.lst), live = (l) => ["sent", "opened"].includes(l.status);
+  b.innerHTML = `<div class="page-head pl-head"><span class="muted">קישור אישי להורה: תשלום חד-פעמי, ואם צריך – גם הוראת קבע. ההורה ממלא/ת, חותם/ת ומשלם/ת.</span><button class="btn small primary" id="lNew" type="button">+ קישור חדש</button></div>
+    <div class="filters pl-flt"><div class="pl-q"><label class="lbl" for="lq">חיפוש</label><input id="lq" type="search" placeholder="הורה, תלמיד/ה, טלפון, על מה..." value="${esc(S.lq)}"></div>
+      <div><label class="lbl" for="lst">סטטוס</label><select id="lst"><option value="">הכול</option>${Object.entries(LINK_ST).map(([k, t]) => `<option value="${k}" ${S.lst === k ? "selected" : ""}>${t}</option>`).join("")}</select></div></div>
+    <div class="dx-bar"><span></span><span class="dx-bar-b"><span class="muted">${list.length} ${list.length === 1 ? "קישור" : "קישורים"}</span><button type="button" class="clear-f" id="lClr"${dirty ? "" : " disabled"}>✕ ניקוי סינון</button>${list.length ? `<button type="button" class="btn small" id="lXls" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>` : ""}</span></div>
+    ${list.length ? `<table class="tbl pl-tbl"><thead><tr><th>נוצר</th><th>תלמיד/ה · הורה</th><th class="hide-m">על מה</th><th>סכום</th><th>סטטוס</th><th></th></tr></thead><tbody>
+      ${list.map(l => { const li = all.indexOf(l), ph = l.fields && l.fields.parent_phone && l.fields.parent_phone.value, wa = live(l) ? waLink(ph, `שלום, קישור לתשלום בתלם: ${l.url}`) : "";
+        return `<tr><td class="nw">${dmy(l.created_at)}<div class="muted pl-by">${esc(l.created_by_name || "")}</div></td>
+        <td>${l.student_name ? stuCell(l.student_name, l.student_id) : `<span class="muted">תלמיד/ה חדש/ה</span>`}${l.student_id ? ` <span class="pl-lk" title="מחובר לכרטיס התלמיד/ה">🔗</span>` : ""}<div class="muted">${esc(l.parent_name || "")}</div><div class="muted show-m">${esc(l.description || "")}</div></td>
+        <td class="hide-m">${esc(l.description)}</td>
+        <td class="num nw">${money(l.one_time_amount)}${l.monthly_amount ? `<div class="muted">+ ${money(l.monthly_amount)} × ${l.monthly_count}</div>` : ""}</td>
         <td><span class="chip st-${esc(l.status)}">${esc(LINK_ST[l.status] || l.status)}</span></td>
-        <td><div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקה</button>${wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a>` : ""}<button class="btn small danger" data-cancel="${esc(l.code)}" type="button">ביטול הקישור</button>` : ""}
-          ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button">📄 טופס חתום</button>` : ""}<button class="btn small" data-ldet="${li}" type="button">פרטים</button></div></td></tr>`; }).join("")}</tbody></table>`
-      : `<div class="card empty">עוד אין טפסי תשלום אישיים.</div>`}`;
+        <td><div class="acts-row pl-acts">${live(l) ? `<button class="btn small" data-ledit="${li}" type="button" title="עריכה"><span class="ic">✎</span><span class="bt"> עריכה</span></button><button class="btn small" data-copy="${esc(l.url)}" type="button" title="העתקת הקישור"><span class="ic">🔗</span><span class="bt"> העתקה</span></button>${wa ? `<a class="btn small" target="_blank" rel="noopener" href="${esc(wa)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}` : ""}
+          ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button" title="טופס חתום"><span class="ic">📄</span><span class="bt"> טופס</span></button>` : ""}<button class="btn small" data-ldup="${li}" type="button" title="שכפול – קישור חדש עם אותם פרטים"><span class="ic">⧉</span><span class="bt"> שכפול</span></button><button class="btn small" data-ldet="${li}" type="button">פרטים</button></div></td></tr>`; }).join("")}</tbody></table>`
+      : `<div class="card empty">${all.length ? "אין קישורים שמתאימים לסינון." : "עוד אין קישורים אישיים."}</div>`}`;
   wireCommon(b);
-  $("lNew").onclick = newLink;
+  $("lNew").onclick = () => newLink();
+  $("lq").oninput = (e) => { S.lq = e.target.value; const pos = e.target.selectionStart; renderLinks(b).then(() => { const i = $("lq"); i.focus(); i.setSelectionRange(pos, pos); }); };
+  $("lst").onchange = (e) => { S.lst = e.target.value; renderLinks(b); };
+  $("lClr").onclick = () => { S.lq = ""; S.lst = ""; renderLinks(b); };
+  if ($("lXls")) $("lXls").onclick = async () => {
+    try { await loadXlsxLib(); } catch(e) { toast("לא ניתן לטעון את רכיב האקסל"); return; }
+    const data = list.map(l => ({ "נוצר": dmy(l.created_at), "נוצר ע\"י": l.created_by_name || "", "תלמיד/ה": l.student_name || "", "הורה": l.parent_name || "", "על מה": l.description || "", "תשלום עכשיו": Number(l.one_time_amount || 0),
+      "הוראת קבע": l.monthly_amount ? `${l.monthly_amount} × ${l.monthly_count}` : "", "סטטוס": LINK_ST[l.status] || l.status, "שולם": l.paid_at ? dmy(l.paid_at) : "" }));
+    const ws = XLSX.utils.json_to_sheet(data), wb = XLSX.utils.book_new(); ws["!views"] = [{ RTL: true }]; wb.Workbook = { Views: [{ RTL: true }] };
+    XLSX.utils.book_append_sheet(wb, ws, "קישורים אישיים"); XLSX.writeFile(wb, "telem-pay-links.xlsx");
+  };
+  b.querySelectorAll("[data-ledit]").forEach(x => x.onclick = () => newLink(all[Number(x.dataset.ledit)], "edit"));
+  b.querySelectorAll("[data-ldup]").forEach(x => x.onclick = () => newLink(all[Number(x.dataset.ldup)], "dup"));
   // 5.19.47: "פרטים" - חלון בצד עם כל פרטי הקישור (כמו בהוראות קבע)
-  b.querySelectorAll("[data-ldet]").forEach(x => x.onclick = () => { const l = list[Number(x.dataset.ldet)]; if (!l) return;
+  b.querySelectorAll("[data-ldet]").forEach(x => x.onclick = () => { const l = all[Number(x.dataset.ldet)]; if (!l) return;
     const lab = Object.fromEntries(FIELDS), fs = Object.entries(l.fields || {}).filter(([, v]) => v && (v.value || v.required));
     pnlOpen(`<header><div><h2>${esc(l.description || "תשלום אישי")}</h2><div class="muted">${esc(l.parent_name || "")}${l.student_name ? " · " + esc(l.student_name) : ""}</div></div><button class="btn small x" type="button">✕</button></header>
       <div class="body"><div class="sec"><h3>התשלום</h3><dl class="kv"><dt>סטטוס</dt><dd><span class="chip st-${esc(l.status)}">${esc(LINK_ST[l.status] || l.status)}</span></dd>
-        <dt>תשלום עכשיו</dt><dd>${money(l.one_time_amount)}</dd>${l.monthly_amount ? `<dt>הוראת קבע</dt><dd>${money(l.monthly_amount)} בחודש · ${l.monthly_count} תשלומים עד יוני כולל</dd>` : ""}
-        <dt>נוצר</dt><dd>${dmy(l.created_at)}${l.created_by_name ? " · " + esc(l.created_by_name) : ""}</dd>${l.paid_at ? `<dt>שולם</dt><dd>${dmy(l.paid_at)}</dd>` : ""}
+        <dt>תשלום עכשיו</dt><dd>${money(l.one_time_amount)}</dd>${l.monthly_amount ? `<dt>הוראת קבע</dt><dd>${money(l.monthly_amount)} בחודש · ${l.monthly_count} תשלומים</dd>` : ""}
+        <dt>נוצר</dt><dd>${dmy(l.created_at)}${l.created_by_name ? " · " + esc(l.created_by_name) : ""}</dd>${l.submitted_at ? `<dt>ההורה מילא/ה</dt><dd>${dmy(l.submitted_at)}</dd>` : ""}${l.paid_at ? `<dt>שולם</dt><dd>${dmy(l.paid_at)}</dd>` : ""}
+        ${l.student_id ? `<dt>כרטיס</dt><dd>🔗 ${stuCell(l.student_name, l.student_id)}</dd>` : ""}
         <dt>קישור</dt><dd dir="ltr" style="word-break:break-all">${esc(l.url || "")}</dd></dl></div>
       <div class="sec"><h3>פרטים בטופס</h3>${fs.length ? `<dl class="kv">${fs.map(([k, v]) => `<dt>${esc(lab[k] || k)}</dt><dd>${v.value ? esc(v.value) : `<span class="muted">ההורה ממלא/ת${v.required ? " (חובה)" : ""}</span>`}</dd>`).join("")}</dl>` : `<div class="muted">אין שדות נעולים - ההורה ממלא/ת הכול.</div>`}</div>
-      <div class="acts-row">${["sent", "opened"].includes(l.status) ? `<button class="btn small" data-copy="${esc(l.url)}" type="button">העתקת הקישור</button>` : ""}${l.has_pdf ? `<button class="btn small" data-pdf2="${esc(l.code)}" type="button">📄 טופס חתום</button>` : ""}</div></div>`);
+      <div class="acts-row">${live(l) ? `<button class="btn small" data-pedit type="button">✎ עריכה</button><button class="btn small" data-copy="${esc(l.url)}" type="button">🔗 העתקת הקישור</button>` : ""}<button class="btn small" data-pdup type="button">⧉ שכפול</button>${l.has_pdf ? `<button class="btn small" data-pdf2="${esc(l.code)}" type="button">📄 טופס חתום</button>` : ""}
+        ${l.status !== "paid" && l.status !== "cancelled" ? `<button class="btn small danger" data-cancel="${esc(l.code)}" type="button" style="margin-inline-start:auto">ביטול הקישור</button>` : ""}</div></div>`);
     const P = $("payPnl"); P.querySelectorAll("[data-copy]").forEach(c => c.onclick = () => copy(c.dataset.copy));
     P.querySelectorAll("[data-pdf2]").forEach(c => c.onclick = () => { const o = b.querySelector(`[data-pdf="${c.dataset.pdf2}"]`); if (o) o.click(); });
+    const pe = P.querySelector("[data-pedit]"); if (pe) pe.onclick = () => newLink(l, "edit");
+    P.querySelector("[data-pdup]").onclick = () => newLink(l, "dup");
+    P.querySelectorAll("[data-cancel]").forEach(c => c.onclick = async () => { if (!await uiConfirm("לבטל את הקישור? ההורה לא יוכל לשלם בו.")) return; try { await call("pay_link_cancel", { p_code: c.dataset.cancel }); toast("בוטל"); pnlClose(); render(); } catch(e) { toast("לא בוטל: " + e.message); } });
   });
-  b.querySelectorAll("[data-cancel]").forEach(x => x.onclick = async () => { if (!await uiConfirm("לבטל את הקישור? ההורה לא יוכל לשלם בו.")) return; try { await call("pay_link_cancel", { p_code: x.dataset.cancel }); toast("בוטל"); render(); } catch(e) { toast("לא בוטל: " + e.message); } });
-  b.querySelectorAll("[data-pdf]").forEach(x => x.onclick = async () => { if (DEMO) { toast("בתצוגה לדוגמה אין PDF"); return; } try { const d = await call("pay_link_pdf", { p_code: x.dataset.pdf }); if (!d) return; const a = document.createElement("a"); a.href = String(d).startsWith("data:") ? d : "data:application/pdf;base64," + d; const lq = list.find(z => z.code === x.dataset.pdf) || {}; a.download = "טופס תשלום - " + fnSafe(lq.parent_name || lq.student_name || "") + ".pdf"; a.click(); } catch(e) { toast("לא ניתן להוריד"); } });
+  b.querySelectorAll("[data-pdf]").forEach(x => x.onclick = async () => { if (DEMO) { toast("בתצוגה לדוגמה אין PDF"); return; } try { const d = await call("pay_link_pdf", { p_code: x.dataset.pdf }); if (!d) return; const a = document.createElement("a"); a.href = String(d).startsWith("data:") ? d : "data:application/pdf;base64," + d; const lq = all.find(z => z.code === x.dataset.pdf) || {}; a.download = "טופס תשלום - " + fnSafe(lq.parent_name || lq.student_name || "") + ".pdf"; a.click(); } catch(e) { toast("לא ניתן להוריד"); } });
 }
-function newLink(){
-  pnlOpen(`<header><div><h2>טופס תשלום חדש</h2><div class="muted">נשלח להורה כקישור. מה שתמלאי כאן - נעול עבור ההורה.</div></div><button class="btn small x" type="button">✕</button></header>
+// src + mode: "edit" = עריכת קישור קיים (רק לפני שההורה מילא), "dup" = קישור חדש עם אותם פרטים
+function newLink(src, mode){
+  const ed = mode === "edit" && src, F = (src && src.fields) || {};
+  let SID = src && src.student_id ? Number(src.student_id) : null;
+  const reqDef = (k) => F[k] ? !!F[k].required : ["parent_name", "parent_phone", "parent_email", "student_first"].includes(k);
+  pnlOpen(`<header><div><h2>${ed ? "עריכת קישור אישי" : mode === "dup" ? "קישור חדש – שכפול" : "קישור אישי חדש"}</h2><div class="muted">${ed ? "אותו קישור – ההורה יראה את השינויים כשיפתח אותו." : "נשלח להורה כקישור. מה שממלאים כאן – נעול עבור ההורה."}</div></div><button class="btn small x" type="button">✕</button></header>
     <div class="body"><div class="sec"><h3>מה משלמים</h3><div class="grid2">
-      <div style="grid-column:1/-1"><label class="lbl" for="nDesc">תיאור (יופיע להורה ובחשבונית)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי - 3 מפגשים"></div>
+      <div style="grid-column:1/-1"><label class="lbl" for="nDesc">תיאור (יופיע להורה ובחשבונית)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
       <div><label class="lbl" for="nOnce">תשלום עכשיו (₪)</label><input type="number" id="nOnce" min="1" max="20000"></div><div></div>
       <label class="chk" style="grid-column:1/-1"><input type="checkbox" id="nRec"> וגם הוראת קבע חודשית אחרי התשלום</label>
       <div class="nrec" hidden><label class="lbl" for="nMAmt">סכום חודשי (₪)</label><input type="number" id="nMAmt" min="1" max="5000"></div>
       <div class="nrec" hidden><label class="lbl" for="nMCnt">מספר חיובים חודשיים</label><input type="number" id="nMCnt" min="1" max="24"></div>
       <div class="nrec" hidden><label class="lbl" for="nMFirst">החיוב החודשי הראשון</label><input type="date" id="nMFirst"></div></div></div>
-    <div class="sec"><h3>פרטים בטופס</h3><div class="muted" style="margin-bottom:8px">מה שממלאים כאן - נעול להורה. שדה ריק - ההורה ימלא. "חובה" = ההורה חייב למלא.</div>
-      ${FIELD_SECS.map(([h, fs]) => `<div class="nl-sec"><div class="nl-h">${h}</div><div class="nl-grid">${fs.map(([k, t, ty, ph]) => `<div class="nl-f"><div class="nl-lr"><label class="lbl" for="nf_${k}">${t}</label><label class="chk"><input type="checkbox" id="nr_${k}" ${["parent_name", "parent_phone", "parent_email", "student_first"].includes(k) ? "checked" : ""}> חובה</label></div>
+    <div class="sec"><h3>למי</h3>
+      <div id="nStuOn" class="nl-stu" hidden></div>
+      <div id="nStuOff"><label class="lbl" for="nStuQ">תלמיד/ה שכבר יש לו/ה כרטיס (לא חובה)</label><input type="search" id="nStuQ" placeholder="חיפוש לפי שם או טלפון..." autocomplete="off"><div id="nStuRes" class="nl-res" hidden></div>
+        <div class="muted nl-hint">בלי בחירה – ההורה ממלא/ת את הפרטים, ונפתח כרטיס חדש.</div></div></div>
+    <div class="sec"><h3>פרטים בטופס</h3><div class="muted" style="margin-bottom:8px">מה שממלאים כאן – נעול להורה. שדה ריק – ההורה ימלא/תמלא.<br>לסמן <span class="nl-req-demo">חובה</span> ליד שם השדה – כשההורה חייב/ת למלא אותו.</div>
+      ${FIELD_SECS.map(([h, fs]) => `<div class="nl-sec"><div class="nl-h">${h}</div><div class="nl-grid">${fs.map(([k, t, ty, ph]) => `<div class="nl-f" data-k="${k}"><div class="nl-lr"><label class="lbl" for="nf_${k}">${t}</label><label class="nl-req" title="ההורה חייב/ת למלא את השדה &quot;${t}&quot;"><input type="checkbox" id="nr_${k}" ${reqDef(k) ? "checked" : ""}><span>חובה</span></label><span class="nl-lock" hidden>🔒 נעול</span></div>
         ${ty === "sel" ? `<select id="nf_${k}"></select>` : `<input type="${ty === "email" ? "email" : ty === "tel" ? "tel" : "text"}" id="nf_${k}"${ty === "tel" || ty === "email" ? ' dir="ltr"' : ""}${ph ? ` placeholder="${ph}"` : ""}>`}</div>`).join("")}</div></div>`).join("")}</div>
-    <div class="err" id="nErr"></div><div class="acts-row lg-btns"><button class="btn primary" id="nSave" type="button">יצירת קישור</button><button class="btn" id="nCancel" type="button">ביטול</button></div></div>`);
+    <div class="err" id="nErr"></div><div class="acts-row lg-btns"><button class="btn primary" id="nSave" type="button">${ed ? "שמירה" : "יצירת קישור"}</button><button class="btn" id="nCancel" type="button">ביטול</button></div></div>`);
   $("nRec").onchange = () => document.querySelectorAll(".nrec").forEach(x => x.hidden = !$("nRec").checked);
   $("nCancel").onclick = pnlClose;
   // רשימות בחירה כמו בטופס ההרשמה (ריק = ההורה יבחר)
   const so = (id, arr) => { $(id).innerHTML = `<option value="">— ההורה יבחר —</option>` + arr.map(v => `<option>${esc(v)}</option>`).join(""); };
+  const sv = (k, v) => { const e = $("nf_" + k); v = v == null ? "" : String(v); if (e.tagName === "SELECT" && v && ![...e.options].some(o => o.value === v)) e.insertAdjacentHTML("beforeend", `<option>${esc(v)}</option>`); e.value = v; };
   so("nf_city", CONFIG.cities); so("nf_school", []); so("nf_grade", GRADES); so("nf_class_num", Array.from({ length: 12 }, (_, i) => String(i + 1)));
   so("nf_track", LK.tracks.map(x => x.t)); so("nf_subject", ["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"]);
-  $("nf_city").onchange = () => so("nf_school", (LK.schools[$("nf_city").value] || []).concat($("nf_city").value ? ["אחר"] : []));
-  $("nf_track").onchange = () => { const d = /שני מקצועות/.test($("nf_track").value); if (d) $("nf_subject").value = "מתמטיקה ואנגלית"; };
+  const schools = () => so("nf_school", (LK.schools[$("nf_city").value] || []).concat($("nf_city").value ? ["אחר"] : []));
+  // שדה עם ערך = נעול להורה, אז "חובה" לא רלוונטי – מוצג "🔒 נעול" במקומו
+  const lockPaint = () => document.querySelectorAll("#payPnl .nl-f").forEach(f => { const has = !!$("nf_" + f.dataset.k).value.trim(); f.querySelector(".nl-req").hidden = has; f.querySelector(".nl-lock").hidden = !has; f.classList.toggle("on", !has && $("nr_" + f.dataset.k).checked); });
+  $("nf_city").onchange = () => { schools(); lockPaint(); };
+  $("nf_track").onchange = () => { const d = /שני מקצועות/.test($("nf_track").value); if (d) $("nf_subject").value = "מתמטיקה ואנגלית"; lockPaint(); };
+  document.querySelectorAll("#payPnl .nl-f input, #payPnl .nl-f select").forEach(e => { if (!e.onchange) e.addEventListener("change", lockPaint); e.addEventListener("input", lockPaint); });
+  // תלמיד/ה קיים/ת: הפרטים מהכרטיס נכנסים לטופס (נעולים), והתשלום נרשם בכרטיס – לא נפתח כרטיס חדש
+  const stuOf = (ld) => { const s = ld.student || {}, f = s.family || {}; return { student_first: s.first_name, student_last: s.last_name, parent_name: fullName(f.parent1_first, f.parent1_last), parent_phone: f.parent1_phone, parent_email: f.parent1_email, city: f.city, school: s.school, grade: s.grade, class_num: s.class_num }; };
+  const stuPaint = () => { const ld = SID && leadOfSid(SID), s = ld && ld.student;
+    $("nStuOn").hidden = !SID; $("nStuOff").hidden = !!SID;
+    if (SID) $("nStuOn").innerHTML = `<span>🔗 מחובר לכרטיס: <b>${esc(s ? fullName(s.first_name, s.last_name) : (src && src.student_name) || "")}</b>${s && s.family && s.family.parent1_first ? ` <span class="muted">· ${esc(fullName(s.family.parent1_first, s.family.parent1_last))}</span>` : ""}</span><button type="button" class="btn small" id="nStuX">✕ ביטול החיבור</button>`;
+    if (SID) $("nStuX").onclick = () => { SID = null; stuPaint(); }; };
+  $("nStuQ").oninput = () => { const t = $("nStuQ").value.trim(), r = $("nStuRes");
+    if (t.length < 2) { r.hidden = true; return; }
+    const d = t.replace(/\D/g, ""), hits = L.leads.filter(l => l.student_id && l.student && (fullName(l.student.first_name, l.student.last_name).includes(t) || (d.length >= 4 && [l.student.phone, l.student.family && l.student.family.parent1_phone, l.student.family && l.student.family.parent2_phone].some(p => String(p || "").replace(/\D/g, "").includes(d))))).slice(0, 8);
+    r.hidden = false; r.innerHTML = hits.length ? hits.map(l => `<button type="button" data-sid="${l.student_id}"><b>${esc(fullName(l.student.first_name, l.student.last_name))}</b> <span class="muted">${esc([l.student.grade, l.student.school].filter(Boolean).join(" · "))}${l.student.family && l.student.family.parent1_first ? " · " + esc(fullName(l.student.family.parent1_first, l.student.family.parent1_last)) : ""}</span></button>`).join("") : `<div class="muted">לא נמצא/ה.</div>`;
+    r.querySelectorAll("[data-sid]").forEach(x => x.onclick = () => { SID = Number(x.dataset.sid); const v = stuOf(leadOfSid(SID));
+      Object.entries(v).forEach(([k, val]) => { if (!$("nf_" + k)) return; if (k === "school") schools(); sv(k, val || ""); });
+      $("nStuQ").value = ""; r.hidden = true; stuPaint(); lockPaint(); }); };
+  // מילוי מקישור קיים (עריכה / שכפול)
+  if (src) {
+    $("nDesc").value = src.description || ""; $("nOnce").value = src.one_time_amount || "";
+    if (src.monthly_amount) { $("nRec").checked = true; $("nRec").onchange(); $("nMAmt").value = src.monthly_amount; $("nMCnt").value = src.monthly_count || ""; $("nMFirst").value = src.first_monthly_date ? String(src.first_monthly_date).slice(0, 10) : ""; }
+    FIELDS.forEach(([k]) => { if (k === "school") schools(); sv(k, F[k] && F[k].value); });
+    if (src.order_kind) SID = null;   // קישור על הרשמה קיימת – ההרשמה עצמה לא משוכפלת
+  }
+  stuPaint(); lockPaint();
   $("nSave").onclick = async () => {
     const once = Number($("nOnce").value), err = $("nErr"); err.textContent = "";
     if (!$("nDesc").value.trim()) { err.textContent = "חסר תיאור."; return; }
     if (!(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
     const p = { description: $("nDesc").value.trim(), one_time_amount: once, fields: {} };
+    if (SID) p.student_id = SID;
+    if (ed && src.order_kind) p.order = { kind: src.order_kind, id: src.order_id };
     if ($("nRec").checked) { const a = Number($("nMAmt").value), c = Number($("nMCnt").value); if (!(a > 0) || !(c >= 1 && c <= 24)) { err.textContent = "בהוראת קבע: סכום חודשי ומספר חיובים (1-24)."; return; } p.monthly = { amount: a, count: c, first_date: $("nMFirst").value || "" }; }
-    FIELDS.forEach(([k]) => { p.fields[k] = { value: $("nf_" + k).value.trim(), required: $("nr_" + k).checked }; });
+    FIELDS.forEach(([k]) => { const v = $("nf_" + k).value.trim(); p.fields[k] = { value: v, required: !v && $("nr_" + k).checked }; });
     $("nSave").disabled = true;
-    try { const r = await call("pay_link_create", { p }); pnlClose(); await copy(r.url); render(); } catch(e) { err.textContent = "לא נוצר: " + e.message; $("nSave").disabled = false; }
+    try { if (ed) { await call("pay_link_update", { p_code: src.code, p }); pnlClose(); toast("נשמר"); render(); }
+      else { const r = await call("pay_link_create", { p }); pnlClose(); await copy(r.url); render(); } }
+    catch(e) { err.textContent = (ed ? "לא נשמר: " : "לא נוצר: ") + (/cannot edit/.test(e.message) ? "ההורה כבר מילא/ה את הטופס – אי אפשר לערוך. אפשר לבטל ולשכפל." : e.message); $("nSave").disabled = false; }
   };
 }
 
