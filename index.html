@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.46">
+<meta name="app-version" content="5.21.48">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2737,7 +2737,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
 .ftx-nav button b{ font-size:14px; font-weight:700; } .ftx-nav button small{ font-size:11px; color:#7d7067 !important; opacity:1 !important; line-height:1.3; }
 .ftx-nav button:hover{ background:#F6EFE6; } .ftx-nav button[aria-pressed="true"]{ background:#6B1A20; } .ftx-nav button[aria-pressed="true"] b, .ftx-nav button[aria-pressed="true"] small{ color:#fff; }
 .ftx-main .ftx-top{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
-.ftx-main .ftx-when{ font-size:18px; flex-basis:auto; margin:0; } .ftx-main .ftx-acts{ margin-inline-start:auto; }
+.ftx-main .ftx-when{ font-size:18px; flex-basis:auto; margin:0; } .ftx-city{ width:auto !important; display:inline-block !important; height:auto !important; min-height:0 !important; font-size:14px; margin-inline-start:10px; padding:4px 30px 4px 10px; border-radius:999px; vertical-align:2px; } .ftx-main .ftx-acts{ margin-inline-start:auto; }
 .ftx-q{ all:unset; cursor:pointer; width:22px; height:22px; border-radius:50%; border:1px solid var(--border, #E6DDD3); text-align:center; font-size:13px; font-weight:700; color:#7A1F26; }
 @media (max-width:900px){ .ftx-lay{ grid-template-columns:1fr; } .ftx-nav{ position:static; } .ftx-nav .ftx-forms{ flex-direction:row; overflow-x:auto; } .ftx-nav .ftx-fg{ display:none; } .ftx-nav button small{ display:none; } .ftx-nav button{ white-space:nowrap; } }
 </style>
@@ -4404,7 +4404,7 @@ async function renderCrsCourses(reload){
   // 5.19.166: ניהול המרתון (לא יתקיים / מתקיים / הוחזר) – היה בלשונית "קישורים" שהוסרה; עכשיו בחלון מהקורס
   b.querySelectorAll("[data-crsmgmt]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); const c = CRS.byId[Number(x.dataset.crsmgmt)], o = (CRS.mar || {})[c && c.marathon_id] || {};
     panelFor("ניהול המרתון", [o.name, o.school, o.city].filter(Boolean).join(" · ")); const box = $("gEdit"); box.hidden = false; box.classList.remove("g3");
-    box.innerHTML = `<section class="rg-sec full" id="rgMar"><div class="muted">טוען…</div></section>`; RG.mar = null; await renderRegMarathons(o.city || "*");
+    box.innerHTML = `<section class="rg-sec full" id="rgMar"><div class="muted">טוען…</div></section>`; RG.mar = null; RG.marOnly = c.marathon_id; await renderRegMarathons(o.city || "*");   // נועה 7.11: 🏁 – רק המרתון של השורה
     const el = box.querySelector(`[data-rmcxl="${c.marathon_id}"], [data-rmundo="${c.marathon_id}"]`); if (el) el.closest(".mc-card, .mc, div").scrollIntoView({ block: "center" }); });
   b.querySelectorAll("[data-crsedit]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); const c = CRS.byId[Number(x.dataset.crsedit)]; if (!c) return;
     try { if (c.marathon_id) { const m = (await get("marathons", "select=*&id=eq." + c.marathon_id))[0]; if (!m) { toast("המרתון לא נמצא"); return; } openMarathonEditor(m); }
@@ -4448,7 +4448,7 @@ function crsWireTable(b, re){
   b.querySelectorAll("[data-back]").forEach(x => x.onclick = (e) => { e.stopPropagation(); go("leads"); setTimeout(() => { if (!F.ccat) F.ccat = new Set(); F.ccat.clear(); F.ccat.add("__back"); F.page = 0; try { crsFillFilter(); } catch(e2) {} renderLeads(); }, 50); });
   b.querySelectorAll("[data-crsmgmt]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); const c = CRS.byId[Number(x.dataset.crsmgmt)], o = (CRS.mar || {})[c && c.marathon_id] || {};
     panelFor("ניהול המרתון", [o.name, o.school, o.city].filter(Boolean).join(" · ")); const box = $("gEdit"); box.hidden = false; box.classList.remove("g3");
-    box.innerHTML = `<section class="rg-sec full" id="rgMar"><div class="muted">טוען…</div></section>`; RG.mar = null; await renderRegMarathons(o.city || "*");
+    box.innerHTML = `<section class="rg-sec full" id="rgMar"><div class="muted">טוען…</div></section>`; RG.mar = null; RG.marOnly = c.marathon_id; await renderRegMarathons(o.city || "*");   // נועה 7.11: 🏁 – רק המרתון של השורה
     const el = box.querySelector(`[data-rmcxl="${c.marathon_id}"], [data-rmundo="${c.marathon_id}"]`); if (el) el.closest(".mc-card, .mc, div").scrollIntoView({ block: "center" }); });
   b.querySelectorAll("[data-crsedit]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); const c = CRS.byId[Number(x.dataset.crsedit)]; if (!c) return;
     try { if (c.marathon_id) { const m = (await get("marathons", "select=*&id=eq." + c.marathon_id))[0]; if (!m) { toast("המרתון לא נמצא"); return; } openMarathonEditor(m); }
@@ -4555,7 +4555,7 @@ function crsTable(list, opt){ opt = opt || {}; const onlyMar = list.every(c => c
           <div class="mt-lk2"><span class="mt-lkl">התעניינות</span>${lk2Btns("", lkFix(lkBase() + "interest.html?" + q({ city, school: sc, tracks: CRS.hasTrk ? "" : c.track || "" })), "טופס התעניינות - תלם " + city + (sc ? " · " + sc : "") + ": ")}</div>`; }
       if (crsSeason(c.season_id).is_active && !backDone.has(key)) { backDone.add(key); const b = backOf(key); if (b) back = `<button type="button" class="crs-back-n" data-back="1" title="היו רשומים בשנה שעברה בבית הספר הזה, ולא השנה – לחיצה: הרשימה בטבלת התלמידים">↩ ${b}</button>`; }
     }
-    const k = (x) => ms.filter(m => m.status === x).length, reg = k("רשום");
+    const k = (x) => ms.filter(m => m.status === x).length, reg = k("רשום") + (mar ? k("רשום בעבר") : 0);   // נועה 7.11: מרתון שעבר – הנרשמים הופכים ל"רשום בעבר", וגם הם נספרים
     const name = mar ? (onlyMar ? "" : `<b>🏁 ${esc(crsCatN(c.category_id) || "מרתון")}</b> `) + (o.grade ? `<span class="gr-b g-${esc(o.grade)}">${esc(o.grade)}'</span>` : onlyMar ? `<span class="muted">—</span>` : "")
       : crsTitle(c, true) + crsTrkMix(c);
     return `<tr class="crs-mr${I.past ? " mpast" : ""}${CRS.sel === c.id ? " sel" : ""}${mar ? " is-mar" : ""}" data-crs="${c.id}" tabindex="0">
@@ -4576,7 +4576,7 @@ function crsTable(list, opt){ opt = opt || {}; const onlyMar = list.every(c => c
   let last = null;
   list.forEach(c => { const ci = crsCity(c);
     if (multiCity && ci !== last) { last = ci; const all = Object.values(CRS.cm).flat().filter(m => list.some(x => x.id === m.course_id && crsCity(x) === ci) && !crsGone(m) && crsMOk(m)), k = (st) => all.filter(m => m.status === st).length;
-      out += `<tr class="crs-city"><td colspan="${cols}"><b>${esc(ci || "בלי עיר")}</b> <span class="muted">${k("רשום")} רשומים${k("ממתין לתשלום") ? " · " + k("ממתין לתשלום") + " ממתינים" : ""}${all.filter(crsIsInt).length ? " · " + all.filter(crsIsInt).length + " מתעניינים" : ""}</span></td></tr>`; }
+      out += `<tr class="crs-city"><td colspan="${cols}"><b>${esc(ci || "בלי עיר")}</b> <span class="muted">${k("רשום") + (onlyMar ? k("רשום בעבר") : 0)} רשומים${k("ממתין לתשלום") ? " · " + k("ממתין לתשלום") + " ממתינים" : ""}${all.filter(crsIsInt).length ? " · " + all.filter(crsIsInt).length + " מתעניינים" : ""}</span></td></tr>`; }
     out += row(c); });
   return out + `</tbody></table></div>`;
 }
@@ -5915,7 +5915,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
         if (ps.classList.contains("cur") && b.pend.length) { const i = b.pend[0], x = pend[i];
           tEl.textContent = x.paid_before ? "לוודא תשלום" : "לקחת אשראי";
           if (x.paid_before) { const cb = g.querySelector(`[data-cbm="${ps.dataset.stm}"]`); if (cb) [...cb.querySelectorAll("span,b,button")].filter(e => !e.children.length && e.textContent.trim() === "לקחת אשראי" && !e.closest(".stp")).forEach(e => { e.textContent = "לוודא תשלום"; }); }
-          mEl.innerHTML = (x.paid_before ? "ההורה סימן \"כבר שילמתי\"" + (x.amount ? " · " : "") : "") + (x.amount ? fmtMoney(x.amount) : "") + (x.monthly_amount ? " + " + fmtMoney(x.monthly_amount) + " לחודש" : "");
+          mEl.innerHTML = (x.paid_before ? "ההורה סימן \"שולם טלפונית\"" + (x.amount ? " · " : "") : "") + (x.amount ? fmtMoney(x.amount) : "") + (x.monthly_amount ? " + " + fmtMoney(x.monthly_amount) + " לחודש" : "");
           aEl.innerHTML = `<button type="button" class="btn small primary" data-stpaid="${i}">✔ שולם</button>`;
           aEl.querySelector("[data-stpaid]").onclick = async (e) => { const bt = e.currentTarget; bt.disabled = true;
             if (await markPaid(x)) { setTimeout(() => { if (editing && editing.id === l.id) { loadLeadPayments(l); loadLeadGroups(l.student.id); const nl = L.leads.find(y => y.id === l.id); if (nl) { $("lfStatus").value = nl.status_id; paintStatus($("lfStatus"), nl.status_id); } } }, 1500); } else bt.disabled = false; }; }
@@ -6572,19 +6572,23 @@ $("addLeadBtn").addEventListener("click", () => openLead(null));
 const FTX_FORMS = [
   ["register", "טופס הרשמה", "תרגולים שוטפים", "הקישור לפי עיר – בטבלת התרגולים השוטפים / באתר"],
   ["interest", "טופס התעניינות", "תרגולים שוטפים", "הקישור לפי עיר / בית ספר – באתר ובטבלת התרגולים השוטפים"],
+  ["class", "טופס כיתה", "תרגולים שוטפים", "טופס התעניינות לכיתה (QR) – בלשונית 📣 טופס כיתה"],
   ["marathon", "טופס הרשמה", "מרתון", "הקישור של כל מרתון – ב\"מרתונים\""],
   ["pay", "קישור תשלום אישי", "נשלח להורה", "נוצר מכרטיס התלמיד / ממסך הקישורים"],
   ["cancel", "טופס ביטול", "נשלח להורה", "כשהורה מבקש לבטל הרשמה"],
   ["shibutz", "טופס שיבוץ", "נשלח להורה", "בחירת מועדים מועדפים לשיבוץ"],
+  ["sign", "טופס חתימה", "נשלח להורה", "קישור אישי מהכרטיס – ✍ קישור לחתימה (פרטים, תנאים וחתימה)"],   // נועה 7.11: כל הטפסים בנוסחי הטפסים
   ["thank-you", "דף תודה", "אחרי שליחה", "אחרי כל טופס – כל המקרים לפי הטופס ששלח (לחיצה על מקרה – פתיחה בגדול)"],
   ["payment-failed", "תשלום לא הושלם", "אחרי שליחה", "כשהתשלום באשראי לא עבר"]];
-const FTX_TYV = [["paid", "אשראי – שולם"], ["phone", "תשלום טלפוני"], ["phpaid", "כבר שילמתי בטלפון"], ["signed", "קישור אישי – רשום"], ["sgunp", "קישור אישי – לא רשום"], ["lead", "מרתון – להשאיר פרטים"], ["already", "מרתון – כבר רשום/ה"], ["interest", "התעניינות"], ["paylink", "קישור תשלום – שולם"]];   // נועה 6.11: כל המקרים (טבלת הסיכום); "ההרשמה נשלחה" ירד
+// נועה 7.11: תצוגה לפי עיר (הנוסח אחד לכל הערים; מה שמשתנה – מחירים, תוספות לעיר, המרתון של העיר)
+const FTX_CITIES = ["ראש העין", "הוד השרון", "כפר סבא"], FTX_CITY_F = ["register", "interest", "marathon", "class"];
+const FTX_TYV = [["paid", "אשראי – שולם"], ["phone", "תשלום טלפוני"], ["phpaid", "שולם טלפונית"], ["signed", "קישור אישי – רשום"], ["sgunp", "קישור אישי – לא רשום"], ["lead", "מרתון – להשאיר פרטים"], ["already", "מרתון – כבר רשום/ה"], ["interest", "התעניינות"], ["paylink", "קישור תשלום – שולם"]];   // נועה 6.11: כל המקרים (טבלת הסיכום); "ההרשמה נשלחה" ירד
 const FTX_RV = [["reg", "רגיל"], ["card", "קישור אישי – שולם"], ["cardu", "קישור אישי – לא שולם"]];   /* 5.21.19 (נועה 6.11): גם במרתון */   // 5.21.11 (נועה 4.11): "שילמו בטלפון" – עכשיו אפשרות בטופס הרגיל ("כבר שילמתי"), לא קישור נפרד
-const FX = { form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "paid", tys: "reg", tyAll: true, rv: "reg", mar: null };
+const FX = { city: "ראש העין", form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "paid", tys: "reg", tyAll: true, rv: "reg", mar: null };
 // נועה 7.11: כל המקרים של דף התודה – לפי הטופס ששלח (כמו בטבלה). [גרסה, דוגמה (שוטף / מרתון), שם]
 const FTX_TYALL = [
-  ["טופס הרשמה לתרגולים השוטפים", [["paid", "reg", "אשראי – שולם"], ["phone", "reg", "תשלום טלפוני"], ["phpaid", "reg", "\"כבר שילמתי בטלפון\""]]],
-  ["טופס מרתון", [["paid", "mar", "הרשמה – אשראי, שולם"], ["phone", "mar", "הרשמה – תשלום טלפוני"], ["phpaid", "mar", "הרשמה – \"כבר שילמתי\""], ["lead", "mar", "להשאיר פרטים"], ["already", "mar", "כבר נשלח"]]],
+  ["טופס הרשמה לתרגולים השוטפים", [["paid", "reg", "אשראי – שולם"], ["phone", "reg", "תשלום טלפוני"], ["phpaid", "reg", "\"שולם טלפונית\""]]],
+  ["טופס מרתון", [["paid", "mar", "הרשמה – אשראי, שולם"], ["phone", "mar", "הרשמה – תשלום טלפוני"], ["phpaid", "mar", "הרשמה – \"שולם טלפונית\""], ["lead", "mar", "להשאיר פרטים"], ["already", "mar", "כבר נשלח"]]],
   ["טופס התעניינות (שוטף)", [["interest", "reg", "התעניינות"]]],
   ["קישור אישי מכרטיס התלמיד (פחות חשוב)", [["paylink", "reg", "קישור תשלום – שולם"], ["signed", "reg", "קישור הרשמה – נחתם, הקורס רשום"], ["sgunp", "reg", "קישור הרשמה – נחתם, הקורס לא רשום"]]]];
 const ftxN = (h) => String(h == null ? "" : h).replace(/ /g, " ").replace(/\s+/g, " ").replace(/\s*<br>\s*/g, "<br>").trim();
@@ -6691,7 +6695,10 @@ function ftxTabPaint(){ document.querySelectorAll("[data-ftab]").forEach(b => { 
   { const c = document.querySelector(".ftx-pane-class"); if (c) c.hidden = FTX_TAB.v !== "class"; } { const r = document.querySelector(".ftx-pane-rules"); if (r) r.hidden = FTX_TAB.v !== "rules"; } }
 async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint(); if (FTX_TAB.v === "class") clsPaint(); if (FTX_TAB.v === "rules") PAY.rules($("brSet")); if (FTX_TAB.v !== "texts" && !onlyTexts) return; FTX_TAB.textsOpen = true;
   $("ftxForms").innerHTML = FTX_FORMS.map(([k, n, g, w], i) => `${!i || FTX_FORMS[i - 1][2] !== g ? `<div class="ftx-fg">${esc(g)}</div>` : ""}<button type="button" data-ftx="${k}" aria-pressed="${k === FX.form}" title="${esc(w)}"><b>${esc(n)}</b><small>${esc(w)}</small></button>`).join("");
-  { const f = FTX_FORMS.find(x => x[0] === FX.form); $("ftxWhen").innerHTML = f ? `<b>${esc(f[1])}</b><span class="muted"> · ${esc(f[2])}</span>` : ""; }
+  { const f = FTX_FORMS.find(x => x[0] === FX.form); $("ftxWhen").innerHTML = (f ? `<b>${esc(f[1])}</b><span class="muted"> · ${esc(f[2])}</span>` : "")
+      + (FTX_CITY_F.includes(FX.form) ? ` <select id="ftxCity" class="ftx-city" aria-label="תצוגה לפי עיר" title="תצוגה לפי עיר – הנוסח אחד לכל הערים">${FTX_CITIES.map(c => `<option${c === FX.city ? " selected" : ""}>${esc(c)}</option>`).join("")}</select>` : "");
+    if ($("ftxCity")) $("ftxCity").onchange = async (e) => { if (ftxUnsaved()) { try { await ftxSaveDrafts(); ftxPaintState(); } catch(er) { toast("לא נשמר: " + er.message); return; } }
+      FX.city = e.target.value; if (FX.form === "marathon") FX.mar = null; ftxOpen(); }; }
   $("ftxForms").querySelectorAll("[data-ftx]").forEach(b => b.onclick = async () => { if (b.dataset.ftx === FX.form) return; if (ftxUnsaved() && !await uiConfirm("יש שינויים שלא נשמרו כטיוטה. לעבור טופס בלי לשמור?")) return; FX.form = b.dataset.ftx; ftxOpen(); });
   $("ftxTyv").hidden = !["thank-you", "register", "marathon"].includes(FX.form);
   if (!["register", "marathon"].includes(FX.form)) FX.rv = "reg";
@@ -6707,15 +6714,16 @@ async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint();
     FX.live = {}; lv.forEach(r => FX.live[r.key] = r.value);
     FX.draft = {}; dr.forEach(r => FX.draft[r.key] = r);
   } catch(e) { $("ftxList").innerHTML = `<div class="err">${e.status === 404 || /form_text/.test(e.message) ? "צריך להריץ את קובץ 88." : "לא נטען: " + esc(e.message)}</div>`; return; }
-  if (FX.mar == null) { FX.mar = ""; try { const m = await get("marathons", "select=code&cancelled_at=is.null&code=not.is.null&order=id.desc&limit=1"); if (m[0]) FX.mar = m[0].code; } catch(e) {} }
+  if (FX.mar == null) { FX.mar = ""; try { const m = await get("marathons", "select=code&cancelled_at=is.null&code=not.is.null&city=eq." + encodeURIComponent(FX.city) + "&order=id.desc&limit=1"); if (m[0]) FX.mar = m[0].code; } catch(e) {} }
   ftxLoadFrame(true);
 }
 function ftxUrl(){
   let q = "?preview=1";
   if (FX.form === "marathon" && FX.mar) q += "&m=" + encodeURIComponent(FX.mar) + (FX.rv && FX.rv !== "reg" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
-  if (FX.form === "interest") q += "&city=" + encodeURIComponent("ראש העין");   // נועה 7.11: בלי מרתון – ההתעניינות במרתון היא בטופס המרתון ("להשאיר פרטים")
+  if (FX.form === "interest" || FX.form === "class") q += "&city=" + encodeURIComponent(FX.city);   // נועה 7.11: בלי מרתון – ההתעניינות במרתון היא בטופס המרתון ("להשאיר פרטים")
   if (FX.form === "thank-you") q = "?tyv=" + FX.tyv + "&tys=" + (FX.tys || "reg");
-  if (FX.form === "register" && FX.rv !== "reg") q = "?city=" + encodeURIComponent("ראש העין") + "&phone=1&preview=1" + (FX.rv === "card" || FX.rv === "cardu" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
+  if (FX.form === "register") q = "?city=" + encodeURIComponent(FX.city) + "&preview=1";
+  if (FX.form === "register" && FX.rv !== "reg") q = "?city=" + encodeURIComponent(FX.city) + "&phone=1&preview=1" + (FX.rv === "card" || FX.rv === "cardu" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
   return "/" + FX.form + ".html" + q;
 }
 // טוען את הטופס בתצוגה. collect – לאסוף מחדש את רשימת הטקסטים (בפתיחה); אחרת – רק רענון התצוגה (תבניות / דף התודה)
@@ -8580,7 +8588,7 @@ $("attNewG").addEventListener("click", async () => { await ensureG(); newGroup({
 $("attNewM").addEventListener("click", async () => { await ensureG(); $("mNewBtn").click(); });
 $("attRepBtn").addEventListener("click", () => go("attg"));
 $("arBackBtn").addEventListener("click", () => go("att"));
-function closePanel(){ const was = !$("panel").hidden; $("panel").hidden = true; $("panelBg").hidden = true; G.autoEdit = false;
+function closePanel(){ const was = !$("panel").hidden; if (typeof RG !== "undefined") RG.marOnly = null; $("panel").hidden = true; $("panelBg").hidden = true; G.autoEdit = false;
   if (was && currentView === "exams" && EX.mode === "mar") { CRS.stale = true; setTimeout(() => renderExams(false), 0); } }   // 5.20.38: לשונית המרתונים – מתעדכנת אחרי עריכה / ניהול
 // 5.19.27: באו מהנוכחות ("✎ קבוצה") - סגירת החלון חוזרת לאותו דף נוכחות (אותו יום)
 function closePanelUser(){
@@ -8702,8 +8710,8 @@ async function openMarathonPanel(m){
           : `<li class="meta">עוד אין נרשמים בקבוצה הזאת.</li>`); }).join("") : `<li class="meta">אין קבוצות במרתון.</li>`);
   // 5.20.29 (נועה): מי שעוד לא "נרשם" במרתון (ממתין לתשלום / מתעניין…) – בנפרד, לא בקבוצה
   try { if (CRS.ok) { const c = CRS.courses.find(x => x.marathon_id === m.id), inG = new Set([].concat(...gs.map(g => kidsOf(g.session_id).map(k => k.student_id))));
-      const ws = c ? Object.values(CRS.cm).flat().filter(x => x.course_id === c.id && !crsGone(x) && x.status !== "רשום" && !["פרש", "לא התקיים", "לא מעוניין"].includes(x.status) && !inG.has(x.student_id)) : [];
-      const rg = c ? Object.values(CRS.cm).flat().filter(x => x.course_id === c.id && !crsGone(x) && x.status === "רשום" && !inG.has(x.student_id)) : [];
+      const ws = c ? Object.values(CRS.cm).flat().filter(x => x.course_id === c.id && !crsGone(x) && !["רשום", "רשום בעבר", "פרש", "לא התקיים", "לא מעוניין"].includes(x.status) && !inG.has(x.student_id)) : [];
+      const rg = c ? Object.values(CRS.cm).flat().filter(x => x.course_id === c.id && !crsGone(x) && (x.status === "רשום" || x.status === "רשום בעבר") && !inG.has(x.student_id)) : [];
       if (rg.length) R.insertAdjacentHTML("beforeend", `<li class="mar-g-h mar-wait-h"><div><b>⚠ נרשמו ועוד לא בקבוצה (${rg.length})</b></div></li>`
         + rg.map(x => { const l = L.leads.find(y => y.student_id === x.student_id);
           return `<li class="ro-k mar-wait"><div class="ro-main"><div class="row-top"><span>${l ? `<button type="button" class="name-link" data-lead="${l.id}">${esc(l.student.first_name)} ${esc(l.student.last_name || "")}</button>` : "#" + x.student_id}</span><button type="button" class="btn small" data-mgadd="${x.student_id}">+ שיבוץ לקבוצה</button></div></div></li>`; }).join(""));
@@ -11915,12 +11923,12 @@ async function renderRegMarathons(city){   // city = "*" - כל הערים יח�
   const dm = (d) => { const [, mo, da] = d.split("-"); return Number(da) + "." + Number(mo); };
   const datesOf = (id) => { const d = [...(RG.marD[id] || [])].sort(); return !d.length ? "" : d.length <= 3 ? d.map(dm).join(", ") : dm(d[0]) + "–" + dm(d[d.length - 1]); };
   const firstDate = (id) => [...(RG.marD[id] || [])].sort()[0] || "9999";
-  const list0 = RG.mar.filter(m => ALL || m.city === city).sort((a, b) => firstDate(a.id).localeCompare(firstDate(b.id)));
+  const list0 = RG.mar.filter(m => RG.marOnly ? m.id === RG.marOnly : ALL || m.city === city).sort((a, b) => firstDate(a.id).localeCompare(firstDate(b.id)));
   // 5.19.44: מרתונים שעברו (המפגש האחרון לפני היום) - למטה, מקופלים, האחרון קודם
   const td = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   const lastDate = (id) => [...(RG.marD[id] || [])].sort().pop() || "";
   const isPast = (m) => { const l = lastDate(m.id); return !!l && l < td; };
-  const past = list0.filter(isPast).sort((a, b) => lastDate(b.id).localeCompare(lastDate(a.id))), list = list0.filter(m => !isPast(m)).concat(past);
+  const past = RG.marOnly ? [] : list0.filter(isPast).sort((a, b) => lastDate(b.id).localeCompare(lastDate(a.id))), list = RG.marOnly ? list0 : list0.filter(m => !isPast(m)).concat(past);
   // 5.19.35: כרטיס לכל מרתון (= שכבה אחת בבית ספר אחד): מפגשים עם שעות, מחיר, פתוח/סגור, וקישור ההרשמה
   const dl = (d) => DAY_NAMES[dayLetter(d)] ? dayLetter(d) + "' " + dm(d) : dm(d);
   box.innerHTML = `<div class="rg-sec-h"><h3>מרתונים · ${ALL ? "כל הערים" : esc(city)} <small>כל מרתון = קישור הרשמה נפרד. מרתון חדש יוצרים בלוח המבחנים: מסמנים מפגשי מרתון, לוחצים על מפגש ← 🔗 יצירת קישור הרשמה.</small></h3></div>
