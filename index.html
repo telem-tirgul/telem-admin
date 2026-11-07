@@ -10028,6 +10028,9 @@ async function loadAttGroups(){
 
 // 5.20.38 (נועה 2.11: "מסך הקורסים של השוטף הוא מסך הקבוצות בתצוגה אחרת"): שורה לכל מקום תרגול – הקבוצות, ילדים מתוך מקומות, מתרגלים, קישור;
 //   שורת עיר – המחירים, פתוח / סגור להרשמה, הקישורים; ובכל עיר – מי שנרשם/ה ועוד לא שובץ/ה
+// נועה 7.11: מספר הילדים – כל ילד/ה פעם אחת (גם כשהוא/היא בשתי קבוצות באותו בית ספר / עיר)
+function atKids(gs){ if (!Array.isArray(G.roster)) return gs.reduce((a, x) => a + (x.assigned_count || 0), 0);
+  const ids = new Set(gs.map(x => x.session_id)); return new Set(G.roster.filter(r => ids.has(r.session_id) && r.student_id).map(r => r.student_id)).size; }
 async function loadAttTable(){
   renderAttCities(); paintAttMode();
   $("attMark").querySelector(".att-date").hidden = true; $("attWeekNav").hidden = true; $("attCal").hidden = true; const box = $("attGroups"); box.hidden = false; box.classList.add("at-on");
@@ -10067,7 +10070,7 @@ async function loadAttTable(){
     h += `<tr class="at-city at-all"><td colspan="4"><div class="at-ch"><b class="at-cn">כל הערים</b><span class="muted">טופס התעניינות כללי – ההורה בוחר/ת עיר</span></div></td>${lkCell(io, lkInterest(null), "טופס התעניינות - תלם: ", "int")}<td></td><td></td></tr>`; }
   cities.forEach(ci => { const cl = list.filter(x => x.city === ci), P = (typeof REG_PRICES !== "undefined" && REG_PRICES[ci]) || null, W = [...(waits[ci] || new Map()).values()];
     if (!cl.length && !W.length) return; any = true;
-    const early = P && (P.earlyUntil || REG_EARLY_UNTIL || "") >= today, kids = cl.reduce((a, x) => a + (x.assigned_count || 0), 0), cap = cl.reduce((a, x) => a + (Number(x.capacity) || 0), 0);
+    const early = P && (P.earlyUntil || REG_EARLY_UNTIL || "") >= today, kids = atKids(cl), cap = cl.reduce((a, x) => a + (Number(x.capacity) || 0), 0);
     const pr = P ? LK.tracks.filter(t => P[t.v] && Number(P[t.v].regular) > 0).map(t => `<span class="at-pr">${esc(CRS_TRK_S[t.v] || t.t)} <b>${nis(P[t.v].regular)}</b>${early && P[t.v].early ? ` <span class="muted">(מוקדם ${nis(P[t.v].early)})</span>` : ""}</span>`).join("") : "";
     const op = rpHas68() ? rpRegOpen(ci) : null, io = rpHas68() ? rpIntCityOpen(ci) : null;
     const locs = [...new Set(cl.map(x => x.location))].sort((a, b) => a.localeCompare(b, "he"));
@@ -10075,7 +10078,7 @@ async function loadAttTable(){
       <td>${kidsTxt(kids, cap)}</td><td></td>
       ${lkCell(io, lkInterest(new URLSearchParams({ city: ci })), "טופס התעניינות - תלם " + ci + ": ", "intc:" + ci)}${lkCell(op, lkReg(ci, ""), "טופס ההרשמה לתלם - " + ci + ": ", "reg:" + ci)}<td></td></tr>`;
     locs.forEach(lo => { const gs = cl.filter(x => x.location === lo).sort((a, b) => DAY_ORDER[a.day] - DAY_ORDER[b.day] || String(a.start_time).localeCompare(String(b.start_time)));
-      const k = gs.reduce((a, x) => a + (x.assigned_count || 0), 0), c2 = gs.reduce((a, x) => a + (Number(x.capacity) || 0), 0), q = (o) => new URLSearchParams(o).toString();
+      const k = atKids(gs), c2 = gs.reduce((a, x) => a + (Number(x.capacity) || 0), 0), q = (o) => new URLSearchParams(o).toString();
       const key = ci + "|" + lo, open = A.atOpen.has(key), ins = [...new Set(gs.flatMap(x => (G.ins && G.ins[x.session_id]) || []))];
       const nFull = gs.filter(x => x.capacity && (x.assigned_count || 0) >= x.capacity).length, nCl = gs.filter(x => x.is_open === false).length;
       KEYS.push(key); XR.push([ci, lo, gs.length + " קבוצות", k, c2, ins.join(", "), "", "", waOf(ci, lo) || ""]);   // נועה 7.11: טופס התעניינות – אחד לכל עיר (בלי קישור לבית ספר)   // נועה 6.11: טופס הרשמה – רק לפי עיר
