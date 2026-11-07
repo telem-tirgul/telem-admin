@@ -5336,8 +5336,8 @@ async function withdrawAsk(m, name, od){
 // 174: לפי הקורס – עבר/ה ל"רשום" בקורס (שוטף או מרתון)
 async function regHowAsk(leadId, m, od){
   if (!leadId || !m || m.status !== "רשום" || od === "רשום") return;
-  const c = CRS.byId[m.course_id] || {}, nw = crsShort(c, true) + ": רשום";
-  const pr = uiChoose(`עבר/ה ל"${nw}" – איך נרשם/ה? (הסטטוס כבר נשמר)`, [
+  const c = CRS.byId[m.course_id] || {}, nw = crsShort(c, true) + ": " + ((crsStOf("רשום") || {}).label || "רשום");
+  const pr = uiChoose(`${crsShort(c, true)}: עבר/ה ל"${(crsStOf("רשום") || {}).label || "רשום"}" – איך נרשם/ה? (הסטטוס כבר נשמר)`, [
     { v: "בטלפון – תשלום טלפוני", t: "📞 בטלפון – תשלום טלפוני" },
     { v: "שילם/ה ישירות בריווחית", t: "💳 שילם/ה ישירות בריווחית" },
     { v: "הועבר/ה מהמערכת הישנה", t: "↪ הועבר/ה מהמערכת הישנה" },
