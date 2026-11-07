@@ -6683,7 +6683,7 @@ const FTX_FORMS = [
   ["interest", "טופס התעניינות", "תרגולים שוטפים", "הקישור לפי עיר / בית ספר – באתר ובטבלת התרגולים השוטפים"],
   ["class", "טופס כיתה", "תרגולים שוטפים", "טופס התעניינות לכיתה (QR) – בלשונית 📣 טופס כיתה"],
   ["marathon", "טופס הרשמה", "מרתון", "הקישור של כל מרתון – ב\"מרתונים\""],
-  ["pay", "קישור תשלום אישי", "נשלח להורה", "נוצר מכרטיס התלמיד / ממסך הקישורים"],
+  ["pay", "דף תשלום", "נשלח להורה", "נוצר במסך התשלומים ← דפי תשלום (תשלום רגיל / שיעור בודד / חודש ניסיון) – לא מכרטיס התלמיד"],   // נועה 7.11: שם ברור
   ["cancel", "טופס ביטול", "נשלח להורה", "כשהורה מבקש לבטל הרשמה"],
   ["shibutz", "טופס שיבוץ", "נשלח להורה", "בחירת מועדים מועדפים לשיבוץ"],
   ["sign", "טופס חתימה", "נשלח להורה", "קישור אישי מהכרטיס – ✍ קישור לחתימה (פרטים, תנאים וחתימה)"],   // נועה 7.11: כל הטפסים בנוסחי הטפסים
@@ -6692,14 +6692,14 @@ const FTX_FORMS = [
 // נועה 7.11: תצוגה לפי עיר (הנוסח אחד לכל הערים; מה שמשתנה – מחירים, תוספות לעיר, המרתון של העיר)
 const FTX_CITIES = ["ראש העין", "הוד השרון", "כפר סבא"], FTX_CITY_F = ["register", "interest", "marathon", "class"];
 const FTX_TYV = [["paid", "אשראי – שולם"], ["phone", "תשלום טלפוני"], ["phpaid", "שולם טלפונית"], ["signed", "קישור אישי – סטטוס נרשם"], ["sgunp", "קישור אישי – לקחת אשראי"], ["lead", "מרתון – להשאיר פרטים"], ["already", "מרתון – כבר רשום/ה"], ["interest", "התעניינות"], ["paylink", "קישור תשלום – שולם"]];   // נועה 6.11: כל המקרים (טבלת הסיכום); "ההרשמה נשלחה" ירד
-const FTX_RV = [["reg", "רגיל"], ["card", "קישור אישי – סטטוס נרשם"], ["cardu", "קישור אישי – לקחת אשראי"]];   /* 5.21.19 (נועה 6.11): גם במרתון */   // 5.21.11 (נועה 4.11): "שילמו בטלפון" – עכשיו אפשרות בטופס הרגיל ("כבר שילמתי"), לא קישור נפרד
+const FTX_RV = [["reg", "רגיל"], ["card", "קישור אישי – סטטוס נרשם"], ["cardu", "קישור אישי – לקחת אשראי"], ["closed", "ההרשמה סגורה"]];   // נועה 7.11: גם הדף "ההרשמה סגורה"   /* 5.21.19 (נועה 6.11): גם במרתון */   // 5.21.11 (נועה 4.11): "שילמו בטלפון" – עכשיו אפשרות בטופס הרגיל ("כבר שילמתי"), לא קישור נפרד
 const FX = { city: "ראש העין", form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "paid", tys: "reg", tyAll: true, rv: "reg", mar: null };
 // נועה 7.11: כל המקרים של דף התודה – לפי הטופס ששלח (כמו בטבלה). [גרסה, דוגמה (שוטף / מרתון), שם]
 const FTX_TYALL = [
   ["טופס הרשמה לתרגולים השוטפים", [["paid", "reg", "אשראי – שולם"], ["phone", "reg", "תשלום טלפוני"], ["phpaid", "reg", "\"שולם טלפונית\""]]],
   ["טופס מרתון", [["paid", "mar", "הרשמה – אשראי, שולם"], ["phone", "mar", "הרשמה – תשלום טלפוני"], ["phpaid", "mar", "הרשמה – \"שולם טלפונית\""], ["lead", "mar", "להשאיר פרטים"], ["already", "mar", "כבר נשלח"]]],
   ["טופס התעניינות (שוטף)", [["interest", "reg", "התעניינות"]]],
-  ["קישור אישי מכרטיס התלמיד (פחות חשוב)", [["paylink", "reg", "קישור תשלום – שולם"], ["signed", "reg", "קישור הרשמה – נחתם, סטטוס נרשם"], ["sgunp", "reg", "קישור הרשמה – נחתם, לקחת אשראי"]]]];
+  ["קישור אישי מכרטיס התלמיד (פחות חשוב)", [["paylink", "reg", "דף תשלום (ממסך התשלומים) – שולם"], ["signed", "reg", "קישור הרשמה – נחתם, סטטוס נרשם"], ["sgunp", "reg", "קישור הרשמה – נחתם, לקחת אשראי"]]]];
 const ftxN = (h) => String(h == null ? "" : h).replace(/ /g, " ").replace(/\s+/g, " ").replace(/\s*<br>\s*/g, "<br>").trim();
 const ftxClean = (h) => FX.w && FX.w.TX ? FX.w.TX.clean(h) : esc(TXplain(h));
 // 5.19.102: טקסט פשוט (בלי עיצוב) – שומרים על השורות (למשל "ניסוח המשבצות": שורה לכל מספר)
@@ -6830,11 +6830,12 @@ async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint();
 }
 function ftxUrl(){
   let q = "?preview=1";
-  if (FX.form === "marathon" && FX.mar) q += "&m=" + encodeURIComponent(FX.mar) + (FX.rv && FX.rv !== "reg" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
+  if (FX.form === "marathon" && FX.mar) q += "&m=" + encodeURIComponent(FX.mar) + (FX.rv === "closed" ? "&closed=1" : FX.rv && FX.rv !== "reg" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
   if (FX.form === "interest" || FX.form === "class") q += "&city=" + encodeURIComponent(FX.city);   // נועה 7.11: בלי מרתון – ההתעניינות במרתון היא בטופס המרתון ("להשאיר פרטים")
   if (FX.form === "thank-you") q = "?tyv=" + FX.tyv + "&tys=" + (FX.tys || "reg");
   if (FX.form === "register") q = "?city=" + encodeURIComponent(FX.city) + "&preview=1";
-  if (FX.form === "register" && FX.rv !== "reg") q = "?city=" + encodeURIComponent(FX.city) + "&phone=1&preview=1" + (FX.rv === "card" || FX.rv === "cardu" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
+  if (FX.form === "register" && FX.rv === "closed") q = "?city=" + encodeURIComponent(FX.city) + "&preview=1&closed=1";
+  else if (FX.form === "register" && FX.rv !== "reg") q = "?city=" + encodeURIComponent(FX.city) + "&phone=1&preview=1" + (FX.rv === "card" || FX.rv === "cardu" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
   return "/" + FX.form + ".html" + q;
 }
 // טוען את הטופס בתצוגה. collect – לאסוף מחדש את רשימת הטקסטים (בפתיחה); אחרת – רק רענון התצוגה (תבניות / דף התודה)
