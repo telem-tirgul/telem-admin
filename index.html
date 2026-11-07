@@ -335,6 +335,8 @@
   .lead-pay:empty{ display:none; } .lead-pay{ margin-top:10px; } .lead-pay .pay-box{ margin:0; }
   .la-row{ border-bottom:1px solid var(--border); } .la-row:last-child{ border-bottom:0; }
   .la-row > summary{ list-style:none; cursor:pointer; display:flex; align-items:baseline; gap:12px; padding:10px 2px; }
+  /* נועה 7.11 (הכרטיס תופס הרבה מקום): השורות המקופלות למטה – שתיים בשורה במחשב; שורה פתוחה – לכל הרוחב */
+  @media (min-width:961px){ #leadAcc{ display:grid; grid-template-columns:1fr 1fr; column-gap:28px; } #leadAcc > .la-row[open]{ grid-column:1 / -1; } #leadAcc > .la-row:nth-last-child(2):not([open]){ border-bottom:0; } #leadAcc .la-row > summary{ padding:8px 2px; } }
   .la-row > summary::-webkit-details-marker{ display:none; }
   .la-row > summary::before{ content:"◂"; color:var(--ink-soft); font-size:12px; width:10px; flex:none; transition:transform .15s; } .la-row[open] > summary::before{ transform:rotate(-90deg); }
   .la-row > summary b{ flex:none; color:var(--accent); font-size:14.5px; min-width:170px; }
