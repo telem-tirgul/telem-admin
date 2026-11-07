@@ -2838,6 +2838,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
           <label class="chk"><input type="checkbox" id="fActive" checked> רק פעילים</label>
           <input type="checkbox" id="fPast" hidden><!-- 5.19.129 (נועה 24.10): בלי "כולל שנים קודמות" – שנה קודמת / "כל השנים" / תאריך לפני 1.9 = מציגים שנים קודמות -->
           <label class="chk"><input type="checkbox" id="fStar"> רק עם כוכב</label>
+          <label class="chk" title="טופס ביטול שההורה חתם עליו ועוד לא אושר"><input type="checkbox" id="fCxl"> בקשת ביטול לאישור <span class="muted" id="fCxlN"></span></label><!-- נועה 7.11 -->
           <div class="remind-f"><label class="chk"><input type="checkbox" id="fRemind"> תזכורות עד</label><input type="date" id="fRemindDate" aria-label="תזכורות עד תאריך"></div>
         </div>
       </div>
@@ -3830,6 +3831,7 @@ function go(view){
   try { document.body.classList.toggle("ex-max", view === "exams" && !isMobile() && store("telem_ex_max") === "1"); const b = $("exMax"); if (b) { const on = document.body.classList.contains("ex-max"); b.classList.toggle("on", on); b.textContent = on ? "✕ יציאה ממסך מלא" : "⛶ מסך מלא"; } } catch(e) {}   // 5.19.106
   if (view === "attk") { view = "attg"; AR.view = "kid"; }
   if (view === "groups") view = "att";
+  if (view === "home" && ME && ME.role !== "instructor") view = "leads";   // נועה 7.11: אין דף בית (האריחים היו כפילות של התפריט)
   let attT = false; if (view === "reg") { view = "att"; attT = true; }   // 5.20.38 (נועה 2.11): מסך "קורסים" הוסר – השוטף: קבוצות ← טבלה; המרתונים: מרתונים ← לשונית מרתונים
   if (ME && ME.role === "instructor" && (view === "att" || view === "attg")) view = "home";   // 5.19.110: הנוכחות – בתלם שלי
   if (ME && ME.role && view === "ws") view = "home";   // 5.19.110: המאגר – בתלם שלי   // 5.19.29
@@ -4480,10 +4482,8 @@ function crsWireTable(b, re){
   b.querySelectorAll("[data-kids]").forEach(x => x.onclick = (e) => { e.stopPropagation(); CRS.sel = Number(x.dataset.kids); crsOpenCourse(CRS.byId[CRS.sel]);
     b.querySelectorAll("tr.crs-mr").forEach(tr => tr.classList.toggle("sel", Number(tr.dataset.crs) === CRS.sel)); });
   b.querySelectorAll("[data-back]").forEach(x => x.onclick = (e) => { e.stopPropagation(); go("leads"); setTimeout(() => { if (!F.ccat) F.ccat = new Set(); F.ccat.clear(); F.ccat.add("__back"); F.page = 0; try { crsFillFilter(); } catch(e2) {} renderLeads(); }, 50); });
-  b.querySelectorAll("[data-crsmgmt]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); const c = CRS.byId[Number(x.dataset.crsmgmt)], o = (CRS.mar || {})[c && c.marathon_id] || {};
-    panelFor("ניהול המרתון", [o.name, o.school, o.city].filter(Boolean).join(" · ")); const box = $("gEdit"); box.hidden = false; box.classList.remove("g3");
-    box.innerHTML = `<section class="rg-sec full" id="rgMar"><div class="muted">טוען…</div></section>`; RG.mar = null; RG.marOnly = c.marathon_id; await renderRegMarathons(o.city || "*");   // נועה 7.11: 🏁 – רק המרתון של השורה
-    const el = box.querySelector(`[data-rmcxl="${c.marathon_id}"], [data-rmundo="${c.marathon_id}"]`); if (el) el.closest(".mc-card, .mc, div").scrollIntoView({ block: "center" }); });
+  b.querySelectorAll("[data-crsmgmt]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); const c = CRS.byId[Number(x.dataset.crsmgmt)]; if (!c || !c.marathon_id) return;   // נועה 7.11: אותו חלון מרתון בכל מקום
+    await ensureG(true); const m = (G.marathons || []).find(y => y.id === c.marathon_id) || (await get("marathons", "select=*&id=eq." + c.marathon_id))[0]; if (m) openMarathonPanel(m); else toast("המרתון לא נמצא"); });
   b.querySelectorAll("[data-crsedit]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); const c = CRS.byId[Number(x.dataset.crsedit)]; if (!c) return;
     try { if (c.marathon_id) { const m = (await get("marathons", "select=*&id=eq." + c.marathon_id))[0]; if (!m) { toast("המרתון לא נמצא"); return; } openMarathonEditor(m); }
           else priceEdit(crsCity(c)); }
@@ -4717,6 +4717,10 @@ async function loadLeads(){
       // הרשימה כבר מוצגת - מוסיפים את סימני "בעבר" (אם לא עורכים משהו בטבלה באותו רגע)
       if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads();
       return L.hist; });
+  // נועה 7.11: בקשות ביטול שנחתמו ומחכות לאישור – לסינון "בקשת ביטול לאישור" (אחרי הרשימה, לא מעכב)
+  if (ME.role !== "instructor") get("cancellation_requests", "select=student_id&status=eq." + encodeURIComponent("נחתם")).then(rs => { L.cxl = new Set((rs || []).map(r => r.student_id));
+      const n = $("fCxlN"); if (n) n.textContent = L.cxl.size ? "(" + L.cxl.size + ")" : "";
+      if ($("fCxl").checked && currentView === "leads" && !$("view-leads").hidden && typeof updSafe === "function" && updSafe()) renderLeads(); }).catch(() => {});
   if (!L.notesP) L.notesP = getAll("notes", "select=id,lead_id,body,created_at&order=created_at").then(ns => { L.notesP = null; leadNotesSet(ns);
       if (currentView === "leads" && !$("view-leads").hidden && typeof updSafe === "function" && updSafe()) renderLeads(); }).catch(() => { L.notesP = null; });
   L.pendReg = {}; if (ME.role !== "instructor") get("pending_phone_payments", "select=kind,order_id,student_id,first_name,last_name,what,amount&kind=eq.registration")
@@ -4844,7 +4848,7 @@ const lastUpdate = (l) => l.updated_at;
 // ======================================================================
 const F = { statuses: new Set(), sources: new Set(), page: 0, sort: "updated", dir: -1 };
 // כל הסינונים בעמוד התלמידים נשמרים יחד (גם סטטוס, גם שיבוץ וכו') - נשארים ברענון (F5), מתאפסים ביציאה או בלשונית חדשה
-const LF_KEY = "telem_lead_filters", LF_IDS = ["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear","fStar","fActive","fPast","fRemind","fRemindDate"];
+const LF_KEY = "telem_lead_filters", LF_IDS = ["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear","fStar","fCxl","fActive","fPast","fRemind","fRemindDate"];
 try { store("telem_crm_status_filter", null); } catch(e) {}   // היה נשמר לתמיד - כבר לא
 try { const sv = JSON.parse(sstore(LF_KEY) || "null"); /* 5.20.5: בלי סינון לפי הסטטוס / המקור הישנים */ if (sv && sv.sort) { F.sort = sv.sort; F.dir = sv.dir || -1; } } catch(e) {}
 function saveLeadFilters(){
@@ -4892,7 +4896,7 @@ function multiBox(box, items, set, allLbl){
 }
 $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
 $("fRemindDate").addEventListener("change", () => { if ($("fRemindDate").value) $("fRemind").checked = true; });
-["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear","fStar","fActive","fPast","fRemind","fRemindDate"].forEach(id =>
+["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear","fStar","fCxl","fActive","fPast","fRemind","fRemindDate"].forEach(id =>
   $(id).addEventListener(id === "fSearch" ? "input" : "change", () => { if (id === "fAsg" && $("fAsg").value === "wkchg") { WC.map = null; WC.p = null; }
     pastSync();   // 5.19.129: שנים קודמות – לפי שנת הלימוד / התאריכים
     F.page = 0; saveLeadFilters(); renderLeads(); }));
@@ -4902,7 +4906,7 @@ $("fSchool").addEventListener("change", () => { if (CRS.ok) crsFillFilter(); }, 
 // 5.19.150 (נועה 28.10): גם לחיצה על "תלמידים" בתפריט – חוזרים לסינון ברירת המחדל
 function resetLeadFilters(){
   ["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].forEach(id => $(id).value = "");
-  $("fStar").checked = false; $("fRemind").checked = false; $("fActive").checked = true; $("fPast").checked = false;
+  $("fStar").checked = false; $("fCxl").checked = false; $("fRemind").checked = false; $("fActive").checked = true; $("fPast").checked = false;
   $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   F.statuses.clear(); F.sources.clear(); if (F.cst) F.cst.clear(); if (F.csrc) F.csrc.clear(); [F.ccat, F.ctrk, F.csub].forEach(x => x && x.clear()); sstore(LF_KEY, null); setupFilters(); if (CRS.ok) crsFillFilter(); F.page = 0;
 }
@@ -4919,6 +4923,7 @@ function filtered(){
     const fBack = fcrs === "__back" || (F.ccat && F.ccat.has("__back"));
     if ($("fActive").checked && !l.is_active && !fBack) return false;   // "לא חזרו" – גם כרטיסים לא פעילים
     if ($("fStar").checked && !l.is_starred) return false;
+    if ($("fCxl").checked && !(L.cxl && L.cxl.has(s.id))) return false;   // נועה 7.11: בקשות ביטול שמחכות לאישור
     { const ft = $("fTs").value; if (ft) { const has = !!(L.tsAcc && L.tsAcc.has(s.id)); if (ft === "yes" ? !has : ft === "no" ? has : !(has && !tsAccess(l))) return false; } }   /* 5.21.12: תלם שלי */
     if ($("fRemind").checked) { const rd = $("fRemindDate").value; const lim = rd ? new Date(rd + "T23:59:59") : new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
       if (!(l.remind_at && new Date(l.remind_at) <= lim)) return false; }
@@ -5002,7 +5007,7 @@ function histFiltered(leadList){
   const useDates = !!((from && from < HIST_YS() + "-09-01") || (to && to < HIST_YS() + "-09-01")), useSearch = q.length >= 2, useYear = !!yr;
   if (!useDates && !useSearch && !useYear) return [];
   // סינונים שאין להם משמעות בשנים קודמות (כוכב, תזכורת, שיבוץ, מנהל) – אז לא מציגים שנים קודמות
-  if ($("fStar").checked || $("fRemind").checked || $("fAsg").value || $("fTs").value || $("fManager").value || ($("fCourse") && $("fCourse").value)) return [];
+  if ($("fStar").checked || $("fCxl").checked || $("fRemind").checked || $("fAsg").value || $("fTs").value || $("fManager").value || ($("fCourse") && $("fCourse").value)) return [];
   if (!H.rows) { if (!H.loading) loadHistRows().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); return null; }
   const city = $("fCity").value, schoolId = $("fSchool").value, grade = $("fGrade").value;
   const schName = schoolId ? hNorm(((L.schools || []).find(x => String(x.id) === schoolId) || {}).name) : "";
@@ -5172,7 +5177,7 @@ function renderLeads(){
     + (LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : LR.histLoading ? " · טוען שנים קודמות…" : "")
     + (!L.inactReady && (!$("fActive").checked || $("fPast").checked) ? " · טוען כרטיסים לא פעילים…" : "");
   // "ניקוי סינון" - רק כשיש סינון פעיל
-  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || (F.cst && F.cst.size) || (F.csrc && F.csrc.size) || [F.ccat, F.ctrk, F.csub].some(x => x && x.size) || $("fStar").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
+  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || (F.cst && F.cst.size) || (F.csrc && F.csrc.size) || [F.ccat, F.ctrk, F.csub].some(x => x && x.size) || $("fStar").checked || $("fCxl").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
   { const cur = F.page, nums = [...new Set([0, cur - 2, cur - 1, cur, cur + 1, cur + 2, pages - 1].filter(x => x >= 0 && x < pages))].sort((a, b) => a - b);   // 5.20.15 (נועה): מספרי עמודים
     $("pageInfo").innerHTML = pages > 1 ? nums.map((n, i) => (i && n - nums[i - 1] > 1 ? `<span class="pg-gap">…</span>` : "") + `<button type="button" class="pg-n${n === cur ? " on" : ""}" data-pg="${n}" aria-label="עמוד ${n + 1}"${n === cur ? ' aria-current="page"' : ""}>${n + 1}</button>`).join("") : ""; }
   $("prevPage").disabled = F.page === 0; $("nextPage").disabled = F.page >= pages - 1;
@@ -6063,7 +6068,7 @@ async function loadLeadCancel(l){
     const cr = rows.find(x => String(x.id) === b.dataset.capprove), cn = cr ? canCrs(cr) : "";
     if (!await uiConfirm(`לאשר את הביטול${cn ? " של " + cn : ""}? הקורס יעבור ל"פרש", ההרשמות של הקורס יבוטלו, והשיבוצים בקבוצות של הקורס יוסרו.`)) return;
     b.disabled = true;
-    try { await rpc("approve_cancellation", { p_id: Number(b.dataset.capprove) }); toast("הביטול אושר - הסטטוס עבר ל\"פרש\"");
+    try { await rpc("approve_cancellation", { p_id: Number(b.dataset.capprove) }); if (L.cxl && l.student) { L.cxl.delete(l.student.id); const n = $("fCxlN"); if (n) n.textContent = L.cxl.size ? "(" + L.cxl.size + ")" : ""; } toast("הביטול אושר - הסטטוס עבר ל\"פרש\"");
           await loadLeads(); const nl = L.leads.find(x => x.id === l.id);
           if (nl) { if (LEAD_DIRTY) { $("lfStatus").value = nl.status_id || ""; paintStatus($("lfStatus"), nl.status_id); editing = nl; loadLeadCancel(nl); } else openLead(nl.id); } }
     catch(e) { toast("לא נשמר: " + e.message); b.disabled = false; } });
@@ -10563,8 +10568,8 @@ function renderHome(){
     + (more.length ? `<div class="home-more">${more.map(([v, ic, t]) => `<button type="button" class="btn small" data-go="${v}">${ic} ${esc(t)}</button>`).join("")}</div>` : "");
   $("homeTiles").querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const v = b.dataset.go; if (v === "tsheli") { window.open(TS_STAFF, "_blank", "noopener"); return; } go(v); if (v === "leads" && DATA_READY) renderLeads(); });
 }
-$("brandHome").addEventListener("click", () => go("home"));
-$("brandHome").addEventListener("keydown", (e) => { if (e.key === "Enter") go("home"); });
+$("brandHome").addEventListener("click", () => go(ME && ME.role === "instructor" ? "home" : "leads"));   // נועה 7.11: דף הבית ירד – הלוגו לרשימת התלמידים
+$("brandHome").addEventListener("keydown", (e) => { if (e.key === "Enter") go(ME && ME.role === "instructor" ? "home" : "leads"); });
 // ---------- הפרטים שלי ----------
 function renderMe(){
   $("meName").textContent = ME.full_name || "—";
@@ -11307,13 +11312,12 @@ function repReg(city){
   const two = reg.filter(l => n(l) >= 2), one = reg.filter(l => n(l) === 1), none = reg.filter(l => n(l) === 0);
   const kidList = (arr) => arr.length ? `<ul class="rep-list">${arr.map(l => `<li><button type="button" class="name-link" data-lead="${l.id}">${esc(l.student.first_name)} ${esc(l.student.last_name || "")}</button><span class="muted">${esc(schoolOf(l.student).name || "")} · ${esc(leadCity(l))}</span></li>`).join("")}</ul>` : "<div class='muted'>אין</div>";
   $("repBody").innerHTML = `
-    <div class="tiles">${tile(reg.length, "רשומים")}${tile(two.length, "משובצים לשתי קבוצות")}${tile(one.length, "בקבוצה אחת בלבד")}${tile(none.length, "לא משובצים")}</div>
+    <div class="tiles">${tile(reg.length, "רשומים")}${tile(two.length, "משובצים לשתי קבוצות")}${tile(one.length, "בקבוצה אחת בלבד")}</div>
     <div class="rep-grid">
       ${city ? "" : `<div class="card"><h3>לפי עיר</h3>${barList(countBy(reg, leadCity))}</div>`}
       <div class="card"><h3>לפי בית ספר</h3>${barList(countBy(reg, l => schoolOf(l.student).name).map(x => ({ ...x, h: scChip(x.t) })))}</div>
       <div class="card"><h3>לפי שכבה</h3>${barList(countBy(reg, l => l.student.grade).sort((a, b) => GRADES.indexOf(a.t) - GRADES.indexOf(b.t)))}</div>
       <div class="card"><h3>לפי מקצוע</h3>${barList(countBy(reg, l => statusName(l.status_id).replace("נרשם ", "")))}</div>
-      <div class="card"><h3>לא משובצים (${none.length})</h3>${kidList(none)}</div>
       <div class="card"><h3>בקבוצה אחת בלבד (${one.length})</h3>${kidList(one)}</div>
     </div>`;
   $("repBody").querySelectorAll("[data-lead]").forEach(b => b.onclick = () => openLead(Number(b.dataset.lead)));
@@ -12048,96 +12052,6 @@ const lkInterest = (q) => lkFix(lkBase() + "interest.html" + (q && [...q.keys()]
 // מרתונים של העיר: הגדרה (מחיר, בית ספר, פתוח/סגור) והקישור להרשמה. הקבוצות של המרתון - במסך הקבוצות.
 // 5.19.41: טופס ההתעניינות בכרטיסי המרתון מוסתר כרגע (הלקוחה). להחזרה: true
 const MAR_INTEREST = false;
-async function renderRegMarathons(city){   // city = "*" - כל הערים יחד (5.19.41)
-  // 5.20.6: בהגדרות ← טפסים (#ftxMar) או בחלון "ניהול המרתון" (#rgMar) – מה שמוצג עכשיו
-  const vis = (e) => e && e.isConnected && e.offsetParent !== null, box = [...document.querySelectorAll("#rgMar")].find(vis) || $("rgMar"); if (!box) return; RG.marShown = city; const ALL = city === "*";
-  if (!RG.mar) {
-    try {
-      const [ms, ss] = await Promise.all([get("marathons", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&order=created_at"),
-        get("sessions", "select=id,marathon_id,meeting_dates,meetings,start_time,end_time&kind=eq." + encodeURIComponent("מרתון") + "&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).catch(() => [])]);
-      RG.marR = {};   // 5.19.36: מרתון שלא מתקיים - ההרשמות (להחזרים)
-      const cx = ms.filter(x => x.cancelled_at).map(x => x.id);
-      if (cx.length) { try { (await get("marathon_registrations", "select=id,marathon_id,status,amount,payment_method,paid_at,refunded_at,refund_amount,student:students(first_name,last_name,family:families(parent1_first,parent1_last,parent1_phone))&marathon_id=in.(" + cx.join(",") + ")&order=id")).forEach(r => (RG.marR[r.marathon_id] = RG.marR[r.marathon_id] || []).push(r)); } catch(e) {} }
-      RG.marK = {}; try { (await get("session_summary", "select=marathon_id,assigned_count&kind=eq." + encodeURIComponent("מרתון") + "&school_year=eq." + encodeURIComponent(CONFIG.schoolYear))).forEach(x => { RG.marK[x.marathon_id] = (RG.marK[x.marathon_id] || 0) + (x.assigned_count || 0); }); } catch(e) {}
-      RG.mar = ms; RG.marN = {}; RG.marD = {}; RG.marM = {};
-      ss.forEach(x => marMeetings(x).forEach(mt => { const a = (RG.marM[x.marathon_id] = RG.marM[x.marathon_id] || []); if (!a.some(z => z.date === mt.date && z.start === mt.start)) a.push(mt); }));
-      ss.forEach(x => { RG.marN[x.marathon_id] = (RG.marN[x.marathon_id] || 0) + 1; (x.meeting_dates || []).forEach(d => (RG.marD[x.marathon_id] = RG.marD[x.marathon_id] || new Set()).add(d)); });
-    } catch(e) { box.innerHTML = `<div class="err">${e.status === 404 ? "כדי לנהל מרתונים צריך להריץ את קובץ 36." : "לא ניתן לטעון את המרתונים."}</div>`; return; }
-  }
-  if (!box.isConnected || RG.marShown !== city) return;
-  const dm = (d) => { const [, mo, da] = d.split("-"); return Number(da) + "." + Number(mo); };
-  const datesOf = (id) => { const d = [...(RG.marD[id] || [])].sort(); return !d.length ? "" : d.length <= 3 ? d.map(dm).join(", ") : dm(d[0]) + "–" + dm(d[d.length - 1]); };
-  const firstDate = (id) => [...(RG.marD[id] || [])].sort()[0] || "9999";
-  const list0 = RG.mar.filter(m => RG.marOnly ? m.id === RG.marOnly : ALL || m.city === city).sort((a, b) => firstDate(a.id).localeCompare(firstDate(b.id)));
-  // 5.19.44: מרתונים שעברו (המפגש האחרון לפני היום) - למטה, מקופלים, האחרון קודם
-  const td = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-  const lastDate = (id) => [...(RG.marD[id] || [])].sort().pop() || "";
-  const isPast = (m) => { const l = lastDate(m.id); return !!l && l < td; };
-  const past = RG.marOnly ? [] : list0.filter(isPast).sort((a, b) => lastDate(b.id).localeCompare(lastDate(a.id))), list = RG.marOnly ? list0 : list0.filter(m => !isPast(m)).concat(past);
-  // 5.19.35: כרטיס לכל מרתון (= שכבה אחת בבית ספר אחד): מפגשים עם שעות, מחיר, פתוח/סגור, וקישור ההרשמה
-  const dl = (d) => DAY_NAMES[dayLetter(d)] ? dayLetter(d) + "' " + dm(d) : dm(d);
-  box.innerHTML = `<div class="rg-sec-h"><h3>מרתונים · ${ALL ? "כל הערים" : esc(city)} <small>כל מרתון = קישור הרשמה נפרד. מרתון חדש יוצרים בלוח המבחנים: מסמנים מפגשי מרתון, לוחצים על מפגש ← 🔗 יצירת קישור הרשמה.</small></h3></div>
-    ${list.length ? `<div class="mc-list">` + list.map(m => {
-      const n = RG.marN[m.id] || 0, one = Number(m.price_repeat) === Number(m.price_first) || !m.price_repeat;
-      const mts = (RG.marM[m.id] || []).slice().sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
-      const q = new URLSearchParams({ city: m.city }); if (m.school) q.set("school", m.school); q.set("tracks", "marathon"); if (m.code) q.set("m", m.code);
-      const dts = datesOf(m.id), where = m.name + (m.school ? " · " + m.school : "") + (dts ? " (" + dts + ")" : "");
-      const cxl = !!m.cancelled_at, has66 = "cancelled_at" in m, regs = RG.marR[m.id] || [], paid = regs.filter(r => r.paid_at || r.status === "שולם" || r.refunded_at), done = paid.filter(r => r.refunded_at);
-      return (m === past[0] ? `</div><details class="mc-past"><summary>מרתונים שעברו (${past.length})</summary><div class="mc-list">` : "") + `<div class="mc ${cxl ? "cxl" : m.is_open ? "open" : "closed"}${isPast(m) ? " past" : ""}">
-        <div class="mc-top">${ALL && m.city ? `<span class="mc-city">${esc(m.city)}</span>` : ""}${m.school ? scChip(m.school) : ""}<b class="mc-name">${esc(m.name)}</b>${m.grade ? `<span class="gr-b g-${esc(m.grade)}">${esc(m.grade)}'</span>` : ""}
-          <span class="mc-st">${cxl ? `✕ לא יתקיים${m.cancel_reason ? " · " + esc(m.cancel_reason) : ""}` : m.is_open ? "● פתוח להרשמה" : "○ סגור להרשמה"}</span>
-          <span class="mc-acts"><button type="button" class="btn small" data-rmedit="${m.id}" title="עריכת המרתון">✎ עריכה</button>${cxl ? `<button type="button" class="btn small" data-rmundo="${m.id}">בעצם מתקיים</button>` : `<button type="button" class="btn small ${m.is_open ? "" : "primary"}" data-rmopen="${m.id}">${m.is_open ? "סגירה להרשמה" : "פתיחה להרשמה"}</button>${has66 ? `<button type="button" class="btn small danger" data-rmcxl="${m.id}">לא יתקיים</button>` : ""}`}<button type="button" class="btn small danger" data-rmdel="${m.id}" ${RG.marK[m.id] ? `disabled title="יש נרשמים - אי אפשר למחוק. אפשר לסגור להרשמה."` : `title="מחיקת המרתון והקבוצות שלו (המפגשים נשארים בלוח המבחנים)"`}>מחיקה</button></span></div>
-        <div class="mc-meet">${mts.length ? mts.map((x, i) => `<span><b>מפגש ${i + 1}</b> ${esc(dl(x.date))}${x.start ? ` · <span dir="ltr">${esc(x.start)}–${esc(x.end)}</span>` : ""}${x.room ? ` · ${esc(roomTxt(x.room))}` : ""}</span>`).join("") : `<span class="err">⚠ אין מפגשים</span>`}</div>
-        <div class="mc-facts">${one ? Number(m.price_first) + " ₪" : Number(m.price_first) + " ₪ · למי שכבר השתתף " + Number(m.price_repeat) + " ₪"} · ${n} ${n === 1 ? "קבוצה" : "קבוצות"} · <button type="button" class="btn small" data-rmkids="${m.id}">👥 ${RG.marK[m.id] || 0} נרשמים</button></div>
-        ${cxl ? `<div class="mc-ref"><div class="mc-ref-h"><b>החזרים כספיים</b> <span class="${done.length === paid.length ? "ok-txt" : "err"}">הוחזר ${done.length} מתוך ${paid.length}</span> <span class="muted">ההחזר עצמו - בריווחית. כאן מסמנים "הוחזר".</span></div>
-          ${paid.length ? paid.map(r => { const st = r.student || {}, f = st.family || {}, ph = f.parent1_phone || "", d = String(ph).replace(/\D/g, ""), amt = Number(r.refund_amount || r.amount || 0);
-            const msg = `שלום ${f.parent1_first || ""}, לצערנו ${m.name}${m.school ? " ב" + m.school : ""} לא יתקיים${m.cancel_reason ? " (" + m.cancel_reason + ")" : ""}. הכסף ששילמתם${amt ? " (" + amt + " ₪)" : ""} יוחזר אליכם בימים הקרובים. תלם - המרכז לשיעורי תרגול`;
-            return `<div class="mc-ref-r${r.refunded_at ? " done" : ""}"><b>${esc((st.first_name || "") + " " + (st.last_name || ""))}</b><span class="muted">${esc([f.parent1_first, f.parent1_last].filter(Boolean).join(" "))}${ph ? ` · <span dir="ltr">${esc(ph)}</span>` : ""}</span><span>${amt ? amt + " ₪" : ""}${r.payment_method ? " · " + esc(r.payment_method) : ""}</span>
-              ${r.refunded_at ? `<span class="ok-txt">✔ הוחזר ${esc(fmtDM(String(r.refunded_at).slice(0, 10)))}</span>` : `<span>${/^0\d{8,9}$/.test(d) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${d.slice(1)}?text=${encodeURIComponent(msg)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}<button type="button" class="btn small primary" data-rref="${r.id}" data-ramt="${amt}">✔ הוחזר</button></span>`}</div>`; }).join("") : `<div class="muted">אף אחד לא שילם - אין מה להחזיר.</div>`}</div>` : ""}
-        <div class="mc-links"${cxl ? " hidden" : ""}>${MAR_INTEREST ? `<div class="mc-lk"><span class="mc-lk-t">טופס התעניינות</span>${lk2Btns("", lkInterest(q), "התעניינות ב" + where + ": ")}</div>` : ""}
-          <div class="mc-lk"><span class="mc-lk-t">טופס הרשמה</span>${m.code ? lk2Btns("", lkMarCode(m.code), "הרשמה ל" + where + ": ") : ""}${"show_on_site" in m ? (m.code && !isPast(m) ? `<button type="button" class="btn small mc-site${m.show_on_site ? " on" : ""}" data-rmsite="${m.id}" title="${m.show_on_site ? "המרתון מוצג באתר של תלם (בדף בית הספר) כל עוד ההרשמה פתוחה. לחיצה - הסתרה." : "המרתון לא מוצג באתר של תלם. לחיצה - הצגה בדף בית הספר (רק כשההרשמה פתוחה)."}">${m.show_on_site ? "🌐 מוצג באתר ✓" : "🌐 להציג באתר"}</button>`
-            : `<button type="button" class="btn small mc-site" disabled title="${!m.code ? "אין עדיין קישור הרשמה למרתון" : "המרתון עבר – לא מוצג באתר"}">🌐 להציג באתר</button>`) : ""}${m.is_open ? "" : `<span class="muted mc-note">יעבוד אחרי "פתיחה להרשמה"${m.show_on_site ? " (וגם יופיע באתר)" : ""}</span>`}</div></div>
-      </div>`; }).join("") + `</div>` + (past.length ? `</details>` : "")
-      : `<div class="muted">${ALL ? "אין מרתונים השנה." : "אין מרתונים בעיר הזאת."} יוצרים מרתון בלוח המבחנים (טאב "מרתונים").</div>`}`;
-  box.querySelectorAll("[data-rmkids]").forEach(b => b.onclick = async () => { await ensureG(true); const m = (G.marathons || []).find(x => x.id === Number(b.dataset.rmkids)); if (m) openMarathonPanel(m); });
-  box.querySelectorAll("[data-rmcxl]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmcxl));
-    const why = await uiPrompt(`🏫 ${m.school || "בלי בית ספר"}${m.grade ? " · שכבת " + m.grade + "'" : ""}${m.city ? " · " + m.city : ""}\n"${m.name}" לא יתקיים.\nהמרתון ייסגר להרשמה, ומי שלא שילם יסומן "בוטל". למי ששילם תופיע רשימת החזרים.\n\nסיבה (לא חובה):`, "אין מספיק נרשמים", { ok: "אישור - לא יתקיים", danger: true, multi: false });
-    if (why === null) return;
-    b.disabled = true;
-    try { await patch("marathons", "id=eq." + m.id, { is_open: false, cancelled_at: new Date().toISOString(), cancel_reason: why.trim() || null });
-          await patch("marathon_registrations", "marathon_id=eq." + m.id + "&paid_at=is.null&status=eq." + encodeURIComponent("ממתין לתשלום"), { status: "בוטל" }).catch(() => {});
-          toast("המרתון סומן: לא יתקיים"); RG.mar = null; G.marathons = null; EX.cxl = null; EX.sig = null; renderRegMarathons(city); }
-    catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
-  box.querySelectorAll("[data-rmundo]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmundo));
-    // 5.19.157 (נועה): גם אחרי שסומן "הוחזר" – אפשר להחזיר; מי שסומן "הוחזר" (בלי החזר אמיתי) חוזר ל"שולם" ולקבוצה
-    const refd = (RG.marR[m.id] || []).filter(r => r.refunded_at && r.paid_at);
-    if (!await uiConfirm(`להחזיר את "${m.name}"${m.school ? " · " + m.school : ""} למצב רגיל (מתקיים)? הוא יישאר סגור להרשמה עד שתפתחי.${refd.length ? `\n\n${refd.length} ${refd.length === 1 ? "הרשמה סומנה" : "הרשמות סומנו"} "הוחזר" – ${refd.length === 1 ? "תחזור" : "יחזרו"} ל"שולם" ולקבוצת המרתון. (אם הכסף כבר הוחזר בריווחית – לא להמשיך.)` : ""}\nמי שחיכה לתשלום וסומן "בוטל" נשאר מבוטל.`)) return;
-    try { if (refd.length) await patch("marathon_registrations", "id=in.(" + refd.map(r => r.id).join(",") + ")", { status: "שולם", refunded_at: null, refund_amount: null });
-          await patch("marathons", "id=eq." + m.id, { cancelled_at: null, cancel_reason: null }); toast("המרתון מתקיים"); RG.mar = null; G.marathons = null; EX.cxl = null; EX.sig = null; renderRegMarathons(city); }
-    catch(e) { toast("לא נשמר: " + e.message); } });
-  box.querySelectorAll("[data-rref]").forEach(b => b.onclick = async () => {
-    if (!await uiConfirm("לסמן שהכסף הוחזר? (את ההחזר עצמו עושים בריווחית)")) return;
-    b.disabled = true;
-    try { await patch("marathon_registrations", "id=eq." + b.dataset.rref, { refunded_at: new Date().toISOString(), refund_amount: Number(b.dataset.ramt) || null, status: "בוטל" }); toast("סומן: הוחזר"); RG.mar = null; renderRegMarathons(city); }
-    catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
-  // 5.19.105 (נועה, את-17): "להציג באתר" - האתר השיווקי מציג רק מרתונים מסומנים + פתוחים להרשמה + המבחן לא עבר
-  box.querySelectorAll("[data-rmsite]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmsite)), v = !m.show_on_site;
-    b.disabled = true;
-    try { await patch("marathons", "id=eq." + m.id, { show_on_site: v }); m.show_on_site = v; G.marathons = null; toast(v ? (m.is_open ? "המרתון מוצג באתר" : "יוצג באתר אחרי פתיחה להרשמה") : "המרתון לא מוצג באתר"); renderRegMarathons(city); }
-    catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
-  box.querySelectorAll("[data-rmopen]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmopen)), v = !m.is_open;
-    if (v && !await uiConfirm(`לפתוח את "${m.name}" להרשמה? מעכשיו הקישור עם התשלום יעבוד.`)) return;
-    b.disabled = true;
-    try { await patch("marathons", "id=eq." + m.id, { is_open: v }); m.is_open = v; G.marathons = null; EX.cxl = null; EX.sig = null; toast(v ? "המרתון פתוח להרשמה" : "המרתון סגור להרשמה"); renderRegMarathons(city); }
-    catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
-  wireLk(box);
-  box.querySelectorAll("[data-rmdel]").forEach(b => b.onclick = async () => { const m = RG.mar.find(x => x.id === Number(b.dataset.rmdel));
-    if (!await uiConfirm(`למחוק את "${m.name}"${m.school ? " · " + m.school : ""}?\nהקישור יפסיק לעבוד והקבוצות שלו יימחקו. המפגשים בלוח המבחנים נשארים (בלי קישור).`)) return;
-    try { await del("sessions", "marathon_id=eq." + m.id + "&kind=eq." + encodeURIComponent("מרתון")); await del("marathons", "id=eq." + m.id); EX.rows = null; EX.p = null; G.loadedAt = 0; toast("המרתון נמחק"); RG.mar = null; G.marathons = null; renderReg(); }
-    catch(e) { toast(/foreign key|23503/i.test(e.message + " " + (e.code || "")) ? "יש למרתון הזה נרשמים - אי אפשר למחוק. אפשר לסגור אותו להרשמה." : "המחיקה נכשלה: " + e.message); } });
-  box.querySelectorAll("[data-rmedit]").forEach(b => b.onclick = async () => { await ensureG(true); const m = (G.marathons || []).find(x => x.id === Number(b.dataset.rmedit)) || RG.mar.find(x => x.id === Number(b.dataset.rmedit)); openMarathonPanel(m); });   // 5.19.44: אותו חלון בכל מקום
-  if ($("rgMarNew")) $("rgMarNew").onclick = () => { panelFor("מרתון חדש", city); const prev = G.city; G.city = city; openMarathonEditor(null); G.city = prev; };
-}
 async function renderReg(){
   if (!$("lkBase").value) $("lkBase").value = store("telem_site_url") || lkDefaultBase();
   paintRegTabs();
@@ -12271,9 +12185,7 @@ async function renderReg(){
         wireLk(M); wireSwf(M);
         M.querySelectorAll("[data-pedit]").forEach(bt => bt.onclick = () => { if (REG_PRICES_DB === false) { toast("כדי לערוך מחירים צריך להריץ את קובץ 44"); return; } openPriceEditor(bt.dataset.pedit); });
       } else {
-        h += `<section class="rg-sec" id="rgMar"><div class="muted">טוען מרתונים...</div></section>`;
         M.innerHTML = h;
-        renderRegMarathons(marCity);
       }
       M.querySelectorAll("[data-rgc]").forEach(b => b.onclick = () => { if (RG.lk === "mar") { RG.marCity = b.dataset.rgc; store("telem_reg_marcity", RG.marCity); } else { RG.city = b.dataset.rgc; store("telem_reg_city", RG.city); } renderReg(); });
     }
