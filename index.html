@@ -3033,7 +3033,6 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
       <div class="set-nav"><div class="gseg subnav" role="group" aria-label="הגדרות"><button type="button" data-sv="ftx" data-admin>טפסים</button><button type="button" data-sv="courses" data-admin>קטגוריות ומחזורים</button><button type="button" data-sv="holidays" data-admin>חגים וחופשות</button><button type="button" data-sv="staff" data-admin>צוות<span class="lg-t"> ומתרגלים</span></button><button type="button" data-sv="backup" data-admin>גיבוי</button><button type="button" data-sv="me">החשבון שלי</button></div></div>
       <h2 class="set-sub">טפסים</h2>
       <div class="gseg ftx-tabs" role="group" aria-label="טפסים"><button type="button" data-ftab="rules">חוקי חיוב</button><button type="button" data-ftab="texts">נוסחי טפסים</button><button type="button" data-ftab="class">📣 טופס כיתה</button></div><!-- 5.19.168 (נועה): שתי לשוניות -->
-      <div class="ftx-pane-forms"><div class="card ftx-gen" id="ftxGen"></div><!-- 5.19.163: טופס התעניינות כללי (לשעבר "קישורים") --></div>
       <div class="ftx-pane-rules" hidden><div id="brSet"></div></div><!-- נועה 6.11: חוקי חיוב שוטף – מתשלומים להגדרות -->
       <div class="ftx-pane-class" hidden><div class="card" id="clsPane"></div></div><!-- 5.20.9 (נועה): טופס כיתה – לשונית נפרדת -->
       <div class="ftx-pane-texts ftx-lay"><!-- נועה 7.11: רשימת הטפסים בעמודה מימין, הכול בשורה אחת מעל התצוגה -->
@@ -6716,43 +6715,7 @@ function ftxFromEd(el){ const c = el.cloneNode(true); c.querySelectorAll(".ftx-p
 // 5.19.164 (נועה 30.10): הטבלה של התרגולים השוטפים (מסלול × עיר × מחיר + קישורים + פתוח/סגור) – בהגדרות ← טפסים
 // 5.19.168: מתג פתוח/סגור קטן (לחיצה – פתיחה / סגירה, עם אישור)
 const ftSw = (k, open) => `<button type="button" class="ft-sw ${open ? "on" : "off"}" data-swf="${esc(k)}" title="${open ? "לחיצה – סגירה להרשמה" : "לחיצה – פתיחה להרשמה"}">${open ? "● פתוח" : "○ סגור"}</button>`;
-async function renderFormsTable(M){ if (!M) return;
-  if (!$("lkBase").value) $("lkBase").value = store("telem_site_url") || lkDefaultBase();
-        if (REG_PRICES_DB === null) await loadRegPrices();
-        // 5.19.58 (הלקוחה): כל הערים יחד בטבלה אחת - המחירים וההגדרות של כל עיר, ומתחת קישור התעניינות + קישור הרשמה (כל המסלולים) עם פתיחה/סגירה.
-        // אין יותר שורה לכל מסלול. מחיר מוקדם מוצג רק כשההרשמה המוקדמת עוד פתוחה.
-        const cities = CONFIG.cities, today = todayIL(), on68 = rpHas68(), on72 = rpHas72();
-        const PR = (c) => REG_PRICES[c] || {}, earlyTo = (c) => PR(c).earlyUntil || REG_EARLY_UNTIL || "", earlyOn = (c) => !!earlyTo(c) && earlyTo(c) >= today;
-        const cell = (c, f) => `<td>${f(PR(c), c)}</td>`, sh = (iso) => { const p = String(iso || "").split("-"); return p.length === 3 ? Number(p[2]) + "." + Number(p[1]) + "." + p[0].slice(2) : ""; };
-        const nis = (n) => n == null || n === "" ? "—" : Number(n).toLocaleString("he-IL") + " ₪";
-        const row = (lbl, f) => `<tr><th>${lbl}</th>${cities.map(c => cell(c, f)).join("")}</tr>`;
-        const im = (c) => "טופס התעניינות - תלם " + c + ": ", rm = (c) => "טופס ההרשמה לתלם - " + c + ": ";
-        const rTr = (c, k, t) => { const r = rpRow(c); return !!(r && Array.isArray(r[k]) && r[k].includes(t)); };   // רק מסלול שנסגר בנפרד (לא עיר סגורה)
-        const shutTrk = (c) => on72 ? LK.tracks.filter(t => rTr(c, "register_closed_tracks", t.v) || rTr(c, "interest_closed_tracks", t.v)) : [];
-        let h = `<section class="rg-sec rg-all3"><div class="rg-sec-h"><h3>תרגולים שוטפים · כל הערים <small>המחירים וההגדרות מופיעים בטופס ההתעניינות ובטופס ההרשמה של כל עיר</small></h3></div>
-          <div class="rg3-wrap"><table class="rg3"><thead><tr><th></th>${cities.map(c => `<th>${esc(c)}<button type="button" class="btn small" data-pedit="${esc(c)}">✎ עריכה</button></th>`).join("")}</tr></thead><tbody>
-          ${LK.tracks.map(x => row(`<span class="lg-ic" style="color:${x.c}">${TRK_IC}</span>${esc(x.t)}`, (P, c) => P[x.v] ? (earlyOn(c) ? `<span class="rg3-pr"><span class="muted">מוקדם</span> <b>${nis(P[x.v].early)}</b><span class="rg3-sep">·</span><span class="muted">רגיל</span> <b>${nis(P[x.v].regular)}</b></span>` : `<b>${nis(P[x.v].regular)}</b>`) : "—")).join("")}
-          ${row("דמי הרשמה", P => nis(P.registrationFee))}
-          ${row("חומרי תרגול", P => P.materialsFee ? nis(P.materialsFee) : "<span class='muted'>אין</span>")}
-          ${row("תחילת פעילות", P => sh(P.activityStartDate) || "—")}
-          ${row("הרשמה מוקדמת", (P, c) => earlyOn(c) ? `עד <b>${sh(earlyTo(c))}</b>` : "<span class='muted'>אין / הסתיימה</span>")}
-          <tr class="rg3-lk"><th>טופס התעניינות</th>${cities.map(c => `<td><div class="ft-lk">${on68 ? ftSw("intc:" + c, rpIntCityOpen(c)) : ""}${lk2Btns("", lkInterest(new URLSearchParams({ city: c })), im(c))}</div></td>`).join("")}</tr>
-          <tr class="rg3-lk"><th>טופס הרשמה</th>${cities.map(c => `<td><div class="ft-lk">${on68 ? ftSw("reg:" + c, rpRegOpen(c)) : ""}${lk2Btns("", lkReg(c, ""), rm(c))}</div></td>`).join("")}</tr>
-          ${cities.some(c => shutTrk(c).length) ? `<tr><th>⚠ מסלול סגור</th>${cities.map(c => `<td>${shutTrk(c).map(t => `<div class="muted">${esc(t.t)} ${rTr(c, "register_closed_tracks", t.v) ? swBtn("regt:" + c + "|" + t.v, false) : ""}${rTr(c, "interest_closed_tracks", t.v) ? swBtn("intt:" + c + "|" + t.v, false) : ""}</div>`).join("")}</td>`).join("")}</tr>` : ""}
-          </tbody></table></div></section>`;
-        // 5.20.6 (נועה): המרתונים – בדיוק כמו בלשונית "קישורים ← מרתונים" שהוסרה: סינון לפי עיר, כרטיס לכל מרתון
-        //   (מפגשים, מחיר, קבוצות, נרשמים, פתיחה / סגירה, עריכה, לא יתקיים, החזרים, קישור, הצגה באתר), ו"מרתונים שעברו" למטה
-        if (RG.marCity === undefined) RG.marCity = store("telem_reg_marcity") || "*";
-        if (RG.marCity !== "*" && !CONFIG.cities.includes(RG.marCity)) RG.marCity = "*";
-        h += `<section class="rg-sec ftx-mar"><div class="rg-city-row" role="group" aria-label="עיר"><span class="muted">עיר:</span>${["*"].concat(CONFIG.cities).map(c => `<button type="button" aria-pressed="${c === RG.marCity}" data-ftmc="${esc(c)}">${c === "*" ? "כל הערים" : esc(c)}</button>`).join("")}</div>
-          <div id="rgMar" class="ftx-mar-box"><div class="muted">טוען…</div></div></section>`;
-        M.innerHTML = h;
-        wireLk(M); lkApplyShort(M); wireSwf(M);
-        M.querySelectorAll("[data-ftmc]").forEach(bt => bt.onclick = () => { RG.marCity = bt.dataset.ftmc; store("telem_reg_marcity", RG.marCity);
-          M.querySelectorAll("[data-ftmc]").forEach(x => x.setAttribute("aria-pressed", String(x === bt))); renderRegMarathons(RG.marCity); });
-        RG.mar = null; renderRegMarathons(RG.marCity);
-        M.querySelectorAll("[data-pedit]").forEach(bt => bt.onclick = () => { if (REG_PRICES_DB === false) { toast("כדי לערוך מחירים צריך להריץ את קובץ 44"); return; } openPriceEditor(bt.dataset.pedit); });
-}
+// נועה 7.11: "טפסים ומחירים" ירד – המחירים והמתגים בטבלת השוטף (✎ מחירים וטפסים), המרתונים בטבלת המרתונים
 // ---------- 5.20.7: טופס כיתה (class_links, קובץ 149) ----------
 const clsUrl = (code) => (CONFIG.formsBase || "https://telem-tirgul.github.io/") + "class.html?c=" + code;
 let QR_LIB = null;
@@ -6795,16 +6758,9 @@ async function clsPaint(){
     b.disabled = true; try { const r = await insert("class_links", { school_id: Number(sch.value), grade: gr.value, city: city.value || null }); const k = Array.isArray(r) ? r[0] : r; await clsPaint(); if (k && k.code) clsShowQr(k); }
     catch(er) { toast("לא נשמר: " + er.message); b.disabled = false; } };
 }
-async function ftxGenPaint(){ const box = $("ftxGen"); if (!box) return;
-  if (REG_PRICES_DB === null) { try { await loadRegPrices(); } catch(e) {} }
-  if (!$("lkBase").value) $("lkBase").value = store("telem_site_url") || lkDefaultBase();
-  box.innerHTML = `<div class="ftx-gen-h muted" style="font-size:13px">קישור כללי – לכל הערים (בלי עיר). קישור לכל עיר / בית ספר / מסלול – בתוך כל קורס, במסך "קורסים".</div>
-    <div class="pf-r"><b>טופס התעניינות</b>${rpHas68() ? `<span class="all-st ${rpIntOpen() ? "on" : "off"}">${rpIntOpen() ? "● פתוח" : "○ סגור"}</span>` : ""}${lk2Btns("", lkInterest(null), "טופס התעניינות - תלם: ", rpHas68() ? swBtn("int", rpIntOpen()) : "")}</div>`;
-  wireLk(box); lkApplyShort(box); wireSwf(box);
-  box.insertAdjacentHTML("afterend", $("ftxTbl") ? "" : `<div id="ftxTbl" class="ftx-tbl"></div>`); renderFormsTable($("ftxTbl")); }
 const FTX_TAB = { v: ["rules", "texts", "class"].includes(store("telem_ftx_tab")) ? store("telem_ftx_tab") : "texts" };   // נועה 7.11: "טפסים ומחירים" ירד (המחירים והמתגים – בטבלת השוטף; המרתונים – בטבלת המרתונים)
 function ftxTabPaint(){ document.querySelectorAll("[data-ftab]").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.ftab === FTX_TAB.v)); b.onclick = () => { FTX_TAB.v = b.dataset.ftab; store("telem_ftx_tab", FTX_TAB.v); ftxTabPaint(); if (FTX_TAB.v === "texts" && !FTX_TAB.textsOpen) { FTX_TAB.textsOpen = true; ftxOpen(true); } if (FTX_TAB.v === "class") clsPaint(); if (FTX_TAB.v === "rules") PAY.rules($("brSet")); }; });
-  document.querySelector(".ftx-pane-forms").hidden = FTX_TAB.v !== "forms"; document.querySelector(".ftx-pane-texts").hidden = FTX_TAB.v !== "texts";
+  document.querySelector(".ftx-pane-texts").hidden = FTX_TAB.v !== "texts";
   { const c = document.querySelector(".ftx-pane-class"); if (c) c.hidden = FTX_TAB.v !== "class"; } { const r = document.querySelector(".ftx-pane-rules"); if (r) r.hidden = FTX_TAB.v !== "rules"; } }
 async function ftxOpen(onlyTexts){ ftxTabPaint(); if (FTX_TAB.v === "class") clsPaint(); if (FTX_TAB.v === "rules") PAY.rules($("brSet")); if (FTX_TAB.v !== "texts" && !onlyTexts) return; FTX_TAB.textsOpen = true;
   $("ftxForms").innerHTML = FTX_FORMS.map(([k, n, g, w], i) => `${!i || FTX_FORMS[i - 1][2] !== g ? `<div class="ftx-fg">${esc(g)}</div>` : ""}<button type="button" data-ftx="${k}" aria-pressed="${k === FX.form}" title="${esc(w)}"><b>${esc(n)}</b><small>${esc(w)}</small></button>`).join("");
