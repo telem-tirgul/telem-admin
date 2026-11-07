@@ -2791,7 +2791,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
       <button type="button" data-view="schools" data-ic="🏫" data-sl="בתי ספר"><span class="lbl-a">בתי ספר</span><span class="lbl-i">בתי הספר שלי</span></button>
       <button type="button" data-view="exams" data-admin data-ic="🗓️" data-sl="מרתונים">מרתונים</button>
       <button type="button" data-view="att" data-ic="✅" data-sl="קבוצות"><span class="lbl-a">קבוצות ונוכחות</span><span class="lbl-i">נוכחות</span></button>
-      <button type="button" data-view="ws" data-ic="📚" data-sl="מאגר">מאגר תרגולים</button>
+      <button type="button" data-view="ws" data-ic="📚" data-sl="מאגר" hidden>מאגר תרגולים</button><!-- נועה 7.11: מוסתר מההתחלה (היה מופיע ונעלם – התפריט "קפץ" בנייד) -->
       <button type="button" data-view="pay" data-admin data-ic="💳" data-sl="תשלומים">תשלומים <span class="payNavN"></span></button>
     </nav>
     <div class="who"><span id="whoEmail"></span>
@@ -12631,7 +12631,7 @@ async function renderHome(b){   // 5.19.44: תמונת מצב מעוצבת - ל�
   const [pays, up, call] = await Promise.all([call0("payments_list", { p_from: m0, p_to: t }), call0("recurring_upcoming", { p_until: addDays(t, 7) }), loadCall().catch(() => [])]);
   const ok = (pays || []).filter(r => r.status === "אושר"), sumF = (f) => ok.filter(f).reduce((s, r) => s + Number(r.amount || 0), 0);
   const act = S.plans.filter(p => p.status === "active"), actSum = act.reduce((s, p) => s + Number(p.monthly_amount || 0), 0);
-  const parts = [["תרגולים שוטפים", "#1C5A66", "tx-reg", sumF(r => r.kind === "הרשמה - תשלום ראשון" || r.kind === "חיוב חודשי")], ["מרתונים", "#3E4651", "tx-mar", sumF(r => r.kind === "מרתון")], ["תשלומים אישיים", "#9A9184", "tx-pay", sumF(r => r.kind === "תשלום אישי")]];
+  const parts = [["תרגולים שוטפים", "#1C5A66", "tx-reg", sumF(r => r.kind === "הרשמה - תשלום ראשון" || r.kind === "חיוב חודשי")], ["מרתונים", "#3E4651", "tx-mar", sumF(r => r.kind === "מרתון")], ["קישורים אישיים", "#9A9184", "tx-pay", sumF(r => r.kind === "תשלום אישי")]];
   const total = parts.reduce((s, x) => s + x[3], 0), mName = new Date(t + "T12:00:00").toLocaleDateString("he-IL", { month: "long" });
   const todo = [["call", "📞", "להתקשר לתשלום", (call || []).length, "הורים שבחרו תשלום טלפוני"], ["failed", "⚠", "חיובים שנכשלו", S.failed.length, "חיובי הוראת קבע שלא עברו"], ["issues", "❗", "דורש טיפול", S.issues.length, "תשלום כפול, סכום לא תואם ועוד"]];
   const nTodo = todo.reduce((s, x) => s + x[3], 0);
@@ -12657,8 +12657,8 @@ function call0(fn, a){ return call(fn, a).catch(() => null); }
 const PK = ["הרשמה - תשלום ראשון", "מרתון", "תשלום אישי", "חיוב חודשי"];
 const PK_CLS = { "הרשמה - תשלום ראשון": "k-reg", "מרתון": "k-mar", "תשלום אישי": "k-pay", "חיוב חודשי": "k-mon" };
 // הלקוחה (16.10): שוטפים (תשלום ראשון חד-פעמי + חיובי הוראת קבע) בנפרד ממרתונים
-const PK_TXT = { "הרשמה - תשלום ראשון": "תשלום ראשון (חד-פעמי)", "חיוב חודשי": "הוראת קבע - חיוב חודשי", "מרתון": "מרתון", "תשלום אישי": "תשלום אישי" };
-const PG = [["reg", "תרגולים שוטפים"], ["mar", "מרתונים"], ["pay", "תשלומים אישיים"], ["all", "הכול"]];
+const PK_TXT = { "הרשמה - תשלום ראשון": "תשלום ראשון (חד-פעמי)", "חיוב חודשי": "הוראת קבע - חיוב חודשי", "מרתון": "מרתון", "תשלום אישי": "קישור אישי" };
+const PG = [["reg", "תרגולים שוטפים"], ["mar", "מרתונים"], ["pay", "קישורים אישיים"], ["all", "הכול"]];
 const inGroup = (r) => S.pk === "all" ? true : S.pk === "mar" ? r.kind === "מרתון" : S.pk === "pay" ? r.kind === "תשלום אישי"
   : (r.kind === "הרשמה - תשלום ראשון" || r.kind === "חיוב חודשי");
 const isoD = (d) => d.toISOString().slice(0, 10);
@@ -12707,7 +12707,7 @@ async function renderAll(b){
   const okP = list.flatMap(d => d.pays).filter(r => r.status === "אושר" && inRng(r)), sum = okP.reduce((a, r) => a + Number(r.amount || 0), 0);
   const nTodo = deals.filter(d => (S.pk === "all" || (S.pk === "plan" ? !!d.plan || d.group === "plan" : d.group === S.pk)) && d.todo).length;
   const RNG = [["month", "החודש"], ["prev", "החודש הקודם"], ["30", "30 הימים האחרונים"], ["year", "מתחילת שנת הלימודים"], ["", "טווח תאריכים אחר..."]];
-  const KINDS = [["all", "כל הסוגים"], ["first", "תרגול שוטף"], ["plan", "עם הוראת קבע"], ["mar", "מרתונים"], ["pay", "תשלומים אישיים"]];
+  const KINDS = [["all", "כל הסוגים"], ["first", "תרגול שוטף"], ["plan", "עם הוראת קבע"], ["mar", "מרתונים"], ["pay", "קישורים אישיים"]];
   b.innerHTML = `<div class="filters pay-flt${S.pfOpen ? " open" : ""}">
       <div class="pf-q"><label class="lbl" for="pq2">חיפוש</label><input id="pq2" type="search" placeholder="שם הילד/ה, הורה, טלפון, חשבונית, אישור..." value="${esc(q)}"></div>
       <button type="button" class="btn pf-tog" id="pfTog">סינון נוסף ▾</button>
@@ -12780,7 +12780,7 @@ function buildDeals(rows, qf, qt, ibOpen){
     deals.push(o); };
   const planHtml = (p) => `${stChip(p.status)} <span class="muted">${p.charged_count || 0}/${p.total_count || "?"}</span>`;
   // 5.19.60 (הלקוחה): עמודת הסוג = כמו בסינון (תרגולים שוטפים / מרתון / תשלום אישי); מבנה התשלום בשורה קטנה מתחת
-  const GK = { first: ["k-reg", "תרגול שוטף"], plan: ["k-reg", "תרגול שוטף"], mar: ["k-mar", "מרתון"], pay: ["k-pay", "תשלום אישי"] };
+  const GK = { first: ["k-reg", "תרגול שוטף"], plan: ["k-reg", "תרגול שוטף"], mar: ["k-mar", "מרתון"], pay: ["k-pay", "קישור אישי"] };   // נועה 7.11: "קישור אישי" – תשלום שהגיע מדף תשלום
   const kindH = (g, sub) => `<span class="chip kchip ${GK[g][0]}">${GK[g][1]}</span>${sub ? `<div class="muted k-sub">${sub}</div>` : ""}`;
   // 5.19.61 (הלקוחה): תשלום ראשון והוראת הקבע - שתי שורות נפרדות (בפרטים רואים את שתיהן יחד)
   const firstOf = {};
