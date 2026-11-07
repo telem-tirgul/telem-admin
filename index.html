@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.51">
+<meta name="app-version" content="5.21.52">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6895,6 +6895,7 @@ function ftxCollect(fr){
     if (p.closest("[data-t], [data-tx], script, style, select, option, textarea, .preview-banner, [hidden], .hp-field")) continue;
     if (!p.getClientRects().length) continue;
     const key = grp + "|" + s; if (seen.has(key)) continue; seen.add(key);
+    if (TX.seen && TX.seen[s] && TX.reg && TX.reg[TX.seen[s]]) continue;   // נועה 7.11: טקסט שנבנה בקוד אבל עריך (מופיע ברשימה) – לא "לקריאה בלבד"
     auto.push({ grp, text: s });
   }
   // נועה 7.11: הרשימה לפי סדר ההופעה בטופס (גם טקסטים שנבנים בקוד – לפי המקום שלהם בדף); מה שלא מופיע עכשיו – בסוף הקבוצה שלו
@@ -6918,6 +6919,23 @@ function ftxCollect(fr){
     rest.forEach(it => { let k = -1; out.forEach((x, j) => { if (x.grp === it.grp) k = j; }); if (k >= 0) out.splice(k + 1, 0, it); else out.push(it); });
     items.length = 0; out.forEach(x => items.push(x)); }
   FX.items = items; FX.auto = auto; ftxRender(); ftxPreview(); ftxInlineInit();
+  ftxSrcMore(FX.form);
+}
+// נועה 7.11 ("שכל הטקסטים יהיו שם"): טקסטים שהטופס מציג רק במצב אחר (כפתור לתשלום באשראי, הרשמה סגורה, תשלום חודשי...) –
+// לא נרשמו בתצוגה הנוכחית. קוראים אותם מקוד הטופס (RS / RH / TX.h / TX.s עם מפתח, נוסח ושם) ומוסיפים בסוף הרשימה – עריכים כרגיל
+async function ftxSrcMore(form){
+  let src = ""; try { src = await (await fetch("/" + form + ".html", { cache: "no-cache" })).text(); } catch(e) { return; }
+  if (FX.form !== form || !FX.items.length) return;
+  const have = new Set(FX.items.map(it => it.key)), STR = '"((?:[^"\\\\\n]|\\\\.)*)"', add = [];
+  const re = new RegExp("\\b(?:RS|RH|TX\\.h|TX\\.s)\\(\\s*" + STR + "\\s*,\\s*" + STR + "\\s*,\\s*" + STR, "g");
+  const un = (x) => { try { return JSON.parse('"' + x + '"'); } catch(e) { return null; } };
+  for (const m of src.matchAll(re)) { const k = un(m[1]), def = un(m[2]), lbl = un(m[3]);
+    if (!k || def == null || have.has(k) || !/^[a-z][\w.-]*$/i.test(k)) continue; have.add(k);
+    const vars = {}; (def.match(/\{([^{}<>]{1,40})\}/g) || []).forEach(v => vars[v.slice(1, -1)] = "");
+    const cl = FX.w && FX.w.TX && FX.w.TX.clean; if (!cl) return;
+    add.push({ key: k, tpl: true, plain: false, vars, req: [], grp: "מופיע רק במצב אחר של הטופס (לא בתצוגה עכשיו)", def: ftxN(cl(def)), what: lbl || k }); }
+  if (!add.length) return;
+  add.forEach(x => FX.items.push(x)); ftxRender();
 }
 const ftxLiveOrDef = (it) => FX.live[it.key] != null ? ftxNV(it, FX.live[it.key]) : it.def;
 // הנוסח שמוצג עכשיו לעריכה: עריכה שלא נשמרה ← טיוטה ← באוויר ← מקור
