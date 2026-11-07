@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.44">
+<meta name="app-version" content="5.21.45">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2715,6 +2715,17 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
 .ftx-forms .ftx-fg{ align-self:center; font-size:12.5px; font-weight:800; color:#7A1F26 !important; opacity:1 !important; padding:0 10px 0 4px; white-space:nowrap; }
 .ftx-forms .ftx-fg:not(:first-child){ border-inline-start:1px solid var(--border, #E6DDD3); margin-inline-start:6px; padding-inline-start:12px; }
 .ftx-forms{ border-radius:14px; } .ftx-when{ flex-basis:100%; font-size:13px; margin:4px 4px 0; }
+
+/* נועה 7.11: דף התודה – כל המקרים */
+.ftx-tyall{ padding:6px 4px 10px; max-height:78vh; overflow:auto; }
+.tya-g + .tya-g{ margin-top:14px; } .tya-h{ font-weight:800; color:#7A1F26; margin:0 4px 6px; }
+.tya-row{ display:flex; flex-wrap:wrap; gap:10px; }
+.tya-c{ all:unset; cursor:pointer; display:flex; flex-direction:column; gap:4px; width:200px; }
+.tya-n{ font-size:13px; font-weight:700; text-align:center; }
+.tya-f{ display:block; width:200px; height:400px; overflow:hidden; border:1px solid var(--border, #E6DDD3); border-radius:12px; background:#fff; position:relative; }
+.tya-c:hover .tya-f, .tya-c:focus-visible .tya-f{ outline:2px solid #7A1F26; }
+.tya-f iframe{ width:390px; height:780px; border:0; transform:scale(.5128); transform-origin:top right; position:absolute; top:0; right:0; pointer-events:none; }
+#ftxTyv [data-tyall]{ white-space:nowrap; } #ftxTySel{ font:inherit; font-size:13px; padding:4px 8px; border-radius:8px; border:1px solid var(--border, #E6DDD3); }
 </style>
 </head>
 <body>
@@ -6549,11 +6560,17 @@ const FTX_FORMS = [
   ["pay", "קישור תשלום אישי", "נשלח להורה", "נוצר מכרטיס התלמיד / ממסך הקישורים"],
   ["cancel", "טופס ביטול", "נשלח להורה", "כשהורה מבקש לבטל הרשמה"],
   ["shibutz", "טופס שיבוץ", "נשלח להורה", "בחירת מועדים מועדפים לשיבוץ"],
-  ["thank-you", "דף תודה", "אחרי שליחה", "אחרי כל טופס – 9 גרסאות (בחירה מעל התצוגה)"],
+  ["thank-you", "דף תודה", "אחרי שליחה", "אחרי כל טופס – כל המקרים לפי הטופס ששלח (לחיצה על מקרה – פתיחה בגדול)"],
   ["payment-failed", "תשלום לא הושלם", "אחרי שליחה", "כשהתשלום באשראי לא עבר"]];
 const FTX_TYV = [["paid", "אשראי – שולם"], ["phone", "תשלום טלפוני"], ["phpaid", "כבר שילמתי בטלפון"], ["signed", "קישור אישי – רשום"], ["sgunp", "קישור אישי – לא רשום"], ["lead", "מרתון – להשאיר פרטים"], ["already", "מרתון – כבר רשום/ה"], ["interest", "התעניינות"], ["paylink", "קישור תשלום – שולם"]];   // נועה 6.11: כל המקרים (טבלת הסיכום); "ההרשמה נשלחה" ירד
 const FTX_RV = [["reg", "רגיל"], ["card", "קישור אישי – שולם"], ["cardu", "קישור אישי – לא שולם"]];   /* 5.21.19 (נועה 6.11): גם במרתון */   // 5.21.11 (נועה 4.11): "שילמו בטלפון" – עכשיו אפשרות בטופס הרגיל ("כבר שילמתי"), לא קישור נפרד
-const FX = { form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "paid", rv: "reg", mar: null };
+const FX = { form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "paid", tys: "reg", tyAll: true, rv: "reg", mar: null };
+// נועה 7.11: כל המקרים של דף התודה – לפי הטופס ששלח (כמו בטבלה). [גרסה, דוגמה (שוטף / מרתון), שם]
+const FTX_TYALL = [
+  ["טופס הרשמה לתרגולים השוטפים", [["paid", "reg", "אשראי – שולם"], ["phone", "reg", "תשלום טלפוני"], ["phpaid", "reg", "\"כבר שילמתי בטלפון\""]]],
+  ["טופס מרתון", [["paid", "mar", "הרשמה – אשראי, שולם"], ["phone", "mar", "הרשמה – תשלום טלפוני"], ["phpaid", "mar", "הרשמה – \"כבר שילמתי\""], ["lead", "mar", "להשאיר פרטים"], ["already", "mar", "כבר נשלח"]]],
+  ["טופס התעניינות (שוטף)", [["interest", "reg", "התעניינות"]]],
+  ["קישור אישי מכרטיס התלמיד (פחות חשוב)", [["paylink", "reg", "קישור תשלום – שולם"], ["signed", "reg", "קישור הרשמה – נחתם, הקורס רשום"], ["sgunp", "reg", "קישור הרשמה – נחתם, הקורס לא רשום"]]]];
 const ftxN = (h) => String(h == null ? "" : h).replace(/ /g, " ").replace(/\s+/g, " ").replace(/\s*<br>\s*/g, "<br>").trim();
 const ftxClean = (h) => FX.w && FX.w.TX ? FX.w.TX.clean(h) : esc(TXplain(h));
 // 5.19.102: טקסט פשוט (בלי עיצוב) – שומרים על השורות (למשל "ניסוח המשבצות": שורה לכל מספר)
@@ -6662,7 +6679,7 @@ async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint();
   $("ftxForms").querySelectorAll("[data-ftx]").forEach(b => b.onclick = async () => { if (b.dataset.ftx === FX.form) return; if (ftxUnsaved() && !await uiConfirm("יש שינויים שלא נשמרו כטיוטה. לעבור טופס בלי לשמור?")) return; FX.form = b.dataset.ftx; ftxOpen(); });
   $("ftxTyv").hidden = !["thank-you", "register", "marathon"].includes(FX.form);
   if (!["register", "marathon"].includes(FX.form)) FX.rv = "reg";
-  { const rv = FX.form === "register" || FX.form === "marathon", L0 = rv ? FTX_RV : FTX_TYV, cur = rv ? FX.rv : FX.tyv;
+  if (FX.form === "thank-you") ftxTyBar(); else { const rv = FX.form === "register" || FX.form === "marathon", L0 = rv ? FTX_RV : FTX_TYV, cur = rv ? FX.rv : FX.tyv;
     $("ftxTyv").innerHTML = L0.map(([k, n]) => `<button type="button" data-tyv="${k}" aria-pressed="${k === cur}">${esc(n)}</button>`).join("");
     $("ftxTyv").querySelectorAll("[data-tyv]").forEach(b => b.onclick = async () => { $("ftxTyv").querySelectorAll("[data-tyv]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
       if (!rv) { FX.tyv = b.dataset.tyv; ftxLoadFrame(false); return; }
@@ -6681,7 +6698,7 @@ function ftxUrl(){
   let q = "?preview=1";
   if (FX.form === "marathon" && FX.mar) q += "&m=" + encodeURIComponent(FX.mar) + (FX.rv && FX.rv !== "reg" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
   if (FX.form === "interest") q += "&city=" + encodeURIComponent("ראש העין");   // נועה 7.11: בלי מרתון – ההתעניינות במרתון היא בטופס המרתון ("להשאיר פרטים")
-  if (FX.form === "thank-you") q = "?tyv=" + FX.tyv;
+  if (FX.form === "thank-you") q = "?tyv=" + FX.tyv + "&tys=" + (FX.tys || "reg");
   if (FX.form === "register" && FX.rv !== "reg") q = "?city=" + encodeURIComponent("ראש העין") + "&phone=1&preview=1" + (FX.rv === "card" || FX.rv === "cardu" ? "&c=sample" + (FX.rv === "cardu" ? "&unpaid=1" : "") : "");
   return "/" + FX.form + ".html" + q;
 }
@@ -6693,6 +6710,23 @@ function ftxLoadFrame(collect){
   try { sessionStorage.setItem("telem_tx_edit_" + FX.form, JSON.stringify(collect ? {} : ftxMap())); } catch(e) {}
   fr.onload = () => setTimeout(() => { if (FX.form !== want) return; if (collect) ftxCollect(fr); else { FX.w = fr.contentWindow; try { FX.w.scrollTo(0, sy); } catch(e) {} ftxRebind(); } }, collect ? 1500 : 700);
   fr.src = url + (url.includes("?") ? "&" : "?") + "txedit=1";
+  ftxTyGrid();
+}
+// נועה 7.11: דף התודה – תמיד רואים את כל המקרים (מקובצים לפי הטופס); לחיצה על מקרה – פותחת אותו בגדול
+function ftxTyBar(){
+  const b = $("ftxTyv"); b.hidden = false;
+  b.innerHTML = `<button type="button" data-tyall="1" aria-pressed="${FX.tyAll}">🗂 כל המקרים</button><select id="ftxTySel" aria-label="מקרה"><option value="">מקרה אחד…</option>${FTX_TYALL.map(([g, L]) => `<optgroup label="${esc(g)}">${L.map(([v, sm, n]) => `<option value="${v}|${sm}" ${!FX.tyAll && FX.tyv === v && FX.tys === sm ? "selected" : ""}>${esc(n)}</option>`).join("")}</optgroup>`).join("")}</select>`;
+  b.querySelector("[data-tyall]").onclick = () => { FX.tyAll = true; ftxTyBar(); ftxTyGrid(); };
+  $("ftxTySel").onchange = (e) => { if (!e.target.value) return; ftxTyOne(...e.target.value.split("|")); };
+}
+function ftxTyOne(v, sm){ FX.tyAll = false; FX.tyv = v; FX.tys = sm; ftxTyBar(); ftxLoadFrame(false); }
+function ftxTyGrid(){
+  let g = $("ftxTyAll"); const fr = $("ftxFrame");
+  if (FX.form !== "thank-you" || !FX.tyAll) { if (g) g.hidden = true; fr.hidden = false; return; }
+  if (!g) { g = document.createElement("div"); g.id = "ftxTyAll"; g.className = "ftx-tyall"; fr.after(g); }
+  fr.hidden = true; g.hidden = false;
+  g.innerHTML = FTX_TYALL.map(([gn, L]) => `<div class="tya-g"><div class="tya-h">${esc(gn)}</div><div class="tya-row">${L.map(([v, sm, n]) => `<button type="button" class="tya-c" data-tya="${v}|${sm}" title="לחיצה – פתיחה בגדול לעריכה"><span class="tya-n">${esc(n)}</span><span class="tya-f"><iframe tabindex="-1" loading="lazy" src="/thank-you.html?tyv=${v}&tys=${sm}&txedit=1" title="${esc(n)}"></iframe></span></button>`).join("")}</div></div>`).join("");
+  g.querySelectorAll("[data-tya]").forEach(c => c.onclick = () => ftxTyOne(...c.dataset.tya.split("|")));
 }
 function ftxCollect(fr){
   let w; try { w = fr.contentWindow; if (!w.TX) throw 0; } catch(e) { $("ftxList").innerHTML = `<div class="err">הטופס לא נטען (צריך את גרסת הטפסים 5.19.100).</div>`; return; }
