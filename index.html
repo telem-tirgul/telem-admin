@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.56">
+<meta name="app-version" content="5.21.57">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4070,6 +4070,20 @@ async function crsLoad0(){
 // 5.20.12 (נועה): מרתון שהמפגש האחרון שלו עבר – הסתיים (היסטוריה)
 const crsFin = (c) => { if (!c || !c.marathon_id) return false; const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return !!d && d < todayIL(); };
 const crsOfStudent = (sid) => (CRS.cm[sid] || []);
+// נועה 7.11 (מנ-322): הסטטוס הישן של הכרטיס יורד – הכול לפי הסטטוס בקורס. כל עוד הקורסים לא נטענו – לפי הסטטוס הישן (גיבוי)
+const stuCur = (sid) => crsOfStudent(sid).filter(m => { const c = CRS.byId[m.course_id]; return !crsGone(m) && c && c.is_active !== false && crsActiveSeasons().has(c.season_id); });
+const stuIsReg = (m) => { const c = CRS.byId[m.course_id]; return m.status === "רשום" && c && !c.marathon_id && !/summer/.test(mTrk(m)); };   // רשום/ה בתרגול השוטף
+const stuRegM = (sid) => stuCur(sid).find(stuIsReg);
+const stuOld = (l) => typeof statusName === "function" && l ? statusName(l.status_id) || "" : "";
+const stuReg = (l) => !l || !l.student ? false : CRS.ok ? !!stuRegM(l.student.id) : /^נרשם (מת|אנג)/.test(stuOld(l)) && !/קיץ|מרתון/.test(stuOld(l));
+const stuSubj = (sid) => { if (!CRS.ok) { const l = (L.leads || []).find(x => x.student && x.student.id === sid); return l ? subjFromStatus(stuOld(l)) : ""; }
+  const m = stuRegM(sid) || stuCur(sid).find(x => (x.status === "ממתין לתשלום") && !CRS.byId[x.course_id].marathon_id); return !m ? "" : mTrk(m) === "double" ? "מתמטיקה ואנגלית" : (m.subject || ""); };
+const ST_PRI = ["רשום", "ממתין לתשלום", "מתעניין"];
+const stuStM = (sid) => { const cur = stuCur(sid); if (!cur.length) { return crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id]).sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")) || b.id - a.id)[0] || null; }   // אין קורס פעיל – הסטטוס של הקורס האחרון (למשל "פרש")
+  const ms = cur.slice().sort((a, b) => ((ST_PRI.indexOf(a.status) + 1) || 9) - ((ST_PRI.indexOf(b.status) + 1) || 9) || !!CRS.byId[a.course_id].marathon_id - !!CRS.byId[b.course_id].marathon_id); return ms[0] || null; };
+const stuSt = (l) => { if (!l || !l.student) return { name: "", label: "", color: "" }; if (!CRS.ok) { const n = stuOld(l); return { name: n, label: n, color: (L.statuses.find(x => x.id === l.status_id) || {}).color || "" }; }
+  const m = stuStM(l.student.id); if (!m) return { name: "", label: "", color: "" }; const st = crsStOf(m.status), c = CRS.byId[m.course_id];
+  const sub = !c.marathon_id && m.status === "רשום" ? stuSubj(l.student.id) : ""; return { name: m.status, label: (st.label || st.name) + (c.marathon_id ? " · מרתון" : sub ? " · " + (SUBJ_FULL[sub] || sub) : ""), color: st.color || "" }; };
 const CRS_CMS = "select=id,course_id,student_id,status,subject,grade,signed,source,note,created_at,updated_at,enrollment_id,marathon_registration_id%S%&order=id";   // 5.20.13: + ההרשמה (לטופס החתום של הקורס)
 async function crsLoadMembers(filter){   // טוען רישומים (מוסיף ל-CRS.cm בלי כפילויות); source_id – קובץ 130, track – קובץ 132
   let cm; const q = (x) => CRS_CMS.replace("%S%", x) + "&" + filter;
@@ -4932,7 +4946,7 @@ function filtered(){
     { const ft = $("fTs").value; if (ft) { const has = !!(L.tsAcc && L.tsAcc.has(s.id)); if (ft === "yes" ? !has : ft === "no" ? has : !(has && !tsAccess(l))) return false; } }   /* 5.21.12: תלם שלי */
     if ($("fRemind").checked) { const rd = $("fRemindDate").value; const lim = rd ? new Date(rd + "T23:59:59") : new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
       if (!(l.remind_at && new Date(l.remind_at) <= lim)) return false; }
-    if (F.statuses.size && !F.statuses.has(l.status_id)) return false;
+    // נועה 7.11: הסינון לפי הסטטוס הישן ירד (מוסתר מ-5.20.5; סינון שנשמר מפעם – לא מסנן יותר)
     if (city && leadCity(l) !== city) return false;
     if (school && String(s.school_id) !== school) return false;
     if (grade && s.grade !== grade) return false;
@@ -4969,7 +4983,7 @@ function filtered(){
   });
   const key = {
     id: l => Number(l.legacy_user_id) || l.id + 1e6, name: l => (l.student.first_name + " " + (l.student.last_name || "")),
-    status: l => statusName(l.status_id), source: l => sourceName(l.source_id), school: l => schoolOf(l.student).name,
+    status: l => stuSt(l).label, source: l => sourceName(l.source_id), school: l => schoolOf(l.student).name,
     grade: l => String(GRADES.indexOf(l.student.grade)).padStart(2, "0") + String(l.student.class_num || "").replace(/\D/g, "").padStart(3, "0"), asg: l => asgOf(l).length, parent: l => [(l.student.family || {}).parent1_first, (l.student.family || {}).parent1_last].filter(Boolean).join(" "), manager: l => staffName(l.manager_id), remind: l => l.remind_at || "~",
     updated: l => lastUpdate(l) || "", ...LEAD_XKEY
   }[F.sort] || (l => lastUpdate(l) || "");
@@ -5016,7 +5030,7 @@ function histFiltered(leadList){
   if (!H.rows) { if (!H.loading) loadHistRows().then(() => { if (currentView === "leads") renderLeads(); }).catch(() => {}); return null; }
   const city = $("fCity").value, schoolId = $("fSchool").value, grade = $("fGrade").value;
   const schName = schoolId ? hNorm(((L.schools || []).find(x => String(x.id) === schoolId) || {}).name) : "";
-  const stNames = new Set([...F.statuses].map(statusName)), srcNames = new Set([...F.sources].map(sourceName));
+  const stNames = new Set(), srcNames = new Set([...F.sources].map(sourceName));
   const shown = new Set((leadList || []).map(l => l.student_id));
   let out = H.rows.filter(h => {
     if (useDates) { const a = h.year_start + "-09-01", b = (h.year_start + 1) + "-08-31"; if ((from && b < from) || (to && a > to)) return false; }
@@ -5068,7 +5082,7 @@ function leadRows(){
   const list = pastYr ? [] : filtered(), hs = histFiltered(list);
   LR.histN = hs ? hs.length : 0; LR.histLoading = hs === null;
   if (!hs || !hs.length) return list;
-  const lk = { id: l => Number(l.legacy_user_id) || l.id + 1e6, name: l => (l.student.first_name + " " + (l.student.last_name || "")), status: l => statusName(l.status_id), source: l => sourceName(l.source_id),
+  const lk = { id: l => Number(l.legacy_user_id) || l.id + 1e6, name: l => (l.student.first_name + " " + (l.student.last_name || "")), status: l => stuSt(l).label, source: l => sourceName(l.source_id),
     school: l => schoolOf(l.student).name, grade: l => String(GRADES.indexOf(l.student.grade)).padStart(2, "0"), asg: l => asgOf(l).length,
     parent: l => [(l.student.family || {}).parent1_first, (l.student.family || {}).parent1_last].filter(Boolean).join(" "), manager: l => staffName(l.manager_id), remind: l => l.remind_at || "", updated: l => lastUpdate(l) || "", ...LEAD_XKEY };
   const kf = (x) => x.__h ? (H_KEY[F.sort] || H_KEY.updated)(x) : F.sort === "updated" && LR.years.has(x.id) ? LR.years.get(x.id)[0].year_start + "-09-01" : (lk[F.sort] || lk.updated)(x);
@@ -5149,7 +5163,7 @@ const PROP_ST = { none: "טרם נשלחה הודעה", sent: "קיבל הודע
 const asgText = (x) => `${x.day}' ${String(x.start_time || "").slice(0, 5)} ${(x.location && x.location.name) || ""}`;
 // 5.19.139 (נועה 25.10): עמודת "תלם שלי" – 📱 למי שיש חשבון ויש לו/ה גישה עכשיו (משובץ/ת לקבוצה או סטטוס "נרשם…", כמו TS-10); חשבון בלי גישה – אפור
 const tsAccess = (l) => (typeof CRS !== "undefined" && CRS.ok ? crsOfStudent(l.student.id).some(m => m.status === "רשום" && !crsGone(m) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id))   // 5.20.30 (נועה): "נרשם" – בקורס
-  : /^נרשם/.test(statusName(l.status_id)) && !/קיץ/.test(statusName(l.status_id))) || asgOf(l).length > 0 || marAsgOf(l.student.id).length > 0;
+  : stuReg(l)) || asgOf(l).length > 0 || marAsgOf(l.student.id).length > 0;
 const tsCell = (l) => { if (!L.tsAcc || !L.tsAcc.has(l.student.id)) return "";
   return tsAccess(l) ? `<span class="ts-ic" title="יש חשבון ב&quot;תלם שלי&quot; – יש גישה">📱</span>` : `<span class="ts-ic off" title="יש חשבון ב&quot;תלם שלי&quot; – אין גישה כרגע (לא משובץ/ת ולא בסטטוס &quot;נרשם&quot;)">📱</span>`; };
 const COLS = [
@@ -5463,7 +5477,7 @@ $("exportBtn").addEventListener("click", () => {
       return [hyLbl(h.school_year, h.year_start), "", "לא", "", h.status, h.source, "", h.first_name, h.last_name, h.student_phone, h.school, h.city, h.grade + (histGradeNow(h.grade, h.year_start) ? " (היום " + histGradeNow(h.grade, h.year_start) + ")" : ""), "",
         h.parent1_name, h.parent1_phone, h.email, h.parent2_name, h.parent2_phone, "", "", "", "", h.message, h.notes]; }
     const s = l.student, f = s.family || {}, sch = schoolOf(s);
-    return [LR.years.has(l.id) ? [...new Set(LR.years.get(l.id).map(h => hyLbl(h.school_year, h.year_start)))].join(", ") : "השנה", l.legacy_user_id || l.id, l.is_active ? "כן" : "לא", l.is_starred ? "כן" : "", statusName(l.status_id), sourceName(l.source_id), l.topic,
+    return [LR.years.has(l.id) ? [...new Set(LR.years.get(l.id).map(h => hyLbl(h.school_year, h.year_start)))].join(", ") : "השנה", l.legacy_user_id || l.id, l.is_active ? "כן" : "לא", l.is_starred ? "כן" : "", stuSt(l).label, sourceName(l.source_id), l.topic,
       s.first_name, s.last_name, s.phone, sch.name, sch.city || f.city, classLabel(s.grade, s.class_num), asgOf(l).map(asgText).join(", "), [f.parent1_first, f.parent1_last].filter(Boolean).join(" "), f.parent1_phone, f.parent1_email,
       [f.parent2_first, f.parent2_last].filter(Boolean).join(" "), f.parent2_phone, staffName(l.manager_id), fmtDate(l.remind_at), fmtDate(l.created_at), fmtDate(lastUpdate(l)),
       l.message, (L.notes[l.id] || []).map(n => fmtDate(n.created_at) + " " + cleanNote(n.body)).join("\n")]; });
@@ -5566,9 +5580,9 @@ function openLead(id){
   updateLeadHead();
   $("leadMeta").innerHTML = l ? `<span>מספר ליד: ${esc(l.legacy_user_id || "#" + l.id)}</span><span>נוצר: ${esc(fmtDate(l.created_at))}</span><span>עודכן: ${esc(fmtDate(lastUpdate(l)))}</span>` : "";
   const sibs = l ? L.leads.filter(x => x.family_id === l.family_id && x.id !== l.id) : [];
-  const isReg = (x) => statusName(x.status_id).startsWith("נרשם") || x.topic === "נרשם";
+  const isReg = (x) => stuReg(x) || x.topic === "נרשם";   // נועה 7.11: לפי הקורס
   $("siblings").innerHTML = sibs.length ? `<span class="sibs-lbl">👪 אחים:</span>` + sibs.map(x =>
-    `<button type="button" class="sib ${isReg(x) ? "reg" : ""}" data-open="${x.id}" title="${esc(statusName(x.status_id) || "בלי סטטוס")}">${esc(x.student.first_name)} ${esc(x.student.last_name || "")}<small>${esc(statusName(x.status_id) || "בלי סטטוס")}${x.student.grade ? " · " + esc(classLabel(x.student.grade, x.student.class_num)) : ""}</small></button>`).join("") : "";
+    `<button type="button" class="sib ${isReg(x) ? "reg" : ""}" data-open="${x.id}" title="${esc(stuSt(x).label || "בלי סטטוס")}">${esc(x.student.first_name)} ${esc(x.student.last_name || "")}<small>${esc(stuSt(x).label || "בלי סטטוס")}${x.student.grade ? " · " + esc(classLabel(x.student.grade, x.student.class_num)) : ""}</small></button>`).join("") : "";
   $("sibAdd").hidden = !l || ME.role === "instructor";
   $("siblings").querySelectorAll("[data-open]").forEach(b => b.onclick = () => openLead(Number(b.dataset.open)));
   $("newNote").value = ""; $("noteNew").classList.remove("open"); $("notesN").textContent = ""; $("laNotes").textContent = ""; $("addNoteBtn").disabled = !l;
@@ -5809,7 +5823,7 @@ function dupFind(st, fam, exceptSid){
   return out;
 }
 const dupCard = (l) => { const s = l.student || {}, f = s.family || {};
-  return `<b>${esc((s.first_name || "") + " " + (s.last_name || ""))}</b> <span class="muted">#${s.id}</span><div class="muted" style="font-size:13px">${[statusName(l.status_id), s.grade ? "שכבת " + s.grade + (s.class_num ? s.class_num : "") : "", s.school || "", f.parent1_first ? "הורה: " + f.parent1_first + (f.parent1_phone ? " " + f.parent1_phone : "") : "", s.phone ? "נייד: " + s.phone : "", "נוצר " + fmtIso(String(l.created_at || s.created_at || "").slice(0, 10))].filter(Boolean).map(esc).join(" · ")}</div>`; };
+  return `<b>${esc((s.first_name || "") + " " + (s.last_name || ""))}</b> <span class="muted">#${s.id}</span><div class="muted" style="font-size:13px">${[stuSt(l).label, s.grade ? "שכבת " + s.grade + (s.class_num ? s.class_num : "") : "", s.school || "", f.parent1_first ? "הורה: " + f.parent1_first + (f.parent1_phone ? " " + f.parent1_phone : "") : "", s.phone ? "נייד: " + s.phone : "", "נוצר " + fmtIso(String(l.created_at || s.created_at || "").slice(0, 10))].filter(Boolean).map(esc).join(" · ")}</div>`; };
 // חלון איחוד: מתחילים מילד/ה אחד/ת, בוחרים את הכפול (הצעות לפי הכללים + חיפוש בשם), ואז מי נשאר
 function mergeDlg(sid, preferKeep, after){
   const me = (L.leads || []).find(l => Number(l.student_id) === Number(sid)); if (!me) { toast("לא נמצא כרטיס"); return; }
@@ -6214,7 +6228,7 @@ function leadQuick(st, cur){
   // 5.19.23: בנייד במצב צפייה - הפרטים העיקריים בקצרה (סטטוס, כיתה, בית ספר, הורה וטלפון)
   const l = (L.leads || []).find(x => x.student && x.student.id === st.id), f = st.family || {}, ph = (v) => v ? `<button type="button" class="lq-ph ph-m" dir="ltr" data-phm="${esc(digits(v))}">${esc(String(v).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</button>` : "";
   const city = l ? leadCity(l) : (f.city || "");
-  const sum = `<div class="lq-sum"><div class="lq-top">${l && statusName(l.status_id) ? `<span class="lq-st"${statusColor(l.status_id) ? ` style="background:${statusColor(l.status_id)}; color:#fff;"` : ""}>${esc(statusName(l.status_id))}</span>` : ""}${city ? `<span class="muted">${esc(city)}</span>` : ""}</div>
+  const sum = `<div class="lq-sum"><div class="lq-top">${(() => { const t = stuSt(l); return t.label ? `<span class="lq-st"${t.color ? ` style="background:${t.color}; color:${txtOn(t.color)};"` : ""}>${esc(t.label)}</span>` : ""; })()}${city ? `<span class="muted">${esc(city)}</span>` : ""}</div>
     <div class="lq-row"><span class="lq-k">בית ספר</span>${sch ? `<span class="school-chip ${scCls(sch)}">${esc(sch)}</span>` : "<span class='muted'>לא ידוע</span>"}<span class="lq-k" style="min-width:0; margin-inline-start:8px;">כיתה</span>${st.grade ? `<b>${esc(classLabel(st.grade, st.class_num))}</b>` : "<span class='muted'>לא ידוע</span>"}</div>
     ${f.parent1_phone || f.parent1_first ? `<div class="lq-row"><span class="lq-k">הורה</span>${esc(fullName(f.parent1_first, f.parent1_last))} ${ph(f.parent1_phone)}${/^0\d{8,9}$/.test(f.parent1_phone || "") ? ` <a class="lq-wa" target="_blank" rel="noopener" href="https://wa.me/972${esc(String(f.parent1_phone).slice(1))}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a>` : ""}</div>` : ""}
     ${f.parent2_phone ? `<div class="lq-row"><span class="lq-k">הורה 2</span>${esc(fullName(f.parent2_first, f.parent2_last))} ${ph(f.parent2_phone)}</div>` : ""}
@@ -6526,14 +6540,14 @@ function subjFromStatus(n){
   return m && e ? "מתמטיקה ואנגלית" : m ? "מתמטיקה" : e ? "אנגלית" : "";
 }
 // 5.19.25: המקצוע תמיד לפי הסטטוס הנוכחי (נרשם מת. / אנג. / מת. + אנג.); רק אם אין - מה שנשמר בשיבוץ
-const stSubjOf = (studentId) => { const l = (L.leads || []).find(x => x.student && x.student.id === studentId); return l ? subjFromStatus(statusName(l.status_id)) : ""; };
+const stSubjOf = (studentId) => stuSubj(studentId);   // נועה 7.11: המקצוע – מהרישום לתרגול השוטף (לא מהסטטוס הישן)
 const liveSubj = (studentId, fallback) => stSubjOf(studentId) || fallback || null;
 let LG_SESSIONS = null;
 // שיבוץ ישר מטבלת התלמידים: חלון קטן - השיבוצים של הילד, הוספה / שינוי / הסרה
 async function openAsgPopup(l){
   const sid = l.student.id, who = `${l.student.first_name} ${l.student.last_name || ""}`.trim();
   const bg = document.createElement("div"); bg.className = "panel-bg"; bg.style.display = "flex"; bg.style.alignItems = "flex-start"; bg.style.justifyContent = "center";
-  bg.innerHTML = `<div class="card asg-pop" role="dialog" aria-modal="true"><div class="asg-pop-h"><b>שיבוץ · ${esc(who)}</b> <span class="muted">${esc(statusName(l.status_id) || "")}</span><button type="button" class="kp-x" data-x aria-label="סגירה" title="סגירה">✕</button></div><div class="asg-pop-b">טוען...</div></div>`;
+  bg.innerHTML = `<div class="card asg-pop" role="dialog" aria-modal="true"><div class="asg-pop-h"><b>שיבוץ · ${esc(who)}</b> <span class="muted">${esc(stuSt(l).label || "")}</span><button type="button" class="kp-x" data-x aria-label="סגירה" title="סגירה">✕</button></div><div class="asg-pop-b">טוען...</div></div>`;
   document.body.appendChild(bg);
   const esc2 = (e) => { if (e.key === "Escape") close(); };
   const close = () => { bg.remove(); document.removeEventListener("keydown", esc2); renderLeads(); };
@@ -6581,7 +6595,7 @@ async function openAsgEditor(studentId, a, cur, opts){
   let enrSubj = "";
   try { const en = await get("enrollments", "select=subject&student_id=eq." + studentId + "&status=neq." + encodeURIComponent("בוטל") + "&subject=not.is.null&order=id.desc&limit=1"); enrSubj = (en[0] && en[0].subject) || ""; } catch(e) {}
   // קודם - הסטטוס שמסומן עכשיו בכרטיס (גם אם עוד לא נשמר), למשל "נרשם מת. + אנג."
-  const stSubj = subjFromStatus(statusName(curStatus()));
+  const stSubj = stuSubj(studentId);   // נועה 7.11: מהרישום לקורס (לא מהסטטוס הישן)
   /* 5.21.16 (החלטת נועה 5.11): "אין משמעות בשיבוצים למקצוע" – המקצוע מהקורס (רשום / ממתין), ורק אם אין – כמו קודם; לא מוצג במסך השיבוץ */
   const crsSubj = (() => { try { const m = crsOfStudent(studentId).filter(x => !crsGone(x) && ["רשום", "ממתין לתשלום"].includes(x.status) && CRS.byId[x.course_id] && !CRS.byId[x.course_id].marathon_id).sort((p1, p2) => (p1.status === "רשום" ? 0 : 1) - (p2.status === "רשום" ? 0 : 1) || p2.id - p1.id)[0];
       return !m ? "" : mTrk(m) === "double" ? "מתמטיקה ואנגלית" : (m.subject || ""); } catch(e) { return ""; } })();
@@ -6639,7 +6653,7 @@ async function openAsgEditor(studentId, a, cur, opts){
     if (!from) to = null; else if (!to) to = addMin(from, 45);
     if (from && to && to <= from) { f("err").textContent = "שעת הסיום צריכה להיות אחרי שעת ההתחלה."; return; }
     // אם שינו את הסטטוס בכרטיס אחרי שנפתח החלון - לוקחים את המקצוע מהסטטוס העדכני
-    const body = { session_id: sid, subject: f("subject").value || subjFromStatus(statusName(curStatus())) || null, arrival_time: from, personal_end: to };
+    const body = { session_id: sid, subject: f("subject").value || stuSubj(studentId) || null, arrival_time: from, personal_end: to };
     { const st0 = a ? a.status : ((box.querySelector("input[name=lgSt]:checked") || {}).value || "משובץ");
       if (st0 === "משובץ" && (!a || (a.session && sid !== a.session.id)) && !(await asgRegOk(studentId, g))) return; }
     f("save").disabled = true;
@@ -7371,7 +7385,7 @@ $("leadForm").addEventListener("submit", async (e) => {
       const dups = dupFind(student, family, null);
       if (dups.length) {
         const d0 = dups[0], s0 = d0.lead.student;
-        const go2 = await uiDialog(`נראה שהילד/ה כבר קיים/ת במערכת:\n${s0.first_name} ${s0.last_name || ""} (${statusName(d0.lead.status_id) || "בלי סטטוס"}) – ${d0.why.join(", ")}${dups.length > 1 ? `\n(ועוד ${dups.length - 1} דומים)` : ""}\n\nלפתוח את הכרטיס הקיים במקום ליצור חדש?`, { ok: "לפתוח את הקיים", no: "ליצור בכל זאת", danger: false });
+        const go2 = await uiDialog(`נראה שהילד/ה כבר קיים/ת במערכת:\n${s0.first_name} ${s0.last_name || ""} (${stuSt(d0.lead).label || "בלי סטטוס"}) – ${d0.why.join(", ")}${dups.length > 1 ? `\n(ועוד ${dups.length - 1} דומים)` : ""}\n\nלפתוח את הכרטיס הקיים במקום ליצור חדש?`, { ok: "לפתוח את הקיים", no: "ליצור בכל זאת", danger: false });
         if (go2) { LEAD_SAVING = false; btns.forEach(b => b.disabled = false); setLeadDirty(false); openLead(d0.lead.id); return; }
       }
       // משפחה קיימת עם אותו טלפון הורה? הילד מצטרף אליה (אח/ות)
@@ -8502,9 +8516,9 @@ $("roAddQ").addEventListener("input", () => {
   const se = G.sessions.find(x => x.session_id === sid); if (!se) return;
   const inG = new Set(G.roster.filter(k => k.session_id === sid).map(k => k.student_id));
   const res = (L.leads || []).filter(l => l.student && !inG.has(l.student.id) && (l.student.first_name + " " + (l.student.last_name || "")).toLowerCase().includes(q))
-    .sort((a, b) => (leadCity(b) === se.city) - (leadCity(a) === se.city) || /^נרשם/.test(statusName(b.status_id)) - /^נרשם/.test(statusName(a.status_id))).slice(0, 8);
+    .sort((a, b) => (leadCity(b) === se.city) - (leadCity(a) === se.city) || stuReg(b) - stuReg(a)).slice(0, 8);
   box.innerHTML = res.length ? res.map(l => { const st = l.student, g = (L.asg[st.id] || []).map(x => (x.location && x.location.name || "") + " " + DAY_NAMES[x.day]).join(", ");
-    return `<li><button type="button" class="btn small" data-roadd="${l.id}">${esc(st.first_name)} ${esc(st.last_name || "")}</button> <span class="muted">${esc([statusName(l.status_id), schoolOf(st).name, leadCity(l), g ? "משובץ/ת: " + g : "לא משובץ/ת"].filter(Boolean).join(" · "))}</span></li>`; }).join("")
+    return `<li><button type="button" class="btn small" data-roadd="${l.id}">${esc(st.first_name)} ${esc(st.last_name || "")}</button> <span class="muted">${esc([stuSt(l).label, schoolOf(st).name, leadCity(l), g ? "משובץ/ת: " + g : "לא משובץ/ת"].filter(Boolean).join(" · "))}</span></li>`; }).join("")
     : "<li class='muted'>לא נמצא.</li>";
   box.querySelectorAll("[data-roadd]").forEach(b => b.onclick = async () => {
     const l = L.leads.find(x => x.id === Number(b.dataset.roadd)); if (!l) return; const st = l.student;
@@ -8512,7 +8526,7 @@ $("roAddQ").addEventListener("input", () => {
     if (!await uiConfirm(`להוסיף את ${st.first_name} ${st.last_name || ""} לקבוצה ${se.location} יום ${DAY_NAMES[se.day]} ${se.time_label} (שיבוץ קבוע)?`)) return;
     if (!(await weekLoadOk(st.id, [{ status: "משובץ", session: Object.assign({ id: sid, school_year: CONFIG.schoolYear }, se), arrival_time: null, personal_end: null }]))) return;
     b.disabled = true;
-    try { await insert("assignments", { session_id: sid, student_id: st.id, status: "משובץ", subject: subjFromStatus(statusName(l.status_id)) || null });
+    try { await insert("assignments", { session_id: sid, student_id: st.id, status: "משובץ", subject: stuSubj(st.id) || null });
       toast(`${st.first_name} ${st.last_name || ""} נוסף/ה לקבוצה`); await loadGroups(); loadLeadsDelta().catch(() => {}); openPanel(sid); }
     catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
 });
@@ -9218,11 +9232,11 @@ async function renderInbox(reload){
     const pr = IB.pair && IB.pair[r.id], pi = IB.pairInt && IB.pairInt[r.id], dd = (IB.dups && IB.dups[r.id]) || [];
     const ids = [r.id].concat(pr ? [pr.id] : [], pi ? [pi.id] : [], dd.map(x => x.id), dd.map(x => IB.pair[x.id]).filter(Boolean).map(x => x.id)).join(",");
     // 5.19.150 (נועה 28.10): בשורת הרשמה / תשלום – הסטטוס של הכרטיס בצבע שלו (במקום "תשלום טלפוני ממתין")
-    const stOn = lead && lead.status_id && (r.kind === "marathon" || r.kind === "registration" || r.kind === "payment" || r.kind === "interest"), stC = stOn ? statusColor(lead.status_id) : "";
+    const stOn = lead && (r.kind === "marathon" || r.kind === "registration" || r.kind === "payment" || r.kind === "interest"), stT = stOn ? stuSt(lead) : null, stC = stT ? stT.color : "";
     // 5.20.10 (נועה): הסטטוס של הקורס של ההתראה (המרתון / התרגול השוטף) – כמו במייל; אין קורס טעון – הסטטוס של הכרטיס
     const icm = stOn && typeof CRS !== "undefined" && CRS.ok ? (() => { const ms = crsOfStudent(lead.student_id).filter(m => !crsGone(m) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id)), mid = Number((r.data || {}).marathon_id) || 0;
       return mid ? ms.find(m => CRS.byId[m.course_id].marathon_id === mid) : ms.find(m => !CRS.byId[m.course_id].marathon_id); })() : null, icst = icm ? crsStOf(icm.status) : null;
-    const tags = (icst ? `<span class="ib-tag ib-st" style="${stSoft(icst.color || "#888")}" title="הסטטוס בקורס">${esc(icst.label || icst.name)}</span>` : stOn && statusName(lead.status_id) ? `<span class="ib-tag ib-st"${stC ? ` style="${stSoft(stC)}"` : ""}>${esc(statusName(lead.status_id))}</span>` : "")
+    const tags = (icst ? `<span class="ib-tag ib-st" style="${stSoft(icst.color || "#888")}" title="הסטטוס בקורס">${esc(icst.label || icst.name)}</span>` : stT && stT.label ? `<span class="ib-tag ib-st"${stC ? ` style="${stSoft(stC)}"` : ""}>${esc(stT.label)}</span>` : "")
       + (pi ? `<span class="ib-tag t-old" title="${esc(ibWhat(pi))}">קודם: השאירו פרטים ${esc(when(pi.created_at))}</span>` : "")
       + (dd.length ? `<span class="ib-tag t-warn" title="אותה הרשמה נשלחה שוב – ההרשמות הקודמות עדיין במערכת (אפשר לבטל אותן ב'ממתינים לתשלום')">נשלח ${dd.length + 1} פעמים · ${dd.slice().reverse().concat([r]).map(x => esc(when(x.created_at).replace(/^היום /, ""))).join(", ")}</span>` : "")
       + (r.flags || []).filter((f, i, a) => IB_FLAG[f] && a.indexOf(f) === i && !(stOn && f === "phone_pending") && !(f === "possible_duplicate" && ibMerged(r))).map(f => f === "status_mismatch" && (r.data || {}).status_mismatch ? `<span class="ib-tag t-warn" title="${esc(r.data.status_mismatch)}">⚠ ${esc(r.data.status_mismatch)}</span>` : `<span class="ib-tag ${IB_FLAG[f][0]}">${IB_FLAG[f][1]}</span>`).join("")
@@ -11315,7 +11329,7 @@ function renderReports(){
 }
 // --- נרשמים
 function repReg(city){
-  const reg = L.leads.filter(l => statusName(l.status_id).startsWith("נרשם") && (!city || leadCity(l) === city));
+  const reg = L.leads.filter(l => stuReg(l) && (!city || leadCity(l) === city));   // נועה 7.11: רשום/ה בתרגול השוטף (בקורס)
   const n = (l) => asgOf(l).length;
   const two = reg.filter(l => n(l) >= 2), one = reg.filter(l => n(l) === 1), none = reg.filter(l => n(l) === 0);
   const kidList = (arr) => arr.length ? `<ul class="rep-list">${arr.map(l => `<li><button type="button" class="name-link" data-lead="${l.id}">${esc(l.student.first_name)} ${esc(l.student.last_name || "")}</button><span class="muted">${esc(schoolOf(l.student).name || "")} · ${esc(leadCity(l))}</span></li>`).join("")}</ul>` : "<div class='muted'>אין</div>";
@@ -11325,7 +11339,7 @@ function repReg(city){
       ${city ? "" : `<div class="card"><h3>לפי עיר</h3>${barList(countBy(reg, leadCity))}</div>`}
       <div class="card"><h3>לפי בית ספר</h3>${barList(countBy(reg, l => schoolOf(l.student).name).map(x => ({ ...x, h: scChip(x.t) })))}</div>
       <div class="card"><h3>לפי שכבה</h3>${barList(countBy(reg, l => l.student.grade).sort((a, b) => GRADES.indexOf(a.t) - GRADES.indexOf(b.t)))}</div>
-      <div class="card"><h3>לפי מקצוע</h3>${barList(countBy(reg, l => statusName(l.status_id).replace("נרשם ", "")))}</div>
+      <div class="card"><h3>לפי מקצוע</h3>${barList(countBy(reg, l => stuSubj(l.student.id) || "בלי מקצוע"))}</div>
       <div class="card"><h3>בקבוצה אחת בלבד (${one.length})</h3>${kidList(one)}</div>
     </div>`;
   $("repBody").querySelectorAll("[data-lead]").forEach(b => b.onclick = () => openLead(Number(b.dataset.lead)));
@@ -11345,9 +11359,9 @@ async function repPast(city, target){
   const byYear = years.map(y => { const a = hist.filter(h => h.year_start === y); return { y, name: a[0].school_year, all: a.length, reg: a.filter(histReg).length }; });
   // נרשמו בעבר, עדיין בבית הספר (יש כיתה) ולא רשומים השנה
   const regBefore = new Set(R.hist.filter(h => histReg(h) && h.student_id).map(h => h.student_id));
-  const back = L.leads.filter(l => regBefore.has(l.student.id) && l.student.grade && !statusName(l.status_id).startsWith("נרשם") && (!city || leadCity(l) === city))
+  const back = L.leads.filter(l => regBefore.has(l.student.id) && l.student.grade && !stuReg(l) && (!city || leadCity(l) === city))
     .sort((a, b) => GRADES.indexOf(a.student.grade) - GRADES.indexOf(b.student.grade) || String(a.student.last_name).localeCompare(String(b.student.last_name), "he"));
-  const backNow = L.leads.filter(l => regBefore.has(l.student.id) && statusName(l.status_id).startsWith("נרשם") && (!city || leadCity(l) === city));
+  const backNow = L.leads.filter(l => regBefore.has(l.student.id) && stuReg(l) && (!city || leadCity(l) === city));
   T.innerHTML = `
     <div class="tiles">${tile(new Set(hist.map(h => h.kid_key)).size, "ילדים בשנים קודמות")}${tile(kidsReg.size, "נרשמו לפחות פעם אחת")}${tile(backNow.length, "נרשמו בעבר ורשומים גם השנה")}${tile(back.length, "נרשמו בעבר ולא השנה")}</div>
     <div class="rep-grid">
@@ -11361,7 +11375,7 @@ async function repPast(city, target){
   T.querySelector("#pastCsv").onclick = () => {
     const rows = [["שם פרטי","שם משפחה","כיתה","בית ספר","עיר","הורה","טלפון הורה","שנים שנרשם/ה","סטטוס השנה"]].concat(back.map(l => { const f = l.student.family || {};
       return [l.student.first_name, l.student.last_name || "", l.student.grade, schoolOf(l.student).name || "", leadCity(l), [f.parent1_first, f.parent1_last].filter(Boolean).join(" "), f.parent1_phone || "",
-        (L.hist[l.student.id] || []).filter(histReg).map(h => h.school_year + " " + h.status).join("; "), statusName(l.status_id)]; }));
+        (L.hist[l.student.id] || []).filter(histReg).map(h => h.school_year + " " + h.status).join("; "), stuSt(l).label]; }));
     downloadXlsx(rows, "נרשמו-בעבר-ולא-השנה.xlsx", "נרשמו בעבר");
   };
 }
@@ -11388,7 +11402,7 @@ function repLeads(city){
   const weeks = []; for (let i = 11; i >= 0; i--) { const end = now - i * 7 * day, start = end - 7 * day; weeks.push({ start, end, v: leads.filter(l => created(l) > start && created(l) <= end).length }); }
   const maxW = Math.max(1, ...weeks.map(w => w.v));
   const d2 = (t) => new Date(t).toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit" });
-  const st = countBy(leads.filter(l => l.is_active), l => statusName(l.status_id) || "בלי סטטוס").map(x => { const s0 = L.statuses.find(s => s.name === x.t); return { ...x, h: `<span class="dot" style="background:${(s0 && s0.color) || "var(--border)"}; display:inline-block; margin-inline-end:6px;"></span>${esc(x.t)}` }; });
+  const stC = {}; const st = countBy(leads.filter(l => l.is_active), l => { const t = stuSt(l); const n = t.name ? (crsStOf(t.name).label || t.name) : "בלי סטטוס"; if (t.color) stC[n] = t.color; return n; }).map(x => { const s0 = { color: stC[x.t] }; return { ...x, h: `<span class="dot" style="background:${(s0 && s0.color) || "var(--border)"}; display:inline-block; margin-inline-end:6px;"></span>${esc(x.t)}` }; });
   $("repBody").innerHTML = `
     <div class="tiles">${tile(leads.filter(l => l.is_active).length, "לידים פעילים")}${tile(leads.filter(l => created(l) > now - 7 * day).length, "נוספו ב-7 ימים")}${tile(leads.filter(l => created(l) > now - 30 * day).length, "נוספו ב-30 ימים")}</div>
     <div class="rep-grid">
