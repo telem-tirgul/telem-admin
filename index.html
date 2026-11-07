@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.45">
+<meta name="app-version" content="5.21.46">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2726,6 +2726,20 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
 .tya-c:hover .tya-f, .tya-c:focus-visible .tya-f{ outline:2px solid #7A1F26; }
 .tya-f iframe{ width:390px; height:780px; border:0; transform:scale(.5128); transform-origin:top right; position:absolute; top:0; right:0; pointer-events:none; }
 #ftxTyv [data-tyall]{ white-space:nowrap; } #ftxTySel{ font:inherit; font-size:13px; padding:4px 8px; border-radius:8px; border:1px solid var(--border, #E6DDD3); }
+
+/* נועה 7.11: מסך נוסחי הטפסים – עמודת טפסים מימין */
+.ftx-lay{ display:grid; grid-template-columns:200px minmax(0,1fr); gap:14px; align-items:start; }
+.ftx-nav{ position:sticky; top:10px; background:#fff; border:1px solid var(--border, #E6DDD3); border-radius:14px; padding:8px; }
+.ftx-nav .ftx-forms{ display:flex; flex-direction:column; gap:2px; border:0; padding:0; background:none; border-radius:0; }
+.ftx-nav .ftx-fg{ font-size:12px; font-weight:800; color:#7A1F26; padding:8px 8px 2px; border:0 !important; margin:0 !important; }
+.ftx-nav .ftx-fg:not(:first-child){ border-top:1px solid var(--border, #E6DDD3) !important; margin-top:6px !important; padding-top:10px; }
+.ftx-nav button{ all:unset; cursor:pointer; display:flex; flex-direction:column; gap:1px; padding:6px 10px; border-radius:9px; }
+.ftx-nav button b{ font-size:14px; font-weight:700; } .ftx-nav button small{ font-size:11px; color:#7d7067 !important; opacity:1 !important; line-height:1.3; }
+.ftx-nav button:hover{ background:#F6EFE6; } .ftx-nav button[aria-pressed="true"]{ background:#6B1A20; } .ftx-nav button[aria-pressed="true"] b, .ftx-nav button[aria-pressed="true"] small{ color:#fff; }
+.ftx-main .ftx-top{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+.ftx-main .ftx-when{ font-size:18px; flex-basis:auto; margin:0; } .ftx-main .ftx-acts{ margin-inline-start:auto; }
+.ftx-q{ all:unset; cursor:pointer; width:22px; height:22px; border-radius:50%; border:1px solid var(--border, #E6DDD3); text-align:center; font-size:13px; font-weight:700; color:#7A1F26; }
+@media (max-width:900px){ .ftx-lay{ grid-template-columns:1fr; } .ftx-nav{ position:static; } .ftx-nav .ftx-forms{ flex-direction:row; overflow-x:auto; } .ftx-nav .ftx-fg{ display:none; } .ftx-nav button small{ display:none; } .ftx-nav button{ white-space:nowrap; } }
 </style>
 </head>
 <body>
@@ -3002,18 +3016,20 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
       <div class="ftx-pane-forms"><div class="card ftx-gen" id="ftxGen"></div><!-- 5.19.163: טופס התעניינות כללי (לשעבר "קישורים") --></div>
       <div class="ftx-pane-rules" hidden><div id="brSet"></div></div><!-- נועה 6.11: חוקי חיוב שוטף – מתשלומים להגדרות -->
       <div class="ftx-pane-class" hidden><div class="card" id="clsPane"></div></div><!-- 5.20.9 (נועה): טופס כיתה – לשונית נפרדת -->
-      <div class="ftx-pane-texts">
+      <div class="ftx-pane-texts ftx-lay"><!-- נועה 7.11: רשימת הטפסים בעמודה מימין, הכול בשורה אחת מעל התצוגה -->
+      <aside class="ftx-nav"><div class="ftx-forms" id="ftxForms" role="group" aria-label="טופס"></div></aside>
+      <div class="ftx-main">
       <div class="ftx-top">
-        <div class="gseg ftx-forms" id="ftxForms" role="group" aria-label="טופס"></div><div class="ftx-when muted" id="ftxWhen"></div>
+        <div class="ftx-when" id="ftxWhen"></div><button type="button" class="ftx-q" id="ftxHelpTg" title="איך עורכים" aria-expanded="false">?</button>
         <div class="ftx-acts"><span id="ftxDirty"></span><button type="button" class="btn small danger-t" id="ftxDrop" hidden>מחיקת הטיוטות</button><button type="button" class="btn" id="ftxCancel" hidden>ביטול</button><button type="button" class="btn" id="ftxSave" disabled>שמירת טיוטה</button><button type="button" class="btn primary" id="ftxPub" disabled>פרסום לאוויר</button></div>
       </div>
-      <p class="muted ftx-help"><b>לוחצים על טקסט בטופס</b> ועורכים אותו במקום. <b>שמירת טיוטה</b> – נשמר רק כאן; בטופס באתר לא משתנה כלום. <b>פרסום לאוויר</b> – אחרי בדיקה אוטומטית, הנוסח החדש עולה לטופס באתר. <b>↺ הנוסח המקורי</b> – חזרה למה שהיה.</p>
+      <p class="muted ftx-help" id="ftxHelp" hidden><b>לוחצים על טקסט בטופס</b> ועורכים אותו במקום. <b>שמירת טיוטה</b> – נשמר רק כאן; בטופס באתר לא משתנה כלום. <b>פרסום לאוויר</b> – אחרי בדיקה אוטומטית, הנוסח החדש עולה לטופס באתר. <b>↺ הנוסח המקורי</b> – חזרה למה שהיה.</p>
       <div class="ftx-grid">
         <div class="card ftx-side"><div class="ftx-tb" id="ftxTb"><button type="button" data-cmd="bold" title="מודגש"><b>B</b></button><button type="button" data-cmd="underline" title="קו תחתון"><u>U</u></button><button type="button" data-cmd="italic" title="נטוי"><i>I</i></button><span class="ftx-sep"></span><button type="button" data-cmd="color" data-v="#5A1216" title="בורדו" class="ftx-cl" style="--c:#5A1216"></button><button type="button" data-cmd="color" data-v="#B07A0C" title="זהב" class="ftx-cl" style="--c:#B07A0C"></button><button type="button" data-cmd="color" data-v="#6B6B6B" title="אפור" class="ftx-cl" style="--c:#6B6B6B"></button><button type="button" data-cmd="color" data-v="#2E7D32" title="ירוק" class="ftx-cl" style="--c:#2E7D32"></button><span class="ftx-sep"></span><button type="button" data-cmd="link" title="קישור">🔗</button><button type="button" data-cmd="clear" title="ניקוי עיצוב">⌫ עיצוב</button><span class="muted ftx-tbn" id="ftxTbNote"></span></div>
           <div class="ftx-list" id="ftxList"><div class="muted">טוען...</div></div></div>
         <div class="card ftx-prev"><div class="ftx-prev-h"><b>תצוגה מקדימה</b><span class="muted">(כולל הטיוטה)</span><span class="gseg ftx-tyv" id="ftxTyv" hidden></span><button type="button" class="btn small" id="ftxListTg" aria-pressed="false" title="כל הטקסטים ברשימה (גם מה שאי אפשר ללחוץ עליו בטופס)">📋 רשימה</button><a class="btn small" id="ftxOpenNew" target="_blank" rel="noopener">פתיחה בלשונית ↗</a></div><iframe id="ftxFrame" title="תצוגה מקדימה של הטופס"></iframe></div>
       </div>
-    </div><!-- /ftx-pane-texts -->
+    </div></div><!-- /ftx-main /ftx-pane-texts -->
     </section>
     <section id="view-backup" hidden>
       <div class="page-head"><h1>הגדרות</h1></div>
@@ -6674,8 +6690,8 @@ function ftxTabPaint(){ document.querySelectorAll("[data-ftab]").forEach(b => { 
   document.querySelector(".ftx-pane-forms").hidden = FTX_TAB.v !== "forms"; document.querySelector(".ftx-pane-texts").hidden = FTX_TAB.v !== "texts";
   { const c = document.querySelector(".ftx-pane-class"); if (c) c.hidden = FTX_TAB.v !== "class"; } { const r = document.querySelector(".ftx-pane-rules"); if (r) r.hidden = FTX_TAB.v !== "rules"; } }
 async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint(); if (FTX_TAB.v === "class") clsPaint(); if (FTX_TAB.v === "rules") PAY.rules($("brSet")); if (FTX_TAB.v !== "texts" && !onlyTexts) return; FTX_TAB.textsOpen = true;
-  $("ftxForms").innerHTML = FTX_FORMS.map(([k, n, g, w], i) => `${!i || FTX_FORMS[i - 1][2] !== g ? `<span class="ftx-fg">${esc(g)}</span>` : ""}<button type="button" data-ftx="${k}" aria-pressed="${k === FX.form}" title="${esc(w)}">${esc(n)}</button>`).join("");
-  { const f = FTX_FORMS.find(x => x[0] === FX.form); $("ftxWhen").innerHTML = f ? `<b>${esc(f[2])} · ${esc(f[1])}</b> – ${esc(f[3])}` : ""; }
+  $("ftxForms").innerHTML = FTX_FORMS.map(([k, n, g, w], i) => `${!i || FTX_FORMS[i - 1][2] !== g ? `<div class="ftx-fg">${esc(g)}</div>` : ""}<button type="button" data-ftx="${k}" aria-pressed="${k === FX.form}" title="${esc(w)}"><b>${esc(n)}</b><small>${esc(w)}</small></button>`).join("");
+  { const f = FTX_FORMS.find(x => x[0] === FX.form); $("ftxWhen").innerHTML = f ? `<b>${esc(f[1])}</b><span class="muted"> · ${esc(f[2])}</span>` : ""; }
   $("ftxForms").querySelectorAll("[data-ftx]").forEach(b => b.onclick = async () => { if (b.dataset.ftx === FX.form) return; if (ftxUnsaved() && !await uiConfirm("יש שינויים שלא נשמרו כטיוטה. לעבור טופס בלי לשמור?")) return; FX.form = b.dataset.ftx; ftxOpen(); });
   $("ftxTyv").hidden = !["thank-you", "register", "marathon"].includes(FX.form);
   if (!["register", "marathon"].includes(FX.form)) FX.rv = "reg";
@@ -6862,6 +6878,7 @@ function ftxCmd(c, v){ const ed = FX.active; if (!ed || !ed.isConnected) return;
   else document.execCommand(c);
   ed.__upd && ed.__upd(); }
 $("ftxTb").querySelectorAll("[data-cmd]").forEach(b => b.onmousedown = (ev) => { ev.preventDefault(); ftxCmd(b.dataset.cmd, b.dataset.v); });
+$("ftxHelpTg").addEventListener("click", () => { const h = $("ftxHelp"); h.hidden = !h.hidden; $("ftxHelpTg").setAttribute("aria-expanded", String(!h.hidden)); });
 $("ftxListTg").addEventListener("click", () => { const g = document.querySelector(".ftx-grid"), on = !g.classList.contains("ftx-showlist"); g.classList.toggle("ftx-showlist", on); $("ftxListTg").setAttribute("aria-pressed", String(on)); });   // 5.21.8
 // ---------------------------------------------------------------- 5.21.8 (נועה 4.11): עריכה על הטופס עצמו
 //  מעבירים את העכבר על טקסט – מסומן; לחיצה – חלונית קטנה מעליו (עיצוב, משבצות, "הנוסח המקורי", סיום). כל שינוי – כמו ברשימה: לא נשמר → טיוטה → פרסום.
