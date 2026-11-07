@@ -1757,6 +1757,13 @@ td.nowrap{ white-space:nowrap; }
 .call-ph{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; white-space:nowrap; } td.acts{ white-space:nowrap; }
 .lg-need{ color:#b3261e; font-weight:700; display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:8px 0; } .lg-need .btn{ font-weight:600; }
 .mar-wait-h{ border-top:2px dashed var(--border) !important; margin-top:8px; } .mar-wait .crs-st{ font-size:12px; font-weight:700; border-radius:999px; padding:1px 9px; background:#EEE; }
+.mde-card{ grid-column:1 / -1; flex:1 1 100%; width:100%; box-sizing:border-box; border:1px solid var(--border); border-radius:12px; background:#fff; padding:10px 12px; display:grid; gap:10px; } .mde-h, .me-sec-h{ font-weight:800; color:var(--accent); font-size:14.5px; }
+.mde-card .me-r1, .mde-card .me-r2{ margin:0 !important; } .me-desc{ border-radius:12px !important; }
+.mv2{ display:grid; gap:12px; } .mv2-top{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .mv2-top .btn{ margin-inline-start:auto; }
+.mv2-st{ font-weight:700; font-size:13.5px; padding:4px 12px; border-radius:999px; background:#EEE; color:#555; } .mv2-st.open{ background:#E6F4EA; color:#2E7D32; } .mv2-st.closed{ background:#F1EDE8; color:#6B5F55; } .mv2-st.past{ background:#EFEAF5; color:#5B4B8A; } .mv2-st.cxl{ background:#FBE9E7; color:#B3241F; }
+.mv2-note{ font-size:12.5px; } .mv2-facts{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; font-size:14px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; background:#fff; }
+.mv2-sec{ border:1px solid var(--border); border-radius:12px; background:#fff; padding:10px 12px; } .mv2-h{ font-weight:800; color:var(--accent); font-size:14px; margin-bottom:6px; }
+.mv2-mt{ font-size:14px; padding:3px 0; border-bottom:1px dashed #EFE7DC; } .mv2-mt:last-child{ border-bottom:0; } .mv2-lk .lk2{ justify-content:flex-start; }
 .mar-kids-h{ display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 0 6px; border-top:2px solid var(--border); margin-top:6px; list-style:none; } .mar-kids-h b{ font-size:16px; }
 .mar-g-btns{ display:inline-flex; gap:6px; flex-wrap:wrap; } .ms-name{ list-style:none; margin:6px 0 10px; } .ms-name input{ max-width:260px; }
 #marKids li.acts{ list-style:none; display:flex; gap:8px; margin-top:10px; }
@@ -4565,7 +4572,7 @@ function crsTable(list, opt){ opt = opt || {}; const onlyMar = list.every(c => c
         : I.all.length ? I.all.map(d => mline({ date: d })).join("") : `<span class="err">⚠ אין מפגשים</span>`;
       grp = `${I.ses.length || ""}${I.cap ? `<div class="muted mst-s">עד ${I.cap}</div>` : ""}`;
       price = o.price_first ? nis(o.price_first) : "—";
-      st = `<span class="mst ${I.past && I.st !== "cxl" ? "past" : I.st}">${esc(crsMarStTxt(I))}</span>${I.past && I.st !== "cxl" ? (o.is_open ? `<div class="mst-warn">● פתוח להרשמה</div>` : `<div class="mst-s muted">○ סגור להרשמה</div>`) : ""}${I.st !== "cxl" && ME.role === "admin" ? `<div><button type="button" class="btn small mst-tog" data-mtog="${c.marathon_id}" data-mopen="${o.is_open ? 1 : 0}" title="${o.is_open ? "סגירת ההרשמה למרתון (הקישור יציג &quot;ההרשמה סגורה&quot;)" : "פתיחת ההרשמה למרתון"}">${o.is_open ? "🔒 סגירה" : "🔓 פתיחה"}</button></div>` : ""}${I.now && I.st !== "open" && I.st !== "cxl" ? `<div class="muted mst-s">מתקיים עכשיו</div>` : ""}${I.st === "open" && I.d2 && "auto_closed_at" in o && !I.past ? `<div class="muted mst-s">ייסגר לבד אחרי ${esc(fmtDM(I.d2))}</div>` : ""}`;
+      st = `<span class="mst ${I.past && I.st !== "cxl" ? "past" : I.st}">${esc(crsMarStTxt(I))}</span>${I.past && I.st !== "cxl" ? (o.is_open ? `<div class="mst-warn">● פתוח להרשמה</div>` : `<div class="mst-s muted">○ סגור להרשמה</div>`) : ""}${I.st !== "cxl" && ME.role === "admin" ? `<div><button type="button" class="btn small mst-tog${o.is_open ? "" : " primary"}" data-mtog="${c.marathon_id}" data-mopen="${o.is_open ? 1 : 0}" title="${o.is_open ? "הקישור יציג &quot;ההרשמה סגורה&quot;" : "הקישור יעבוד שוב"}">${o.is_open ? "סגירה להרשמה" : "פתיחה להרשמה"}</button></div>` : ""}${I.now && I.st !== "open" && I.st !== "cxl" ? `<div class="muted mst-s">מתקיים עכשיו</div>` : ""}${I.st === "open" && I.d2 && "auto_closed_at" in o && !I.past ? `<div class="muted mst-s">ייסגר לבד אחרי ${esc(fmtDM(I.d2))}</div>` : ""}`;
       lk = o.code && I.st !== "cxl" ? lk2Btns("", lkMarCode(o.code), "הרשמה ל" + (o.name || "מרתון") + (o.school ? " · " + o.school : "") + ": ") : "";
       sg = o.code && I.st !== "cxl" ? lk2Btns("", lkMarCode(o.code) + "&phone=1", "טופס ההרשמה ל" + (o.name || "מרתון") + (o.school ? " · " + o.school : "") + " (מילוי הפרטים ואישור תנאי התקשרות): ") : "";   // 5.20.52 (נועה 3.11): "חתימה על התנאים" – עמודה נפרדת
     } else {
@@ -4591,14 +4598,14 @@ function crsTable(list, opt){ opt = opt || {}; const onlyMar = list.every(c => c
       <td class="num hide-m">${grp}</td>
       <td class="num hide-m mt-pr">${price}</td>
       <td class="num"><button type="button" class="crs-n" data-kids="${c.id}" title="התלמידים – במגירה">${reg}</button>${mar && I.cap ? ` <span class="muted mst-s">מתוך ${I.cap}</span>` : ""}</td>
-      ${n(k("ממתין לתשלום"), "hide-m")}${n(ms.filter(crsIsInt).length, "hide-m")}${n(ms.filter(crsNeedSig).length ? `<span class="sig-miss" title="חסרה חתימה">✍︎ ${ms.filter(crsNeedSig).length}</span>` : "", "hide-m")}
+      ${n(k("ממתין לתשלום"), "hide-m")}${n(ms.filter(crsIsInt).length, "hide-m")}${onlyMar ? "" : n(ms.filter(crsNeedSig).length ? `<span class="sig-miss" title="חסרה חתימה">✍︎ ${ms.filter(crsNeedSig).length}</span>` : "", "hide-m")}
       ${onlyMar ? "" : `<td class="num hide-m">${back}</td>`}
       <td class="mt-st">${st}</td>
       ${hasSite ? `<td class="num hide-m">${mar && o.show_on_site ? `<span title="מוצג באתר (כשההרשמה פתוחה)">🌐</span>` : ""}</td>` : ""}
       <td class="mt-lk">${lk}</td>
       <td class="mt-act">${!mar && crsCity(c) ? `<button type="button" class="btn small" data-crsedit="${c.id}" title="${mar ? "עריכת המרתון" : "המחירים והטפסים של " + esc(city)}">✎<span class="bt"> עריכה</span></button>` : ""}${mar ? `<button type="button" class="btn small" data-crsmgmt="${c.id}" title="לא יתקיים / מתקיים, החזרים">🏁</button>` : ""}</td></tr>`; };
-  const cols = 13 + (hasSite ? 1 : 0) - (onlyMar ? 1 : 0);   /* 5.21.12: במרתונים – בלי עמודת "אישור תנאי התקשרות" */
-  let out = `<div class="tbl-wrap"><table class="tbl crs-tbl crs-mtbl"><thead><tr><th>בית ספר</th><th${onlyMar ? ` class="num"` : ""}>${onlyMar ? "שכבה" : "קורס"}</th><th>מועדים</th><th class="num hide-m">קבוצות</th><th class="num hide-m">מחיר</th><th class="num">רשומים</th><th class="num hide-m" title="ממתינים לתשלום">ממתינים</th><th class="num hide-m">מתעניינים</th><th class="num hide-m" title="חסרה חתימה על טופס ההרשמה">חתימה</th>${onlyMar ? "" : `<th class="num hide-m" title="היו רשומים בשנה שעברה ולא השנה">לא חזרו</th>`}<th>הרשמה</th>${hasSite ? `<th class="num hide-m" title="מוצג באתר">אתר</th>` : ""}<th>קישור</th><th></th></tr></thead><tbody>`;
+  const cols = 13 + (hasSite ? 1 : 0) - (onlyMar ? 2 : 0);   // נועה 7.11: במרתונים – גם בלי עמודת "חתימה"   /* 5.21.12: במרתונים – בלי עמודת "אישור תנאי התקשרות" */
+  let out = `<div class="tbl-wrap"><table class="tbl crs-tbl crs-mtbl"><thead><tr><th>בית ספר</th><th${onlyMar ? ` class="num"` : ""}>${onlyMar ? "שכבה" : "קורס"}</th><th>מועדים</th><th class="num hide-m">קבוצות</th><th class="num hide-m">מחיר</th><th class="num">רשומים</th><th class="num hide-m" title="ממתינים לתשלום">ממתינים</th><th class="num hide-m">מתעניינים</th>${onlyMar ? "" : `<th class="num hide-m" title="חסרה חתימה על טופס ההרשמה">חתימה</th>`}${onlyMar ? "" : `<th class="num hide-m" title="היו רשומים בשנה שעברה ולא השנה">לא חזרו</th>`}<th>הרשמה</th>${hasSite ? `<th class="num hide-m" title="מוצג באתר">אתר</th>` : ""}<th>קישור</th><th></th></tr></thead><tbody>`;
   let last = null;
   list.forEach(c => { const ci = crsCity(c);
     if (multiCity && ci !== last) { last = ci; const all = Object.values(CRS.cm).flat().filter(m => list.some(x => x.id === m.course_id && crsCity(x) === ci) && !crsGone(m) && crsMOk(m)), k = (st) => all.filter(m => m.status === st).length;
@@ -8781,16 +8788,28 @@ async function openMarathonPanel(m){
   if ($("panelAttBtn")) $("panelAttBtn").hidden = true; $("panelTsBtn").hidden = true;
   // 5.19.136 (נועה 25.10): החלון נפתח לצפייה – פרטי המרתון, הקבוצות והנרשמים; "✎ עריכה" בכותרת פותח את העריכה
   $("gEditBtn").hidden = ME.role === "instructor";
+  // נועה 7.11: חלון המרתון – מסודר: מצב ההרשמה + פתיחה/סגירה, פרטים בשורה, המפגשים, הקישור; מתחת – הקבוצות והנרשמים
+  { const tg = $("panel").querySelector(".kind-tag"); if (tg) { tg.dataset.orig = tg.dataset.orig || tg.textContent; tg.textContent = "🏁 מרתון"; } }
   { const box = $("gEdit"); box.hidden = false; box.classList.remove("g3"); box.classList.add("g-viewmode");
-    const one = Number(m.price_repeat) === Number(m.price_first);
-    box.innerHTML = `<div class="full mar-view"><div class="mv-grid">
-      <div><span>עיר · בית ספר</span><b>${esc([m.city, m.school].filter(Boolean).join(" · ") || "—")}</b></div>
-      ${m.grade ? `<div><span>שכבה</span><b>${esc(m.grade)}'</b></div>` : ""}
-      <div><span>מחיר</span><b>${one ? Number(m.price_first) + " ₪" : `${Number(m.price_first)} ₪ <span class="muted">(מוזל ${Number(m.price_repeat)} ₪)</span>`}</b></div>
-      <div><span>הרשמה</span><b><span class="ib-tag ${m.is_open ? "t-new" : "t-old"}">${m.is_open ? "פתוח להרשמה" : "סגור להרשמה"}</span>${(() => {   // 5.20.34 (נועה, קובץ 159): נסגר לבד יום אחרי המפגש השני
-          const ds = [...new Set((G.sessions || []).filter(x => x.marathon_id === m.id).flatMap(x => x.meeting_dates || []).concat(m.event_date ? [m.event_date] : []))].sort(), d2 = ds[1] || ds[ds.length - 1];
-          return m.auto_closed_at ? ` <span class="muted" style="font-weight:400; font-size:12px;">נסגר אוטומטית ${esc(fmtDM(String(m.auto_closed_at).slice(0, 10)))}</span>` : m.is_open && d2 && !m.cancelled_at && "auto_closed_at" in m ? ` <span class="muted" style="font-weight:400; font-size:12px;">ייסגר לבד אחרי ${esc(fmtDM(d2))}</span>` : ""; })()}</b></div>
-      ${m.notes ? `<div class="full"><span>הערות</span><b>${esc(m.notes)}</b></div>` : ""}</div></div>`; }
+    const one = Number(m.price_repeat) === Number(m.price_first) || !m.price_repeat;
+    const gs0 = (G.sessions || []).filter(x => x.kind === "מרתון" && x.marathon_id === m.id);
+    const ds = [...new Set(gs0.flatMap(x => x.meeting_dates || []).concat(m.event_date ? [m.event_date] : []))].sort(), d2 = ds[1] || ds[ds.length - 1], past = !!ds.length && ds[ds.length - 1] < todayIL();
+    const nKids = (G.roster || []).filter(k => gs0.some(g => g.session_id === k.session_id)).length, cap = gs0.reduce((a, g) => a + (Number(g.capacity) || 0), 0);
+    const mts = []; gs0.forEach(g => marMeetings(g).forEach(z => mts.push({ g: g.time_label || "", ...z }))); mts.sort((a, b) => (a.date + (a.start || "")).localeCompare(b.date + (b.start || "")));
+    const st = m.cancelled_at ? ["cxl", "✕ לא יתקיים"] : past ? ["past", "✓ התקיים"] : m.is_open ? ["open", "● פתוח להרשמה"] : ["closed", "○ סגור להרשמה"];
+    box.innerHTML = `<div class="full mv2">
+      <div class="mv2-top"><span class="mv2-st ${st[0]}">${st[1]}</span>${past && !m.cancelled_at ? `<span class="mv2-st ${m.is_open ? "open" : "closed"}">${m.is_open ? "● פתוח להרשמה" : "○ סגור להרשמה"}</span>` : ""}
+        <span class="muted mv2-note">${m.auto_closed_at ? "נסגר אוטומטית " + esc(fmtDM(String(m.auto_closed_at).slice(0, 10))) : m.is_open && d2 && !past && "auto_closed_at" in m ? "ייסגר לבד אחרי " + esc(fmtDM(d2)) : ""}</span>
+        ${!m.cancelled_at && ME.role === "admin" ? `<button type="button" class="btn small${m.is_open ? "" : " primary"}" data-mvtog="1">${m.is_open ? "סגירה להרשמה" : "פתיחה להרשמה"}</button>` : ""}</div>
+      <div class="mv2-facts">${m.school ? scChip(m.school) : ""}<span>${esc(m.city || "")}</span>${m.grade ? `<span>שכבת <b>${esc(m.grade)}'</b></span>` : ""}<span><b>${Number(m.price_first)} ₪</b>${one ? "" : ` <span class="muted">(מוזל ${Number(m.price_repeat)} ₪)</span>`}</span><span>👥 <b>${nKids}</b>${cap ? ` מתוך ${cap}` : ""} נרשמים</span></div>
+      <div class="mv2-sec"><div class="mv2-h">מפגשים</div>${mts.length ? mts.map(z => `<div class="mv2-mt"><b>${esc(DAY_OF(z.date))}' ${esc(fmtDM(z.date))}</b>${z.start ? ` <span dir="ltr">${esc(String(z.start).slice(0, 5))}–${esc(String(z.end || "").slice(0, 5))}</span>` : ""}${gs0.length > 1 && z.g ? ` <span class="muted">· ${esc(z.g)}</span>` : ""}${z.room ? ` <span class="muted">· ${esc(roomTxt(z.room))}</span>` : ""}</div>`).join("") : `<div class="err">⚠ אין מפגשים</div>`}</div>
+      ${m.code && !m.cancelled_at ? `<div class="mv2-sec mv2-lk"><div class="mv2-h">קישור להרשמה</div>${lk2Btns("", lkMarCode(m.code), "הרשמה ל" + m.name + (m.school ? " · " + m.school : "") + ": ")}</div>` : ""}
+      ${m.notes ? `<div class="mv2-sec"><div class="mv2-h">הערות</div><div>${esc(m.notes)}</div></div>` : ""}</div>`;
+    wireLk(box); try { lkApplyShort(box); } catch(e) {}
+    const tb = box.querySelector("[data-mvtog]"); if (tb) tb.onclick = async () => { const v = !m.is_open;
+      if (!await uiConfirm(v ? `לפתוח את "${m.name}"${m.school ? " · " + m.school : ""} להרשמה?` : `לסגור את ההרשמה ל"${m.name}"${m.school ? " · " + m.school : ""}?\nמי שייכנס לקישור יראה "ההרשמה סגורה".`)) return;
+      tb.disabled = true; try { await patch("marathons", "id=eq." + m.id, { is_open: v }); m.is_open = v; if (CRS.mar && CRS.mar[m.id]) CRS.mar[m.id].is_open = v; EX.mar = null; RG.mar = null; toast(v ? "המרתון פתוח להרשמה" : "ההרשמה למרתון נסגרה"); CRS.stale = true; openMarathonPanel(m); }
+        catch(e) { tb.disabled = false; toast("לא נשמר: " + e.message); } }; }
   const gs = (G.sessions || []).filter(x => x.kind === "מרתון" && x.marathon_id === m.id).sort((a, b) => gFirstDate(a).localeCompare(gFirstDate(b)) || String(a.start_time).localeCompare(String(b.start_time)));
   const kidsOf = (sid) => (G.roster || []).filter(k => k.session_id === sid).sort(attSort);
   const total = gs.reduce((n, g) => n + kidsOf(g.session_id).length, 0);
@@ -8798,7 +8817,7 @@ async function openMarathonPanel(m){
   $("roster").hidden = true; $("roster").innerHTML = "";
   $("gEdit").insertAdjacentHTML("beforeend", `<div class="full mar-kids"><ul class="roster" id="marKids"></ul></div>`);
   const R = $("marKids");
-  R.innerHTML = `<li class="mar-kids-h"><b>👥 נרשמים (${total})</b>${m.code ? `<span class="mar-kids-lk">${lk2Btns("", lkMarCode(m.code), "הרשמה ל" + m.name + ": ")}</span>` : ""}</li>`
+  R.innerHTML = `<li class="mar-kids-h"><b>👥 קבוצות ונרשמים (${total})</b></li>`
     + (gs.length ? gs.map(g => { const ks = kidsOf(g.session_id);
       return `<li class="mar-g-h"><div><b>${esc(g.time_label || "קבוצה")}</b> <span class="muted">${esc(marMeetings(g).map(x => fmtDM(x.date)).join(", "))} · ${ks.length}${g.capacity ? " / " + g.capacity : ""} ילדים</span>
           <div class="mar-g-ins">${(G.ins && G.ins[g.session_id] || []).length ? "👤 " + esc(G.ins[g.session_id].join(", ")) : '<span class="muted">אין מתרגל/ת</span>'}${noAdmIc(g)}</div></div>
@@ -9394,15 +9413,16 @@ function openMarathonEditor(m, inPanel, pre){
   box.innerHTML = `
     <!-- 5.20.36 (נועה 2.11): עורך דחוס – בית הספר והשכבה בגדול (נשאר למעלה בגלילה), הקבצות מקופלות, והטקסט שנבנה לטופס -->
     <div class="full me-head" data-m="head"></div>
-    <div class="full me-r1"><div class="me-name"><label class="lbl">שם המרתון</label><input data-m="name" value="${esc(m ? m.name : "מרתון מתמטיקה" + (pre.grade ? " שכבת " + pre.grade + "'" : "") + (pre.school ? " · " + pre.school : ""))}"></div>
+    <div class="full mde-card"><div class="mde-h">פרטי המרתון</div><!-- נועה 7.11: הפרטים במסגרת אחת, כמו הקבוצות -->
+    <div class="me-r1"><div class="me-name"><label class="lbl">שם המרתון</label><input data-m="name" value="${esc(m ? m.name : "מרתון מתמטיקה" + (pre.grade ? " שכבת " + pre.grade + "'" : "") + (pre.school ? " · " + pre.school : ""))}"></div>
     <div><label class="lbl">עיר</label><select data-m="city">${CONFIG.cities.map(c => `<option ${c === city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></div>
     <div><label class="lbl">בית ספר</label><select data-m="school">${schoolOpts(city, m ? m.school : pre.school)}</select></div>
     ${marHasGrade(m) ? `<div class="me-sm"><label class="lbl">שכבה</label><select data-m="grade"><option value="">—</option>${GRADE_ORD.slice(2).map(x => `<option value="${x}" ${(m ? m.grade : pre.grade) === x ? "selected" : ""}>${x}'</option>`).join("")}</select></div>` : ""}
     <div class="me-sm"><label class="lbl">מחיר (₪)</label><input type="number" min="0" data-m="p1" value="${m ? Number(m.price_first) : ""}"></div></div>
     <!-- 5.20.35 (נועה 1.11): בלי מחיר מוזל למשתתפים חוזרים – מחיר אחד לכולם (price_repeat = price_first) -->
-    <div class="full me-r2"><label class="chk" title="${m ? "כשמסמנים – הקישור עם התשלום עובד ומופיעות בו רק הקבוצות הפתוחות." : "מרתון חדש נשמר סגור: קודם יוצרים את כל הקבוצות והמפגשים, ורק אז פותחים להרשמה ושולחים קישור."}"><input type="checkbox" data-m="open" ${m && m.is_open ? "checked" : ""}> פתוח להרשמה</label>
+    <div class="me-r2"><label class="chk" title="${m ? "כשמסמנים – הקישור עם התשלום עובד ומופיעות בו רק הקבוצות הפתוחות." : "מרתון חדש נשמר סגור: קודם יוצרים את כל הקבוצות והמפגשים, ורק אז פותחים להרשמה ושולחים קישור."}"><input type="checkbox" data-m="open" ${m && m.is_open ? "checked" : ""}> פתוח להרשמה</label>
       ${m && "show_on_site" in m ? `<label class="chk" title="בדף בית הספר באתר, רק כל עוד ההרשמה פתוחה ותאריך המבחן לא עבר."><input type="checkbox" data-m="site" ${m.show_on_site ? "checked" : ""}> 🌐 להציג באתר</label>` : ""}
-      <div class="me-notes"><input data-m="notes" value="${esc(m && m.notes || "")}" placeholder="הערות (פנימי)" aria-label="הערות (פנימי)"></div></div>
+      <div class="me-notes"><input data-m="notes" value="${esc(m && m.notes || "")}" placeholder="הערות (פנימי)" aria-label="הערות (פנימי)"></div></div></div>
     ${marHasHak(m) ? `<details class="full me-hak"><summary><b>הקבצות:</b> <span data-m="haksum"></span> <span class="me-hak-e">✎ שינוי</span></summary><div class="muted fhint">אחת בכל שורה. בטופס ההורה בוחר/ת אחת (חובה); תמיד נוסף גם "אחר". ריק = ההקבצות של בית הספר (או הרשימה הקבועה).</div><textarea data-m="hak" rows="4" placeholder="הקבצה א'&#10;הקבצה ב'&#10;מצוינות">${esc(((m && m.hakbatsa_options) || []).join("\n"))}</textarea><div class="muted fhint" data-m="hakhint" hidden></div></details>` : ""}
     <div class="full me-desc"><div class="me-desc-h"><b>📝 הטקסט בטופס</b><span class="muted">נבנה מהמפגשים של הקבוצה הראשונה ומהעיר</span><button type="button" class="btn small" data-m="txed" title="עריכת הנוסח (כל המרתונים) – בהגדרות ← נוסחי הטפסים ← מרתון">✎ עריכת הנוסח</button></div><div class="me-desc-b" data-m="desc"><span class="muted">טוען…</span></div><div class="muted me-desc-x" data-m="descx"></div></div>
     <div class="full" data-m="groups">${m ? `<div class="muted">טוען קבוצות ומפגשים...</div>` : ""}</div>
@@ -9438,7 +9458,7 @@ function openMarathonEditor(m, inPanel, pre){
   ["city", "school", "grade"].forEach(k => { if (g(k)) g(k).addEventListener("change", () => { headPaint(); descPaint(); }); });
   box.addEventListener("input", (ev) => { if (ev.target.closest && ev.target.closest('[data-m="groups"]')) descPaint(); });
   box.addEventListener("change", (ev) => { if (ev.target.closest && ev.target.closest('[data-m="groups"]')) descPaint(); });
-  headPaint(); descPaint();
+  headPaint(); descPaint(); if (inPanel && g("head")) g("head").hidden = true;   // נועה 7.11: בחלון המרתון – הכותרת כבר למעלה
   g("txed").onclick = async () => { if (!await uiConfirm("לעבור לעריכת נוסח הטופס (לכל המרתונים)?\nשינויים שלא נשמרו כאן – לא יישמרו.")) return;
     closePanel(); FTX_TAB.v = "texts"; store("telem_ftx_tab", "texts"); FX.form = "marathon"; if (m && m.code) FX.mar = m.code; FTX_TAB.textsOpen = false; go("ftx"); };
   const fromReg = currentView === "reg";
