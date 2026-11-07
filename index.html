@@ -1792,6 +1792,9 @@ button.ph-m{ font:inherit; font-weight:700; color:var(--accent); background:none
 .crs-src{ font:inherit; font-size:11.5px; font-weight:700; border:1px solid var(--border); background:#fff; color:var(--ink-soft); border-radius:999px; padding:0 8px; line-height:1.7; cursor:pointer; white-space:nowrap; } .crs-src.none{ border-style:dashed; }
 #view-lead .track-box.tb-empty, .lg-cmtrk.lg-trk0{ border:none !important; background:none !important; padding:0 !important; margin:4px 0 0 !important; box-shadow:none !important; min-height:0 !important; }
 .lg-trk0-b{ background:none; border:1px dashed #DCCFC2; border-radius:999px; padding:3px 12px; font-size:12.5px; color:var(--ink-soft); cursor:pointer; font-family:inherit; } .lg-trk0-b:hover{ border-color:var(--accent); color:var(--accent); }
+.lg-crs-box.lg-closed > :not(.lg-crs){ display:none !important; } .lg-crs-box.lg-closed > .lg-crs{ border-bottom:none !important; margin-bottom:0 !important; padding-bottom:0 !important; } .lg-crs-box > .lg-crs{ cursor:pointer; }
+.lg-fold-b{ flex:none; width:24px; height:24px; border-radius:50%; border:none; background:#EFE6EC; cursor:pointer; position:relative; margin-inline-start:2px; } .lg-fold-b::after{ content:"‹"; position:absolute; inset:0; display:grid; place-items:center; font-weight:800; color:var(--accent); transform:rotate(-90deg); transition:transform .15s; }
+.lg-closed .lg-fold-b::after{ transform:none; } .lg-fold-sum{ display:none; font-size:13px; color:var(--ink-soft); font-weight:500; margin-inline-start:8px; } .lg-closed .lg-fold-sum{ display:inline; }
 .lg-until{ font-size:12.5px; font-weight:700; color:#fff; background:#555; border-radius:999px; padding:1px 8px; vertical-align:2px; } .lg-loose{ border:1.5px dashed #C9554F !important; } .lo-as{ font-size:13px; margin:4px 0 0; } .lo-sig-h{ font-weight:700; color:var(--accent); font-size:13.5px; margin:12px 0 4px; }
 .lc-old-list .lc-old-r{ display:flex; gap:6px 12px; justify-content:space-between; padding:8px 0; border-bottom:1px solid #EFE7DC; } .lc-old-list .lc-old-r:last-child{ border-bottom:none; }
 .lg-sig-slot:empty{ display:none; } .lg-sig-r{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; margin:6px 0 0; padding:6px 10px; border:1px dashed #E2D8CC; border-radius:10px; background:#FDFBF8; } .lg-sig-r > span{ flex:1; } .lg-sig-img{ height:26px; max-width:90px; object-fit:contain; background:#fff; border-radius:4px; }
@@ -6328,7 +6331,18 @@ async function crsGroupsHtml(sid, cur, card){
     return `<div class="lc-old-r"><span>${c.marathon_id ? "<b>מרתון</b> · " + crsLabel(c, m) : "<b>" + esc(crsCatN(c.category_id)) + "</b> · " + crsLabel(c, m)}</span><span class="muted">${esc(crsSeason(c.season_id).name || "")}${c.marathon_id && c.is_active === false ? " · המרתון לא התקיים" : ""}${m.status !== "רשום" ? " · " + esc(crsStOf(m.status).label || m.status) : ""}${m.history_at ? ` · <span title="${esc(m.history_note || "")}">${esc(m.history_note || "עבר להיסטוריה")}</span>` : ""}</span><div class="lc-old-x">${oldAs(m).map(asLine).join("")}<div class="lg-att-slot" data-am="${m.id}" data-old="1"></div><div class="lg-pay-slot" data-pm="${m.id}"></div><div class="lg-sig-slot" data-sgcm="${m.id}"></div></div></div>`; }).join("")}</div>`;   // 5.20.26 (נועה): גם בקורס קודם – נוכחות ותשלומים בקצרה   // 5.20.5 (קובץ 148)
   return h || empty;
 }
-let LG_TOK = 0, LG_AS = [], LG_OLD = "";   // 5.21.4: טעינה ישנה (של כרטיס קודם) לא מציירת / מחווטת בכרטיס הפתוח
+let LG_TOK = 0, LG_AS = [], LG_OLD = "", LG_OPEN = { sid: null, s: new Set() };
+// נועה 7.11: כל קורס בכרטיס – מכווץ בדיפולט (שורת הכותרת + תקציר השיבוץ); לחיצה על הכותרת – פותח / סוגר. נשאר פתוח כל עוד הכרטיס פתוח
+function lgFold(sid){ if (LG_OPEN.sid !== sid) LG_OPEN = { sid, s: new Set() };
+  $("leadGroups").querySelectorAll(".lg-crs-box[data-cbm]").forEach(bx => { const id = bx.dataset.cbm, hd = bx.querySelector(":scope > .lg-crs"); if (!hd) return;
+    const mar = !!hd.dataset.crsmar, ws = [...bx.querySelectorAll(".lg-card .lg-when")].map(w => { const t = (x) => (x ? x.textContent : "").replace(/\s+/g, " ").trim();
+      return mar ? [t(w.querySelector("b")), t(w.querySelector(".lg-time"))].filter(Boolean).join(" · ") : t(w); }).filter(Boolean);
+    const need = bx.querySelector(".lg-need, .stp-s.cur") ? " · ⚠" : "";
+    if (!hd.querySelector(".lg-fold-sum")) hd.querySelector(".lg-crs-l").insertAdjacentHTML("beforeend", `<span class="lg-fold-sum">${esc(ws.length ? ws.join(" · ") : bx.querySelector(".lg-none") ? "לא משובץ/ת" : "")}${need}</span>`);
+    if (!hd.querySelector(".lg-fold-b")) (hd.querySelector(".lg-crs-r") || hd).insertAdjacentHTML("beforeend", `<button type="button" class="lg-fold-b" aria-label="פתיחה / סגירה"></button>`);
+    bx.classList.toggle("lg-closed", !LG_OPEN.s.has(id));
+    hd.onclick = (e) => { if (e.target.closest("button:not(.lg-fold-b), a, select, input, .crs-src")) return; const cl = !bx.classList.contains("lg-closed");
+      bx.classList.toggle("lg-closed", cl); cl ? LG_OPEN.s.delete(id) : LG_OPEN.s.add(id); }; }); }   // 5.21.4: טעינה ישנה (של כרטיס קודם) לא מציירת / מחווטת בכרטיס הפתוח
 async function loadLeadGroups(studentId){
   if (editing && editing.student && editing.student.id !== studentId) return;
   const tok = ++LG_TOK, stale = () => tok !== LG_TOK || !!(editing && editing.student && editing.student.id !== studentId);
@@ -6366,7 +6380,7 @@ async function loadLeadGroups(studentId){
     };
     { LG_OLD = ""; const h = await crsGroupsHtml(studentId, cur, lgCard); if (stale()) return; parkTrack(); $("leadGroups").innerHTML = h; $("leadLoading").hidden = true;
       { const ob = $("leadOldCrs"); if (ob) { ob.innerHTML = LG_OLD || "<span class='muted'>אין קורסים קודמים.</span>"; ob.dataset.sum = LG_OLD ? (ob.querySelectorAll(".lc-old-r").length + " קורסים") : "אין"; } }
-      sigSlotsPaint();
+      sigSlotsPaint(); lgFold(studentId);
       { const ab = $("leadGroups").querySelector("[data-lgaddcrs]"); if (ab) ab.onclick = () => { const b = $("lcAdd"); if (b) b.click(); }; }
       const rb = $("leadGroups").querySelector("[data-crsretry]"); if (rb) rb.onclick = () => loadLeadGroups(studentId); }   // 5.19.162: פרטי הקורס מעל השיבוצים
     { const sl = $("leadGroups").querySelector(".lg-reg .lg-trk-slot"); if (sl) sl.replaceWith($("trackBox")); else if (ME.role === "instructor" || !CRS.ok) $("leadGroups").prepend($("trackBox")); }   // 5.20.18 (נועה): המעקב – בתוך הקורס של התרגול השוטף (אין קורס כזה – בלי מעקב בכרטיס)
