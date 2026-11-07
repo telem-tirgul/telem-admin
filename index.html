@@ -1815,7 +1815,7 @@ button.ph-m{ font:inherit; font-weight:700; color:var(--accent); background:none
 .crs-mix{ display:inline-flex; flex-wrap:wrap; gap:4px; margin-inline-start:8px; vertical-align:middle; } .crs-c{ white-space:normal; } .crs-cn{ white-space:nowrap; } .crs-back-n{ font:inherit; font-size:12px; font-weight:700; border:1px dashed #B8463F; color:#B8463F; background:#fff; border-radius:999px; padding:0 8px; margin-inline-start:8px; cursor:pointer; } .crs-note{ cursor:help; }
 .crs-mis{ display:block; font-size:11.5px; font-weight:700; color:#B8463F; margin-top:2px; }
 #leadsTbl select.crs-sel, .crs-sel{ font:inherit; font-size:12px !important; font-weight:700; border:1px solid var(--border); border-radius:999px; padding:1px 18px 1px 6px !important; width:auto !important; min-width:64px !important; max-width:130px !important; flex:none !important; field-sizing:content; height:auto !important; min-height:0 !important; background-color:#fff; cursor:pointer; } .crs-sel-st{ border-color:transparent; }
-.crs-sel-sub.sj-math{ background:#DDF5D6; color:#1F6B17; border-color:#8FD67F; } .crs-sel-sub.sj-eng{ background:#FFF6B8; color:#6B5600; border-color:#E8D34F; } .crs-sel-sub.sj-both{ background:#DCEAFB; color:#174E8C; border-color:#8DB8EA; }   /* כמו subj-chip */
+#leadsTbl select.crs-sel-sub.sj-math, .crs-sel-sub.sj-math{ background:#DDF5D6; color:#1F6B17; border-color:#8FD67F; } #leadsTbl select.crs-sel-sub.sj-eng, .crs-sel-sub.sj-eng{ background:#FFF6B8; color:#6B5600; border-color:#E8D34F; } #leadsTbl select.crs-sel-sub.sj-both, .crs-sel-sub.sj-both{ background:#DCEAFB; color:#174E8C; border-color:#8DB8EA; }   /* נועה 7.11: הצבע של המקצוע בטבלה (נדרס ע"י הרקע הלבן) */   /* כמו subj-chip */
 div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex-wrap:nowrap; justify-content:flex-start; } #leadsTbl td.c-crs{ min-width:0 !important; white-space:nowrap; } .crs-f{ grid-column:span 2; } .crs-f2[hidden]{ display:none !important; } .crs-f select{ width:100%; } #leadsTbl td.c-asg{ min-width:0; }
 @media (min-width:761px){ #leadsTbl td.c-status select.status{ min-width:0 !important; max-width:96px !important; font-size:11.5px !important; padding:1px 16px 1px 6px !important; height:auto !important; min-height:24px !important; }
   #leadsTbl td.c-src select{ max-width:80px !important; font-size:11.5px !important; padding:1px 4px !important; color:var(--ink-soft); } #leadsTbl td.c-status, #leadsTbl td.c-src{ width:1%; } }   /* 5.19.166 (נועה): הסטטוס ומקור הליד הישנים – קטנים (העיקר בקורסים) */
@@ -4051,8 +4051,8 @@ async function crsLoad0(){
     CRS.cm = {}; CRS.cmIds = new Set(); CRS.loadedSe = new Set(); CRS.loadedSt = new Set(); CRS.stP = {};
     CRS.memP = crsLoadMembers("course_id=in.(" + ids(actIds) + ")").then(() => { actIds.forEach(id => CRS.loadedSe.add(id)); try { crsFillFilter(); } catch(e) {} });
     { const mp = CRS.memP; mp.catch(e => { console.error("crsLoad members", e); if (CRS.memP === mp) { CRS.ok = false; CRS.memP = null; } }); }   // נכשל – בפעם הבאה טוענים מחדש
-    if (prevIds.length) { const gen = CRS.gen = (CRS.gen || 0) + 1;
-      crsLoadMembers("course_id=in.(" + ids(prevIds) + ")").then(() => { if (gen !== CRS.gen) return; prevIds.forEach(id => CRS.loadedSe.add(id)); try { crsFillFilter(); } catch(e) {}
+    if (prevIds.length) { const gen = CRS.gen = (CRS.gen || 0) + 1;   // נועה 7.11: השנה שעברה ("לא חזרו") – אחרי השנה הנוכחית, לא במקביל
+      CRS.memP.catch(() => {}).then(() => gen === CRS.gen ? crsLoadMembers("course_id=in.(" + ids(prevIds) + ")") : Promise.reject("old")).then(() => { if (gen !== CRS.gen) return; prevIds.forEach(id => CRS.loadedSe.add(id)); try { crsFillFilter(); } catch(e) {}
         if (currentView === "leads" && typeof updSafe === "function" && updSafe()) renderLeads(); else if (currentView === "reg" && RG.tab === "courses") renderCrsCourses(); }).catch(() => {}); }
     return true;
   } catch(e) { console.error("crsLoad", e); CRS.ok = false; CRS.err = e && e.message || String(e); if ($("fCourse")) $("fCourse").closest(".crs-f").hidden = true; return false; }   // לפני קובץ 129
@@ -4694,6 +4694,8 @@ async function loadLeads(){
   // נועה 6.11 (מהירות): גם מועדי המרתונים וההודעות על השיבוץ – במקביל לרשימה (קודם אחריה, אחד אחרי השני)
   const marSesP = get("sessions", "select=marathon_id,meeting_dates&kind=eq." + encodeURIComponent("מרתון") + "&marathon_id=not.is.null"); marSesP.catch(() => {});
   const ntcP = loadNotices();
+  // נועה 7.11 (מדידה: הרשימה מחכה לקורסים – הסינון לפי סטטוס בקורס): הקורסים נטענים במקביל לתלמידים, לא אחריהם
+  const crsP = ME.role !== "instructor" ? crsLoad(true) : null; if (crsP) crsP.catch(() => {});
   const [leads, notes, asg, mreg, masg] = await Promise.all([
     // 5.19.103 (נועה): בכניסה – רק הכרטיסים הפעילים (מה שרואים בדיפולט); הלא פעילים (כ-11,000 עם "שנים קודמות") – ברקע, מיד אחרי
     getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.true&order=updated_at.desc,id.desc")
@@ -4723,7 +4725,7 @@ async function loadLeads(){
   const marLim = addDays(todayIL(), -14), marCur = (r) => { const m = r.marathon || {}, d = [m.event_date, marLast[m.id]].filter(Boolean).sort().pop(); return !d || d >= marLim; };
   L.mar = {}; mreg.filter(marCur).forEach(r => (L.mar[r.student_id] = L.mar[r.student_id] || []).push(r));
   // 5.19.160 (נועה 30.10): "רק להשאיר פרטים" בטופס המרתון (התעניינות) – גם 🏁, כדי לדעת במה התעניין/ה
-  if (ME.role !== "instructor") crsLoad(true).then(ok => { if (ok && currentView === "leads" && typeof updSafe === "function" && updSafe()) renderLeads(); });   // 5.19.162: קורסים
+  if (crsP) crsP.then(ok => { if (ok && currentView === "leads" && typeof updSafe === "function" && updSafe()) renderLeads(); });   // 5.19.162: קורסים
   L.marInt = {}; if (ME.role !== "instructor") Promise.all([
       get("interest_submissions", "select=student_id,mc:payload->>marathon_code&payload->>marathon_code=not.is.null&order=id.desc&limit=1000"),
       get("marathons", "select=id,code,name,school,city,grade,event_date,cancelled_at&code=not.is.null")])
