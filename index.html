@@ -6821,7 +6821,9 @@ async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint();
     FX.live = {}; lv.forEach(r => FX.live[r.key] = r.value);
     FX.draft = {}; dr.forEach(r => FX.draft[r.key] = r);
   } catch(e) { $("ftxList").innerHTML = `<div class="err">${e.status === 404 || /form_text/.test(e.message) ? "צריך להריץ את קובץ 88." : "לא נטען: " + esc(e.message)}</div>`; return; }
-  if (FX.mar == null) { FX.mar = ""; try { const m = await get("marathons", "select=code&cancelled_at=is.null&code=not.is.null&city=eq." + encodeURIComponent(FX.city) + "&order=id.desc&limit=1"); if (m[0]) FX.mar = m[0].code; } catch(e) {} }
+  // נועה 7.11: התצוגה – מרתון פתוח להרשמה (בעיר שנבחרה; אם אין – בעיר אחרת). מרתון סגור מציג רק "ההרשמה סגורה"
+  if (FX.mar == null) { FX.mar = ""; try { const ms = await get("marathons", "select=code,city,is_open&cancelled_at=is.null&code=not.is.null&order=id.desc&limit=50");
+      const m = ms.find(x => x.is_open && x.city === FX.city) || ms.find(x => x.is_open) || ms.find(x => x.city === FX.city) || ms[0]; if (m) { FX.mar = m.code; FX.marOther = m.city !== FX.city ? m.city : ""; if (FX.form === "marathon" && FX.marOther) toast("אין מרתון פתוח ב" + FX.city + " – בתצוגה: מרתון ב" + FX.marOther); } } catch(e) {} }
   ftxLoadFrame(true);
 }
 function ftxUrl(){
