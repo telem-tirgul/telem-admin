@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.42">
+<meta name="app-version" content="5.21.43">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2709,6 +2709,12 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
   .ftx-grid:not(.ftx-showlist) .ftx-prev{ position:static; } .ftx-grid:not(.ftx-showlist) .ftx-prev iframe{ height:calc(100vh - 230px); }
   @media (max-width:900px){ .ftx-grid:not(.ftx-showlist) .ftx-prev{ display:block; } }
   #ftxListTg[aria-pressed="true"]{ background:var(--accent); color:#fff; }
+
+/* נועה 7.11: לשוניות נוסחי הטפסים – קבוצה (שוטף / מרתון...) + מתי רואים */
+.ftx-forms{ flex-wrap:wrap; align-items:stretch; row-gap:6px; }
+.ftx-forms .ftx-fg{ align-self:center; font-size:12.5px; font-weight:800; color:#7A1F26 !important; opacity:1 !important; padding:0 10px 0 4px; white-space:nowrap; }
+.ftx-forms .ftx-fg:not(:first-child){ border-inline-start:1px solid var(--border, #E6DDD3); margin-inline-start:6px; padding-inline-start:12px; }
+.ftx-forms{ border-radius:14px; } .ftx-when{ flex-basis:100%; font-size:13px; margin:4px 4px 0; }
 </style>
 </head>
 <body>
@@ -2987,7 +2993,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
       <div class="ftx-pane-class" hidden><div class="card" id="clsPane"></div></div><!-- 5.20.9 (נועה): טופס כיתה – לשונית נפרדת -->
       <div class="ftx-pane-texts">
       <div class="ftx-top">
-        <div class="gseg ftx-forms" id="ftxForms" role="group" aria-label="טופס"></div>
+        <div class="gseg ftx-forms" id="ftxForms" role="group" aria-label="טופס"></div><div class="ftx-when muted" id="ftxWhen"></div>
         <div class="ftx-acts"><span id="ftxDirty"></span><button type="button" class="btn small danger-t" id="ftxDrop" hidden>מחיקת הטיוטות</button><button type="button" class="btn" id="ftxCancel" hidden>ביטול</button><button type="button" class="btn" id="ftxSave" disabled>שמירת טיוטה</button><button type="button" class="btn primary" id="ftxPub" disabled>פרסום לאוויר</button></div>
       </div>
       <p class="muted ftx-help"><b>לוחצים על טקסט בטופס</b> ועורכים אותו במקום. <b>שמירת טיוטה</b> – נשמר רק כאן; בטופס באתר לא משתנה כלום. <b>פרסום לאוויר</b> – אחרי בדיקה אוטומטית, הנוסח החדש עולה לטופס באתר. <b>↺ הנוסח המקורי</b> – חזרה למה שהיה.</p>
@@ -6535,7 +6541,16 @@ $("addLeadBtn").addEventListener("click", () => openLead(null));
 // ---------------------------------------------------------------- 5.19.100 (נועה): נוסחי הטפסים – טיוטה ← פרסום
 //  הטופס נטען בתצוגה (אותו אתר) עם ?txedit=1. texts.js בטופס אוסף: טקסטים קבועים (data-t), תבניות של טקסט שנבנה בקוד (TX.reg, עם {משבצות}),
 //  ומה שנבנה בקוד ולא נערך – מוצג לקריאה בלבד. שמירה = טיוטה (form_text_drafts); "פרסום" = publish_form_texts (קובץ 88) – רק אז זה באוויר.
-const FTX_FORMS = [["register", "הרשמה לתרגולים"], ["marathon", "מרתון"], ["interest", "התעניינות"], ["pay", "תשלום אישי"], ["cancel", "ביטול"], ["shibutz", "שיבוץ"], ["thank-you", "תודה"], ["payment-failed", "תשלום לא הושלם"]];
+// נועה 7.11: שמות ברורים – שוטף / מרתון, ומתי רואים כל טופס (כמו בטבלת "טפסים ומחירים")
+const FTX_FORMS = [
+  ["register", "טופס הרשמה", "תרגולים שוטפים", "הקישור לפי עיר – בטבלת התרגולים השוטפים / באתר"],
+  ["interest", "טופס התעניינות", "תרגולים שוטפים", "הקישור לפי עיר / בית ספר – באתר ובטבלת התרגולים השוטפים"],
+  ["marathon", "טופס הרשמה", "מרתון", "הקישור של כל מרתון – ב\"מרתונים\""],
+  ["pay", "קישור תשלום אישי", "נשלח להורה", "נוצר מכרטיס התלמיד / ממסך הקישורים"],
+  ["cancel", "טופס ביטול", "נשלח להורה", "כשהורה מבקש לבטל הרשמה"],
+  ["shibutz", "טופס שיבוץ", "נשלח להורה", "בחירת מועדים מועדפים לשיבוץ"],
+  ["thank-you", "דף תודה", "אחרי שליחה", "אחרי כל טופס – 9 גרסאות (בחירה מעל התצוגה)"],
+  ["payment-failed", "תשלום לא הושלם", "אחרי שליחה", "כשהתשלום באשראי לא עבר"]];
 const FTX_TYV = [["paid", "אשראי – שולם"], ["phone", "תשלום טלפוני"], ["phpaid", "כבר שילמתי בטלפון"], ["signed", "קישור אישי – רשום"], ["sgunp", "קישור אישי – לא רשום"], ["lead", "מרתון – להשאיר פרטים"], ["already", "מרתון – כבר רשום/ה"], ["interest", "התעניינות"], ["paylink", "קישור תשלום – שולם"]];   // נועה 6.11: כל המקרים (טבלת הסיכום); "ההרשמה נשלחה" ירד
 const FTX_RV = [["reg", "רגיל"], ["card", "קישור אישי – שולם"], ["cardu", "קישור אישי – לא שולם"]];   /* 5.21.19 (נועה 6.11): גם במרתון */   // 5.21.11 (נועה 4.11): "שילמו בטלפון" – עכשיו אפשרות בטופס הרגיל ("כבר שילמתי"), לא קישור נפרד
 const FX = { form: "register", items: [], auto: [], live: {}, draft: {}, edit: {}, tyv: "paid", rv: "reg", mar: null };
@@ -6642,7 +6657,8 @@ function ftxTabPaint(){ document.querySelectorAll("[data-ftab]").forEach(b => { 
   document.querySelector(".ftx-pane-forms").hidden = FTX_TAB.v !== "forms"; document.querySelector(".ftx-pane-texts").hidden = FTX_TAB.v !== "texts";
   { const c = document.querySelector(".ftx-pane-class"); if (c) c.hidden = FTX_TAB.v !== "class"; } { const r = document.querySelector(".ftx-pane-rules"); if (r) r.hidden = FTX_TAB.v !== "rules"; } }
 async function ftxOpen(onlyTexts){ ftxTabPaint(); if (!onlyTexts) ftxGenPaint(); if (FTX_TAB.v === "class") clsPaint(); if (FTX_TAB.v === "rules") PAY.rules($("brSet")); if (FTX_TAB.v !== "texts" && !onlyTexts) return; FTX_TAB.textsOpen = true;
-  $("ftxForms").innerHTML = FTX_FORMS.map(([k, n]) => `<button type="button" data-ftx="${k}" aria-pressed="${k === FX.form}">${esc(n)}</button>`).join("");
+  $("ftxForms").innerHTML = FTX_FORMS.map(([k, n, g, w], i) => `${!i || FTX_FORMS[i - 1][2] !== g ? `<span class="ftx-fg">${esc(g)}</span>` : ""}<button type="button" data-ftx="${k}" aria-pressed="${k === FX.form}" title="${esc(w)}">${esc(n)}</button>`).join("");
+  { const f = FTX_FORMS.find(x => x[0] === FX.form); $("ftxWhen").innerHTML = f ? `<b>${esc(f[2])} · ${esc(f[1])}</b> – ${esc(f[3])}` : ""; }
   $("ftxForms").querySelectorAll("[data-ftx]").forEach(b => b.onclick = async () => { if (b.dataset.ftx === FX.form) return; if (ftxUnsaved() && !await uiConfirm("יש שינויים שלא נשמרו כטיוטה. לעבור טופס בלי לשמור?")) return; FX.form = b.dataset.ftx; ftxOpen(); });
   $("ftxTyv").hidden = !["thank-you", "register", "marathon"].includes(FX.form);
   if (!["register", "marathon"].includes(FX.form)) FX.rv = "reg";
@@ -6912,7 +6928,7 @@ $("ftxPub").addEventListener("click", async () => {
   const { err, warn } = ftxCheck();
   if (err.length) { await uiDialog("אי אפשר לפרסם – צריך לתקן:\n\n• " + err.join("\n• "), { single: true, ok: "הבנתי" }); return; }
   const n = ftxUnsaved() + ftxDraftN();
-  if (!await uiConfirm((warn.length ? "שימי לב:\n• " + warn.join("\n• ") + "\n\n" : "") + `לפרסם ${n === 1 ? "שינוי אחד" : n + " שינויים"} בטופס "${(FTX_FORMS.find(f => f[0] === FX.form) || [])[1]}"? מי שייכנס לטופס מעכשיו יראה את הנוסח החדש.`, { ok: "פרסום" })) return;
+  if (!await uiConfirm((warn.length ? "שימי לב:\n• " + warn.join("\n• ") + "\n\n" : "") + `לפרסם ${n === 1 ? "שינוי אחד" : n + " שינויים"} בטופס "${(FTX_FORMS.find(f => f[0] === FX.form) || []).slice(1, 3).reverse().join(" · ")}"? מי שייכנס לטופס מעכשיו יראה את הנוסח החדש.`, { ok: "פרסום" })) return;
   const b = $("ftxPub"); b.disabled = true;
   try { await ftxSaveDrafts(); const r = await rpc("publish_form_texts", { p_form: FX.form });
     toast(`פורסם – הטופס באתר מעודכן (${(r && (r.published + r.reverted)) || 0})`); ftxOpen(); }
