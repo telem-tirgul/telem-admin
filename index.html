@@ -1794,6 +1794,7 @@ button.ph-m{ font:inherit; font-weight:700; color:var(--accent); background:none
 .crs-src{ font:inherit; font-size:11.5px; font-weight:700; border:1px solid var(--border); background:#fff; color:var(--ink-soft); border-radius:999px; padding:0 8px; line-height:1.7; cursor:pointer; white-space:nowrap; } .crs-src.none{ border-style:dashed; }
 #view-lead .track-box.tb-empty, .lg-cmtrk.lg-trk0{ border:none !important; background:none !important; padding:0 !important; margin:4px 0 0 !important; box-shadow:none !important; min-height:0 !important; }
 .lg-trk0-b{ background:none; border:1px dashed #DCCFC2; border-radius:999px; padding:3px 12px; font-size:12.5px; color:var(--ink-soft); cursor:pointer; font-family:inherit; } .lg-trk0-b:hover{ border-color:var(--accent); color:var(--accent); }
+#studentBox > summary .sd-sum{ font-family:var(--font-body, inherit); font-size:13px; font-weight:500; color:var(--ink-soft); margin-inline-start:8px; } #studentBox[open] > summary .sd-sum{ display:none; }
 .lg-crs-box.lg-closed > :not(.lg-crs){ display:none !important; } .lg-crs-box.lg-closed > .lg-crs{ border-bottom:none !important; margin-bottom:0 !important; padding-bottom:0 !important; } .lg-crs-box > .lg-crs{ cursor:pointer; }
 .lg-fold-b{ flex:none; width:24px; height:24px; border-radius:50%; border:none; background:#EFE6EC; cursor:pointer; position:relative; margin-inline-start:2px; } .lg-fold-b::after{ content:"‹"; position:absolute; inset:0; display:grid; place-items:center; font-weight:800; color:var(--accent); transform:rotate(-90deg); transition:transform .15s; }
 .lg-closed .lg-fold-b::after{ transform:none; } .lg-fold-sum{ display:none; font-size:13px; color:var(--ink-soft); font-weight:500; margin-inline-start:8px; } .lg-closed .lg-fold-sum{ display:inline; }
@@ -2896,7 +2897,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
             <div class="lead-side"><!-- 5.20.18: העמודה הצרה (משמאל) – פרטי התלמיד/ה, הערות, פרטים נוספים -->
 
             <!-- 5.19.72 (נועה): פרטי התלמיד - מתחת לפרטים העיקריים (הסטטוס ומקור הליד עלו לפרטים העיקריים) -->
-            <details class="sec-d" id="studentBox" open><summary>פרטי התלמיד/ה</summary>
+            <details class="sec-d" id="studentBox"><summary>פרטי התלמיד/ה <span class="sd-sum" id="studentSum"></span></summary><!-- נועה 7.11: מכווץ בדיפולט (בכרטיס חדש – פתוח); בשורה – תקציר -->
               <div class="form-grid">
                 <div><label class="lbl" for="sSchool">בית ספר</label><select id="sSchool"></select></div>
                 <div><label class="lbl" for="sGrade">שכבה</label><select id="sGrade"></select></div>
@@ -5547,6 +5548,7 @@ function openLead(id){
   $("leadGroups").textContent = "";
   setLeadEdit(!(l && LEAD_MOB())); setLeadDirty(false);   // 5.19.23: בנייד נפתח לצפייה; "✎ עריכה" פותח את הטופס
   go("lead");
+  $("studentBox").open = !l; setTimeout(studentSumPaint, 0);
   parkTrack(); renderTrack(l); $("leadPay").innerHTML = ""; $("leadPayments").innerHTML = ""; $("leadCancel2").innerHTML = "";
   leadQuick(l ? l.student : null, null);
   $("leadLoading").hidden = !l;   // 5.21.4 (נועה): "טוען…" עד שהקורסים והשיבוצים עולים
@@ -6004,6 +6006,10 @@ function canPaint(sid){ const rows = CAN_ROWS[sid]; const g = $("leadGroups"); i
 let CAN_ONLY = null;
 // נועה 7.11 (באג: "הקורסים לא נטענים" – כרטיס מההתראות): תיבת המעקב יושבת בתוך הקורסים; כשהם נמחקו מסביבה (כרטיס חדש / תקלה)
 //   היא נעלמה, וכל כרטיס אחר כך נתקע ב"טוען…". עכשיו – מחזירים אותה לחניה לפני כל מחיקה, ואם חסרה – יוצרים מחדש
+function studentSumPaint(){ const el = $("studentSum"); if (!el) return; const tx = (id) => { const e = $(id); if (!e) return ""; if (e.tagName === "SELECT") { const o = e.options[e.selectedIndex]; return e.value && o ? o.textContent.trim() : ""; } return String(e.value || "").trim(); };
+  const g = tx("sGrade"), c = tx("sClass"), m = tx("sMath"), en = tx("sEng");
+  el.textContent = [tx("sSchool"), g ? g + (c ? c : "") : "", m ? "מת׳: " + m : "", en ? "אנג׳: " + en : ""].filter(Boolean).join(" · "); }
+document.addEventListener("change", (e) => { if (e.target && e.target.closest && e.target.closest("#studentBox")) studentSumPaint(); });
 function parkTrack(){ const pk = $("trackPark"); if (!pk) return; let tb = $("trackBox");
   if (!tb) { pk.insertAdjacentHTML("beforeend", '<div class="track-box tb-side" id="trackBox" hidden></div>'); tb = $("trackBox"); if (editing && typeof renderTrack === "function") try { renderTrack(editing); } catch(e) {} }
   if (tb.parentElement !== pk) pk.appendChild(tb); }
