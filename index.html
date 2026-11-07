@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.58">
+<meta name="app-version" content="5.21.59">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2934,7 +2934,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
             </div></details>
             <!-- 5.19.70 (נועה): פרטים נוספים - נפתח בחץ, כמו התשלומים -->
             <details class="sec-d" id="moreBox"><summary>פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(הורה 2, טלפון בית, כתובת · ממלא/ת, נושא והודעה מטופס ההתעניינות)</span></summary>
-              <div class="lf-old" hidden><!-- 5.20.13 (נועה): "סטטוס אחד" – הסטטוס ומקור הליד הישנים ירדו מהכרטיס (ממשיכים להתעדכן מהקורס ברקע) --><span class="tg-f"><label for="lfStatus">סטטוס (ישן)</label><select id="lfStatus"></select></span>
+              <div class="lf-old" hidden><!-- 5.20.13 (נועה): "סטטוס אחד" – הסטטוס ומקור הליד הישנים ירדו מהכרטיס (ממשיכים להתעדכן מהקורס ברקע) --><span class="tg-f"></span>
                 <span class="tg-f"><label for="lfSource">מקור ליד (ישן)</label><select id="lfSource"></select></span>
                 <span class="muted lf-old-n">מתעדכנים מהקורס – שינוי סטטוס / מקור – בקורס (למעלה, ב"קורסים ושיבוצים")</span></div>
               <div class="form-grid">
@@ -3950,7 +3950,7 @@ document.querySelectorAll("[data-back]").forEach(b => b.addEventListener("click"
 // נתונים
 // ======================================================================
 const L = { statuses:[], sources:[], staff:[], schools:[], levels:[], leads:[], notesCount:{}, notes:{} };
-let LEAD_SELECT = "id,legacy_user_id,is_active,is_starred,topic,is_customer,remind_at,message,filled_by,created_at,updated_at,status_id,source_id,manager_id,family_id,student_id," +
+let LEAD_SELECT = "id,legacy_user_id,is_active,is_starred,topic,is_customer,remind_at,message,filled_by,created_at,updated_at,source_id,manager_id,family_id,student_id," +
   "student:students(id,first_name,last_name,phone,email,school,school_id,grade,class_num,english_level,math_level,tracking,track,updated_at," +   // 5.19.157: track (קובץ 127)
   "family:families(id,parent1_first,parent1_last,parent1_phone,parent1_email,parent2_first,parent2_last,parent2_phone,parent2_email,home_phone,address,city,mailing_consent,updated_at))";
 
@@ -4075,14 +4075,13 @@ const crsOfStudent = (sid) => (CRS.cm[sid] || []);
 const stuCur = (sid) => crsOfStudent(sid).filter(m => { const c = CRS.byId[m.course_id]; return !crsGone(m) && c && c.is_active !== false && crsActiveSeasons().has(c.season_id); });
 const stuIsReg = (m) => { const c = CRS.byId[m.course_id]; return m.status === "רשום" && c && !c.marathon_id && !/summer/.test(mTrk(m)); };   // רשום/ה בתרגול השוטף
 const stuRegM = (sid) => stuCur(sid).find(stuIsReg);
-const stuOld = (l) => typeof statusName === "function" && l ? statusName(l.status_id) || "" : "";
-const stuReg = (l) => !l || !l.student ? false : CRS.ok ? !!stuRegM(l.student.id) : /^נרשם (מת|אנג)/.test(stuOld(l)) && !/קיץ|מרתון/.test(stuOld(l));
-const stuSubj = (sid) => { if (!CRS.ok) { const l = (L.leads || []).find(x => x.student && x.student.id === sid); return l ? subjFromStatus(stuOld(l)) : ""; }
+const stuReg = (l) => !l || !l.student || !CRS.ok ? false : !!stuRegM(l.student.id);   // 174 (נועה 7.11): רק לפי הקורס – הסטטוס הישן ירד
+const stuSubj = (sid) => { if (!CRS.ok) return "";
   const m = stuRegM(sid) || stuCur(sid).find(x => (x.status === "ממתין לתשלום") && !CRS.byId[x.course_id].marathon_id); return !m ? "" : mTrk(m) === "double" ? "מתמטיקה ואנגלית" : (m.subject || ""); };
 const ST_PRI = ["רשום", "ממתין לתשלום", "מתעניין"];
 const stuStM = (sid) => { const cur = stuCur(sid); if (!cur.length) { return crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id]).sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")) || b.id - a.id)[0] || null; }   // אין קורס פעיל – הסטטוס של הקורס האחרון (למשל "פרש")
   const ms = cur.slice().sort((a, b) => ((ST_PRI.indexOf(a.status) + 1) || 9) - ((ST_PRI.indexOf(b.status) + 1) || 9) || !!CRS.byId[a.course_id].marathon_id - !!CRS.byId[b.course_id].marathon_id || b.id - a.id); return ms[0] || null; };   // אותו חוק כמו student_status במסד (173)
-const stuSt = (l) => { if (!l || !l.student) return { name: "", label: "", color: "" }; if (!CRS.ok) { const n = stuOld(l); return { name: n, label: n, color: (L.statuses.find(x => x.id === l.status_id) || {}).color || "" }; }
+const stuSt = (l) => { if (!l || !l.student) return { name: "", label: "", color: "" }; if (!CRS.ok) return { name: "", label: "", color: "" };
   const m = stuStM(l.student.id); if (!m) return { name: "", label: "", color: "" }; const st = crsStOf(m.status), c = CRS.byId[m.course_id];
   const sub = !c.marathon_id && m.status === "רשום" ? stuSubj(l.student.id) : ""; return { name: m.status, label: (st.label || st.name) + (c.marathon_id ? " · מרתון" : sub ? " · " + (SUBJ_FULL[sub] || sub) : ""), color: st.color || "" }; };
 const CRS_CMS = "select=id,course_id,student_id,status,subject,grade,signed,source,note,created_at,updated_at,enrollment_id,marathon_registration_id%S%&order=id";   // 5.20.13: + ההרשמה (לטופס החתום של הקורס)
@@ -4122,16 +4121,7 @@ function crsFillFilter(){ const el = $("fCourse"); if (!el) return; el.closest("
   fillSelect(el, [{ v: "__mis", t: "⚠ הסטטוס לא תואם לקורס (" + nm + ")" }].concat(nb ? [{ v: "__back", t: "↩ היו רשומים בשנה שעברה ולא השנה (" + nb + ")" }] : []), "הכול"); el.value = ""; void list; }   // 5.20.18 (נועה): בלי רשימת קורסים (כפול לקטגוריה + מסלול + בית ספר) – רק התצוגות המיוחדות
 // בדיקה (נועה 30.10: משאירים את הסטטוס כדי לבדוק שהקורסים + המסלול תואמים): "נרשם מת./אנג." בלי רישום בתרגול השוטף במחזור הפעיל,
 // רישום "רשום" בלי סטטוס "נרשם", או מקצוע שונה בין הסטטוס לרישום
-function crsMismatch(l){ return false;   // 5.20.23 (נועה): הסטטוס הישן ירד – אין מול מה לבדוק (סטטוס אחד, בקורס)
-  if (!CRS.ok || !l || !l.student) return false;
-  const st = statusName(l.status_id) || "", isReg = /^נרשם (מת|אנג)/.test(st) && !/קיץ|מרתון/.test(st);
-  const act = CRS.seasons.find(x => x.is_active && x.kind === "year"); if (!act) return false;
-  const cur = crsOfStudent(l.student.id).filter(m => { const c = CRS.byId[m.course_id]; return c && c.season_id === act.id && crsCat(c.category_id).kind !== "event" && (m.status === "רשום" || m.status === "ממתין לתשלום"); });
-  if (isReg && !cur.length) return "סטטוס נרשם – בלי קורס";
-  if (!isReg && cur.some(m => m.status === "רשום")) return "רשום/ה בקורס – הסטטוס לא נרשם";
-  if (isReg) { const sub = /מת\./.test(st) && /אנג/.test(st) ? "מתמטיקה ואנגלית" : /מת\./.test(st) ? "מתמטיקה" : "אנגלית";
-    if (!cur.some(m => !m.subject || m.subject === sub)) return "המקצוע שונה"; }
-  return false; }
+function crsMismatch(){ return false; }   // 5.20.23 + 174 (נועה): הסטטוס הישן ירד – אין מול מה לבדוק (סטטוס אחד, בקורס)
 // "לא חזרו" (נועה 30.10, כמו בדוח הרישום ב-Jackrabbit): רשום/ה בתרגול שוטף בשנה שלפני המחזור הפעיל, ולא רשום/ה / ממתין/ה במחזור הפעיל
 function crsBack(sid, schKey){ const act = CRS.seasons.find(x => x.is_active && x.kind === "year"); if (!act) return false;
   const reg = (c) => crsCat(c.category_id).kind !== "event", ms = crsOfStudent(sid);
@@ -4191,16 +4181,12 @@ function crsChipsRow(sid, part){ if (!CRS.ok) return ""; const act = crsActiveSe
     const sub = tk === "double" ? `<span class="subj-chip s-b crs-subj">מת.+אנג.</span>`
       : `<select class="crs-sel crs-sel-sub ${SUBJ_CLS(m.subject)}" data-cmsub="${m.id}" aria-label="מקצוע"><option value="">מקצוע</option>${["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"].map(x => `<option value="${x}" ${x === m.subject ? "selected" : ""}>${SUBJ_FULL[x]}</option>`).join("")}</select>`;
     return `<div class="crs-cell" title="${esc(crsShort(c, true) + " · " + crsSeasonTxt(c) + (to ? "\n" + to.t : ""))}">${dot}${sub}</div>`; }).join("")}</div>`; }
-// 5.20.3 (נועה, קובץ 142): הסטטוס של הקורס – הראשי. אחרי שינוי – הסטטוס הישן בכרטיס מתעדכן בשרת; כאן: טוענים אותו מחדש,
-// ומפעילים את מה שהיה קורה בשינוי סטטוס בכרטיס ("איך נרשם/ה?" + סימון "שולם", "פרש – עד מתי?")
-async function crsAfterStatus(sid){
-  const l = (L.leads || []).find(x => x.student_id === sid); if (!l) return;
-  const old0 = l.status_id;
-  try { const r = await get("leads", "select=id,status_id,is_active,updated_at&id=eq." + l.id); if (!r.length) return; Object.assign(l, r[0]); } catch(e) { return; }
-  if (l.status_id === old0) return;
+// 5.20.3 / 174 (נועה): אחרי שינוי הסטטוס בקורס – "איך נרשם/ה?" (+ סימון "שולם") ו"פרש – עד מתי?", לפי הקורס עצמו (בלי הסטטוס הישן)
+async function crsAfterStatus(m, od){
+  if (!m || m.status === od) return;
+  const l = (L.leads || []).find(x => x.student_id === m.student_id); if (!l) return;
   const nm = [l.student.first_name, l.student.last_name].filter(Boolean).join(" ");
-  try { await regHowAsk(l.id, old0, l.status_id); await withdrawAsk(sid, nm, old0, l.status_id); } catch(e) {}
-  if (editing && editing.id === l.id && $("lfStatus")) { $("lfStatus").value = l.status_id || ""; paintStatus($("lfStatus"), l.status_id); editing.status_id = l.status_id; }
+  try { await regHowAsk(l.id, m, od); await withdrawAsk(m, nm, od); } catch(e) {}
 }
 // נקודת המסלול – לחיצה: בחירת מסלול
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-cmtrk2]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
@@ -4225,15 +4211,16 @@ document.addEventListener("change", async (ev) => { const el = ev.target; if (!e
   // מסלול "מת.+אנג." → המקצוע = מתמטיקה ואנגלית (בלי לבחור)
   const body = el.dataset.cmst ? { status: el.value } : el.dataset.cmsub ? { subject: el.value || null } : el.dataset.cmtrk ? Object.assign({ track: el.value || null }, el.value === "double" ? { subject: "מתמטיקה ואנגלית" } : m.subject === "מתמטיקה ואנגלית" ? { subject: null } : {}) : { source_id: el.value ? Number(el.value) : null };
   el.disabled = true;
+  const st0 = m.status;
   try { await patch("course_members", "id=eq." + id, Object.assign({ updated_at: new Date().toISOString() }, body)); Object.assign(m, body); toast("נשמר");
-    if (el.dataset.cmst) { el.style.cssText = stSoft(crsStOf(el.value).color || "#888"); await crsAfterStatus(m.student_id); marAskGroup(m); }   // 5.19.173: הצבע של הסטטוס החדש מיד; 5.20.3: הסטטוס הישן מתעדכן
+    if (el.dataset.cmst) { el.style.cssText = stSoft(crsStOf(el.value).color || "#888"); await crsAfterStatus(m, st0); marAskGroup(m); }   // 5.19.173: הצבע של הסטטוס החדש מיד; 5.20.3: הסטטוס הישן מתעדכן
     if (body.source_id !== undefined) loadLeads().then(() => { if (currentView === "leads" && updSafe()) renderLeads(); }).catch(() => {}); else if (currentView === "leads") renderLeads(); }
   catch(e) { toast("לא נשמר: " + e.message); } finally { el.disabled = false; } });
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-crsm]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
   const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.crsm)); if (!m) return; const c = CRS.byId[m.course_id] || {};
   const v = await uiChoose(crsShort(c, true) + "\nמצב בקורס:", crsStList().map(x => x.name).map(x => ({ v: x, t: (CRS_IC[x] || "") + " " + crsStOf(x).label + (x === m.status ? " (עכשיו)" : "") }))); if (!v || v === m.status) return;
   if (!(await marLeaveOk(m, v))) return;   // נועה 7.11 (#2986)
-  try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); m.status = v; toast("נשמר"); crsAfterStatus(m.student_id).then(() => marAskGroup(m)); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain") || b.closest(".crs-drawer")) { renderCrsCourses(); crsDrawerRe(); } else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
+  try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); const st0 = m.status; m.status = v; toast("נשמר"); crsAfterStatus(m, st0).then(() => marAskGroup(m)); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain") || b.closest(".crs-drawer")) { renderCrsCourses(); crsDrawerRe(); } else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
 // חסרה חתימה על התנאים (רשום / ממתין במחזור פעיל, signed = false)
 // 5.19.173 (נועה): נרשם / לקחת אשראי בלי חתימה על התנאים (גם מי שסומן "נרשם" ידנית) – מסומן בטבלה ובכרטיס
 function crsNeedSig(m){ const c = CRS.byId[m.course_id]; return !!c && m.signed !== true && (m.status === "רשום" || m.status === "ממתין לתשלום") && crsActiveSeasons().has(c.season_id); }
@@ -5207,7 +5194,6 @@ function renderLeads(){
   const rows = slice.map(l => {
     if (l.__h) return histRowHtml(l);   // 5.19.103: שורה משנים קודמות
     const s = l.student, sch = schoolOf(s);
-    const statusOpts = L.statuses.filter(x => x.is_active || x.id === l.status_id).map(x => `<option value="${x.id}"${optStyle(x)} ${x.id === l.status_id ? "selected" : ""}>${esc(x.name)}</option>`).join("");
     const due = l.remind_at && new Date(l.remind_at) <= now;
     const ns = L.notes[l.id] || [];
     const regRow = l.is_active && l.student && typeof CRS !== "undefined" && CRS.ok && crsOfStudent(l.student.id).some(m => m.status === "רשום" && !crsGone(m) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id));   /* 5.21.21 (נועה 6.11): נרשם/ה – כל השורה בירוק בהיר */
@@ -5307,37 +5293,16 @@ $("leadsTbl").addEventListener("change", async (e) => {
     catch(err) { toast("לא נשמר: " + err.message); e.target.value = l.source_id || ""; }
     return;
   }
-  if (e.target.dataset.act !== "status") return;
-  // סטטוס - משנים ישר מהטבלה (בלי "עריכה ברשימה")
-  const tr = e.target.closest("tr"), l = L.leads.find(x => String(x.id) === tr.dataset.id);
-  const v = e.target.value ? Number(e.target.value) : null;
-  const old0 = l.status_id;
-  try { await patch("leads", "id=eq." + l.id, { status_id: v }); l.status_id = v; l.updated_at = new Date().toISOString();
-        paintStatus(e.target, v); toast(`הסטטוס של ${l.student.first_name} ${l.student.last_name || ""} עודכן ל"${statusName(v) || "ללא"}"`);
-        // 5.19.140 (נועה 25.10): בלי החלון "יש הוראת קבע פעילה" – במקומו התראה בתיבה (icredit-26, plan_withdrawn) שנשארת עד שמטפלים
-        await regHowAsk(l.id, old0, v); await withdrawAsk(l.student.id, [l.student.first_name, l.student.last_name].filter(Boolean).join(" "), old0, v); if (currentView === "leads" && updSafe()) leadsKeepRow(renderLeads); }
-  catch(err) { toast("לא נשמר: " + err.message); e.target.value = l.status_id || ""; }
 });
 
 // 5.19.139 (נועה 25.10): מעבר ל"פרש" – עד מתי מגיע/ה? מסירים עכשיו / עד סוף החודש / עד סוף החודש הבא (ends_on, קובץ 116).
 // השיבוצים בקבוצות השוטפות של השנה (משובץ / ממתין). עם תאריך – נשארים (נוכחות, "תלם שלי") ויורדים לבד בלילה שאחרי.
-// נועה 7.11 (#2986): מי שפרש/ה מהתרגולים השוטפים ורשום/ה (שולם) למרתון שעוד לא נגמר – חייב להישאר בסטטוס "נרשם מרתון מת."
-async function withdrawKeepMar(sid, name){
-  const regs = await get("marathon_registrations", "select=marathon_id,marathon:marathons!inner(name,cancelled_at)&student_id=eq." + sid + "&status=eq." + encodeURIComponent("שולם") + "&marathon.cancelled_at=is.null");
-  if (!regs.length) return;
-  const ses = await get("sessions", "select=marathon_id,meeting_dates&marathon_id=in.(" + [...new Set(regs.map(r => r.marathon_id))].join(",") + ")");
-  const t = todayIL(), live = regs.find(r => ses.some(x => x.marathon_id === r.marathon_id && (x.meeting_dates || []).some(d => d >= t)));
-  if (!live) return;
-  const st = (L.statuses || []).find(x => x.name === "נרשם מרתון מת."); if (!st) return;
-  await patch("leads", "student_id=eq." + sid, { status_id: st.id });
-  const l = (L.leads || []).find(x => x.student_id === sid); if (l) { l.status_id = st.id; l.updated_at = new Date().toISOString(); }
-  if (editing && editing.student && editing.student.id === sid) { editing.status_id = st.id; if ($("lfStatus")) { $("lfStatus").value = st.id; paintStatus($("lfStatus"), st.id); } }
-  if (currentView === "leads") { const sel = document.querySelector(`#leadsTbl tr[data-id="${l ? l.id : ""}"] [data-act="status"]`); if (sel) { sel.value = st.id; paintStatus(sel, st.id); } }
-  await uiAlert(`${name || "התלמיד/ה"} רשום/ה ל"${(live.marathon && live.marathon.name) || "מרתון"}" – הסטטוס נשאר "נרשם מרתון מת." (ולא "פרש").\nההסרה מהתרגולים השוטפים – בשאלה הבאה.`);
-}
-async function withdrawAsk(sid, name, oldId, newId){
+// 174 (נועה 7.11): לפי הסטטוס בתרגול השוטף (מרתון לא נוגע בקבוצות השוטפות – ולכן גם בלי "נשאר נרשם מרתון")
+async function withdrawAsk(m, name, od){
+  const c = CRS.byId[m.course_id] || {}, sid = m.student_id, nw = m.status;
+  if (c.marathon_id || /summer/.test(mTrk(m))) return;
   // 5.19.157 (נועה 29.10): חזר/ה מ"פרש" (החליט/ה להישאר) – הסימון "עד…" בקבוצות השוטפות יורד לבד
-  if (sid && ME.role !== "instructor" && statusName(oldId) === "פרש" && statusName(newId) !== "פרש" && newId !== oldId) {
+  if (sid && ME.role !== "instructor" && od === "פרש" && nw !== "פרש") {
     try { const back = await get("assignments", "student_id=eq." + sid + "&ends_on=not.is.null&session.kind=eq." + encodeURIComponent("שוטף") + "&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&select=id,session:sessions!inner(kind,school_year)");
       if (back.length) { await patch("assignments", "id=in.(" + back.map(a => a.id).join(",") + ")", { ends_on: null });
         toast(`${name || "התלמיד/ה"} נשאר/ת – הסימון "עד…" הוסר מ-${back.length} ${back.length === 1 ? "שיבוץ" : "שיבוצים"}`);
@@ -5346,13 +5311,12 @@ async function withdrawAsk(sid, name, oldId, newId){
     } catch(e) { toast("לא הוסר הסימון 'עד…': " + e.message); }
     return;
   }
-  if (!sid || ME.role === "instructor" || statusName(newId) !== "פרש" || newId === oldId) return;
-  try { await withdrawKeepMar(sid, name); } catch(e) {}   // נועה 7.11: פרש מהשוטף אבל רשום/ה למרתון – נשאר "נרשם מרתון"
+  if (!sid || ME.role === "instructor" || nw !== "פרש" || od === nw) return;
   let rows = [];
   try { rows = await get("assignments", "select=id,status,ends_on,session:sessions!inner(id,day,start_time,kind,school_year,location:locations(name))&student_id=eq." + sid + "&session.kind=eq." + encodeURIComponent("שוטף") + "&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear)); } catch(e) { return; }
   if (!rows.length) return;
-  const t = todayIL(), [y, m] = t.split("-").map(Number), eom = (yy, mm) => new Date(Date.UTC(yy, mm, 0)).toISOString().slice(0, 10);
-  const e1 = eom(y, m), e2 = eom(m === 12 ? y + 1 : y, m === 12 ? 1 : m + 1);
+  const t = todayIL(), [y, mo] = t.split("-").map(Number), eom = (yy, mm) => new Date(Date.UTC(yy, mm, 0)).toISOString().slice(0, 10);
+  const e1 = eom(y, mo), e2 = eom(mo === 12 ? y + 1 : y, mo === 12 ? 1 : mo + 1);
   const pr = uiChoose(`${name || "התלמיד/ה"} פרש/ה – עד מתי מגיע/ה? (${rows.length} שיבוצים: ${rows.map(a => `${a.session.day}' ${String(a.session.start_time || "").slice(0, 5)}`).join(", ")})`, [
     { v: "now", t: "מסירים עכשיו – קבוצות שוטפות + תלם שלי" },
     { v: e1, t: `עד סוף החודש (${fmtIso(e1)})` },
@@ -5369,9 +5333,10 @@ async function withdrawAsk(sid, name, oldId, newId){
   } catch(e) { toast(/ends_on/.test(e.message) ? "צריך להריץ קודם את קובץ 116" : "לא נשמר: " + e.message); }
 }
 // 5.19.137 (נועה 25.10): מעבר ידני לסטטוס "נרשם…" – חלון קטן "איך נרשם/ה?" (נשמר כהערה בכרטיס). אפשר לדלג.
-async function regHowAsk(leadId, oldId, newId){
-  const nw = statusName(newId) || "", od = statusName(oldId) || "";
-  if (!leadId || !/^נרשם/.test(nw) || newId === oldId) return;
+// 174: לפי הקורס – עבר/ה ל"רשום" בקורס (שוטף או מרתון)
+async function regHowAsk(leadId, m, od){
+  if (!leadId || !m || m.status !== "רשום" || od === "רשום") return;
+  const c = CRS.byId[m.course_id] || {}, nw = crsShort(c, true) + ": רשום";
   const pr = uiChoose(`עבר/ה ל"${nw}" – איך נרשם/ה? (הסטטוס כבר נשמר)`, [
     { v: "בטלפון – תשלום טלפוני", t: "📞 בטלפון – תשלום טלפוני" },
     { v: "שילם/ה ישירות בריווחית", t: "💳 שילם/ה ישירות בריווחית" },
@@ -5386,7 +5351,7 @@ async function regHowAsk(leadId, oldId, newId){
   catch(e) { toast("ההערה לא נשמרה: " + e.message); }
   // 5.19.158 (נועה): מעבר ידני ל"נרשם…" = נלקח תשלום → ההרשמה שממתינה לתשלום מסומנת "שולם" (ובמרתון – שיבוץ אמיתי בקבוצה)
   const ld = (L.leads || []).find(x => x.id === leadId), sid = ld && ld.student_id; if (!sid) return;
-  const isMar = /מרתון/.test(nw);
+  const isMar = !!c.marathon_id;
   let pend = []; try { pend = (await get("pending_phone_payments", "select=*&student_id=eq." + sid)).filter(x => isMar ? x.kind === "marathon" : x.kind !== "marathon"); } catch(e) {}
   let done = 0;
   for (const x of pend) { try { await rpc("mark_paid", { p_kind: x.kind, p_order: x.order_id }); done++; } catch(e) { toast("ההרשמה לא סומנה כשולמה: " + e.message); } }
@@ -5509,7 +5474,6 @@ $("lfRemind").addEventListener("change", async () => { $("clearRemind").hidden =
 const toLocalInput = (iso) => { if (!iso) return ""; const d = new Date(iso); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 16); };
 
 function fillLeadSelects(l){
-  fillSelect($("lfStatus"), L.statuses.filter(s => s.is_active || (l && s.id === l.status_id)).map(s => ({v:s.id, t:s.name})), "בחר");
   fillSelect($("lfSource"), L.sources.filter(s => s.is_active || (l && s.id === l.source_id)).map(s => ({v:s.id, t:s.name})), "בחר");
   fillSelect($("lfManager"), L.staff.map(s => ({v:s.id, t:s.full_name})), "ללא");
   $("fCityList").innerHTML = CONFIG.cities.map(c => `<option value="${esc(c)}"></option>`).join("");   // 5.19.72: עיר - מרשימה או הקלדה
@@ -5560,11 +5524,8 @@ function openLead(id){
   setSwitch("lfActive", l ? l.is_active : true); setSwitch("lfMailing", f.mailing_consent); setSwitch("lfCustomer", l && l.is_customer);
   $("lfStar").classList.toggle("on", !!(l && l.is_starred));
   $("lfTopic").value = (l && l.topic) || "ליד";
-  $("lfStatus").value = (l && l.status_id) || (L.statuses.find(x => x.name === "חדש") || {}).id || "";
   { const ro = !!CRS.ok; const ob = document.querySelector(".lf-old"); if (ob) ob.hidden = ro;   // 5.20.26 (נועה): גם בכרטיס חדש – בלי הסטטוס הישן; אחרי השמירה – "הוספה לקורס" (קורס, מצב, מקור)   // 5.20.13: בכרטיס קיים – לא מוצגים; בכרטיס חדש – בוחרים סטטוס ומקור (נכנסים לקורס)
-    $("lfStatus").disabled = ro; $("lfSource").disabled = ro; $("lfStatus").dataset.lock = $("lfSource").dataset.lock = ro ? "1" : ""; const n = document.querySelector(".lf-old-n"); if (n) n.hidden = !ro; }   // 5.20.3 (קובץ 142): בכרטיס קיים – מתעדכנים מהקורס
-  $("lfStatus").classList.add("status-big"); paintStatus($("lfStatus"), Number($("lfStatus").value));
-  [...$("lfStatus").options].forEach(o => { const c = statusColor(Number(o.value)); if (c) { o.style.background = c; o.style.color = txtOn(c); } else { o.style.background = "#fff"; o.style.color = "#222"; } });
+    $("lfSource").disabled = ro; $("lfSource").dataset.lock = ro ? "1" : ""; const n = document.querySelector(".lf-old-n"); if (n) n.hidden = !ro; }   // 5.20.3 (קובץ 142): בכרטיס קיים – מתעדכנים מהקורס
   $("lfSource").value = (l && l.source_id) || "";
   $("lfManager").value = (l && l.manager_id) || "";
   $("lfFilledBy").value = (l && l.filled_by) || "הורה";
@@ -5758,7 +5719,7 @@ async function loadLeadPay(l){
   // 5.19.158 (נועה): מוצג תמיד כשיש הרשמה שממתינה לתשלום (גם אם הסטטוס שונה ידנית)
   $("leadPay").innerHTML = `<div class="pay-box"><b>⏳ ממתין לתשלום טלפוני</b>${rows.map((x, i) => `<div class="row"><span>${pendWhat(x, l.student.id)}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">(ואז ${fmtMoney(x.monthly_amount)} לחודש)</span>` : ""}</span>
     <button type="button" class="btn small primary" data-paid="${i}">שולם</button></div>`).join("")}</div>`;
-  $("leadPay").querySelectorAll("[data-paid]").forEach(b => b.onclick = async () => { b.disabled = true; if (await markPaid(rows[Number(b.dataset.paid)])) { $("leadPay").innerHTML = ""; setTimeout(() => { const nl = L.leads.find(x => x.id === l.id); if (nl && editing && editing.id === l.id) { $("lfStatus").value = nl.status_id; paintStatus($("lfStatus"), nl.status_id); } }, 1500); } else b.disabled = false; });
+  $("leadPay").querySelectorAll("[data-paid]").forEach(b => b.onclick = async () => { b.disabled = true; if (await markPaid(rows[Number(b.dataset.paid)])) { $("leadPay").innerHTML = ""; setTimeout(() => { const nl = L.leads.find(x => x.id === l.id); if (nl && editing && editing.id === l.id) { } }, 1500); } else b.disabled = false; });
 }
 // 5.19.45: הטופס החתום (PDF) של עסקה - מרתון/הרשמה/חיוב חודשי: מטבלת החתימות (לפי טלפון ההורה + שם התלמיד/ה, הקרוב לתאריך התשלום);
 // תשלום אישי: מקישור התשלום ששולם (pay_link_pdf). r = שורת תשלום (kind, date, amount, student_id), l = הליד (אם ידוע)
@@ -5787,18 +5748,6 @@ async function txPdf(r, l){
 }
 const fnSafe = (t) => String(t || "").replace(/[\\/:*?"<>|]+/g, "").replace(/\s+/g, " ").trim();   // 5.19.48: שמות קבצים בעברית
 const txPdfBtn = (i) => `<button type="button" class="btn small tx-pdf" data-txpdf="${i}" title="הטופס החתום (PDF)">📄 טופס חתום</button>`;   // 5.19.57: לא ghost (נראה חלש על רקע בהיר)
-// 5.19.62 (נועה): ילד/ה עם הוראת קבע שעבר/ה לסטטוס שאינו "נרשם..." (למשל "פרש") - תזכורת + מעבר לתשלומים שלו/ה
-async function planWarn(sid, name, oldSt, newSt){
-  try {
-    if (!sid || ME.role === "instructor" || Number(oldSt || 0) === Number(newSt || 0)) return;
-    if (statusName(newSt).startsWith("נרשם")) return;
-    const plans = (await rpc("recurring_plans_list") || []).filter(p => Number(p.student_id) === Number(sid) && ["active", "failed", "creating"].includes(p.status));   // 5.19.67: מושהית = כבר נעצרה בריווחית (גם ביטול שם נקלט כ"מושהית") - בלי תזכורת
-    if (!plans.length) return;
-    const p = plans[0], amt = p.monthly_amount ? ` (${Number(p.monthly_amount).toLocaleString("he-IL")} ₪ לחודש)` : "";
-    const msg = `ל${name || "תלמיד/ה זה/ו"} יש ${plans.length > 1 ? plans.length + " הוראות קבע פעילות" : "הוראת קבע פעילה" + amt}.\nהסטטוס נשמר ("${statusName(newSt) || "ללא"}"), אבל ההוראה ממשיכה לחייב.\nכדי לעצור אותה – לבטל או להשהות את ההוראה בריווחית.`;
-    await uiDialog(msg, { ok: "הבנתי", single: true, danger: false });   // 5.19.64: עוצרים בריווחית - אין כפתור אצלנו
-  } catch(e) {}
-}
 // 5.19.41: תשלומים בכרטיס התלמיד/ה (קובץ 62.3: student_payments) - שורה מתקפלת עם קישור לכל חשבונית. למנהלים בלבד.
 // ---------- 5.19.66 (נועה): ילד/ה כפול/ה - חיפוש דומים, איחוד (קובץ 76), ומניעה בהוספה ידנית ----------
 // "אותו ילד" - אותם כללים כמו בטפסים (icredit-18): שם פרטי + נייד הילד/ה, או שם פרטי + משפחה + שם פרטי של הורה, או שם פרטי + טלפון הורה
@@ -5973,7 +5922,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
   if (rest) box.innerHTML = `<details class="lp-box"${open0 || rest.pend.length ? " open" : ""}><summary><b><span class="lp-ic" aria-hidden="true">💳</span> ${Object.keys(B).length > 1 ? "תשלומים נוספים" : "תשלומים"}</b> ${sumOf(rest)}</summary>${bodyOf(rest)}</details>`;
   const wire = (root) => {
   root.querySelectorAll("[data-lppaid]").forEach(b => b.onclick = async () => { b.disabled = true;
-    if (await markPaid(pend[Number(b.dataset.lppaid)])) { setTimeout(() => { if (editing && editing.id === l.id) { loadLeadPayments(l); loadLeadGroups(l.student.id); const nl = L.leads.find(x => x.id === l.id); if (nl) { $("lfStatus").value = nl.status_id; paintStatus($("lfStatus"), nl.status_id); } } }, 1500); } else b.disabled = false; });
+    if (await markPaid(pend[Number(b.dataset.lppaid)])) { setTimeout(() => { if (editing && editing.id === l.id) { loadLeadPayments(l); loadLeadGroups(l.student.id); const nl = L.leads.find(x => x.id === l.id); if (nl) { } } }, 1500); } else b.disabled = false; });
   root.querySelectorAll("[data-unpaid]").forEach(b => b.onclick = async () => { const x = paidRegs[Number(b.dataset.unpaid)];
     if (!await uiConfirm(`לבטל את הסימון "שולם"?\n${x.what}\nההרשמה תחזור ל"ממתין לתשלום".`, { danger: true })) return;
     b.disabled = true;
@@ -6003,7 +5952,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
           mEl.innerHTML = (x.paid_before ? "ההורה סימן \"שולם טלפונית\"" + (x.amount ? " · " : "") : "") + (x.amount ? fmtMoney(x.amount) : "") + (x.monthly_amount ? " + " + fmtMoney(x.monthly_amount) + " לחודש" : "");
           aEl.innerHTML = `<button type="button" class="btn small primary" data-stpaid="${i}">✔ שולם</button>`;
           aEl.querySelector("[data-stpaid]").onclick = async (e) => { const bt = e.currentTarget; bt.disabled = true;
-            if (await markPaid(x)) { setTimeout(() => { if (editing && editing.id === l.id) { loadLeadPayments(l); loadLeadGroups(l.student.id); const nl = L.leads.find(y => y.id === l.id); if (nl) { $("lfStatus").value = nl.status_id; paintStatus($("lfStatus"), nl.status_id); } } }, 1500); } else bt.disabled = false; }; }
+            if (await markPaid(x)) { setTimeout(() => { if (editing && editing.id === l.id) { loadLeadPayments(l); loadLeadGroups(l.student.id); const nl = L.leads.find(y => y.id === l.id); if (nl) { } } }, 1500); } else bt.disabled = false; }; }
         else if (ps.classList.contains("ok")) { const rg = b.regs.length ? paidRegs[b.regs[0]] : null, r1 = b.rows.map(i => rows[i]).filter(r => r.status === "אושר" && r.kind !== "חיוב חודשי").pop();
           mEl.textContent = rg ? "סומן ידנית · " + dm(rg.at) : r1 ? "אשראי · " + dm(r1.date) : ""; } });
     } };
@@ -6090,7 +6039,7 @@ async function loadLeadCancel(l){
     b.disabled = true;
     try { await rpc("approve_cancellation", { p_id: Number(b.dataset.capprove) }); if (L.cxl && l.student) { L.cxl.delete(l.student.id); const n = $("fCxlN"); if (n) n.textContent = L.cxl.size ? "(" + L.cxl.size + ")" : ""; } toast("הביטול אושר - הסטטוס עבר ל\"פרש\"");
           await loadLeads(); const nl = L.leads.find(x => x.id === l.id);
-          if (nl) { if (LEAD_DIRTY) { $("lfStatus").value = nl.status_id || ""; paintStatus($("lfStatus"), nl.status_id); editing = nl; loadLeadCancel(nl); } else openLead(nl.id); } }
+          if (nl) { if (LEAD_DIRTY) { editing = nl; loadLeadCancel(nl); } else openLead(nl.id); } }
     catch(e) { toast("לא נשמר: " + e.message); b.disabled = false; } });
   $("canNew").onclick = () => {
     const sch = (L.schools.find(x => x.id === l.student.school_id) || {});
@@ -6115,7 +6064,7 @@ async function loadLeadCancel(l){
       if ($("cnCrs") && $("cnCrs").value) body.course_member_id = Number($("cnCrs").value);
       try { await insert("cancellation_requests", body).catch(e => { if (body.course_member_id && /course_member_id/.test(e.message || "")) { delete body.course_member_id; return insert("cancellation_requests", body); } throw e; });
             toast("נוצר קישור לטופס ביטול - הסטטוס עבר ל\"בקשת ביטול\""); RG.can = null; loadLeadCancel(l);
-            loadLeads().then(() => { if (editing && editing.id === l.id) { const nl = L.leads.find(x => x.id === l.id); if (nl && $("lfStatus")) { $("lfStatus").value = nl.status_id; paintStatus($("lfStatus"), nl.status_id); } } }).catch(() => {}); }
+            loadLeads().then(() => { if (editing && editing.id === l.id) { const nl = L.leads.find(x => x.id === l.id);  } }).catch(() => {}); }
       catch(e) { $("cnErr").textContent = "לא נשמר: " + e.message; $("cnSave").disabled = false; }
     };
   };
@@ -6564,7 +6513,7 @@ async function openAsgPopup(l){
     body.innerHTML = (as.length ? as.map(a => `<div class="asg-pop-row"><span><b>${a.session.kind === "מרתון" ? "מרתון" : "יום " + esc(a.session.day) + "'"} ${rng(hm(a.session.start_time), hm(a.session.end_time))}</b> · ${esc((a.session.location && a.session.location.name) || "")}${a.subject ? ` · <span class="muted">${esc(a.subject)}</span>` : ""}${a.status && a.status !== "משובץ" ? ` <span class="asg-pill prop"><span>${esc(a.status === "ממתין" ? "מוצע" : a.status)}</span></span>` : ""}</span>
         <span><button type="button" class="btn small" data-ch="${a.id}">✎ שינוי</button></span></div><div class="lg-edit" data-ed="${a.id}" hidden></div>`).join("") : "<div class='muted'>לא משובץ/ת לקבוצה השנה.</div>")
       + `<button type="button" class="btn small primary" data-add style="margin-top:10px;">+ הוספה לקבוצה</button><div class="lg-edit" data-ed="new" hidden></div>`;
-    const opts = (ed) => ({ box: ed, statusId: l.status_id, city: leadCity(l), who, onDone: async () => { await loadLeads().catch(() => {}); const nl = L.leads.find(x => x.id === l.id); if (nl) l = nl; paint(); } });
+    const opts = (ed) => ({ box: ed, city: leadCity(l), who, onDone: async () => { await loadLeads().catch(() => {}); const nl = L.leads.find(x => x.id === l.id); if (nl) l = nl; paint(); } });
     body.querySelectorAll("[data-ch]").forEach(b => b.onclick = () => { const a = as.find(x => String(x.id) === b.dataset.ch); body.querySelectorAll(".lg-edit").forEach(x => { x.hidden = true; x.innerHTML = ""; });
       openAsgEditor(sid, a, as, opts(body.querySelector(`.lg-edit[data-ed="${a.id}"]`))); });
     body.querySelector("[data-add]").onclick = () => { body.querySelectorAll(".lg-edit").forEach(x => { x.hidden = true; x.innerHTML = ""; });
@@ -6577,7 +6526,6 @@ async function openAsgEditor(studentId, a, cur, opts){
   opts = opts || {};
   if (!opts.box) document.querySelectorAll("#leadGroups .lg-edit").forEach(x => { x.hidden = true; x.innerHTML = ""; });
   const box = opts.box || document.querySelector(`#leadGroups .lg-edit[data-ed="${a ? a.id : "new"}"]`);
-  const curStatus = () => opts.box ? opts.statusId : Number($("lfStatus").value);
   box.hidden = false; box.innerHTML = "<div class='muted'>טוען קבוצות...</div>";
   try { if (!LG_SESSIONS) LG_SESSIONS = await get("session_summary", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)); }
   catch(e) { box.innerHTML = "<div class='err'>לא ניתן לטעון את הקבוצות.</div>"; return; }
@@ -7364,7 +7312,7 @@ $("leadForm").addEventListener("submit", async (e) => {
     school_id: school ? school.id : null, school: school ? school.name : (editing ? editing.student.school : null), grade: nn($("sGrade").value), class_num: nn($("sClass").value),
     english_level: nn($("sEng").value), math_level: nn($("sMath").value) };
   if (!L.noTrack) student.track = nn($("sTrack").value);   // 5.19.157 (קובץ 127)
-  const lead = { status_id: $("lfStatus").value ? Number($("lfStatus").value) : null, source_id: $("lfSource").value ? Number($("lfSource").value) : null,
+  const lead = { source_id: $("lfSource").value ? Number($("lfSource").value) : null,
     manager_id: $("lfManager").value || null, filled_by: $("lfFilledBy").value, topic: $("lfTopic").value,
     is_active: $("lfActive").classList.contains("on"), is_starred: $("lfStar").classList.contains("on"), is_customer: $("lfCustomer").classList.contains("on"),
     remind_at: $("lfRemind").value ? new Date($("lfRemind").value).toISOString() : null, message: nn($("lfMessage").value) };
@@ -7379,8 +7327,6 @@ $("leadForm").addEventListener("submit", async (e) => {
       await patch("students", "id=eq." + editing.student.id, student);
       await patch("leads", "id=eq." + editing.id, lead);
       leadId = editing.id;
-      await regHowAsk(leadId, editing.status_id, lead.status_id);   // 5.19.137
-      await withdrawAsk(editing.student.id, [student.first_name, student.last_name].filter(Boolean).join(" "), editing.status_id, lead.status_id);   // 5.19.139
     } else {
       // 5.19.66 (נועה): ילד/ה שכבר קיים/ת (אותם כללים כמו בטפסים) - שואלים לפני שיוצרים כרטיס חדש
       const dups = dupFind(student, family, null);
@@ -7400,7 +7346,6 @@ $("leadForm").addEventListener("submit", async (e) => {
       if (created.length) { leadId = created[0].id; await patch("leads", "id=eq." + leadId, lead); }
       else { leadId = (await insert("leads", Object.assign({ family_id: famId, student_id: st.id }, lead)))[0].id; }
       if (NEWCRS) { try { await NEWCRS.save(NEW_ST); await crsLoad(true); } catch(e3) { toast("הכרטיס נשמר, אבל הרישום לקורס לא: " + e3.message + " – אפשר להוסיף ב\"+ הוספה לקורס\""); } }
-      else await regHowAsk(leadId, null, lead.status_id);   // 5.19.137
     }
     await loadLeads();
     toast("נשמר");
@@ -12399,7 +12344,7 @@ async function boot(){
   afterAuthLink();
   resumeView();
 }
-$("lfStatus").addEventListener("change", e => paintStatus(e.target, Number(e.target.value)));
+
 // ---------- 🐞 דיווח על בעיה (קובץ 49) ----------
 // שגיאות אחרונות נשמרות כדי לצרף לדיווח
 const ERRS = [];
