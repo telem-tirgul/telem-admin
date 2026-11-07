@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.49">
+<meta name="app-version" content="5.21.50">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4651,15 +4651,12 @@ async function crsSeasonEdit(x){
 // קורס חדש (בלי ילדים) – למשל הכנה לשנה"ל בבית ספר חדש. מרתון נוצר לבד ממסך המרתונים.
 function crsCourseNew(){ crsAddDlg(null); }
 
+function leadNotesSet(notes){ L.notesCount = {}; L.notes = {}; notes.forEach(n => { L.notesCount[n.lead_id] = (L.notesCount[n.lead_id] || 0) + 1; (L.notes[n.lead_id] = L.notes[n.lead_id] || []).push(n); }); }
 async function loadLeads(){
   $("countLine").textContent = "טוען...";
   const t0 = Date.now();
   // 5.19.7: השנים הקודמות (student_history - הרבה שורות) נטענות ברקע, אחרי שהרשימה כבר מוצגת
-  if (!L.histP) L.histP = getAll("student_history", "select=student_id,school_year,year_start,status&student_id=not.is.null&order=year_start").catch(() => [])
-    .then(hist => { L.hist = {}; hist.forEach(h => (L.hist[h.student_id] = L.hist[h.student_id] || []).push(h)); L.histReady = true;
-      // הרשימה כבר מוצגת - מוסיפים את סימני "בעבר" (אם לא עורכים משהו בטבלה באותו רגע)
-      if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads();
-      return L.hist; });
+  // נועה 7.11 (מדידה: 7.8 שניות עד הרשימה): השנים הקודמות וההערות – רק אחרי שהרשימה הגיעה, ברקע (קודם התחרו בה על הרשת)
   if (!L.hist) L.hist = {};
   // נועה 6.11 (מהירות): גם מועדי המרתונים וההודעות על השיבוץ – במקביל לרשימה (קודם אחריה, אחד אחרי השני)
   const marSesP = get("sessions", "select=marathon_id,meeting_dates&kind=eq." + encodeURIComponent("מרתון") + "&marathon_id=not.is.null"); marSesP.catch(() => {});
@@ -4670,7 +4667,7 @@ async function loadLeads(){
       .catch(e => { const m = String(e && e.message);   // 5.19.157: לפני קובץ 127 אין עמודת track – בלעדיה
         if (/\btrack\b/.test(m.replace(/tracking/g, ""))) { LEAD_SELECT = LEAD_SELECT.replace(",track,", ","); L.noTrack = true; return getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.true&order=updated_at.desc,id.desc"); }
         return /tracking/.test(m) ? getAll("leads", "select=" + LEAD_SELECT.replace("tracking,", "") + "&is_active=is.true&order=updated_at.desc,id.desc") : Promise.reject(e); }),
-    getAll("notes", "select=id,lead_id,body,created_at&order=created_at"),
+    Promise.resolve(null),
     getAll("assignments", "select=id,student_id,status,arrival_time,personal_end,ends_on,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")
       .catch(() => getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")).catch(() => []),
     // 5.19.41: גם מזהה, קבוצה ותשלום (לסימון "ממתין לתשלום" בקבוצה ובנוכחות)
@@ -4679,6 +4676,13 @@ async function loadLeads(){
     MASG_Q()
   ]);
   callCount(); inboxPoll(true);
+  if (!L.histP) L.histP = getAll("student_history", "select=student_id,school_year,year_start,status&student_id=not.is.null&order=year_start").catch(() => [])
+    .then(hist => { L.hist = {}; hist.forEach(h => (L.hist[h.student_id] = L.hist[h.student_id] || []).push(h)); L.histReady = true;
+      // הרשימה כבר מוצגת - מוסיפים את סימני "בעבר" (אם לא עורכים משהו בטבלה באותו רגע)
+      if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads();
+      return L.hist; });
+  if (!L.notesP) L.notesP = getAll("notes", "select=id,lead_id,body,created_at&order=created_at").then(ns => { L.notesP = null; leadNotesSet(ns);
+      if (currentView === "leads" && !$("view-leads").hidden && typeof updSafe === "function" && updSafe()) renderLeads(); }).catch(() => { L.notesP = null; });
   L.pendReg = {}; if (ME.role !== "instructor") get("pending_phone_payments", "select=kind,order_id,student_id,first_name,last_name,what,amount&kind=eq.registration")
     .then(r => { L.pendReg = {}; r.forEach(x => { L.pendReg[x.student_id] = x; }); }).catch(() => {});
   // 5.19.143 (נועה 26.10): 🏁 ליד הסטטוס – רק מרתונים שעוד לא עברו (עד 14 יום אחרי המבחן / המפגש האחרון); מרתון של שנה שעברה – לא
@@ -4704,7 +4708,7 @@ async function loadLeads(){
   // 5.19.104 (נועה): הלא פעילים – רק כשצריך (שנים קודמות / בלי "רק פעילים" / פתיחת כרטיס לא פעיל); במחשב גם ברקע אחרי כמה שניות. בנייד – לא אוטומטית
   L.inactReady = false; L.inactP = null;
   if (!isMobile()) setTimeout(() => { if (L.loadedAt === t0) ensureInact(); }, 5000);
-  L.notesCount = {}; L.notes = {}; notes.forEach(n => { L.notesCount[n.lead_id] = (L.notesCount[n.lead_id] || 0) + 1; (L.notes[n.lead_id] = L.notes[n.lead_id] || []).push(n); });
+  if (notes) leadNotesSet(notes); else if (!L.notes) { L.notes = {}; L.notesCount = {}; }
   if (currentView === "inbox" && typeof renderInbox === "function") setTimeout(() => renderInbox(false), 0);   // 5.19.124: ההתראות – שמות לחיצים מיד כשהכרטיסים נטענו
 }
 function ensureInact(){
