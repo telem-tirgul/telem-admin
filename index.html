@@ -3538,11 +3538,15 @@ async function api(method, path, body, extraHeaders){
 const get = (table, q) => api("GET", "/rest/v1/" + table + "?" + q);
 // השרת מחזיר עד 1000 שורות בכל פעם - טוענים בחלקים עד הסוף
 // 4 חלקים במקביל (במקום אחד אחרי השני) - טעינה מהירה יותר של טבלאות גדולות
+// נועה 7.11 (מהירות): בפעם הראשונה – 4 עמודים במקביל; אחר כך – רק כמה שצריך לפי מספר השורות בפעם הקודמת
+// (בכניסה היו ~15 בקשות לעמודים ריקים שהאטו את רשימת התלמידים). התוצאה זהה – ממשיכים כל עוד עמוד מלא
+const GA_N = (() => { try { return JSON.parse(localStorage.getItem("telem_ga_n") || "{}") || {}; } catch(e) { return {}; } })();
 async function getAll(table, q){
-  const out = [], step = 1000, batch = 4;
-  for (let off = 0; ; off += step * batch) {
+  const out = [], step = 1000, key = table + "|" + q.replace(/=(eq|gte|lte|gt|lt|in)\.[^&]*/g, "").slice(0, 120), known = GA_N[key];
+  let batch = known == null ? 4 : Math.min(6, Math.floor(known / step) + 1);
+  for (let off = 0; ; off += step * batch, batch = 4) {
     const parts = await Promise.all(Array.from({ length: batch }, (_, i) => get(table, q + "&limit=" + step + "&offset=" + (off + i * step))));
-    for (const part of parts) { out.push(...part); if (part.length < step) return out; }
+    for (const part of parts) { out.push(...part); if (part.length < step) { if (GA_N[key] !== out.length) { GA_N[key] = out.length; try { localStorage.setItem("telem_ga_n", JSON.stringify(GA_N)); } catch(e) {} } return out; } }
   }
 }
 const patch = (table, filter, v) => api("PATCH", "/rest/v1/" + table + "?" + filter, v, { "Prefer": "return=minimal" });
