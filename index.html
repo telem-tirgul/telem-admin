@@ -3950,7 +3950,7 @@ const ASG_Q = () => getAll("assignments", "select=id,student_id,status,arrival_t
 // רק מרתונים שעוד לא עברו (עד 14 יום אחרי המפגש האחרון).
 const MASG_Q = () => getAll("assignments", "select=student_id,session_id,session:sessions!inner(id,kind,meeting_dates,time_label,start_time,end_time,marathon:marathons(name,city,school,event_date))&session.kind=eq." + encodeURIComponent("מרתון") + "&status=eq." + encodeURIComponent("משובץ")).catch(() => null);
 function setMarAsg(rows){
-  if (!rows) return; L.marAsg = {}; const lim = new Date(Date.now() - 14 * 864e5).toISOString().slice(0, 10);
+  if (!rows) return; L.marAsg = {}; const lim = todayIL();   // נועה 7.11 (#300): מרתון שהמפגש האחרון שלו עבר – השיבוץ לא מוצג בטבלה (הקורס כבר "נרשם בעבר")
   rows.forEach(a => { const se = a.session || {}, m = se.marathon || {}, ds = (se.meeting_dates || []).concat(m.event_date ? [m.event_date] : []).filter(Boolean).sort();
     const last = ds[ds.length - 1]; if (last && last < lim) return;
     (L.marAsg[a.student_id] = L.marAsg[a.student_id] || []).push({ session_id: a.session_id, name: m.name || "מרתון", school: m.school || "", city: m.city || "", date: ds[0] || "",
