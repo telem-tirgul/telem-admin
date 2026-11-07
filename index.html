@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.48">
+<meta name="app-version" content="5.21.49">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5526,12 +5526,12 @@ function openLead(id){
   $("leadGroups").textContent = "";
   setLeadEdit(!(l && LEAD_MOB())); setLeadDirty(false);   // 5.19.23: בנייד נפתח לצפייה; "✎ עריכה" פותח את הטופס
   go("lead");
-  renderTrack(l); $("leadPay").innerHTML = ""; $("leadPayments").innerHTML = ""; $("leadCancel2").innerHTML = "";
+  parkTrack(); renderTrack(l); $("leadPay").innerHTML = ""; $("leadPayments").innerHTML = ""; $("leadCancel2").innerHTML = "";
   leadQuick(l ? l.student : null, null);
   $("leadLoading").hidden = !l;   // 5.21.4 (נועה): "טוען…" עד שהקורסים והשיבוצים עולים
   if (l) { loadNotes(l.id); loadLeadGroups(l.student.id); loadLeadSig(l); loadLeadHist(l); loadLeadLog(l); loadLeadExams(l); loadLeadPay(l); loadLeadPayments(l); loadLeadCancel(l); loadLeadTs(l); loadLeadCourses(l); NEWCRS = null; } else { $("leadSig").textContent = ""; $("leadHist").textContent = ""; $("leadTs").textContent = "";
     // 5.20.26 (נועה): כרטיס חדש – הקורס (חובה) בעמודת הקורסים, בלי חלון קופץ
-    NEWCRS = null; if ($("lcAddSlot")) $("lcAddSlot").innerHTML = ""; $("leadGroups").innerHTML = "<div id='newCrs'><div class='muted'>טוען…</div></div>";
+    NEWCRS = null; if ($("lcAddSlot")) $("lcAddSlot").innerHTML = ""; parkTrack(); $("leadGroups").innerHTML = "<div id='newCrs'><div class='muted'>טוען…</div></div>";
     (async () => { try { if (await crsLoad()) { const box = $("newCrs"); if (box && !editing) NEWCRS = await crsAddDlg(null, box); } else $("leadGroups").innerHTML = ""; } catch(e) { $("leadGroups").innerHTML = ""; } })(); }
 }
 let NEWCRS = null, NEW_ST = null;
@@ -5977,6 +5977,11 @@ function canPaint(sid){ const rows = CAN_ROWS[sid]; const g = $("leadGroups"); i
 }
 // 5.20.23 (נועה): טופס הביטול נפתח בתוך הקורס (רק הטפסים של הקורס הזה); השורה המקופלת למטה – רק לטפסים ישנים בלי קורס
 let CAN_ONLY = null;
+// נועה 7.11 (באג: "הקורסים לא נטענים" – כרטיס מההתראות): תיבת המעקב יושבת בתוך הקורסים; כשהם נמחקו מסביבה (כרטיס חדש / תקלה)
+//   היא נעלמה, וכל כרטיס אחר כך נתקע ב"טוען…". עכשיו – מחזירים אותה לחניה לפני כל מחיקה, ואם חסרה – יוצרים מחדש
+function parkTrack(){ const pk = $("trackPark"); if (!pk) return; let tb = $("trackBox");
+  if (!tb) { pk.insertAdjacentHTML("beforeend", '<div class="track-box tb-side" id="trackBox" hidden></div>'); tb = $("trackBox"); if (editing && typeof renderTrack === "function") try { renderTrack(editing); } catch(e) {} }
+  if (tb.parentElement !== pk) pk.appendChild(tb); }
 function canPark(){ const c = $("leadCancel2"), home = $("canHome"); if (!c || !home) return; document.querySelectorAll(".lg-can-panel").forEach(p => p.hidden = true); if (c.parentElement !== home) home.appendChild(c); CAN_ONLY = null; canFilter(); }
 function canFilter(){ const c = $("leadCancel2"); if (!c) return; const g = $("leadGroups"), inCrs = new Set([...(g ? g.querySelectorAll("[data-cnm]") : [])].map(x => x.dataset.cnm));
   let rest = 0; c.querySelectorAll(".can-row").forEach(r => { const cm = r.dataset.cm || ""; const show = CAN_ONLY ? cm === String(CAN_ONLY) : !inCrs.has(cm); r.hidden = !show; if (!CAN_ONLY && show) rest++; });
@@ -6281,7 +6286,7 @@ async function loadLeadGroups(studentId){
   if (editing && editing.student && editing.student.id !== studentId) return;
   const tok = ++LG_TOK, stale = () => tok !== LG_TOK || !!(editing && editing.student && editing.student.id !== studentId);
   if (ME.role !== "instructor") crsLoad(false, true).then(ok => ok && crsEnsureStudent(studentId)).catch(() => {});   // 5.21.4: הקורסים נטענים במקביל לשיבוצים
-  if ($("trackPark") && $("trackBox").parentElement !== $("trackPark")) $("trackPark").appendChild($("trackBox"));
+  parkTrack();
   canPark();   // 5.20.18: המעקב – חוזר לחניה לפני שמציירים מחדש
   $("leadGroups").innerHTML = "<div class='muted'>טוען...</div>"; delete $("leadAtt").dataset.sum; $("leadAtt").textContent = "";
   try {
@@ -6312,7 +6317,7 @@ async function loadLeadGroups(studentId){
           <button type="button" class="btn small" data-gs="${se.id}" data-city="${esc(se.city)}">בלוח<span class="lg-bl"> הקבוצות</span> ←</button></div>
         <div class="lg-edit" data-ed="${a.id}" hidden></div></div>`;
     };
-    { const h = await crsGroupsHtml(studentId, cur, lgCard); if (stale()) return; $("leadGroups").innerHTML = h; $("leadLoading").hidden = true;
+    { const h = await crsGroupsHtml(studentId, cur, lgCard); if (stale()) return; parkTrack(); $("leadGroups").innerHTML = h; $("leadLoading").hidden = true;
       const rb = $("leadGroups").querySelector("[data-crsretry]"); if (rb) rb.onclick = () => loadLeadGroups(studentId); }   // 5.19.162: פרטי הקורס מעל השיבוצים
     { const sl = $("leadGroups").querySelector(".lg-reg .lg-trk-slot"); if (sl) sl.replaceWith($("trackBox")); else if (ME.role === "instructor" || !CRS.ok) $("leadGroups").prepend($("trackBox")); }   // 5.20.18 (נועה): המעקב – בתוך הקורס של התרגול השוטף (אין קורס כזה – בלי מעקב בכרטיס)
     canPaint(studentId); crsTrackWire(studentId);
@@ -6363,7 +6368,7 @@ async function loadLeadGroups(studentId){
       if (ed.querySelector("[data-ptx]")) ed.querySelector("[data-ptx]").onclick = () => save(null, null);
       ed.querySelector("[data-ptc]").onclick = () => { ed.hidden = true; ed.innerHTML = ""; }; });
     $("lgAddBtn").onclick = () => openAsgEditor(studentId, null, cur);
-  } catch(e) { console.error("loadLeadGroups", e); if (tok === LG_TOK) { $("leadLoading").hidden = true; $("leadGroups").innerHTML = `<div class="card err">הקורסים והשיבוצים לא נטענו (${esc(e && e.message || String(e))}). <button type="button" class="btn small" data-lgretry>לנסות שוב</button></div>`; const rb = $("leadGroups").querySelector("[data-lgretry]"); if (rb) rb.onclick = () => loadLeadGroups(studentId); } }
+  } catch(e) { console.error("loadLeadGroups", e); if (tok === LG_TOK) { $("leadLoading").hidden = true; parkTrack(); $("leadGroups").innerHTML = `<div class="card err">הקורסים והשיבוצים לא נטענו (${esc(e && e.message || String(e))}). <button type="button" class="btn small" data-lgretry>לנסות שוב</button></div>`; const rb = $("leadGroups").querySelector("[data-lgretry]"); if (rb) rb.onclick = () => loadLeadGroups(studentId); } }
   try {
     const AT_SEL = "select=lesson_date,present,did_math,did_english,session:sessions(day,time_label,%K%location:locations(name))&student_id=eq." + studentId + "&order=lesson_date.desc&limit=60";
     const at = await get("attendance", AT_SEL.replace("%K%", "marathon_id,school_year,")).catch(() => get("attendance", AT_SEL.replace("%K%", "")));
