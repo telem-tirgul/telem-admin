@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.46">
+<meta name="app-version" content="5.21.47">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5256,6 +5256,20 @@ $("leadsTbl").addEventListener("change", async (e) => {
 
 // 5.19.139 (נועה 25.10): מעבר ל"פרש" – עד מתי מגיע/ה? מסירים עכשיו / עד סוף החודש / עד סוף החודש הבא (ends_on, קובץ 116).
 // השיבוצים בקבוצות השוטפות של השנה (משובץ / ממתין). עם תאריך – נשארים (נוכחות, "תלם שלי") ויורדים לבד בלילה שאחרי.
+// נועה 7.11 (#2986): מי שפרש/ה מהתרגולים השוטפים ורשום/ה (שולם) למרתון שעוד לא נגמר – חייב להישאר בסטטוס "נרשם מרתון מת."
+async function withdrawKeepMar(sid, name){
+  const regs = await get("marathon_registrations", "select=marathon_id,marathon:marathons!inner(name,cancelled_at)&student_id=eq." + sid + "&status=eq." + encodeURIComponent("שולם") + "&marathon.cancelled_at=is.null");
+  if (!regs.length) return;
+  const ses = await get("sessions", "select=marathon_id,meeting_dates&marathon_id=in.(" + [...new Set(regs.map(r => r.marathon_id))].join(",") + ")");
+  const t = todayIL(), live = regs.find(r => ses.some(x => x.marathon_id === r.marathon_id && (x.meeting_dates || []).some(d => d >= t)));
+  if (!live) return;
+  const st = (L.statuses || []).find(x => x.name === "נרשם מרתון מת."); if (!st) return;
+  await patch("leads", "student_id=eq." + sid, { status_id: st.id });
+  const l = (L.leads || []).find(x => x.student_id === sid); if (l) { l.status_id = st.id; l.updated_at = new Date().toISOString(); }
+  if (editing && editing.student && editing.student.id === sid) { editing.status_id = st.id; if ($("lfStatus")) { $("lfStatus").value = st.id; paintStatus($("lfStatus"), st.id); } }
+  if (currentView === "leads") { const sel = document.querySelector(`#leadsTbl tr[data-id="${l ? l.id : ""}"] [data-act="status"]`); if (sel) { sel.value = st.id; paintStatus(sel, st.id); } }
+  await uiAlert(`${name || "התלמיד/ה"} רשום/ה ל"${(live.marathon && live.marathon.name) || "מרתון"}" – הסטטוס נשאר "נרשם מרתון מת." (ולא "פרש").\nההסרה מהתרגולים השוטפים – בשאלה הבאה.`);
+}
 async function withdrawAsk(sid, name, oldId, newId){
   // 5.19.157 (נועה 29.10): חזר/ה מ"פרש" (החליט/ה להישאר) – הסימון "עד…" בקבוצות השוטפות יורד לבד
   if (sid && ME.role !== "instructor" && statusName(oldId) === "פרש" && statusName(newId) !== "פרש" && newId !== oldId) {
@@ -5268,6 +5282,7 @@ async function withdrawAsk(sid, name, oldId, newId){
     return;
   }
   if (!sid || ME.role === "instructor" || statusName(newId) !== "פרש" || newId === oldId) return;
+  try { await withdrawKeepMar(sid, name); } catch(e) {}   // נועה 7.11: פרש מהשוטף אבל רשום/ה למרתון – נשאר "נרשם מרתון"
   let rows = [];
   try { rows = await get("assignments", "select=id,status,ends_on,session:sessions!inner(id,day,start_time,kind,school_year,location:locations(name))&student_id=eq." + sid + "&session.kind=eq." + encodeURIComponent("שוטף") + "&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear)); } catch(e) { return; }
   if (!rows.length) return;
