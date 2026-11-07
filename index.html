@@ -1789,6 +1789,9 @@ button.ph-m{ font:inherit; font-weight:700; color:var(--accent); background:none
 .crs-det{ padding:4px 6px; } .crs-dl{ display:flex; flex-wrap:wrap; gap:4px 18px; font-size:13.5px; align-items:center; } .crs-ed{ margin-inline-start:auto; } .crs-dl b{ color:var(--ink-soft); } .crs-det .crs-lk{ margin-top:6px; padding-top:6px; } .crs-det .crs-lk-h{ display:none; } .crs-det .crs-lk-r{ justify-content:flex-start; gap:12px; margin:3px 0; } .crs-det .crs-lk-r > span:first-child{ min-width:120px; }
 @media (max-width:760px){ .crs-kids .bt{ display:none; } } .crs-x, .crs-drawer .crs-back{ display:none !important; } .crs-drawer .crs-mt{ margin-top:0; }
 .crs-src{ font:inherit; font-size:11.5px; font-weight:700; border:1px solid var(--border); background:#fff; color:var(--ink-soft); border-radius:999px; padding:0 8px; line-height:1.7; cursor:pointer; white-space:nowrap; } .crs-src.none{ border-style:dashed; }
+#view-lead .track-box.tb-empty, .lg-cmtrk.lg-trk0{ border:none !important; background:none !important; padding:0 !important; margin:4px 0 0 !important; box-shadow:none !important; min-height:0 !important; }
+.lg-trk0-b{ background:none; border:1px dashed #DCCFC2; border-radius:999px; padding:3px 12px; font-size:12.5px; color:var(--ink-soft); cursor:pointer; font-family:inherit; } .lg-trk0-b:hover{ border-color:var(--accent); color:var(--accent); }
+.lg-sig-slot:empty{ display:none; } .lg-sig-r{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; margin:6px 0 0; padding:6px 10px; border:1px dashed #E2D8CC; border-radius:10px; background:#FDFBF8; } .lg-sig-r > span{ flex:1; } .lg-sig-img{ height:26px; max-width:90px; object-fit:contain; background:#fff; border-radius:4px; }
 .lg-crs-r{ display:inline-flex; gap:6px; align-items:center; } .lc-old > summary{ cursor:pointer; color:var(--ink-soft); font-size:13px; margin:10px 0 4px; } .lc-old-r{ display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; font-size:13px; padding:4px 10px; border-bottom:1px dashed var(--border); }
 .pf-forms{ border:1px solid var(--border); border-radius:10px; padding:8px 12px; background:#fff; margin-bottom:6px; } .pf-r{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:4px 0; border-bottom:1px dashed var(--border); } .pf-r:last-child{ border-bottom:0; } .pf-n{ min-width:150px; } .pf-r .lk2-cell{ margin-inline-start:auto; }
 .ftx-tbl{ margin-bottom:14px; } .ftx-gen{ margin-bottom:12px; grid-column:1 / -1; width:100%; box-sizing:border-box; padding:10px 14px; } .ftx-gen-h{ margin-bottom:6px; } #scGeneral{ margin-bottom:12px; padding:10px 14px; }
@@ -1858,7 +1861,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .lg-crs-box > .lg-crs .lg-crs-l{ font-size:15px; } .lg-ic{ display:inline-flex; vertical-align:-4px; margin-inline-end:4px; } .lg-ic svg{ width:19px; height:19px; }
 .lg-crs .lc-sign{ flex-basis:100%; margin:2px 0 0; } .lg-crs .lc-sign:has(.lc-sign-st:empty){ flex-basis:auto; margin:0; } .lg-crs-box .lg-add-row{ margin-top:8px; }
 /* 5.21.9: פס השלבים בקורס */
-.stp-box{ border-top:1px dashed #E6DDD3; margin-top:10px; padding-top:8px; }
+.stp-box{ margin-top:10px; } .stp-box .stp-hd{ justify-content:flex-end; margin:6px 0 2px; } .stp-sum{ font-size:13px; font-weight:600; }
 .stp-hd{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px; margin-bottom:2px; } .stp-hd .lg-can{ margin:0; }
 .stp{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); }
 .stp-s{ position:relative; padding:22px 4px 4px; text-align:center; font-size:13px; color:#888; min-width:0; }
@@ -4169,9 +4172,14 @@ document.addEventListener("click", async (ev) => { const b = ev.target.closest &
   const v = await uiChoose("מקצוע:", ["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"].map(x => ({ v: x, t: x + (x === m.subject ? " (עכשיו)" : "") }))); if (!v || v === m.subject) return;
   const body = { subject: v, updated_at: new Date().toISOString() };
   try { await patch("course_members", "id=eq." + m.id, body); Object.assign(m, body); toast("נשמר"); if (currentView === "leads") renderLeads(); if (editing && editing.student && editing.student.id === m.student_id) loadLeadGroups(m.student_id); } catch(e) { toast("לא נשמר: " + e.message); } }, true);
+// נועה 7.11 (#2986): "פרש" / "לא מעוניין" / "בוטל" על מרתון שעוד לא עבר, כשהתלמיד/ה רשום/ה אליו – שואלים (בטבלה שתי שורות סטטוס, קל להתבלבל עם השוטף)
+async function marLeaveOk(m, v){ const c = CRS.byId[m.course_id] || {}; if (!c.marathon_id || m.status !== "רשום" || !["פרש", "לא מעוניין", "בוטל", "בקשת ביטול"].includes(v) || crsFin(c)) return true;
+  const o = (CRS.mar || {})[c.marathon_id] || {};
+  return uiConfirm(`זה המרתון${o.name ? " – " + o.name : ""}${o.grade ? " (שכבת " + o.grade + "')" : ""}, לא התרגול השוטף.\nהתלמיד/ה רשום/ה אליו. לסמן "${v}" במרתון?`); }
 const SUBJ_CLS = (x) => x === "מתמטיקה ואנגלית" ? "sj-both" : x === "מתמטיקה" ? "sj-math" : x === "אנגלית" ? "sj-eng" : "";
 document.addEventListener("change", async (ev) => { const el = ev.target; if (!el || !el.matches || !el.matches("select[data-cmst], select[data-cmsub], select[data-cmsrc], select[data-cmtrk]")) return;
   const id = Number(el.dataset.cmst || el.dataset.cmsub || el.dataset.cmsrc || el.dataset.cmtrk), m = Object.values(CRS.cm).flat().find(x => x.id === id); if (!m) return;
+  if (el.dataset.cmst && !(await marLeaveOk(m, el.value))) { el.value = m.status; return; }   // נועה 7.11 (#2986)
   // מסלול "מת.+אנג." → המקצוע = מתמטיקה ואנגלית (בלי לבחור)
   const body = el.dataset.cmst ? { status: el.value } : el.dataset.cmsub ? { subject: el.value || null } : el.dataset.cmtrk ? Object.assign({ track: el.value || null }, el.value === "double" ? { subject: "מתמטיקה ואנגלית" } : m.subject === "מתמטיקה ואנגלית" ? { subject: null } : {}) : { source_id: el.value ? Number(el.value) : null };
   el.disabled = true;
@@ -4182,6 +4190,7 @@ document.addEventListener("change", async (ev) => { const el = ev.target; if (!e
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-crsm]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
   const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.crsm)); if (!m) return; const c = CRS.byId[m.course_id] || {};
   const v = await uiChoose(crsShort(c, true) + "\nמצב בקורס:", crsStList().map(x => x.name).map(x => ({ v: x, t: (CRS_IC[x] || "") + " " + crsStOf(x).label + (x === m.status ? " (עכשיו)" : "") }))); if (!v || v === m.status) return;
+  if (!(await marLeaveOk(m, v))) return;   // נועה 7.11 (#2986)
   try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); m.status = v; toast("נשמר"); crsAfterStatus(m.student_id).then(() => marAskGroup(m)); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain") || b.closest(".crs-drawer")) { renderCrsCourses(); crsDrawerRe(); } else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
 // חסרה חתימה על התנאים (רשום / ממתין במחזור פעיל, signed = false)
 // 5.19.173 (נועה): נרשם / לקחת אשראי בלי חתימה על התנאים (גם מי שסומן "נרשם" ידנית) – מסומן בטבלה ובכרטיס
@@ -5621,12 +5630,15 @@ async function renderTrack(l, editMode){
   if (box.dataset.tok !== tok) return;   // בינתיים נפתח כרטיס אחר
   const pts = asg.filter(a => a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time));
   if (!editMode) {
+    box.classList.toggle("tb-empty", !txt && !pts.length);   // נועה 7.11: בלי מעקב – שורה קטנה
+    if (!txt && !pts.length) { box.innerHTML = `<button type="button" class="lg-trk0-b" id="tbEdit" title="בקשות והוראות של ההורים, למשל &quot;אסור לשחרר מוקדם&quot;, ושעה אישית – המתרגלים רואים בדף הנוכחות">📌 + מעקב</button>`; $("tbEdit").onclick = () => renderTrack(l, true); return; }
     box.innerHTML = `<div class="tb-h"><span>📌 מעקב ${txt || pts.length ? "" : "<span class='muted' style='font-weight:500'>- אין (בקשות והוראות של ההורים, למשל \"אסור לשחרר מוקדם\", ושעה אישית)</span>"}</span><button type="button" class="btn small" id="tbEdit">${txt || pts.length ? "✎ עריכה" : "+ הוספה"}</button></div>
       ${txt ? `<div class="tb-txt">${esc(txt)}</div>` : ""}
       ${pts.map(a => `<div class="tb-pt">⏰ ${tbGrp(a)} – שעה אישית <b>${rng(tbHm(a.arrival_time), tbHm(a.personal_end) || addMin(tbHm(a.arrival_time), 45))}</b></div>`).join("")}`;
     $("tbEdit").onclick = () => renderTrack(l, true);
     return;
   }
+  box.classList.remove("tb-empty");
   box.innerHTML = `<div class="tb-h"><span>📌 מעקב <span class="muted" style="font-weight:500">- המתרגלים רואים את זה בדף הנוכחות</span></span></div>
     <textarea id="tbText" maxlength="2000">${esc(txt)}</textarea>
     ${asg.length ? `<div class="tb-pts"><div class="lbl">⏰ שעה אישית <span class="muted" style="font-weight:400">(רק אם שונה משעת הקבוצה)</span></div>
@@ -6065,6 +6077,15 @@ async function loadNotes(leadId){
   } catch(e) { $("notesList").innerHTML = "<li class='err'>לא ניתן לטעון הערות.</li>"; }
 }
 // חתימות מטפסי ההרשמה באתר (לפי טלפון ההורה ושם התלמיד/ה)
+let LEAD_SIGS = null;
+async function sigPdfDown(id){ const r = await get("signatures", "select=pdf,kind,student_first,student_last,signed_at&id=eq." + id);
+  if (!r.length || !r[0].pdf) { toast("אין PDF להרשמה הזאת (נשלחה לפני שנוסף)"); return; }
+  const a = document.createElement("a"); a.href = pdfUrl(r[0].pdf); a.download = (r[0].kind === "marathon" ? "טופס הרשמה למרתון - " : r[0].kind === "terms" ? "אישור תנאי התקשרות - " : "טופס הרשמה - ") + fnSafe((r[0].student_first || "") + " " + (r[0].student_last || "")) + " - " + fmtDM(String(r[0].signed_at || "").slice(0, 10)) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
+// נועה 7.11: הטפסים החתומים – בתוך הקורס (שורה קטנה: ✍ טופס חתום · תאריך · ⬇ PDF)
+function sigSlotsPaint(){ const g = $("leadGroups"); if (!g || !LEAD_SIGS || !editing || !editing.student || editing.student.id !== LEAD_SIGS.sid) return;
+  g.querySelectorAll("[data-sgcm]").forEach(sl => { const rs = LEAD_SIGS.byCm[sl.dataset.sgcm] || [];
+    sl.innerHTML = rs.map(r => `<div class="lg-sig-r"><span>✍ <b>טופס חתום</b> <span class="muted">· ${esc(fmtDate(r.signed_at))}</span></span>${r.image ? `<img src="${esc(r.image)}" alt="חתימה" class="lg-sig-img">` : ""}<button type="button" class="btn small" data-sgdl="${r.id}">⬇ PDF</button></div>`).join("");
+    sl.querySelectorAll("[data-sgdl]").forEach(b => b.onclick = async () => { b.disabled = true; try { await sigPdfDown(b.dataset.sgdl); } catch(e) { toast("לא ניתן להוריד: " + e.message); } b.disabled = false; }); }); }
 async function loadLeadSig(l){
   const f = l.student.family || {}, phones = [f.parent1_phone, f.parent2_phone].map(digits).filter(Boolean);
   delete $("leadSig").dataset.sum; $("leadSig").textContent = phones.length ? "טוען..." : "אין";
@@ -6081,11 +6102,19 @@ async function loadLeadSig(l){
     // 5.19.41: כרטיס לכל טופס חתום (סוג, תאריך, החתימה, הורדה); בשורה המקופלת - תקציר קצר
     const kTxt = (r) => r.kind === "marathon" ? "טופס הרשמה למרתון" : r.kind === "terms" ? "אישור תנאי התקשרות" : r.kind === "pay" ? "טופס תשלום אישי" : "טופס הרשמה לתרגולים";
     const kShort = (r) => r.kind === "marathon" ? "מרתון" : r.kind === "terms" ? "אישור תנאי התקשרות" : r.kind === "pay" ? "תשלום אישי" : "תרגולים";
+    // נועה 7.11: כל טופס חתום – בתוך הקורס שלו (גם בקורסים קודמים); כאן למטה – רק מה שלא שייך לקורס
+    try { if (ME.role !== "instructor" && await crsLoad(false, true)) await crsEnsureStudent(l.student.id); } catch(e) {}
+    if (!editing || editing.id !== l.id) return;
+    { const cms = (typeof crsOfStudent === "function" && CRS.ok) ? crsOfStudent(l.student.id) : [], byCm = {};
+      mine.forEach(r => { const cm = r.pay || !r.order_id ? null : cms.find(m => r.kind === "marathon" ? String(m.marathon_registration_id) === String(r.order_id) : r.kind === "registration" ? String(m.enrollment_id) === String(r.order_id) : false);
+        if (cm) { (byCm[cm.id] = byCm[cm.id] || []).push(r); r._cm = cm.id; } });
+      LEAD_SIGS = { sid: l.student.id, byCm }; sigSlotsPaint(); }
+    const rest = mine.filter(r => !r._cm);
     $("leadSig").dataset.sum = mine.length ? `${mine.length} ${mine.length === 1 ? "טופס חתום" : "טפסים חתומים"} · האחרון ${fmtDate(mine[0].signed_at)} (${kShort(mine[0])})` : "אין עדיין חתימה";
     $("leadSig").classList.toggle("muted", !mine.length);
-    $("leadSig").innerHTML = mine.length ? `<div class="sig-list">` + mine.map(r => `<div class="sig-card"><div class="sig-h"><b>${kTxt(r)}</b>${r.school ? `<span class="muted"> · ${esc(r.school)}</span>` : ""}</div>
+    $("leadSig").innerHTML = rest.length ? `<div class="sig-list">` + rest.map(r => `<div class="sig-card"><div class="sig-h"><b>${kTxt(r)}</b>${r.school ? `<span class="muted"> · ${esc(r.school)}</span>` : ""}</div>
       <div class="muted sig-meta">נחתם ${esc(fmtDate(r.signed_at))}${r.order_id && r.kind !== "terms" ? " · הזמנה " + esc(r.order_id) : ""}</div>
-      ${r.image ? `<img src="${esc(r.image)}" alt="חתימה" class="sig-img">` : ""}<button type="button" class="btn small" ${r.pay ? `data-paypdf="${esc(r.pay)}"` : `data-pdf="${r.id}"`}>⬇ הטופס החתום (PDF)</button></div>`).join("") + `</div>` : "אין עדיין חתימה (נרשם/ה לפני הטופס החדש או מחוץ לאתר).";
+      ${r.image ? `<img src="${esc(r.image)}" alt="חתימה" class="sig-img">` : ""}<button type="button" class="btn small" ${r.pay ? `data-paypdf="${esc(r.pay)}"` : `data-pdf="${r.id}"`}>⬇ הטופס החתום (PDF)</button></div>`).join("") + `</div>` : mine.length ? "כל הטפסים החתומים מופיעים בתוך הקורסים." : "אין עדיין חתימה (נרשם/ה לפני הטופס החדש או מחוץ לאתר).";
     $("leadSig").querySelectorAll("[data-paypdf]").forEach(b => b.onclick = async () => { b.disabled = true;
       try { const d = await rpc("pay_link_pdf", { p_code: b.dataset.paypdf }); if (!d) { toast("אין PDF לטופס הזה"); b.disabled = false; return; }
         const a = document.createElement("a"); a.href = String(d).startsWith("data:") ? d : "data:application/pdf;base64," + d; a.download = "טופס תשלום - " + fnSafe((l.student.first_name || "") + " " + (l.student.last_name || "")) + ".pdf"; document.body.appendChild(a); a.click(); a.remove();
@@ -6175,17 +6204,21 @@ function crsStepper(m){
     const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, ההרשמה של ${s0.first_name || ""} ל${lab} אושרה ✓ התשלום התקבל והטופס נחתם. נתראה! תלם`;
     const pd = String(f.parent1_phone || "").replace(/\D/g, ""), wa = /^0\d{8,9}$/.test(pd) ? `https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}` : "";
     s4 = st("conf", "cur", 4, "אישור להורה", "הסטטוס: נרשם", wa ? `<a class="btn small stp-wa" target="_blank" rel="noopener" href="${esc(wa)}">💬 שליחת אישור</a>` : `<button type="button" class="btn small" data-copy="${esc(msg)}">⧉ העתקת האישור</button>`); }
-  return `<div class="stp-box"><div class="stp-hd"><b>מצב ההרשמה</b>${crsCanSpan(m)}</div><div class="stp">`
+  // נועה 7.11: מסגרת מכווצת, כמו התשלומים – בשורה המקופלת תקציר; פתוחה כשעוד חסר משהו (תשלום / חתימה)
+  const done = reg && sig, sum = done ? "✓ נרשם · שולם · נחתם" : [reg ? "✓ שולם" : "⏳ לקחת אשראי", sig ? "✓ נחתם" : "✍︎ חסרה חתימה"].join(" · ");
+  return `<details class="lp-box lg-pay stp-box"${done ? "" : " open"}><summary><b><span class="lp-ic" aria-hidden="true">📋</span> מצב ההרשמה</b> <span class="${done ? "ok-txt" : "muted"} stp-sum">${sum}</span></summary><div class="stp-hd">${crsCanSpan(m)}</div><div class="stp">`
     + st("reg", "ok", 1, "הרשמה", d(m.created_at), "")
     + (reg ? st("pay", "ok", 2, "שולם", "", "") : st("pay", "cur", 2, "לקחת אשראי", "", ""))
-    + s3 + s4 + `</div></div>`;
+    + s3 + s4 + `</div></details>`;
 }
 const SIG_VIA_S = { form: "בטופס ההרשמה", sign_link: "בקישור לחתימה", manual: "התקבל מחוץ למערכת", legacy: "לפני המערכת" };
-const crsFoot = (m) => { const sp = crsStepper(m); return `<div class="lg-att-slot" data-am="${m.id}"></div><div class="lg-pay-slot" data-pm="${m.id}"></div>${sp || `<div class="lg-foot">${crsCanSpan(m)}</div>`}<div class="lg-can-panel" data-cpm="${m.id}" hidden></div>`; };
+const crsFoot = (m) => { const sp = crsStepper(m); return `<div class="lg-att-slot" data-am="${m.id}"></div><div class="lg-pay-slot" data-pm="${m.id}"></div>${sp ? sp + `<div class="lg-sig-slot" data-sgcm="${m.id}" data-stp="1"></div>` : `<div class="lg-foot">${crsCanSpan(m)}</div><div class="lg-sig-slot" data-sgcm="${m.id}"></div>`}<div class="lg-can-panel" data-cpm="${m.id}" hidden></div>`; };
 // 5.20.23 (נועה): מעקב לכל קורס (קובץ 155) – בתרגול השוטף המעקב של הכרטיס (מסונכרן), בשאר הקורסים – course_members.tracking
-const crsTrackHtml = (m) => !CRS.hasCmTrack || ME.role === "instructor" ? "" : `<div class="track-box tb-side lg-cmtrk" data-cmtk="${m.id}"><div class="tb-h"><span>📌 מעקב${m.tracking ? "" : " <span class='muted' style='font-weight:500'>- אין</span>"}</span><button type="button" class="btn small" data-cmtke="${m.id}">${m.tracking ? "✎ עריכה" : "+ הוספה"}</button></div>${m.tracking ? `<div class="tb-txt">${esc(m.tracking)}</div>` : ""}</div>`;
+const crsTrackHtml = (m) => !CRS.hasCmTrack || ME.role === "instructor" ? "" : !m.tracking ? `<div class="lg-cmtrk lg-trk0" data-cmtk="${m.id}"><button type="button" class="lg-trk0-b" data-cmtke="${m.id}" title="בקשות והוראות של ההורים – המתרגלים רואים בדף הנוכחות">📌 + מעקב</button></div>`   // נועה 7.11: בלי מעקב – שורה קטנה
+  : `<div class="track-box tb-side lg-cmtrk" data-cmtk="${m.id}"><div class="tb-h"><span>📌 מעקב${m.tracking ? "" : " <span class='muted' style='font-weight:500'>- אין</span>"}</span><button type="button" class="btn small" data-cmtke="${m.id}">${m.tracking ? "✎ עריכה" : "+ הוספה"}</button></div>${m.tracking ? `<div class="tb-txt">${esc(m.tracking)}</div>` : ""}</div>`;
 function crsTrackWire(sid){ const g = $("leadGroups"); if (!g) return;
   g.querySelectorAll("[data-cmtke]").forEach(b => b.onclick = () => { const box = b.closest("[data-cmtk]"), m = crsOfStudent(sid).find(x => x.id === Number(b.dataset.cmtke)); if (!m) return;
+    box.classList.remove("lg-trk0"); box.classList.add("track-box", "tb-side");
     box.innerHTML = `<div class="tb-h"><span>📌 מעקב <span class="muted" style="font-weight:500">- לקורס הזה</span></span></div><textarea maxlength="2000" data-cmtkt>${esc(m.tracking || "")}</textarea>
       <div style="display:flex; gap:6px; margin-top:6px;"><button type="button" class="btn small primary" data-cmtks>שמירה</button><button type="button" class="btn small" data-cmtkc>ביטול</button></div>`;
     const ta = box.querySelector("textarea"); ta.focus();
@@ -6282,7 +6315,7 @@ async function crsGroupsHtml(sid, cur, card){
   const old = crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && !ms.includes(m) || (ms.includes(m) && done(CRS.byId[m.course_id])))
     .sort((a, b) => (crsSeason(CRS.byId[b.course_id].season_id).year_start || 0) - (crsSeason(CRS.byId[a.course_id].season_id).year_start || 0));
   if (old.length) h += `<details class="lc-old"><summary>קורסים קודמים (${old.length})</summary>${old.map(m => { const c = CRS.byId[m.course_id];
-    return `<div class="lc-old-r"><span>${c.marathon_id ? "<b>מרתון</b> · " + crsLabel(c, m) : "<b>" + esc(crsCatN(c.category_id)) + "</b> · " + crsLabel(c, m)}</span><span class="muted">${esc(crsSeason(c.season_id).name || "")}${c.marathon_id && c.is_active === false ? " · המרתון לא התקיים" : ""}${m.status !== "רשום" ? " · " + esc(crsStOf(m.status).label || m.status) : ""}${m.history_at ? ` · <span title="${esc(m.history_note || "")}">${esc(m.history_note || "עבר להיסטוריה")}</span>` : ""}</span><div class="lc-old-x"><div class="lg-att-slot" data-am="${m.id}" data-old="1"></div><div class="lg-pay-slot" data-pm="${m.id}"></div></div></div>`; }).join("")}</details>`;   // 5.20.26 (נועה): גם בקורס קודם – נוכחות ותשלומים בקצרה   // 5.20.5 (קובץ 148)
+    return `<div class="lc-old-r"><span>${c.marathon_id ? "<b>מרתון</b> · " + crsLabel(c, m) : "<b>" + esc(crsCatN(c.category_id)) + "</b> · " + crsLabel(c, m)}</span><span class="muted">${esc(crsSeason(c.season_id).name || "")}${c.marathon_id && c.is_active === false ? " · המרתון לא התקיים" : ""}${m.status !== "רשום" ? " · " + esc(crsStOf(m.status).label || m.status) : ""}${m.history_at ? ` · <span title="${esc(m.history_note || "")}">${esc(m.history_note || "עבר להיסטוריה")}</span>` : ""}</span><div class="lc-old-x"><div class="lg-att-slot" data-am="${m.id}" data-old="1"></div><div class="lg-pay-slot" data-pm="${m.id}"></div><div class="lg-sig-slot" data-sgcm="${m.id}"></div></div></div>`; }).join("")}</details>`;   // 5.20.26 (נועה): גם בקורס קודם – נוכחות ותשלומים בקצרה   // 5.20.5 (קובץ 148)
   return h || empty;
 }
 let LG_TOK = 0;   // 5.21.4: טעינה ישנה (של כרטיס קודם) לא מציירת / מחווטת בכרטיס הפתוח
@@ -6307,7 +6340,7 @@ async function loadLeadGroups(studentId){
       return `<div class="lg-card ${scCls(se.location && se.location.name)}${prop ? " lg-prop" : ""}">
         ${prop ? `<div class="lg-prop-h"><span class="mar-tag" style="margin:0">מוצע</span> <span class="prop-st ${propStage(studentId)}">${PROP_ST[propStage(studentId)]}</span>
           <span class="ntc" data-pcard="${a.id}"><label><input type="checkbox" data-cn ${((NTC.map || {})[studentId] || {}).notified_at ? "checked" : ""}> קיבל/ה הודעה</label><label><input type="checkbox" data-cc> אישר/ה – למשובצים</label></span></div>` : ""}
-        <div class="lg-when">${sessWhen(se)} <span class="lg-time">${rng(start, (se.end_time || "").slice(0, 5) || addMin(start, 45))}</span></div>
+        <div class="lg-when">${sessWhen(se)}${(() => { const gr = se.kind === "מרתון" && typeof CRS !== "undefined" && ((CRS.mar || {})[se.marathon_id] || {}).grade; return gr ? ` · <b>שכבת ${esc(gr)}'</b>` : ""; })()} <span class="lg-time">${rng(start, (se.end_time || "").slice(0, 5) || addMin(start, 45))}</span></div>
         ${arr && arr !== start ? `<div class="lg-personal" title="שעה אישית">⏰<span class="lg-bl"> שעה אישית:</span> <b>${rng(arr, (a.personal_end || "").slice(0, 5) || addMin(arr, 45))}</b></div>` : ""}
         <dl class="lg-dl">
           <dt class="lg-k-x">בית ספר</dt><dd>${scChip(se.location && se.location.name)}</dd>
@@ -6321,7 +6354,7 @@ async function loadLeadGroups(studentId){
           <button type="button" class="btn small" data-gs="${se.id}" data-city="${esc(se.city)}">בלוח<span class="lg-bl"> הקבוצות</span> ←</button></div>
         <div class="lg-edit" data-ed="${a.id}" hidden></div></div>`;
     };
-    { const h = await crsGroupsHtml(studentId, cur, lgCard); if (stale()) return; parkTrack(); $("leadGroups").innerHTML = h; $("leadLoading").hidden = true;
+    { const h = await crsGroupsHtml(studentId, cur, lgCard); if (stale()) return; parkTrack(); $("leadGroups").innerHTML = h; $("leadLoading").hidden = true; sigSlotsPaint();
       const rb = $("leadGroups").querySelector("[data-crsretry]"); if (rb) rb.onclick = () => loadLeadGroups(studentId); }   // 5.19.162: פרטי הקורס מעל השיבוצים
     { const sl = $("leadGroups").querySelector(".lg-reg .lg-trk-slot"); if (sl) sl.replaceWith($("trackBox")); else if (ME.role === "instructor" || !CRS.ok) $("leadGroups").prepend($("trackBox")); }   // 5.20.18 (נועה): המעקב – בתוך הקורס של התרגול השוטף (אין קורס כזה – בלי מעקב בכרטיס)
     canPaint(studentId); crsTrackWire(studentId);
