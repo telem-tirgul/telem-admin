@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.67">
+<meta name="app-version" content="5.21.68">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6020,7 +6020,7 @@ async function planUnmarkCancel(p){
   if (!await uiConfirm('לבטל את הסימון "בוטלה"?\nההוראה תחזור ל"מושהית".')) return false;
   try { await rpc("recurring_plan_unmark_cancelled", { p_id: p.id }); toast('הסימון "בוטלה" בוטל'); return true; }
   catch(e) { toast(planErr(e)); return false; } }
-const planMarkBtns = (p, attr) => ME && ME.role === "admin" ?   /* תש-61 (נועה 8.11): חזר – הוראה מושהית (בוטלה בריווחית) → "✕ סימון: בוטלה" */ (planCanMark(p) ? `<button type="button" class="btn small primary" data-${attr}="mark"><span class="ic-x">⊘</span> סימון: בוטלה</button>` : planMarked(p) ? `<button type="button" class="btn small" data-${attr}="unmark">ביטול הסימון</button>` : "") : "";
+const planMarkBtns = (p, attr) => ME && ME.role === "admin" ?   /* תש-61 (נועה 8.11): חזר – הוראה מושהית (בוטלה בריווחית) → "✕ סימון: בוטלה" */ (planCanMark(p) ? `<button type="button" class="btn small" data-${attr}="mark">⊘ סימון בוטלה</button>` : planMarked(p) ? `<button type="button" class="btn small" data-${attr}="unmark">ביטול הסימון</button>` : "") : "";
 // ---------- טופס ביטול: מכינים כאן, ההורה רק חותם/ת ----------
 const TRACK_T = (v) => (LK.tracks.find(x => x.v === v) || {}).t || v || "";
 const CAN_ST = { "נשלח": "נשלח להורה - ממתין לחתימה", "נחתם": "נחתם - ממתין לאישור", "אושר": "אושר", "בוטל": "בוטל" };
@@ -9186,7 +9186,7 @@ async function renderInbox(reload){
     const gd = IB.rows.filter(r => r.kind === "group_diff" && r.student_id && r.data && r.data.lesson_date);
     if (gd.length) { const ws = gd.map(r => gdWeek(r.data.lesson_date)), lo = ws.map(w => w[0]).sort()[0], hi = ws.map(w => w[1]).sort().pop();
       try { (await get("attendance", `select=student_id,session_id,lesson_date,present&student_id=in.(${[...new Set(gd.map(r => r.student_id))].join(",")})&lesson_date=gte.${lo}&lesson_date=lte.${hi}`)).forEach(x => (IB.gdAtt[x.student_id] = IB.gdAtt[x.student_id] || []).push(x)); } catch(e) {} }
-    IB.plans = {};   // 5.19.68: הוראות קבע שהושהו - לכפתור "סימון: בוטלה"
+    IB.plans = {};   // 5.19.68: הוראות קבע שהושהו - לכפתור "סימון בוטלה"
     if (ME.role === "admin" && IB.rows.some(r => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused"))) { try { ((await plansCached()) || []).forEach(p => IB.plans[p.id] = p); } catch(e) {} } }
   const ibPlan = (r) => r.ref_table === "recurring_plans" && (r.flags || []).includes("plan_paused") ? (IB.plans || {})[r.ref_id] : null;
   // 5.19.124 (נועה): "לא משובץ/ת" – ברגע שיש לילד/ה שיבוץ בקבוצה שוטפת (במערכת), ההתראה נסגרת לבד (לא מחכים לבדיקה של הערב)
