@@ -337,7 +337,7 @@
   .la-row{ border-bottom:1px solid var(--border); } .la-row:last-child{ border-bottom:0; }
   .la-row > summary{ list-style:none; cursor:pointer; display:flex; align-items:baseline; gap:12px; padding:10px 2px; }
   /* נועה 7.11 (הכרטיס תופס הרבה מקום): השורות המקופלות למטה – שתיים בשורה במחשב; שורה פתוחה – לכל הרוחב */
-  @media (min-width:961px){ #leadAcc{ display:grid; grid-template-columns:1fr 1fr; column-gap:28px; } #leadAcc > .la-row[open]{ grid-column:1 / -1; } #leadAcc > .la-row:nth-last-child(2):not([open]){ border-bottom:0; } #leadAcc .la-row > summary{ padding:8px 2px; } }
+  @media (min-width:961px){ #leadAcc{ display:grid; grid-template-columns:1fr; column-gap:28px; } /* נועה 8.11: השורות המכווצות אחת מתחת לשנייה – בלי שתי עמודות (לא קופץ בפתיחה) */ #leadAcc > .la-row[open]{ grid-column:1 / -1; }  #leadAcc .la-row > summary{ padding:8px 2px; } }
   .la-row > summary::-webkit-details-marker{ display:none; }
   .la-row > summary::before{ content:"◂"; color:var(--ink-soft); font-size:12px; width:10px; flex:none; transition:transform .15s; } .la-row[open] > summary::before{ transform:rotate(-90deg); }
   .la-row > summary b{ flex:none; color:var(--accent); font-size:14.5px; min-width:170px; }
@@ -4193,7 +4193,17 @@ async function crsAfterStatus(m, od){
   if (!m || m.status === od) return;
   const l = (L.leads || []).find(x => x.student_id === m.student_id); if (!l) return;
   const nm = [l.student.first_name, l.student.last_name].filter(Boolean).join(" ");
-  try { await regHowAsk(l.id, m, od); await withdrawAsk(m, nm, od); } catch(e) {}
+  try { await regHowAsk(l.id, m, od); await withdrawAsk(m, nm, od); await planWarnCrs(m, nm, od); } catch(e) {}
+}
+// נועה 8.11: פרש / בוטל בתרגול השוטף ויש הוראת קבע פעילה – להזכיר (הביטול עצמו – בריווחית / באיקרדיט)
+async function planWarnCrs(m, nm, od){
+  const c = CRS.byId[m.course_id] || {}, gone = (x) => ["פרש", "בוטל"].includes(x);
+  if (ME.role !== "admin" || c.marathon_id || !gone(m.status) || gone(od)) return;
+  let ps = []; try { PLANS_C = null; ps = ((await plansCached()) || []).filter(p => Number(p.student_id) === Number(m.student_id) && ["active", "creating", "paused"].includes(p.status)); } catch(e) { return; }
+  if (!ps.length) return;
+  const p = ps[0], rem = Math.max(0, (p.total_count || 0) - (p.charged_count || 0));
+  const v = await uiChoose(`ל${nm} יש הוראת קבע פעילה: ₪${Number(p.monthly_amount || 0).toLocaleString("he-IL")} בחודש${rem ? `, עוד ${rem} חיובים` : ""}${p.next_charge_date ? ` (הבא ב-${fmtIso(p.next_charge_date)})` : ""}.\nאם לא ממשיכים – לבטל אותה בריווחית; כאן זה מתעדכן כל בוקר.`, [{ v: "go", t: "לפתיחת ההוראה במסך התשלומים" }]);
+  if (v === "go") PAY.kidPlan(m.student_id, nm);
 }
 // נקודת המסלול – לחיצה: בחירת מסלול
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-cmtrk2]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
