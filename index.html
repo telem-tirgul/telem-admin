@@ -13269,14 +13269,14 @@ function newLink(src, mode, opt){
   const reqDef = (k) => F[k] ? !!F[k].required : true;   // נועה 6.11: כמו בטופס ההרשמה – הכול חובה (אפשר לבטל)
   pnlOpen(`<header><div><h2>${ed ? "עריכת קישור אישי" : mode === "dup" ? "קישור חדש – שכפול" : "קישור אישי חדש"}</h2><div class="muted">${ed ? "אותו קישור – ההורה יראה את השינויים כשיפתח אותו." : "נשלח להורה כקישור. מה שממלאים כאן – נעול עבור ההורה."}</div></div><button class="btn small x" type="button">✕</button></header>
     <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${[["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"]].map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
-      <div style="grid-column:1/-1"><label class="lbl" for="nDesc">תיאור (יופיע להורה)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
-      <div style="grid-column:1/-1" id="nProdW"><label class="lbl" for="nProd">מוצר בחשבונית <span class="muted" style="font-weight:400">(כמו בקטלוג בריווחית)</span></label><select id="nProd"><option value="">אוטומטי – לפי התיאור / המקצוע</option>${["שיעורי מתמטיקה", "שיעורי אנגלית", "שיעורי מתמטיקה ואנגלית", "דמי שיבוץ והרשמה", "שירות עבור חומרי תרגול דיגיטליים"].map(x => `<option>${x}</option>`).join("")}</select></div><!-- תש-56 (נועה 8.11) -->
+      <div style="grid-column:1/-1"><label class="lbl" for="nNote">תיאור <span class="muted" style="font-weight:400">(מופיע להורה בטופס; לא חובה)</span></label><textarea id="nNote" rows="3" maxlength="1000" placeholder="למשל: 3 מפגשים של שעה וחצי בימי שלישי, כולל דפי תרגול"></textarea></div>
+      <div style="grid-column:1/-1" hidden><label class="lbl" for="nDesc">תיאור (יופיע להורה)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
+      <div style="grid-column:1/-1" id="nProdW"><label class="lbl" for="nProd">מוצר בחשבונית <span class="muted" style="font-weight:400">(כמו בקטלוג בריווחית)</span></label><select id="nProd"><option value="">בחירת מוצר</option>${["שיעורי מתמטיקה", "שיעורי אנגלית", "שיעורי מתמטיקה ואנגלית", "דמי שיבוץ והרשמה", "שירות עבור חומרי תרגול דיגיטליים"].map(x => `<option>${x}</option>`).join("")}</select></div><!-- תש-56 (נועה 8.11) -->
       <div class="nl-trial" hidden><label class="lbl" for="nTrTrack">מסלול</label><select id="nTrTrack"><option value="">בחירת מסלול</option>${LK.tracks.map(x => `<option value="${x.v}">${esc(x.t)}</option>`).join("")}</select></div>
       <div class="nl-trial nl-trsub" hidden><label class="lbl" for="nTrSub">מקצוע</label><select id="nTrSub"><option value="">בחירת מקצוע</option><option>מתמטיקה</option><option>אנגלית</option></select></div>
       <div class="nl-trial" hidden><label class="lbl" for="nTrStart">תאריך התחלה</label><input type="date" id="nTrStart"></div>
       <div class="nl-trial nl-trcity" hidden><label class="lbl" for="nTrCity">עיר</label><select id="nTrCity"><option value="">בחירת עיר</option>${CONFIG.cities.map(c => `<option>${esc(c)}</option>`).join("")}</select></div>
       <div class="nl-trial muted nl-hint" style="grid-column:1/-1" hidden>תשלום חד-פעמי על חודש אחד, לפי מחיר המסלול בעיר. בלי הוראת קבע. אם ממשיכים – שולחים קישור הרשמה מהכרטיס.</div>
-      <div style="grid-column:1/-1"><label class="lbl" for="nNote">פירוט – מה כלול בתשלום (לא חובה; מופיע להורה בטופס, לא בחשבונית)</label><textarea id="nNote" rows="3" maxlength="1000" placeholder="למשל: 3 מפגשים של שעה וחצי בימי שלישי, כולל דפי תרגול"></textarea></div>
       <div class="nl-pay"><label class="lbl" for="nOnce">תשלום עכשיו (₪)</label><input type="number" id="nOnce" min="1" max="20000"></div><div class="nl-pay"></div>
       <div class="nl-pay nl-recchk" style="grid-column:1/-1"><label class="chk nl-chk"><input type="checkbox" id="nRec"><span>וגם הוראת קבע חודשית לאחר התשלום</span></label></div>
       <div class="nrec" hidden><label class="lbl" for="nMAmt">סכום חודשי (₪)</label><input type="number" id="nMAmt" min="1" max="5000"></div>
@@ -13320,7 +13320,7 @@ function newLink(src, mode, opt){
       $("nStuQ").value = ""; r.hidden = true; stuPaint(); lockPaint(); }); };
   // מילוי מקישור קיים (עריכה / שכפול)
   if (src) {
-    $("nDesc").value = src.description || ""; $("nOnce").value = src.one_time_amount || ""; $("nNote").value = src.note || ""; if ($("nProd")) $("nProd").value = src.product || "";
+    $("nDesc").value = src.description || ""; $("nOnce").value = src.one_time_amount || ""; $("nNote").value = src.note || ""; if ($("nProd")) { const pr = src.product || ([...$("nProd").options].find(o => o.value && o.value === String(src.description || "").trim()) || {}).value || ""; $("nProd").value = pr; }
     if (src.monthly_amount) { $("nRec").checked = true; $("nRec").onchange(); $("nMAmt").value = src.monthly_amount; $("nMCnt").value = src.monthly_count || ""; $("nMFirst").value = src.first_monthly_date ? String(src.first_monthly_date).slice(0, 10) : ""; }
     FIELDS.forEach(([k]) => { if (k === "school") schools(); sv(k, F[k] && F[k].value); });
     if (src.order_kind) SID = null;   // קישור על הרשמה קיימת – ההרשמה עצמה לא משוכפלת
@@ -13338,7 +13338,7 @@ function newLink(src, mode, opt){
     if ($("nProdW")) $("nProdW").hidden = TY === "trial";   // תש-56: בניסיון – השרת קובע (3 שורות בחיוב הראשון)
     $("nDesc").placeholder = TY === "trial" ? "ריק – חודש ניסיון + שם המסלול" : TY === "single" ? "שיעור בודד" : "למשל: שיעור פרטי – 3 מפגשים";
     $("nSave").textContent = ed ? "שמירה" : TY === "trial" ? "יצירת קישור לחודש ניסיון" : "יצירת קישור";
-    if (set === "single") { if (!$("nDesc").value.trim() || /^חודש ניסיון/.test($("nDesc").value)) $("nDesc").value = "שיעור בודד"; $("nOnce").value = 118; $("nRec").checked = false; $("nRec").onchange(); }
+    if (set === "single") { if (!$("nDesc").value.trim() || /^חודש ניסיון/.test($("nDesc").value)) $("nDesc").value = "שיעור בודד"; if ($("nProd") && !$("nProd").value) $("nProd").value = "שיעורי מתמטיקה"; $("nOnce").value = 118; $("nRec").checked = false; $("nRec").onchange(); }
     if (set === "trial" && /^שיעור בודד$/.test($("nDesc").value.trim())) $("nDesc").value = "";
     if (set === "reg" && /^שיעור בודד$/.test($("nDesc").value.trim())) { $("nDesc").value = ""; $("nOnce").value = ""; }
   };
@@ -13374,7 +13374,8 @@ function newLink(src, mode, opt){
   $("nSave").onclick = async () => {
     if (TY === "trial" && !ed) { $("nErr").textContent = ""; return trialSave(); }
     const once = Number($("nOnce").value), err = $("nErr"); err.textContent = "";
-    if (!$("nDesc").value.trim()) { err.textContent = "חסר תיאור."; return; }
+    if ($("nProd") && !$("nProd").value) { err.textContent = "יש לבחור מוצר בחשבונית."; return; }
+    $("nDesc").value = $("nProd").value;   // תש-56 (נועה 8.11): מה שההורה רואה ומה שבחשבונית – המוצר
     if (!(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
     const p = Object.assign($("nProd") && $("nProd").value ? { product: $("nProd").value } : {}, { description: $("nDesc").value.trim(), one_time_amount: once, fields: {}, note: $("nNote").value.trim() });   // תש-56: המוצר בחשבונית (ריק – השרת מנחש)
     if (SID) p.student_id = SID;
