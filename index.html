@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.69">
+<meta name="app-version" content="5.21.70">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2091,7 +2091,9 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 #payWrap .chip{ display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:1px 9px; font-size:12.5px; font-weight:800; white-space:nowrap; }
 #payWrap .st-active{ background:var(--ok-bg); color:var(--ok); }
 #payWrap .st-paused{ background:#FBE1C2; color:#9A4D0B; } .lp-st.pz{ background:#FBE1C2 !important; color:#9A4D0B !important; }   /* נועה 8.11: הוראה מושהית – כתום */
-.ic-x{ font-size:.85em; display:inline-block; text-decoration:none; } #payWrap .st-refund{ background:#E8DDF5; color:#5B3A8A; }   /* נועה 8.11: זוכה / זיכוי חלקי – סגול */
+.ic-x{ font-size:.85em; display:inline-block; text-decoration:none; } .deals tr.kd-multi td{ vertical-align:top; } .kd-l{ min-height:28px; display:flex; align-items:center; gap:4px; flex-wrap:wrap; } .kd-l + .kd-l{ border-top:1px dashed #E6DDD3; } .c-desc .kd-l span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.kd-crs-l{ display:flex; flex-direction:column; gap:10px; padding-top:6px; } .kd-crs{ border:1px solid #E2D6C8; border-radius:12px; background:#FFFDFB; padding:8px 10px; } .kd-crs-h{ display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px; } .kd-deal{ position:relative; } .kd-frm{ position:absolute; top:-34px; left:0; } .kd-deal + .kd-deal .kd-frm{ top:4px; } .kd-deal .dx-form{ display:none !important; } .kd-crs:not(:first-child) .dx-info, .kd-deal + .kd-deal .dx-info{ display:none !important; } .kd-deal + .kd-deal{ margin-top:8px; padding-top:8px; border-top:1px dashed #E2D6C8; } .kd-deal-h{ font-size:12.5px; margin:0 2px 4px; }
+#payWrap .st-refund{ background:#E8DDF5; color:#5B3A8A; }   /* נועה 8.11: זוכה / זיכוי חלקי – סגול */
 #payWrap .st-phone{ background:var(--warn-bg); color:var(--warn); }   /* 📞 ממתין לתשלום טלפוני */
 #payWrap .st-failed, #payWrap .st-error, #payWrap .kchip.k-bad{ background:#F4CFCB; color:#8E2B28; }   /* 5.19.45: "לא התקבל" - רקע אדום (כמו שאר התגיות) */
 #payWrap .st-creating{ background:var(--info-bg); color:var(--info); }
@@ -12792,6 +12794,11 @@ async function renderAll(b){
   const list = deals.filter(d => (!S.kid || Number(d.student_id) === Number(S.kid.id)) && (S.pk === "all" || (S.pk === "plan" ? !!d.plan || d.group === "plan" : d.group === S.pk))
     && (!S.ps || (S.ps === "todo" ? !!d.todo : S.ps === "ref" ? d.pays.some(r => r.refund_status) : S.ps === "נכשל" ? d.pays.some(r => r.status === "נכשל") || (d.plan && ["failed", "error"].includes(d.plan.status)) : d.pays.length && d.pays.every(r => r.status === "אושר")))
     && (!q || d.text.includes(q) || (qn.length >= 3 && /^\d+$/.test(qn) && d.phone.replace(/\D/g, "").includes(qn))));
+  // נועה 8.11: שורה אחת לכל ילד/ה (גם כשיש כמה קורסים / הזמנות – למשל שוטף + מרתון, או שני מרתונים); בפתיחה – לפי קורס, ובתוך הקורס ההזמנות
+  const kids = [], byK = {};
+  list.forEach(d => { const k = d.student_id ? "s" + d.student_id : "n" + d.name + "|" + d.phone; let g = byK[k];
+    if (!g) { g = byK[k] = { deals: [], student_id: d.student_id, name: d.name, leadId: d.leadId, parent: d.parent, phone: d.phone, date: d.date, todo: "" }; kids.push(g); }
+    g.deals.push(d); if (String(d.date) > String(g.date)) g.date = d.date; if (!g.todo && d.todo) g.todo = d.todo; if (!g.parent && d.parent) g.parent = d.parent; if (!g.phone && d.phone) g.phone = d.phone; });
   const inRng = (r) => { const x = String(r.date || "").slice(0, 10); return x >= qf && x <= qt; };
   const okP = list.flatMap(d => d.pays).filter(r => r.status === "אושר" && inRng(r)), sum = okP.reduce((a, r) => a + Number(r.amount || 0), 0);
   const nTodo = deals.filter(d => (S.pk === "all" || (S.pk === "plan" ? !!d.plan || d.group === "plan" : d.group === S.pk)) && d.todo).length;
@@ -12807,12 +12814,14 @@ async function renderAll(b){
 </div>
     ${S.kid ? `<div class="kid-flt">מוצגים רק התשלומים של <b>${esc(S.kid.name || "")}</b>${leadOfSid(S.kid.id) ? ` <button type="button" class="name-link" data-lead="${leadOfSid(S.kid.id).id}">לכרטיס התלמיד/ה ←</button>` : ""}<button type="button" class="btn small" id="kidX">✕ כל התשלומים</button></div>` : ""}
     <!-- 5.19.65 (נועה): בלי שורת הסיכומים - יש בתמונת המצב -->
-    <div class="dx-bar"><span class="muted">${(S.kid || q.length >= 2) && qf !== S.pf ? `החיפוש מתחילת שנת הלימודים (${dmy(qf)} עד ${dmy(qt)}).` : `${dmy(qf)} עד ${dmy(qt)}`} · הוראות קבע פעילות מוצגות תמיד.</span><span class="dx-bar-b"><span class="muted">${list.length} ${list.length === 1 ? "עסקה" : "עסקאות"}</span><button type="button" class="clear-f" id="pClear"${S.pk === "all" && !S.ps && !q && S.pr === "month" ? " disabled" : ""}>✕ ניקוי סינון</button>${list.length ? `<button type="button" class="btn small" id="dxAll">▾ פתיחת כל השורות</button><button type="button" class="btn small" id="pXls" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>` : ""}</span></div>${list.length ? `<table class="tbl pay-all deals"><thead><tr><th class="c-todo" aria-label="פתיחה / לטיפול"></th><th>תאריך</th><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>סוג</th><th class="hide-m c-desc">פירוט</th><th class="c-amt">סכום</th><th>סטטוס</th><th class="hide-m c-frm">טופס</th></tr></thead><tbody>
-      ${list.map((d, i) => `<tr class="deal-r${d.todo ? " tr-todo" : ""}" data-dr="${i}"><td class="c-todo"><button type="button" class="dx-tg" aria-expanded="false" aria-label="פירוט"></button>${d.todo ? `<span class="todo-ic" title="${esc(d.todo)}">⚠</span>` : ""}</td>
-        <td class="nowrap">${dmy(d.date)}${String(d.date || "").length > 10 ? `<div class="muted">${esc(new Date(d.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</div>` : ""}</td>
-        <td>${d.leadId ? `<button type="button" class="name-link" data-lead="${d.leadId}">${esc(d.name)}</button>` : `<b>${esc(d.name)}</b>`}</td>
-        <td class="hide-m nowrap">${esc(d.parent || "")}${d.phone ? `${d.parent ? " · " : ""}<a class="call-ph" href="tel:${esc(String(d.phone).replace(/[^\d+]/g, ""))}" dir="ltr">${esc(d.phone)}</a>` : ""}</td>
-        <td>${d.kindHtml}</td><td class="hide-m muted c-desc" title="${esc(d.desc)}">${esc(d.desc)}</td><td class="c-amt">${d.amountHtml}</td><td>${d.statusHtml}</td><td class="hide-m c-frm">${dealForm(d) ? `<button type="button" class="btn small" data-dfrm="${i}" title="הטופס החתום (PDF)">📄 טופס חתום</button>` : ""}</td></tr>`).join("")}</tbody></table>`
+    <div class="dx-bar"><span class="muted">${(S.kid || q.length >= 2) && qf !== S.pf ? `החיפוש מתחילת שנת הלימודים (${dmy(qf)} עד ${dmy(qt)}).` : `${dmy(qf)} עד ${dmy(qt)}`} · הוראות קבע פעילות מוצגות תמיד.</span><span class="dx-bar-b"><span class="muted">${kids.length === list.length ? `${list.length} ${list.length === 1 ? "עסקה" : "עסקאות"}` : `${kids.length} ${kids.length === 1 ? "ילד/ה" : "ילדים"} · ${list.length} עסקאות`}</span><button type="button" class="clear-f" id="pClear"${S.pk === "all" && !S.ps && !q && S.pr === "month" ? " disabled" : ""}>✕ ניקוי סינון</button>${list.length ? `<button type="button" class="btn small" id="dxAll">▾ פתיחת כל השורות</button><button type="button" class="btn small" id="pXls" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>` : ""}</span></div>${list.length ? `<table class="tbl pay-all deals"><thead><tr><th class="c-todo" aria-label="פתיחה / לטיפול"></th><th>תאריך</th><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>סוג</th><th class="hide-m c-desc">פירוט</th><th class="c-amt">סכום</th><th>סטטוס</th><th class="hide-m c-frm">טופס</th></tr></thead><tbody>
+      ${kids.map((g, i) => { const one = g.deals.length === 1 ? g.deals[0] : null, ln = (h) => `<div class="kd-l">${h}</div>`;
+        return `<tr class="deal-r${g.todo ? " tr-todo" : ""}${one ? "" : " kd-multi"}" data-dr="${i}"><td class="c-todo"><button type="button" class="dx-tg" aria-expanded="false" aria-label="פירוט"></button>${g.todo ? `<span class="todo-ic" title="${esc(g.todo)}">⚠</span>` : ""}</td>
+        <td class="nowrap">${dmy(g.date)}${one && String(g.date || "").length > 10 ? `<div class="muted">${esc(new Date(g.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</div>` : ""}</td>
+        <td>${g.leadId ? `<button type="button" class="name-link" data-lead="${g.leadId}">${esc(g.name)}</button>` : `<b>${esc(g.name)}</b>`}</td>
+        <td class="hide-m nowrap">${esc(g.parent || "")}${g.phone ? `${g.parent ? " · " : ""}<a class="call-ph" href="tel:${esc(String(g.phone).replace(/[^\d+]/g, ""))}" dir="ltr">${esc(g.phone)}</a>` : ""}</td>
+        ${one ? `<td>${one.kindHtml}</td><td class="hide-m muted c-desc" title="${esc(one.desc)}">${esc(one.desc)}</td><td class="c-amt">${one.amountHtml}</td><td>${one.statusHtml}</td><td class="hide-m c-frm">${dealForm(one) ? `<button type="button" class="btn small" data-dfrm="${list.indexOf(one)}" title="הטופס החתום (PDF)">📄 טופס חתום</button>` : ""}</td>`
+          : `<td>${g.deals.map(d => ln(d.kindHtml.replace(/<div class="muted k-sub">[\s\S]*?<\/div>/, ""))).join("")}</td><td class="hide-m muted c-desc">${g.deals.map(d => ln(`<span title="${esc(d.desc)}">${esc(d.desc)}</span>`)).join("")}</td><td class="c-amt">${g.deals.map(d => ln(d.amountHtml.replace(/<div class="muted">[\s\S]*?<\/div>/, ""))).join("")}</td><td>${g.deals.map(d => ln(d.statusHtml.replace(/<div class="muted k-sub">[\s\S]*?<\/div>/g, "").replace(/<div class="st2">([\s\S]*?)<\/div>/g, "$1"))).join("")}</td><td class="hide-m c-frm"></td>`}</tr>`; }).join("")}</tbody></table>`
       : `<div class="card empty">${deals.length ? "אין עסקאות שמתאימות לסינון." : "אין עסקאות בטווח הזה."}</div>`}`;
   const again = () => renderAll(b);
   $("pkF").onchange = (e) => { S.pk = e.target.value; again(); };
@@ -12826,16 +12835,25 @@ async function renderAll(b){
   b.querySelectorAll("[data-lead]").forEach(x => x.onclick = () => openLead(Number(x.dataset.lead)));
   // 5.19.63: לחיצה על שורה (או "פרטים ▾") פותחת מתחתיה פירוט קצר; לחיצה נוספת סוגרת
   const dxPaint = () => { const x = $("dxAll"); if (!x) return; const all = b.querySelectorAll("tr.deal-r").length, open = b.querySelectorAll("tr.deal-r.dx-open").length; x.textContent = all && open === all ? "▴ סגירת כל השורות" : "▾ פתיחת כל השורות"; };
-  const tgl = (tr) => { const i = Number(tr.dataset.dr), d = list[i], nx = tr.nextElementSibling, btn = tr.querySelector(".dx-tg");
+  const tgl = (tr) => { const i = Number(tr.dataset.dr), g = kids[i], d = g.deals[0], nx = tr.nextElementSibling, btn = tr.querySelector(".dx-tg");
     if (nx && nx.classList.contains("dx-row")) { nx.remove(); tr.classList.remove("dx-open"); btn.setAttribute("aria-expanded", "false"); dxPaint(); return; }
-    const x = document.createElement("tr"); x.className = "dx-row"; x.innerHTML = `<td colspan="${tr.cells.length}">${dealExpand(d)}</td>`; tr.after(x); tr.classList.add("dx-open"); btn.setAttribute("aria-expanded", "true");
-    wireExpand(x, d, () => again()); dxPaint(); };
+    const x = document.createElement("tr"); x.className = "dx-row";
+    if (g.deals.length === 1) { x.innerHTML = `<td colspan="${tr.cells.length}">${dealExpand(d)}</td>`; tr.after(x); wireExpand(x, d, () => again()); }
+    else { const crs = [], byC = {};   // קורס: התרגול השוטף (תשלום ראשון / הוראת קבע) – אחד; כל מרתון – לפי השם; קישורים אישיים – יחד
+      g.deals.slice().sort((a1, a2) => String(a1.date).localeCompare(String(a2.date))).forEach(dd => { const k = dd.group === "mar" ? "mar:" + dd.desc : dd.group === "pay" ? "pay" : "reg";
+        (byC[k] = byC[k] || (crs.push(byC[k] = { k, deals: [] }), byC[k])).deals.push(dd); });
+      x.innerHTML = `<td colspan="${tr.cells.length}"><div class="kd-crs-l">${crs.map(c => { const d0 = c.deals[0];
+        return `<div class="kd-crs"><div class="kd-crs-h">${d0.kindHtml.replace(/<div class="muted k-sub">[\s\S]*?<\/div>/, "")}${c.k.startsWith("mar:") ? `<b>${esc(d0.desc)}</b>` : ""}${c.deals.length > 1 ? `<span class="muted">${c.deals.length} הזמנות</span>` : ""}</div>
+          ${c.deals.map(dd => `<div class="kd-deal" data-kd="${list.indexOf(dd)}">${dealForm(dd) ? `<button type="button" class="btn small kd-frm" data-dfrm2="${list.indexOf(dd)}" title="הטופס החתום (PDF)">📄 טופס חתום</button>` : ""}${c.deals.length > 1 || !c.k.startsWith("mar:") ? `<div class="kd-deal-h muted">${esc(dd.kindHtml.match(/k-sub">([\s\S]*?)<\/div>/) ? dd.kindHtml.match(/k-sub">([\s\S]*?)<\/div>/)[1].replace(/<[^>]+>/g, "") : dd.kindTxt)}${dd.desc && !c.k.startsWith("mar:") ? " · " + esc(dd.desc) : ""}</div>` : ""}${dealExpand(dd)}</div>`).join("")}</div>`; }).join("")}</div></td>`;
+      tr.after(x); x.querySelectorAll("[data-kd]").forEach(bx => wireExpand(bx, list[Number(bx.dataset.kd)], () => again()));
+      x.querySelectorAll("[data-dfrm2]").forEach(y => y.onclick = async (e) => { e.stopPropagation(); y.disabled = true; try { await txPdf(dealForm(list[Number(y.dataset.dfrm2)])); } catch(er) { toast("לא ניתן להוריד: " + er.message); } y.disabled = false; }); }
+    tr.classList.add("dx-open"); btn.setAttribute("aria-expanded", "true"); dxPaint(); };
   if ($("kidX")) $("kidX").onclick = () => { setKid(null); again(); };
   b.querySelectorAll("tr.deal-r").forEach(tr => tr.onclick = (e) => { if (e.target.closest("a, .name-link, [data-lead]") && !e.target.closest(".dx-tg")) return; tgl(tr); });
   // נועה 6.11: הטופס החתום – בשורה של הילד/ה (שורה לכל קורס), לא בתשלום
   b.querySelectorAll("[data-dfrm]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); x.disabled = true; try { await txPdf(dealForm(list[Number(x.dataset.dfrm)])); } catch(er) { toast("לא ניתן להוריד: " + er.message); } x.disabled = false; });
   if (S.kid) b.querySelectorAll("tr.deal-r").forEach(tgl);
-  if (S.focus === "plan") { setTimeout(() => { S.focus = ""; }, 5000); const i = list.findIndex(d => !!d.plan), tr = i >= 0 && b.querySelector(`tr.deal-r[data-dr="${i}"]`);
+  if (S.focus === "plan") { setTimeout(() => { S.focus = ""; }, 5000); const i = kids.findIndex(g => g.deals.some(d => !!d.plan)), tr = i >= 0 && b.querySelector(`tr.deal-r[data-dr="${i}"]`);
     if (tr) { tr.classList.add("dr-focus"); if (tr.nextElementSibling) tr.nextElementSibling.classList.add("dr-focus"); setTimeout(() => tr.scrollIntoView({ block: "center", behavior: "smooth" }), 60); } }
   // 5.19.154 (נועה): כפתור אחד – פתיחת / סגירת כל השורות (לפי המצב)
   if ($("dxAll")) $("dxAll").onclick = () => { const all = b.querySelectorAll("tr.deal-r").length, open = b.querySelectorAll("tr.deal-r.dx-open"); if (all && open.length === all) open.forEach(tgl); else b.querySelectorAll("tr.deal-r:not(.dx-open)").forEach(tgl); dxPaint(); };
