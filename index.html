@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.64">
+<meta name="app-version" content="5.21.65">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -7570,7 +7570,7 @@ const exEvtOf = (e) => !e ? "מבחן" : EX_EVT.test(e.kind) ? e.kind : EX_STUDY
 const schKey = (t) => String(t || "").replace(/["״׳'\s]/g, "");
 function loadExams(force){
   if (EX.p && !force) return EX.p;
-  const q = "select=id,school_id,school_name,grade,class_num,subject,exam_date,kind,source,material,topics,origin,updated_by,school:schools(city,name)&order=exam_date,id";
+  const q = "select=id,school_id,school_name,grade,class_num,subject,exam_date,kind,source,material,topics,extra_topics,extra_files,origin,updated_by,school:schools(city,name)&order=exam_date,id";   // או-10: + החומר הנוסף
   // 5.19.35: אחרי קובץ 65 - גם שעות מפגש המרתון והקישור לקבוצת המרתון
   EX.p = getAll("school_exams", q.replace("updated_by,", "updated_by,start_time,end_time,session_id,")).then(r => { EX.link = true; return r; })
     .catch(() => { EX.link = false; return getAll("school_exams", q); })
@@ -7595,6 +7595,8 @@ const studyFor = (school, city, grade, cls, today) => exFor(school, city, grade,
 const studyAll = (e) => !e ? [] : (EX.rows || []).filter(x => EX_STUDY.test(x.kind) && schKey(exSchName(x)) === schKey(exSchName(e)) && gradeKey(x.grade) === gradeKey(e.grade)
   && String(x.class_num || "") === String(e.class_num || "") && x.exam_date <= e.exam_date && x.exam_date >= addDays(e.exam_date, -7));
 // 5.19.90 (נועה): חומר למבחן – כותרת לכל הקבצה (שורה / "הקבצה X:" בתוך הטקסט)
+// או-10 (AUTO-06): הנושאים + "חומר נוסף" (מהתראה שצורפה למבחן) – בכל מקום שמוצג החומר למבחן
+const exT = (e) => !e ? "" : [e.topics, e.extra_topics ? "➕ חומר נוסף:\n" + e.extra_topics : ""].filter(x => String(x || "").trim()).join("\n");
 const exTopicsHtml = (t) => { t = String(t || "").trim(); if (!t) return "";
   const parts = t.split(/\n+|(?=(?:^|[.;]\s*|\s)הקבצה\s+[^\s:]+(?:\s+[^\s:]+)?\s*:)/).map(x => x.replace(/^[\s.;]+/, "").trim()).filter(Boolean);
   if (parts.length < 2 && !/^הקבצה\s/.test(t)) return esc(t);
@@ -7623,7 +7625,7 @@ function exShow(id){
   o.innerHTML = `<div class="ex-pop-box" role="dialog" aria-modal="true">
     <div class="ex-pop-h"><b>${st ? "📓 לומדים עכשיו" : "📝 " + esc(e.kind)} · ${esc(exSchName(e))} ${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b><button type="button" class="kp-x" data-expclose aria-label="סגירה" title="סגירה">✕</button></div>
     <div class="muted">${st ? "התקבל " : "יום " + esc(DAY_FULL[dayLetter(e.exam_date)] || "") + " "}${esc(fmtIso(e.exam_date))}</div>
-    ${st && studyAll(e).length > 1 ? studyTxt(studyAll(e), "ex-pop-t") : `${e.topics ? `<div class="ex-pop-t">${exTopicsHtml(e.topics)}</div>` : `<div class="muted ex-pop-t">${st ? "לא נכתבו נושאים." : "עוד לא התקבלו נושאים למבחן הזה."}</div>`}
+    ${st && studyAll(e).length > 1 ? studyTxt(studyAll(e), "ex-pop-t") : `${exT(e) ? `<div class="ex-pop-t">${exTopicsHtml(exT(e))}</div>` : `<div class="muted ex-pop-t">${st ? "לא נכתבו נושאים." : "עוד לא התקבלו נושאים למבחן הזה."}</div>`}
     ${e.material || e.source ? `<div class="ex-pop-meta">${[e.material ? "<b>קובץ:</b> " + esc(e.material) : "", e.source ? "<b>מקור:</b> " + esc(e.source) : ""].filter(Boolean).join(" · ")}</div>` : ""}`}
     ${exIsMar(e) && EX.link ? `<div class="ex-pop-mar">${e.start_time ? `🕒 <span dir="ltr">${esc(hm5(e.start_time))}–${esc(hm5(e.end_time))}</span>` : `<span class="muted">עוד אין שעות - ✎ עריכה</span>`}
       ${ME.role === "instructor" ? "" : e.session_id ? `<div>🔗 מחובר לקישור הרשמה <button type="button" class="btn small primary" data-exkids>👥 נרשמים ונוכחות</button> <button type="button" class="btn small" data-exgomar>למרתונים ←</button></div>` : `<div><button type="button" class="btn small primary" data-exlink>🔗 יצירת קישור הרשמה</button> <span class="muted">לכל המפגשים של המרתון הזה (${exMarSeries(e).length})</span></div>`}</div>` : ""}
@@ -7664,7 +7666,7 @@ function exMarPop(e, mm){
     ${url ? `<div class="ex-mp-lk"><span class="lbl">קישור להרשמה</span><div><a id="mpLk" href="${esc(shortOf(url) || url)}" target="_blank" rel="noopener" dir="ltr">${esc((shortOf(url) || url).replace(/^https?:\/\//, ""))}</a><button type="button" class="btn small" data-mpcopy>העתקה</button></div></div>` : `<div class="muted">אין עדיין קישור הרשמה.</div>`}
     <div class="ex-mp-ms">${mts.map(x => { const n = (String(x.kind).match(/מפגש\s*(\d+)/) || [])[1];
       return `<div class="ex-mp-m"><div class="ex-mp-mh"><i class="${exKindCls(x.kind)}"></i><b>${n ? "מפגש " + n : esc(x.kind)}</b><span>יום ${esc(DAY_FULL[dayLetter(x.exam_date)] || dayLetter(x.exam_date))} ${esc(fmtDM(x.exam_date))}</span>${x.start_time ? `<span dir="ltr" class="muted">${esc(hm5(x.start_time))}${x.end_time ? "–" + esc(hm5(x.end_time)) : ""}</span>` : ""}</div>
-        <div class="ex-mp-t">${x.topics ? exTopicsHtml(x.topics) : `<span class="ex-mp-no">אין נושאים</span> <button type="button" class="btn small" data-mptop="${x.id}">✎ לעדכן נושאים</button>`}</div></div>`; }).join("") || `<div class="muted">אין מפגשים בלוח.</div>`}</div>
+        <div class="ex-mp-t">${exT(x) ? exTopicsHtml(exT(x)) : `<span class="ex-mp-no">אין נושאים</span> <button type="button" class="btn small" data-mptop="${x.id}">✎ לעדכן נושאים</button>`}</div></div>`; }).join("") || `<div class="muted">אין מפגשים בלוח.</div>`}</div>
     <div class="ex-pop-btns"><button type="button" class="btn small" data-mpkids>👥 נרשמים ונוכחות</button><button type="button" class="btn small primary" data-mpedit>פרטי המרתון</button></div></div>`;
   o.hidden = false;
   const q = (sel, fn) => { const b = o.querySelector(sel); if (b) b.onclick = fn; };
@@ -7692,7 +7694,7 @@ async function loadLeadExams(l){
   if (list.length) box.dataset.sum = `${list.length === 1 ? "מבחן אחד" : list.length + " מבחנים"} · הקרוב ${fmtIso(list[0].exam_date)} (${list[0].kind})`;   // 5.19.42
   else box.dataset.sum = stu ? "📓 לומדים עכשיו" + (stu.topics ? ": " + String(stu.topics).slice(0, 60) : "") : (sch.name && s.grade ? "אין מבחנים קרובים ידועים" : "חסרים בית ספר או כיתה בכרטיס");
   if (!list.length) { box.innerHTML = stuH + `<span class="muted">${sch.name && s.grade ? "אין מבחנים קרובים ידועים ל" + esc(sch.name) + " שכבת " + esc(gradeKey(s.grade)) + "'." : "חסרים בית ספר או כיתה בכרטיס."}</span>`; return; }
-  box.innerHTML = stuH + list.map(e => `<div class="ex-row${EX_MAKEUP.test(e.kind) ? " mk" : ""}">${EX_MAKEUP.test(e.kind) ? `<b>${esc(fmtIso(e.exam_date))}</b>` : `<span class="ex-date${exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span>`} · ${esc(e.kind)}${e.topics ? `<div class="ex-topics">${exTopicsHtml(e.topics)}</div>` : ""}${e.material ? `<div class="muted">קובץ: ${esc(e.material)}</div>` : ""}</div>`).join("");
+  box.innerHTML = stuH + list.map(e => `<div class="ex-row${EX_MAKEUP.test(e.kind) ? " mk" : ""}">${EX_MAKEUP.test(e.kind) ? `<b>${esc(fmtIso(e.exam_date))}</b>` : `<span class="ex-date${exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span>`} · ${esc(e.kind)}${exT(e) ? `<div class="ex-topics">${exTopicsHtml(exT(e))}</div>` : ""}${e.material ? `<div class="muted">קובץ: ${esc(e.material)}</div>` : ""}</div>`).join("");
 }
 
 // 5.19.49 (הלקוחה): ברשימה - צבע הסוג (כמו במקרא), סינון לפי סוג בלחיצה, נושאים בחלון קטן, שורה אחת לכל מבחן
@@ -7772,7 +7774,7 @@ async function renderExams(reload){
   if (isMobile()) box.innerHTML = stH + dxBar + `<div class="ex-cards">` + rows.map(e => `<div class="ex-card${e.exam_date < t ? " ex-past" : ""}${EX_MAKEUP.test(e.kind) ? " mk" : ""}">
       <div>${dateTxt(e)} <span class="muted">יום ${esc(DAY_FULL[dayLetter(e.exam_date)] || "")}</span></div>
       <div class="ex-c2">${scChip(exSchName(e))} <b>${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</b> · ${exKindChip(e.kind)}</div>
-      ${e.topics ? `<div class="ex-c3 ex-topics">${exTopicsHtml(e.topics)}</div>` : ""}${e.material ? `<div class="muted ex-c3">קובץ: ${esc(e.material)}</div>` : ""}${btns(e) ? `<div class="ex-c4">${btns(e)}</div>` : ""}</div>`).join("") + `</div>`;
+      ${exT(e) ? `<div class="ex-c3 ex-topics">${exTopicsHtml(exT(e))}</div>` : ""}${e.material || (e.extra_files || []).length ? `<div class="muted ex-c3">קובץ: ${esc([e.material].concat(e.extra_files || []).filter(Boolean).join(" · "))}</div>` : ""}${btns(e) ? `<div class="ex-c4">${btns(e)}</div>` : ""}</div>`).join("") + `</div>`;
   else box.innerHTML = stH + dxBar + `<div class="tbl-wrap"><table class="tbl ex-tbl"><thead><tr><th>תאריך</th><th>בית ספר</th><th>שכבה</th><th>סוג</th><th>נושאים / חומר</th><th>מקור</th>${adm ? "<th></th>" : ""}</tr></thead><tbody>` +
     rows.map(e => { const d = exDays(e.exam_date, t), mk = EX_MAKEUP.test(e.kind);
       return `<tr class="${e.exam_date < t ? "ex-past" : ""}${mk ? " mk" : ""}">
@@ -7902,8 +7904,8 @@ function exMobile(){
     return `<div class="exm-dh">${esc(dLbl(d))}</div>` + (l.length ? l.map(e => { const n = (String(e.kind).match(/מפגש\s*(\d+)/) || [])[1], nt = exIsMar(e) ? nextTest(exSchName(e), gradeKey(e.grade), e.exam_date) : null;
       return `<button type="button" class="exm-mar${e.id === EX.mEv ? " on" : ""}" data-ex="${e.id}"><i class="${exKindCls(e.kind)}"></i><span class="exm-it-b"><span class="exm-mh"><b>${n ? "מרתון · מפגש " + n : esc(e.kind)}</b>${e.start_time ? `<span class="exm-tm" dir="ltr">${esc(hm5(e.start_time))}${e.end_time ? "–" + esc(hm5(e.end_time)) : ""}</span>` : ""}${e.time_label ? `<span class="muted">${esc(e.time_label)}</span>` : ""}</span>
         <span>${scChip(exSchName(e))} <span class="gbadge g-${gradeKey(e.grade)}">${esc(gradeKey(e.grade))}'${esc(e.class_num || "")}</span> <span class="muted">${esc(exCity(e))}</span></span>
-        ${EX_IS_TEST(e.kind) ? `<span class="exm-for">${e.topics ? "חומר: " + exTopicsHtml(e.topics) : `<span class="muted">עוד אין חומר למבחן</span>`}</span>` : ""}
-        ${nt ? `<span class="exm-for">לקראת ${esc(nt.kind)} ב-${esc(fmtDM(nt.exam_date))}${nt.topics ? ": " + exTopicsHtml(nt.topics) : ""}</span>` : ""}</span></button>`; }).join("") : `<div class="muted exm-none">אין אירועים ביום הזה.</div>`); };
+        ${EX_IS_TEST(e.kind) ? `<span class="exm-for">${exT(e) ? "חומר: " + exTopicsHtml(exT(e)) : `<span class="muted">עוד אין חומר למבחן</span>`}</span>` : ""}
+        ${nt ? `<span class="exm-for">לקראת ${esc(nt.kind)} ב-${esc(fmtDM(nt.exam_date))}${exT(nt) ? ": " + exTopicsHtml(exT(nt)) : ""}</span>` : ""}</span></button>`; }).join("") : `<div class="muted exm-none">אין אירועים ביום הזה.</div>`); };
   if (EX.mTab === "week") {
     // 5.19.88 (נועה): "לוח שנה ממש" – שבוע: עמודה לכל יום והאירועים בתוכה; חודש: משבצות עם נקודות, ולחיצה על יום מציגה את האירועים שלו
     const short = (n) => String(n || "").replace(/^אורט /, "").replace(/ המרכז.*$/, "").slice(0, 7);
@@ -7937,7 +7939,7 @@ function exMobile(){
       const tm = e.start_time ? `<span class="exm-tm" dir="ltr">${esc(hm5(e.start_time))}${e.end_time ? "–" + esc(hm5(e.end_time)) : ""}</span>` : `<span class="muted">בלי שעה</span>`;
       h += `<button type="button" class="exm-mar" data-ex="${e.id}"><i class="${exKindCls(e.kind)}"></i><span class="exm-it-b"><span class="exm-mh"><b>${n ? "מפגש " + n : esc(e.kind)}</b>${tm}${e.time_label ? `<span class="muted">${esc(e.time_label)}</span>` : ""}</span>
         <span>${scChip(exSchName(e))} <span class="gbadge g-${gradeKey(e.grade)}">${esc(gradeKey(e.grade))}'</span> <span class="muted">${esc(exCity(e))}</span></span>
-        ${nt ? `<span class="exm-for">לקראת ${esc(nt.kind)} ב-${esc(fmtDM(nt.exam_date))}: ${nt.topics ? exTopicsHtml(nt.topics) : `<span class="muted">עוד אין חומר למבחן</span>`}</span>` : `<span class="muted exm-for">אין מבחן אחרי המפגש</span>`}</span></button>`;
+        ${nt ? `<span class="exm-for">לקראת ${esc(nt.kind)} ב-${esc(fmtDM(nt.exam_date))}: ${exT(nt) ? exTopicsHtml(exT(nt)) : `<span class="muted">עוד אין חומר למבחן</span>`}</span>` : `<span class="muted exm-for">אין מבחן אחרי המפגש</span>`}</span></button>`;
     });
     if (!list.length) h += `<div class="muted exm-empty">אין מפגשי מרתון ב-${EX.mDays} הימים הקרובים.</div>`;
     h += `<button type="button" class="btn small exm-more" data-exmmore>עוד חודש ←</button>`;
@@ -8931,7 +8933,7 @@ setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && M
 // ===== 5.19.56: תיבת הודעות מהטפסים (קובץ 71) =====
 // כל טופס שנשלח (הרשמה, מרתון, התעניינות, בקשת שיבוץ, ביטול חתום, תשלום אישי) = שורה. פרטים שלא תואמים (issues) - משיחת התשלומים
 const IB = { rows: null, f: "open", k: "", ks: new Set(), done: [], doneEnd: false, ok: true, lastMax: Number(store("telem_ib_max") || 0), names: {}, mars: {} };
-const IB_KIND = { sign: ["✍️", "אישור תנאי התקשרות"], registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"] };   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
+const IB_KIND = { material: ["📄", "חומר שלא שויך"], sign: ["✍️", "אישור תנאי התקשרות"], registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"] };   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
 const IB_FLAG = { blocked_already: ["t-warn", "ניסה/תה לשלוח שוב – נחסם (כבר רשום/ה)"], blocked_review: ["t-warn", "נעצר לבדיקה – אותו שם, בלי טלפון מוכר, וכבר רשום/ה (לא נשמר, לא שולם)"], status_mismatch: ["t-warn", "הסטטוס לא תואם לתשלום"], plan_withdrawn: ["t-warn", "לבטל בריווחית"], phone_pending: ["t-warn", "תשלום טלפוני ממתין"], system_issue: ["t-warn", "תקלה טכנית"], added: ["t-new", "נוסף/ה לקבוצה"],   // 5.19.127 (תש-16, icredit-24) removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], plan_paused: ["t-old", "הוראת קבע הושהתה"],
   plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"],
@@ -9008,6 +9010,7 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
     : r.kind === "payment" ? [d.title, d.description, amt(d.amount), d.text]
     : r.kind === "portal_code" ? [d.phone ? "טלפון: " + tsPhF(d.phone) : "", "שכח/ה את הקוד"]
     : r.kind === "contact" ? [d.phone, d.email, d.message ? String(d.message).slice(0, 80) + (String(d.message).length > 80 ? "…" : "") : ""]
+    : r.kind === "material" ? [d.school, d.grade ? "שכבה " + d.grade : "", d.kind, d.reason, d.topics ? String(d.topics).slice(0, 70) + (String(d.topics).length > 70 ? "…" : "") : "", d.file]   // או-10
     : r.kind === "unassigned" ? [d.status, d.city, d.school, d.days != null ? (d.days === 0 ? "נרשם/ה היום" : d.days === 1 ? "נרשם/ה אתמול" : `נרשם/ה לפני ${d.days} ימים`) : "", d.pending ? "יש רק שיבוץ ממתין" : "בלי שיבוץ בקבוצה שוטפת"]
     : r.kind === "duplicate" ? [d.dup_name ? "מול: " + d.dup_name : "", d.why, d.year ? "פנייה מ-" + d.year : "", d.legacy_new ? "ליד ב-CRM " + d.legacy_new : "", d.legacy_old ? "(הקיים: " + d.legacy_old + ")" : ""]
     : r.kind === "interest" ? (() => { const p = d.payload || {}; return [(p.courses || []).join(", "), p.notes ? String(p.notes).slice(0, 90) : "", p.parent && p.parent.phone || d.phone]; })()   // 5.19.152: על מה התעניינו
@@ -9221,7 +9224,7 @@ async function renderInbox(reload){
       <span class="ib-n">${ibNameLink(r, lead)}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
       <span class="ib-time">${esc(when(r.created_at))}</span>
-      <span class="ib-acts">${r.kind === "payment" && (r.flags || []).includes("plan_withdrawn") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibplan="${r.student_id}" title="מסך התשלומים – השורה של הוראת הקבע (הביטול עצמו – בריווחית)">להוראת הקבע ←</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) ? ((r.data || {}).merged_at ? `<span class="ib-tag t-new" title="${esc(fmtDate((r.data || {}).merged_at))}">✓ בוצע איחוד</span>` : ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : "") : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : !pr && ME.role === "admin" && (r.kind === "marathon" || r.kind === "registration") && (r.flags || []).includes("phone_pending") && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${dd.length && ME.role === "admin" && r.status !== "handled" ? `<button type="button" class="btn small" data-ibdupx="${r.id}" title="ההרשמות הקודמות יסומנו &quot;בוטל&quot; – נשארת האחרונה">ביטול הכפולה</button>` : ""}${(() => { const act = w || pr || pi || r.kind === "marathon" || r.kind === "registration" || (r.flags || []).includes("blocked_already") || (r.flags || []).includes("blocked_review") || (r.flags || []).includes("status_mismatch");
+      <span class="ib-acts">${r.kind === "material" && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibmat="${r.id}" title="לצרף את החומר למבחן מלוח המבחנים">לשייך למבחן</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("plan_withdrawn") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibplan="${r.student_id}" title="מסך התשלומים – השורה של הוראת הקבע (הביטול עצמו – בריווחית)">להוראת הקבע ←</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) ? ((r.data || {}).merged_at ? `<span class="ib-tag t-new" title="${esc(fmtDate((r.data || {}).merged_at))}">✓ בוצע איחוד</span>` : ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : "") : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : !pr && ME.role === "admin" && (r.kind === "marathon" || r.kind === "registration") && (r.flags || []).includes("phone_pending") && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${dd.length && ME.role === "admin" && r.status !== "handled" ? `<button type="button" class="btn small" data-ibdupx="${r.id}" title="ההרשמות הקודמות יסומנו &quot;בוטל&quot; – נשארת האחרונה">ביטול הכפולה</button>` : ""}${(() => { const act = w || pr || pi || r.kind === "marathon" || r.kind === "registration" || (r.flags || []).includes("blocked_already") || (r.flags || []).includes("blocked_review") || (r.flags || []).includes("status_mismatch");
         // 5.20.40 (נועה 2.11): הודעה שרק צריך לקרוא – "✓ נקרא" מוריד אותה מהרשימה (עוברת ל"טופלו"); הודעה שצריך לטפל בה – "✓ נקרא" (מוריד את הבולד) + "✓ טופל"
         // 5.20.49 (נועה 3.11: "נקרא בהגדרה אומר שזה טופל"): רק "✓ טופל" – עובר ל"טופלו"
         return (act ? (r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : "")
@@ -9240,6 +9243,19 @@ async function renderInbox(reload){
     patch("form_inbox", "id=in.(" + ids.map(x => x.id).join(",") + ")", { status: "seen" }).then(() => ibPaint(ibCountKids(IB.rows.filter(x => x.status === "new")))).catch(() => {}); };
   box.querySelectorAll("[data-ibl]").forEach(a => a.onclick = () => { ibOpened(a); openLead(Number(a.dataset.ibl)); });
   // נועה 6.11: "פרש – לבטל בריווחית" → מסך התשלומים, השורה של הוראת הקבע (לא הכרטיס)
+  // או-10 (AUTO-06): "לשייך למבחן" – בחירה מלוח המבחנים (ברירת מחדל: אותו בית ספר + שכבה, מהיום והלאה) → school_material_attach
+  box.querySelectorAll("[data-ibmat]").forEach(a => a.onclick = async () => { const r = IB.rows.find(x => x.id === Number(a.dataset.ibmat)); if (!r) return; const d = r.data || {};
+    let ex = []; try { ex = await loadExams(); } catch(e) {}
+    const today = todayIL(), sk = schKey(d.school), gr = String(d.grade || "").replace(/['׳"]/g, "");
+    const up = (ex || []).filter(e => String(e.exam_date || "") >= today && EX_IS_TEST(e.kind)).sort((x, y) => String(x.exam_date).localeCompare(String(y.exam_date)));
+    const mine = up.filter(e => schKey(exSchName(e)) === sk && String(e.grade || "").replace(/['׳"]/g, "") === gr);
+    const opt = (e) => ({ v: String(e.id), t: `${fmtDM(e.exam_date)} · ${e.kind || "מבחן"} · ${exSchName(e)} ${e.grade || ""}'${e.topics || e.extra_topics ? "" : " · אין נושאים"}` });
+    let pick = await uiChoose(`לשייך את החומר (${[d.school, d.grade ? "שכבה " + d.grade : "", d.file].filter(Boolean).join(" · ")}) למבחן:`, (mine.length ? mine.slice(0, 12).map(opt) : []).concat([{ v: "__all", t: mine.length ? "מבחן אחר…" : "בחירה מכל המבחנים הקרובים…" }]));
+    if (pick === "__all") pick = await uiChoose("לשייך למבחן:", up.slice(0, 40).map(opt));
+    if (!pick || pick === "__all") return;
+    a.disabled = true;
+    try { await rpc("school_material_attach", { p_inbox: r.id, p_exam: Number(pick) }); toast("החומר שויך למבחן"); try { await loadExams(true); } catch(e) {} renderInbox(true); }
+    catch(e) { a.disabled = false; toast("לא שויך: " + (e.message || "")); } });
   box.querySelectorAll("[data-ibplan]").forEach(a => a.onclick = () => { ibOpened(a); PAY.kidPlan(Number(a.dataset.ibplan), ibName(IB.rows.find(x => x.id === Number((a.closest("[data-ib]") || {}).dataset.ib)) || {})); });
   box.querySelectorAll("[data-ibsid]").forEach(a => a.onclick = () => { ibOpened(a); if (a.dataset.ibpay) LP_OPEN = true; ibOpenStudent(Number(a.dataset.ibsid), a); });
   // 5.19.127 (תש-16): תשלום טלפוני שממתין – "✔ שולם" ישר מההתראה (השרת סוגר את ההתראה לבד)
@@ -10360,8 +10376,8 @@ function scExamsHtml(x){
   const blk = grs.map(g => { const ex = examsFor(x.name, x.city, g, null, t).slice(0, 6), st = studyFor(x.name, x.city, g, null, t);
     if (!ex.length && !st) return "";
     return `<div class="sx-g"><span class="gr-b g-${esc(g)}">${esc(g)}'</span><div class="sx-b">
-      ${st ? `<div class="ex-row ex-study"><b>📓 לומדים עכשיו</b> <span class="muted">(התקבל ${esc(fmtDM(st.exam_date))})</span>${studyAll(st).length > 1 ? studyTxt(studyAll(st), "ex-topics") : st.topics ? `<div class="ex-topics">${exTopicsHtml(st.topics)}</div>` : ""}</div>` : ""}
-      ${ex.map(e => `<div class="ex-row${EX_MAKEUP.test(e.kind) ? " mk" : ""}"><span class="ex-date${exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span> · ${esc(e.kind)}${e.class_num ? ` <span class="muted">(${esc(g)}'${esc(e.class_num)})</span>` : ""}${e.topics ? `<div class="ex-topics">${exTopicsHtml(e.topics)}</div>` : `<span class="muted"> · עוד אין חומר</span>`}</div>`).join("")}</div></div>`; }).join("");
+      ${st ? `<div class="ex-row ex-study"><b>📓 לומדים עכשיו</b> <span class="muted">(התקבל ${esc(fmtDM(st.exam_date))})</span>${studyAll(st).length > 1 ? studyTxt(studyAll(st), "ex-topics") : exT(st) ? `<div class="ex-topics">${exTopicsHtml(exT(st))}</div>` : ""}</div>` : ""}
+      ${ex.map(e => `<div class="ex-row${EX_MAKEUP.test(e.kind) ? " mk" : ""}"><span class="ex-date${exCls(e.exam_date, t)}">${esc(fmtIso(e.exam_date))}</span> · ${esc(e.kind)}${e.class_num ? ` <span class="muted">(${esc(g)}'${esc(e.class_num)})</span>` : ""}${exT(e) ? `<div class="ex-topics">${exTopicsHtml(exT(e))}</div>` : `<span class="muted"> · עוד אין חומר</span>`}</div>`).join("")}</div></div>`; }).join("");
   return `<div class="card sx-card"><div class="sx-h"><h3>מבחנים וחומר</h3><button type="button" class="btn small" data-sxadd="${esc(x.name)}|${esc(x.city)}">+ אירוע</button><button type="button" class="btn small" data-sxcal="${esc(x.name)}|${esc(x.city)}" title="לוח המבחנים – רק בית הספר הזה">🗓️ בלוח</button></div>${blk || `<span class="muted">אין מבחנים קרובים ידועים.</span>`}</div>`;
 }
 function bindSchoolExams(root){
@@ -13253,7 +13269,8 @@ function newLink(src, mode, opt){
   const reqDef = (k) => F[k] ? !!F[k].required : true;   // נועה 6.11: כמו בטופס ההרשמה – הכול חובה (אפשר לבטל)
   pnlOpen(`<header><div><h2>${ed ? "עריכת קישור אישי" : mode === "dup" ? "קישור חדש – שכפול" : "קישור אישי חדש"}</h2><div class="muted">${ed ? "אותו קישור – ההורה יראה את השינויים כשיפתח אותו." : "נשלח להורה כקישור. מה שממלאים כאן – נעול עבור ההורה."}</div></div><button class="btn small x" type="button">✕</button></header>
     <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${[["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"]].map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
-      <div style="grid-column:1/-1"><label class="lbl" for="nDesc">תיאור (יופיע להורה ובחשבונית)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
+      <div style="grid-column:1/-1"><label class="lbl" for="nDesc">תיאור (יופיע להורה)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
+      <div style="grid-column:1/-1" id="nProdW"><label class="lbl" for="nProd">מוצר בחשבונית <span class="muted" style="font-weight:400">(כמו בקטלוג בריווחית)</span></label><select id="nProd"><option value="">אוטומטי – לפי התיאור / המקצוע</option>${["שיעורי מתמטיקה", "שיעורי אנגלית", "שיעורי מתמטיקה ואנגלית", "דמי שיבוץ והרשמה", "שירות עבור חומרי תרגול דיגיטליים"].map(x => `<option>${x}</option>`).join("")}</select></div><!-- תש-56 (נועה 8.11) -->
       <div class="nl-trial" hidden><label class="lbl" for="nTrTrack">מסלול</label><select id="nTrTrack"><option value="">בחירת מסלול</option>${LK.tracks.map(x => `<option value="${x.v}">${esc(x.t)}</option>`).join("")}</select></div>
       <div class="nl-trial nl-trsub" hidden><label class="lbl" for="nTrSub">מקצוע</label><select id="nTrSub"><option value="">בחירת מקצוע</option><option>מתמטיקה</option><option>אנגלית</option></select></div>
       <div class="nl-trial" hidden><label class="lbl" for="nTrStart">תאריך התחלה</label><input type="date" id="nTrStart"></div>
@@ -13303,7 +13320,7 @@ function newLink(src, mode, opt){
       $("nStuQ").value = ""; r.hidden = true; stuPaint(); lockPaint(); }); };
   // מילוי מקישור קיים (עריכה / שכפול)
   if (src) {
-    $("nDesc").value = src.description || ""; $("nOnce").value = src.one_time_amount || ""; $("nNote").value = src.note || "";
+    $("nDesc").value = src.description || ""; $("nOnce").value = src.one_time_amount || ""; $("nNote").value = src.note || ""; if ($("nProd")) $("nProd").value = src.product || "";
     if (src.monthly_amount) { $("nRec").checked = true; $("nRec").onchange(); $("nMAmt").value = src.monthly_amount; $("nMCnt").value = src.monthly_count || ""; $("nMFirst").value = src.first_monthly_date ? String(src.first_monthly_date).slice(0, 10) : ""; }
     FIELDS.forEach(([k]) => { if (k === "school") schools(); sv(k, F[k] && F[k].value); });
     if (src.order_kind) SID = null;   // קישור על הרשמה קיימת – ההרשמה עצמה לא משוכפלת
@@ -13318,6 +13335,7 @@ function newLink(src, mode, opt){
     $("payPnl").querySelector(".nl-trcity").hidden = TY !== "trial" || !!SID;
     const cf = $("payPnl").querySelector('.nl-f[data-k="city"]'); if (cf) cf.hidden = TY === "trial" && !SID;
     ["track", "subject"].forEach(k => { const f = $("payPnl").querySelector(`.nl-f[data-k="${k}"]`); if (f) f.hidden = TY === "trial"; });   // בניסיון – המסלול והמקצוע נקבעים למעלה   // בניסיון בלי כרטיס – העיר נקבעת למעלה (נעולה להורה)
+    if ($("nProdW")) $("nProdW").hidden = TY === "trial";   // תש-56: בניסיון – השרת קובע (3 שורות בחיוב הראשון)
     $("nDesc").placeholder = TY === "trial" ? "ריק – חודש ניסיון + שם המסלול" : TY === "single" ? "שיעור בודד" : "למשל: שיעור פרטי – 3 מפגשים";
     $("nSave").textContent = ed ? "שמירה" : TY === "trial" ? "יצירת קישור לחודש ניסיון" : "יצירת קישור";
     if (set === "single") { if (!$("nDesc").value.trim() || /^חודש ניסיון/.test($("nDesc").value)) $("nDesc").value = "שיעור בודד"; $("nOnce").value = 118; $("nRec").checked = false; $("nRec").onchange(); }
@@ -13358,7 +13376,7 @@ function newLink(src, mode, opt){
     const once = Number($("nOnce").value), err = $("nErr"); err.textContent = "";
     if (!$("nDesc").value.trim()) { err.textContent = "חסר תיאור."; return; }
     if (!(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
-    const p = { description: $("nDesc").value.trim(), one_time_amount: once, fields: {}, note: $("nNote").value.trim() };
+    const p = Object.assign($("nProd") && $("nProd").value ? { product: $("nProd").value } : {}, { description: $("nDesc").value.trim(), one_time_amount: once, fields: {}, note: $("nNote").value.trim() });   // תש-56: המוצר בחשבונית (ריק – השרת מנחש)
     if (SID) p.student_id = SID;
     if (ed && src.order_kind) p.order = { kind: src.order_kind, id: src.order_id };
     if ($("nRec").checked) { const a = Number($("nMAmt").value), c = Number($("nMCnt").value); if (!(a > 0) || !(c >= 1 && c <= 24)) { err.textContent = "בהוראת קבע: סכום חודשי ומספר חיובים (1-24)."; return; } p.monthly = { amount: a, count: c, first_date: $("nMFirst").value || "" }; }
