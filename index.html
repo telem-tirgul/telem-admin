@@ -4196,6 +4196,14 @@ async function crsAfterStatus(m, od){
   try { await regHowAsk(l.id, m, od); await withdrawAsk(m, nm, od); await planWarnCrs(m, nm, od); } catch(e) {}
 }
 // נועה 8.11: פרש / בוטל בתרגול השוטף ויש הוראת קבע פעילה – להזכיר (הביטול עצמו – בריווחית / באיקרדיט)
+// תש-59: הסטטוס של טפסי ההרשמה האישיים בכרטיס (מתחת לכפתורים)
+const REG_ST = { sent: "נשלח", opened: "נפתח", registered: "✓ נרשם", expired: "פג תוקף" };
+async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !sid || ME.role !== "admin") return; let box = $("lcRegLinks");
+  if (!box) { slot.insertAdjacentHTML("afterend", '<div id="lcRegLinks" class="muted" style="font-size:12.5px;margin:4px 0 0"></div>'); box = $("lcRegLinks"); }
+  let ls = []; try { ls = (await rpc("reg_links_list", { p_student: sid })) || []; } catch(e) { box.innerHTML = ""; return; }
+  if (!editing || !editing.student || editing.student.id !== sid) return;
+  box.innerHTML = ls.slice(0, 3).map(x => `📝 טופס הרשמה אישי · ${esc(x.city || "")} · ${esc(fmtDM(String(x.created_at || "").slice(0, 10)))} · <b>${esc(REG_ST[x.status] || x.status)}</b>${x.status !== "registered" && x.status !== "expired" ? ` <button type="button" class="btn small" data-copy="${esc(x.url)}" style="padding:0 8px">העתקה</button>` : ""}`).join("<br>");
+  box.querySelectorAll("[data-copy]").forEach(c => c.onclick = () => copyText(c.dataset.copy)); }
 async function planWarnCrs(m, nm, od){
   const c = CRS.byId[m.course_id] || {}, gone = (x) => ["פרש", "בוטל"].includes(x);
   if (ME.role !== "admin" || c.marathon_id || !gone(m.status) || gone(od)) return;
@@ -6003,7 +6011,7 @@ async function planUnmarkCancel(p){
   if (!await uiConfirm('לבטל את הסימון "בוטלה"?\nההוראה תחזור ל"מושהית".')) return false;
   try { await rpc("recurring_plan_unmark_cancelled", { p_id: p.id }); toast('הסימון "בוטלה" בוטל'); return true; }
   catch(e) { toast(planErr(e)); return false; } }
-const planMarkBtns = (p, attr) => false && ME && ME.role === "admin" ? (planCanMark(p) ? `<button type="button" class="btn small" data-${attr}="mark">✕ סימון: בוטלה</button>` : planMarked(p) ? `<button type="button" class="btn small" data-${attr}="unmark">ביטול הסימון</button>` : "") : "";
+const planMarkBtns = (p, attr) => ME && ME.role === "admin" ?   /* תש-61 (נועה 8.11): חזר – הוראה מושהית (בוטלה בריווחית) → "✕ סימון: בוטלה" */ (planCanMark(p) ? `<button type="button" class="btn small" data-${attr}="mark">✕ סימון: בוטלה</button>` : planMarked(p) ? `<button type="button" class="btn small" data-${attr}="unmark">ביטול הסימון</button>` : "") : "";
 // ---------- טופס ביטול: מכינים כאן, ההורה רק חותם/ת ----------
 const TRACK_T = (v) => (LK.tracks.find(x => x.v === v) || {}).t || v || "";
 const CAN_ST = { "נשלח": "נשלח להורה - ממתין לחתימה", "נחתם": "נחתם - ממתין לאישור", "אושר": "אושר", "בוטל": "בוטל" };
@@ -6441,12 +6449,15 @@ async function loadLeadGroups(studentId){
         `<div class="lg-pend">🏁 <b>${esc(x.marathon.name)}</b>${x.session && x.session.time_label ? " · " + esc(x.session.time_label) : ""}<span class="lg-pend-t">⏳ ממתין לתשלום – ישובץ/תשובץ אחרי "שולם"</span></div>`); }); } catch(e) {}
     // 5.19.173 (נועה): "+ הוספה לקורס" – מעל הקורסים; "+ הוספה לקבוצה" – בתוך הקורס של התרגול השוטף (אין – למטה)
     if ($("lcAddSlot")) $("lcAddSlot").innerHTML = (CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : "")
-      + (ME.role === "admin" ? `<button type="button" class="btn small primary" data-cardlk="reg" title="טופס ההרשמה של העיר שבכרטיס – הקישור מועתק">+ טופס הרשמה אישי</button><button type="button" class="btn small primary" data-cardlk="pay" title="קישור אישי (תשלום) – ממולא מהכרטיס ומחובר אליו">+ קישור אישי</button>` : "");   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
+      + (ME.role === "admin" ? `<button type="button" class="btn small primary" data-cardlk="reg" title="טופס הרשמה ממולא מהכרטיס, לאותו כרטיס (7 ימים) – הקישור מועתק">+ טופס הרשמה אישי</button><button type="button" class="btn small primary" data-cardlk="pay" title="קישור אישי (תשלום) – ממולא מהכרטיס ומחובר אליו">+ קישור אישי</button>` : "");   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
     $("lcAddSlot").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = async () => { const sid = editing && editing.student && editing.student.id; if (!sid) return;
       if (b.dataset.cardlk === "pay") { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.newLink(sid); return; }
       const city = ((editing.student.family || {}).city || "").trim(); if (!city) { toast("בכרטיס אין עיר מגורים – יש להשלים אותה"); return; }
-      const u = lkReg(city); if (shortOf(u)) { copyText(shortOf(u), "קישור ההרשמה של " + city + " הועתק (עוד בלי מילוי אוטומטי – בקרוב)"); return; }
-      try { const sh = await makeShort(u); copyText(sh, "קישור ההרשמה של " + city + " הועתק (עוד בלי מילוי אוטומטי – בקרוב)"); } catch(e) { copyText(u, "קישור ההרשמה של " + city + " הועתק (עוד בלי מילוי אוטומטי – בקרוב)"); } });
+      // תש-59 (icredit-47): טופס הרשמה אישי – ממולא מהכרטיס, לאותו כרטיס, עם מעקב (נשלח / נפתח / נרשם), 7 ימים
+      b.disabled = true; let r; try { r = await rpc("reg_link_create", { p_student: sid, p_city: city }); } catch(e) { b.disabled = false; toast("לא נוצר: " + (e.message || "")); return; }
+      b.disabled = false; let u = r.url; try { u = await makeShort(r.url); } catch(e) {}
+      copyText(u, "טופס ההרשמה האישי (" + city + ") הועתק – בתוקף 7 ימים"); regLinksPaint(sid); });
+    regLinksPaint(editing && editing.student && editing.student.id);
     { const gb = $("leadGroups").querySelector(".lg-crs-box.lg-reg"), html = `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></div><div class="lg-edit lg-card" data-ed="new" hidden></div>`;
       const gs = gb && gb.querySelector(".lg-add-slot"); if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
     if ($("lcAdd")) $("lcAdd").onclick = () => { const sid = editing && editing.student && editing.student.id; if (sid !== studentId) { toast("הכרטיס התחלף – פותחים שוב"); return; } const l0 = L.leads.find(x => x.student && x.student.id === sid); if (!l0) return;
@@ -13055,6 +13066,7 @@ async function openPlan(id, first){
     ${p.status === "creating" ? `<div class="note">התשלום הראשון התקבל. ההוראה מוקמת באיקרדיט אוטומטית (תוך כמה דקות).</div>` : ""}
     ${p.status === "error" ? `<div class="note err">ההוראה לא הוקמה באיקרדיט. צריך להקים אותה ידנית בריווחית, או לבטל כאן.</div>` : ""}
     ${live ? `<div class="muted pl-hint" style="margin:6px 0 4px">שינויים בהוראת הקבע (סכום, יום חיוב, כרטיס, השהיה, ביטול) – בריווחית. מתעדכן כאן כל בוקר.</div>` : ""}
+    ${planCanMark(p) || planMarked(p) ? `<div class="pl-mark" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:6px 0">${planMarked(p) ? `<span class="muted">${planMarkInfo(p)}</span>` : `<span class="muted">ההוראה מושהית. אם בוטלה בריווחית –</span>`}${planMarkBtns(p, "opcx")}</div>` : ""}
     ${false && live ? `<div class="tx-acts pl-acts">
         ${p.status === "paused" ? `<button class="btn small primary" data-a="active" type="button">▶ חידוש</button>` : `<button class="btn small" data-a="paused" type="button">⏸ השהיה</button>`}
         <button class="btn small" type="button" data-ed="pEdDay">📅 יום החיוב</button><button class="btn small" type="button" data-ed="pEdAmt">₪ סכום וחיובים</button>
@@ -13072,6 +13084,9 @@ async function openPlan(id, first){
     <div class="muted pl-hint" style="margin-top:10px">החלפת כרטיס וחיוב מיידי – בריווחית. שינוי שנעשה שם מתעדכן כאן כל בוקר.${p.synced_at ? " סונכרן " + dmy(p.synced_at) + "." : ""}</div>`;
   if ($("dlPdf")) $("dlPdf").onclick = async (e) => { e.target.disabled = true; try { await txPdf(fp); } catch(er) { toast("לא ניתן להוריד: " + er.message); } e.target.disabled = false; };
   wireRowActs($("payPnl"), rows, () => { refresh().then(() => openPlan(id, first)); });
+  $("payPnl").querySelectorAll("[data-opcx]").forEach(b => b.onclick = async () => { b.disabled = true;   // תש-61
+    const ok = b.dataset.opcx === "unmark" ? await planUnmarkCancel(p) : await planMarkCancel(p, p.student_name);
+    if (ok) { PLANS_C = null; await refresh(); openPlan(id, first); } else b.disabled = false; });
   $("payPnl").querySelectorAll("[data-ed]").forEach(x => x.onclick = () => { const t = $(x.dataset.ed), open = t.hidden; $("payPnl").querySelectorAll(".pl-ed").forEach(e => e.hidden = true); $("payPnl").querySelectorAll("[data-ed]").forEach(e => e.classList.remove("on")); t.hidden = !open; x.classList.toggle("on", open); });
   const body = $("payPnl").querySelector(".body");
   body.querySelectorAll("[data-a]").forEach(btn => btn.onclick = async () => {
