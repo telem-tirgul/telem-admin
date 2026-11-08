@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.72">
+<meta name="app-version" content="5.21.73">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2093,7 +2093,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 #payWrap .st-paused{ background:#FBE1C2; color:#9A4D0B; } .lp-st.pz{ background:#FBE1C2 !important; color:#9A4D0B !important; }   /* נועה 8.11: הוראה מושהית – כתום */
 .ic-x{ font-size:.85em; display:inline-block; text-decoration:none; } .deals tr.kd-multi td{ vertical-align:top; } .kd-l{ min-height:28px; display:flex; align-items:center; gap:4px; flex-wrap:wrap; } .kd-l + .kd-l{ border-top:1px dashed #E6DDD3; } .c-desc .kd-l span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .kd-crs-l{ display:flex; flex-direction:column; gap:10px; padding-top:6px; } .kd-crs{ border:1px solid #E2D6C8; border-radius:12px; background:#FFFDFB; padding:8px 10px; } .kd-crs-h{ display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px; } .kd-deal{ position:relative; } .kd-frm{ position:absolute; top:-34px; left:0; } .kd-deal + .kd-deal .kd-frm{ top:4px; } .kd-deal .dx-form{ display:none !important; } .kd-crs:not(:first-child) .dx-info, .kd-deal + .kd-deal .dx-info{ display:none !important; } .kd-deal + .kd-deal{ margin-top:8px; padding-top:8px; border-top:1px dashed #E2D6C8; } .kd-deal-h{ font-size:12.5px; margin:0 2px 4px; }
-.lg-crs-box.lg-lead{ border-style:dashed; background:#FFFDF9; } .lg-lead .lg-crs{ padding-block:4px; }
+.cm-until{ font-size:12px; color:#6b6159; white-space:nowrap; margin-inline-start:4px; } .lg-crs-box.lg-lead{ border-style:dashed; background:#FFFDF9; } .lg-lead .lg-crs{ padding-block:4px; }
 #payWrap .st-refund{ background:#E8DDF5; color:#5B3A8A; }   /* נועה 8.11: זוכה / זיכוי חלקי – סגול */
 #payWrap .st-phone{ background:var(--warn-bg); color:var(--warn); }   /* 📞 ממתין לתשלום טלפוני */
 #payWrap .st-failed, #payWrap .st-error, #payWrap .kchip.k-bad{ background:#F4CFCB; color:#8E2B28; }   /* 5.19.45: "לא התקבל" - רקע אדום (כמו שאר התגיות) */
@@ -4100,7 +4100,7 @@ async function crsLoadMembers(filter){   // טוען רישומים (מוסיף 
   let cm; const q = (x) => CRS_CMS.replace("%S%", x) + "&" + filter;
   if (CRS.hasTrk === undefined) { CRS.hasTrk = CRS.hasSrc = true; }
   // 5.20.8: + signed_via (קובץ 141), history_at / history_note (קובץ 148) – כל שלב נופל לקודם אם העמודה עוד לא קיימת
-  const tiers = [",source_id,track,signed_via,history_at,history_note,tracking", ",source_id,track,signed_via,history_at,history_note", ",source_id,track,signed_via", ",source_id,track", ",source_id", ""].slice(CRS.cmTier || 0);
+  const tiers = [",source_id,track,signed_via,history_at,history_note,tracking,until_on", ",source_id,track,signed_via,history_at,history_note,tracking", ",source_id,track,signed_via,history_at,history_note", ",source_id,track,signed_via", ",source_id,track", ",source_id", ""].slice(CRS.cmTier || 0);
   for (let i = 0; i < tiers.length; i++) { try { cm = await getAll("course_members", q(tiers[i])); CRS.cmTier = (CRS.cmTier || 0) + i; break; } catch(e) { if (i === tiers.length - 1) throw e; } }
   CRS.hasTrk = CRS.cmTier <= 3; CRS.hasSrc = CRS.cmTier <= 4; CRS.hasHist = CRS.cmTier <= 1; CRS.hasCmTrack = CRS.cmTier === 0;   // 5.20.23: + tracking (קובץ 155)
   cm.forEach(m => { if (CRS.cmIds.has(m.id)) { const a = CRS.cm[m.student_id] || [], i = a.findIndex(x => x.id === m.id); if (i >= 0) a[i] = m; return; }
@@ -4161,7 +4161,7 @@ function crsStList(){ if (CRS.sts && CRS.sts.length) return CRS.sts.filter(x => 
   return Object.keys(CRS_ST).map(n => { const k = CRS_ST_COL[n] || ["", "#888"]; return { name: n, label: CRS_ST_NAME[n] || n, color: ((L.statuses || []).find(x => x.name === k[0]) || {}).color || k[1] }; }); }
 const crsStOf = (n) => (crsStList().find(x => x.name === n) || (CRS.sts || []).find(x => x.name === n) || { name: n, label: (CRS_ST_NAME || {})[n] || n, color: "#888" });
 function crsStWord(m){ const st = crsStOf(m.status);
-  return `<button type="button" class="cst-w" data-crsm="${m.id}" style="${stSoft(st.color || "#888")}" title="לחיצה – שינוי הסטטוס בקורס">${esc(st.label)}</button>`; }
+  return `<button type="button" class="cst-w" data-crsm="${m.id}" style="${stSoft(st.color || "#888")}" title="לחיצה – שינוי הסטטוס בקורס">${esc(st.label)}</button>${m.until_on && ["פרש", "רשום בעבר"].includes(m.status) ? `<span class="cm-until" title="מגיע/ה עד (גם ב&quot;תלם שלי&quot;)">מגיע עד ${esc(fmtDM(String(m.until_on).slice(0, 10)))}</span>` : ""}`; }   // של-150
 // מקור לכל קורס (קובץ 130) – לחיצה משנה; מקור הליד מתעדכן לבד מהרישום האחרון
 function crsSrcBtn(m){ if (!CRS.hasSrc) return ""; const n = sourceName(m.source_id);
   return `<button type="button" class="crs-src${n ? "" : " none"}" data-crssrc="${m.id}" title="מקור (לחיצה – שינוי)">${n ? esc(n) : "+ מקור"}</button>`; }
@@ -4373,7 +4373,8 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
       return true; };
   const check = () => { const ca = crsCat(Number(q("cdCa").value)); if (!q("cdCa").value) return "בוחרים קטגוריה";
     if (ca.kind === "event" && !q("cdMa").value) return "אין מרתון במחזור הזה – בוחרים מחזור / קטגוריה אחרים";
-    if (ca.kind !== "event" && !q("cdSc").value) return "בוחרים בית ספר לקורס"; if (q("cdSt") && !q("cdSt").value) return "בוחרים מצב"; return ""; };
+    if (ca.kind !== "event" && !q("cdSc").value) return "בוחרים בית ספר לקורס";
+    if (ca.kind === "regular" && q("cdSu") && !q("cdSu").value && !q("cdSu").closest("[hidden]")) return "בוחרים מקצוע";   /* של-149 */ if (q("cdSt") && !q("cdSt").value) return "בוחרים מצב"; return ""; };
   if (inlEx) { const sid = st.id;
     bg.querySelector("[data-no]").onclick = () => bg.remove();
     bg.querySelector("[data-ok]").onclick = async (e) => { const er = check(); if (er) { toast(er); return; } const okb = e.currentTarget; okb.disabled = true;   /* 5.21.14: אחרי await – e.currentTarget כבר null (ההודעה על שגיאה לא הופיעה) */
@@ -5394,6 +5395,7 @@ async function withdrawAsk(m, name, od){
   // 5.19.157 (נועה 29.10): חזר/ה מ"פרש" (החליט/ה להישאר) – הסימון "עד…" בקבוצות השוטפות יורד לבד
   if (sid && ME.role !== "instructor" && od === "פרש" && nw !== "פרש") {
     try { const back = await get("assignments", "student_id=eq." + sid + "&ends_on=not.is.null&session.kind=eq." + encodeURIComponent("שוטף") + "&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&select=id,session:sessions!inner(kind,school_year)");
+      if (m.until_on) { try { await patch("course_members", "id=eq." + m.id, { until_on: null }); m.until_on = null; } catch(e) {} }   // של-150
       if (back.length) { await patch("assignments", "id=in.(" + back.map(a => a.id).join(",") + ")", { ends_on: null });
         toast(`${name || "התלמיד/ה"} נשאר/ת – הסימון "עד…" הוסר מ-${back.length} ${back.length === 1 ? "שיבוץ" : "שיבוצים"}`);
         L.asg = null; if (typeof G !== "undefined") G.loadedAt = 0; try { setAsg(await ASG_Q()); } catch(e) {} }
@@ -5418,6 +5420,7 @@ async function withdrawAsk(m, name, od){
     const ids = rows.map(a => a.id).join(",");
     if (ch === "now") { await del("assignments", "id=in.(" + ids + ")"); toast("הוסר/ה מהקבוצות"); }
     else { await patch("assignments", "id=in.(" + ids + ")", { ends_on: ch }); toast("נשאר/ת בקבוצות עד " + fmtIso(ch)); }
+    { const u = ch === "now" ? t : ch; try { await patch("course_members", "id=eq." + m.id, { until_on: u }); m.until_on = u; } catch(e) {} }   // של-150: "מגיע עד" בשורה של הקורס
     L.asg = null; if (typeof G !== "undefined") G.loadedAt = 0;
     try { setAsg(await ASG_Q()); } catch(e) {}
   } catch(e) { toast(/ends_on/.test(e.message) ? "צריך להריץ קודם את קובץ 116" : "לא נשמר: " + e.message); }
