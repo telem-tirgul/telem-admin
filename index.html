@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.62">
+<meta name="app-version" content="5.21.63">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6425,7 +6425,13 @@ async function loadLeadGroups(studentId){
         $("leadGroups").insertAdjacentHTML("beforeend",
         `<div class="lg-pend">🏁 <b>${esc(x.marathon.name)}</b>${x.session && x.session.time_label ? " · " + esc(x.session.time_label) : ""}<span class="lg-pend-t">⏳ ממתין לתשלום – ישובץ/תשובץ אחרי "שולם"</span></div>`); }); } catch(e) {}
     // 5.19.173 (נועה): "+ הוספה לקורס" – מעל הקורסים; "+ הוספה לקבוצה" – בתוך הקורס של התרגול השוטף (אין – למטה)
-    if ($("lcAddSlot")) $("lcAddSlot").innerHTML = CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : "";   // 5.19.174: בשורת הכותרת
+    if ($("lcAddSlot")) $("lcAddSlot").innerHTML = (CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : "")
+      + (ME.role === "admin" ? `<button type="button" class="btn small" data-cardlk="reg" title="קישור לטופס ההרשמה של העיר שבכרטיס – מועתק">📝 קישור הרשמה</button><button type="button" class="btn small" data-cardlk="pay" title="קישור אישי (תשלום) – ממולא מהכרטיס ומחובר אליו">💳 קישור אישי</button>` : "");   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
+    $("lcAddSlot").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = async () => { const sid = editing && editing.student && editing.student.id; if (!sid) return;
+      if (b.dataset.cardlk === "pay") { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.newLink(sid); return; }
+      const city = ((editing.student.family || {}).city || "").trim(); if (!city) { toast("בכרטיס אין עיר מגורים – יש להשלים אותה"); return; }
+      const u = lkReg(city); if (shortOf(u)) { copyText(shortOf(u), "קישור ההרשמה של " + city + " הועתק"); return; }
+      try { const sh = await makeShort(u); copyText(sh, "קישור ההרשמה של " + city + " הועתק"); } catch(e) { copyText(u, "קישור ההרשמה של " + city + " הועתק (קישור מלא)"); } });
     { const gb = $("leadGroups").querySelector(".lg-crs-box.lg-reg"), html = `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></div><div class="lg-edit lg-card" data-ed="new" hidden></div>`;
       const gs = gb && gb.querySelector(".lg-add-slot"); if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
     if ($("lcAdd")) $("lcAdd").onclick = () => { const sid = editing && editing.student && editing.student.id; if (sid !== studentId) { toast("הכרטיס התחלף – פותחים שוב"); return; } const l0 = L.leads.find(x => x.student && x.student.id === sid); if (!l0) return;
