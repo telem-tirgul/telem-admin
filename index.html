@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.68">
+<meta name="app-version" content="5.21.69">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4251,6 +4251,7 @@ document.addEventListener("change", async (ev) => { const el = ev.target; if (!e
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-crsm]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
   const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.crsm)); if (!m) return; const c = CRS.byId[m.course_id] || {};
   const v = await uiChoose(crsShort(c, true) + "\nמצב בקורס:", crsStList().map(x => x.name).map(x => ({ v: x, t: (CRS_IC[x] || "") + " " + crsStOf(x).label + (x === m.status ? " (עכשיו)" : "") }))); if (!v || v === m.status) return;
+  if (m.history_at && crsOfStudent(m.student_id).some(x => x.id !== m.id && x.course_id === m.course_id && !x.history_at)) { await uiAlert("יש כבר הרשמה חדשה לקורס הזה, אז את ההרשמה הקודמת אי אפשר להחזיר.\nמשנים את המצב בשורה הנוכחית של הקורס."); return; }   // תש-64 (נועה 8.11)
   if (!(await marLeaveOk(m, v))) return;   // נועה 7.11 (#2986)
   try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); const st0 = m.status; m.status = v; toast("נשמר"); crsAfterStatus(m, st0).then(() => marAskGroup(m)); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain") || b.closest(".crs-drawer")) { renderCrsCourses(); crsDrawerRe(); } else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
 // חסרה חתימה על התנאים (רשום / ממתין במחזור פעיל, signed = false)
@@ -4320,7 +4321,10 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
         const auto = inline && !inlEx ? (await get("course_members", "select=id&student_id=eq." + stu.id + "&note=eq." + encodeURIComponent("כרטיס חדש – נוסף לקורס של השנה") + "&order=id.desc&limit=1").catch(() => []))[0] : null;
         if (auto) { delete body.student_id; await patch("course_members", "id=eq." + auto.id, Object.assign({ source_id: null }, body, { note: null, updated_at: new Date().toISOString() })); }   // מקור שלא נבחר – ריק (לא "טופס הרשמה" שנקבע אוטומטית)
         else { /* 5.21.14 (נועה 5.11): כבר היה/תה בקורס הזה (פרש / בוטל / היסטוריה) – מעדכנים את אותה שורה (קורס + תלמיד/ה ייחודיים), לא שורה חדשה שנכשלת */
-          const old = (await get("course_members", "select=id,status&student_id=eq." + stu.id + "&course_id=eq." + cid + "&limit=1").catch(() => []))[0];
+          const old = (await get("course_members", "select=id,status,enrollment_id,marathon_registration_id&student_id=eq." + stu.id + "&course_id=eq." + cid + "&history_at=is.null&limit=1").catch(() => []))[0]
+            || (await get("course_members", "select=id,status,enrollment_id,marathon_registration_id&student_id=eq." + stu.id + "&course_id=eq." + cid + "&order=id.desc&limit=1").catch(() => []))[0];
+          const OPEN = ["חדש", "מתעניין", "מעוניין", "ממתין לתשלום", "רשום", "בקשת ביטול"];   // תש-64: שורה סגורה עם הזמנה – נשארת עם ההזמנה שלה (להיסטוריה), ונפתחת שורה חדשה
+          if (old && !OPEN.includes(old.status) && (old.enrollment_id || old.marathon_registration_id)) { await insert("course_members", body); return true; }
           if (old) { if (["רשום", "ממתין לתשלום", "מתעניין"].includes(old.status) && old.status === body.status) { toast("כבר בקורס הזה – אפשר לשנות את המצב בקורס"); return false; }
             const up = Object.assign({}, body, { history_at: null, history_note: null, updated_at: new Date().toISOString() }); delete up.student_id; delete up.course_id; delete up.source; if (up.grade == null) delete up.grade;
             await patch("course_members", "id=eq." + old.id, up); }
@@ -5886,7 +5890,7 @@ async function manualPaidRows(o){
   const f = (o && o.from) ? "&paid_at=gte." + o.from : "", t = (o && o.to) ? "&paid_at=lt." + addDays(o.to, 1) : "", sid = (o && o.sid) ? "&student_id=eq." + o.sid : "";
   let en = [], mr = [];
   try { [en, mr] = await Promise.all([
-    get("enrollments", "select=id,student_id,subject,paid_at,paid_by,payment_method,first_charge_amount,one_time_amount&paid_at=not.is.null&status=eq." + encodeURIComponent("פעיל") + f + t + sid + "&order=paid_at.desc&limit=500").catch(() => []),
+    get("enrollments", "select=id,student_id,subject,paid_at,paid_by,payment_method,first_charge_amount,one_time_amount&paid_at=not.is.null" + f + t + sid + "&order=paid_at.desc&limit=500")   /* תש-64: בלי סטטוס להזמנה – שולם = paid_at */.catch(() => []),
     get("marathon_registrations", "select=id,student_id,paid_at,paid_by,payment_method,amount,marathon:marathons(name)&paid_at=not.is.null&status=eq." + encodeURIComponent("שולם") + f + t + sid + "&order=paid_at.desc&limit=500").catch(() => [])]); } catch(e) { return []; }
   if (!en.length && !mr.length) return [];
   let have = [];
@@ -5913,7 +5917,7 @@ async function loadLeadPayments(l){
   const [rows0, man, en, mr, plAll, pend0] = await Promise.all([
     rpc("student_payments", { p_student: sid }).then(r => r || [], () => null),
     manualPaidRows({ sid }).catch(() => []),
-    get("enrollments", "select=id,subject,city,paid_at&student_id=eq." + sid + "&paid_at=not.is.null&status=eq." + encodeURIComponent("פעיל") + "&order=id.desc").catch(() => []),
+    get("enrollments", "select=id,subject,city,paid_at&student_id=eq." + sid + "&paid_at=not.is.null&order=id.desc").catch(() => []),
     get("marathon_registrations", "select=id,paid_at,marathon:marathons(name)&student_id=eq." + sid + "&status=eq." + encodeURIComponent("שולם") + "&order=id.desc").catch(() => []),
     plansCached().catch(() => []),
     get("pending_phone_payments", "select=*&student_id=eq." + sid).catch(() => []),
@@ -5952,7 +5956,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
   const B = {}, put = (m, k, i) => { const key = m ? m.id : "rest"; (B[key] = B[key] || { rows: [], pend: [], regs: [], plans: [] })[k].push(i); };
   // תשלום של תרגול משנה קודמת – לקורס התרגול של אותה שנה (לפי התאריך: אוגוסט–יולי)
   const regOfDate = (d) => { if (!d || !CRS.ok) return regCm; const dt = String(d).slice(0, 10), y = Number(dt.slice(0, 4)), ys = Number(dt.slice(5, 7)) >= 8 ? y : y - 1;
-    const m = crsOfStudent(sid).find(x => { const c = CRS.byId[x.course_id]; return c && !c.marathon_id && x.status !== "בוטל" && crsSeason(c.season_id).year_start === ys && crsCat(c.category_id).kind !== "event"; });
+    const m = crsOfStudent(sid).slice().sort((p1, p2) => (p1.history_at ? 1 : 0) - (p2.history_at ? 1 : 0)).find(x => { const c = CRS.byId[x.course_id]; return c && !c.marathon_id && x.status !== "בוטל" && crsSeason(c.season_id).year_start === ys && crsCat(c.category_id).kind !== "event"; });   // תש-64: קודם השורה הנוכחית בקורס
     return m || (regCm && crsSeason(CRS.byId[regCm.course_id].season_id).year_start === ys ? regCm : null); };
   rows.forEach((r, i) => put(r.purpose === "marathon" || r.kind === "מרתון" ? marOf(r.description) : (r.purpose === "registration" || r.plan_id || r.kind === "חיוב חודשי" || r.kind === "הרשמה - תשלום ראשון") ? regOfDate(r.date) : null, "rows", i));
   pend.forEach((x, i) => put(cms.find(m => x.kind === "marathon" ? m.marathon_registration_id === x.order_id : m.enrollment_id === x.order_id) || (x.kind === "marathon" ? marOf(x.what) : regCm), "pend", i));
@@ -6374,12 +6378,12 @@ async function crsGroupsHtml(sid, cur, card){
     if (loose.length) h += `<div class="lg-crs-box lg-loose"><div class="lg-crs"><span class="lg-crs-l"><b>⚠ שיבוץ בלי קורס</b> <span class="muted">– צריך להוסיף את התלמיד/ה לקורס (או להסיר את השיבוץ)</span></span><span class="lg-crs-r">${ME.role !== "instructor" ? `<button type="button" class="btn small" data-lgaddcrs="1">+ הוספה לקורס</button>` : ""}</span></div>` + loose.map(card).join("") + `</div>`; }
   // קורסים קודמים (נועה 30.10): מחזורים קודמים, פרש, ומרתון שהסתיים – למטה, מקופל
   const td = todayIL(), done = (c) => c.marathon_id && (c.is_active === false || (() => { const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td; })());
-  const old = crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && !ms.includes(m) || (ms.includes(m) && done(CRS.byId[m.course_id])))
+  const old = crsOfStudent(sid).filter(m => (m.status !== "בוטל" || (m.history_at && (m.enrollment_id || m.marathon_registration_id))) && CRS.byId[m.course_id] && !ms.includes(m) || (ms.includes(m) && done(CRS.byId[m.course_id])))
     .sort((a, b) => (crsSeason(CRS.byId[b.course_id].season_id).year_start || 0) - (crsSeason(CRS.byId[a.course_id].season_id).year_start || 0));
   const oldAs = (m) => { const c = CRS.byId[m.course_id], yr = crsSeason(c.season_id).name; return (LG_AS || []).filter(a => a.session && !cur.includes(a) && (c.marathon_id ? a.session.marathon_id === c.marathon_id : !isMar(a) && (!a.session.school_year || a.session.school_year === yr))); };
   const asLine = (a) => { const se = a.session; return `<div class="lo-as">🗓 ${esc(sessWhen(se))} ${esc(String(se.start_time || "").slice(0, 5))}${se.location ? " · " + esc(se.location.name) : ""}${a.ends_on ? ` <span class="muted">· עד ${esc(fmtDM(a.ends_on))}</span>` : a.status && a.status !== "משובץ" ? ` <span class="muted">· ${esc(a.status)}</span>` : ""}</div>`; };
   LG_OLD = !old.length ? "" : `<div class="lc-old-list">${old.map(m => { const c = CRS.byId[m.course_id];
-    return `<div class="lc-old-r"><span>${c.marathon_id ? "<b>מרתון</b> · " + crsLabel(c, m) : "<b>" + esc(crsCatN(c.category_id)) + "</b> · " + crsLabel(c, m)}</span><span class="muted">${esc(crsSeason(c.season_id).name || "")}${c.marathon_id && c.is_active === false ? " · המרתון לא התקיים" : ""}${m.status !== "רשום" ? " · " + esc(crsStOf(m.status).label || m.status) : ""}${m.history_at ? ` · <span title="${esc(m.history_note || "")}">${esc(m.history_note || "עבר להיסטוריה")}</span>` : ""}</span><div class="lc-old-x">${oldAs(m).map(asLine).join("")}<div class="lg-att-slot" data-am="${m.id}" data-old="1"></div><div class="lg-pay-slot" data-pm="${m.id}"></div><div class="lg-sig-slot" data-sgcm="${m.id}"></div></div></div>`; }).join("")}</div>`;   // 5.20.26 (נועה): גם בקורס קודם – נוכחות ותשלומים בקצרה   // 5.20.5 (קובץ 148)
+    return `<div class="lc-old-r"><span>${c.marathon_id ? "<b>מרתון</b> · " + crsLabel(c, m) : "<b>" + esc(crsCatN(c.category_id)) + "</b> · " + crsLabel(c, m)}</span><span class="muted">${esc(crsSeason(c.season_id).name || "")}${c.marathon_id && c.is_active === false ? " · המרתון לא התקיים" : ""}${ME.role !== "instructor" ? " · " + crsStWord(m) : m.status !== "רשום" ? " · " + esc(crsStOf(m.status).label || m.status) : ""}${m.history_at ? ` · <span title="${esc(m.history_note || "")}">${esc(m.history_note || "עבר להיסטוריה")}</span>` : ""}</span><div class="lc-old-x">${oldAs(m).map(asLine).join("")}<div class="lg-att-slot" data-am="${m.id}" data-old="1"></div><div class="lg-pay-slot" data-pm="${m.id}"></div><div class="lg-sig-slot" data-sgcm="${m.id}"></div></div></div>`; }).join("")}</div>`;   // 5.20.26 (נועה): גם בקורס קודם – נוכחות ותשלומים בקצרה   // 5.20.5 (קובץ 148)
   return h || empty;
 }
 let LG_TOK = 0, LG_AS = [], LG_OLD = "", LG_OPEN = { sid: null, s: new Set() };
@@ -6602,7 +6606,7 @@ async function openAsgEditor(studentId, a, cur, opts){
   const optG = (g) => `<option value="${g.session_id}" ${a && a.session.id === g.session_id ? "selected" : ""}>${g.kind === "מרתון" ? "מרתון " + esc((g.meeting_dates || []).map(fmtDM).join(", ")) : "יום " + esc(g.day) + "'"} ${hm(g.start_time)}${g.end_time ? "-" + hm(g.end_time) : ""} · ${esc(g.location)}${g.room ? " · חדר " + esc(g.room) : ""} · ${g.assigned_count || 0} ילדים</option>`;
   // המקצוע נקבע לפי מה שהילד/ה נרשם/ה (טופס ההרשמה), ואם אין - לפי השיבוצים הקיימים. בוחרים רק אם לא ידוע.
   let enrSubj = "";
-  try { const en = await get("enrollments", "select=subject&student_id=eq." + studentId + "&status=neq." + encodeURIComponent("בוטל") + "&subject=not.is.null&order=id.desc&limit=1"); enrSubj = (en[0] && en[0].subject) || ""; } catch(e) {}
+  try { const en = await get("enrollments", "select=subject&student_id=eq." + studentId + "&paid_at=not.is.null&subject=not.is.null&order=id.desc&limit=1")   /* תש-64 */; enrSubj = (en[0] && en[0].subject) || ""; } catch(e) {}
   // קודם - הסטטוס שמסומן עכשיו בכרטיס (גם אם עוד לא נשמר), למשל "נרשם מת. + אנג."
   const stSubj = stuSubj(studentId);   // נועה 7.11: מהרישום לקורס (לא מהסטטוס הישן)
   /* 5.21.16 (החלטת נועה 5.11): "אין משמעות בשיבוצים למקצוע" – המקצוע מהקורס (רשום / ממתין), ורק אם אין – כמו קודם; לא מוצג במסך השיבוץ */
@@ -13183,9 +13187,12 @@ async function renderDates(b, part){   // 5.19.41: "up" = הוראות קבע ל
 // ---------- 5. ממתינים לתשלום ----------
 async function loadPending(){
   if (DEMO) return D.pending;
+  // תש-64: "ממתין לתשלום" = השורה של ההזמנה בקורס (לא סטטוס ההזמנה)
+  const cms = await get("course_members", "select=enrollment_id,marathon_registration_id&status=eq." + encodeURIComponent("ממתין לתשלום") + "&history_at=is.null&or=(enrollment_id.not.is.null,marathon_registration_id.not.is.null)&limit=1000").catch(() => []);
+  const eIds = [...new Set(cms.map(x => x.enrollment_id).filter(Boolean))], mIds = [...new Set(cms.map(x => x.marathon_registration_id).filter(Boolean))];
   const [en, mr] = await Promise.all([
-    get("enrollments", "select=id,created_at,first_charge_amount,monthly_amount,subject,city,student:students(id,first_name,last_name,family:families(parent1_first,parent1_last,parent1_phone))&status=eq." + encodeURIComponent("ממתין לתשלום") + "&order=created_at.desc").catch(() => []),
-    get("marathon_registrations", "select=id,created_at,amount,student:students(id,first_name,last_name,family:families(parent1_first,parent1_last,parent1_phone)),marathon:marathons(name)&status=eq." + encodeURIComponent("ממתין לתשלום") + "&order=created_at.desc").catch(() => [])]);
+    eIds.length ? get("enrollments", "select=id,created_at,first_charge_amount,monthly_amount,subject,city,student:students(id,first_name,last_name,family:families(parent1_first,parent1_last,parent1_phone))&id=in.(" + eIds.join(",") + ")&paid_at=is.null&order=created_at.desc").catch(() => []) : [],
+    mIds.length ? get("marathon_registrations", "select=id,created_at,amount,student:students(id,first_name,last_name,family:families(parent1_first,parent1_last,parent1_phone)),marathon:marathons(name)&id=in.(" + mIds.join(",") + ")&paid_at=is.null&order=created_at.desc").catch(() => []) : []]);
   const nm = (s) => s ? [s.first_name, s.last_name].filter(Boolean).join(" ") : "", pf = (s) => (s && s.family) || {};
   return en.map(e => ({ kind: "registration", id: e.id, created_at: e.created_at, student_id: (e.student || {}).id, student_name: nm(e.student), parent_name: [pf(e.student).parent1_first, pf(e.student).parent1_last].filter(Boolean).join(" "), parent_phone: pf(e.student).parent1_phone, what: ["הרשמה", e.subject, e.city].filter(Boolean).join(" · "), amount: e.first_charge_amount, monthly: e.monthly_amount }))
     .concat(mr.map(r => ({ kind: "marathon", id: r.id, created_at: r.created_at, student_id: (r.student || {}).id, student_name: nm(r.student), parent_name: [pf(r.student).parent1_first, pf(r.student).parent1_last].filter(Boolean).join(" "), parent_phone: pf(r.student).parent1_phone, what: "מרתון" + (r.marathon ? " · " + r.marathon.name : ""), amount: r.amount })));
