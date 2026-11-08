@@ -4236,15 +4236,16 @@ async function trkChangeFlow(o){   // o: { enr, sid, name, city, cur: {type, sub
   let e0 = null; try { e0 = (await get("enrollments", "select=id,track_id,subject,paid_at&id=eq." + o.enr))[0]; } catch(e) {}
   if (!e0) { toast("ההרשמה לא נמצאה"); return false; }
   const cur = TRK_ALL.find(t => t.id === e0.track_id), grp = cur ? cur.city_group : (o.city === "ראש העין" ? "ראש העין" : "שאר הערים");
-  const subs = (t) => t.track_type === "double" ? ["מתמטיקה ואנגלית"] : ["מתמטיקה", "אנגלית"];
-  const opts = TRK_ALL.filter(t => t.city_group === grp && (t.is_open || t.id === e0.track_id)).flatMap(t => subs(t).map(sb => {
-    const now = t.id === e0.track_id && (t.track_type === "double" || sb === e0.subject), want = o.want && o.want.type === t.track_type && (!o.want.subject || o.want.subject === sb || t.track_type === "double");
-    return { v: t.id + "|" + sb, t: t.name + (t.track_type === "double" ? "" : " · " + sb) + (now ? " (עכשיו)" : want ? " ← ביקשו" : "") }; }));
+  // נועה 8.11: כאן משנים רק את המסלול (זה מה שמשנה את התשלום); המקצוע – בלחיצה על המקצוע, כמו קודם (לא משנה תשלומים)
+  const opts = TRK_ALL.filter(t => t.city_group === grp && (t.is_open || t.id === e0.track_id)).map(t => ({ v: String(t.id),
+    t: t.name + (t.id === e0.track_id ? " (עכשיו)" : o.want && o.want.type === t.track_type ? " ← ביקשו" : "") }));
   const v = await uiChoose(`שינוי מסלול${o.name ? " – " + o.name : ""}:`, opts); if (!v) return false;
-  const [tid, sb] = v.split("|"), args = { p_enr: o.enr, p_track: Number(tid), p_subject: sb };
+  const nt = TRK_ALL.find(t => t.id === Number(v)) || {}, ot = cur || {};
+  const sb = nt.track_type === "double" ? "מתמטיקה ואנגלית" : ot.track_type === "double" || e0.subject === "מתמטיקה ואנגלית" ? (o.want && o.want.subject && o.want.subject !== "מתמטיקה ואנגלית" ? o.want.subject : "מתמטיקה") : (e0.subject || "מתמטיקה");
+  const args = { p_enr: o.enr, p_track: Number(v), p_subject: sb };
   let pv; try { pv = await rpc("enrollment_track_preview", args); }
   catch(e) { const m = String(e.message || ""); toast(/not paid/.test(m) ? "ההרשמה עוד לא שולמה – משנים את המסלול בקורס" : /no price/.test(m) ? "אין מחיר למסלול הזה בעיר / בשנה" : "לא ניתן: " + m); return /not paid/.test(m) ? "unpaid" : false; }
-  if (pv.same) { toast("זה המסלול והמקצוע של היום"); return false; }
+  if (pv.same) { toast("זה המסלול של היום"); return false; }
   const nis = (x) => "₪" + Number(x || 0).toLocaleString("he-IL"), dd = (x) => x ? fmtDM(String(x).slice(0, 10)) : "";
   const txt = `שינוי מסלול${o.name ? " – " + o.name : ""}\n\n${pv.old_track} (${pv.old_subject || "—"})  ←  ${pv.new_track} (${pv.new_subject})\nחודשי: ${nis(pv.old_monthly)} ← ${nis(pv.new_monthly)}\n`
     + (pv.plan_id ? `\nהוראת הקבע: ${nis(pv.new_monthly)} מהחיוב הבא${pv.next_charge_date ? " (" + dd(pv.next_charge_date) + ")" : ""} · נשארו ${pv.remaining} חיובים${pv.last_amount != null ? " · האחרון (יוני) " + nis(pv.last_amount) : ""}${pv.first_amount != null ? "\nהתשלום הראשון (עוד לא חויב): " + nis(pv.first_amount) : ""}\nההוראה מתעדכנת באיקרדיט.` : "\nאין הוראת קבע.")
@@ -4264,7 +4265,6 @@ async function trkPaidFlow(m){ if (!m.enrollment_id || ME.role !== "admin") retu
 // 5.21.4 (נועה): המקצוע בכרטיס – לחיצה לבחירה
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-cmsub2]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
   const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.cmsub2)); if (!m) return;
-  if (!(CRS.byId[m.course_id] || {}).marathon_id && await trkPaidFlow(m)) return;   // תש-65
   const v = await uiChoose("מקצוע:", ["מתמטיקה", "אנגלית", "מתמטיקה ואנגלית"].map(x => ({ v: x, t: x + (x === m.subject ? " (עכשיו)" : "") }))); if (!v || v === m.subject) return;
   const body = { subject: v, updated_at: new Date().toISOString() };
   try { await patch("course_members", "id=eq." + m.id, body); Object.assign(m, body); toast("נשמר"); if (currentView === "leads") renderLeads(); if (editing && editing.student && editing.student.id === m.student_id) loadLeadGroups(m.student_id); } catch(e) { toast("לא נשמר: " + e.message); } }, true);
