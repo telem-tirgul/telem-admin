@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.73">
+<meta name="app-version" content="5.21.74">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -8544,7 +8544,7 @@ function openPanel(id){
 async function asgRegOk(studentId, se){ try { if (!(await crsLoad())) return true; await crsEnsureStudent(studentId); } catch(e) { return true; }
   const mar = se && (se.marathon_id || se.kind === "מרתון"), ms = crsOfStudent(studentId).filter(m => !crsGone(m) && m.status === "רשום" && CRS.byId[m.course_id]);
   const ok = mar ? ms.some(m => CRS.byId[m.course_id].marathon_id === se.marathon_id)
-    : ms.some(m => { const c = CRS.byId[m.course_id]; return !c.marathon_id && crsActiveSeasons().has(c.season_id) && crsCat(c.category_id).kind !== "event"; });
+    : ms.some(m => { const c = CRS.byId[m.course_id]; return !c.marathon_id && crsActiveSeasons().has(c.season_id) && crsCat(c.category_id).kind === "regular"; });   // 181: "פנייה" היא לא קורס – לא מאפשרת שיבוץ
   if (!ok) await uiAlert(mar ? "אפשר לשבץ לקבוצה במרתון רק ילד/ה בסטטוס \"נרשם\" במרתון.\nקודם מסמנים שולם / משנים את הסטטוס בקורס של המרתון (בכרטיס)." : "אפשר לשבץ לקבוצה רק ילד/ה בסטטוס \"נרשם\" בתרגול השוטף.\nקודם משנים את הסטטוס בקורס (בכרטיס).");
   return ok; }
 const uiAlert = (t) => uiDialog(t, { ok: "הבנתי", single: true });
