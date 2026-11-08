@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.60">
+<meta name="app-version" content="5.21.61">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1866,6 +1866,8 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .crs-lk-pair{ display:flex; flex-wrap:wrap; gap:6px 0; } .crs-lk-pair .crs-lk-h{ flex-basis:100%; } .crs-lk-pair .crs-lk-r{ flex:1 1 360px; justify-content:flex-start; gap:10px; padding-inline:10px; } .crs-lk-pair .crs-lk-r + .crs-lk-r{ border-inline-start:2px solid var(--border); }   /* 5.19.168 (נועה): התעניינות והרשמה זה לצד זה */
 .gbadge.gb-sm{ width:auto; min-width:32px; height:26px; padding:0 6px; border-radius:13px; font-size:12.5px; border-width:1.5px; } .crs-mgo{ font:inherit; background:none; border:0; padding:0; cursor:pointer; color:inherit; display:inline-flex; align-items:center; gap:4px; text-decoration:underline dotted; }   /* 5.20.10 */
 .crs-col{ display:flex; flex-direction:column; gap:4px; } .crs-cell{ display:flex; align-items:center; gap:6px; min-height:26px; white-space:nowrap; }
+/* נועה 8.11: השיבוץ בשורות של הקורסים – בלי שבירת שורה, כדי שכל שורה תהיה בגובה של הסטטוס / המקור שלה */
+#leadsTbl td.c-asg .crs-cell .asg-pill{ flex-wrap:nowrap; } #leadsTbl td.c-asg .crs-cell{ justify-content:flex-start; }
 .trk-dot{ min-width:20px; height:20px; border:0; padding:0; background:none; cursor:pointer; flex:none; display:inline-flex; align-items:center; justify-content:center; gap:3px; color:inherit; font:inherit; } .trk-dot .trk-l{ font-size:12px; font-weight:800; white-space:nowrap; } .trk-dot svg{ width:19px; height:19px; display:block; } .trk-dot.none{ color:#2B2320; } .trk-dot:disabled{ cursor:default; }
 .crs-subj{ font-size:12px !important; padding:0 8px !important; } #leadsTbl td.c-crs{ min-width:0 !important; } #leadsTbl td.c-cst, #leadsTbl td.c-csrc{ white-space:nowrap; }
 #leadsTbl .crs-cell select.crs-sel{ max-width:130px !important; }
@@ -3967,12 +3969,12 @@ async function loadLists(){
 const ASG_Q = () => getAll("assignments", "select=id,student_id,status,arrival_time,personal_end,ends_on,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")");
 // 5.19.128 (נועה 24.10): שיבוץ לקבוצת מרתון (גם בלי הרשמה בטופס – למשל הוספה ידנית) – 🏁 ליד הסטטוס ושורה בעמודת השיבוץ.
 // רק מרתונים שעוד לא עברו (עד 14 יום אחרי המפגש האחרון).
-const MASG_Q = () => getAll("assignments", "select=student_id,session_id,session:sessions!inner(id,kind,meeting_dates,time_label,start_time,end_time,marathon:marathons(name,city,school,event_date))&session.kind=eq." + encodeURIComponent("מרתון") + "&status=eq." + encodeURIComponent("משובץ")).catch(() => null);
+const MASG_Q = () => getAll("assignments", "select=student_id,session_id,session:sessions!inner(id,kind,marathon_id,meeting_dates,time_label,start_time,end_time,marathon:marathons(name,city,school,event_date))&session.kind=eq." + encodeURIComponent("מרתון") + "&status=eq." + encodeURIComponent("משובץ")).catch(() => null);
 function setMarAsg(rows){
   if (!rows) return; L.marAsg = {}; const lim = todayIL();   // נועה 7.11 (#300): מרתון שהמפגש האחרון שלו עבר – השיבוץ לא מוצג בטבלה (הקורס כבר "נרשם בעבר")
   rows.forEach(a => { const se = a.session || {}, m = se.marathon || {}, ds = (se.meeting_dates || []).concat(m.event_date ? [m.event_date] : []).filter(Boolean).sort();
     const last = ds[ds.length - 1]; if (last && last < lim) return;
-    (L.marAsg[a.student_id] = L.marAsg[a.student_id] || []).push({ session_id: a.session_id, name: m.name || "מרתון", school: m.school || "", city: m.city || "", date: ds[0] || "",
+    (L.marAsg[a.student_id] = L.marAsg[a.student_id] || []).push({ session_id: a.session_id, mid: se.marathon_id || null, name: m.name || "מרתון", school: m.school || "", city: m.city || "", date: ds[0] || "",
       grp: String(se.time_label || "").replace(/^קבוצה\s*/, "קב' "), hrs: se.start_time ? String(se.start_time).slice(0, 5) + (se.end_time ? "–" + String(se.end_time).slice(0, 5) : "") : "" }); });
 }
 const marAsgOf = (sid) => (L.marAsg && L.marAsg[sid]) || [];
@@ -4163,11 +4165,15 @@ document.addEventListener("click", async (ev) => { const b = ev.target.closest &
 const CRS_ST_NAME = { "רשום": "נרשם", "ממתין לתשלום": "לקחת אשראי", "מתעניין": "מתעניין", "פרש": "פרש", "בוטל": "בוטל" };   // השמות כמו בסטטוס הישן
 const SUBJ_FULL = { "מתמטיקה": "מת.", "אנגלית": "אנג.", "מתמטיקה ואנגלית": "מת.+אנג." };   // 5.19.173 (נועה): קצר – הטבלה דחוסה
 const TRK_IC = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>`;   // Material Icons "menu_book" (Apache 2.0)
-function crsChipsRow(sid, part){ if (!CRS.ok) return ""; const act = crsActiveSeasons(); part = part || "crs";
+// נועה 8.11: השורות של הקורסים בטבלה (סטטוס / מקור / קורסים / שיבוץ – באותן שורות)
+function crsRowsOf(sid){ if (!CRS.ok) return []; const act = crsActiveSeasons();
   let ms = crsOfStudent(sid).filter(m => !crsGone(m) && m.status !== "לא התקיים" && CRS.byId[m.course_id] && CRS.byId[m.course_id].is_active !== false && !crsFin(CRS.byId[m.course_id]) && act.has(CRS.byId[m.course_id].season_id));
   // 5.20.12 (נועה): מרתון שהסתיים / לא התקיים – בטבלה רק כשאין קורס פעיל השנה (אז – הקורס האחרון של השנה); בכרטיס – ב"קורסים קודמים"
   if (!ms.length) { const last = crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id))
       .sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || "")) || b.id - a.id)[0]; if (last) ms = [last]; }   // 5.20.12 (נועה): מרתון שלא התקיים – רק בכרטיס, ב"קורסים קודמים"   // 5.19.168: גם "לא התקיים"
+  return ms;
+}
+function crsChipsRow(sid, part){ if (!CRS.ok) return ""; part = part || "crs"; const ms = crsRowsOf(sid);
   if (!ms.length) return part === "crs" ? `<span class="muted crs-none">—</span>` : "";
   return `<div class="crs-col">${ms.map(m => { const c = CRS.byId[m.course_id];
     if (part === "st") { const st = crsStOf(m.status), lst = crsStList().some(x => x.name === m.status) ? crsStList() : crsStList().concat([st]);
@@ -5212,6 +5218,19 @@ function renderLeads(){
         const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}${x.location && x.location.name ? `<em class="asg-loc"> · ${esc(x.location.name)}</em>` : ""}${x.ends_on ? `<em class="asg-end" title="פרש/ה – השיבוץ יורד לבד אחרי התאריך"> · עד ${esc(fmtIso(x.ends_on).slice(0, 5))}</em>` : ""}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
         const mg = marAsgOf(s.id), mpill = mg.length ? `<span class="asg-pill mar" title="${esc(mg.map(x => "מרתון: " + [x.name, x.school].filter(Boolean).join(" · ") + (x.date ? " · " + fmtIso(x.date) : "")).join("\n"))}">${mg.map(x => `<span>🏁 ${x.grp ? esc(x.grp) : "מרתון"}${x.hrs ? " · " + esc(x.hrs) : ""}</span>`).join("")}</span>` : "";   // 5.19.168 (נועה): הקבוצה והשעות (המרתון עצמו – בעמודת הקורסים)
+        const ms = crsRowsOf(s.id);
+        if (ms.length > 1) {   // נועה 8.11: כמה קורסים – השיבוץ בשורה של כל קורס (כמו הסטטוס והמקור)
+          const ov2 = a.length ? weekLoadCalc(a.map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))) : "";
+          const regPart = (ov2 ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov2)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : asgNeed(s.id) ? `<span class="asg-need" title="רשום/ה לתרגול השוטף ועוד לא שובץ/ה לקבוצה">יש לעדכן שיבוץ</span>` : `<span class="asg-none">–</span>`);
+          const marPill = (xs) => xs.length ? `<span class="asg-pill mar" title="${esc(xs.map(x => "מרתון: " + [x.name, x.school].filter(Boolean).join(" · ") + (x.date ? " · " + fmtIso(x.date) : "")).join("\n"))}">${xs.map(x => `<span>🏁 ${x.grp ? esc(x.grp) : "מרתון"}${x.hrs ? " · " + esc(x.hrs) : ""}</span>`).join("")}</span>` : `<span class="asg-none">–</span>`;
+          let regDone = false; const used = new Set();
+          const cells = ms.map(m => { const c = CRS.byId[m.course_id] || {};
+            if (c.marathon_id) { const xs = mg.filter(x => x.mid === c.marathon_id); xs.forEach(x => used.add(x)); return marPill(xs); }
+            if (regDone) return ""; regDone = true; return regPart; });
+          const rest = mg.filter(x => !used.has(x)); if (rest.length) cells[cells.length - 1] += " " + marPill(rest);
+          if (!regDone && (pills || props)) cells[0] = pills + props + " " + cells[0];
+          return ($("fAsg").value === "wkchg" ? wkChgHtml(s.id) : "") + `<div class="crs-col">${cells.map(x => `<div class="crs-cell">${x}</div>`).join("")}</div>`;
+        }
         const ov = a.length ? weekLoadCalc(a.map(x => ({ status: "משובץ", arrival_time: x.arrival_time, personal_end: x.personal_end, session: x }))) : "";   // 5.19.20
         return ($("fAsg").value === "wkchg" ? wkChgHtml(s.id) : "") + (ov ? `<span class="asg-over" title="${esc("מעל המגבלה השבועית: " + ov)}">⚠</span>` : "") + (pills || props ? pills + (pills && props ? " " : "") + props : (mg.length ? "" : asgNeed(s.id) ? `<span class="asg-need" title="רשום/ה לתרגול השוטף ועוד לא שובץ/ה לקבוצה">יש לעדכן שיבוץ</span>` : `<span class="asg-none">–</span>`)) + (mpill ? (pills || props ? " " : "") + mpill : ""); })()}</td>
     <td class="c-parent">${(() => { const fm = s.family || {}, nm = fm.parent1_first || fm.parent1_last || "", ph = fm.parent1_phone || "";   // שם פרטי + טלפון בשורה אחת
