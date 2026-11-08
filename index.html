@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.59">
+<meta name="app-version" content="5.21.60">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10021,7 +10021,7 @@ async function loadAttTable(){
   const kidsTxt = (k, c, full) => `<b>${k}</b>${c ? ` <span class="muted">מתוך ${c}</span>` : ""}${full && c && k >= c ? ` <span class="at-tag">מלאה</span>` : ""}`;
   // 5.20.52 (נועה 3.11): "חתימה על התנאים" – למי שנרשם/ה בטלפון (ממלאים וחותמים, בלי תשלום בטופס) – עמודה נפרדת
   const sigCell = (u, where) => `<td class="at-lk" title="למי שנרשם/ה בטלפון: טופס אישור תנאי התקשרות: ממלאים את כל הפרטים וחותמים, בלי תשלום בטופס. אחר כך מסמנים &quot;שולם&quot;">${lk2Btns("", u, "טופס ההרשמה לתלם - " + where + " (מילוי הפרטים ואישור תנאי התקשרות): ")}</td>`;
-  const waCell = (u, lo) => `<td class="at-wa">${u ? `<a class="btn small" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(u)}">💬 פתיחה</a><button type="button" class="btn small" data-copy="${esc(u)}" title="העתקת הקישור">העתקה</button>` : `<span class="muted" title="אפשר להוסיף במסך בתי ספר ← ✎ עריכה">—</span>`}</td>`;
+  const waCell = (u, lo) => `<td class="at-wa">${u ? `<a class="btn small" href="${esc(u)}" target="_blank" rel="noopener" title="${esc(u)}">💬 פתיחה</a>${ME.role === "admin" ? `<span class="lk2-cell" data-u="${esc(u)}" data-msg=""><button type="button" class="btn small" data-scopy title="העתקת קישור קצר (TinyURL)">העתקה</button></span>` : `<button type="button" class="btn small" data-copy="${esc(u)}" title="העתקת הקישור">העתקה</button>`}` : `<span class="muted" title="אפשר להוסיף במסך בתי ספר ← ✎ עריכה">—</span>`}</td>`;
   const XR = [["עיר", "בית ספר", "קבוצה", "ילדים", "מקומות", "מתרגלים", "טופס התעניינות", "טופס הרשמה", "קבוצת וואטסאפ"]], KEYS = [];   // 5.21: שורת הטבלה (מספר · ניקוי · פתיחת הכל · אקסל)
   let h = `<div class="tbl-wrap"><table class="tbl at-tbl"><colgroup><col class="c-sch"><col class="c-g"><col class="c-k"><col class="c-ins"><col class="c-lk"><col class="c-lk"><col class="c-wa"></colgroup><thead><tr><th>בית ספר</th><th>קבוצות</th><th>ילדים</th><th>מתרגלים</th><th>טופס התעניינות</th><th>טופס הרשמה</th><th>קבוצת וואטסאפ</th></tr></thead><tbody>`;
   let any = false;
@@ -11841,6 +11841,7 @@ const genRow = (name, u, msg, sw) => `<div class="lk2-row lk-gen"><div class="lk
 const lkRow = (name, u, msg, extra) => `<div class="lk-row"><span class="lk-name">${name}</span><input class="lk-in" readonly dir="ltr" value="${esc(u || "")}" aria-label="קישור" onfocus="this.select()">
   <span class="lk-ic">${extra || ""}<button type="button" class="btn small" data-copy="${esc(u)}">העתקה</button><a class="btn small" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + u)}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a></span></div>`;
 // שני קישורים באותה שורה (התעניינות + הרשמה) - בלי תיבת הקישור, רק הכפתורים
+// נועה 8.11: גם הקישור לקבוצת הוואטסאפ של בית הספר (טבלת השוטף) – "העתקה" = TinyURL (צריך short-link שמאשר chat.whatsapp.com)
 // 5.19.132 (נועה 25.10): קישור קצר ב-TinyURL (פונקציה short-link + טבלה short_links, קובץ 111). קישור שכבר קוצר – "העתקה" ו"וואטסאפ" משתמשים בקצר.
 let SHORT = null, SHORT_P = null;
 const shortOf = (u) => (SHORT && SHORT[u]) || "";
@@ -11876,7 +11877,7 @@ async function lkAutoShort(){
   if (SHORT_RUN || !SHORT || ME.role !== "admin") return; SHORT_RUN = true;
   try {
     for (let n = 0; n < 60; n++) {
-      const c = [...document.querySelectorAll(".lk2-cell[data-u]")].find(x => !shortOf(x.dataset.u) && !SHORT_FAIL.has(x.dataset.u) && /^https:\/\/telem-tirgul\.github\.io\//.test(x.dataset.u));
+      const c = [...document.querySelectorAll(".lk2-cell[data-u]")].find(x => !shortOf(x.dataset.u) && !SHORT_FAIL.has(x.dataset.u) && /^https:\/\/(telem-tirgul\.github\.io|chat\.whatsapp\.com)\//.test(x.dataset.u));   // נועה 8.11: גם קבוצת הוואטסאפ
       if (!c) break;
       try { await makeShort(c.dataset.u); lkApplyShort(document); } catch(e) { SHORT_FAIL.add(c.dataset.u); if (e.status === 404 || e.status === 403 || /Failed to fetch|TINYURL/.test(e.message)) break; }
     }
