@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.65">
+<meta name="app-version" content="5.21.66">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2010,6 +2010,8 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 #leadsBar{ margin:2px 0 8px; } #leadsBar .tbar-x{ display:flex; gap:12px; align-items:center; margin-inline-start:auto; } @media (max-width:760px){ #leadsBar .tbar-x .bt, #view-pay .dx-bar #pXls .bt{ display:none; } }   /* 5.19.154: שליטה בטבלה – אחידה */
 .dx{ display:flex; flex-direction:column; gap:4px; } .only-m-blk{ display:none !important; } @media (max-width:760px){ .only-m-blk{ display:flex !important; } } .dx-info{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; font-size:13.5px; color:#4a423b; } .dx-info .tx-pdf{ margin-inline-start:auto; }
 .dx-pay{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; background:#fff; border:1px solid #E6DDD3; border-radius:10px; padding:4px 10px; font-size:13.5px; min-height:32px; } .dx-pay .btn.small{ padding-block:3px; } .dx-pay.bad{ border-color:#EBC4C0; background:#FFFBFA; }
+/* נועה 8.11: עמודות קבועות בשורות הפתוחות */ .dx > .dx-pay, .dx-sub{ display:grid; grid-template-columns:100px 150px 120px 150px minmax(0,1fr) 150px 150px; align-items:center; gap:4px 12px; } .dx-sub{ grid-column:1 / -1; border-top:1px dashed #E6DDD3; padding-top:4px; } .dx-sub.cx{ opacity:.55; } .dx-sub .dx-why, .dx-sub .dx-k.muted{ grid-column:2 / -1; } .dx-sub > .dx-acts.wide{ grid-column:2 / -1; } .dx-s{ display:flex; flex-wrap:wrap; gap:4px; align-items:center; } .dx-s .k-sub{ flex-basis:100%; } .dx-m{ min-width:0; } .dx-pay .dx-acts{ justify-content:flex-end; }
+@media (max-width:760px){ .dx > .dx-pay, .dx-sub{ display:flex; flex-wrap:wrap; } .dx-sub > span:empty, .dx-pay > span:empty{ display:none; } }
 .dx-d{ min-width:92px; color:#4a423b; } .dx-k{ color:#6b6159; min-width:70px; } .dx-why{ color:#A33A35; font-size:13px; } .dx-acts{ display:flex; gap:6px; flex-wrap:wrap; margin-inline-start:auto; } .dx-ref{ flex-basis:100%; }
 .dx-plan{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; font-size:13px; padding:2px 2px 0; }
 @media (max-width:760px){ .dx{ position:sticky; right:12px; width:calc(100vw - 48px); box-sizing:border-box; } .dx-d{ min-width:0; } .dx-acts{ margin-inline-start:0; flex-basis:100%; } .dx-info .tx-pdf{ margin-inline-start:0; } }
@@ -2088,7 +2090,9 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 #payWrap a.inv{ font-weight:800; color:var(--maroon,#5A1216); text-decoration:none; white-space:nowrap; } #payWrap a.inv:hover{ text-decoration:underline; }
 #payWrap .chip{ display:inline-flex; align-items:center; gap:4px; border-radius:999px; padding:1px 9px; font-size:12.5px; font-weight:800; white-space:nowrap; }
 #payWrap .st-active{ background:var(--ok-bg); color:var(--ok); }
-#payWrap .st-paused{ background:var(--muted); color:var(--ink-soft); }
+#payWrap .st-paused{ background:#FBE1C2; color:#9A4D0B; } .lp-st.pz{ background:#FBE1C2 !important; color:#9A4D0B !important; }   /* נועה 8.11: הוראה מושהית – כתום */
+#payWrap .st-refund{ background:#E8DDF5; color:#5B3A8A; }   /* נועה 8.11: זוכה / זיכוי חלקי – סגול */
+#payWrap .st-phone{ background:var(--warn-bg); color:var(--warn); }   /* 📞 ממתין לתשלום טלפוני */
 #payWrap .st-failed, #payWrap .st-error, #payWrap .kchip.k-bad{ background:#F4CFCB; color:#8E2B28; }   /* 5.19.45: "לא התקבל" - רקע אדום (כמו שאר התגיות) */
 #payWrap .st-creating{ background:var(--info-bg); color:var(--info); }
 #payWrap .st-done{ background:var(--muted); color:var(--ink-soft); }
@@ -5939,7 +5943,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
   const regHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">הרשמות שסומנו כשולמו</div>${ix.map(i => [paidRegs[i], i]).map(([x, i]) => `<div class="lp-reg"><span>${esc(x.what)}${x.at ? ` <span class="muted">· ${esc(dm(x.at))}</span>` : ""}</span><button type="button" class="btn small" data-unpaid="${i}" title="לסימון שנעשה בטעות - חוזר ל&quot;ממתין לתשלום&quot;">↩ ביטול "שולם"</button></div>`).join("")}</div>` : "";
   const PST = { creating: "בהקמה", active: "פעילה", paused: "מושהית", failed: "חיוב לא התקבל", done: "הסתיימה", cancelled: "בוטלה", error: "לא הוקמה" };
   const planHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">הוראות קבע <span class="muted" style="font-weight:400">· שינויים, השהיה וביטול – בריווחית</span></div>${ix.map(i => plans[i]).map(p => { const rem = Math.max(0, (p.total_count || 0) - (p.charged_count || 0));
-      return `<div class="lp-reg lp-plan" data-pli="${plans.indexOf(p)}"><span><b>${fmtMoney(p.monthly_amount)}</b> לחודש · ${p.charged_count || 0}/${p.total_count || "?"} חיובים${["active", "paused", "failed"].includes(p.status) && p.next_charge_date && rem ? ` · הבא ${esc(dm(p.next_charge_date))} · נשארו ${rem}` : ""}${p.card_last4 ? ` · <span dir="ltr">•••• ${esc(p.card_last4)}</span>` : ""}${p.description ? `<div class="muted">${esc(p.description)}</div>` : ""}${planMarked(p) ? `<div class="muted">${planMarkInfo(p)}</div>` : ""}</span><span class="lp-plan-e"><span class="lp-st ${["active", "done"].includes(p.status) ? "ok" : p.status === "paused" ? "" : "no"}">${esc(PST[p.status] || p.status)}</span>${ME.role === "admin" && !["error", "creating"].includes(p.status) ? `<button type="button" class="btn small" data-lpsync title="רענון ההוראה מאיקרדיט עכשיו">🔄</button>` : ""}${planMarkBtns(p, "lpcx")}</span></div>`; }).join("")}</div>` : "";
+      return `<div class="lp-reg lp-plan" data-pli="${plans.indexOf(p)}"><span><b>${fmtMoney(p.monthly_amount)}</b> לחודש · ${p.charged_count || 0}/${p.total_count || "?"} חיובים${["active", "paused", "failed"].includes(p.status) && p.next_charge_date && rem ? ` · הבא ${esc(dm(p.next_charge_date))} · נשארו ${rem}` : ""}${p.card_last4 ? ` · <span dir="ltr">•••• ${esc(p.card_last4)}</span>` : ""}${p.description ? `<div class="muted">${esc(p.description)}</div>` : ""}${planMarked(p) ? `<div class="muted">${planMarkInfo(p)}</div>` : ""}</span><span class="lp-plan-e"><span class="lp-st ${["active", "done"].includes(p.status) ? "ok" : p.status === "paused" ? "pz" : "no"}">${esc(PST[p.status] || p.status)}</span>${ME.role === "admin" && !["error", "creating"].includes(p.status) ? `<button type="button" class="btn small" data-lpsync title="רענון ההוראה מאיקרדיט עכשיו">🔄</button>` : ""}${planMarkBtns(p, "lpcx")}</span></div>`; }).join("")}</div>` : "";
   const pendHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">📞 ממתין לתשלום טלפוני</div>${ix.map(i => [pend[i], i]).map(([x, i]) => `<div class="lp-reg"><span>${pendWhat(x, l.student.id)}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">+ ${fmtMoney(x.monthly_amount)} לחודש</span>` : ""}</span><button type="button" class="btn small primary" data-lppaid="${i}">שולם</button></div>`).join("")}</div>` : "";
   // 5.20.18 (נועה, הכרטיס החדש – שלב 2): התשלומים – בתוך הקורס שלהם; מה שלא שייך לקורס פעיל – בקופסה הכללית למטה
   const cms = CRS.ok ? crsOfStudent(sid).filter(m => !crsGone(m) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id)) : [];
@@ -12759,7 +12763,7 @@ const planSid = (pid) => { const p = (S.plans || []).find(x => String(x.id) === 
 const stuCell = (name, sid) => { const ld = leadOfSid(sid); return ld ? `<button type="button" class="name-link" data-lead2="${ld.id}">${esc(name || "")}</button>` : `<b>${esc(name || "")}</b>`; };
 const parCell = (name, phone) => `<span class="par1">${esc(name || "")}${phone ? `${name ? " · " : ""}<a href="tel:${esc(String(phone).replace(/\D/g, ""))}" dir="ltr">${esc(phone)}</a>` : ""}</span>`;
 // 5.19.58: זיכוי שסומן ידנית (icredit-20: refund_status / refunded_amount)
-const refChip = (r) => r && r.refund_status ? ` <span class="chip st-paused" title="זיכוי שסומן ידנית (הזיכוי עצמו בריווחית)">↩ ${esc(r.refund_status)}${r.refund_status !== "זוכה" && Number(r.refunded_amount) ? " " + money(r.refunded_amount) : ""}</span>` : "";
+const refChip = (r) => r && r.refund_status ? ` <span class="chip st-refund" title="זיכוי שסומן ידנית (הזיכוי עצמו בריווחית)">↩ ${esc(r.refund_status)}${r.refund_status !== "זוכה" && Number(r.refunded_amount) ? " " + money(r.refunded_amount) : ""}</span>` : "";
 const stPay = (r) => (r.manual ? `<span class="chip st-active">שולם</span><div class="muted k-sub">סומן ידנית</div>` : r.status === "אושר" ? `<span class="chip st-active">שולם</span>` : `<span class="chip st-failed">${esc(r.status === "נכשל" ? "לא התקבל" : r.status || "")}</span>`) + refChip(r);
 async function renderAll(b){
   // 5.19.60 (הלקוחה): שורה לכל עסקה - הרשמה = תשלום ראשון + הוראת הקבע שלה (שורה אחת, "גם וגם"); מרתון / תשלום אישי - שורה אחת.
@@ -12881,7 +12885,7 @@ function buildDeals(rows, qf, qt, ibOpen){
   // הרשמות בתשלום טלפוני שעוד לא שולמו ("להתקשר לתשלום")
   (S.callList || []).forEach(x => { const g = x.kind === "marathon" ? "mar" : "first";
     mk({ group: g, date: x.created_at, student_id: x.student_id, name: [x.first_name, x.last_name].filter(Boolean).join(" "), parent: x.parent_first || "", phone: x.parent_phone || "", pending: x, pays: [], desc: x.what || "",
-      kindTxt: GK[g][1], kindHtml: kindH(g, "תשלום טלפוני"), amountHtml: `<b>${money(x.amount)}</b>${x.monthly_amount ? `<div class="muted">+ ${money(x.monthly_amount)} לחודש</div>` : ""}`, statusHtml: `<span class="chip st-paused">📞 ממתין לתשלום</span>` });
+      kindTxt: GK[g][1], kindHtml: kindH(g, "תשלום טלפוני"), amountHtml: `<b>${money(x.amount)}</b>${x.monthly_amount ? `<div class="muted">+ ${money(x.monthly_amount)} לחודש</div>` : ""}`, statusHtml: `<span class="chip st-phone">📞 ממתין לתשלום</span>` });
     deals[deals.length - 1].todo = "להתקשר לתשלום (בחרו תשלום טלפוני)"; });
   return deals.sort((a, c) => String(c.date).localeCompare(String(a.date)));
 }
@@ -12907,26 +12911,30 @@ function dealExpand(d){
   const tel = String(d.phone || "").replace(/[^\d+]/g, "");
   const info = [d.parent ? `<span class="only-m">הורה: <b>${esc(d.parent)}</b>${tel ? ` <a class="tel-a" href="tel:${esc(tel)}" dir="ltr">${esc(d.phone)}</a>` : ""}</span>` : "", d.desc ? `<span class="only-m">${esc(d.desc)}</span>` : ""];
   // נועה 6.11 (תש-51): התשלום החד-פעמי והוראת הקבע – שתי שורות נפרדות (גם לפני החיוב הראשון בהוראה)
+  // נועה 8.11: עמודות קבועות בכל השורות (תאריך · סוג · סכום · סטטוס · פרטים · חשבונית · פעולות) – כדי שיהיה ברור מה איפה
+  const cell = (c, h) => `<span class="${c}">${h || ""}</span>`;
   const planLine = (pp) => { const rem = Math.max(0, (pp.total_count || 0) - (pp.charged_count || 0)), lv = ["active", "paused", "failed"].includes(pp.status);
-    return `<div class="dx-pay dx-planrow"><span class="dx-d">${pp.next_charge_date && lv && rem ? "הבא " + dmy(pp.next_charge_date) : pp.created_at ? dmy(pp.created_at) : ""}</span><span class="dx-k">הוראת קבע</span><b>${money(pp.monthly_amount)}<small class="muted"> × ${pp.total_count || "?"}</small></b>${stChip(pp.status)}<span class="muted">${pp.charged_count || 0} מתוך ${pp.total_count || "?"} חיובים${pp.last_amount ? " · יוני " + money(pp.last_amount) : ""}${pp.card_last4 ? " · " + card4(pp.card_last4, pp.card_exp) : ""}</span></div>`; };
+    return `<div class="dx-pay dx-planrow">${cell("dx-d", pp.next_charge_date && lv && rem ? "הבא " + dmy(pp.next_charge_date) : pp.created_at ? dmy(pp.created_at) : "")}${cell("dx-k", "הוראת קבע")}${cell("dx-a", `<b>${money(pp.monthly_amount)}</b><small class="muted"> × ${pp.total_count || "?"}</small>`)}${cell("dx-s", stChip(pp.status))}${cell("dx-m muted", `${pp.charged_count || 0} מתוך ${pp.total_count || "?"} חיובים${pp.last_amount ? " · יוני " + money(pp.last_amount) : ""}${pp.card_last4 ? " · " + card4(pp.card_last4, pp.card_exp) : ""}`)}${cell("dx-doc", "")}${cell("dx-acts", planMarkBtns(pp, "dxcx"))}
+      ${planMarked(pp) ? `<div class="dx-sub">${cell("dx-d", "")}${cell("dx-k muted", planMarkInfo(pp))}</div>` : ""}</div>`; };
   const pdfB = docR && docR.status === "אושר" ? `<button type="button" class="btn small tx-pdf" data-dxpdf="1">📄 טופס חתום</button>` : "";
+  const refRows = (r) => (r.refunds || []).map(f => `<div class="dx-sub${f.cancelled_at ? " cx" : ""}">${cell("dx-d", dmy(f.at))}${cell("dx-k", "↩ זיכוי")}${cell("dx-a", `<b>${money(f.amount)}</b>`)}${cell("dx-s", f.cancelled_at ? `<span class="muted">(בוטל)</span>` : `<span class="chip st-refund">סומן</span>`)}${cell("dx-m muted", `${f.by ? "סימנ/ה: " + esc(f.by) : ""}${f.note ? (f.by ? " · " : "") + esc(f.note) : ""}`)}${cell("dx-doc muted", f.document_number ? "🧾 זיכוי " + esc(f.document_number) : "")}${cell("dx-acts", f.cancelled_at ? "" : `<button type="button" class="btn small" data-refx="${f.id}">ביטול הסימון</button>`)}</div>`).join("");
   const line = (r) => { const fail = S.failed.find(f => f.id === r.id), iss = S.issues.find(f => f.id === r.id), td = payTodo(r, {});
     const tm = String(r.date || "").length > 10 ? " " + new Date(r.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
-    return `<div class="dx-pay${r.status === "אושר" ? "" : " bad"}"><span class="dx-d">${dmy(r.date)}${tm}</span><span class="dx-k">${r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב " + esc(r.charge_no || "") : esc(r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : r.kind || "")}</span><b>${money(r.amount)}</b>${stPay(r)}
-      ${r.card_last4 ? `<span class="muted">${card4(r.card_last4)}</span>` : ""}${r.approval ? `<span class="muted">אישור <span dir="ltr">${esc(r.approval)}</span></span>` : ""}${docA(r)}
-      ${td || r.reason ? `<span class="dx-why">⚠ ${esc(td || "")}${td && r.reason ? " · " : ""}${esc(r.reason || "")}</span>` : ""}
-      <span class="dx-acts">${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי</button>` : ""}</span>
-      ${(r.refunds || []).length ? `<div class="dx-ref">${refHtml(r)}</div>` : ""}</div>`; };
+    const left = Number(r.amount) - Number(r.refunded_amount || 0);
+    return `<div class="dx-pay${r.status === "אושר" ? "" : " bad"}">${cell("dx-d", dmy(r.date) + tm)}${cell("dx-k", r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב " + esc(r.charge_no || "") : esc(r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : r.kind || ""))}${cell("dx-a", `<b>${money(r.amount)}</b>`)}${cell("dx-s", stPay(r))}
+      ${cell("dx-m muted", [r.card_last4 ? card4(r.card_last4) : "", r.approval ? `אישור <span dir="ltr">${esc(r.approval)}</span>` : ""].filter(Boolean).join(" · "))}${cell("dx-doc", docA(r))}
+      ${cell("dx-acts", `${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" && left > 0 ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי</button>` : ""}`)}
+      ${td || r.reason ? `<div class="dx-sub">${cell("dx-d", "")}<span class="dx-why">⚠ ${esc(td || "")}${td && r.reason ? " · " : ""}${esc(r.reason || "")}</span></div>` : ""}
+      ${refRows(r)}</div>`; };
   return `<div class="dx">
     ${pdfB ? `<div class="dx-form only-m-blk"><span class="muted">${esc(d.kindTxt || "")}${d.desc ? " · " + esc(d.desc) : ""}</span>${pdfB}</div>` : ""}
     ${info.filter(Boolean).length ? `<div class="dx-info${info.filter(x => x && !/only-m/.test(x)).length ? "" : " only-m-blk"}">${info.filter(Boolean).map(x => /^<span/.test(x) ? x : `<span>${x}</span>`).join("")}</div>` : ""}
-    ${d.pending ? `<div class="dx-pay bad"><span class="chip st-paused">📞 תשלום טלפוני</span><b>${money(d.pending.amount)}</b>${d.pending.monthly_amount ? `<span class="muted">+ ${money(d.pending.monthly_amount)} לחודש</span>` : ""}<span class="muted">${esc(d.pending.what || "")}</span>
-      <span class="dx-acts"><button type="button" class="btn small primary" data-dxnow="1">⌨️ הזנת כרטיס עכשיו</button><button type="button" class="btn small" data-dxlink="1">🔗 העתקת קישור להורה</button><button type="button" class="btn small" data-dxpaid="1">✔ שולם (גביתי בריווחית)</button></span></div>` : ""}
+    ${d.pending ? `<div class="dx-pay bad">${cell("dx-d", d.pending.created_at ? dmy(d.pending.created_at) : "")}${cell("dx-k", "תשלום טלפוני")}${cell("dx-a", `<b>${money(d.pending.amount)}</b>${d.pending.monthly_amount ? `<small class="muted"> + ${money(d.pending.monthly_amount)} לחודש</small>` : ""}`)}${cell("dx-s", `<span class="chip st-phone">📞 ממתין</span>`)}${cell("dx-m muted", esc(d.pending.what || ""))}${cell("dx-doc", "")}${cell("dx-acts", "")}
+      <div class="dx-sub">${cell("dx-d", "")}<span class="dx-acts wide"><button type="button" class="btn small primary" data-dxnow="1">⌨️ הזנת כרטיס עכשיו</button><button type="button" class="btn small" data-dxlink="1">🔗 העתקת קישור להורה</button><button type="button" class="btn small" data-dxpaid="1">✔ שולם (גביתי בריווחית)</button></span></div></div>` : ""}
     ${pays.filter(r => r.kind !== "חיוב חודשי").map(line).join("")}
     ${p ? planLine(p) : ""}
     ${pays.filter(r => r.kind === "חיוב חודשי").map(line).join("")}
-    ${live ? `<div class="dx-plan muted">שינויים בהוראת הקבע (סכום, יום חיוב, כרטיס, השהיה, ביטול) – בריווחית. מתעדכן כאן כל בוקר.${planMarkBtns(p, "dxcx")}</div>` : ""}
-    ${p && planMarked(p) ? `<div class="dx-plan"><span class="muted">${planMarkInfo(p)}</span>${planMarkBtns(p, "dxcx")}</div>` : ""}
+    ${live ? `<div class="dx-plan muted">שינויים בהוראת הקבע (סכום, יום חיוב, כרטיס, השהיה, ביטול) – בריווחית. מתעדכן כאן כל בוקר.</div>` : ""}
   </div>`;
 }
 function wireExpand(box, d, reload){
@@ -12955,7 +12963,7 @@ async function dealDetails(d){
   pnlOpen(dlHeader(d.name, d.leadId) + `<div class="body">
     ${dlInfo(cells, docR && docR.status === "אושר")}
     ${d.todo ? `<div class="tx-todo">⚠ ${esc(d.todo)}</div>` : ""}
-    ${d.pending ? `<div class="dl-pay"><div class="dl-pay-h"><span class="chip st-paused">📞 תשלום טלפוני</span><b class="dl-a">${money(d.pending.amount)}</b>${d.pending.monthly_amount ? `<span class="muted">+ ${money(d.pending.monthly_amount)} לחודש</span>` : ""}<span class="dl-pay-doc muted">${d.pending.created_at ? dmy(d.pending.created_at) : ""}</span></div>
+    ${d.pending ? `<div class="dl-pay"><div class="dl-pay-h"><span class="chip st-phone">📞 תשלום טלפוני</span><b class="dl-a">${money(d.pending.amount)}</b>${d.pending.monthly_amount ? `<span class="muted">+ ${money(d.pending.monthly_amount)} לחודש</span>` : ""}<span class="dl-pay-doc muted">${d.pending.created_at ? dmy(d.pending.created_at) : ""}</span></div>
       <div class="muted dl-mini">${esc(d.pending.what || "")} - ההורה בחר/ה תשלום טלפוני. מתקשרים, ואז:</div>
       <div class="tx-acts"><button type="button" class="btn small primary" id="dlNow">⌨️ הזנת כרטיס עכשיו</button><button type="button" class="btn small" id="dlLink">🔗 העתקת קישור להורה</button><button type="button" class="btn small" id="dlPaid">✔ שולם (גביתי בריווחית)</button></div></div>` : ""}
     ${pays1.length || (!p && d.pays.length) ? `<h3 class="pl-h">תשלומים</h3>` : ""}
