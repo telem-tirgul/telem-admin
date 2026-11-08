@@ -294,9 +294,10 @@
   .lead-cols{ display:grid; grid-template-columns:minmax(0,1fr) minmax(400px,.95fr); gap:16px; align-items:start; }   /* 5.19.173 (נועה): עמודת הקורסים רחבה יותר */
   @media (min-width:961px){ .lead-cols{ align-items:stretch; } }
   .lead-acc{ margin-top:14px; padding:4px 14px; }
+  #lcAddSlot{ display:inline-flex; gap:6px; flex-wrap:wrap; }   /* נועה 8.11: + הוספה לקורס · + טופס הרשמה אישי · + קישור אישי */
   /* 5.20.18 (נועה, הכרטיס החדש – שלב 1): הפרטים העיקריים למעלה לכל הרוחב; מתחת – הקורסים (רחב, מימין) ופרטי התלמיד/ה + הערות (צר, משמאל) */
   @media (min-width:961px){
-    #view-lead .lead-cols{ grid-template-columns:minmax(310px,.85fr) minmax(0,1.6fr); grid-template-areas:"top top" "side crs" "err err" "foot foot"; align-items:start; } #view-lead .lead-cols > .lead-main > #leadErr{ grid-area:err; } #view-lead .lead-cols > .lead-main > .lead-foot{ grid-area:foot; margin-top:0; } #view-lead .lead-cols > .lead-main > #leadErr:empty{ display:none; }   /* 5.21.3 (נועה): הפרטים מימין (צר), הקורסים והשיבוצים משמאל */
+    #view-lead .lead-cols{ grid-template-columns:minmax(0,1.6fr) minmax(310px,.85fr); grid-template-areas:"top top" "crs side" "err err" "foot foot"; align-items:start; } #view-lead .lead-cols > .lead-main > #leadErr{ grid-area:err; } #view-lead .lead-cols > .lead-main > .lead-foot{ grid-area:foot; margin-top:0; } #view-lead .lead-cols > .lead-main > #leadErr:empty{ display:none; }   /* 5.21.3 (נועה): הפרטים מימין (צר), הקורסים והשיבוצים משמאל */
     #view-lead .lead-cols > .lead-main{ display:contents; }
     #view-lead .lead-top{ grid-area:top; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:12px 16px 14px; }
     #view-lead .lead-side{ grid-area:side; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:4px 14px 12px; }
@@ -2924,18 +2925,8 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
                 <div><label class="lbl" for="sEng">רמה אנגלית</label><select id="sEng"></select></div>
                 <div class="trk-f" hidden><!-- 5.20.12 (נועה): המסלול – בקורס, לא בפרטי התלמיד/ה --><label class="lbl" for="sTrack">מסלול</label><select id="sTrack"><option value="">לא ידוע</option><option value="single">1 · פעמיים בשבוע</option><option value="unlimited-single">2 · ללא הגבלה</option><option value="double">3 · שני מקצועות</option></select></div><!-- 5.19.157 (נועה): אינפורמטיבי; מהרשמה בטופס – לבד (קובץ 127) -->
               </div>
-            </details>
-            <!-- 5.20.18: הערות – בעמודה הצרה, פתוח -->
-          <details class="la-row ls-notes" data-la="notes"><summary><b>הערות <span class="muted" id="notesN"></span></b><span class="la-sum" id="laNotes"></span></summary>
-            <div class="la-body">
-              <div class="note-new" id="noteNew">
-                <textarea id="newNote" placeholder="+ הערה חדשה..." rows="1" aria-label="הערה חדשה"></textarea>
-                <button class="btn small primary" type="button" id="addNoteBtn">הוספה</button>
-              </div>
-              <ul class="notes-list" id="notesList"></ul>
-            </div></details>
-            <!-- 5.19.70 (נועה): פרטים נוספים - נפתח בחץ, כמו התשלומים -->
-            <details class="sec-d" id="moreBox"><summary>פרטים נוספים <span class="muted" style="font-size:12.5px; font-weight:400;">(הורה 2, טלפון בית, כתובת · ממלא/ת, נושא והודעה מטופס ההתעניינות)</span></summary>
+              <!-- נועה 8.11: "פרטים נוספים" – באותה מסגרת עם פרטי התלמיד/ה; ההערות מתחת -->
+              <div class="sd-more" id="moreBox"><div class="sub-h">פרטים נוספים <span class="muted" style="font-size:12px; font-weight:400;">(הורה 2, טלפון בית, כתובת, עיר)</span></div>
               <div class="lf-old" hidden><!-- 5.20.13 (נועה): "סטטוס אחד" – הסטטוס ומקור הליד הישנים ירדו מהכרטיס (ממשיכים להתעדכן מהקורס ברקע) --><span class="tg-f"></span>
                 <span class="tg-f"><label for="lfSource">מקור ליד (ישן)</label><select id="lfSource"></select></span>
                 <span class="muted lf-old-n">מתעדכנים מהקורס – שינוי סטטוס / מקור – בקורס (למעלה, ב"קורסים ושיבוצים")</span></div>
@@ -2954,7 +2945,17 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
                 <div><label class="lbl" for="lfTopic">נושא</label><select id="lfTopic"><option>ליד</option><option>מתעניין</option><option>נרשם</option></select></div>
                 <div class="msg-cell"><label class="lbl" for="lfMessage">הודעה</label><textarea id="lfMessage" aria-label="הודעה"></textarea></div>
               </div>
+            </div>
             </details>
+            <!-- 5.20.18: הערות – בעמודה הצרה, פתוח -->
+          <details class="la-row ls-notes" data-la="notes"><summary><b>הערות <span class="muted" id="notesN"></span></b><span class="la-sum" id="laNotes"></span></summary>
+            <div class="la-body">
+              <div class="note-new" id="noteNew">
+                <textarea id="newNote" placeholder="+ הערה חדשה..." rows="1" aria-label="הערה חדשה"></textarea>
+                <button class="btn small primary" type="button" id="addNoteBtn">הוספה</button>
+              </div>
+              <ul class="notes-list" id="notesList"></ul>
+            </div></details>
             </div>
             <!-- 5.21.4 (נועה): שמירה / ביטול – בסוף הכרטיס, לכל הרוחב, צמודים לשמאל (כמו בכל המערכת) -->
             <div class="err" id="leadErr"></div>
@@ -6038,9 +6039,13 @@ async function loadLeadCancel(l){
   // 5.20.11 (תש-33, icredit-32): טופס ביטול = ביטול קורס – שם הקורס
   const canCrs = (r) => { if (!r.course_member_id || typeof CRS === "undefined" || !CRS.ok) return ""; const m = crsOfStudent(l.student.id).find(x => x.id === r.course_member_id), c = m && CRS.byId[m.course_id]; return c ? crsNm(c) : ""; };
   if (!editing || editing.id !== l.id) return;
+  // נועה 8.11: טפסי ביטול – תמיד בתוך הקורס. טופס ישן בלי קורס – לקורס התרגול השוטף של אותה שנת לימודים (לפי תאריך הטופס)
+  if (typeof CRS !== "undefined" && CRS.ok) rows.forEach(r => { if (r.course_member_id) return; const d = String(r.created_at || "").slice(0, 10), y = Number(d.slice(0, 4)), ys = Number(d.slice(5, 7)) >= 8 ? y : y - 1;
+    const regs = crsOfStudent(l.student.id).filter(m => { const c = CRS.byId[m.course_id]; return c && !c.marathon_id && crsCat(c.category_id).kind !== "event"; });
+    const m = regs.find(x => crsSeason(CRS.byId[x.course_id].season_id).year_start === ys) || regs[0]; if (m) { r.course_member_id = m.id; r._guess = true; } });
   CAN_ROWS[l.student.id] = rows; canPaint(l.student.id);
   const f = l.student.family || {}, ph = digits(f.parent1_phone || "");
-  box.dataset.sum = rows.length ? `${rows.length === 1 ? "טופס ביטול אחד" : rows.length + " טפסי ביטול"} · האחרון: ${CAN_ST[rows[0].status] || rows[0].status}` : "";   // 5.19.41: תקציר קצר
+  { const rest = rows.filter(r => !r.course_member_id); box.dataset.sum = rest.length ? `${rest.length === 1 ? "טופס ביטול אחד" : rest.length + " טפסי ביטול"} · האחרון: ${CAN_ST[rest[0].status] || rest[0].status}` : ""; }   // 5.19.41: תקציר קצר; נועה 8.11: רק מה שלא בתוך קורס
   box.innerHTML = rows.map(r => `<div class="can-row" data-cm="${r.course_member_id || ""}" style="border-bottom:1px solid var(--border); padding:6px 0;"><b>${esc(CAN_ST[r.status] || r.status)}</b> · ${esc([canCrs(r), r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · "))}
       <div class="muted">${esc(fmtDate(r.created_at))}${r.reason ? " · סיבה: " + esc(r.reason) : ""}</div>
       ${r.status === "נחתם" ? `<div style="display:flex; gap:6px; margin-top:4px;"><button type="button" class="btn small" data-cpdf="${r.id}">הטופס החתום (PDF)</button><button type="button" class="btn small primary" data-capprove="${r.id}">אישור ביטול</button></div>` : ""}
@@ -6426,12 +6431,12 @@ async function loadLeadGroups(studentId){
         `<div class="lg-pend">🏁 <b>${esc(x.marathon.name)}</b>${x.session && x.session.time_label ? " · " + esc(x.session.time_label) : ""}<span class="lg-pend-t">⏳ ממתין לתשלום – ישובץ/תשובץ אחרי "שולם"</span></div>`); }); } catch(e) {}
     // 5.19.173 (נועה): "+ הוספה לקורס" – מעל הקורסים; "+ הוספה לקבוצה" – בתוך הקורס של התרגול השוטף (אין – למטה)
     if ($("lcAddSlot")) $("lcAddSlot").innerHTML = (CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : "")
-      + (ME.role === "admin" ? `<button type="button" class="btn small" data-cardlk="reg" title="קישור לטופס ההרשמה של העיר שבכרטיס – מועתק">📝 קישור הרשמה</button><button type="button" class="btn small" data-cardlk="pay" title="קישור אישי (תשלום) – ממולא מהכרטיס ומחובר אליו">💳 קישור אישי</button>` : "");   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
+      + (ME.role === "admin" ? `<button type="button" class="btn small primary" data-cardlk="reg" title="טופס ההרשמה של העיר שבכרטיס – הקישור מועתק">+ טופס הרשמה אישי</button><button type="button" class="btn small primary" data-cardlk="pay" title="קישור אישי (תשלום) – ממולא מהכרטיס ומחובר אליו">+ קישור אישי</button>` : "");   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
     $("lcAddSlot").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = async () => { const sid = editing && editing.student && editing.student.id; if (!sid) return;
       if (b.dataset.cardlk === "pay") { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.newLink(sid); return; }
       const city = ((editing.student.family || {}).city || "").trim(); if (!city) { toast("בכרטיס אין עיר מגורים – יש להשלים אותה"); return; }
-      const u = lkReg(city); if (shortOf(u)) { copyText(shortOf(u), "קישור ההרשמה של " + city + " הועתק"); return; }
-      try { const sh = await makeShort(u); copyText(sh, "קישור ההרשמה של " + city + " הועתק"); } catch(e) { copyText(u, "קישור ההרשמה של " + city + " הועתק (קישור מלא)"); } });
+      const u = lkReg(city); if (shortOf(u)) { copyText(shortOf(u), "קישור ההרשמה של " + city + " הועתק (עוד בלי מילוי אוטומטי – בקרוב)"); return; }
+      try { const sh = await makeShort(u); copyText(sh, "קישור ההרשמה של " + city + " הועתק (עוד בלי מילוי אוטומטי – בקרוב)"); } catch(e) { copyText(u, "קישור ההרשמה של " + city + " הועתק (עוד בלי מילוי אוטומטי – בקרוב)"); } });
     { const gb = $("leadGroups").querySelector(".lg-crs-box.lg-reg"), html = `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></div><div class="lg-edit lg-card" data-ed="new" hidden></div>`;
       const gs = gb && gb.querySelector(".lg-add-slot"); if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
     if ($("lcAdd")) $("lcAdd").onclick = () => { const sid = editing && editing.student && editing.student.id; if (sid !== studentId) { toast("הכרטיס התחלף – פותחים שוב"); return; } const l0 = L.leads.find(x => x.student && x.student.id === sid); if (!l0) return;
