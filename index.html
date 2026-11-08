@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.61">
+<meta name="app-version" content="5.21.62">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2839,11 +2839,11 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
           <div><label class="lbl" for="fFrom">עודכן מ-</label><input id="fFrom" type="date"></div>
           <div><label class="lbl" for="fTo">עד</label><input id="fTo" type="date"></div>
           <div><label class="lbl" for="fYear">שנת לימוד</label><select id="fYear"></select></div><!-- 5.19.104 (נועה) -->
+          <div><label class="lbl" for="fActive">פעילים</label><select id="fActive"><option value="">הכול</option><option value="1">פעילים</option><option value="0">לא פעילים</option></select></div><!-- נועה 8.11: במקום "רק פעילים"; ברירת מחדל – הכול -->
           <div hidden><label class="lbl">סטטוס (ישן)</label><div class="multi" id="fStatus"></div></div><!-- 5.20.5 (נועה): הישנים – הוסרו מהסינון -->
           <div hidden><label class="lbl">מקור ליד (ישן)</label><div class="multi" id="fSource"></div></div>
         </div>
         <div class="filters-chk">
-          <label class="chk"><input type="checkbox" id="fActive" checked> רק פעילים</label>
           <input type="checkbox" id="fPast" hidden><!-- 5.19.129 (נועה 24.10): בלי "כולל שנים קודמות" – שנה קודמת / "כל השנים" / תאריך לפני 1.9 = מציגים שנים קודמות -->
           <label class="chk"><input type="checkbox" id="fStar"> רק עם כוכב</label>
           <label class="chk" title="טופס ביטול שההורה חתם עליו ועוד לא אושר"><input type="checkbox" id="fCxl"> בקשת ביטול לאישור <span class="muted" id="fCxlN"></span></label><!-- נועה 7.11 -->
@@ -3611,7 +3611,7 @@ async function logout(msg){
   try { sessionStorage.removeItem("telem_last"); sessionStorage.removeItem("telem_resume"); store("telem_last_keep", null); sessionStorage.removeItem("telem_lead_filters"); } catch(e) {} RESUME = null;
   try { const t = await token(); if (t) await fetch(CONFIG.supabaseUrl + "/auth/v1/logout", { method:"POST", headers: Object.assign(baseHeaders(), {"Authorization":"Bearer "+t}) }); } catch(e) {}
   saveAuth(null); showLogin(); $("idleWarn").hidden = true;
-  try { setLeadDirty(false); currentView = "home"; F.statuses.clear(); LF_IDS.forEach(id => { const el = $(id); if (el.type === "checkbox") el.checked = id === "fActive"; else if (id !== "fRemindDate") el.value = ""; }); } catch(e) {}
+  try { setLeadDirty(false); currentView = "home"; F.statuses.clear(); LF_IDS.forEach(id => { const el = $(id); if (el.type === "checkbox") el.checked = false; else if (id !== "fRemindDate") el.value = ""; }); } catch(e) {}
   $("lgMsg").textContent = msg || "";
 }
 document.querySelectorAll("[data-logout]").forEach(b => b.addEventListener("click", async () => { if (await uiConfirm("לצאת מהמערכת?", { ok: "יציאה" })) logout(); }));
@@ -4919,7 +4919,7 @@ $("fSchool").addEventListener("change", () => { if (CRS.ok) crsFillFilter(); }, 
 // 5.19.150 (נועה 28.10): גם לחיצה על "תלמידים" בתפריט – חוזרים לסינון ברירת המחדל
 function resetLeadFilters(){
   ["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].forEach(id => $(id).value = "");
-  $("fStar").checked = false; $("fCxl").checked = false; $("fRemind").checked = false; $("fActive").checked = true; $("fPast").checked = false;
+  $("fStar").checked = false; $("fCxl").checked = false; $("fRemind").checked = false; $("fActive").value = ""; $("fPast").checked = false;
   $("fRemindDate").value = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   F.statuses.clear(); F.sources.clear(); if (F.cst) F.cst.clear(); if (F.csrc) F.csrc.clear(); [F.ccat, F.ctrk, F.csub].forEach(x => x && x.clear()); sstore(LF_KEY, null); setupFilters(); if (CRS.ok) crsFillFilter(); F.page = 0;
 }
@@ -4934,7 +4934,7 @@ function filtered(){
     const s = l.student, f = s.family || {};
     if (hid) return String(l.id) === hid || String(l.legacy_user_id) === hid || HID.map[hid] === s.id;   // + כרטיס שאוחד (HID)
     const fBack = fcrs === "__back" || (F.ccat && F.ccat.has("__back"));
-    if ($("fActive").checked && !l.is_active && !fBack) return false;   // "לא חזרו" – גם כרטיסים לא פעילים
+    { const fa = $("fActive").value; if (fa === "1" && !l.is_active && !fBack) return false; if (fa === "0" && l.is_active) return false; }   // נועה 8.11: הכול / פעילים / לא פעילים ("לא חזרו" – גם לא פעילים)
     if ($("fStar").checked && !l.is_starred) return false;
     if ($("fCxl").checked && !(L.cxl && L.cxl.has(s.id))) return false;   // נועה 7.11: בקשות ביטול שמחכות לאישור
     { const ft = $("fTs").value; if (ft) { const has = !!(L.tsAcc && L.tsAcc.has(s.id)); if (ft === "yes" ? !has : ft === "no" ? has : !(has && !tsAccess(l))) return false; } }   /* 5.21.12: תלם שלי */
@@ -5072,7 +5072,7 @@ const H_KEY = {
 function leadRows(){
   pastSync(); LR.years = new Map(); L.leadByStudent = new Map(L.leads.map(l => [l.student_id, l]));
   const yr = $("fYear").value, pastYr = yr && yr !== "all" && Number(yr) < HIST_YS();
-  if (($("fPast").checked || !$("fActive").checked) && !L.inactReady) ensureInact();
+  if (($("fPast").checked || $("fActive").value !== "1") && !L.inactReady) ensureInact();
   const list = pastYr ? [] : filtered(), hs = histFiltered(list);
   LR.histN = hs ? hs.length : 0; LR.histLoading = hs === null;
   if (!hs || !hs.length) return list;
@@ -5188,9 +5188,9 @@ function renderLeads(){
           tsBulk(ok.map(x => x.student.id), "פתיחת חשבונות מהסינון"); }; } } }
   $("countLine").textContent = (list.length ? `${F.page * CONFIG.pageSize + 1}-${F.page * CONFIG.pageSize + slice.length} מתוך ${list.length}` : "אין תוצאות")
     + (LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : LR.histLoading ? " · טוען שנים קודמות…" : "")
-    + (!L.inactReady && (!$("fActive").checked || $("fPast").checked) ? " · טוען כרטיסים לא פעילים…" : "");
+    + (!L.inactReady && ($("fActive").value !== "1" || $("fPast").checked) ? " · טוען כרטיסים לא פעילים…" : "");
   // "ניקוי סינון" - רק כשיש סינון פעיל
-  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear"].some(id => $(id).value) || F.statuses.size || F.sources.size || (F.cst && F.cst.size) || (F.csrc && F.csrc.size) || [F.ccat, F.ctrk, F.csub].some(x => x && x.size) || $("fStar").checked || $("fCxl").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
+  $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear","fActive"].some(id => $(id).value) || F.statuses.size || F.sources.size || (F.cst && F.cst.size) || (F.csrc && F.csrc.size) || [F.ccat, F.ctrk, F.csub].some(x => x && x.size) || $("fStar").checked || $("fCxl").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
   { const cur = F.page, nums = [...new Set([0, cur - 2, cur - 1, cur, cur + 1, cur + 2, pages - 1].filter(x => x >= 0 && x < pages))].sort((a, b) => a - b);   // 5.20.15 (נועה): מספרי עמודים
     $("pageInfo").innerHTML = pages > 1 ? nums.map((n, i) => (i && n - nums[i - 1] > 1 ? `<span class="pg-gap">…</span>` : "") + `<button type="button" class="pg-n${n === cur ? " on" : ""}" data-pg="${n}" aria-label="עמוד ${n + 1}"${n === cur ? ' aria-current="page"' : ""}>${n + 1}</button>`).join("") : ""; }
   $("prevPage").disabled = F.page === 0; $("nextPage").disabled = F.page >= pages - 1;
