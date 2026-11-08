@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.71">
+<meta name="app-version" content="5.21.72">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2093,6 +2093,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 #payWrap .st-paused{ background:#FBE1C2; color:#9A4D0B; } .lp-st.pz{ background:#FBE1C2 !important; color:#9A4D0B !important; }   /* נועה 8.11: הוראה מושהית – כתום */
 .ic-x{ font-size:.85em; display:inline-block; text-decoration:none; } .deals tr.kd-multi td{ vertical-align:top; } .kd-l{ min-height:28px; display:flex; align-items:center; gap:4px; flex-wrap:wrap; } .kd-l + .kd-l{ border-top:1px dashed #E6DDD3; } .c-desc .kd-l span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .kd-crs-l{ display:flex; flex-direction:column; gap:10px; padding-top:6px; } .kd-crs{ border:1px solid #E2D6C8; border-radius:12px; background:#FFFDFB; padding:8px 10px; } .kd-crs-h{ display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px; } .kd-deal{ position:relative; } .kd-frm{ position:absolute; top:-34px; left:0; } .kd-deal + .kd-deal .kd-frm{ top:4px; } .kd-deal .dx-form{ display:none !important; } .kd-crs:not(:first-child) .dx-info, .kd-deal + .kd-deal .dx-info{ display:none !important; } .kd-deal + .kd-deal{ margin-top:8px; padding-top:8px; border-top:1px dashed #E2D6C8; } .kd-deal-h{ font-size:12.5px; margin:0 2px 4px; }
+.lg-crs-box.lg-lead{ border-style:dashed; background:#FFFDF9; } .lg-lead .lg-crs{ padding-block:4px; }
 #payWrap .st-refund{ background:#E8DDF5; color:#5B3A8A; }   /* נועה 8.11: זוכה / זיכוי חלקי – סגול */
 #payWrap .st-phone{ background:var(--warn-bg); color:var(--warn); }   /* 📞 ממתין לתשלום טלפוני */
 #payWrap .st-failed, #payWrap .st-error, #payWrap .kchip.k-bad{ background:#F4CFCB; color:#8E2B28; }   /* 5.19.45: "לא התקבל" - רקע אדום (כמו שאר התגיות) */
@@ -4034,6 +4035,7 @@ const CRS_ST = { "מתעניין": "int", "ממתין לתשלום": "pend", "ר
 const CRS_TRACKS = { single: "פעמיים בשבוע", "unlimited-single": "ללא הגבלה", double: "מת.+אנג.", summer: "רגיל", "summer-ext": "מורחב" };
 const crsSeason = (id) => CRS.seasons.find(x => x.id === id) || {};
 const crsCat = (id) => CRS.cats.find(x => x.id === id) || {};
+const crsIsLead = (c) => !!c && crsCat(c.category_id).kind === "lead";   // 181 (נועה 8.11): קורס מסוג "פנייה" – מי שרק השאיר/ה פרטים
 const crsSchool = (c) => (c.school && c.school.name) || c.school_text || "";
 const crsActiveSeasons = () => new Set(CRS.seasons.filter(x => x.is_active).map(x => x.id));
 // שם קצר: מרתון – שם המרתון; אחרת קטגוריה · מסלול (· בית ספר)
@@ -4144,6 +4146,7 @@ const crsSubj = (x) => x ? x.replace("מתמטיקה ואנגלית", "מת.+א�
 // תוכן קצר (נועה 30.10): מרתון – 🏁 תאריך + מקום; שוטף – המסלול בצבע שלו + מקצוע; הכנה לשנה"ל – ☀️ + רגיל/מורחב + מקצוע
 const CRS_TRK_S = { single: "פעמיים בשבוע", "unlimited-single": "ללא הגבלה", double: "מת.+אנג.", summer: "רגיל", "summer-ext": "מורחב" };
 function crsLabel(c, m){
+  if (crsIsLead(c)) return `<span class="ci">💬</span><b>פנייה</b>${m && m.note ? ` <span class="muted">· ${esc(m.note)}</span>` : m && m.source ? ` <span class="muted">· ${esc(m.source === "כיתה" ? "מהכיתה" : m.source)}</span>` : ""}`;
   if (c.marathon_id) { const o = (CRS.mar || {})[c.marathon_id] || {}, d = o.first ? fmtDM(o.first) : "";
     return `<span class="ci">🏁</span>${d ? esc(d) + " " : ""}${o.school ? scChip(o.school) : esc(c.city || (d ? "" : c.name || "מרתון"))}`; }
   const tk = mTrk(Object.assign({ course_id: c.id }, m)), sum = /summer/.test(tk) || (crsCat(c.category_id).tracks || []).includes("summer"), to = LK.tracks.find(x => x.v === tk);
@@ -5989,12 +5992,12 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
   const pendHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">📞 ממתין לתשלום טלפוני</div>${ix.map(i => [pend[i], i]).map(([x, i]) => `<div class="lp-reg"><span>${pendWhat(x, l.student.id)}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">+ ${fmtMoney(x.monthly_amount)} לחודש</span>` : ""}</span><button type="button" class="btn small primary" data-lppaid="${i}">שולם</button></div>`).join("")}</div>` : "";
   // 5.20.18 (נועה, הכרטיס החדש – שלב 2): התשלומים – בתוך הקורס שלהם; מה שלא שייך לקורס פעיל – בקופסה הכללית למטה
   const cms = CRS.ok ? crsOfStudent(sid).filter(m => !crsGone(m) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id)) : [];
-  const marCm = (CRS.ok ? crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && CRS.byId[m.course_id].marathon_id) : []), regCm = cms.find(m => !CRS.byId[m.course_id].marathon_id && crsCat(CRS.byId[m.course_id].category_id).kind !== "event" && !/summer/.test(mTrk(m) || ""));
+  const marCm = (CRS.ok ? crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && CRS.byId[m.course_id].marathon_id) : []), regCm = cms.find(m => !CRS.byId[m.course_id].marathon_id && !crsIsLead(CRS.byId[m.course_id]) && crsCat(CRS.byId[m.course_id].category_id).kind !== "event" && !/summer/.test(mTrk(m) || ""));
   const marOf = (txt) => { if (marCm.length === 1) return marCm[0]; const t = String(txt || ""); return marCm.find(m => { const c = CRS.byId[m.course_id], o = (CRS.mar || {})[c.marathon_id] || {}; return [c.name, o.name].filter(Boolean).some(n => t.includes(n)); }) || null; };
   const B = {}, put = (m, k, i) => { const key = m ? m.id : "rest"; (B[key] = B[key] || { rows: [], pend: [], regs: [], plans: [] })[k].push(i); };
   // תשלום של תרגול משנה קודמת – לקורס התרגול של אותה שנה (לפי התאריך: אוגוסט–יולי)
   const regOfDate = (d) => { if (!d || !CRS.ok) return regCm; const dt = String(d).slice(0, 10), y = Number(dt.slice(0, 4)), ys = Number(dt.slice(5, 7)) >= 8 ? y : y - 1;
-    const m = crsOfStudent(sid).slice().sort((p1, p2) => (p1.history_at ? 1 : 0) - (p2.history_at ? 1 : 0)).find(x => { const c = CRS.byId[x.course_id]; return c && !c.marathon_id && x.status !== "בוטל" && crsSeason(c.season_id).year_start === ys && crsCat(c.category_id).kind !== "event"; });   // תש-64: קודם השורה הנוכחית בקורס
+    const m = crsOfStudent(sid).slice().sort((p1, p2) => (p1.history_at ? 1 : 0) - (p2.history_at ? 1 : 0)).find(x => { const c = CRS.byId[x.course_id]; return c && !c.marathon_id && !crsIsLead(c) && x.status !== "בוטל" && crsSeason(c.season_id).year_start === ys && crsCat(c.category_id).kind !== "event"; });   // תש-64: קודם השורה הנוכחית בקורס
     return m || (regCm && crsSeason(CRS.byId[regCm.course_id].season_id).year_start === ys ? regCm : null); };
   // תש-66 (icredit-53): לכל תשלום – ההזמנה שלו (enrollment_id / marathon_registration_id) → השורה של ההזמנה בקורס (גם קורס קודם)
   const allCm = CRS.ok ? crsOfStudent(sid) : [], ordCm = (r) => (r.enrollment_id && allCm.find(m => m.enrollment_id === r.enrollment_id)) || (r.marathon_registration_id && allCm.find(m => m.marathon_registration_id === r.marathon_registration_id)) || null;
@@ -6401,7 +6404,8 @@ async function crsGroupsHtml(sid, cur, card){
   const ms = crsOfStudent(sid).filter(m => m.status !== "בוטל" && (m.status !== "פרש" || runs(m)) && !m.history_at && CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id));
   const used = new Set(); let h = "", first = true;
   // 5.19.166 (נועה): השיבוצים בתוך המסגרת של הקורס – בתרגול השוטף הקבוצות, במרתון הקבוצה של המרתון
-  ms.filter(m => !CRS.byId[m.course_id].marathon_id).forEach(m => { const to = LK.tracks.find(x => x.v === mTrk(m));
+  ms.filter(m => crsIsLead(CRS.byId[m.course_id])).forEach(m => { h += `<div class="lg-crs-box lg-lead" data-cbm="${m.id}"><div class="lg-crs"><span class="lg-crs-l">${crsLabel(CRS.byId[m.course_id], m)}</span><span class="lg-crs-r">${crsSrcBtn(m)}${crsStWord(m)}</span></div></div>`; });   // 181
+  ms.filter(m => !CRS.byId[m.course_id].marathon_id && !crsIsLead(CRS.byId[m.course_id])).forEach(m => { const to = LK.tracks.find(x => x.v === mTrk(m));
     const reg = first && !/summer/.test(mTrk(m)) && !(crsCat(CRS.byId[m.course_id].category_id).tracks || []).includes("summer");
     h += `<div class="lg-crs-box lg-trk${reg ? " lg-reg" : ""}" data-cbm="${m.id}"${to ? ` style="--tc:${to.c}"` : ""}>` + crsHead(m);
     if (!reg) h += crsTrackHtml(m);
