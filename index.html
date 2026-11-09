@@ -4037,6 +4037,9 @@ const CRS_ST = { "מתעניין": "int", "ממתין לתשלום": "pend", "ר
 const CRS_TRACKS = { single: "פעמיים בשבוע", "unlimited-single": "ללא הגבלה", double: "מת.+אנג.", summer: "רגיל", "summer-ext": "מורחב" };
 const crsSeason = (id) => CRS.seasons.find(x => x.id === id) || {};
 const crsCat = (id) => CRS.cats.find(x => x.id === id) || {};
+// תש-73 (icredit-58): להזמנה אין סטטוס – שולם = paid_at, בוטלה = cancelled_at, ממתינה = אף אחד מהם
+const ordSt = (r) => r.cancelled_at ? "בוטל" : r.paid_at ? "שולם" : "ממתין לתשלום";
+const ordFix = (rows) => (rows || []).map(r => (r.status = ordSt(r), r));
 const crsIsLead = (c) => !!c && crsCat(c.category_id).kind === "lead";
 const crsIsPay = (c) => !!c && crsCat(c.category_id).kind === "payment";   // 184 (נועה 8.11): "שיעור בודד" / "תשלום אחר" – קישורים אישיים ששולמו   // 181 (נועה 8.11): קורס מסוג "פנייה" – מי שרק השאיר/ה פרטים
 const crsSchool = (c) => (c.school && c.school.name) || c.school_text || "";
@@ -4803,8 +4806,7 @@ async function loadLeads(){
     getAll("assignments", "select=id,student_id,status,arrival_time,personal_end,ends_on,session:sessions!inner(id,day,start_time,end_time,school_year,kind,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&session.kind=eq." + encodeURIComponent("שוטף") + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")
       .catch(() => getAll("assignments", "select=student_id,status,session:sessions!inner(day,start_time,school_year,location:locations(name))&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear) + "&status=in.(" + encodeURIComponent("משובץ") + "," + encodeURIComponent("ממתין") + ")" + "&order=id")).catch(() => []),
     // 5.19.41: גם מזהה, קבוצה ותשלום (לסימון "ממתין לתשלום" בקבוצה ובנוכחות)
-    getAll("marathon_registrations", "select=id,student_id,session_id,status,payment_method,paid_at,amount,created_at,marathon:marathons(id,name,city,school,event_date)&status=neq." + encodeURIComponent("בוטל") + "&order=id")
-      .catch(() => getAll("marathon_registrations", "select=student_id,status,created_at,marathon:marathons(name,city,school)&status=neq." + encodeURIComponent("בוטל") + "&order=id")).catch(() => []),
+    getAll("marathon_registrations", "select=id,student_id,session_id,payment_method,paid_at,cancelled_at,amount,created_at,marathon:marathons(id,name,city,school,event_date)&cancelled_at=is.null&order=id").then(ordFix).catch(() => []),   // תש-73: בלי סטטוס להזמנה
     MASG_Q()
   ]);
   callCount(); inboxPoll(true);
@@ -5463,7 +5465,7 @@ async function regHowAsk(leadId, m, od){
     L.asg = null; if (typeof G !== "undefined") G.loadedAt = 0; try { setAsg(await ASG_Q()); } catch(e) {}
     if (editing && editing.id === leadId) { loadLeadPay(editing); loadLeadGroups(sid); loadLeadPayments(editing); } }
   else if (isMar) {
-    let has = false; try { has = (await get("marathon_registrations", "select=id&student_id=eq." + sid + "&status=eq." + encodeURIComponent("שולם") + "&limit=1")).length > 0; } catch(e) { has = true; }
+    let has = false; try { has = (await get("marathon_registrations", "select=id&student_id=eq." + sid + "&paid_at=not.is.null&cancelled_at=is.null&limit=1")).length > 0; } catch(e) { has = true; }
     if (!has) toast("אין הרשמה למרתון בכרטיס – צריך לשבץ ידנית לקבוצת המרתון (שיבוץ לקבוצות)");
   }
 }
@@ -5946,7 +5948,7 @@ async function manualPaidRows(o){
   let en = [], mr = [];
   try { [en, mr] = await Promise.all([
     get("enrollments", "select=id,student_id,subject,paid_at,paid_by,payment_method,first_charge_amount,one_time_amount&paid_at=not.is.null" + f + t + sid + "&order=paid_at.desc&limit=500")   /* תש-64: בלי סטטוס להזמנה – שולם = paid_at */.catch(() => []),
-    get("marathon_registrations", "select=id,student_id,paid_at,paid_by,payment_method,amount,marathon:marathons(name)&paid_at=not.is.null&status=eq." + encodeURIComponent("שולם") + f + t + sid + "&order=paid_at.desc&limit=500").catch(() => [])]); } catch(e) { return []; }
+    get("marathon_registrations", "select=id,student_id,paid_at,paid_by,payment_method,amount,marathon:marathons(name)&paid_at=not.is.null&cancelled_at=is.null" + f + t + sid + "&order=paid_at.desc&limit=500").catch(() => [])]); } catch(e) { return []; }
   if (!en.length && !mr.length) return [];
   let have = [];
   try { have = await get("payments", "select=enrollment_id,marathon_registration_id&status=eq." + encodeURIComponent("אושר") + "&or=(" + [en.length ? "enrollment_id.in.(" + en.map(x => x.id).join(",") + ")" : "", mr.length ? "marathon_registration_id.in.(" + mr.map(x => x.id).join(",") + ")" : ""].filter(Boolean).join(",") + ")"); } catch(e) { return []; }   // לא הצלחנו לבדוק – לא מוסיפים (שלא תהיה כפילות)
@@ -5973,7 +5975,7 @@ async function loadLeadPayments(l){
     rpc("student_payments", { p_student: sid }).then(r => r || [], () => null),
     manualPaidRows({ sid }).catch(() => []),
     get("enrollments", "select=id,subject,city,paid_at&student_id=eq." + sid + "&paid_at=not.is.null&order=id.desc").catch(() => []),
-    get("marathon_registrations", "select=id,paid_at,marathon:marathons(name)&student_id=eq." + sid + "&status=eq." + encodeURIComponent("שולם") + "&order=id.desc").catch(() => []),
+    get("marathon_registrations", "select=id,paid_at,marathon:marathons(name)&student_id=eq." + sid + "&paid_at=not.is.null&cancelled_at=is.null&order=id.desc").catch(() => []),
     plansCached().catch(() => []),
     get("pending_phone_payments", "select=*&student_id=eq." + sid).catch(() => []),
     crsLoad().then(ok => ok && crsEnsureStudent(sid)).catch(() => {})]);
@@ -6518,7 +6520,7 @@ async function loadLeadGroups(studentId){
     });
     // 5.19.158 (נועה): הרשמה למרתון שממתינה לתשלום – רואים לאיזה מרתון (המקום בקבוצה נשמר רק אחרי "שולם")
     if (stale()) return;
-    try { const pm = await get("marathon_registrations", "select=id,session:sessions(time_label,start_time),marathon:marathons(id,name,school,cancelled_at)&student_id=eq." + studentId + "&status=eq." + encodeURIComponent("ממתין לתשלום"));
+    try { const pm = await get("marathon_registrations", "select=id,session:sessions(time_label,start_time),marathon:marathons(id,name,school,cancelled_at)&student_id=eq." + studentId + "&paid_at=is.null&cancelled_at=is.null");
       pm.filter(x => x.marathon && !x.marathon.cancelled_at).forEach(x => { const hd = $("leadGroups").querySelector(`[data-crsmar="${x.marathon.id}"] .lg-crs-g`);
         if (hd) { if (x.session && x.session.time_label) hd.textContent = " · " + x.session.time_label; return; }
         $("leadGroups").insertAdjacentHTML("beforeend",
@@ -6747,14 +6749,14 @@ async function openAsgEditor(studentId, a, cur, opts){
     const isMar = a.session.kind === "מרתון" || (curG && curG.kind === "מרתון");
     const what = isMar ? "המרתון" + (curG && curG.time_label ? " (" + curG.time_label + ")" : "") : `יום ${DAY_NAMES[a.session.day]} ${String(a.session.start_time || "").slice(0, 5)} ${(a.session.location && a.session.location.name) || ""}`;
     let reg = null;
-    if (isMar) { try { reg = (await get("marathon_registrations", "select=id,status,amount,paid_at,refunded_at&student_id=eq." + studentId + "&session_id=eq." + a.session.id + "&status=neq." + encodeURIComponent("בוטל") + "&order=id.desc&limit=1"))[0] || null; } catch(e) {} }
-    const paid = reg && (reg.paid_at || reg.status === "שולם");
+    if (isMar) { try { reg = (await get("marathon_registrations", "select=id,amount,paid_at,refunded_at&student_id=eq." + studentId + "&session_id=eq." + a.session.id + "&cancelled_at=is.null&order=id.desc&limit=1"))[0] || null; } catch(e) {} }
+    const paid = reg && !!reg.paid_at;
     if (!await uiConfirm(isMar ? `${who} פורש/ת מ${what}?\n\nהשיבוץ יוסר וההרשמה למרתון תסומן "בוטל".${paid ? `\nההורה כבר שילם/ה${reg.amount ? " " + reg.amount + " ₪" : ""} - אם מחזירים כסף, ההחזר עצמו בריווחית.` : ""}\nהנוכחות שכבר נרשמה נשמרת.`
         : `להסיר את ${who} מהקבוצה של ${what}?\n\nהנוכחות שכבר נרשמה נשמרת.`)) return;
     const refunded = paid && await uiConfirm(`האם כבר החזרת את הכסף (${reg.amount ? reg.amount + " ₪" : "התשלום"}) בריווחית?`, { ok: "כן, הוחזר", no: "עוד לא" });
     f("rm").disabled = true;
     try { await del("assignments", "id=eq." + a.id);
-          if (reg) await patch("marathon_registrations", "id=eq." + reg.id, Object.assign({ status: "בוטל" }, refunded ? { refunded_at: new Date().toISOString(), refund_amount: Number(reg.amount) || null } : {})).catch(() => {});
+          if (reg) await patch("marathon_registrations", "id=eq." + reg.id, Object.assign({ cancelled_at: new Date().toISOString() }, refunded ? { refunded_at: new Date().toISOString(), refund_amount: Number(reg.amount) || null } : {})).catch(() => {});
           RG.mar = null; await done(isMar ? "סומן: פרש/ה מהמרתון" : "השיבוץ הוסר"); }
     catch(e) { f("err").textContent = "ההסרה נכשלה: " + e.message; f("rm").disabled = false; }
   };
@@ -8176,7 +8178,7 @@ async function exDelEvent(e, label){
   if (e.session_id) {
     try { const se = (await get("sessions", "select=marathon_id&id=eq." + e.session_id))[0]; marId = se && se.marathon_id; } catch(er) {}
     try { left = (await get("school_exams", "select=id&session_id=eq." + e.session_id + "&id=neq." + e.id)).length; } catch(er) {}
-    if (marId) { try { regs = (await get("marathon_registrations", "select=id&marathon_id=eq." + marId + "&status=neq." + encodeURIComponent("בוטל"))).length; } catch(er) {} }
+    if (marId) { try { regs = (await get("marathon_registrations", "select=id&marathon_id=eq." + marId + "&cancelled_at=is.null")).length; } catch(er) {} }
   }
   if (e.session_id && !left && regs) { await uiDialog(`זה המפגש האחרון של המרתון, ויש בו ${regs} נרשמים – אי אפשר למחוק.\nאפשר לסמן "לא יתקיים" בהרשמה > מרתונים (שם גם מסמנים החזרים).`, { ok: "הבנתי", single: true, danger: false }); return false; }
   const msg = `למחוק את ${label}?` + (e.session_id ? (left ? `\nהמפגש יימחק גם מקישור ההרשמה של המרתון.${regs ? `\n⚠ יש ${regs} נרשמים – כדאי לעדכן אותם.` : ""}` : "\nזה המפגש האחרון – גם המרתון וקישור ההרשמה שלו יימחקו.") : "");
@@ -8881,8 +8883,8 @@ async function openMarathonPanel(m){
     const mts = []; gs0.forEach(g => marMeetings(g).forEach(z => mts.push({ g: g.time_label || "", ...z }))); mts.sort((a, b) => (a.date + (a.start || "")).localeCompare(b.date + (b.start || "")));
     const st = m.cancelled_at ? ["cxl", "✕ לא יתקיים"] : past ? ["past", "✓ התקיים"] : m.is_open ? ["open", "● פתוח להרשמה"] : ["closed", "○ סגור להרשמה"];
     // נועה 7.11: חלון אחד לניהול המרתון (במקום "ניהול המרתון" מהקורס ו"טפסים ומחירים") – הכול במסגרות
-    let regs = []; if (m.cancelled_at) { try { regs = await get("marathon_registrations", "select=id,status,amount,payment_method,paid_at,refunded_at,refund_amount,student:students(first_name,last_name,family:families(parent1_first,parent1_last,parent1_phone))&marathon_id=eq." + m.id + "&order=id"); } catch(e) {} }
-    const paid = regs.filter(r => r.paid_at || r.status === "שולם" || r.refunded_at), done = paid.filter(r => r.refunded_at), adm = ME.role === "admin";
+    let regs = []; if (m.cancelled_at) { try { regs = await get("marathon_registrations", "select=id,cancelled_at,amount,payment_method,paid_at,refunded_at,refund_amount,student:students(first_name,last_name,family:families(parent1_first,parent1_last,parent1_phone))&marathon_id=eq." + m.id + "&order=id"); } catch(e) {} }
+    const paid = regs.filter(r => r.paid_at || r.refunded_at), done = paid.filter(r => r.refunded_at), adm = ME.role === "admin";
     const siteBtn = "show_on_site" in m && !m.cancelled_at ? (m.code && !past ? `<button type="button" class="btn small mc-site${m.show_on_site ? " on" : ""}" data-mvsite="1" title="${m.show_on_site ? "מוצג באתר של תלם (בדף בית הספר) – לחיצה: להסתיר" : "לחיצה: להציג באתר של תלם (בדף בית הספר)"}">🌐 ${m.show_on_site ? "מוצג באתר" : "להציג באתר"}</button>` : "") : "";
     const refRows = paid.map(r => { const sx = r.student || {}, f = sx.family || {}, ph = f.parent1_phone || "", d = String(ph).replace(/\D/g, ""), amt = Number(r.refund_amount || r.amount || 0);
       const msg = `שלום ${f.parent1_first || ""}, לצערנו ${m.name}${m.school ? " ב" + m.school : ""} לא יתקיים${m.cancel_reason ? " (" + m.cancel_reason + ")" : ""}. הכסף ששילמתם${amt ? " (" + amt + " ₪)" : ""} יוחזר אליכם בימים הקרובים. תלם - המרכז לשיעורי תרגול`;
@@ -8908,13 +8910,13 @@ async function openMarathonPanel(m){
     act("[data-mvcxl]", async () => { const why = await uiPrompt(`🏫 ${m.school || "בלי בית ספר"}${m.grade ? " · שכבת " + m.grade + "'" : ""}${m.city ? " · " + m.city : ""}\n"${m.name}" לא יתקיים.\nהמרתון ייסגר להרשמה, ומי שלא שילם יסומן "בוטל". למי ששילם תופיע רשימת החזרים.\n\nסיבה (לא חובה):`, "אין מספיק נרשמים", { ok: "אישור - לא יתקיים" });
       if (why === null) return false;
       await patch("marathons", "id=eq." + m.id, { is_open: false, cancelled_at: new Date().toISOString(), cancel_reason: why.trim() || null });
-      await patch("marathon_registrations", "marathon_id=eq." + m.id + "&paid_at=is.null&status=eq." + encodeURIComponent("ממתין לתשלום"), { status: "בוטל" }).catch(() => {}); toast("המרתון סומן: לא יתקיים"); });
+      await patch("marathon_registrations", "marathon_id=eq." + m.id + "&paid_at=is.null&cancelled_at=is.null", { cancelled_at: new Date().toISOString() }).catch(() => {}); toast("המרתון סומן: לא יתקיים"); });
     act("[data-mvundo]", async () => { const refd = regs.filter(r => r.refunded_at && r.paid_at);
       if (!await uiConfirm(`להחזיר את "${m.name}"${m.school ? " · " + m.school : ""} למצב רגיל (מתקיים)? הוא יישאר סגור להרשמה עד שתפתחי.${refd.length ? `\n\n${refd.length} ${refd.length === 1 ? "הרשמה סומנה" : "הרשמות סומנו"} "הוחזר" – ${refd.length === 1 ? "תחזור" : "יחזרו"} ל"שולם" ולקבוצת המרתון.` : ""}`)) return false;
-      if (refd.length) await patch("marathon_registrations", "id=in.(" + refd.map(r => r.id).join(",") + ")", { status: "שולם", refunded_at: null, refund_amount: null });
+      if (refd.length) await patch("marathon_registrations", "id=in.(" + refd.map(r => r.id).join(",") + ")", { cancelled_at: null, refunded_at: null, refund_amount: null });
       await patch("marathons", "id=eq." + m.id, { cancelled_at: null, cancel_reason: null }); toast("המרתון מתקיים"); });
     box.querySelectorAll("[data-mvref]").forEach(x => x.onclick = async () => { if (!await uiConfirm("לסמן שהכסף הוחזר? (את ההחזר עצמו עושים בריווחית)")) return; x.disabled = true;
-      try { await patch("marathon_registrations", "id=eq." + x.dataset.mvref, { refunded_at: new Date().toISOString(), refund_amount: Number(x.dataset.ramt) || null, status: "בוטל" }); toast("סומן: הוחזר"); await again(); } catch(e) { x.disabled = false; toast("לא נשמר: " + e.message); } }); }
+      try { await patch("marathon_registrations", "id=eq." + x.dataset.mvref, { refunded_at: new Date().toISOString(), refund_amount: Number(x.dataset.ramt) || null, cancelled_at: new Date().toISOString() }); toast("סומן: הוחזר"); await again(); } catch(e) { x.disabled = false; toast("לא נשמר: " + e.message); } }); }
   const gs = (G.sessions || []).filter(x => x.kind === "מרתון" && x.marathon_id === m.id).sort((a, b) => gFirstDate(a).localeCompare(gFirstDate(b)) || String(a.start_time).localeCompare(String(b.start_time)));
   const kidsOf = (sid) => (G.roster || []).filter(k => k.session_id === sid).sort(attSort);
   const total = gs.reduce((n, g) => n + kidsOf(g.session_id).length, 0);
@@ -8996,12 +8998,12 @@ function marSplit(m, se, kids, gs){
 // פרישה מהמרתון מתוך חלון המרתון (כמו בעריכת שיבוץ)
 async function marWithdraw(k, se, m){
   const who = `${k.first_name} ${k.last_name || ""}`.trim();
-  let reg = null; try { reg = (await get("marathon_registrations", "select=id,status,amount,paid_at&student_id=eq." + k.student_id + "&session_id=eq." + se.session_id + "&status=neq." + encodeURIComponent("בוטל") + "&order=id.desc&limit=1"))[0] || null; } catch(e) {}
-  const paid = reg && (reg.paid_at || reg.status === "שולם");
+  let reg = null; try { reg = (await get("marathon_registrations", "select=id,amount,paid_at&student_id=eq." + k.student_id + "&session_id=eq." + se.session_id + "&cancelled_at=is.null&order=id.desc&limit=1"))[0] || null; } catch(e) {}
+  const paid = reg && !!reg.paid_at;
   if (!await uiConfirm(`${who} פורש/ת מ${m.name}?\n\nהשיבוץ יוסר וההרשמה למרתון תסומן "בוטל".${paid ? `\nההורה כבר שילם/ה${reg.amount ? " " + reg.amount + " ₪" : ""} - אם מחזירים כסף, ההחזר עצמו בריווחית.` : ""}`)) return;
   const refunded = paid && await uiConfirm(`האם כבר החזרת את הכסף (${reg.amount ? reg.amount + " ₪" : "התשלום"}) בריווחית?`, { ok: "כן, הוחזר", no: "עוד לא" });
   try { await del("assignments", "id=eq." + k.id);
-        if (reg) await patch("marathon_registrations", "id=eq." + reg.id, Object.assign({ status: "בוטל" }, refunded ? { refunded_at: new Date().toISOString(), refund_amount: Number(reg.amount) || null } : {})).catch(() => {});
+        if (reg) await patch("marathon_registrations", "id=eq." + reg.id, Object.assign({ cancelled_at: new Date().toISOString() }, refunded ? { refunded_at: new Date().toISOString(), refund_amount: Number(reg.amount) || null } : {})).catch(() => {});
         toast("סומן: פרש/ה מהמרתון"); RG.mar = null; await loadGroups(); openMarathonPanel(m); }
   catch(e) { toast("לא נשמר: " + e.message); }
 }
@@ -9267,9 +9269,9 @@ async function renderInbox(reload){
   // 5.19.150 (נועה 28.10): הרשמה שכבר שולמה (סומן "✔ שולם" במקום אחר) – השורה שלה נסגרת לבד: "טופל – שולם"
   { const mr = IB.rows.filter(r => r.status !== "handled" && !(r.flags || []).includes("status_mismatch") && ((r.kind === "marathon" && r.ref_table === "marathon_registrations") || (r.kind === "registration" && r.ref_table === "enrollments")) && /^\d+$/.test(String(r.ref_id || "")));
     if (mr.length && !IB.paidChk) { IB.paidChk = true;
-      const q = (t, ids) => ids.length ? get(t, "select=id,status&id=in.(" + ids.join(",") + ")").catch(() => []) : Promise.resolve([]);
+      const q = (t, ids) => ids.length ? get(t, "select=id,paid_at,cancelled_at&id=in.(" + ids.join(",") + ")").catch(() => []) : Promise.resolve([]);
       Promise.all([q("marathon_registrations", mr.filter(r => r.kind === "marathon").map(r => r.ref_id)), q("enrollments", mr.filter(r => r.kind === "registration").map(r => r.ref_id))]).then(([a, b]) => {
-        const paid = new Set(a.filter(x => x.status === "שולם").map(x => "marathon:" + x.id).concat(b.filter(x => x.status === "שולם").map(x => "registration:" + x.id)));
+        const pd = (x) => x.paid_at && !x.cancelled_at, paid = new Set(a.filter(pd).map(x => "marathon:" + x.id).concat(b.filter(pd).map(x => "registration:" + x.id)));
         const fix = mr.filter(r => paid.has(r.kind + ":" + r.ref_id)); if (!fix.length) return;
         fix.forEach(r => { r.status = "handled"; r.note = "טופל – שולם"; r.handled_by = r.handled_by || "אוטומטי"; });
         patch("form_inbox", "id=in.(" + fix.map(r => r.id).join(",") + ")", { status: "handled", handled_at: new Date().toISOString(), handled_by: "אוטומטי", note: "טופל – שולם" }).catch(() => {});
@@ -9376,7 +9378,7 @@ async function renderInbox(reload){
     const when2 = (iso) => new Date(iso).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem", day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" });
     if (!await uiConfirm(`לבטל את ההרשמה הקודמת של ${ibName(r)} (${dd.map(x => when2(x.created_at)).join(", ")})?\n\nנשארת ההרשמה האחרונה (${when2(r.created_at)}).`, { ok: "ביטול הכפולה" })) return;
     b.disabled = true;
-    try { for (const x of dd) await patch(x.kind === "marathon" ? "marathon_registrations" : "enrollments", "id=eq." + x.ref_id, { status: "בוטל" });
+    try { for (const x of dd) await patch(x.kind === "marathon" ? "marathon_registrations" : "enrollments", "id=eq." + x.ref_id, { cancelled_at: new Date().toISOString() });
           const idl = dd.map(x => x.id).concat(dd.map(x => IB.pair[x.id]).filter(Boolean).map(x => x.id));
           await patch("form_inbox", "id=in.(" + idl.join(",") + ")", { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note: "טופל – ההרשמה בוטלה (כפולה)" }).catch(() => {});
           toast("ההרשמה הכפולה בוטלה"); renderInbox(true); }
