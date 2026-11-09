@@ -4103,7 +4103,7 @@ async function crsLoadMembers(filter){   // טוען רישומים (מוסיף 
   let cm; const q = (x) => CRS_CMS.replace("%S%", x) + "&" + filter;
   if (CRS.hasTrk === undefined) { CRS.hasTrk = CRS.hasSrc = true; }
   // 5.20.8: + signed_via (קובץ 141), history_at / history_note (קובץ 148) – כל שלב נופל לקודם אם העמודה עוד לא קיימת
-  const tiers = [",source_id,track,signed_via,history_at,history_note,tracking,until_on", ",source_id,track,signed_via,history_at,history_note,tracking", ",source_id,track,signed_via,history_at,history_note", ",source_id,track,signed_via", ",source_id,track", ",source_id", ""].slice(CRS.cmTier || 0);
+  const tiers = [",source_id,track,signed_via,history_at,history_note,tracking,until_on,pay_link_id", ",source_id,track,signed_via,history_at,history_note,tracking,until_on", ",source_id,track,signed_via,history_at,history_note,tracking", ",source_id,track,signed_via,history_at,history_note", ",source_id,track,signed_via", ",source_id,track", ",source_id", ""].slice(CRS.cmTier || 0);
   for (let i = 0; i < tiers.length; i++) { try { cm = await getAll("course_members", q(tiers[i])); CRS.cmTier = (CRS.cmTier || 0) + i; break; } catch(e) { if (i === tiers.length - 1) throw e; } }
   CRS.hasTrk = CRS.cmTier <= 3; CRS.hasSrc = CRS.cmTier <= 4; CRS.hasHist = CRS.cmTier <= 1; CRS.hasCmTrack = CRS.cmTier === 0;   // 5.20.23: + tracking (קובץ 155)
   cm.forEach(m => { if (CRS.cmIds.has(m.id)) { const a = CRS.cm[m.student_id] || [], i = a.findIndex(x => x.id === m.id); if (i >= 0) a[i] = m; return; }
@@ -6016,7 +6016,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
   const allCm = CRS.ok ? crsOfStudent(sid) : [], ordCm = (r) => (r.enrollment_id && allCm.find(m => m.enrollment_id === r.enrollment_id)) || (r.marathon_registration_id && allCm.find(m => m.marathon_registration_id === r.marathon_registration_id)) || null;
   // 184: קישור אישי ששולם → הקורס מסוג תשלום ("שיעור בודד" לשיעורים, אחרת "תשלום אחר")
   const payCms = allCm.filter(m => !m.history_at && crsIsPay(CRS.byId[m.course_id])), payCm = (r) => r.kind !== "תשלום אישי" || !payCms.length ? null
-    : payCms.length === 1 ? payCms[0] : (payCms.find(m => (crsCat(CRS.byId[m.course_id].category_id).name === "שיעור בודד") === /^שיעור/.test(r.description || "")) || payCms[0]);
+    : (r.pay_link_id && payCms.find(m => m.pay_link_id === r.pay_link_id)) || payCms.length === 1 ? payCms[0] : (payCms.find(m => (crsCat(CRS.byId[m.course_id].category_id).name === "שיעור בודד") === /^שיעור/.test(r.description || "")) || payCms[0]);
   rows.forEach((r, i) => put(ordCm(r) || payCm(r) || (r.purpose === "marathon" || r.kind === "מרתון" ? marOf(r.description) : (r.purpose === "registration" || r.plan_id || r.kind === "חיוב חודשי" || r.kind === "הרשמה - תשלום ראשון") ? regOfDate(r.date) : null), "rows", i));
   pend.forEach((x, i) => put(cms.find(m => x.kind === "marathon" ? m.marathon_registration_id === x.order_id : m.enrollment_id === x.order_id) || (x.kind === "marathon" ? marOf(x.what) : regCm), "pend", i));
   paidRegs.forEach((x, i) => put(cms.find(m => x.kind === "marathon" ? m.marathon_registration_id === x.id : m.enrollment_id === x.id) || (x.kind === "marathon" ? marOf(x.what) : regCm), "regs", i));
