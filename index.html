@@ -2107,6 +2107,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 .ts-req.ts-no{ background:#FCE9E7; color:#8E2A22; border-color:#EBC4C0; }
 .side-hr:has(#lcRegLinks){ flex-wrap:wrap; } #lcRegLinks{ flex-basis:100%; width:100%; order:9; } .side-hr #lcAddSlot{ margin-inline-start:auto; } .leads-load{ display:flex; align-items:center; justify-content:center; gap:10px; margin:8px auto 10px; padding:10px 16px; max-width:640px; background:#FFF8E6; border:1px solid #EBD9A8; color:#6B4E10; border-radius:12px; font-weight:700; font-size:15px; text-align:center; } .ld-spin{ width:16px; height:16px; border:2.5px solid #E3C77A; border-top-color:transparent; border-radius:50%; animation:ldspin .8s linear infinite; flex:none; } @keyframes ldspin{ to{ transform:rotate(360deg); } }
 .lc-wa{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 10px; } .lc-wa .lbl{ margin:0; } .lc-pl{ margin:2px 0; } .lc-pl-nav{ margin:4px 0; }
+.hist-can-h{ font-weight:700; margin:10px 0 4px; font-size:13.5px; } .hist-can{ font-size:13px; padding:5px 0; border-top:1px dashed var(--border); }
 /* 5.21.82 (נועה 9.11: "המידע חוזר פעמיים"): ילד/ה עם כמה הזמנות – כשפותחים, השורות למעלה מתקפלות והפירוט למטה מתחיל בכותרת של כל הזמנה */
 .kd-open-n{ display:none; font-weight:600; color:#6B625A; font-size:13px; } tr.kd-multi.dx-open .kd-l{ display:none !important; } tr.kd-multi.dx-open .kd-open-n{ display:block; }
 .kd-deal-h2{ display:grid; grid-template-columns:auto minmax(0,1fr) auto; gap:4px 14px; align-items:center; background:#FBF7F1; border:1px solid #EFE5D7; border-radius:10px; padding:8px 12px; margin:10px 0 6px; font-size:13.5px; }
@@ -3019,7 +3020,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
           <details class="la-row" id="leadOldRow"><summary><b>קורסים קודמים</b><span class="la-sum" data-of="leadOldCrs"></span></summary><div class="la-body"><div id="leadOldCrs" style="font-size:13.5px;"></div><div class="lo-sig-h" id="leadSigH" hidden>טפסים חתומים שלא שייכים לקורס</div><div id="leadSig" class="muted" style="font-size:13.5px;"></div></div></details><!-- נועה 7.11: הקורסים הקודמים – כאן למטה, עם השיבוצים, הנוכחות, התשלומים והחתימות שלהם; בלי "כל הטפסים החתומים" בנפרד -->
           <details class="la-row"><summary><b>טפסי ביטול ישנים</b><span class="la-sum" data-of="leadCancel2"></span></summary><div class="la-body" id="canHome"><div id="leadCancel2" style="font-size:13.5px;"></div></div></details>
           <details class="la-row" id="leadTsRow" data-admin><summary><b>📱 תלם שלי</b><span class="la-sum" data-of="leadTs"></span></summary><div class="la-body"><div id="leadTs" style="font-size:13.5px;"></div></div></details><!-- 5.19.97 (של-21/32): ניהול החשבון עבר לכאן -->
-          <details class="la-row"><summary><b>שנים קודמות</b><span class="la-sum" data-of="leadHist"></span></summary><div class="la-body"><div id="leadHist" class="muted" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row"><summary><b>שנים קודמות</b><span class="la-sum" data-of="leadHist"></span></summary><div class="la-body"><div id="leadHist" class="muted" style="font-size:13.5px;"></div><div id="leadHistCan"></div></div></details>
           <details class="la-row"><summary><b>היסטוריית שינויים</b><span class="la-sum" data-of="leadLog"></span></summary><div class="la-body"><div id="leadLog" class="lead-log"></div></div></details>
         </div>
       </form>
@@ -6206,10 +6207,13 @@ async function loadLeadCancel(l){
   // 5.20.11 (תש-33, icredit-32): טופס ביטול = ביטול קורס – שם הקורס
   const canCrs = (r) => { if (!r.course_member_id || typeof CRS === "undefined" || !CRS.ok) return ""; const m = crsOfStudent(l.student.id).find(x => x.id === r.course_member_id), c = m && CRS.byId[m.course_id]; return c ? crsNm(c) : ""; };
   if (!editing || editing.id !== l.id) return;
-  // נועה 8.11: טפסי ביטול – תמיד בתוך הקורס. טופס ישן בלי קורס – לקורס התרגול השוטף של אותה שנת לימודים (לפי תאריך הטופס)
-  if (typeof CRS !== "undefined" && CRS.ok) rows.forEach(r => { if (r.course_member_id) return; const d = String(r.created_at || "").slice(0, 10), y = Number(d.slice(0, 4)), ys = Number(d.slice(5, 7)) >= 8 ? y : y - 1;
-    const regs = crsOfStudent(l.student.id).filter(m => { const c = CRS.byId[m.course_id]; return c && !c.marathon_id && crsCat(c.category_id).kind !== "event"; });
-    const m = regs.find(x => crsSeason(CRS.byId[x.course_id].season_id).year_start === ys) || regs[0]; if (m) { r.course_member_id = m.id; r._guess = true; } });
+  // נועה 8.11: טפסי ביטול – תמיד בתוך הקורס. 5.21.82 (נועה 9.11): טופס ישן בלי קורס – בהיסטוריה ("שנים קודמות"), לא בקורס
+  { const old = rows.filter(r => !r.course_member_id), hb = $("leadHistCan"); rows = rows.filter(r => r.course_member_id);
+    if (hb) hb.innerHTML = old.length ? `<div class="hist-can-h">טפסי ביטול ישנים (מלפני הקורסים)</div>` + old.map(r => `<div class="hist-can"><b>${esc(fmtDate(r.created_at))}</b> · ${esc(CAN_ST[r.status] || r.status)}${[r.school, TRACK_T(r.track), r.subject].filter(Boolean).length ? " · " + esc([r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · ")) : ""}${r.reason ? `<div class="muted">סיבה: ${esc(r.reason)}</div>` : ""}${r.status === "נחתם" || r.signed_at ? ` <button type="button" class="btn small" data-hcpdf="${r.id}">הטופס החתום (PDF)</button>` : ""}</div>`).join("") : "";
+    if (hb) hb.querySelectorAll("[data-hcpdf]").forEach(b => b.onclick = async () => {
+      try { const r = (await get("cancellation_requests", "select=pdf&id=eq." + b.dataset.hcpdf))[0]; if (!r || !r.pdf) { toast("אין PDF לבקשה הזאת"); return; }
+        const a = document.createElement("a"); a.href = pdfUrl(r.pdf); a.download = "טופס ביטול - " + fnSafe((l.student.first_name || "") + " " + (l.student.last_name || "")) + ".pdf"; document.body.appendChild(a); a.click(); a.remove(); }
+      catch(e) { toast("לא ניתן להוריד"); } }); }
   CAN_ROWS[l.student.id] = rows; canPaint(l.student.id);
   const f = l.student.family || {}, ph = digits(f.parent1_phone || "");
   { const rest = rows.filter(r => !r.course_member_id); box.dataset.sum = rest.length ? `${rest.length === 1 ? "טופס ביטול אחד" : rest.length + " טפסי ביטול"} · האחרון: ${CAN_ST[rest[0].status] || rest[0].status}` : ""; }   // 5.19.41: תקציר קצר; נועה 8.11: רק מה שלא בתוך קורס
