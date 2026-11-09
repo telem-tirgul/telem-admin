@@ -2095,7 +2095,8 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 .kd-crs-l{ display:flex; flex-direction:column; gap:10px; padding-top:6px; } .kd-crs{ border:1px solid #E2D6C8; border-radius:12px; background:#FFFDFB; padding:8px 10px; } .kd-crs-h{ display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:14px; } .kd-deal{ position:relative; } .kd-frm{ position:absolute; top:-34px; left:0; } .kd-deal + .kd-deal .kd-frm{ top:4px; } .kd-deal .dx-form{ display:none !important; } .kd-crs:not(:first-child) .dx-info, .kd-deal + .kd-deal .dx-info{ display:none !important; } .kd-deal + .kd-deal{ margin-top:8px; padding-top:8px; border-top:1px dashed #E2D6C8; } .kd-deal-h{ font-size:12.5px; margin:0 2px 4px; }
 .cm-until{ font-size:12px; color:#6b6159; white-space:nowrap; margin-inline-start:4px; } .lg-crs-box.lg-lead{ border-style:dashed; background:#FFFDF9; } .lg-lead .lg-crs{ padding-block:4px; }   /* נועה 8.11: פנייה – מקווקוות */
 .ts-req.ts-no{ background:#FCE9E7; color:#8E2A22; border-color:#EBC4C0; }
-.side-hr:has(#lcRegLinks){ flex-wrap:wrap; } #lcRegLinks{ flex-basis:100%; width:100%; order:9; } .side-hr #lcAddSlot{ margin-inline-start:auto; } .lc-pl{ margin:2px 0; } .lc-pl-nav{ margin:4px 0; }
+.side-hr:has(#lcRegLinks){ flex-wrap:wrap; } #lcRegLinks{ flex-basis:100%; width:100%; order:9; } .side-hr #lcAddSlot{ margin-inline-start:auto; } .leads-load{ display:flex; align-items:center; justify-content:center; gap:10px; margin:8px auto 10px; padding:10px 16px; max-width:640px; background:#FFF8E6; border:1px solid #EBD9A8; color:#6B4E10; border-radius:12px; font-weight:700; font-size:15px; text-align:center; } .ld-spin{ width:16px; height:16px; border:2.5px solid #E3C77A; border-top-color:transparent; border-radius:50%; animation:ldspin .8s linear infinite; flex:none; } @keyframes ldspin{ to{ transform:rotate(360deg); } }
+.lc-wa{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 10px; } .lc-wa .lbl{ margin:0; } .lc-pl{ margin:2px 0; } .lc-pl-nav{ margin:4px 0; }
 #payWrap .st-refund{ background:#E8DDF5; color:#5B3A8A; }   /* נועה 8.11: זוכה / זיכוי חלקי – סגול */
 #payWrap .st-phone{ background:var(--warn-bg); color:var(--warn); }   /* 📞 ממתין לתשלום טלפוני */
 #payWrap .st-failed, #payWrap .st-error, #payWrap .kchip.k-bad{ background:#F4CFCB; color:#8E2B28; }   /* 5.19.45: "לא התקבל" - רקע אדום (כמו שאר התגיות) */
@@ -2867,6 +2868,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
           <button class="btn small" type="button" id="exportBtn" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>
         </div>
       </div>
+      <div class="leads-load" id="leadsLoad" hidden role="status" aria-live="polite"></div><!-- נועה 9.11: מצב הטעינה – באמצע, בבירור -->
       <div class="tbl-wrap"><table class="tbl" id="leadsTbl"></table></div>
       <div class="pager"><button class="btn small" id="prevPage" type="button">הקודם</button><span id="pageInfo" class="muted num"></span><button class="btn small" id="nextPage" type="button">הבא</button></div>
     </section>
@@ -2936,6 +2938,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
               </div>
               <!-- נועה 8.11: "פרטים נוספים" – באותה מסגרת עם פרטי התלמיד/ה; ההערות מתחת -->
               <div class="sd-more" id="moreBox"><!-- נועה 8.11: מסגרת אחת "פרטים נוספים" – בלי כותרת משנה -->
+              <div id="lcWaGrp" class="lc-wa" hidden></div><!-- נועה 9.11: קבוצת העדכונים של בית הספר – כאן, לא בכותרת -->
               <div class="lf-old" hidden><!-- 5.20.13 (נועה): "סטטוס אחד" – הסטטוס ומקור הליד הישנים ירדו מהכרטיס (ממשיכים להתעדכן מהקורס ברקע) --><span class="tg-f"></span>
                 <span class="tg-f"><label for="lfSource">מקור ליד (ישן)</label><select id="lfSource"></select></span>
                 <span class="muted lf-old-n">מתעדכנים מהקורס – שינוי סטטוס / מקור – בקורס (למעלה, ב"קורסים ושיבוצים")</span></div>
@@ -5255,9 +5258,11 @@ function renderLeads(){
         tb.onclick = async () => { const out = ls.length - ok.length;
           if (out && !await uiConfirm(`ייפתחו חשבונות ל-${ok.length} שבסטטוס "נרשם" או משובצים.\n${out} אחרים בסינון לא יקבלו חשבון (אין להם גישה).`, { ok: "המשך" })) return;
           tsBulk(ok.map(x => x.student.id), "פתיחת חשבונות מהסינון"); }; } } }
-  $("countLine").textContent = (list.length ? `${F.page * CONFIG.pageSize + 1}-${F.page * CONFIG.pageSize + slice.length} מתוך ${list.length}` : "אין תוצאות")
-    + (LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : LR.histLoading ? " · טוען שנים קודמות…" : "")
-    + (!L.inactReady && ($("fActive").value !== "1" || $("fPast").checked) ? " · טוען כרטיסים לא פעילים…" : "");
+  // נועה 9.11: מצב הטעינה – באמצע, מעל הטבלה ובבירור; "אין תוצאות" רק כשסיימנו לחפש
+  const ldHist = !!LR.histLoading, ldInact = !L.inactReady && ($("fActive").value !== "1" || $("fPast").checked), ld = ldHist || ldInact;
+  const ldWhat = [ldInact ? "כרטיסים לא פעילים" : "", ldHist ? "שנים קודמות" : ""].filter(Boolean).join(" ו");
+  $("countLine").textContent = list.length ? `${F.page * CONFIG.pageSize + 1}-${F.page * CONFIG.pageSize + slice.length} מתוך ${list.length}${LR.histN ? ` · מתוכם ${LR.histN} משנים קודמות` : ""}` : ld ? "" : "אין תוצאות";
+  { const lb = $("leadsLoad"); if (lb) { lb.hidden = !ld; lb.innerHTML = !ld ? "" : `<span class="ld-spin" aria-hidden="true"></span> ${list.length ? `נמצאו ${list.length} עד עכשיו – ממשיך/ה לחפש גם ב${ldWhat}…` : `עוד לא נמצא – ממשיך לחפש ב${ldWhat}…`}`; } }
   // "ניקוי סינון" - רק כשיש סינון פעיל
   $("clearFilters").hidden = false; $("clearFilters").disabled = !(["fSearch","fCity","fSchool","fGrade","fAsg","fTs","fManager","fCourse","fCrsCat","fCrsTrk","fCrsSub","fFrom","fTo","fYear","fActive"].some(id => $(id).value) || F.statuses.size || F.sources.size || (F.cst && F.cst.size) || (F.csrc && F.csrc.size) || [F.ccat, F.ctrk, F.csub].some(x => x && x.size) || $("fStar").checked || $("fCxl").checked || $("fRemind").checked || !$("fActive").checked || $("fPast").checked); markFilters();
   { const cur = F.page, nums = [...new Set([0, cur - 2, cur - 1, cur, cur + 1, cur + 2, pages - 1].filter(x => x >= 0 && x < pages))].sort((a, b) => a - b);   // 5.20.15 (נועה): מספרי עמודים
@@ -5310,7 +5315,7 @@ function renderLeads(){
     </tr>`;
   }).join("");
   $("leadsTbl").classList.toggle("locked", !LIST_EDIT);
-  $("leadsTbl").innerHTML = head + "<tbody>" + (rows || `<tr><td colspan="18" class="empty-state">${$("fAsg").value === "wkchg" && !WC.map ? "טוען את הנוכחות של השבוע…" : "אין לידים שמתאימים לסינון."}</td></tr>`) + "</tbody>";
+  $("leadsTbl").innerHTML = head + "<tbody>" + (rows || `<tr><td colspan="18" class="empty-state">${$("fAsg").value === "wkchg" && !WC.map ? "טוען את הנוכחות של השבוע…" : (ld ? `ממשיך לחפש ב${ldWhat}…` : "אין לידים שמתאימים לסינון.")}</td></tr>`) + "</tbody>";
   $("leadsTbl").querySelectorAll("th[data-sort]").forEach(th => th.addEventListener("click", () => {
     if (F.sort === th.dataset.sort) F.dir *= -1; else { F.sort = th.dataset.sort; F.dir = th.dataset.sort === "updated" ? -1 : 1; }
     saveLeadFilters(); renderLeads();
@@ -5334,7 +5339,11 @@ $("leadsTbl").addEventListener("click", async (e) => {
   const el = e.target.closest("[data-act]"); if (!el) return;
   if (el.dataset.act === "hinfo" || el.dataset.act === "hopen") {   // 5.19.103: שורה משנים קודמות
     const h = (H.rows || []).find(x => String(x.id) === el.closest("tr").dataset.h); if (!h) return;
-    const lead = h.student_id ? L.leads.find(l => l.student_id === h.student_id) : null;
+    let lead = h.student_id ? L.leads.find(l => l.student_id === h.student_id) : null;
+    // נועה 9.11: כרטיס משנים קודמות שעוד לא נטען (לא פעיל) – טוענים ופותחים את הכרטיס, לא את חלון המידע
+    if (el.dataset.act === "hopen" && !lead && h.student_id) { toast("פותח את הכרטיס…");
+      try { await ensureInact(); lead = L.leads.find(l => l.student_id === h.student_id);
+        if (!lead) { const r = (await get("leads", "select=" + LEAD_SELECT + "&student_id=eq." + h.student_id + "&limit=1"))[0]; if (r && r.student) { L.leads.push(r); lead = r; } } } catch(e2) {} }
     if (el.dataset.act === "hopen" && lead) { openLead(lead.id); return; }
     showPop(el, histInfoHtml(h)); return; }
   if (!LIST_EDIT && (el.dataset.act === "active" || el.dataset.act === "star")) { toast("כדי לשנות ישירות ברשימה - \"✎ עריכה ברשימה\" למעלה"); return; }
@@ -5666,8 +5675,9 @@ function updateLeadHead(){
     if ($("sTrack")) { $("sTrack").closest(".trk-f").hidden = true; } }   // 5.20.12 (נועה): המסלול רק בקורס
   if (schObj || v("sGrade")) parts.push([schObj ? scChip(schObj.name) + ` <span class="muted">${esc(schObj.city || "")}</span>` : "", v("sGrade") ? esc("כיתה " + classLabel(v("sGrade"), v("sClass"))) : ""].filter(Boolean).join(" · "));
   // 5.20.43 (כל-22): קבוצת העדכונים (וואטסאפ) של בית הספר – פתיחה ושליחה להורה
+  if ($("lcWaGrp")) $("lcWaGrp").hidden = true;
   { const wu = schObj ? schWaUrl(schObj.name, schObj.city) : ""; if (wu) { const wl = /^0\d{8,9}$/.test(ph) ? "https://wa.me/972" + ph.slice(1) + "?text=" + encodeURIComponent(`שלום${v("p1First") ? " " + v("p1First") : ""}, זו קבוצת העדכונים של תלם ב${schObj.name} (קבוצה שקטה – רק הודעות מאיתנו). להצטרפות:\n${wu}`) : "";
-      parts.push(`<span class="lh-wa">💬 <a href="${esc(wu)}" target="_blank" rel="noopener" title="${esc(wu)}">קבוצת העדכונים</a>${wl ? ` · <a href="${esc(wl)}" target="_blank" rel="noopener">שליחה להורה</a>` : ""}</span>`); } }
+      const wg = $("lcWaGrp"); if (wg) { wg.hidden = false; wg.innerHTML = `<span class="lbl">קבוצת הוואטסאפ של ${esc(schObj.name)} (עדכונים להורים)</span> <a class="btn small" href="${esc(wu)}" target="_blank" rel="noopener" title="${esc(wu)}">💬 פתיחת הקבוצה</a>${wl ? ` <a class="btn small" href="${esc(wl)}" target="_blank" rel="noopener" title="שולח להורה בוואטסאפ את הקישור להצטרפות לקבוצה">📤 שליחת הקישור להורה</a>` : ""}`; }; } }
   // צבע בית הספר גם בשדה עצמו
   const sel = $("sSchool"); sel.className = schObj ? scCls(schObj.name) + " sch-sel" : "";
   $("leadSub").innerHTML = parts.join(" &nbsp;|&nbsp; ");
