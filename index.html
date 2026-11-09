@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.81">
+<meta name="app-version" content="5.21.81.1">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6528,7 +6528,7 @@ async function loadLeadGroups(studentId){
   canPark();   // 5.20.18: המעקב – חוזר לחניה לפני שמציירים מחדש
   $("leadGroups").innerHTML = "<div class='muted'>טוען...</div>"; delete $("leadAtt").dataset.sum; $("leadAtt").textContent = "";
   try {
-    const AS_SEL = "select=id,subject,arrival_time,personal_end,status,ends_on,session:sessions(id,day,time_label,start_time,end_time,room,city,school_year,%K%location:locations(name),session_instructors(staff(full_name)))&student_id=eq." + studentId;
+    const AS_SEL = "select=id,arrival_time,personal_end,status,ends_on,session:sessions(id,day,time_label,start_time,end_time,room,city,school_year,%K%location:locations(name),session_instructors(staff(full_name)))&student_id=eq." + studentId;
     const as = await get("assignments", AS_SEL.replace("%K%", "kind,meeting_dates,marathon_id,")).catch(() => get("assignments", AS_SEL.replace("%K%", "").replace(",ends_on", ""))); LG_AS = as;
     if (stale()) return;
     const cur = as.filter(a => a.session && a.session.school_year === CONFIG.schoolYear && (a.status === "משובץ" || a.status === "ממתין"))
