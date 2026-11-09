@@ -2206,6 +2206,12 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 #payWrap .pl-s.ok::before, #payWrap .pl-s.cur::before{ background:var(--ok,#4ea30c); }
 #payWrap .pl-s i{ position:absolute; top:0; right:calc(50% - 7px); width:14px; height:14px; box-sizing:border-box; border-radius:50%; background:#fff; border:2px solid #D5CBC0; z-index:1; }
 #payWrap .pl-s.ok i{ background:var(--ok,#4ea30c); border-color:var(--ok,#4ea30c); } #payWrap .pl-s.cur i{ border-color:#2b4aa3; box-shadow:0 0 0 3px rgba(43,74,163,.14); }
+/* 5.21.84 (נועה 9.11): פס ההתקדמות של הקישור – גם בכרטיס (מחשב ונייד), בקטן */
+#view-lead .lc-nocrs .pl-stp{ display:flex; min-width:150px; } #view-lead .lc-nocrs .pl-s{ position:relative; flex:1 1 0; text-align:center; padding-top:13px; font-size:10.5px; color:#999; }
+#view-lead .lc-nocrs .pl-s::before{ content:""; position:absolute; top:5px; left:50%; right:-50%; height:2px; background:#E4DCD3; } #view-lead .lc-nocrs .pl-s:first-child::before{ display:none; } #view-lead .lc-nocrs .pl-s.ok::before{ background:var(--ok,#4ea30c); }
+#view-lead .lc-nocrs .pl-s i{ position:absolute; top:0; right:calc(50% - 6px); width:12px; height:12px; box-sizing:border-box; border-radius:50%; background:#fff; border:2px solid #D5CBC0; z-index:1; } #view-lead .lc-nocrs .pl-s.ok i{ background:var(--ok,#4ea30c); border-color:var(--ok,#4ea30c); }
+#view-lead .lc-nocrs .pl-s b{ font-weight:700; } #view-lead .lc-nocrs .pl-s.ok b{ color:#3d7f0a; }
+@media (max-width:760px){ #view-lead .lc-nocrs .pl-stp{ min-width:0; grid-column:1 / -1; } }
 #payWrap .pl-s b{ font-weight:700; } #payWrap .pl-s.ok b{ color:#3d7f0a; } #payWrap .pl-s.cur b{ color:#2b4aa3; }
 #payWrap .pl-off{ background:#EEE; color:#777; }
 #payWrap .pl-acts{ display:flex; align-items:center; gap:4px; justify-content:flex-end; flex-wrap:nowrap; } #payWrap .pl-acts .lk2-cell > .btn:not(a){ background:var(--card,#fff) !important; color:inherit !important; border-color:var(--border) !important; } #payWrap .pl-acts a:has(> .wa-svg){ background:#25D366 !important; color:#fff !important; border-color:#25D366 !important; }
@@ -4278,15 +4284,16 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
   // תש-69 (נועה 8.11): הקישורים האישיים (תשלום) של הילד/ה – בכרטיס; "פרטים" נפתח מעל הכרטיס; ניווט למסך התשלומים
   const PL_ST = { sent: "נשלח", opened: "נפתח", submitted: "מולא – ממתין לתשלום", paid: "✓ שולם", cancelled: "בוטל" }, nm = ((editing.student.first_name || "") + " " + (editing.student.last_name || "")).trim();
   const dm = (d) => d ? esc(fmtDM(String(d).slice(0, 10))) : "", NC_ST = { sent: ["נשלח", "st-wait"], opened: ["נפתח", "st-wait"], submitted: ["ממתין לתשלום", "st-wait"], paid: ["✓ שולם", "st-ok"], registered: ["✓ נרשם/ה", "st-ok"], expired: ["פג תוקף", "st-off"] };
+  const ncStp = (ST, st) => { const cur = Math.max(0, ST.findIndex(y => y[0] === st)); return `<div class="pl-stp" title="${esc((ST[cur] || [])[1] || st)}">${ST.map(([k, t], i) => `<span class="pl-s ${i <= cur ? "ok" : ""}"><i></i><b>${t}</b></span>`).join("")}</div>`; };   // 5.21.84: פס ההתקדמות
   const chip = (st) => { const c = NC_ST[st] || [st, "st-off"]; return `<span class="nc-st ${c[1]}">${esc(c[0])}</span>`; };
   const rows = pl.filter(x => x.status !== "cancelled").slice(0, 8).map(x => `<div class="nc-row">
       <div class="nc-what"><b>${esc(x.description || "קישור אישי")}</b><span class="muted">קישור תשלום · נוצר ${dm(x.created_at)}${x.status === "paid" && x.paid_at ? ` · שולם ${dm(x.paid_at)}` : ""}</span></div>
       <div class="nc-amt">${money0(x.one_time_amount)}${x.monthly_amount ? `<span class="muted"> + ${money0(x.monthly_amount)} × ${x.monthly_count}</span>` : ""}</div>
-      ${chip(x.status)}
+      ${x.status === "cancelled" ? chip(x.status) : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["submitted", "מולא"], ["paid", "שולם"]], x.status)}
       <div class="nc-b"><button type="button" class="btn small" data-pldet="${esc(x.code)}">פרטים</button>${["sent", "opened"].includes(x.status) && x.url ? `<button type="button" class="btn small" data-copy="${esc(x.url)}">🔗 העתקה</button>` : ""}</div></div>`)
     .concat(ls.slice(0, 3).map(x => `<div class="nc-row">
       <div class="nc-what"><b>${x.trial ? "🎁 חודש ניסיון – טופס הרשמה אישי" : "טופס הרשמה אישי"}</b><span class="muted">${esc(x.city || "")}${x.city ? " · " : ""}${x.trial && x.trial_start ? "מתחיל " + dm(x.trial_start) + " · " : ""}נשלח ${dm(x.created_at)} – כשההורה ממלא/ה, נכנס/ת לקורס</span></div>
-      <div class="nc-amt"></div>${chip(x.status)}
+      <div class="nc-amt"></div>${x.status === "expired" ? chip(x.status) : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}
       <div class="nc-b">${x.status !== "registered" && x.status !== "expired" ? `<button type="button" class="btn small" data-copy="${esc(x.url)}">🔗 העתקה</button>` : ""}</div></div>`)).join("");
   box.hidden = !rows; { const ps = $("pwSum"); if (ps) { ps.dataset.l = (pl.filter(x => x.status !== "cancelled").length + ls.length) || 0; pwSumPaint(); } }
   box.innerHTML = rows ? `<div class="nc-h"><b>קישורים וטפסים שנשלחו</b><button type="button" class="btn small" data-plall><span class="nc-all">כל התשלומים של ${esc(nm)}</span><span class="nc-all-m">כל התשלומים</span> ←</button></div>${rows}` : "";
