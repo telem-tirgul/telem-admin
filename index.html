@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.78">
+<meta name="app-version" content="5.21.79">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4813,11 +4813,11 @@ async function loadLeads(){
     MASG_Q()
   ]);
   callCount(); inboxPoll(true);
-  if (!L.histP) L.histP = getAll("student_history", "select=student_id,school_year,year_start,status&student_id=not.is.null&order=year_start").catch(() => [])
+  function startHistP(){ if (!L.histP) L.histP = getAll("student_history", "select=student_id,school_year,year_start,status&student_id=not.is.null&order=year_start").catch(() => [])
     .then(hist => { L.hist = {}; hist.forEach(h => (L.hist[h.student_id] = L.hist[h.student_id] || []).push(h)); L.histReady = true;
       // הרשימה כבר מוצגת - מוסיפים את סימני "בעבר" (אם לא עורכים משהו בטבלה באותו רגע)
       if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads();
-      return L.hist; });
+      return L.hist; }); }   // נועה 9.11: אחרי הלא פעילים (לא במקביל – מאט את הכול)
   // נועה 7.11: בקשות ביטול שנחתמו ומחכות לאישור – לסינון "בקשת ביטול לאישור" (אחרי הרשימה, לא מעכב)
   if (ME.role !== "instructor") get("cancellation_requests", "select=student_id&status=eq." + encodeURIComponent("נחתם")).then(rs => { L.cxl = new Set((rs || []).map(r => r.student_id));
       const n = $("fCxlN"); if (n) n.textContent = L.cxl.size ? "(" + L.cxl.size + ")" : "";
@@ -4847,15 +4847,18 @@ async function loadLeads(){
   L.leads = leads.filter(l => l.student);
   L.loadedAt = t0; L.fullAt = t0;
   // 5.19.104 (נועה): הלא פעילים – רק כשצריך (שנים קודמות / בלי "רק פעילים" / פתיחת כרטיס לא פעיל); במחשב גם ברקע אחרי כמה שניות. בנייד – לא אוטומטית
-  L.inactReady = false; L.inactP = null;
-  if (!isMobile()) setTimeout(() => { if (L.loadedAt === t0) ensureInact(); }, 5000);
+  // נועה 9.11 (מהירות): מיד אחרי הפעילים (לא אחרי 5 שניות), בלי בקשה כפולה; כבר נטענו פעם – מצורפים מיד
+  if (L.inactRows) { mergeInact(); L.inactReady = true; } else if (!L.inactP) L.inactReady = false;
+  if (!isMobile() || $("fActive").value !== "1") { const ip = ensureInact(); (ip || Promise.resolve()).finally(() => setTimeout(startHistP, 50)); } else startHistP();
   if (notes) leadNotesSet(notes); else if (!L.notes) { L.notes = {}; L.notesCount = {}; }
   if (currentView === "inbox" && typeof renderInbox === "function") setTimeout(() => renderInbox(false), 0);   // 5.19.124: ההתראות – שמות לחיצים מיד כשהכרטיסים נטענו
 }
+// נועה 9.11 (מהירות): הלא פעילים נטענים פעם אחת ונשמרים (L.inactRows); טעינה מחדש של הרשימה – מצרפת אותם מיד, בלי לטעון שוב
+function mergeInact(){ if (!L.inactRows) return; const have = new Set(L.leads.map(l => l.id)); L.inactRows.forEach(l => { if (l.student && !have.has(l.id)) L.leads.push(l); }); }
 function ensureInact(){
   if (L.inactReady) return Promise.resolve(); if (L.inactP) return L.inactP;
   return L.inactP = getAll("leads", "select=" + LEAD_SELECT + "&is_active=is.false&order=updated_at.desc,id.desc")
-    .then(rows => { const have = new Set(L.leads.map(l => l.id)); rows.forEach(l => { if (l.student && !have.has(l.id)) L.leads.push(l); });
+    .then(rows => { L.inactRows = rows; mergeInact(); L.inactP = null;
       L.inactReady = true;
       if (currentView === "inbox" && typeof renderInbox === "function") renderInbox(false);   // 5.19.124
       if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads(); })
@@ -5237,8 +5240,10 @@ const COLS = [
   ["school","בית ספר"],["grade","כיתה"],["asg","שיבוץ"],["parent","הורה"],["remind","🔔"],["updated","עודכן"],["active","✓"]
 ];   // 5.20.5 (נועה): הסטטוס ומקור הליד הישנים – הוסרו מהטבלה ומהסינון (נשארים בכרטיס, ב"פרטים נוספים", ובאקסל)
 // 5.19.173 (נועה): כמה קורסים לכל ילד/ה (כל השנים) – כמו במערכת הישנה; לחיצה – הרשימה
-function crsCountLoad(){ if (CRS.nAllReq || !CRS.ok || ME.role === "instructor") return; CRS.nAllReq = true;
-  getAll("course_members", "select=student_id,status").then(r => { const n = {}; r.forEach(x => { if (!crsGone(x)) n[x.student_id] = (n[x.student_id] || 0) + 1; }); CRS.nAll = n;
+function crsCountLoad(){ if (CRS.nAllReq || !CRS.ok || ME.role === "instructor") return; if (L.inactP) { L.inactP.finally(() => setTimeout(crsCountLoad, 50)); return; } CRS.nAllReq = true;
+  // נועה 9.11 (מהירות): ספירה בשרת (187) – במקום כל הרישומים (~16,000 שורות); בלי 187 – כמו קודם
+  rpc("student_course_counts").then(r => r.map(x => ({ student_id: x.student_id, n: x.n })), () => getAll("course_members", "select=student_id,status").then(rr => { const n = {}; rr.forEach(x => { if (!crsGone(x)) n[x.student_id] = (n[x.student_id] || 0) + 1; }); return Object.entries(n).map(([k, v]) => ({ student_id: Number(k), n: v })); }))
+  .then(r => { const n = {}; r.forEach(x => { n[x.student_id] = x.n; }); CRS.nAll = n;
     if (currentView === "leads" && updSafe()) renderLeads(); }).catch(() => { CRS.nAllReq = false; }); }
 const crsAllBtn = (sid) => { const n = (CRS.nAll || {})[sid]; return n ? `<button type="button" class="crs-all" data-act="crsall" title="כל הקורסים (כל השנים)">${n} קורסים</button>` : ""; };
 function crsAllHtml(sid, l){ const ms = crsOfStudent(sid).filter(m => !crsGone(m) && CRS.byId[m.course_id])
