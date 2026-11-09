@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.83">
+<meta name="app-version" content="5.21.84">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4296,7 +4296,7 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
 const money0 = (x) => "₪" + Number(x || 0).toLocaleString("he-IL");
 // תש-62 (icredit-50): רענון הוראה אחת מאיקרדיט עכשיו (סטטוס, החיוב הבא, חיובים) – ואחרי ~5 שניות טעינה מחדש
 async function planSyncNow(p){ try { await rpc("icredit_sync_now", { p_plan: p.id }); } catch(e) { toast(/not created/.test(e.message || "") ? "ההוראה לא הוקמה באיקרדיט" : "לא רוענן: " + (e.message || "")); return false; }
-  await new Promise(r => setTimeout(r, 5000)); toast("רוענן מאיקרדיט"); return true; }
+  await new Promise(r => setTimeout(r, 5000)); PLANS_C = null; toast("רוענן מאיקרדיט"); return true; }   // 5.21.84: בלי מטמון ישן
 async function planWarnCrs(m, nm, od){
   const c = CRS.byId[m.course_id] || {}, gone = (x) => ["פרש", "בוטל"].includes(x);
   if (ME.role !== "admin" || c.marathon_id || !gone(m.status) || gone(od)) return;
@@ -13174,7 +13174,8 @@ function wireExpand(box, d, reload){
     box.querySelector("[data-dxlink]").onclick = async (e) => { const t = e.currentTarget; t.disabled = true; try { await copy((await getLk()).url); toast("הקישור הועתק"); } catch(er) { toast("לא נוצר: " + er.message); } t.disabled = false; };
     box.querySelector("[data-dxpaid]").onclick = async () => { if (await markPaid(x)) reload(); }; }
   box.querySelectorAll("[data-dxcx]").forEach(b => b.onclick = async () => { b.disabled = true;   // 5.19.68: סימון "בוטלה"
-    const ok = b.dataset.dxcx === "sync" ? (b.textContent = "מרענן…", await planSyncNow(p)) : b.dataset.dxcx === "mark" ? await planMarkCancel(p, p.student_name || d.name) : await planUnmarkCancel(p); if (ok) reload(); else b.disabled = false; });
+    const ok = b.dataset.dxcx === "sync" ? (b.textContent = "מרענן…", await planSyncNow(p)) : b.dataset.dxcx === "mark" ? await planMarkCancel(p, p.student_name || d.name) : await planUnmarkCancel(p);
+    if (ok) { PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e) {} reload(); } else b.disabled = false; });   // 5.21.84 (נועה 9.11): אחרי רענון – הסטטוס החדש (מושהית) גם במסך התשלומים
   box.querySelectorAll("[data-dxst]").forEach(btn => btn.onclick = async () => { const st = btn.dataset.dxst;
     if (st === "cancelled" && !await uiConfirm(`לבטל את הוראת הקבע של ${p.student_name || d.name}? החיובים הבאים לא יתבצעו. (אי אפשר לבטל את הביטול - צריך הוראה חדשה)`)) return;
     if (st === "paused" && !await uiConfirm("להשהות? לא יהיו חיובים עד שמחדשים.")) return;
