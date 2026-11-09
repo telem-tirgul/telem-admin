@@ -4252,7 +4252,7 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
       ${chip(x.status)}
       <div class="nc-b"><button type="button" class="btn small" data-pldet="${esc(x.code)}">פרטים</button>${["sent", "opened"].includes(x.status) && x.url ? `<button type="button" class="btn small" data-copy="${esc(x.url)}">🔗 העתקה</button>` : ""}</div></div>`)
     .concat(ls.slice(0, 3).map(x => `<div class="nc-row">
-      <div class="nc-what"><b>טופס הרשמה אישי</b><span class="muted">${esc(x.city || "")}${x.city ? " · " : ""}נשלח ${dm(x.created_at)} – כשההורה ממלא/ה, נכנס/ת לקורס</span></div>
+      <div class="nc-what"><b>${x.trial ? "🎁 חודש ניסיון – טופס הרשמה אישי" : "טופס הרשמה אישי"}</b><span class="muted">${esc(x.city || "")}${x.city ? " · " : ""}${x.trial && x.trial_start ? "מתחיל " + dm(x.trial_start) + " · " : ""}נשלח ${dm(x.created_at)} – כשההורה ממלא/ה, נכנס/ת לקורס</span></div>
       <div class="nc-amt"></div>${chip(x.status)}
       <div class="nc-b">${x.status !== "registered" && x.status !== "expired" ? `<button type="button" class="btn small" data-copy="${esc(x.url)}">🔗 העתקה</button>` : ""}</div></div>`)).join("");
   box.hidden = !rows;
@@ -6601,9 +6601,18 @@ async function loadLeadGroups(studentId){
       if (b.dataset.cardlk === "pay") { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.newLink(sid); return; }
       const city = ((editing.student.family || {}).city || "").trim(); if (!city) { toast("בכרטיס אין עיר מגורים – יש להשלים אותה"); return; }
       // תש-59 (icredit-47): טופס הרשמה אישי – ממולא מהכרטיס, לאותו כרטיס, עם מעקב (נשלח / נפתח / נרשם), 7 ימים
-      b.disabled = true; let r; try { r = await rpc("reg_link_create", { p_student: sid, p_city: city }); } catch(e) { b.disabled = false; toast("לא נוצר: " + (e.message || "")); return; }
+      // תש-70 (icredit-55, נועה 9.11): טופס הרשמה רגיל או חודש ניסיון (מתאריך)
+      const kind = await uiChoose("טופס הרשמה אישי ל" + ((editing.student.first_name || "") + " " + (editing.student.last_name || "")).trim() + ":", [{ v: "reg", t: "📝 הרשמה רגילה" }, { v: "trial", t: "🎁 חודש ניסיון – מהיום" }, { v: "trial-d", t: "🎁 חודש ניסיון – מתאריך אחר…" }]);
+      if (!kind) return;
+      let tStart = null;
+      if (kind === "trial-d") { const v = await uiDialog("חודש הניסיון מתחיל ב- (יום.חודש, למשל 15.11):", { input: true, value: fmtDM(todayIL()) }); if (v === null) return;
+        const m = String(v).trim().match(/^(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?$/); if (!m) { toast("תאריך לא תקין"); return; }
+        const y0 = Number(todayIL().slice(0, 4)), mo = Number(m[2]), y = m[3] ? (m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3])) : (mo < Number(todayIL().slice(5, 7)) - 2 ? y0 + 1 : y0);
+        tStart = `${y}-${String(mo).padStart(2, "0")}-${String(Number(m[1])).padStart(2, "0")}`; }
+      const prm = Object.assign({ p_student: sid, p_city: city }, kind !== "reg" ? { p_trial: true } : {}, tStart ? { p_trial_start: tStart } : {});
+      b.disabled = true; let r; try { r = await rpc("reg_link_create", prm); } catch(e) { b.disabled = false; toast("לא נוצר: " + (e.message || "")); return; }
       b.disabled = false; let u = r.url; try { u = await makeShort(r.url); } catch(e) {}
-      copyText(u, "טופס ההרשמה האישי (" + city + ") הועתק – בתוקף 7 ימים"); regLinksPaint(sid); });
+      copyText(u, (kind === "reg" ? "טופס ההרשמה האישי" : "טופס חודש הניסיון") + " (" + city + ") הועתק – בתוקף 7 ימים"); regLinksPaint(sid); });
     regLinksPaint(editing && editing.student && editing.student.id);
     { const gb = $("leadGroups").querySelector(".lg-crs-box.lg-reg"), html = `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></div><div class="lg-edit lg-card" data-ed="new" hidden></div>`;
       const gs = gb && gb.querySelector(".lg-add-slot"); if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
