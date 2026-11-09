@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.77">
+<meta name="app-version" content="5.21.78">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2850,7 +2850,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
           <div><label class="lbl" for="fTo">עד</label><input id="fTo" type="date"></div>
           <div><label class="lbl" for="fYear">שנת לימוד</label><select id="fYear"></select></div><!-- 5.19.104 (נועה) -->
           <div><label class="lbl" for="fActive">פעילים</label><select id="fActive"><option value="">הכול</option><option value="1">פעילים</option><option value="0">לא פעילים</option></select></div><!-- נועה 8.11: במקום "רק פעילים"; ברירת מחדל – הכול -->
-          <div hidden><label class="lbl">סטטוס (ישן)</label><div class="multi" id="fStatus"></div></div><!-- 5.20.5 (נועה): הישנים – הוסרו מהסינון -->
+          <!-- 5.20.5 (נועה): הישנים – הוסרו מהסינון -->
           <div hidden><label class="lbl">מקור ליד (ישן)</label><div class="multi" id="fSource"></div></div>
         </div>
         <div class="filters-chk">
@@ -3968,7 +3968,7 @@ let LEAD_SELECT = "id,legacy_user_id,is_active,is_starred,topic,is_customer,remi
 
 async function loadLists(){
   const [st, so, sf, sc, lv] = await Promise.all([
-    get("lead_statuses", "select=*&order=sort_order"),
+    Promise.resolve([]),   // תש-73 (נועה 9.11): הסטטוס הישן של הכרטיס (lead_statuses) יורד
     get("lead_sources", "select=id,name,is_active,sort_order&order=sort_order"),
     get("staff", "select=*&order=full_name"),
     get("schools", "select=id,city,name&order=city,name"),
@@ -4165,7 +4165,7 @@ function crsLabel(c, m){
 const CRS_ST_COL = { "רשום": ["נרשם מת.", "#4ea30c"], "ממתין לתשלום": ["לקחת אשראי", "#2b4aa3"], "מתעניין": ["חדש", "#e8173d"], "פרש": ["פרש", "#111111"], "בוטל": ["הסרה", "#111111"] };
 // 5.19.168 (קובץ 134): רשימת הסטטוסים לקורס – מ-course_statuses (שם לתצוגה + צבע); בלי 134 – החמישה הקבועים
 function crsStList(){ if (CRS.sts && CRS.sts.length) return CRS.sts.filter(x => x.is_active !== false);
-  return Object.keys(CRS_ST).map(n => { const k = CRS_ST_COL[n] || ["", "#888"]; return { name: n, label: CRS_ST_NAME[n] || n, color: ((L.statuses || []).find(x => x.name === k[0]) || {}).color || k[1] }; }); }
+  return Object.keys(CRS_ST).map(n => { const k = CRS_ST_COL[n] || ["", "#888"]; return { name: n, label: CRS_ST_NAME[n] || n, color: k[1] }; }); }
 const crsStOf = (n) => (crsStList().find(x => x.name === n) || (CRS.sts || []).find(x => x.name === n) || { name: n, label: (CRS_ST_NAME || {})[n] || n, color: "#888" });
 function crsStWord(m){ if (crsIsPay(CRS.byId[m.course_id])) return "";   // 185: תשלום אישי – בלי סטטוס
   const st = crsStOf(m.status);
@@ -4858,19 +4858,15 @@ function ensureInact(){
       if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads(); })
     .catch(() => { L.inactP = null; });
 }
-const statusName = (id) => (L.statuses.find(s => s.id === id) || {}).name || "";
+
 // צבע הסטטוס (עמודה color בטבלת lead_statuses). טקסט לבן על רקע הצבע.
-const statusColor = (id) => (L.statuses.find(s => s.id === id) || {}).color || "";
+
 // 5.19.79 (נועה): צבעי הסטטוס המלאים נשארים; הטקסט כהה או לבן לפי הרקע (שיהיה קריא)
 const txtOn = (c) => { const m = String(c || "").trim().match(/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i); if (!m) return "#fff";
   let h = m[1]; if (h.length === 3) h = h.split("").map(x => x + x).join("");
   const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
   return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.36 ? "#2B1A12" : "#fff"; };
 const stSoft = (c) => c ? `background:${c}; color:${txtOn(c)}; -webkit-text-fill-color:${txtOn(c)}; border-color:transparent;` : "";
-function paintStatus(sel, id){
-  const c = statusColor(id);
-  sel.style.cssText = sel.style.cssText.replace(/(background|color|-webkit-text-fill-color|border(-color)?)\s*:[^;]*;?/g, "") + stSoft(c);
-}
 const optStyle = (x) => x.color ? ` style="background:${x.color}; color:${txtOn(x.color)};"` : "";
 const sourceName = (id) => (L.sources.find(s => s.id === id) || {}).name || "";
 const staffName = (id) => ((L.staffAll || L.staff).find(s => s.id === id) || {}).full_name || "";
@@ -4971,18 +4967,6 @@ function setupFilters(){
   fillSelect($("fManager"), [{v:"none", t:"ללא מנהל"}].concat(L.staff.map(s => ({v:s.id, t:s.full_name}))), "הכול");
   // 5.19.70 (נועה): מקור ליד - תיבות סימון, כמו בסטטוס
   multiBox($("fSource"), L.sources.filter(s => s.is_active).map(s => ({ id: s.id, t: s.name })), F.sources, "כל המקורות");
-  const box = $("fStatus");
-  box.innerHTML = `<button type="button" aria-haspopup="true"></button><div class="pop" hidden>` +
-    L.statuses.filter(s => s.is_active).map(s => `<label><input type="checkbox" value="${s.id}" ${F.statuses.has(s.id) ? "checked" : ""}><span class="dot" style="background:${s.color || "transparent"}"></span>${esc(s.name)}</label>`).join("") + `</div>`;
-  const btn = box.querySelector("button"), pop = box.querySelector(".pop");
-  const label = () => { btn.textContent = F.statuses.size ? [...F.statuses].map(statusName).join(", ") : "כל הסטטוסים"; btn.classList.toggle("f-on", F.statuses.size > 0); };
-  label();
-  btn.onclick = () => { pop.hidden = !pop.hidden; };
-  document.addEventListener("click", e => { if (!box.contains(e.target)) pop.hidden = true; });
-  pop.querySelectorAll("input").forEach(i => i.addEventListener("change", () => {
-    const id = Number(i.value); i.checked ? F.statuses.add(id) : F.statuses.delete(id);
-    saveLeadFilters(); label(); F.page = 0; renderLeads();
-  }));
 }
 function multiBox(box, items, set, allLbl){
   box.innerHTML = `<button type="button" aria-haspopup="true"></button><div class="pop" hidden>` + items.map(x => `<label><input type="checkbox" value="${x.id}" ${set.has(x.id) ? "checked" : ""}>${esc(x.t)}</label>`).join("") + `</div>`;
@@ -10606,7 +10590,7 @@ $("scAdd").addEventListener("submit", async (e) => {
 // ======================================================================
 const BK_TABLES = [
   ["families","משפחות"],["students","תלמידים"],["leads","לידים"],["notes","הערות"],["student_history","שנים קודמות"],
-  ["lead_statuses","סטטוסים"],["lead_sources","מקורות ליד"],["staff","צוות"],["schools","בתי ספר"],["locations","מיקומים"],
+  ["lead_sources","מקורות ליד"],["staff","צוות"],["schools","בתי ספר"],["locations","מיקומים"],
   ["sessions","קבוצות"],["session_instructors","מתרגלים בקבוצות"],["assignments","שיבוצים"],["slot_requests","בקשות שיבוץ"],["availability","זמינות"],
   ["attendance","נוכחות"],["attendance_lessons","מפגשים"],["attendance_log","יומן נוכחות"],["enrollments","הרשמות"],["tracks","מסלולים"],
   ["study_levels","רמות לימוד"],["site_info","מידע לאתר"],["signatures","חתימות"],
