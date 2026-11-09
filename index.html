@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.81">
+<meta name="app-version" content="5.21.82">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -618,6 +618,16 @@
   .lg-edit[hidden]{ display:none !important; }
   .lg-edit-h{ font-weight:700; color:var(--accent); margin-bottom:2px; }
   .lg-edit select, .lg-edit input{ width:100%; }
+  /* 5.21.82: הוספה לקבוצה / שינוי שיבוץ – טופס מסודר, מיושר לימין */
+  .lg-edit.lg-card{ text-align:start !important; align-items:stretch !important; }
+  .lg-edit .ae-grid{ display:grid; grid-template-columns:repeat(3, minmax(0, 150px)) minmax(0, 1fr); gap:8px 10px; margin:6px 0 4px; }
+  .lg-edit .ae-f{ display:flex; flex-direction:column; gap:3px; margin:0; font-size:12.5px; font-weight:700; color:#5E554D; text-align:start; }
+  .lg-edit .ae-f > span{ display:block; } .lg-edit .ae-f select, .lg-edit .ae-f input{ font-size:14px; color:var(--ink, #2B2420); font-weight:400; }
+  .lg-edit .ae-row2{ display:flex; flex-wrap:wrap; gap:10px 28px; align-items:flex-start; margin:6px 0 2px; }
+  .lg-edit .ae-st{ display:flex !important; flex-direction:row !important; gap:16px; flex-wrap:wrap; font-weight:400; color:var(--ink, #2B2420); font-size:14px; padding-top:6px; } .lg-edit .ae-st label{ display:inline-flex; align-items:center; gap:5px; white-space:nowrap; margin:0; }
+  .lg-edit .ae-times{ display:flex; align-items:center; gap:6px; justify-content:flex-start; } .lg-edit .ae-times input{ width:120px; } .lg-edit .ae-times span{ font-weight:400; }
+  .lg-edit .ae-btns{ display:flex; align-items:center; gap:8px; margin-top:8px; justify-content:flex-start; } .lg-edit .ae-btns .ae-sp{ flex:1; }
+  @media (max-width:760px){ .lg-edit .ae-grid{ grid-template-columns:1fr 1fr; } .lg-edit .ae-wide, .lg-edit .ae-grid > .ae-f:nth-child(3){ grid-column:1 / -1; } }
   .lg-times{ display:flex; align-items:center; gap:6px; } .lg-times input{ flex:1; }
   #lgAddBtn{ margin-top:4px; }
   .sc-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:12px; }
@@ -6103,7 +6113,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
   root.querySelectorAll("[data-lpsync]").forEach((b) => { const p = plans[Number((b.closest("[data-pli]") || {}).dataset ? b.closest("[data-pli]").dataset.pli : -1)]; if (!p) return;   // תש-62
     b.onclick = async () => { b.disabled = true; b.textContent = "…"; if (await planSyncNow(p)) { PLANS_C = null; if (editing) loadLeadPayments(editing); } else { b.disabled = false; b.textContent = "🔄"; } }; });
   root.querySelectorAll("[data-lpcx]").forEach((b) => { const p = plans[Number((b.closest("[data-pli]") || {}).dataset ? b.closest("[data-pli]").dataset.pli : -1)]; if (!p) return;   // 5.19.68: סימון "בוטלה"
-    b.onclick = async () => { b.disabled = true; const ok = b.dataset.lpcx === "mark" ? await planMarkCancel(p, l.student ? l.student.first_name : "") : await planUnmarkCancel(p);
+    b.onclick = async () => { b.disabled = true; const ok = b.dataset.lpcx === "sync" ? (b.textContent = "מרענן…", await planSyncNow(p)) : b.dataset.lpcx === "mark" ? await planMarkCancel(p, l.student ? l.student.first_name : "") : await planUnmarkCancel(p);
       if (ok) { LP_OPEN = true; loadLeadPayments(l); } else b.disabled = false; }; });
   root.querySelectorAll("[data-txpdf]").forEach(b => b.onclick = async () => { b.disabled = true; try { await txPdf(rows[Number(b.dataset.txpdf)], l); } catch(e) { toast("לא ניתן להוריד: " + e.message); } b.disabled = false; });
   };
@@ -6143,7 +6153,9 @@ async function planUnmarkCancel(p){
   if (!await uiConfirm('לבטל את הסימון "בוטלה"?\nההוראה תחזור ל"מושהית".')) return false;
   try { await rpc("recurring_plan_unmark_cancelled", { p_id: p.id }); toast('הסימון "בוטלה" בוטל'); return true; }
   catch(e) { toast(planErr(e)); return false; } }
-const planMarkBtns = (p, attr) => ME && ME.role === "admin" ?   /* תש-61 (נועה 8.11): חזר – הוראה מושהית (בוטלה בריווחית) → "✕ סימון: בוטלה" */ (planCanMark(p) ? `<button type="button" class="btn small" data-${attr}="mark">⊘ סימון בוטלה</button>` : planMarked(p) ? `<button type="button" class="btn small" data-${attr}="unmark">ביטול הסימון</button>` : "") : "";
+const planMarkBtns = (p, attr) => ME && ME.role === "admin" ?   /* תש-61 (נועה 8.11): חזר – הוראה מושהית (בוטלה בריווחית) → "✕ סימון: בוטלה" */ (planCanMark(p) ? `<button type="button" class="btn small" data-${attr}="mark">⊘ סימון בוטלה</button>` : planMarked(p) ? `<button type="button" class="btn small" data-${attr}="unmark">ביטול הסימון</button>` : "")
+    // 5.21.82 (נועה 9.11: "אין לי שום כפתור"): הוראה פעילה – מבטלים בריווחית ואז "🔄 רענון מאיקרדיט" כאן (מתעדכן, ומופיע "⊘ סימון בוטלה")
+    + (!planMarked(p) && ["active", "paused", "failed"].includes(p.status) ? `<button type="button" class="btn small" data-${attr}="sync" title="בוטלה / שונתה בריווחית? – רענון עכשיו (בלי לחכות לסנכרון של הבוקר / הערב)">🔄 רענון מאיקרדיט</button>` : "") : "";
 // ---------- טופס ביטול: מכינים כאן, ההורה רק חותם/ת ----------
 const TRACK_T = (v) => (LK.tracks.find(x => x.v === v) || {}).t || v || "";
 const CAN_ST = { "נשלח": "נשלח להורה - ממתין לחתימה", "נחתם": "נחתם - ממתין לאישור", "אושר": "אושר", "בוטל": "בוטל" };
@@ -6737,20 +6749,20 @@ async function openAsgEditor(studentId, a, cur, opts){
   const subj = crsSubj || stSubj || enrSubj || (cur.find(x => x.subject) || {}).subject || "";
   box.innerHTML = `
     <div class="lg-edit-h">${a ? "שינוי שיבוץ" : "הוספה לקבוצה"}</div>
-    <label class="lbl">קבוצה <span class="muted" style="font-weight:400">- מצמצמים לפי עיר, יום ובית ספר</span></label>
-    <div class="lg-pick">
-      <select data-p="city" aria-label="עיר">${cities.map(c => `<option ${c === pc.city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select>
-      <select data-p="day" aria-label="יום"></select>
-      <select data-p="loc" aria-label="בית ספר"></select>
+    <div class="ae-grid">   <!-- 5.21.82 (נועה 9.11: "באמצע המסך בצורה לא יפה"): טופס מסודר מימין – שורה לבחירה, שורה למצב ולשעה -->
+      <label class="ae-f"><span>עיר</span><select data-p="city" aria-label="עיר">${cities.map(c => `<option ${c === pc.city ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
+      <label class="ae-f"><span>יום</span><select data-p="day" aria-label="יום"></select></label>
+      <label class="ae-f"><span>בית ספר</span><select data-p="loc" aria-label="בית ספר"></select></label>
+      <label class="ae-f ae-wide"><span>קבוצה</span><select data-f="session"></select></label>
     </div>
-    <select data-f="session"></select>
-    ${a ? "" : `<label class="lbl">מצב</label><div class="lg-st"><label><input type="radio" name="lgSt" value="משובץ" checked> שיבוץ מאושר</label><label><input type="radio" name="lgSt" value="ממתין"> מוצע – ממתין לאישור</label></div>`}
-    <label class="lbl">שעה אישית <span class="muted">(רק אם שונה משעת הקבוצה)</span></label>
-    <div class="lg-times"><input type="time" data-f="from" value="${a && a.arrival_time ? hm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-f="to" value="${a && a.personal_end ? hm(a.personal_end) : ""}" aria-label="עד שעה"><button type="button" class="pt-x pt-x-l" data-ptclr title="ביטול השעה האישית">✕ ביטול</button></div>
+    <div class="ae-row2">
+      ${a ? "" : `<div class="ae-f"><span>מצב</span><div class="lg-st ae-st"><label><input type="radio" name="lgSt" value="משובץ" checked> שיבוץ מאושר</label><label><input type="radio" name="lgSt" value="ממתין"> מוצע – ממתין לאישור</label></div></div>`}
+      <div class="ae-f"><span>שעה אישית <small class="muted">(רק אם שונה משעת הקבוצה)</small></span>
+        <div class="lg-times ae-times"><input type="time" data-f="from" value="${a && a.arrival_time ? hm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-f="to" value="${a && a.personal_end ? hm(a.personal_end) : ""}" aria-label="עד שעה"><button type="button" class="pt-x pt-x-l" data-ptclr title="ביטול השעה האישית">✕ ניקוי</button></div></div>
+    </div>
     <div class="err" data-f="err"></div>
-    <div class="lg-btns"><button type="button" class="btn small primary" data-f="save">שמירה</button>
-      ${a ? `<button type="button" class="btn small danger" data-f="rm">${a.session && a.session.kind === "מרתון" ? "פרישה מהמרתון" : "הסרה מהקבוצה"}</button>` : ""}
-      <button type="button" class="btn small" data-f="cancel">ביטול</button></div>`;
+    <div class="lg-btns ae-btns">${a ? `<button type="button" class="btn small danger" data-f="rm">${a.session && a.session.kind === "מרתון" ? "פרישה מהמרתון" : "הסרה מהקבוצה"}</button>` : ""}
+      <span class="ae-sp"></span><button type="button" class="btn small" data-f="cancel">ביטול</button><button type="button" class="btn small primary" data-f="save">שמירה</button></div>`;
   const f = (k) => box.querySelector(`[data-f="${k}"]`);
   box.querySelectorAll("[data-ptclr]").forEach(b => b.onclick = () => { f("from").value = ""; f("to").value = ""; });   // 5.19.75
   // בחירה מדורגת: עיר -> יום -> בית ספר -> הקבוצה (שעה)
@@ -13114,7 +13126,7 @@ function wireExpand(box, d, reload){
     box.querySelector("[data-dxlink]").onclick = async (e) => { const t = e.currentTarget; t.disabled = true; try { await copy((await getLk()).url); toast("הקישור הועתק"); } catch(er) { toast("לא נוצר: " + er.message); } t.disabled = false; };
     box.querySelector("[data-dxpaid]").onclick = async () => { if (await markPaid(x)) reload(); }; }
   box.querySelectorAll("[data-dxcx]").forEach(b => b.onclick = async () => { b.disabled = true;   // 5.19.68: סימון "בוטלה"
-    const ok = b.dataset.dxcx === "mark" ? await planMarkCancel(p, p.student_name || d.name) : await planUnmarkCancel(p); if (ok) reload(); else b.disabled = false; });
+    const ok = b.dataset.dxcx === "sync" ? (b.textContent = "מרענן…", await planSyncNow(p)) : b.dataset.dxcx === "mark" ? await planMarkCancel(p, p.student_name || d.name) : await planUnmarkCancel(p); if (ok) reload(); else b.disabled = false; });
   box.querySelectorAll("[data-dxst]").forEach(btn => btn.onclick = async () => { const st = btn.dataset.dxst;
     if (st === "cancelled" && !await uiConfirm(`לבטל את הוראת הקבע של ${p.student_name || d.name}? החיובים הבאים לא יתבצעו. (אי אפשר לבטל את הביטול - צריך הוראה חדשה)`)) return;
     if (st === "paused" && !await uiConfirm("להשהות? לא יהיו חיובים עד שמחדשים.")) return;
