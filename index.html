@@ -624,6 +624,10 @@
   .lg-meta{ font-size:13px; color:var(--ink-soft); margin-top:4px; line-height:1.6; }
   .lg-card .btn{ margin-top:8px; }
   .lg-btns{ display:flex; gap:6px; flex-wrap:wrap; }
+  /* 5.21.83 (כללי עקביות – נועה 19.10): בכל חלון עריכה – "שמירה" הכי שמאלית, "ביטול" מימין לה, "מחיקה" באדום בצד ימין */
+  :is(.lg-btns, .st-btm, .ex-f-btns, .actions.lg-btns):not(.lg-top):has(> .btn.primary){ justify-content:flex-end !important; }
+  :is(.lg-btns, .st-btm, .ex-f-btns, .actions.lg-btns):not(.lg-top):has(> .btn.primary) > .btn.primary{ order:10; }
+  :is(.lg-btns, .st-btm, .ex-f-btns, .actions.lg-btns):not(.lg-top):has(> .btn.primary) > .btn.danger{ order:-1; margin-inline-end:auto; }
   .lg-edit{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--border); display:flex; flex-direction:column; gap:4px; }
   .lg-edit.lg-card{ border-top:1.5px solid var(--gold); border-inline-start-color:var(--gold); }
   .lg-edit[hidden]{ display:none !important; }
@@ -2118,6 +2122,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 .ts-req.ts-no{ background:#FCE9E7; color:#8E2A22; border-color:#EBC4C0; }
 .side-hr:has(#lcRegLinks){ flex-wrap:wrap; } #lcRegLinks{ flex-basis:100%; width:100%; order:9; } .side-hr #lcAddSlot{ margin-inline-start:auto; } .leads-load{ display:flex; align-items:center; justify-content:center; gap:10px; margin:8px auto 10px; padding:10px 16px; max-width:640px; background:#FFF8E6; border:1px solid #EBD9A8; color:#6B4E10; border-radius:12px; font-weight:700; font-size:15px; text-align:center; } .ld-spin{ width:16px; height:16px; border:2.5px solid #E3C77A; border-top-color:transparent; border-radius:50%; animation:ldspin .8s linear infinite; flex:none; } @keyframes ldspin{ to{ transform:rotate(360deg); } }
 .lc-wa{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 10px; } .lc-wa .lbl{ margin:0; } .lc-pl{ margin:2px 0; } .lc-pl-nav{ margin:4px 0; }
+.stp-can{ margin-inline-start:10px; font-size:12.5px; font-weight:700; color:#A33A2B; } .stp-can:empty{ display:none; }
 .hist-can-h{ font-weight:700; margin:10px 0 4px; font-size:13.5px; } .hist-can{ font-size:13px; padding:5px 0; border-top:1px dashed var(--border); }
 /* 5.21.82 (נועה 9.11: "המידע חוזר פעמיים"): ילד/ה עם כמה הזמנות – כשפותחים, השורות למעלה מתקפלות והפירוט למטה מתחיל בכותרת של כל הזמנה */
 .kd-open-n{ display:none; font-weight:600; color:#6B625A; font-size:13px; } tr.kd-multi.dx-open .kd-l{ display:none !important; } tr.kd-multi.dx-open .kd-open-n{ display:block; }
@@ -2928,8 +2933,8 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
           <div id="leadQuick" class="lead-quick"></div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="btn primary" type="button" id="leadEditBtn" hidden title="עריכה" aria-label="עריכה">✎<span class="bt-t"> עריכה</span></button><!-- 5.21.83 (כללי עקביות): "✎ עריכה" – הכפתור הימני בשורת הפעולות -->
           <button class="btn" type="button" id="leadMergeBtn" data-admin hidden title="איחוד עם כרטיס כפול" aria-label="איחוד">🔀<span class="bt-t"> איחוד</span></button><!-- 5.19.84 (נועה): איחוד מימין לעריכה -->
-          <button class="btn primary" type="button" id="leadEditBtn" hidden title="עריכה" aria-label="עריכה">✎<span class="bt-t"> עריכה</span></button>
           <button class="btn primary lead-top-b" type="button" id="leadSaveTop">שמירה</button><button class="btn lead-top-b" type="button" id="leadCancelTop">ביטול</button>
           <button class="btn primary" type="button" id="sibAdd" hidden title="ליד חדש באותה משפחה – פרטי ההורים כבר ממולאים" aria-label="הוספת אח/ות">+<span class="bt-t"> אח/ות</span><span class="bt-i">👫</span></button><!-- 5.19.156 (נועה): עם שאר הכפתורים -->
           <button class="btn" type="button" data-back title="חזרה" aria-label="חזרה">→<span class="bt-t"> חזרה</span></button><!-- 5.19.72 (נועה): "חזרה" - הכי שמאלי -->
@@ -3353,7 +3358,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
       <div class="page-head"><h1>בתי ספר</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
           <button class="btn small" type="button" id="scEdit">✎ עריכה</button>
-          <button class="btn small" type="button" id="scAddBtn">+ בית ספר</button>
+          <button class="btn small primary" type="button" id="scAddBtn">+ בית ספר</button>
         </div></div>
       <form id="scAdd" class="card st-form" hidden style="margin-bottom:12px; grid-template-columns:1.5fr 1.5fr auto;">
         <div><label class="lbl" for="scAddName">שם בית הספר</label><input id="scAddName" type="text" required></div>
@@ -3755,7 +3760,7 @@ function openPasswordBox(opts){
     <div><label class="lbl" for="np1">סיסמה חדשה (לפחות 10 תווים)</label><input id="np1" type="password" autocomplete="new-password" minlength="10" required></div>
     <div><label class="lbl" for="np2">שוב, לאימות</label><input id="np2" type="password" autocomplete="new-password" required></div>
     <div class="msg" id="npMsg"></div>
-    <div style="display:flex; gap:8px;"><button class="btn primary" type="submit">שמירה</button><button class="btn" type="button" data-x>ביטול</button></div></form>`;
+    <div class="lg-btns" style="gap:8px;"><button class="btn primary" type="submit">שמירה</button><button class="btn" type="button" data-x>ביטול</button></div></form>`;
   document.body.appendChild(box);
   box.querySelector("[data-x]").onclick = () => box.remove();
   box.querySelector("form").onsubmit = async (e) => {
@@ -5859,7 +5864,7 @@ async function renderTrack(l, editMode){
       ${asg.map(a => `<div class="tb-pt-row" data-aid="${a.id}"><span>${tbGrp(a)} <span class="muted">(${rng(tbHm(a.session.start_time), tbHm(a.session.end_time))})</span></span>
         <span class="lg-times"><input type="time" data-pf value="${a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time) ? tbHm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-pt value="${a.arrival_time && tbHm(a.arrival_time) !== tbHm(a.session.start_time) ? tbHm(a.personal_end) : ""}" aria-label="עד שעה"><button type="button" class="pt-x pt-x-l" data-ptclr title="ביטול השעה האישית">✕ ביטול</button></span></div>`).join("")}</div>` : ""}
     <div class="err" id="tbErr"></div>
-    <div style="display:flex; gap:6px; margin-top:6px;"><button type="button" class="btn small primary" id="tbSave">שמירה</button><button type="button" class="btn small" id="tbCancel">ביטול</button></div>`;
+    <div class="lg-btns" style="margin-top:6px;"><button type="button" class="btn small primary" id="tbSave">שמירה</button><button type="button" class="btn small" id="tbCancel">ביטול</button></div>`;
   box.querySelectorAll(".tb-pt-row [data-ptclr]").forEach(b => b.onclick = () => { const r = b.closest(".tb-pt-row"); r.querySelector("[data-pf]").value = ""; r.querySelector("[data-pt]").value = ""; });   // 5.19.75
   box.querySelectorAll(".tb-pt-row [data-pf]").forEach(inp => inp.onchange = () => { const t = inp.closest(".tb-pt-row").querySelector("[data-pt]"); t.value = inp.value ? addMin(inp.value, 45) : ""; });
   $("tbText").focus();
@@ -6195,6 +6200,8 @@ const CAN_ROWS = {};
 function canPaint(sid){ const rows = CAN_ROWS[sid]; const g = $("leadGroups"); if (!g) return;
   g.querySelectorAll("[data-cnm]").forEach(sp => { const mid = Number(sp.dataset.cnm), r = (rows || []).find(x => x.course_member_id === mid && x.status !== "בוטל");
     sp.querySelector(".lg-can-st").textContent = r ? "טופס ביטול: " + (CAN_ST[r.status] || r.status) : "";
+    { const det = sp.closest("details.stp-box"), sm = det && det.querySelector(":scope > summary");   // 5.21.83 (נועה 9.11): טופס ביטול – גלוי גם כש"מצב ההרשמה" סגור
+      if (sm) { let t = sm.querySelector(".stp-can"); if (!t) { t = document.createElement("span"); t.className = "stp-can"; sm.appendChild(t); } t.textContent = r ? "✕ טופס ביטול: " + (CAN_ST[r.status] || r.status) : ""; } }
     const b = sp.querySelector("[data-cnew]"); b.hidden = !!r && r.status !== "אושר";
     b.textContent = r ? "פתיחה" : "✕ טופס ביטול"; b.hidden = false;
     b.onclick = () => { const pn = g.querySelector(`[data-cpm="${mid}"]`); if (!pn) return;
@@ -6270,7 +6277,7 @@ async function loadLeadCancel(l){
       <label class="lbl">מסלול</label><select id="cnTrack">${LK.tracks.map(x => `<option value="${x.v}">${esc(x.t)}</option>`).join("")}</select>
       <label class="lbl">מקצוע</label><select id="cnSubj">${SUBJECTS.map(s => `<option>${esc(s)}</option>`).join("")}</select>
       <div class="err" id="cnErr"></div>
-      <div style="display:flex; gap:6px; margin-top:6px;"><button type="button" class="btn small primary" id="cnSave">יצירת קישור</button><button type="button" class="btn small" id="cnCancel">ביטול</button></div></div>`;
+      <div class="lg-btns" style="margin-top:6px;"><button type="button" class="btn small primary" id="cnSave">יצירת קישור</button><button type="button" class="btn small" id="cnCancel">ביטול</button></div></div>`;
     { const cs = $("cnCrs"), pre = () => { const m = cms.find(x => String(x.id) === (cs || {}).value); if (!m) return;   // המסלול והמקצוע – מהקורס שנבחר
         if (mTrk(m) && [...$("cnTrack").options].some(o => o.value === mTrk(m))) $("cnTrack").value = mTrk(m); if (m.subject && [...$("cnSubj").options].some(o => o.value === m.subject)) $("cnSubj").value = m.subject; };
       if (cs) { cs.onchange = pre; pre(); } }
@@ -6445,7 +6452,7 @@ function crsTrackWire(sid){ const g = $("leadGroups"); if (!g) return;
   g.querySelectorAll("[data-cmtke]").forEach(b => b.onclick = () => { const box = b.closest("[data-cmtk]"), m = crsOfStudent(sid).find(x => x.id === Number(b.dataset.cmtke)); if (!m) return;
     box.classList.remove("lg-trk0"); box.classList.add("track-box", "tb-side");
     box.innerHTML = `<div class="tb-h"><span>📌 מעקב <span class="muted" style="font-weight:500">- לקורס הזה</span></span></div><textarea maxlength="2000" data-cmtkt>${esc(m.tracking || "")}</textarea>
-      <div style="display:flex; gap:6px; margin-top:6px;"><button type="button" class="btn small primary" data-cmtks>שמירה</button><button type="button" class="btn small" data-cmtkc>ביטול</button></div>`;
+      <div class="lg-btns" style="margin-top:6px;"><button type="button" class="btn small primary" data-cmtks>שמירה</button><button type="button" class="btn small" data-cmtkc>ביטול</button></div>`;
     const ta = box.querySelector("textarea"); ta.focus();
     box.querySelector("[data-cmtkc]").onclick = () => { box.outerHTML = crsTrackHtml(m); crsTrackWire(sid); };
     box.querySelector("[data-cmtks]").onclick = async (e) => { const v = nn(ta.value); e.target.disabled = true;
@@ -6658,7 +6665,7 @@ async function loadLeadGroups(studentId){
       if (!ed.hidden) { ed.hidden = true; ed.innerHTML = ""; return; }
       ed.hidden = false; ed.innerHTML = `<div class="lbl">⏰ שעה אישית <span class="muted" style="font-weight:400">(שעת הקבוצה ${rng(st0, hm(a.session.end_time) || addMin(st0, 45))})</span></div>
         <span class="lg-times"><input type="time" data-pf value="${own ? hm(a.arrival_time) : ""}" aria-label="משעה"><span>עד</span><input type="time" data-pt value="${own ? hm(a.personal_end) : ""}" aria-label="עד שעה"></span>
-        <div class="err"></div><div style="display:flex; gap:6px; margin-top:6px;"><button type="button" class="btn small primary" data-pts>שמירה</button>${own ? `<button type="button" class="btn small" data-ptx>בלי שעה אישית</button>` : ""}<button type="button" class="btn small" data-ptc>ביטול</button></div>`;
+        <div class="err"></div><div class="lg-btns" style="margin-top:6px;"><button type="button" class="btn small primary" data-pts>שמירה</button>${own ? `<button type="button" class="btn small" data-ptx>בלי שעה אישית</button>` : ""}<button type="button" class="btn small" data-ptc>ביטול</button></div>`;
       const pf = ed.querySelector("[data-pf]"), pt = ed.querySelector("[data-pt]"), er = ed.querySelector(".err");
       pf.onchange = () => { pt.value = pf.value ? addMin(pf.value, 45) : ""; }; pf.focus();
       const save = async (from, to) => { if (from && from === st0) { from = null; to = null; } if (!from) to = null; else if (!to) to = addMin(from, 45);
@@ -6750,7 +6757,7 @@ async function openAsgPopup(l){
     const hm = (t) => String(t || "").slice(0, 5);
     body.innerHTML = (as.length ? as.map(a => `<div class="asg-pop-row"><span><b>${a.session.kind === "מרתון" ? "מרתון" : "יום " + esc(a.session.day) + "'"} ${rng(hm(a.session.start_time), hm(a.session.end_time))}</b> · ${esc((a.session.location && a.session.location.name) || "")}${a.status && a.status !== "משובץ" ? ` <span class="asg-pill prop"><span>${esc(a.status === "ממתין" ? "מוצע" : a.status)}</span></span>` : ""}</span>
         <span><button type="button" class="btn small" data-ch="${a.id}">✎ שינוי</button></span></div><div class="lg-edit" data-ed="${a.id}" hidden></div>`).join("") : "<div class='muted'>לא משובץ/ת לקבוצה השנה.</div>")
-      + `<button type="button" class="btn small primary" data-add style="margin-top:10px;">+ הוספה לקבוצה</button><div class="lg-edit" data-ed="new" hidden></div>`;
+      + `<div class="lg-add-row" style="display:flex;justify-content:flex-end;margin-top:10px;"><button type="button" class="btn small" data-add>+ הוספה לקבוצה</button></div><div class="lg-edit" data-ed="new" hidden></div>`;
     const opts = (ed) => ({ box: ed, city: leadCity(l), who, onDone: async () => { await loadLeads().catch(() => {}); const nl = L.leads.find(x => x.id === l.id); if (nl) l = nl; paint(); } });
     body.querySelectorAll("[data-ch]").forEach(b => b.onclick = () => { const a = as.find(x => String(x.id) === b.dataset.ch); body.querySelectorAll(".lg-edit").forEach(x => { x.hidden = true; x.innerHTML = ""; });
       openAsgEditor(sid, a, as, opts(body.querySelector(`.lg-edit[data-ed="${a.id}"]`))); });
