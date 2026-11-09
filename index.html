@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.82">
+<meta name="app-version" content="5.21.83">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -294,6 +294,16 @@
   .lead-cols{ display:grid; grid-template-columns:minmax(0,1fr) minmax(400px,.95fr); gap:16px; align-items:start; }   /* 5.19.173 (נועה): עמודת הקורסים רחבה יותר */
   @media (min-width:961px){ .lead-cols{ align-items:stretch; } }
   .lead-acc{ margin-top:14px; padding:4px 14px; }
+  /* 5.21.83 (נועה 9.11): הכרטיס – פרטים עיקריים + פרטים נוספים למעלה; הקורסים מימין; הערות וכל השאר משמאל; שמירה / ביטול / מחיקה – בסוף */
+  #view-lead .lead-side > #leadAcc{ margin:10px 0 0; padding:0; background:none; border:0; box-shadow:none; }
+  #view-lead .lead-side > #leadAcc > .la-row{ padding-inline:2px; }
+  #view-lead .old-h{ font-weight:700; font-size:13px; color:var(--accent); margin:8px 0 4px; } #view-lead .old-h:first-child{ margin-top:0; }
+  #view-lead .lead-top > #studentBox{ margin:10px 0 0; }
+  @media (min-width:961px){
+    #view-lead .lead-top > #studentBox .form-grid{ display:flex !important; flex-wrap:nowrap; gap:8px !important; } #view-lead .lead-top > #studentBox .form-grid > .kg-br{ display:none !important; }
+    #view-lead .lead-top > #studentBox .form-grid > div{ flex:1 1 0 !important; min-width:0; } #view-lead .lead-top > #studentBox .form-grid > div:has(#sClass){ flex:0 0 70px !important; } #view-lead .lead-top > #studentBox .form-grid > div:has(#sGrade){ flex:0 0 90px !important; } #view-lead .lead-top > #studentBox .form-grid > div:has(#sSchool){ flex:1.6 1 0 !important; }
+    #view-lead .lead-top > #studentBox .form-grid > .trk-f[hidden]{ display:none !important; }
+  }
   #lcAddSlot{ display:inline-flex; gap:6px; flex-wrap:wrap; }   /* נועה 8.11: + הוספה לקורס · + טופס הרשמה אישי · + קישור אישי */
   /* 5.20.18 (נועה, הכרטיס החדש – שלב 1): הפרטים העיקריים למעלה לכל הרוחב; מתחת – הקורסים (רחב, מימין) ופרטי התלמיד/ה + הערות (צר, משמאל) */
   @media (min-width:961px){
@@ -2947,10 +2957,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
               </div>
               <div id="siblings" class="sibs"></div>
             </fieldset>
-            </div>
-            <div class="lead-side"><!-- 5.20.18: העמודה הצרה (משמאל) – פרטי התלמיד/ה, הערות, פרטים נוספים -->
-
-            <!-- 5.19.72 (נועה): פרטי התלמיד - מתחת לפרטים העיקריים (הסטטוס ומקור הליד עלו לפרטים העיקריים) -->
+            <!-- 5.21.83 (נועה 9.11): "פרטים נוספים" – ממש מתחת לפרטים העיקריים, לכל הרוחב -->
             <details class="sec-d" id="studentBox"><summary>פרטים נוספים <span class="sd-sum" id="studentSum"></span></summary><!-- נועה 7.11: מכווץ בדיפולט (בכרטיס חדש – פתוח); בשורה – תקציר -->
               <div class="form-grid">
                 <div><label class="lbl" for="sSchool">בית ספר</label><select id="sSchool"></select></div>
@@ -2984,6 +2991,11 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
               </div></div>
             </div>
             </details>
+            </div>
+            <div class="lead-side"><!-- 5.20.18: העמודה הצרה (משמאל) – פרטי התלמיד/ה, הערות, פרטים נוספים -->
+
+            <!-- 5.19.72 (נועה): פרטי התלמיד - מתחת לפרטים העיקריים (הסטטוס ומקור הליד עלו לפרטים העיקריים) -->
+            
             <!-- 5.20.18: הערות – בעמודה הצרה, פתוח -->
           <details class="la-row ls-notes" data-la="notes"><summary><b>הערות <span class="muted" id="notesN"></span></b><span class="la-sum" id="laNotes"></span></summary>
             <div class="la-body">
@@ -2993,6 +3005,14 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
               </div>
               <ul class="notes-list" id="notesList"></ul>
             </div></details>
+            <div class="lead-acc" id="leadAcc"><!-- 5.21.83: בעמודה הצרה, מתחת להערות -->
+          <details class="la-row"><summary><b>מבחנים קרובים במתמטיקה</b><span class="la-sum" data-of="leadExams"></span></summary><div class="la-body"><div id="leadExams" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row"><summary><b>נוכחות אחרונה</b><span class="la-sum" data-of="leadAtt"></span></summary><div class="la-body"><div id="leadAtt" class="muted" style="font-size:13.5px;"></div></div></details><!-- נועה 7.11: הקורסים הקודמים – כאן למטה, עם השיבוצים, הנוכחות, התשלומים והחתימות שלהם; בלי "כל הטפסים החתומים" בנפרד -->
+          <details class="la-row" hidden><summary><b>טפסי ביטול ישנים</b><span class="la-sum" data-of="leadCancel2"></span></summary><div class="la-body" id="canHome"><div id="leadCancel2" style="font-size:13.5px;"></div></div></details>
+          <details class="la-row" id="leadTsRow" data-admin><summary><b>📱 תלם שלי</b><span class="la-sum" data-of="leadTs"></span></summary><div class="la-body"><div id="leadTs" style="font-size:13.5px;"></div></div></details><!-- 5.19.97 (של-21/32): ניהול החשבון עבר לכאן -->
+          <details class="la-row" id="leadOldRow"><summary><b>קודם</b><span class="la-sum" data-of="leadHist"></span></summary><div class="la-body"><!-- 5.21.83 (נועה 9.11): קורסים קודמים + שנים קודמות (מה-CRM) + טפסי ביטול ישנים – במקום אחד --><div class="old-h">קורסים קודמים</div><div id="leadOldCrs" style="font-size:13.5px;"></div><div class="lo-sig-h" id="leadSigH" hidden>טפסים חתומים שלא שייכים לקורס</div><div id="leadSig" class="muted" style="font-size:13.5px;"></div><div class="old-h">שנים קודמות (מה-CRM הישן)</div><div id="leadHist" class="muted" style="font-size:13.5px;"></div><div id="leadHistCan"></div></div></details>
+          <details class="la-row"><summary><b>היסטוריית שינויים</b><span class="la-sum" data-of="leadLog"></span></summary><div class="la-body"><div id="leadLog" class="lead-log"></div></div></details>
+        </div>
             </div>
             <!-- 5.21.4 (נועה): שמירה / ביטול – בסוף הכרטיס, לכל הרוחב, צמודים לשמאל (כמו בכל המערכת) -->
             <div class="err" id="leadErr"></div>
@@ -3009,19 +3029,8 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
             <div class="side-hr"><h3 class="side-h" style="margin:4px 0 8px;">קורסים ושיבוצים</h3><span id="lcAddSlot"></span></div>
             <div id="trackPark" hidden><div class="track-box tb-side" id="trackBox" hidden></div></div><!-- 5.20.18 (נועה): המעקב – בתוך הקורס של התרגול השוטף --><!-- 5.19.173 (נועה): המעקב – למעלה -->
             <div id="leadGroups"></div>
+            <!-- 5.21.83: התשלומים – בעמודת הקורסים (עד שיעברו לתוך כל קורס) --><div class="lead-paywrap"><div id="leadPay" class="lead-pay"></div><div id="leadPayments"></div></div>
                       </div>
-        </div>
-        <!-- 5.19.154 (נועה): התשלומים – מחוץ לפרטים, מתחת לכרטיס, במסגרת בורדו -->
-        <div class="lead-paywrap"><div id="leadPay" class="lead-pay"></div><div id="leadPayments"></div></div>
-        <!-- 5.19.18: הערות והיסטוריה - שורות מקופלות (שורה עם תקציר, נפתחת בלחיצה), מתחת לכרטיס, לכל הרוחב -->
-        <div class="card lead-acc" id="leadAcc">
-          <details class="la-row"><summary><b>מבחנים קרובים במתמטיקה</b><span class="la-sum" data-of="leadExams"></span></summary><div class="la-body"><div id="leadExams" style="font-size:13.5px;"></div></div></details>
-          <details class="la-row"><summary><b>נוכחות אחרונה</b><span class="la-sum" data-of="leadAtt"></span></summary><div class="la-body"><div id="leadAtt" class="muted" style="font-size:13.5px;"></div></div></details>
-          <details class="la-row" id="leadOldRow"><summary><b>קורסים קודמים</b><span class="la-sum" data-of="leadOldCrs"></span></summary><div class="la-body"><div id="leadOldCrs" style="font-size:13.5px;"></div><div class="lo-sig-h" id="leadSigH" hidden>טפסים חתומים שלא שייכים לקורס</div><div id="leadSig" class="muted" style="font-size:13.5px;"></div></div></details><!-- נועה 7.11: הקורסים הקודמים – כאן למטה, עם השיבוצים, הנוכחות, התשלומים והחתימות שלהם; בלי "כל הטפסים החתומים" בנפרד -->
-          <details class="la-row"><summary><b>טפסי ביטול ישנים</b><span class="la-sum" data-of="leadCancel2"></span></summary><div class="la-body" id="canHome"><div id="leadCancel2" style="font-size:13.5px;"></div></div></details>
-          <details class="la-row" id="leadTsRow" data-admin><summary><b>📱 תלם שלי</b><span class="la-sum" data-of="leadTs"></span></summary><div class="la-body"><div id="leadTs" style="font-size:13.5px;"></div></div></details><!-- 5.19.97 (של-21/32): ניהול החשבון עבר לכאן -->
-          <details class="la-row"><summary><b>שנים קודמות</b><span class="la-sum" data-of="leadHist"></span></summary><div class="la-body"><div id="leadHist" class="muted" style="font-size:13.5px;"></div><div id="leadHistCan"></div></div></details>
-          <details class="la-row"><summary><b>היסטוריית שינויים</b><span class="la-sum" data-of="leadLog"></span></summary><div class="la-body"><div id="leadLog" class="lead-log"></div></div></details>
         </div>
       </form>
     </section>
@@ -5730,7 +5739,7 @@ function openLead(id){
   $("leadGroups").textContent = "";
   setLeadEdit(!(l && LEAD_MOB())); setLeadDirty(false);   // 5.19.23: בנייד נפתח לצפייה; "✎ עריכה" פותח את הטופס
   go("lead");
-  $("studentBox").open = !l; setTimeout(studentSumPaint, 0);
+  $("studentBox").open = true; setTimeout(studentSumPaint, 0);   // 5.21.83 (נועה 9.11): פתוח תמיד – מתחת לפרטים העיקריים
   parkTrack(); renderTrack(l); $("leadPay").innerHTML = ""; $("leadPayments").innerHTML = ""; $("leadCancel2").innerHTML = "";
   leadQuick(l ? l.student : null, null);
   $("leadLoading").hidden = !l;   // 5.21.4 (נועה): "טוען…" עד שהקורסים והשיבוצים עולים
@@ -6197,7 +6206,7 @@ function canPark(){ const c = $("leadCancel2"), home = $("canHome"); if (!c || !
 function canFilter(){ const c = $("leadCancel2"); if (!c) return; const g = $("leadGroups"), inCrs = new Set([...(g ? g.querySelectorAll("[data-cnm]") : [])].map(x => x.dataset.cnm));
   let rest = 0; c.querySelectorAll(".can-row").forEach(r => { const cm = r.dataset.cm || ""; const show = CAN_ONLY ? cm === String(CAN_ONLY) : !inCrs.has(cm); r.hidden = !show; if (!CAN_ONLY && show) rest++; });
   const nb = $("canNew"); if (nb && !(nb.parentElement && $("canForm") && $("canForm").innerHTML.trim())) nb.hidden = CAN_ONLY ? false : inCrs.size > 0;
-  const row = $("canHome") && $("canHome").closest("details"); if (row) row.hidden = inCrs.size > 0 && rest === 0; }
+  const row = $("canHome") && $("canHome").closest("details"); if (row) row.hidden = rest === 0; }   // 5.21.83: טפסים בלי קורס – ב"קודם"
 async function loadLeadCancel(l){
   const box = $("leadCancel2");
   let rows = [];
