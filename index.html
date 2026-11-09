@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.79">
+<meta name="app-version" content="5.21.80">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2265,6 +2265,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 .mg-dlg{ max-width:520px; } .mg-me, .mg-keep, .mg-del{ border:1px solid #E6DDD3; border-radius:12px; padding:8px 12px; background:#FCFAF7; } .mg-keep{ border-color:#9CC5A4; background:#F3FAF4; } .mg-del{ border-color:#EBC4C0; background:#FFF8F7; }
 .mg-lbl{ font-size:12.5px; font-weight:700; color:#6b6159; margin-bottom:2px; } .mg-list{ display:flex; flex-direction:column; gap:6px; margin-top:6px; } .mg-c{ all:unset; cursor:pointer; display:block; border:1px solid #E6DDD3; border-radius:12px; padding:8px 12px; background:#fff; } .mg-c:hover{ border-color:var(--accent,#6B1E23); }
 .mg-why{ font-size:12.5px; color:#A33A35; margin-top:2px; } .mg-q{ width:100%; box-sizing:border-box; margin-top:8px; }
+.ui-dlg textarea.ui-dlg-in[readonly]{ min-height:260px; font-size:14px; line-height:1.6; }   /* 5.21.80: כרטיס שנמחק – כל הפרטים */
 .ui-dlg-t{ white-space:pre-line; font-size:16px; line-height:1.6; margin-bottom:14px; }
 .ui-dlg-in{ width:100%; box-sizing:border-box; font:inherit; font-size:16px; padding:10px 12px; border:1px solid var(--border, #ddd); border-radius:12px; margin-bottom:14px; background:var(--bg, #FAF8F5); color:inherit; resize:vertical; }
 .ui-dlg-b{ display:flex; gap:14px; flex-wrap:wrap; justify-content:center; } .ui-dlg-b .btn{ flex:0 0 auto; min-width:120px; white-space:nowrap; min-height:46px; padding-inline:16px; font-size:16px; font-weight:700; justify-content:center; }   /* 5.19.51: כפתורים צרים יותר עם רווח ביניהם - שלא ילחצו בטעות */
@@ -2366,6 +2367,8 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
   #leadActions:not([hidden]){ display:flex !important; position:sticky; bottom:0; z-index:6; gap:6px; justify-content:flex-end; flex-wrap:nowrap; background:var(--paper, #fff); padding:6px 0 calc(6px + env(safe-area-inset-bottom)); margin-top:6px; border-top:1px dashed #E6DDD3; }
   #leadActions .btn{ flex:0 0 auto !important; width:auto !important; padding:6px 14px !important; min-height:34px; font-size:14px !important; }
   #leadActions [data-and-back]{ display:none !important; }
+  .lead-foot .lf-r{ display:inline-flex; align-items:center; gap:12px; flex-wrap:wrap; }   /* 5.21.80: מחיקה באדום – בצד ימין, רק בעריכה */
+  .lead-foot:has(#leadActions[hidden]) .lf-del, #view-lead.lc-view .lf-del{ display:none !important; }
 }
 
   /* ===== 5.19.83 (נועה): מראה אחיד בכל המסכים (חוץ ממאגר התרגולים) =====
@@ -2971,7 +2974,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
             </div>
             <!-- 5.21.4 (נועה): שמירה / ביטול – בסוף הכרטיס, לכל הרוחב, צמודים לשמאל (כמו בכל המערכת) -->
             <div class="err" id="leadErr"></div>
-            <div class="lead-foot"><div class="meta-line" id="leadMeta"></div>
+            <div class="lead-foot"><span class="lf-r"><button class="btn small danger lf-del" type="button" id="leadDelete" hidden title="מחיקת הכרטיס – כל הפרטים נשמרים כטקסט בהתראות">🗑 מחיקה</button><!-- 5.21.80 (נועה 9.11, 188): רק מנהל/ת; באדום מימין --><div class="meta-line" id="leadMeta"></div></span>
             <div class="actions" id="leadActions">
               <button class="btn primary" type="submit">שמירה</button>
               <button class="btn" type="submit" data-and-back="1">שמירה וחזרה לרשימה</button>
@@ -5621,6 +5624,7 @@ function openLead(id){
   const l = id ? L.leads.find(x => x.id === id) : null;
   editing = l; SIB_FAM = null;
   if ($("leadMergeBtn")) $("leadMergeBtn").hidden = !l || ME.role !== "admin";
+  if ($("leadDelete")) $("leadDelete").hidden = !l || ME.role !== "admin";   // 5.21.80
   fillLeadSelects(l);
   const s = l ? l.student : {}, f = (l && l.student.family) || {};
   $("leadTitle").textContent = l ? `${s.first_name} ${s.last_name || ""}` : "ליד חדש";
@@ -7416,6 +7420,22 @@ $("leadMergeBtn").addEventListener("click", () => { if (editing) mergeDlg(editin
 $("sibAdd").addEventListener("click", () => { if (editing) newSibling(editing); });
 $("leadSaveTop").addEventListener("click", () => { const f = $("leadForm"); if (f.requestSubmit) f.requestSubmit(f.querySelector('#leadActions button[type=submit]:not([data-and-back])')); else f.querySelector("#leadActions button[type=submit]").click(); });   // 5.19.58
 $("leadCancelTop").addEventListener("click", () => $("leadCancel").click());
+// 5.21.80 (נועה 9.11, 188): מחיקת כרטיס – רק מנהל/ת. יש כסף (תשלום / הוראת קבע) – אי אפשר. כל הפרטים נשמרים כטקסט בהתראות ("כרטיס נמחק")
+async function leadDelete(){
+  if (!editing || !editing.student_id || ME.role !== "admin") return;
+  const sid = editing.student_id, s = editing.student || {}, nm = ((s.first_name || "") + " " + (s.last_name || "")).trim();
+  let info; try { info = await rpc("student_delete_info", { p_student: sid }); } catch(e) { uiAlert(/student_delete_info|404|PGRST202/.test(e.message || "") ? "המחיקה עוד לא פעילה – צריך להריץ את קובץ 188." : "לא הצלחתי לבדוק את הכרטיס: " + e.message); return; }
+  if (info.blocked) { await uiAlert(`אי אפשר למחוק את ${nm} – יש תשלומים:\n• ${(info.money || []).join("\n• ")}\n\nהתשלומים נשמרים לחשבונות. אפשר להעביר את הכרטיס ל"לא פעיל".`); return; }
+  const has = (info.has || []).concat(info.only_family ? ["פרטי ההורים (אין עוד ילדים במשפחה)"] : []);
+  const reason = await uiDialog(`למחוק את הכרטיס של ${nm}?` + (has.length ? `\n\nיימחקו גם:\n• ${has.join("\n• ")}` : "") + `\n\nכל הפרטים יישמרו כטקסט בהתראות ("כרטיס נמחק"). אי אפשר לשחזר.\nסיבה (לא חובה):`,
+    { input: true, ok: "מחיקה", danger: true });
+  if (reason === null) return;
+  try { await rpc("delete_student", { p_student: sid, p_reason: reason || null }); }
+  catch(e) { uiAlert(String(e.message || e).replace(/^.*?(אי אפשר)/, "$1")); return; }
+  L.leads = L.leads.filter(x => x.student_id !== sid); if (L.inactRows) L.inactRows = L.inactRows.filter(x => x.student_id !== sid);
+  setLeadDirty(false); editing = null; toast("הכרטיס נמחק – כל הפרטים בהתראות"); go("leads"); renderLeads(); inboxPoll();
+}
+$("leadDelete").addEventListener("click", leadDelete);
 $("leadCancel").addEventListener("click", () => { setLeadDirty(false); if (editing) openLead(editing.id); else { go("leads"); renderLeads(); } });
 $("leadForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -9033,7 +9053,7 @@ setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && M
 // ===== 5.19.56: תיבת הודעות מהטפסים (קובץ 71) =====
 // כל טופס שנשלח (הרשמה, מרתון, התעניינות, בקשת שיבוץ, ביטול חתום, תשלום אישי) = שורה. פרטים שלא תואמים (issues) - משיחת התשלומים
 const IB = { rows: null, f: "open", k: "", ks: new Set(), done: [], doneEnd: false, ok: true, lastMax: Number(store("telem_ib_max") || 0), names: {}, mars: {} };
-const IB_KIND = { material: ["📄", "חומר שלא שויך"], sign: ["✍️", "אישור תנאי התקשרות"], registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"] };   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
+const IB_KIND = { material: ["📄", "חומר שלא שויך"], sign: ["✍️", "אישור תנאי התקשרות"], registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"], deleted: ["🗑", "כרטיס נמחק"] };   // 5.21.80 (188)   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
 const IB_FLAG = { blocked_already: ["t-warn", "ניסה/תה לשלוח שוב – נחסם (כבר רשום/ה)"], blocked_review: ["t-warn", "נעצר לבדיקה – אותו שם, בלי טלפון מוכר, וכבר רשום/ה (לא נשמר, לא שולם)"], status_mismatch: ["t-warn", "הסטטוס לא תואם לתשלום"], plan_withdrawn: ["t-warn", "לבטל בריווחית"], phone_pending: ["t-warn", "תשלום טלפוני ממתין"], system_issue: ["t-warn", "תקלה טכנית"], added: ["t-new", "נוסף/ה לקבוצה"],   // 5.19.127 (תש-16, icredit-24) removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], track_changed: ["t-old", "המסלול שונה"], track_change: ["t-warn", "בקשה לשינוי מסלול"],   /* תש-65 */ plan_paused: ["t-old", "הוראת קבע הושהתה"],
   plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"],
@@ -9110,6 +9130,7 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
     : r.kind === "payment" ? [d.title, d.description, amt(d.amount), d.text]
     : r.kind === "portal_code" ? [d.phone ? "טלפון: " + tsPhF(d.phone) : "", "שכח/ה את הקוד"]
     : r.kind === "contact" ? [d.phone, d.email, d.message ? String(d.message).slice(0, 80) + (String(d.message).length > 80 ? "…" : "") : ""]
+    : r.kind === "deleted" ? [d.reason ? "סיבה: " + d.reason : "", d.by ? "ע\"י " + d.by : "", d.family_deleted ? "גם פרטי ההורים" : ""]   // 5.21.80
     : r.kind === "material" ? [d.school, d.grade ? "שכבה " + d.grade : "", d.kind, d.reason, d.topics ? String(d.topics).slice(0, 70) + (String(d.topics).length > 70 ? "…" : "") : "", d.file]   // או-10
     : r.kind === "unassigned" ? [d.status, d.city, d.school, d.days != null ? (d.days === 0 ? "נרשם/ה היום" : d.days === 1 ? "נרשם/ה אתמול" : `נרשם/ה לפני ${d.days} ימים`) : "", d.pending ? "יש רק שיבוץ ממתין" : "בלי שיבוץ בקבוצה שוטפת"]
     : r.kind === "duplicate" ? [d.dup_name ? "מול: " + d.dup_name : "", d.why, d.year ? "פנייה מ-" + d.year : "", d.legacy_new ? "ליד ב-CRM " + d.legacy_new : "", d.legacy_old ? "(הקיים: " + d.legacy_old + ")" : ""]
@@ -9324,7 +9345,7 @@ async function renderInbox(reload){
       <span class="ib-n">${ibNameLink(r, lead)}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
       <span class="ib-time">${esc(when(r.created_at))}</span>
-      <span class="ib-acts">${(r.flags || []).includes("track_change") && r.status !== "handled" && ME.role === "admin" && (r.data || {}).existing_id ? `<button type="button" class="btn small primary" data-ibtrk="${r.id}" title="לשנות את המסלול / המקצוע בהרשמה הקיימת (בלי הרשמה חדשה)">⇄ שינוי מסלול</button>` : ""}${r.kind === "material" && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibmat="${r.id}" title="לצרף את החומר למבחן מלוח המבחנים">לשייך למבחן</button>` : ""}${r.kind === "payment" && ((r.flags || []).includes("plan_withdrawn") || r.ref_table === "plan_mismatch") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibplan="${r.student_id}" title="מסך התשלומים – השורה של הוראת הקבע (הביטול עצמו – בריווחית)">להוראת הקבע ←</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) ? ((r.data || {}).merged_at ? `<span class="ib-tag t-new" title="${esc(fmtDate((r.data || {}).merged_at))}">✓ בוצע איחוד</span>` : ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : "") : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : !pr && ME.role === "admin" && (r.kind === "marathon" || r.kind === "registration") && (r.flags || []).includes("phone_pending") && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${dd.length && ME.role === "admin" && r.status !== "handled" ? `<button type="button" class="btn small" data-ibdupx="${r.id}" title="ההרשמות הקודמות יסומנו &quot;בוטל&quot; – נשארת האחרונה">ביטול הכפולה</button>` : ""}${(() => { const act = w || pr || pi || r.kind === "marathon" || r.kind === "registration" || (r.flags || []).includes("blocked_already") || (r.flags || []).includes("blocked_review") || (r.flags || []).includes("status_mismatch");
+      <span class="ib-acts">${(r.flags || []).includes("track_change") && r.status !== "handled" && ME.role === "admin" && (r.data || {}).existing_id ? `<button type="button" class="btn small primary" data-ibtrk="${r.id}" title="לשנות את המסלול / המקצוע בהרשמה הקיימת (בלי הרשמה חדשה)">⇄ שינוי מסלול</button>` : ""}${r.kind === "deleted" ? `<button type="button" class="btn small" data-ibdel="${r.id}" title="כל מה שהיה בכרטיס">📄 כל הפרטים</button>` : ""}${r.kind === "material" && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibmat="${r.id}" title="לצרף את החומר למבחן מלוח המבחנים">לשייך למבחן</button>` : ""}${r.kind === "payment" && ((r.flags || []).includes("plan_withdrawn") || r.ref_table === "plan_mismatch") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibplan="${r.student_id}" title="מסך התשלומים – השורה של הוראת הקבע (הביטול עצמו – בריווחית)">להוראת הקבע ←</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small" data-ibsid="${r.student_id}">לכרטיס</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibsid="${r.student_id}">לכרטיס – שיבוץ</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => x.field === "duplicate")) ? ((r.data || {}).merged_at ? `<span class="ib-tag t-new" title="${esc(fmtDate((r.data || {}).merged_at))}">✓ בוצע איחוד</span>` : ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : "") : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : !pr && ME.role === "admin" && (r.kind === "marathon" || r.kind === "registration") && (r.flags || []).includes("phone_pending") && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${dd.length && ME.role === "admin" && r.status !== "handled" ? `<button type="button" class="btn small" data-ibdupx="${r.id}" title="ההרשמות הקודמות יסומנו &quot;בוטל&quot; – נשארת האחרונה">ביטול הכפולה</button>` : ""}${(() => { const act = w || pr || pi || r.kind === "marathon" || r.kind === "registration" || (r.flags || []).includes("blocked_already") || (r.flags || []).includes("blocked_review") || (r.flags || []).includes("status_mismatch");
         // 5.20.40 (נועה 2.11): הודעה שרק צריך לקרוא – "✓ נקרא" מוריד אותה מהרשימה (עוברת ל"טופלו"); הודעה שצריך לטפל בה – "✓ נקרא" (מוריד את הבולד) + "✓ טופל"
         // 5.20.49 (נועה 3.11: "נקרא בהגדרה אומר שזה טופל"): רק "✓ טופל" – עובר ל"טופלו"
         return (act ? (r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : "")
@@ -9384,6 +9405,8 @@ async function renderInbox(reload){
     catch(e) { b.disabled = false; toast("לא בוטל: " + e.message); } });
   box.querySelectorAll("[data-gdmv]").forEach(b => b.onclick = () => ibGdAct(b, "move"));
   box.querySelectorAll("[data-gdadd]").forEach(b => b.onclick = () => ibGdAct(b, "add"));
+  box.querySelectorAll("[data-ibdel]").forEach(b => b.onclick = () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibdel)); if (!r) return;   // 5.21.80: הכרטיס שנמחק – הטקסט (אפשר להעתיק)
+    const d = r.data || {}; uiDialog("כרטיס שנמחק – " + (d.student_name || "") + (d.by ? " (ע\"י " + d.by + ")" : ""), { input: true, multi: true, copy: true, value: d.text || "" }); });
   box.querySelectorAll("[data-ibts]").forEach(b => b.onclick = () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibts)); if (!r) return;   // 5.19.97: בקשת קוד מתלם שלי
     tsAccount(r.student_id, true, (r.data || {}).phone, ibName(r), async () => { try { await patch("form_inbox", "id=eq." + r.id, { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note: "נשלח קוד חדש" }); } catch(e) {} r.status = "handled"; r.note = "נשלח קוד חדש"; renderInbox(false); }); });
   box.querySelectorAll("[data-ibx]").forEach(b => b.onclick = () => { const d = $("ibd" + b.dataset.ibx); if (d) d.hidden = !d.hidden; });
