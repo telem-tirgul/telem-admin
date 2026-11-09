@@ -305,6 +305,7 @@
     #view-lead .lead-top > #studentBox .form-grid > div{ flex:1 1 0 !important; min-width:0; } #view-lead .lead-top > #studentBox .form-grid > div:has(#sClass){ flex:0 0 70px !important; } #view-lead .lead-top > #studentBox .form-grid > div:has(#sGrade){ flex:0 0 90px !important; } #view-lead .lead-top > #studentBox .form-grid > div:has(#sSchool){ flex:1.6 1 0 !important; }
     #view-lead .lead-top > #studentBox .form-grid > .trk-f[hidden]{ display:none !important; }
   }
+  @media (max-width:760px){ #lcAddSlot .bt-l{ display:none; } #view-lead .lead-crs > .side-hr{ flex-wrap:wrap; gap:6px; } #view-lead .lead-crs > .side-hr .side-h{ white-space:nowrap; } #lcAddSlot{ flex-wrap:nowrap; margin-inline-start:auto; } #lcAddSlot .btn{ padding:5px 10px; } }   /* 5.21.83 (נועה 9.11): בנייד – "+ קורס", "📝 הרשמה", "💳 תשלום" */
   #lcAddSlot{ display:inline-flex; gap:6px; flex-wrap:wrap; }   /* נועה 8.11: + הוספה לקורס · + טופס הרשמה אישי · + קישור אישי */
   /* 5.20.18 (נועה, הכרטיס החדש – שלב 1): הפרטים העיקריים למעלה לכל הרוחב; מתחת – הקורסים (רחב, מימין) ופרטי התלמיד/ה + הערות (צר, משמאל) */
   @media (min-width:961px){
@@ -4392,7 +4393,7 @@ async function loadLeadCourses(l){
       <div class="lc-a"><select class="lc-st" data-cm="${m.id}" aria-label="מצב בקורס">${Object.keys(CRS_ST).map(x => `<option ${x === m.status ? "selected" : ""}>${x}</option>`).join("")}</select>${crsNeedSig(m) ? `<span class="sig-miss" title="חסר אישור תנאי התקשרות">✍︎ חסרה חתימה</span>` : m.signed ? `<span class="muted" title="חתם/ה על התנאים">✓ חתום</span>` : ""}</div></div>`; };
   box.innerHTML = `<h3 class="side-h" style="margin-top:4px;">קורסים</h3>${cur.length ? cur.map(row).join("") : `<div class="muted">אין קורס במחזור הפעיל.</div>`}
     ${old.length ? `<details class="lc-old"><summary>מחזורים קודמים (${old.length})</summary>${old.map(row).join("")}</details>` : ""}
-    <button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>`;
+    <button type="button" class="btn small" id="lcAdd" title="הוספה ידנית לקורס – בלי טופס ובלי תשלום">+ <span class="bt-l">הוספה ל</span>קורס</button>`;
   box.hidden = false;
   box.querySelectorAll("[data-cm]").forEach(sel => sel.onchange = async () => { sel.disabled = true;
     try { await patch("course_members", "id=eq." + sel.dataset.cm, { status: sel.value, updated_at: new Date().toISOString() }); toast("נשמר"); await crsLoad(true); loadLeadCourses(editing); { const m2 = Object.values(CRS.cm).flat().find(x => x.id === Number(sel.dataset.cm)); if (m2) marAskGroup(m2); } }
@@ -6633,8 +6634,8 @@ async function loadLeadGroups(studentId){
         $("leadGroups").insertAdjacentHTML("beforeend",
         `<div class="lg-pend">🏁 <b>${esc(x.marathon.name)}</b>${x.session && x.session.time_label ? " · " + esc(x.session.time_label) : ""}<span class="lg-pend-t">⏳ ממתין לתשלום – ישובץ/תשובץ אחרי "שולם"</span></div>`); }); } catch(e) {}
     // 5.19.173 (נועה): "+ הוספה לקורס" – מעל הקורסים; "+ הוספה לקבוצה" – בתוך הקורס של התרגול השוטף (אין – למטה)
-    if ($("lcAddSlot")) $("lcAddSlot").innerHTML = (CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : "")
-      + (ME.role === "admin" ? `<button type="button" class="btn small" data-cardlk="reg" title="טופס הרשמה ממולא מהכרטיס, לאותו כרטיס (7 ימים) – הקישור מועתק">+ טופס הרשמה אישי</button><button type="button" class="btn small" data-cardlk="pay" title="קישור אישי (תשלום) – ממולא מהכרטיס ומחובר אליו">+ קישור אישי</button>` : "");   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
+    if ($("lcAddSlot")) $("lcAddSlot").innerHTML = (CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd" title="הוספה ידנית לקורס – בלי טופס ובלי תשלום">+ <span class="bt-l">הוספה ל</span>קורס</button>` : "")
+      + (ME.role === "admin" ? `<button type="button" class="btn small" data-cardlk="reg" title="טופס הרשמה ממולא מהכרטיס, לאותו כרטיס (7 ימים) – רגיל או חודש ניסיון; הקישור מועתק">📝 <span class="bt-l">טופס </span>הרשמה</button><button type="button" class="btn small" data-cardlk="pay" title="קישור תשלום אישי – ממולא מהכרטיס ומחובר אליו (שיעור פרטי, חומרים…)">💳 <span class="bt-l">קישור </span>תשלום</button>` : "");   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
     $("lcAddSlot").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = async () => { const sid = editing && editing.student && editing.student.id; if (!sid) return;
       if (b.dataset.cardlk === "pay") { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.newLink(sid); return; }
       const city = ((editing.student.family || {}).city || "").trim(); if (!city) { toast("בכרטיס אין עיר מגורים – יש להשלים אותה"); return; }
