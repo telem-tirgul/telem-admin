@@ -339,7 +339,7 @@
   .lg-att, .lg-crs-box .lp-box.lg-pay{ border:1px solid #EAE1D4 !important; border-radius:10px !important; background:#fff !important; padding:8px 12px !important; margin:10px 0 0 !important; box-shadow:none !important; }
   .lg-att > summary, .lg-pay > summary{ cursor:pointer; display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:14px; } .lg-att > summary b, .lg-pay > summary b{ color:var(--accent); font-size:14px !important; }
   .lg-att .att-mini{ font-size:13px; }
-  .lg-foot{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; border-top:1px dashed #E6DDD3; margin-top:10px; padding-top:8px; }
+  .lg-foot{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; border:1px solid #EAE1D4; border-radius:10px; background:#fff; margin-top:10px; padding:8px 12px; }   /* 5.21.83 (נועה 9.11): טפסים (חתום / ביטול) – אותה שורה כמו תשלומים ומצב ההרשמה */
   .lg-foot:empty{ display:none; } .lg-foot .lc-sign{ margin:0 !important; padding:0 !important; border:0 !important; }
   .lg-can-panel{ border:1px solid #EAE1D4; border-radius:10px; background:#fff; padding:8px 12px; margin-top:8px; } .lg-can-panel .can-row:last-of-type{ border-bottom:0 !important; }
   .lg-cmtrk{ margin:8px 0 4px !important; }
@@ -1904,7 +1904,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .side-hr{ display:flex; justify-content:space-between; align-items:center; gap:8px; } .side-hr .side-h{ margin:4px 0 8px !important; }
 .lg-crs-box.lg-trk{ border:2px solid var(--tc, #2B2320); } .lg-crs-box.lg-trk > .lg-crs{ border-bottom-color:color-mix(in srgb, var(--tc, #2B2320) 35%, transparent); }
 .lg-crs-box > .lg-crs .lg-crs-l{ font-size:15px; } .lg-ic{ display:inline-flex; vertical-align:-4px; margin-inline-end:4px; } .lg-ic svg{ width:19px; height:19px; }
-.lg-crs .lc-sign{ flex-basis:100%; margin:2px 0 0; } .lg-crs .lc-sign:has(.lc-sign-st:empty){ flex-basis:auto; margin:0; } .lg-crs-box .lg-add-row{ margin-top:8px; }
+.lg-crs .lc-sign{ flex-basis:100%; margin:2px 0 0; } .lg-crs .lc-sign:has(.lc-sign-st:empty){ flex-basis:auto; margin:0; } .lg-crs-box .lg-add-row{ margin-top:8px; display:flex; justify-content:flex-end; }   /* 5.21.83: "+" תמיד משמאל */
 /* 5.21.9: פס השלבים בקורס */
 .stp-box{ margin-top:10px; } .stp-box .stp-hd{ justify-content:flex-end; margin:6px 0 2px; } .stp-sum{ font-size:13px; font-weight:600; }
 .stp-hd{ display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px; margin-bottom:2px; } .stp-hd .lg-can{ margin:0; }
@@ -2127,11 +2127,14 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 /* 5.21.81: תשלומים ללא קורס – מסגרת כמו קורס, שורה לכל תשלום */
 .lc-nocrs{ margin-top:4px !important; }
 /* 5.21.83 (נועה 9.11): מסגרת אחת "💳 תשלומים ללא קורס" – קישורים / טפסים שנשלחו + תשלומים שלא שויכו לקורס; מתחת לקורסים */
-#view-lead .lead-paywrap{ border:1.5px solid var(--border); border-radius:12px; background:#FFFDFB; padding:8px 10px; margin:12px 0 0; }
+#view-lead .lead-paywrap{ border:1px solid var(--border); border-radius:12px; background:var(--paper); padding:10px 14px; }
 #view-lead .lead-paywrap:not(:has(#lcRegLinks:not([hidden]))):not(:has(#leadPayments > *)){ display:none; }
-#view-lead .lead-paywrap::before{ content:"💳 תשלומים ללא קורס"; display:block; font-family:var(--font-display); color:var(--accent); font-weight:700; font-size:15px; padding:2px 2px 8px; border-bottom:1px solid var(--border); margin-bottom:6px; }
+#view-lead .lead-paywrap > summary{ cursor:pointer; list-style:none; display:flex; align-items:center; gap:10px; padding:2px 2px; } #view-lead .lead-paywrap > summary::-webkit-details-marker{ display:none; }
+#view-lead .lead-paywrap > summary b{ font-family:var(--font-display); color:var(--accent); font-size:15px; } #view-lead .lead-paywrap > summary::after{ content:"▾"; margin-inline-start:auto; color:var(--accent); } #view-lead .lead-paywrap[open] > summary::after{ content:"▴"; } #view-lead .lead-paywrap[open] > summary{ border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:6px; } #view-lead .lead-paywrap .pw-sum{ font-size:13px; }
+@media (min-width:961px){ #view-lead .lead-cols{ grid-template-areas:"top top" "crs side" "pay side" "err err" "foot foot" !important; } #view-lead .lead-cols > .lead-paywrap{ grid-area:pay; margin:0 !important; } #view-lead .lead-cols > .lead-side{ align-self:start; } }
+@media (max-width:960px){ #view-lead .lead-cols > .lead-paywrap{ order:2; margin:0 !important; } }
 #view-lead .lead-paywrap .lc-nocrs .nc-h{ border-bottom:0; padding:2px 2px 2px; } #view-lead .lead-paywrap .lc-nocrs .nc-h b{ font-size:13.5px; color:#5E554D; }
-#view-lead .lead-paywrap #leadPayments > .lp-box{ border:0 !important; box-shadow:none !important; margin:6px 0 0 !important; padding:0 2px !important; background:none !important; } #view-lead .lead-paywrap #leadPayments > .lp-box > summary b{ font-size:13.5px; color:#5E554D; } .lc-nocrs .nc-h{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 2px 8px; border-bottom:1px solid var(--border); margin-bottom:2px; } .lc-nocrs .nc-h b{ font-size:15px; }
+#view-lead .lead-paywrap #leadPayments > .lp-box{ border:0 !important; box-shadow:none !important; margin:6px 0 0 !important; padding:0 2px !important; background:none !important; } #view-lead .lead-paywrap .lp-rest-h{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:6px 2px 4px; } #view-lead .lead-paywrap .lp-rest-h b{ font-size:13.5px; color:#5E554D; } .lc-nocrs .nc-h{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 2px 8px; border-bottom:1px solid var(--border); margin-bottom:2px; } .lc-nocrs .nc-h b{ font-size:15px; }
 .lc-nocrs .nc-row{ display:grid; grid-template-columns:minmax(0,1fr) auto auto auto; align-items:center; gap:6px 12px; padding:8px 2px; border-bottom:1px dashed var(--border); font-size:13.5px; } .lc-nocrs .nc-row:last-child{ border-bottom:0; }
 .lc-nocrs .nc-what{ display:flex; flex-direction:column; gap:1px; min-width:0; } .lc-nocrs .nc-what .muted{ font-size:12px; } .lc-nocrs .nc-amt{ font-weight:700; white-space:nowrap; } .lc-nocrs .nc-b{ display:flex; gap:6px; }
 .lc-nocrs .nc-st{ font-size:12px; font-weight:600; padding:2px 9px; border-radius:999px; white-space:nowrap; } .nc-st.st-ok{ background:#E7F2E9; color:#2F6B3E; } .nc-st.st-wait{ background:#FBF0DC; color:#8A5A12; } .nc-st.st-off{ background:#EFEAE4; color:#6B625A; }
@@ -3036,8 +3039,9 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
             <div class="side-hr"><h3 class="side-h" style="margin:4px 0 8px;">קורסים ושיבוצים</h3><span id="lcAddSlot"></span></div>
             <div id="trackPark" hidden><div class="track-box tb-side" id="trackBox" hidden></div></div><!-- 5.20.18 (נועה): המעקב – בתוך הקורס של התרגול השוטף --><!-- 5.19.173 (נועה): המעקב – למעלה -->
             <div id="leadGroups"></div>
-            <!-- 5.21.83: התשלומים – בעמודת הקורסים (עד שיעברו לתוך כל קורס) --><div class="lead-paywrap"><div id="leadPay" class="lead-pay"></div><div id="leadPayments"></div></div>
                       </div>
+          <!-- 5.21.83 (נועה 9.11): "תשלומים ללא קורס" – מסגרת משלה מתחת לקורסים, מתכווצת -->
+          <details class="lead-paywrap card"><summary><b>💳 תשלומים ללא קורס</b><span class="pw-sum muted" id="pwSum"></span></summary><div id="leadPay" class="lead-pay"></div><div id="leadPayments"></div></details>
         </div>
       </form>
     </section>
@@ -4259,9 +4263,10 @@ async function crsAfterStatus(m, od){
 // נועה 8.11: פרש / בוטל בתרגול השוטף ויש הוראת קבע פעילה – להזכיר (הביטול עצמו – בריווחית / באיקרדיט)
 // תש-59: הסטטוס של טפסי ההרשמה האישיים בכרטיס (מתחת לכפתורים)
 const REG_ST = { sent: "נשלח", opened: "נפתח", registered: "✓ נרשם", expired: "פג תוקף" };
+function pwSumPaint(){ const ps = $("pwSum"); if (!ps) return; const n = Number(ps.dataset.n || 0), k = Number(ps.dataset.l || 0); ps.textContent = [n ? n + " תשלומים" : "", k ? k + " קישורים / טפסים" : ""].filter(Boolean).join(" · "); }
 async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !sid || ME.role !== "admin") return; let box = $("lcRegLinks");
   // 5.21.81 (נועה 9.11): מסגרת משלה – "תשלומים ללא קורס", מתחת לקורסים (לא בצד מעליהם)
-  if (!box) { const pw = document.querySelector("#view-lead .lead-paywrap"); if (pw) pw.insertAdjacentHTML("afterbegin", '<div id="lcRegLinks" class="lc-nocrs" hidden></div>'); else $("leadGroups").insertAdjacentHTML("afterend", '<div id="lcRegLinks" class="lc-nocrs" hidden></div>'); box = $("lcRegLinks"); }   // 5.21.83: בתוך המסגרת "תשלומים ללא קורס"
+  if (!box) { const pw = document.querySelector("#view-lead .lead-paywrap"); if (pw) pw.querySelector("summary").insertAdjacentHTML("afterend", '<div id="lcRegLinks" class="lc-nocrs" hidden></div>'); else $("leadGroups").insertAdjacentHTML("afterend", '<div id="lcRegLinks" class="lc-nocrs" hidden></div>'); box = $("lcRegLinks"); }   // 5.21.83: בתוך המסגרת "תשלומים ללא קורס"
   let ls = [], pl = []; try { [ls, pl] = await Promise.all([rpc("reg_links_list", { p_student: sid }).then(r => r || []), rpc("pay_links_list").then(r => (r || []).filter(x => Number(x.student_id) === Number(sid)), () => [])]); } catch(e) { box.innerHTML = ""; return; }
   if (!editing || !editing.student || editing.student.id !== sid) return;
   // תש-69 (נועה 8.11): הקישורים האישיים (תשלום) של הילד/ה – בכרטיס; "פרטים" נפתח מעל הכרטיס; ניווט למסך התשלומים
@@ -4277,7 +4282,7 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
       <div class="nc-what"><b>${x.trial ? "🎁 חודש ניסיון – טופס הרשמה אישי" : "טופס הרשמה אישי"}</b><span class="muted">${esc(x.city || "")}${x.city ? " · " : ""}${x.trial && x.trial_start ? "מתחיל " + dm(x.trial_start) + " · " : ""}נשלח ${dm(x.created_at)} – כשההורה ממלא/ה, נכנס/ת לקורס</span></div>
       <div class="nc-amt"></div>${chip(x.status)}
       <div class="nc-b">${x.status !== "registered" && x.status !== "expired" ? `<button type="button" class="btn small" data-copy="${esc(x.url)}">🔗 העתקה</button>` : ""}</div></div>`)).join("");
-  box.hidden = !rows;
+  box.hidden = !rows; { const ps = $("pwSum"); if (ps) { ps.dataset.l = (pl.filter(x => x.status !== "cancelled").length + ls.length) || 0; pwSumPaint(); } }
   box.innerHTML = rows ? `<div class="nc-h"><b>קישורים וטפסים שנשלחו</b><button type="button" class="btn small" data-plall><span class="nc-all">כל התשלומים של ${esc(nm)}</span><span class="nc-all-m">כל התשלומים</span> ←</button></div>${rows}` : "";
   box.querySelectorAll("[data-copy]").forEach(c => c.onclick = () => copyText(c.dataset.copy));
   box.querySelectorAll("[data-pldet]").forEach(c => c.onclick = () => PAY.link(c.dataset.pldet, sid));
@@ -6119,7 +6124,8 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
   const formsHtml = (b) => { const ix = b.rows.filter(i => rows[i].status === "אושר" && rows[i].kind !== "חיוב חודשי"); return ix.length ? `<div class="lp-regs lp-forms"><div class="lp-regs-h">טופס הרשמה חתום</div>${ix.map(i => `<div class="lp-reg"><span>📄 ${esc(rows[i].kind === "מרתון" ? "טופס הרשמה למרתון" : rows[i].kind === "תשלום אישי" ? "טופס תשלום" : "טופס הרשמה")} · ${esc(dm(rows[i].date))}</span>${txPdfBtn(i)}</div>`).join("")}</div>` : ""; };
   const bodyOf = (b, inCrs) => `${inCrs ? "" : pendHtml(b.pend)}${b.rows.length ? `<div class="dx lp-dx">${b.rows.map(i => lpRow(rows[i], i)).join("")}</div>` : ""}${planHtml(b.plans)}${regHtml(b.regs)}`;
   const rest = B.rest, open0 = LP_OPEN; LP_OPEN = false;
-  if (rest) box.innerHTML = `<details class="lp-box"${open0 || rest.pend.length ? " open" : ""}><summary><b>תשלומים שלא שייכים לקורס</b> ${sumOf(rest)}</summary>${bodyOf(rest)}</details>`;
+  if (rest) box.innerHTML = `<div class="lp-box lp-rest"><div class="lp-rest-h"><b>תשלומים שלא נמצא להם קורס בכרטיס</b> ${sumOf(rest)}</div>${bodyOf(rest)}</div>`;   // 5.21.83: בתוך המסגרת המתכווצת "תשלומים ללא קורס"
+  { const pw = document.querySelector("#view-lead .lead-paywrap"), ps = $("pwSum"); if (ps) { ps.dataset.n = rest ? rest.rows.length + rest.pend.length + rest.plans.length + rest.regs.length : 0; pwSumPaint(); } if (pw && (open0 || (rest && rest.pend.length))) pw.open = true; }
   const wire = (root) => {
   root.querySelectorAll("[data-lppaid]").forEach(b => b.onclick = async () => { b.disabled = true;
     if (await markPaid(pend[Number(b.dataset.lppaid)])) { setTimeout(() => { if (editing && editing.id === l.id) { loadLeadPayments(l); loadLeadGroups(l.student.id); const nl = L.leads.find(x => x.id === l.id); if (nl) { } } }, 1500); } else b.disabled = false; });
@@ -6621,7 +6627,7 @@ async function loadLeadGroups(studentId){
         `<div class="lg-pend">🏁 <b>${esc(x.marathon.name)}</b>${x.session && x.session.time_label ? " · " + esc(x.session.time_label) : ""}<span class="lg-pend-t">⏳ ממתין לתשלום – ישובץ/תשובץ אחרי "שולם"</span></div>`); }); } catch(e) {}
     // 5.19.173 (נועה): "+ הוספה לקורס" – מעל הקורסים; "+ הוספה לקבוצה" – בתוך הקורס של התרגול השוטף (אין – למטה)
     if ($("lcAddSlot")) $("lcAddSlot").innerHTML = (CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd">+ הוספה לקורס</button>` : "")
-      + (ME.role === "admin" ? `<button type="button" class="btn small primary" data-cardlk="reg" title="טופס הרשמה ממולא מהכרטיס, לאותו כרטיס (7 ימים) – הקישור מועתק">+ טופס הרשמה אישי</button><button type="button" class="btn small primary" data-cardlk="pay" title="קישור אישי (תשלום) – ממולא מהכרטיס ומחובר אליו">+ קישור אישי</button>` : "");   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
+      + (ME.role === "admin" ? `<button type="button" class="btn small" data-cardlk="reg" title="טופס הרשמה ממולא מהכרטיס, לאותו כרטיס (7 ימים) – הקישור מועתק">+ טופס הרשמה אישי</button><button type="button" class="btn small" data-cardlk="pay" title="קישור אישי (תשלום) – ממולא מהכרטיס ומחובר אליו">+ קישור אישי</button>` : "");   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
     $("lcAddSlot").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = async () => { const sid = editing && editing.student && editing.student.id; if (!sid) return;
       if (b.dataset.cardlk === "pay") { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.newLink(sid); return; }
       const city = ((editing.student.family || {}).city || "").trim(); if (!city) { toast("בכרטיס אין עיר מגורים – יש להשלים אותה"); return; }
