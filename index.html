@@ -4164,7 +4164,8 @@ const CRS_ST_COL = { "רשום": ["נרשם מת.", "#4ea30c"], "ממתין לת
 function crsStList(){ if (CRS.sts && CRS.sts.length) return CRS.sts.filter(x => x.is_active !== false);
   return Object.keys(CRS_ST).map(n => { const k = CRS_ST_COL[n] || ["", "#888"]; return { name: n, label: CRS_ST_NAME[n] || n, color: ((L.statuses || []).find(x => x.name === k[0]) || {}).color || k[1] }; }); }
 const crsStOf = (n) => (crsStList().find(x => x.name === n) || (CRS.sts || []).find(x => x.name === n) || { name: n, label: (CRS_ST_NAME || {})[n] || n, color: "#888" });
-function crsStWord(m){ const st = crsStOf(m.status);
+function crsStWord(m){ if (crsIsPay(CRS.byId[m.course_id])) return "";   // 185: תשלום אישי – בלי סטטוס
+  const st = crsStOf(m.status);
   return `<button type="button" class="cst-w" data-crsm="${m.id}" style="${stSoft(st.color || "#888")}" title="לחיצה – שינוי הסטטוס בקורס">${esc(st.label)}</button>${m.until_on && ["פרש", "רשום בעבר"].includes(m.status) ? `<span class="cm-until" title="מגיע/ה עד (גם ב&quot;תלם שלי&quot;)">מגיע עד ${esc(fmtDM(String(m.until_on).slice(0, 10)))}</span>` : ""}`; }   // של-150
 // מקור לכל קורס (קובץ 130) – לחיצה משנה; מקור הליד מתעדכן לבד מהרישום האחרון
 function crsSrcBtn(m){ if (!CRS.hasSrc) return ""; const n = sourceName(m.source_id);
@@ -4301,7 +4302,7 @@ document.addEventListener("change", async (ev) => { const el = ev.target; if (!e
   catch(e) { toast("לא נשמר: " + e.message); } finally { el.disabled = false; } });
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-crsm]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
   const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.crsm)); if (!m) return; const c = CRS.byId[m.course_id] || {};
-  const v = await uiChoose(crsShort(c, true) + "\nמצב בקורס:", crsStList().filter(x => !crsIsLead(c) || x.for_lead !== false || x.name === m.status).map(x => x.name).map(x => ({ v: x, t: (CRS_IC[x] || "") + " " + crsStOf(x).label + (x === m.status ? " (עכשיו)" : "") }))); if (!v || v === m.status) return;
+  const v = await uiChoose(crsShort(c, true) + "\nמצב בקורס:", crsStList().filter(x => (x.kinds ? x.kinds.includes(c.marathon_id || crsCat(c.category_id).kind === "event" ? "event" : crsCat(c.category_id).kind || "regular") : (!crsIsLead(c) || x.for_lead !== false)) || x.name === m.status).map(x => x.name).map(x => ({ v: x, t: (CRS_IC[x] || "") + " " + crsStOf(x).label + (x === m.status ? " (עכשיו)" : "") }))); if (!v || v === m.status) return;
   if (m.history_at && crsOfStudent(m.student_id).some(x => x.id !== m.id && x.course_id === m.course_id && !x.history_at)) { await uiAlert("יש כבר הרשמה חדשה לקורס הזה, אז את ההרשמה הקודמת אי אפשר להחזיר.\nמשנים את המצב בשורה הנוכחית של הקורס."); return; }   // תש-64 (נועה 8.11)
   if (!(await marLeaveOk(m, v))) return;   // נועה 7.11 (#2986)
   try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); const st0 = m.status; m.status = v; toast("נשמר"); crsAfterStatus(m, st0).then(() => marAskGroup(m)); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain") || b.closest(".crs-drawer")) { renderCrsCourses(); crsDrawerRe(); } else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
