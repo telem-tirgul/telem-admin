@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.91">
+<meta name="app-version" content="5.21.92">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4509,7 +4509,8 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
   const paint = () => { const ca = crsCat(Number(q("cdCa").value)), ev = ca.kind === "event", se = Number(q("cdSe").value);
     bg.querySelectorAll(".cd-mar").forEach(x => x.hidden = !ev); bg.querySelectorAll(".cd-reg").forEach(x => x.hidden = ev);
     q("cdMa").innerHTML = opt(CRS.courses.filter(c => c.marathon_id && c.season_id === se && c.category_id === ca.id).map(c => [c.id, c.name || "מרתון"]));
-    if (q("cdTr")) q("cdTr").innerHTML = opt([["", "—"]].concat((ca.tracks || []).map(t => [t, CRS_TRACKS[t] || t, st.track === t]))); };
+    const TRN = { single: "מקצוע אחד", "unlimited-single": "מקצוע אחד ללא הגבלה", double: "שני מקצועות" };   // 5.21.92 (נועה 10.11): השמות כמו בטופס ההרשמה
+    if (q("cdTr")) q("cdTr").innerHTML = opt([["", "—"]].concat((ca.tracks || []).map(t => [t, TRN[t] || CRS_TRACKS[t] || t, st.track === t]))); };
   q("cdCa").onchange = paint; q("cdSe").onchange = paint; paint();
   // מנ-381 (נועה 10.11): הפרטים (לא חובה כששולחים טופס – "מצב" ריק = בלי הוספה עכשיו) + מתחת ☐ שליחת טופס הרשמה (☐ חודש ניסיון)
   const howForm = () => { const c = q("cdForm"); return !!c && c.checked && !bg.querySelector(".cd-how").hidden && crsCat(Number(q("cdCa").value)).kind === "regular"; };
