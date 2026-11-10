@@ -4360,7 +4360,7 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
 const money0 = (x) => "₪" + Number(x || 0).toLocaleString("he-IL");
 // 5.21.88 (נועה 10.11): שליחת טופס הרשמה אישי (רגיל / חודש ניסיון) – מ"+ הוספה לקורס"; ההורה בוחר מסלול, הפרטים שיש – ממולאים (אפשר לשנות)
 // מנ-381 (נועה 10.11): בקישור ההרשמה – המסלול והמקצוע מהקורס הרגיל (מסומנים מראש בטופס; ההורה יכול לשנות)
-function rlMem(sid){ return crsOfStudent(sid).find(m => { const c = CRS.byId[m.course_id]; return c && !c.marathon_id && crsCat(c.category_id).kind === "regular" && crsSeason(c.season_id).is_active && !["בוטל", "פרש"].includes(m.status); }); }
+function rlMem(sid){ return crsOfStudent(sid).slice().sort((a, b) => (!!(b.track || b.subject) - !!(a.track || a.subject)) || b.id - a.id).find(m => { /* 5.21.93: האחרון, ועם מסלול / מקצוע */ const c = CRS.byId[m.course_id]; return c && !c.marathon_id && crsCat(c.category_id).kind === "regular" && crsSeason(c.season_id).is_active && !["בוטל", "פרש"].includes(m.status); }); }
 function rlUrl(u, sid, pre){ const m = pre || rlMem(sid) || {}; const t = m.track || "", su = m.subject || ""; if (!u || (!t && !su)) return u;
   return u + (u.includes("?") ? "&" : "?") + [t ? "t=" + encodeURIComponent(t) : "", su ? "s=" + encodeURIComponent(su) : ""].filter(Boolean).join("&"); }
 async function regLinkSend(sid, trial, tStart, pre){
@@ -4512,6 +4512,11 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
     const TRN = { single: "מקצוע אחד", "unlimited-single": "מקצוע אחד ללא הגבלה", double: "שני מקצועות" };   // 5.21.92 (נועה 10.11): השמות כמו בטופס ההרשמה
     if (q("cdTr")) q("cdTr").innerHTML = opt([["", "—"]].concat((ca.tracks || []).map(t => [t, TRN[t] || CRS_TRACKS[t] || t, st.track === t]))); };
   q("cdCa").onchange = paint; q("cdSe").onchange = paint; paint();
+  // 5.21.93 (נועה 10.11): המקצוע מתאים למסלול – שני מקצועות = "מתמטיקה ואנגלית"; מקצוע אחד = מתמטיקה או אנגלית
+  const suFit = () => { const t = q("cdTr"), u = q("cdSu"); if (!t || !u) return; const dbl = t.value === "double";
+    [...u.options].forEach(o => { o.disabled = !!t.value && !!o.value && (dbl ? o.value !== "מתמטיקה ואנגלית" : o.value === "מתמטיקה ואנגלית"); });
+    if (dbl) u.value = "מתמטיקה ואנגלית"; else if (t.value && u.value === "מתמטיקה ואנגלית") u.value = ""; };
+  if (q("cdTr")) q("cdTr").addEventListener("change", suFit); suFit();
   // מנ-381 (נועה 10.11): הפרטים (לא חובה כששולחים טופס – "מצב" ריק = בלי הוספה עכשיו) + מתחת ☐ שליחת טופס הרשמה (☐ חודש ניסיון)
   const howForm = () => { const c = q("cdForm"); return !!c && c.checked && !bg.querySelector(".cd-how").hidden && crsCat(Number(q("cdCa").value)).kind === "regular"; };
   const manNow = () => !howForm() || !!(q("cdSt") && q("cdSt").value) || !!((q("cdTr") || {}).value && q("cdSc").value);   // 5.21.93: נבחר מסלול – נשמר בקורס (מתעניין)
@@ -4552,7 +4557,8 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
   const check = () => { const ca = crsCat(Number(q("cdCa").value)); if (!q("cdCa").value) return "בוחרים קטגוריה";
     if (ca.kind === "event" && !q("cdMa").value) return "אין מרתון במחזור הזה – בוחרים מחזור / קטגוריה אחרים";
     if (ca.kind !== "event" && !q("cdSc").value) return "בוחרים בית ספר לקורס";
-    if (ca.kind === "regular" && q("cdSu") && !q("cdSu").value && !q("cdSu").closest("[hidden]")) return "בוחרים מקצוע";   /* של-149 */ if (q("cdSt") && !q("cdSt").value) return "בוחרים מצב"; return ""; };
+    if (ca.kind === "regular" && q("cdSu") && !q("cdSu").value && !q("cdSu").closest("[hidden]")) return "בוחרים מקצוע";
+    { const t = (q("cdTr") || {}).value, u = (q("cdSu") || {}).value; if (t && u && ((t === "double") !== (u === "מתמטיקה ואנגלית"))) return t === "double" ? "בשני מקצועות – המקצוע \"מתמטיקה ואנגלית\"" : "במקצוע אחד – מתמטיקה או אנגלית"; }   /* של-149 */ if (q("cdSt") && !q("cdSt").value) return "בוחרים מצב"; return ""; };
   if (inlEx) { const sid = st.id;
     bg.querySelector("[data-no]").onclick = () => bg.remove();
     bg.querySelector("[data-ok]").onclick = async (e) => { const f = howForm(), okb = e.currentTarget;   // מנ-381
@@ -4560,7 +4566,8 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
       // 5.21.93 (נועה 10.11: "המסלול שבחרתי נעלם"): נבחר מסלול ושולחים רק טופס – נשמר בקורס כ"מתעניין" (המסלול נשאר בכרטיס, ובשליחה חוזרת של הקישור)
       if (f && !q("cdSt").value && pre.track && q("cdSc").value) q("cdSt").value = [...q("cdSt").options].some(o => o.value === "מתעניין") ? "מתעניין" : "ממתין לתשלום";
       if (f && !manNow()) { okb.disabled = true; if (await regLinkSend(sid, trial, tD, pre)) bg.remove(); else okb.disabled = false; return; }
-      const er = f ? (!q("cdSc").value ? "בוחרים בית ספר לקורס (או \"מצב\" ריק – רק טופס)" : "") : check(); if (er) { toast(er); return; } okb.disabled = true;   /* 5.21.14: אחרי await – e.currentTarget כבר null (ההודעה על שגיאה לא הופיעה) */
+      const tu = (q("cdTr") || {}).value, uu = (q("cdSu") || {}).value, mis = tu && uu && ((tu === "double") !== (uu === "מתמטיקה ואנגלית")) ? (tu === "double" ? "בשני מקצועות – המקצוע \"מתמטיקה ואנגלית\"" : "במקצוע אחד – מתמטיקה או אנגלית") : "";
+      const er = f ? (mis || (!q("cdSc").value ? "בוחרים בית ספר לקורס (או \"מצב\" ריק – רק טופס)" : "")) : check(); if (er) { toast(er); return; } okb.disabled = true;   /* 5.21.14: אחרי await – e.currentTarget כבר null (ההודעה על שגיאה לא הופיעה) */
       try { if (await save(st)) { bg.remove(); toast("נוסף/ה לקורס"); await crsLoad(true, true); CRS.loadedSt.delete(sid); if (editing && editing.student && editing.student.id === sid) await loadLeadGroups(sid); if (currentView === "leads") renderLeads(); if (f) await regLinkSend(sid, trial, tD, pre); } else okb.disabled = false; }
       catch(err) { okb.disabled = false; toast(/duplicate|23505/.test(err.message) ? "כבר בקורס הזה – אפשר לשנות את המצב בקורס" : "לא נשמר: " + err.message); } };
     bg.scrollIntoView({ behavior: "smooth", block: "nearest" }); return; }
