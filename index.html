@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.86">
+<meta name="app-version" content="5.21.87">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -347,6 +347,9 @@
     #leadGroups .lg-crs-box{ padding:8px 10px !important; margin-top:8px !important; }
     #view-lead .lead-side{ padding:0 10px 4px !important; } #view-lead .lead-side .la-row > summary{ padding:8px 0 !important; }
   }
+  /* 5.21.87: כרטיס קיים – בלי "שמירה" / "ביטול" (נשמר מיד); נשארת "מחיקה" */
+  #view-lead.lc-auto #leadActions{ display:none !important; } #view-lead.lc-auto #leadSaveTop, #view-lead.lc-auto #leadCancelTop{ display:none !important; }
+  .lead-saved{ font-size:12.5px; font-weight:700; color:#3d7f0a; margin-inline-start:10px; white-space:nowrap; } .lead-saved.busy{ color:var(--ink-soft); } .lead-saved.err{ color:#b42318; } .lead-saved:empty{ display:none; }
   .ls-notes{ border:0 !important; border-bottom:1px solid var(--border) !important; border-radius:0; background:none; padding:2px 2px; margin:4px 0 0; }   /* 5.21.85 (נועה 10.11): ההערות – שורה כמו שאר השורות בעמודה */
   /* 5.21.85 (נועה 10.11: "לא נראה טוב בנייד"): בצפייה בנייד – תזכורת + פרטים נוספים מיד מתחת לפרטים העיקריים, לכל הרוחב, בלי מסגרת נפרדת */
   @media (max-width:960px){
@@ -5757,7 +5760,7 @@ function openLead(id){
     get("leads", "select=" + LEAD_SELECT + "&id=eq." + id).then(r => { if (r[0] && r[0].student && !L.leads.some(x => x.id === id)) L.leads.push(r[0]); if (L.leads.some(x => x.id === id)) openLead(id); else ensureInact().then(() => { if (L.leads.some(x => x.id === id)) openLead(id); }); })
       .catch(() => ensureInact().then(() => { if (L.leads.some(x => x.id === id)) openLead(id); })); return; }   // 5.19.104: כרטיס לא פעיל שעוד לא נטען
   const l = id ? L.leads.find(x => x.id === id) : null;
-  editing = l; SIB_FAM = null;
+  editing = l; SIB_FAM = null; $("view-lead").classList.toggle("lc-auto", !!l); { const m = $("leadSaved"); if (m) m.textContent = ""; }   // 5.21.87
   if ($("leadMergeBtn")) $("leadMergeBtn").hidden = !l || ME.role !== "admin";
   if ($("leadDelete")) $("leadDelete").hidden = !l || ME.role !== "admin";   // 5.21.80
   fillLeadSelects(l);
@@ -7511,9 +7514,56 @@ function setLeadDirty(on){
   LEAD_DIRTY = !!on; const card = document.querySelector("#leadForm .lead-main");
   if (card) card.classList.toggle("dirty", LEAD_DIRTY); if ($("editBanner")) $("editBanner").hidden = !LEAD_DIRTY;
 }
-document.querySelector("#leadForm .lead-main").addEventListener("input", (e) => { if (!e.target.closest("#siblings, .ls-notes")) setLeadDirty(true); });
-document.querySelector("#leadForm .lead-main").addEventListener("change", (e) => { if (!e.target.closest("#siblings, .ls-notes")) setLeadDirty(true); });
-document.querySelector("#leadForm .lead-main").addEventListener("click", (e) => { if (e.target.closest("button.switch, button.star, #clearRemind")) setLeadDirty(true); });
+document.querySelector("#leadForm .lead-main").addEventListener("input", (e) => { if (!e.target.closest("#siblings, .ls-notes") && !(editing && editing.id)) setLeadDirty(true); });
+document.querySelector("#leadForm .lead-main").addEventListener("change", (e) => { if (!e.target.closest("#siblings, .ls-notes") && !(editing && editing.id)) setLeadDirty(true); });
+document.querySelector("#leadForm .lead-main").addEventListener("click", (e) => { if (e.target.closest("button.switch, button.star, #clearRemind") && !(editing && editing.id)) setLeadDirty(true); });
+
+// 5.21.87 (נועה 10.11: "בוא ננסה בלי כפתור שמירה"): כרטיס קיים – כל שינוי נשמר מיד ביציאה מהשדה (או בלחיצה על מתג / כוכב / תזכורת).
+//   שדה לא תקין – באדום, לא נשמר עד שמתקנים. כרטיס חדש – כמו קודם ("שמירה"). כל שינוי נרשם ב"היסטוריית שינויים" (193).
+let AUTO_T = null, AUTO_Q = false;
+function leadAutoQueue(){ if (!editing || !editing.id) return; setLeadDirty(false); clearTimeout(AUTO_T); AUTO_T = setTimeout(leadAutoSave, 150); }
+async function leadAutoSave(){
+  if (!editing || !editing.id) return;
+  if (LEAD_SAVING) { AUTO_Q = true; return; }
+  const err = $("leadErr"); err.textContent = ""; let ok = true;
+  ["sFirst","sLast","p1First"].forEach(id => { const bad = !$(id).value.trim(); $(id).closest(".field").classList.toggle("invalid", bad); if (bad) ok = false; });
+  if (!validPhone("p1Phone", true)) ok = false; if (!validPhone("p2Phone", false)) ok = false; if (!validPhone("sPhone", false)) ok = false;
+  { const c = $("sClass").value.trim(), bad = c !== "" && !/^[0-9]{1,2}$/.test(c); $("sClass").closest(".field").classList.toggle("invalid", bad); if (bad) { err.textContent = "מספר כיתה – רק מספר (למשל 3). לא נשמר עד שמתקנים."; setLeadDirty(true); leadSavedMark("err"); return; } }
+  if (!ok) { err.textContent = "חסר / לא תקין: שם פרטי, שם משפחה, שם הורה או טלפון הורה (מתחיל ב-0). לא נשמר עד שמתקנים."; setLeadDirty(true); leadSavedMark("err"); return; }
+  const school = L.schools.find(x => String(x.id) === $("sSchool").value);
+  const family = { parent1_first: $("p1First").value.trim(), parent1_last: nn($("p1Last").value), parent1_phone: nn(digits($("p1Phone").value)), parent1_email: nn($("p1Email").value),
+    parent2_first: nn($("p2First").value), parent2_last: nn($("p2Last").value), parent2_phone: nn(digits($("p2Phone").value)), parent2_email: nn($("p2Email").value),
+    home_phone: nn(digits($("fHome").value)), address: nn($("fAddr").value), city: nn($("fCityIn").value) || (school && school.city) || null,
+    mailing_consent: $("lfMailing").classList.contains("on") };
+  const student = { first_name: $("sFirst").value.trim(), last_name: nn($("sLast").value), phone: nn(digits($("sPhone").value)), email: nn($("sEmail").value),
+    school_id: school ? school.id : null, school: school ? school.name : (editing ? editing.student.school : null), grade: nn($("sGrade").value), class_num: nn($("sClass").value),
+    english_level: nn($("sEng").value), math_level: nn($("sMath").value) };
+  if (!L.noTrack) student.track = nn($("sTrack").value);   // 5.19.157 (קובץ 127)
+  const lead = { source_id: $("lfSource").value ? Number($("lfSource").value) : null,
+    manager_id: $("lfManager").value || null, filled_by: $("lfFilledBy").value, topic: $("lfTopic").value,
+    is_active: $("lfActive").classList.contains("on"), is_starred: $("lfStar").classList.contains("on"), is_customer: $("lfCustomer").classList.contains("on"),
+    remind_at: $("lfRemind").value ? new Date($("lfRemind").value).toISOString() : null, message: nn($("lfMessage").value) };
+  LEAD_SAVING = true; leadSavedMark("busy");
+  try {
+    const l0 = editing;
+    await patch("families", "id=eq." + l0.student.family.id, family);
+    await patch("students", "id=eq." + l0.student.id, student);
+    await patch("leads", "id=eq." + l0.id, lead);
+    Object.assign(l0.student.family, family); Object.assign(l0.student, student); Object.assign(l0, lead);
+    const li = L.leads.find(x => x.id === l0.id); if (li && li !== l0) { Object.assign(li, lead); if (li.student) { Object.assign(li.student, student); if (li.student.family) Object.assign(li.student.family, family); } }
+    if (typeof lcSave === "function") lcSave();
+    setLeadDirty(false); leadSavedMark("ok");
+  } catch(e2) { err.textContent = "השמירה נכשלה: " + e2.message; setLeadDirty(true); leadSavedMark("err"); }
+  LEAD_SAVING = false;
+  if (AUTO_Q) { AUTO_Q = false; leadAutoSave(); }
+}
+function leadSavedMark(st){ let m = $("leadSaved"); if (!m) { const h = document.querySelector("#view-lead .page-head h1"); if (!h) return; h.insertAdjacentHTML("afterend", '<span id="leadSaved" class="lead-saved"></span>'); m = $("leadSaved"); }
+  const t = new Date().toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" });
+  m.className = "lead-saved " + st; m.textContent = st === "busy" ? "שומר…" : st === "ok" ? "✓ נשמר " + t : "⚠ לא נשמר – " + (($("leadErr").textContent || "").split(".")[0] || "שגיאה"); }
+document.querySelector("#leadForm .lead-main").addEventListener("change", (e) => {
+  if (!editing || !editing.id || e.target.closest("#siblings, .ls-notes, #newCrs, #lfManager")) return; leadAutoQueue(); });
+document.querySelector("#leadForm .lead-main").addEventListener("click", (e) => {
+  if (!editing || !editing.id) return; if (e.target.closest("button.switch, button.star, #clearRemind")) setTimeout(leadAutoQueue, 0); });
 window.addEventListener("beforeunload", (e) => { if (LEAD_DIRTY && currentView === "lead") { e.preventDefault(); e.returnValue = ""; } });
 // חלון: לשמור את השינויים? -> שמירה / בלי לשמור / ביטול (נשארים)
 let LEAD_ASKING = false;
