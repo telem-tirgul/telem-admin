@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.90">
+<meta name="app-version" content="5.21.91">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2063,6 +2063,10 @@ button.crs-chip{ background:transparent; border:0; padding:0; color:var(--ink); 
 table.deals td.c-todo{ white-space:nowrap; } .lp-dx{ margin-top:10px; } .lp-dx .dx-pay .lp-st{ margin:0; }
 .only-m{ display:none; } @media (max-width:760px){ .only-m{ display:inline; } } tr.deal-r{ cursor:pointer; } tr.deal-r.dx-open > td{ background:#FBF7F2; border-bottom-color:transparent; border-top:2px solid #B89F8A; } tr.deal-r.dx-open > td:first-child{ border-inline-start:2px solid #B89F8A; } tr.deal-r.dx-open > td:last-child{ border-inline-end:2px solid #B89F8A; }
 tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px solid #B89F8A !important; border-top:0 !important; } tr.dx-row + tr.deal-r > td{ border-top:8px solid transparent; }
+/* 5.21.91 (נועה 10.11: "לא ברור אילו שורות שייכות לתלמיד") – תלמיד/ה פתוח/ה = מסגרת אחת בצבע המערכת, הכותרת צבועה, ורווח ברור עד התלמיד/ה הבא/ה */
+tr.deal-r.dx-open > td{ background:#F4E7E7 !important; border-top:2px solid var(--accent) !important; } tr.deal-r.dx-open > td:first-child{ border-inline-start:2px solid var(--accent) !important; } tr.deal-r.dx-open > td:last-child{ border-inline-end:2px solid var(--accent) !important; }
+tr.deal-r.dx-open .name-link{ font-weight:800; }
+tr.dx-row > td{ background:#FAF2F2 !important; border-color:var(--accent) !important; padding-top:6px !important; } tr.dx-row + tr.deal-r > td{ border-top:14px solid var(--bg, #F6F2EC) !important; }
 .dx-bar{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin:-4px 0 8px; } .dx-bar-b{ display:flex; gap:8px; }
 #arClear, #arCsv{ display:none !important; } .ar-tb{ display:inline-flex; align-items:center; gap:12px; margin-inline-start:auto; } .ar-legend{ align-items:center; } @media (max-width:760px){ .ar-tb .bt{ display:none; } }   /* 5.19.159 */
 #leadsBar{ margin:2px 0 8px; } #leadsBar .tbar-x{ display:flex; gap:12px; align-items:center; margin-inline-start:auto; } @media (max-width:760px){ #leadsBar .tbar-x .bt, #view-pay .dx-bar #pXls .bt{ display:none; } }   /* 5.19.154: שליטה בטבלה – אחידה */
@@ -2142,7 +2146,7 @@ tr.dx-row > td{ background:#FBF7F2; padding:0 12px 8px !important; border:2px so
 .kid-h{ margin:16px 0 8px; font-size:1.05em; color:var(--maroon,#5A1216); }
 .pl-seg{ margin:0 0 12px; }
 tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2px solid #E0A63A; outline-offset:-2px; }
-.deals td.c-frm, .deals th.c-frm{ width:1%; white-space:nowrap; text-align:center; } .dx-form{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 6px; } .dx-form .muted{ font-size:13px; }
+.deals td.c-frm, .deals th.c-frm, .kd-deal [data-dfrm2]{ display:none !important; }   /* 5.21.91 (נועה 10.11): טופס חתום – רק בכרטיס */ .dx-form{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 6px; } .dx-form .muted{ font-size:13px; }
 .lp-regs{ margin:10px 0 2px; border-top:1px dashed #E6DDD3; padding-top:8px; } .lp-plan .lp-st{ flex:0 0 auto; } .lp-plan-e{ display:inline-flex; align-items:center; gap:6px; flex:0 0 auto; } .lp-regs-h{ font-weight:700; font-size:.92em; color:#6b6259; margin-bottom:6px; } .lp-reg{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:4px 0; flex-wrap:wrap; }
 .lp-more{ margin-top:10px; display:flex; justify-content:flex-end; }
 @media (min-width:760px){ .lp-row{ grid-template-columns:1fr auto 120px; align-items:center; padding:9px 14px; } .lp-row .lp-acts{ grid-column:2; grid-row:1; border:0; padding:0; margin:0; gap:14px; } .lp-row .lp-side{ grid-column:3; grid-row:1; } .lp-acts .tx-pdf{ margin:0; } }
@@ -13297,7 +13301,7 @@ function dealExpand(d){
   const planLine = (pp) => { const rem = Math.max(0, (pp.total_count || 0) - (pp.charged_count || 0)), lv = ["active", "paused", "failed"].includes(pp.status);
     return `<div class="dx-pay dx-planrow">${cell("dx-d", pp.next_charge_date && lv && rem ? "הבא " + dmy(pp.next_charge_date) : pp.created_at ? dmy(pp.created_at) : "")}${cell("dx-k", "הוראת קבע")}${cell("dx-a", `<b>${money(pp.monthly_amount)}</b><small class="muted"> × ${pp.total_count || "?"}</small>`)}${cell("dx-s", stChip(pp.status))}${cell("dx-m muted", `${pp.charged_count || 0} מתוך ${pp.total_count || "?"} חיובים${pp.last_amount ? " · יוני " + money(pp.last_amount) : ""}${pp.card_last4 ? " · " + card4(pp.card_last4, pp.card_exp) : ""}`)}${cell("dx-doc", "")}${cell("dx-acts", planMarkBtns(pp, "dxcx"))}
       ${planMarked(pp) ? `<div class="dx-sub">${cell("dx-d", "")}${cell("dx-k muted", planMarkInfo(pp))}</div>` : ""}</div>`; };
-  const pdfB = docR && docR.status === "אושר" ? `<button type="button" class="btn small tx-pdf" data-dxpdf="1">📄 טופס חתום</button>` : "";
+  const pdfB = "";   // 5.21.91 (נועה 10.11): הטופס החתום – רק בכרטיס התלמיד, לא במסך התשלומים
   const refRows = (r) => (r.refunds || []).map(f => `<div class="dx-sub${f.cancelled_at ? " cx" : ""}">${cell("dx-d", dmy(f.at))}${cell("dx-k", "↩ זיכוי")}${cell("dx-a", `<b>${money(f.amount)}</b>`)}${cell("dx-s", f.cancelled_at ? `<span class="muted">(בוטל)</span>` : `<span class="chip st-refund">סומן</span>`)}${cell("dx-m muted", `${f.by ? "סימנ/ה: " + esc(f.by) : ""}${f.note ? (f.by ? " · " : "") + esc(f.note) : ""}`)}${cell("dx-doc muted", f.document_number ? "🧾 זיכוי " + esc(f.document_number) : "")}${cell("dx-acts", f.cancelled_at ? "" : `<button type="button" class="btn small" data-refx="${f.id}">ביטול הסימון</button>`)}</div>`).join("");
   const line = (r) => { const fail = S.failed.find(f => f.id === r.id), iss = S.issues.find(f => f.id === r.id), td = payTodo(r, {});
     const tm = String(r.date || "").length > 10 ? " " + new Date(r.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
@@ -13319,6 +13323,7 @@ function dealExpand(d){
   </div>`;
 }
 function wireExpand(box, d, reload){
+  { const r0 = reload; reload = () => { S.reopen = d.student_id || "n" + d.name; r0(); }; }   // 5.21.91 (נועה 10.11): אחרי כל פעולה בשורה (זיכוי, רענון, שולם…) – נשארים בשורה
   const p = d.plan, pays = (d.first && !d.pays.includes(d.first) ? [d.first] : []).concat(d.pays);
   const docR = d.first || pays.find(r => r.status === "אושר" && r.kind !== "חיוב חודשי") || null;
   wireRowActs(box, pays, reload);
