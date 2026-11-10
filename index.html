@@ -2176,7 +2176,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 .lc-nocrs .nc-row{ display:grid; grid-template-columns:minmax(0,1fr) auto auto auto; align-items:center; gap:6px 12px; padding:8px 2px; border-bottom:1px dashed var(--border); font-size:13.5px; } .lc-nocrs .nc-row:last-child{ border-bottom:0; }
 .cd-how{ grid-column:1 / -1; display:flex; flex-direction:column; gap:6px; padding:8px 10px; border:1px dashed #E2D8CC; border-radius:10px; background:#FDFBF8; font-size:14px; } .cd-how label{ display:inline-flex; align-items:center; gap:6px; margin:0; font-weight:600; } .cd-how .cd-trial{ display:flex; flex-wrap:wrap; gap:6px 18px; padding-inline-start:24px; } .cd-how .cd-trial[hidden], .cd-how .cd-td[hidden]{ display:none; } .cd-how input[type=date]{ width:auto; }
 .lg-rl{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; margin-top:10px; padding:8px 12px; border:1px solid #EAE1D4; border-radius:10px; background:#fff; font-size:13.5px; }
-.lg-rl .lg-rl-w{ font-weight:700; } .lg-rl .nc-b{ display:flex; gap:6px; margin-inline-start:auto; } .lg-rl .nc-b .btn{ text-decoration:none; }
+.lg-rl .lg-rl-w{ font-weight:700; } .lg-rl .nc-b{ display:flex; gap:6px; margin-inline-start:auto; } .lg-rl .nc-b .btn{ text-decoration:none; } .lg-rl .lk2-cell, .lc-nocrs .lk2-cell{ display:inline-flex; gap:6px; align-items:center; }
 .lg-rl .pl-stp{ display:flex; min-width:130px; } .lg-rl .pl-s{ position:relative; flex:1 1 0; text-align:center; padding-top:13px; font-size:10.5px; color:#999; } .lg-rl .pl-s::before{ content:""; position:absolute; top:5px; left:50%; right:-50%; height:2px; background:#E4DCD3; } .lg-rl .pl-s:first-child::before{ display:none; } .lg-rl .pl-s.ok::before{ background:var(--ok,#4ea30c); }
 .lg-rl .pl-s i{ position:absolute; top:0; right:calc(50% - 6px); width:12px; height:12px; box-sizing:border-box; border-radius:50%; background:#fff; border:2px solid #D5CBC0; z-index:1; } .lg-rl .pl-s.ok i{ background:var(--ok,#4ea30c); border-color:var(--ok,#4ea30c); } .lg-rl .pl-s.ok b{ color:#3d7f0a; }
 @media (max-width:760px){ .lg-rl .nc-b .bt-l{ display:none; } .lg-rl .pl-stp{ flex:0 0 170px; } .lg-rl .pl-s{ white-space:nowrap; } .lg-rl .nc-b{ margin-inline-start:0; } }
@@ -4328,8 +4328,10 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
   // 5.21.88 (נועה 10.11: "רוצה שיהיה לי את הקישור כדי שאוכל לשלוח אותו שוב"): לכל קישור פתוח – 💬 וואטסאפ להורה, 👁 פתיחה, 🔗 העתקה
   const fam = editing.student.family || {}, pd = String(fam.parent1_phone || "").replace(/\D/g, "");
   const share = (url, what) => { if (!url) return ""; const msg = `שלום${fam.parent1_first ? " " + fam.parent1_first : ""}, ${what} של ${editing.student.first_name || ""}: ${url} – תלם`;
-    return (/^0\d{8,9}$/.test(pd) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}" title="שליחה להורה בוואטסאפ">💬<span class="bt-l"> וואטסאפ</span></a>` : "")
-      + `<a class="btn small" target="_blank" rel="noopener" href="${esc(url)}" title="פתיחת הטופס – כמו שההורה רואה">👁<span class="bt-l"> פתיחה</span></a><button type="button" class="btn small" data-copy="${esc(url)}" title="העתקת הקישור">🔗<span class="bt-l"> העתקה</span></button>`; };
+    // נועה 10.11: הסדר כמו במסכי הקישורים – העתקה (ראשון מימין), וואטסאפ, פתיחה
+    return `<span class="lk2-cell"><button type="button" class="btn small" data-copy="${esc(url)}" title="העתקת הקישור">העתקה</button>`
+      + (/^0\d{8,9}$/.test(pd) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : "")
+      + `<a class="btn small" target="_blank" rel="noopener" href="${esc(url)}" title="פתיחת הטופס – כמו שההורה רואה">👁<span class="bt-l"> פתיחה</span></a></span>`; };
   const chip = (st) => { const c = NC_ST[st] || [st, "st-off"]; return `<span class="nc-st ${c[1]}">${esc(c[0])}</span>`; };
   const rows = pl.filter(x => x.status !== "cancelled").slice(0, 8).map(x => `<div class="nc-row">
       <div class="nc-what"><b>${esc(x.description || "קישור אישי")}</b><span class="muted">קישור תשלום · נוצר ${dm(x.created_at)}${x.status === "paid" && x.paid_at ? ` · שולם ${dm(x.paid_at)}` : ""}</span></div>
@@ -4339,10 +4341,10 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
     .concat([].map(x => `<div class="nc-row">
       <div class="nc-what"><b>${x.trial ? "🎁 חודש ניסיון – טופס הרשמה אישי" : "טופס הרשמה אישי"}</b><span class="muted">${esc(x.city || "")}${x.city ? " · " : ""}${x.trial && x.trial_start ? "מתחיל " + dm(x.trial_start) + " · " : ""}נשלח ${dm(x.created_at)} – כשההורה ממלא/ה, נכנס/ת לקורס</span></div>
       <div class="nc-amt"></div>${x.status === "expired" ? chip(x.status) : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}
-      <div class="nc-b">${x.status !== "registered" && x.status !== "expired" ? share(x.url, x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה") : ""}</div></div>`)).join("");
+      <div class="nc-b">${x.status !== "registered" && x.status !== "expired" ? share(rlUrl(x.url, sid), x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה") : ""}</div></div>`)).join("");
   { const pw = document.querySelector("#view-lead .lead-paywrap"), wait = pl.some(x => ["sent", "opened", "submitted"].includes(x.status)); if (pw && wait) pw.open = true; }
   // 5.21.88 (נועה 10.11): טופס הרשמה אישי / חודש ניסיון – לא ב"ללא קורס", אלא שורה עם אייקון בתוך התרגול השוטף של השנה
-  L.rlPend = { sid, html: ls.filter(x => !["registered", "expired"].includes(x.status)).slice(0, 3).map(x => `<div class="lg-rl"><span class="lg-rl-w">${x.trial ? "🎁 חודש ניסיון" : "📝 טופס הרשמה"}${x.trial && x.trial_start ? " מ-" + dm(x.trial_start) : ""}<small class="muted"> · נשלח ${dm(x.created_at)}</small></span>${ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}<span class="nc-b">${share(x.url, x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה")}</span></div>`).join("") };
+  L.rlPend = { sid, html: ls.filter(x => !["registered", "expired"].includes(x.status)).slice(0, 3).map(x => `<div class="lg-rl"><span class="lg-rl-w">${x.trial ? "🎁 חודש ניסיון" : "📝 טופס הרשמה"}${x.trial && x.trial_start ? " מ-" + dm(x.trial_start) : ""}<small class="muted"> · נשלח ${dm(x.created_at)}</small></span>${ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}<span class="nc-b">${share(rlUrl(x.url, sid), x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה")}</span></div>`).join("") };
   rlPlace();   // 5.21.88: מחכה למשהו – פתוח
   box.hidden = !rows; { const ps = $("pwSum"); if (ps) { ps.dataset.l = pl.filter(x => x.status !== "cancelled").length || 0; pwSumPaint(); } }
   box.innerHTML = rows ? `<div class="nc-h"><b>קישורי תשלום שנשלחו</b><button type="button" class="btn small" data-plall><span class="nc-all">כל התשלומים של ${esc(nm)}</span><span class="nc-all-m">כל התשלומים</span> ←</button></div>${rows}` : "";
@@ -4351,11 +4353,15 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
   box.querySelectorAll("[data-plall]").forEach(c => c.onclick = () => { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.kidAll(sid, nm); }); }
 const money0 = (x) => "₪" + Number(x || 0).toLocaleString("he-IL");
 // 5.21.88 (נועה 10.11): שליחת טופס הרשמה אישי (רגיל / חודש ניסיון) – מ"+ הוספה לקורס"; ההורה בוחר מסלול, הפרטים שיש – ממולאים (אפשר לשנות)
-async function regLinkSend(sid, trial, tStart){
+// מנ-381 (נועה 10.11): בקישור ההרשמה – המסלול והמקצוע מהקורס הרגיל (מסומנים מראש בטופס; ההורה יכול לשנות)
+function rlMem(sid){ return crsOfStudent(sid).find(m => { const c = CRS.byId[m.course_id]; return c && !c.marathon_id && crsCat(c.category_id).kind === "regular" && crsSeason(c.season_id).is_active && !["בוטל", "פרש"].includes(m.status); }); }
+function rlUrl(u, sid, pre){ const m = pre || rlMem(sid) || {}; const t = m.track || "", su = m.subject || ""; if (!u || (!t && !su)) return u;
+  return u + (u.includes("?") ? "&" : "?") + [t ? "t=" + encodeURIComponent(t) : "", su ? "s=" + encodeURIComponent(su) : ""].filter(Boolean).join("&"); }
+async function regLinkSend(sid, trial, tStart, pre){
   const city = ((editing.student.family || {}).city || "").trim(); if (!city) { toast("בכרטיס אין עיר מגורים – יש להשלים אותה"); return false; }
   const prm = Object.assign({ p_student: sid, p_city: city }, trial ? { p_trial: true } : {}, trial && tStart ? { p_trial_start: tStart } : {});
   let r; try { r = await rpc("reg_link_create", prm); } catch(e) { toast("לא נוצר: " + (e.message || "")); return false; }
-  let u = r.url; try { u = await makeShort(r.url); } catch(e) {}
+  let u = rlUrl(r.url, sid, pre); try { u = await makeShort(u); } catch(e) {}
   copyText(u, (trial ? "טופס חודש הניסיון" : "טופס ההרשמה") + " נוצר והועתק – בתוך התרגול השוטף: 💬 שליחה, 👁 פתיחה");
   await regLinksPaint(sid); const rr = document.querySelector("#leadGroups .lg-rl"); if (rr) { rr.scrollIntoView({ block: "center", behavior: "smooth" }); rr.classList.add("nc-new"); setTimeout(() => rr.classList.remove("nc-new"), 2500); }
   return true; }
@@ -4489,7 +4495,7 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
       <div class="cd-st"><label class="lbl">מקצוע</label><select id="cdSu">${opt([["", "—"], ["מתמטיקה", "מתמטיקה"], ["אנגלית", "אנגלית"], ["מתמטיקה ואנגלית", "מתמטיקה ואנגלית"]])}</select></div>
       ${mem && CRS.hasSrc ? `<div class="cd-st"><label class="lbl">מקור</label><select id="cdSrc">${opt([["", "—"]].concat((L.sources || []).filter(x => x.is_active).map(x => [x.id, x.name])))}</select></div>` : ""}
       <div class="cd-st"><label class="lbl">מצב</label><select id="cdSt">${opt(crsStList().map(x => x.name).filter(x => x !== "בוטל").map(x => [x, crsStOf(x).label, x === "רשום"]))}</select></div>
-    ${inlEx && ME.role === "admin" ? `<div class="cd-how cd-reg"><label><input type="radio" name="cdHow" value="man" checked> ➕ הוספה ידנית עכשיו</label><label><input type="radio" name="cdHow" value="form"> 📝 שליחת טופס הרשמה להורה <span class="muted">(ההורה בוחר מסלול; הפרטים שיש – ממולאים)</span></label>
+    ${inlEx && ME.role === "admin" ? `<div class="cd-how cd-reg"><label><input type="checkbox" id="cdForm"> 📝 שליחת טופס הרשמה להורה <span class="muted">(חתימה על התנאים ותשלום; מה שידוע – ממולא, וההורה יכול לשנות)</span></label>
       <span class="cd-trial" hidden><label><input type="checkbox" id="cdTrial"> 🎁 חודש ניסיון</label><label class="cd-td" hidden>מתאריך <input type="date" id="cdTrialD"></label></span></div>` : ""}
     ${inlEx ? `<div class="crs-inl-b"><button type="button" class="btn" data-no>ביטול</button><button type="button" class="btn primary" data-ok>שמירה</button></div>` : ""}</div>${inline ? "" : `<div class="ui-dlg-b"><button type="button" class="btn primary" data-ok>שמירה</button><button type="button" class="btn" data-no>ביטול</button></div>`}</div>`;
   if (!inline) document.body.appendChild(bg);
@@ -4499,10 +4505,14 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
     q("cdMa").innerHTML = opt(CRS.courses.filter(c => c.marathon_id && c.season_id === se && c.category_id === ca.id).map(c => [c.id, c.name || "מרתון"]));
     if (q("cdTr")) q("cdTr").innerHTML = opt([["", "—"]].concat((ca.tracks || []).map(t => [t, CRS_TRACKS[t] || t, st.track === t]))); };
   q("cdCa").onchange = paint; q("cdSe").onchange = paint; paint();
-  const howForm = () => { const r = bg.querySelector("input[name=cdHow]:checked"); return !!r && r.value === "form" && !bg.querySelector(".cd-how").hidden && crsCat(Number(q("cdCa").value)).kind === "regular"; };
-  { const hw = bg.querySelector(".cd-how"); if (hw) { const upd = () => { const f = howForm(); hw.querySelector(".cd-trial").hidden = !f; hw.querySelector(".cd-td").hidden = !f || !q("cdTrial").checked;
-        bg.querySelectorAll(".cd-st").forEach(x => x.hidden = f); const t = q("cdTr"); if (t) t.closest("div").hidden = f || crsCat(Number(q("cdCa").value)).kind === "event"; const ok = bg.querySelector("[data-ok]"); if (ok) ok.textContent = f ? "יצירת הקישור" : "שמירה"; };
+  // מנ-381 (נועה 10.11): הפרטים (לא חובה כששולחים טופס – "מצב" ריק = בלי הוספה עכשיו) + מתחת ☐ שליחת טופס הרשמה (☐ חודש ניסיון)
+  const howForm = () => { const c = q("cdForm"); return !!c && c.checked && !bg.querySelector(".cd-how").hidden && crsCat(Number(q("cdCa").value)).kind === "regular"; };
+  const manNow = () => !howForm() || !!(q("cdSt") && q("cdSt").value);
+  { const hw = bg.querySelector(".cd-how"); if (hw) { let stTouched = false; const sto = q("cdSt"); if (sto) { sto.insertAdjacentHTML("afterbegin", `<option value="">— בלי הוספה עכשיו</option>`); sto.querySelector("option").hidden = true; sto.addEventListener("change", () => { stTouched = true; upd(); }); }
+      const upd = () => { const f = howForm(); hw.querySelector(".cd-trial").hidden = !f; hw.querySelector(".cd-td").hidden = !f || !q("cdTrial").checked;
+        if (sto) sto.querySelector("option").hidden = !f; const ok = bg.querySelector("[data-ok]"); if (ok) ok.textContent = !f ? "שמירה" : manNow() ? "הוספה ושליחת טופס" : "יצירת הקישור"; };
       if (q("cdTrialD")) q("cdTrialD").value = todayIL();
+      q("cdForm").addEventListener("change", () => { if (sto && !stTouched) sto.value = q("cdForm").checked ? "" : "רשום"; if (sto && !q("cdForm").checked && !sto.value) sto.value = "רשום"; upd(); });
       hw.addEventListener("change", upd); q("cdCa").addEventListener("change", () => { hw.hidden = crsCat(Number(q("cdCa").value)).kind !== "regular"; upd(); }); hw.hidden = crsCat(Number(q("cdCa").value)).kind !== "regular"; upd(); } }
   if (!mem) { bg.querySelectorAll(".cd-st").forEach(x => x.remove()); if (CRS.hasTrk) { const t = q("cdTr"); if (t) t.closest("div").remove(); } [...q("cdCa").options].forEach(o => { if (crsCat(Number(o.value)).kind === "event") o.remove(); }); paint(); }
   const close = () => bg.remove();
@@ -4538,9 +4548,11 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
     if (ca.kind === "regular" && q("cdSu") && !q("cdSu").value && !q("cdSu").closest("[hidden]")) return "בוחרים מקצוע";   /* של-149 */ if (q("cdSt") && !q("cdSt").value) return "בוחרים מצב"; return ""; };
   if (inlEx) { const sid = st.id;
     bg.querySelector("[data-no]").onclick = () => bg.remove();
-    bg.querySelector("[data-ok]").onclick = async (e) => { if (howForm()) { const okb = e.currentTarget; okb.disabled = true; if (await regLinkSend(sid, q("cdTrial").checked, q("cdTrialD").value || null)) bg.remove(); else okb.disabled = false; return; }   // 5.21.88
-      const er = check(); if (er) { toast(er); return; } const okb = e.currentTarget; okb.disabled = true;   /* 5.21.14: אחרי await – e.currentTarget כבר null (ההודעה על שגיאה לא הופיעה) */
-      try { if (await save(st)) { bg.remove(); toast("נוסף/ה לקורס"); await crsLoad(true, true); CRS.loadedSt.delete(sid); if (editing && editing.student && editing.student.id === sid) loadLeadGroups(sid); if (currentView === "leads") renderLeads(); } else okb.disabled = false; }
+    bg.querySelector("[data-ok]").onclick = async (e) => { const f = howForm(), okb = e.currentTarget;   // מנ-381
+      const pre = { track: (q("cdTr") || {}).value || "", subject: (q("cdSu") || {}).value || "" }, trial = f && q("cdTrial").checked, tD = (q("cdTrialD") || {}).value || null;
+      if (f && !manNow()) { okb.disabled = true; if (await regLinkSend(sid, trial, tD, pre)) bg.remove(); else okb.disabled = false; return; }
+      const er = f ? (!q("cdSc").value ? "בוחרים בית ספר לקורס (או \"מצב\" ריק – רק טופס)" : "") : check(); if (er) { toast(er); return; } okb.disabled = true;   /* 5.21.14: אחרי await – e.currentTarget כבר null (ההודעה על שגיאה לא הופיעה) */
+      try { if (await save(st)) { bg.remove(); toast("נוסף/ה לקורס"); await crsLoad(true, true); CRS.loadedSt.delete(sid); if (editing && editing.student && editing.student.id === sid) await loadLeadGroups(sid); if (currentView === "leads") renderLeads(); if (f) await regLinkSend(sid, trial, tD, pre); } else okb.disabled = false; }
       catch(err) { okb.disabled = false; toast(/duplicate|23505/.test(err.message) ? "כבר בקורס הזה – אפשר לשנות את המצב בקורס" : "לא נשמר: " + err.message); } };
     bg.scrollIntoView({ behavior: "smooth", block: "nearest" }); return; }
   if (inline) { const sc = $("sSchool"); if (sc) sc.addEventListener("change", () => { if (q("cdSc") && sc.value) q("cdSc").value = sc.value; }); return { save, check }; }
