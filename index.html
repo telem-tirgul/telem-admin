@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.93">
+<meta name="app-version" content="5.21.94">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9540,6 +9540,11 @@ async function ibLoadDone(reset){
     if (IB.rows) { const ids = new Set(IB.rows.map(x => x.id)); IB.rows = IB.rows.concat(r.filter(x => !ids.has(x.id))); }
   } catch(e) { IB.doneEnd = true; }
 }
+// 5.21.94 (נועה 10.11: "למה כתוב מספר ליד באצלנו?"): "כרטיס 1054" מהשרת = מספר התלמיד/ה – מציגים את הפרטים שבכרטיס הקיים (שם · הורה · טלפון), עם קישור לכרטיס
+function ibOurs(v){ const t = String(v ?? ""), m = t.match(/^כרטיס (\d+)(.*)$/); if (!m) return esc(t);
+  const ld = (L.leads || []).find(x => Number(x.student_id || (x.student && x.student.id)) === Number(m[1])), st = ld && ld.student, fam = st && st.family; if (!st) return esc(t);
+  const nm = ((st.first_name || "") + " " + (st.last_name || "")).trim(), par = fam ? [fam.parent1_first, fam.parent1_last].filter(Boolean).join(" ") : "", ph = (fam && fam.parent1_phone) || "";
+  return `<a href="#" class="name-link" data-ibours="${ld.id}" title="פתיחת הכרטיס הקיים">${esc(nm || "כרטיס קיים")}</a>${par ? " · הורה " + esc(par) : ""}${ph ? ` · <span dir="ltr">${esc(ph)}</span>` : ""}${st.phone ? ` · נייד <span dir="ltr">${esc(st.phone)}</span>` : ""}`; }
 async function renderInbox(reload){
   const box = $("ibList");
   document.querySelectorAll("[data-ibf]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ibf === IB.f)));
@@ -9627,7 +9632,7 @@ async function renderInbox(reload){
         // 5.20.49 (נועה 3.11: "נקרא בהגדרה אומר שזה טופל"): רק "✓ טופל" – עובר ל"טופלו"
         return (act ? (r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : "")
           : r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}" title="ההודעה תעבור ל&quot;טופלו&quot;">✓ טופל</button>` : ""); })()}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
-      ${iss.length ? `<div class="ib-diff" id="ibd${r.id}" hidden><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${esc(x.ours ?? "")}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
+      ${iss.length ? `<div class="ib-diff" id="ibd${r.id}"${(IB.openD || new Set()).has(r.id) ? "" : " hidden"}><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${ibOurs(x.ours)}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>` + more;
   if ($("ibMore")) $("ibMore").onclick = async () => { $("ibMore").disabled = true; await ibLoadDone(false); renderInbox(false); };
   // 5.19.145 (של-87): פתיחת הכרטיס מההתראה = נקראה (יורד מהבולד)
@@ -9686,7 +9691,9 @@ async function renderInbox(reload){
     const d = r.data || {}; uiDialog("כרטיס שנמחק – " + (d.student_name || "") + (d.by ? " (ע\"י " + d.by + ")" : ""), { input: true, multi: true, copy: true, value: d.text || "" }); });
   box.querySelectorAll("[data-ibts]").forEach(b => b.onclick = () => { const r = IB.rows.find(x => x.id === Number(b.dataset.ibts)); if (!r) return;   // 5.19.97: בקשת קוד מתלם שלי
     tsAccount(r.student_id, true, (r.data || {}).phone, ibName(r), async () => { try { await patch("form_inbox", "id=eq." + r.id, { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note: "נשלח קוד חדש" }); } catch(e) {} r.status = "handled"; r.note = "נשלח קוד חדש"; renderInbox(false); }); });
-  box.querySelectorAll("[data-ibx]").forEach(b => b.onclick = () => { const d = $("ibd" + b.dataset.ibx); if (d) d.hidden = !d.hidden; });
+  box.querySelectorAll("[data-ibx]").forEach(b => b.onclick = () => { const d = $("ibd" + b.dataset.ibx); if (!d) return; d.hidden = !d.hidden;   // 5.21.94 (נועה 10.11): נשאר פתוח גם כשהרשימה מתרעננת
+    IB.openD = IB.openD || new Set(); const id = Number(b.dataset.ibx); if (d.hidden) IB.openD.delete(id); else IB.openD.add(id); });
+  box.querySelectorAll("[data-ibours]").forEach(a => a.onclick = (e) => { e.preventDefault(); e.stopPropagation(); openLead(Number(a.dataset.ibours)); });
   box.querySelectorAll("[data-ibm]").forEach(b => b.onclick = async () => {
     // 5.19.117: כפילות מקובץ 101 – ישר להשוואה בין שני הכרטיסים; אחרי איחוד ההתראה מסומנת "טופל"
     const r = IB.rows.find(x => String(x.id) === (b.closest("[data-ib]") || {}).dataset?.ib), d = (r && r.data) || {};
