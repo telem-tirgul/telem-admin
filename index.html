@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.92">
+<meta name="app-version" content="5.21.93">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4514,13 +4514,13 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
   q("cdCa").onchange = paint; q("cdSe").onchange = paint; paint();
   // מנ-381 (נועה 10.11): הפרטים (לא חובה כששולחים טופס – "מצב" ריק = בלי הוספה עכשיו) + מתחת ☐ שליחת טופס הרשמה (☐ חודש ניסיון)
   const howForm = () => { const c = q("cdForm"); return !!c && c.checked && !bg.querySelector(".cd-how").hidden && crsCat(Number(q("cdCa").value)).kind === "regular"; };
-  const manNow = () => !howForm() || !!(q("cdSt") && q("cdSt").value);
+  const manNow = () => !howForm() || !!(q("cdSt") && q("cdSt").value) || !!((q("cdTr") || {}).value && q("cdSc").value);   // 5.21.93: נבחר מסלול – נשמר בקורס (מתעניין)
   { const hw = bg.querySelector(".cd-how"); if (hw) { let stTouched = false; const sto = q("cdSt"); if (sto) { sto.insertAdjacentHTML("afterbegin", `<option value="">— בלי הוספה עכשיו</option>`); sto.querySelector("option").hidden = true; sto.addEventListener("change", () => { stTouched = true; upd(); }); }
       const upd = () => { const f = howForm(); hw.querySelector(".cd-trial").hidden = !f; hw.querySelector(".cd-td").hidden = !f || !q("cdTrial").checked;
         if (sto) sto.querySelector("option").hidden = !f; const ok = bg.querySelector("[data-ok]"); if (ok) ok.textContent = !f ? "שמירה" : manNow() ? "הוספה ושליחת טופס" : "יצירת הקישור"; };
       if (q("cdTrialD")) q("cdTrialD").value = todayIL();
       q("cdForm").addEventListener("change", () => { if (sto && !stTouched) sto.value = q("cdForm").checked ? "" : "רשום"; if (sto && !q("cdForm").checked && !sto.value) sto.value = "רשום"; upd(); });
-      hw.addEventListener("change", upd); q("cdCa").addEventListener("change", () => { hw.hidden = crsCat(Number(q("cdCa").value)).kind !== "regular"; upd(); }); hw.hidden = crsCat(Number(q("cdCa").value)).kind !== "regular"; upd(); } }
+      bg.addEventListener("change", upd); q("cdCa").addEventListener("change", () => { hw.hidden = crsCat(Number(q("cdCa").value)).kind !== "regular"; upd(); }); hw.hidden = crsCat(Number(q("cdCa").value)).kind !== "regular"; upd(); } }
   if (!mem) { bg.querySelectorAll(".cd-st").forEach(x => x.remove()); if (CRS.hasTrk) { const t = q("cdTr"); if (t) t.closest("div").remove(); } [...q("cdCa").options].forEach(o => { if (crsCat(Number(o.value)).kind === "event") o.remove(); }); paint(); }
   const close = () => bg.remove();
   const ex0 = () => { const ca = crsCat(Number(q("cdCa").value)), se = Number(q("cdSe").value), sc = q("cdSc").value ? Number(q("cdSc").value) : null, tr = (q("cdTr") || {}).value || null;
@@ -4557,6 +4557,8 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
     bg.querySelector("[data-no]").onclick = () => bg.remove();
     bg.querySelector("[data-ok]").onclick = async (e) => { const f = howForm(), okb = e.currentTarget;   // מנ-381
       const pre = { track: (q("cdTr") || {}).value || "", subject: (q("cdSu") || {}).value || "" }, trial = f && q("cdTrial").checked, tD = (q("cdTrialD") || {}).value || null;
+      // 5.21.93 (נועה 10.11: "המסלול שבחרתי נעלם"): נבחר מסלול ושולחים רק טופס – נשמר בקורס כ"מתעניין" (המסלול נשאר בכרטיס, ובשליחה חוזרת של הקישור)
+      if (f && !q("cdSt").value && pre.track && q("cdSc").value) q("cdSt").value = [...q("cdSt").options].some(o => o.value === "מתעניין") ? "מתעניין" : "ממתין לתשלום";
       if (f && !manNow()) { okb.disabled = true; if (await regLinkSend(sid, trial, tD, pre)) bg.remove(); else okb.disabled = false; return; }
       const er = f ? (!q("cdSc").value ? "בוחרים בית ספר לקורס (או \"מצב\" ריק – רק טופס)" : "") : check(); if (er) { toast(er); return; } okb.disabled = true;   /* 5.21.14: אחרי await – e.currentTarget כבר null (ההודעה על שגיאה לא הופיעה) */
       try { if (await save(st)) { bg.remove(); toast("נוסף/ה לקורס"); await crsLoad(true, true); CRS.loadedSt.delete(sid); if (editing && editing.student && editing.student.id === sid) await loadLeadGroups(sid); if (currentView === "leads") renderLeads(); if (f) await regLinkSend(sid, trial, tD, pre); } else okb.disabled = false; }
