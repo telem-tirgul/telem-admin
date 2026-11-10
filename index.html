@@ -9343,8 +9343,13 @@ const IB_ISS_NM = { first_name: "שם פרטי", last_name: "שם משפחה", p
 const IB_ISS_SHORT = { phone_fixed: "נייד תלמיד/ה עודכן", phone_parent: "נייד בטופס – של הורה", parent2_added: "נוסף הורה 2", same_name: "אותו שם – כרטיס חדש", same_name_new_phone: "אותו שם, בלי טלפון מוכר – אולי כפול", duplicate: "ייתכן כפילות", grade_hist: "שכבה לפי שנים קודמות" };   // 114
 const ibIssLbl = (x) => IB_ISS_SHORT[x.field] || (String(IB_ISS_NM[x.field] || x.label || x.field || "").replace(/ תלמיד\/ה$/, "") + " לא תואם");
 const ibIssTxt = (iss) => !iss.length ? "לא תואם" : iss.slice(0, 2).map(ibIssLbl).join(" · ") + (iss.length > 2 ? ` ועוד ${iss.length - 2}` : "");
-const ibMerged = (r) => !!((r.data || {}).merged_at);   // 5.20.10: אוחד – בלי "כפילות אפשרית"
-const ibWarn = (r) => (r.issues || []).filter(x => !(ibMerged(r) && x.field === "duplicate")).length > 0 || (r.flags || []).some(f => IB_WARN_F.includes(f) && !(f === "possible_duplicate" && ibMerged(r)));
+const ibMerged = (r) => !!((r.data || {}).merged_at) || ibDupGone(r);
+// 5.21.95 (נועה 10.11: "איחדתי ועדיין מציג כאילו לא אוחד"): גם כשאוחד מחוץ להתראה – הכרטיס הכפול ("כרטיס N" ב"אצלנו") כבר לא קיים, או שהוא הכרטיס של ההתראה עצמה
+const IB_DUPF = ["duplicate", "same_name", "same_name_new_phone"];
+function ibDupGone(r){ const iss = (r.issues || []).filter(x => IB_DUPF.includes(x.field)); if (!iss.length || !(L.leads || []).length) return false;
+  return iss.every(x => { const m = String(x.ours ?? "").match(/^כרטיס (\d+)/); if (!m) return false; const id = Number(m[1]);
+    return id === Number(r.student_id) || !(L.leads || []).some(l => Number(l.student_id || (l.student && l.student.id)) === id); }); }   // 5.20.10: אוחד – בלי "כפילות אפשרית"
+const ibWarn = (r) => (r.issues || []).filter(x => !(ibMerged(r) && IB_DUPF.includes(x.field))).length > 0 || (r.flags || []).some(f => IB_WARN_F.includes(f) && !(f === "possible_duplicate" && ibMerged(r)));
 // 5.19.125 (נועה): ספירה לפי ילדים – כמה התראות "מול הקבוצה הקבועה" של אותו ילד/ה = 1 (כמו הכרטיס במסך)
 const ibCountKids = (rows) => new Set(rows.map(r => r.kind === "group_diff" && r.student_id ? "g" + r.student_id : "r" + r.id)).size;
 function ibPaint(n){ const b = $("inboxN"); if (b) b.innerHTML = n ? `<b>${n > 99 ? "99+" : n}</b>` : ""; }
@@ -9616,7 +9621,7 @@ async function renderInbox(reload){
   const gdSeen = new Set();
   box.innerHTML = `<div class="ib-list">` + rows.map(r => { if (r.kind === "group_diff") { const g = r.student_id ? gdBy[r.student_id] : null;
       if (!g) return ibGdCard(r, when);   // 5.19.122: גם אירוע אחד – אותו כרטיס (שבוע, נוכחות בקבוצה הקבועה, לאן הגיע/ה)
-      if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = ibKindOf(r), w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = (r.issues || []).filter(x => !(ibMerged(r) && x.field === "duplicate"));
+      if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = ibKindOf(r), w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = (r.issues || []).filter(x => !(ibMerged(r) && IB_DUPF.includes(x.field)));
     const pr = IB.pair && IB.pair[r.id], pi = IB.pairInt && IB.pairInt[r.id], dd = (IB.dups && IB.dups[r.id]) || [];
     const ids = [r.id].concat(pr ? [pr.id] : [], pi ? [pi.id] : [], dd.map(x => x.id), dd.map(x => IB.pair[x.id]).filter(Boolean).map(x => x.id)).join(",");
     // 5.19.150 (נועה 28.10): בשורת הרשמה / תשלום – הסטטוס של הכרטיס בצבע שלו (במקום "תשלום טלפוני ממתין")
