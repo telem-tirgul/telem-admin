@@ -2173,6 +2173,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 #view-lead .lead-paywrap .lc-nocrs .nc-h{ border-bottom:0; padding:2px 2px 2px; } #view-lead .lead-paywrap .lc-nocrs .nc-h b{ font-size:13.5px; color:#5E554D; }
 #view-lead .lead-paywrap #leadPayments > .lp-box{ border:0 !important; box-shadow:none !important; margin:6px 0 0 !important; padding:0 2px !important; background:none !important; } #view-lead .lead-paywrap .lp-rest-h{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:6px 2px 4px; } #view-lead .lead-paywrap .lp-rest-h b{ font-size:13.5px; color:#5E554D; } .lc-nocrs .nc-h{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 2px 8px; border-bottom:1px solid var(--border); margin-bottom:2px; } .lc-nocrs .nc-h b{ font-size:15px; }
 .lc-nocrs .nc-row{ display:grid; grid-template-columns:minmax(0,1fr) auto auto auto; align-items:center; gap:6px 12px; padding:8px 2px; border-bottom:1px dashed var(--border); font-size:13.5px; } .lc-nocrs .nc-row:last-child{ border-bottom:0; }
+.lc-nocrs .nc-row.nc-new{ background:#FFF6D9; transition:background .6s; } .lc-nocrs .nc-b .btn{ text-decoration:none; } @media (max-width:760px){ .lc-nocrs .nc-b .bt-l{ display:none; } }
 .lc-nocrs .nc-what{ display:flex; flex-direction:column; gap:1px; min-width:0; } .lc-nocrs .nc-what .muted{ font-size:12px; } .lc-nocrs .nc-amt{ font-weight:700; white-space:nowrap; } .lc-nocrs .nc-b{ display:flex; gap:6px; }
 .lc-nocrs .nc-st{ font-size:12px; font-weight:600; padding:2px 9px; border-radius:999px; white-space:nowrap; } .nc-st.st-ok{ background:#E7F2E9; color:#2F6B3E; } .nc-st.st-wait{ background:#FBF0DC; color:#8A5A12; } .nc-st.st-off{ background:#EFEAE4; color:#6B625A; }
 @media (max-width:760px){ .lc-nocrs .nc-row{ grid-template-columns:minmax(0,1fr) auto; } .lc-nocrs .nc-st{ justify-self:start; } .lc-nocrs .nc-h .nc-all{ display:none; } .lc-nocrs .nc-h .nc-all-m{ display:inline !important; } } .lc-nocrs .nc-h .nc-all-m{ display:none; }
@@ -4316,16 +4317,22 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
   const PL_ST = { sent: "נשלח", opened: "נפתח", submitted: "מולא – ממתין לתשלום", paid: "✓ שולם", cancelled: "בוטל" }, nm = ((editing.student.first_name || "") + " " + (editing.student.last_name || "")).trim();
   const dm = (d) => d ? esc(fmtDM(String(d).slice(0, 10))) : "", NC_ST = { sent: ["נשלח", "st-wait"], opened: ["נפתח", "st-wait"], submitted: ["ממתין לתשלום", "st-wait"], paid: ["✓ שולם", "st-ok"], registered: ["✓ נרשם/ה", "st-ok"], expired: ["פג תוקף", "st-off"] };
   const ncStp = (ST, st) => { const cur = Math.max(0, ST.findIndex(y => y[0] === st)); return `<div class="pl-stp" title="${esc((ST[cur] || [])[1] || st)}">${ST.map(([k, t], i) => `<span class="pl-s ${i <= cur ? "ok" : ""}"><i></i><b>${t}</b></span>`).join("")}</div>`; };   // 5.21.84: פס ההתקדמות
+  // 5.21.88 (נועה 10.11: "רוצה שיהיה לי את הקישור כדי שאוכל לשלוח אותו שוב"): לכל קישור פתוח – 💬 וואטסאפ להורה, 👁 פתיחה, 🔗 העתקה
+  const fam = editing.student.family || {}, pd = String(fam.parent1_phone || "").replace(/\D/g, "");
+  const share = (url, what) => { if (!url) return ""; const msg = `שלום${fam.parent1_first ? " " + fam.parent1_first : ""}, ${what} של ${editing.student.first_name || ""}: ${url} – תלם`;
+    return (/^0\d{8,9}$/.test(pd) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}" title="שליחה להורה בוואטסאפ">💬<span class="bt-l"> וואטסאפ</span></a>` : "")
+      + `<a class="btn small" target="_blank" rel="noopener" href="${esc(url)}" title="פתיחת הטופס – כמו שההורה רואה">👁<span class="bt-l"> פתיחה</span></a><button type="button" class="btn small" data-copy="${esc(url)}" title="העתקת הקישור">🔗<span class="bt-l"> העתקה</span></button>`; };
   const chip = (st) => { const c = NC_ST[st] || [st, "st-off"]; return `<span class="nc-st ${c[1]}">${esc(c[0])}</span>`; };
   const rows = pl.filter(x => x.status !== "cancelled").slice(0, 8).map(x => `<div class="nc-row">
       <div class="nc-what"><b>${esc(x.description || "קישור אישי")}</b><span class="muted">קישור תשלום · נוצר ${dm(x.created_at)}${x.status === "paid" && x.paid_at ? ` · שולם ${dm(x.paid_at)}` : ""}</span></div>
       <div class="nc-amt">${money0(x.one_time_amount)}${x.monthly_amount ? `<span class="muted"> + ${money0(x.monthly_amount)} × ${x.monthly_count}</span>` : ""}</div>
       ${x.status === "cancelled" ? chip(x.status) : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["submitted", "מולא"], ["paid", "שולם"]], x.status)}
-      <div class="nc-b"><button type="button" class="btn small" data-pldet="${esc(x.code)}">פרטים</button>${["sent", "opened"].includes(x.status) && x.url ? `<button type="button" class="btn small" data-copy="${esc(x.url)}">🔗 העתקה</button>` : ""}</div></div>`)
+      <div class="nc-b">${["sent", "opened", "submitted"].includes(x.status) ? share(x.url, "קישור התשלום") : ""}<button type="button" class="btn small" data-pldet="${esc(x.code)}">פרטים</button></div></div>`)
     .concat(ls.slice(0, 3).map(x => `<div class="nc-row">
       <div class="nc-what"><b>${x.trial ? "🎁 חודש ניסיון – טופס הרשמה אישי" : "טופס הרשמה אישי"}</b><span class="muted">${esc(x.city || "")}${x.city ? " · " : ""}${x.trial && x.trial_start ? "מתחיל " + dm(x.trial_start) + " · " : ""}נשלח ${dm(x.created_at)} – כשההורה ממלא/ה, נכנס/ת לקורס</span></div>
       <div class="nc-amt"></div>${x.status === "expired" ? chip(x.status) : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}
-      <div class="nc-b">${x.status !== "registered" && x.status !== "expired" ? `<button type="button" class="btn small" data-copy="${esc(x.url)}">🔗 העתקה</button>` : ""}</div></div>`)).join("");
+      <div class="nc-b">${x.status !== "registered" && x.status !== "expired" ? share(x.url, x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה") : ""}</div></div>`)).join("");
+  { const pw = document.querySelector("#view-lead .lead-paywrap"), wait = pl.some(x => ["sent", "opened", "submitted"].includes(x.status)) || ls.some(x => !["registered", "expired"].includes(x.status)); if (pw && wait) pw.open = true; }   // 5.21.88: מחכה למשהו – פתוח
   box.hidden = !rows; { const ps = $("pwSum"); if (ps) { ps.dataset.l = (pl.filter(x => x.status !== "cancelled").length + ls.length) || 0; pwSumPaint(); } }
   box.innerHTML = rows ? `<div class="nc-h"><b>קישורים וטפסים שנשלחו</b><button type="button" class="btn small" data-plall><span class="nc-all">כל התשלומים של ${esc(nm)}</span><span class="nc-all-m">כל התשלומים</span> ←</button></div>${rows}` : "";
   box.querySelectorAll("[data-copy]").forEach(c => c.onclick = () => copyText(c.dataset.copy));
@@ -6692,7 +6699,8 @@ async function loadLeadGroups(studentId){
       const prm = Object.assign({ p_student: sid, p_city: city }, kind !== "reg" ? { p_trial: true } : {}, tStart ? { p_trial_start: tStart } : {});
       b.disabled = true; let r; try { r = await rpc("reg_link_create", prm); } catch(e) { b.disabled = false; toast("לא נוצר: " + (e.message || "")); return; }
       b.disabled = false; let u = r.url; try { u = await makeShort(r.url); } catch(e) {}
-      copyText(u, (kind === "reg" ? "טופס ההרשמה האישי" : "טופס חודש הניסיון") + " (" + city + ") הועתק – בתוקף 7 ימים"); regLinksPaint(sid); });
+      copyText(u, (kind === "reg" ? "טופס ההרשמה האישי" : "טופס חודש הניסיון") + " (" + city + ") נוצר והועתק – למטה ב\"תשלומים ללא קורס\": 💬 שליחה, 👁 פתיחה"); await regLinksPaint(sid);
+      { const r0 = document.querySelector("#lcRegLinks .nc-row:last-of-type"); const rr = [...document.querySelectorAll("#lcRegLinks .nc-row")].find(x => /טופס הרשמה/.test(x.textContent)) || r0; if (rr) { rr.scrollIntoView({ block: "center", behavior: "smooth" }); rr.classList.add("nc-new"); setTimeout(() => rr.classList.remove("nc-new"), 2500); } } });
     regLinksPaint(editing && editing.student && editing.student.id);
     { const gb = $("leadGroups").querySelector(".lg-crs-box.lg-reg"), html = `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></div><div class="lg-edit lg-card" data-ed="new" hidden></div>`;
       const gs = gb && gb.querySelector(".lg-add-slot"); if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
