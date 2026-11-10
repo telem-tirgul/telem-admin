@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.96">
+<meta name="app-version" content="5.21.97">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9532,7 +9532,12 @@ function ibGdGroup(g, when){
   // 5.20.46 (נועה 3.11: "תופס המון מקום"): שורת סיכום אחת; הפרטים (הטבלה) – בלחיצה על ▸ פרטים
   IB.gdOpen = IB.gdOpen || new Set(); const gOpen = IB.gdOpen.has(r0.student_id);
   // 5.20.48 (נועה 3.11): החסיר/ה יותר מפעמיים ברצף בקבוצה הקבועה – "החסיר/ה X פעמים ברצף – לבדיקה"
-  const tl = []; att.forEach(x => tl.push([x.lesson_date, x.present ? 1 : 0])); ms.forEach(r => { if (!att.some(x => x.lesson_date === dd(r) && Number(x.session_id) === Number((r.data || {}).session_id))) tl.push([dd(r), 0]); });
+  // 5.21.97 (נועה 10.11: "החסירה רק 3 פעמים ברצף, כתוב 6"): כל שיעור פעם אחת (תאריך + קבוצה) – הנוכחות קובעת; התראה על אותו שיעור לא נספרת שוב. רצף = רצף, בכל הקבוצות
+  const TL = new Map(), tk = (d, sid) => String(d).slice(0, 10) + "|" + (sid ? Number(sid) : "");
+  att.forEach(x => { const k = tk(x.lesson_date, x.session_id); TL.set(k, Math.max(TL.get(k) || 0, x.present ? 1 : 0)); });
+  ms.forEach(r => { const d = String(dd(r)).slice(0, 10), sid = (r.data || {}).session_id, k = tk(d, sid);
+    if (TL.has(k) || [...TL.keys()].some(x => x.startsWith(d + "|"))) return; TL.set(k, 0); });   // אותו יום כבר נספר (נוכחות או התראה אחרת)
+  const tl = [...TL.entries()].map(([k, v]) => [k, v]);
   let run = 0, maxRun = 0; tl.sort((a, b) => a[0].localeCompare(b[0])).forEach(([, v]) => { run = v ? 0 : run + 1; if (run > maxRun) maxRun = run; });
   const streak = maxRun > 2 ? `<span class="gdg-streak">⚠ החסיר/ה ${maxRun} פעמים ברצף – לבדיקה</span>` : "";
   const sum2 = [streak, ms.length ? `<span class="gdg-no">✗ ${ms.length === 1 ? "פעם אחת" : ms.length + " פעמים"} לא בקבוצה הקבועה</span>` : "", ad.length ? `<span class="gdg-ok">✓ ${ad.length === 1 ? "פעם אחת" : ad.length + " פעמים"} בקבוצה אחרת</span>` : "", pat.length ? `<span>⟳ אולי שיבוץ קבוע אחר</span>` : ""].filter(Boolean).join(" · ");
