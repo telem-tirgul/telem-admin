@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.85">
+<meta name="app-version" content="5.21.86">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -327,6 +327,21 @@
     #view-lead .lead-top{ order:1; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:12px; }
     #view-lead .lead-cols > .lead-crs{ order:2; } #view-lead .lead-cols > .lead-main > #leadErr{ order:4; } #view-lead .lead-cols > .lead-main > .lead-foot{ order:5; } #view-lead .lead-side{ order:3; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:4px 12px 12px; }
     #view-lead.lc-view .lead-top:not(:has(.toggles .tg-mng input:not([type=hidden]))){ }
+  }
+  /* 5.21.86 (נועה 10.11): נייד – פחות מקום ריק: תזכורת ו"פרטים נוספים" בשורה אחת, ריווחים קטנים, כותרת הקורסים והכפתורים בשורה אחת */
+  @media (max-width:760px){
+    #view-lead.lc-view .lead-quick{ padding:8px 12px !important; gap:4px !important; margin-top:6px !important; } .lead-quick .lq-r1{ gap:4px 10px !important; } .lead-quick .lq-row{ gap:4px 6px !important; }
+    #view-lead.lc-view .lead-cols{ gap:8px !important; }
+    #view-lead.lc-view .lead-cols > .lead-main > .lead-top{ display:flex !important; flex-direction:row; align-items:center; gap:8px; flex-wrap:nowrap; }
+    #view-lead.lc-view .lead-top > #studentBox{ flex:1 1 auto; min-width:0; order:1; } #view-lead.lc-view .lead-top > .toggles{ order:2; flex:0 0 auto; width:auto !important; margin:0 !important; }
+    #view-lead.lc-view .lead-top .toggles .tg-mng{ width:auto !important; } #view-lead.lc-view .lead-top .tg-mng .tg-f label{ font-size:12px; }
+    #view-lead.lc-view .lead-top > #studentBox > summary{ padding:6px 10px !important; min-height:0 !important; } #view-lead.lc-view .lead-top > #studentBox:not([open]) > summary .sd-sum{ display:none !important; }
+    #view-lead .lead-crs{ padding:10px 10px !important; } #view-lead .lead-crs > .side-hr{ flex-wrap:nowrap !important; align-items:center; margin-bottom:6px !important; } #view-lead .lead-crs > .side-hr .side-h{ font-size:16px !important; }
+    #lcAddSlot{ gap:4px !important; flex-wrap:nowrap !important; } #lcAddSlot .btn{ padding:4px 7px !important; font-size:12.5px !important; min-height:0 !important; white-space:nowrap; }
+    #view-lead .lead-crs > .side-hr .side-h{ white-space:nowrap; flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+    #view-lead.lc-view .lead-top .tg-mng input{ width:132px !important; max-width:132px; } #view-lead.lc-view .lead-top > #studentBox > summary{ white-space:nowrap; display:flex !important; flex-direction:row !important; align-items:center; gap:8px; font-size:15px; } #view-lead.lc-view .lead-top > #studentBox{ padding:0 !important; }
+    #leadGroups .lg-crs-box{ padding:8px 10px !important; margin-top:8px !important; }
+    #view-lead .lead-side{ padding:0 10px 4px !important; } #view-lead .lead-side .la-row > summary{ padding:8px 0 !important; }
   }
   .ls-notes{ border:0 !important; border-bottom:1px solid var(--border) !important; border-radius:0; background:none; padding:2px 2px; margin:4px 0 0; }   /* 5.21.85 (נועה 10.11): ההערות – שורה כמו שאר השורות בעמודה */
   /* 5.21.85 (נועה 10.11: "לא נראה טוב בנייד"): בצפייה בנייד – תזכורת + פרטים נוספים מיד מתחת לפרטים העיקריים, לכל הרוחב, בלי מסגרת נפרדת */
@@ -6419,8 +6434,8 @@ function leadQuick(st, cur){
   // 5.19.23: בנייד במצב צפייה - הפרטים העיקריים בקצרה (סטטוס, כיתה, בית ספר, הורה וטלפון)
   const l = (L.leads || []).find(x => x.student && x.student.id === st.id), f = st.family || {}, ph = (v) => v ? `<button type="button" class="lq-ph ph-m" dir="ltr" data-phm="${esc(digits(v))}">${esc(String(v).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</button>` : "";
   const city = l ? leadCity(l) : (f.city || "");
-  const sum = `<div class="lq-sum"><div class="lq-top">${(() => { const t = stuSt(l); return t.label ? `<span class="lq-st"${t.color ? ` style="background:${t.color}; color:${txtOn(t.color)};"` : ""}>${esc(t.label)}</span>` : ""; })()}${city ? `<span class="muted">${esc(city)}</span>` : ""}</div>
-    <div class="lq-row"><span class="lq-k">בית ספר</span>${sch ? `<span class="school-chip ${scCls(sch)}">${esc(sch)}</span>` : "<span class='muted'>לא ידוע</span>"}<span class="lq-k" style="min-width:0; margin-inline-start:8px;">כיתה</span>${st.grade ? `<b>${esc(classLabel(st.grade, st.class_num))}</b>` : "<span class='muted'>לא ידוע</span>"}</div>
+  // 5.21.86 (נועה 10.11: "המון מקום הולך על כלום"): שורה אחת – בית ספר · כיתה · עיר (והסטטוס, אם יש)
+  const sum = `<div class="lq-sum"><div class="lq-row lq-r1">${sch ? `<span class="school-chip ${scCls(sch)}">${esc(sch)}</span>` : "<span class='muted'>בית ספר לא ידוע</span>"}${st.grade ? `<b>${esc(classLabel(st.grade, st.class_num))}</b>` : ""}${city ? `<span class="muted">${esc(city)}</span>` : ""}${(() => { const t = stuSt(l); return t.label ? `<span class="lq-st"${t.color ? ` style="background:${t.color}; color:${txtOn(t.color)};"` : ""}>${esc(t.label)}</span>` : ""; })()}</div>
     ${f.parent1_phone || f.parent1_first ? `<div class="lq-row"><span class="lq-k">הורה</span>${esc(fullName(f.parent1_first, f.parent1_last))} ${ph(f.parent1_phone)}${/^0\d{8,9}$/.test(f.parent1_phone || "") ? ` <a class="lq-wa" target="_blank" rel="noopener" href="https://wa.me/972${esc(String(f.parent1_phone).slice(1))}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a>` : ""}</div>` : ""}
     ${f.parent2_phone ? `<div class="lq-row"><span class="lq-k">הורה 2</span>${esc(fullName(f.parent2_first, f.parent2_last))} ${ph(f.parent2_phone)}</div>` : ""}
     ${st.phone ? `<div class="lq-row"><span class="lq-k">תלמיד/ה</span>${ph(st.phone)}</div>` : ""}</div>`;
