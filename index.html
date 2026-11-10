@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.89">
+<meta name="app-version" content="5.21.90">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9549,11 +9549,12 @@ async function renderInbox(reload){
       patch("form_inbox", "id=in.(" + fixed.map(r => r.id).join(",") + ")", { status: "handled", handled_at: now, handled_by: ME.full_name || "", note: "טופל – שובץ/ה" }).catch(() => {}); } }
   // 5.19.143 (נועה 26.10): שורה אחת לכל אירוע – "תשלום טלפוני ממתין" מצטרף לשורת ההרשמה שלו (מרתון / תרגולים), עם "✔ שולם" שם
   // 5.19.150 (נועה 28.10): הרשמה שכבר שולמה (סומן "✔ שולם" במקום אחר) – השורה שלה נסגרת לבד: "טופל – שולם"
-  { const mr = IB.rows.filter(r => r.status !== "handled" && !(r.flags || []).includes("status_mismatch") && ((r.kind === "marathon" && r.ref_table === "marathon_registrations") || (r.kind === "registration" && r.ref_table === "enrollments")) && /^\d+$/.test(String(r.ref_id || "")));
+  // 5.21.90 (נועה 10.11: "ההרשמה לא הגיעה להתראות"): רק הרשמה בתשלום טלפוני שסומנה "שולם" במקום אחר – לא הרשמה ששולמה באשראי בטופס, ולא כשיש אי-התאמה
+  { const mr = IB.rows.filter(r => r.status !== "handled" && !(r.flags || []).some(f => ["status_mismatch", "mismatch"].includes(f)) && !(r.issues || []).length && ((r.kind === "marathon" && r.ref_table === "marathon_registrations") || (r.kind === "registration" && r.ref_table === "enrollments")) && /^\d+$/.test(String(r.ref_id || "")));
     if (mr.length && !IB.paidChk) { IB.paidChk = true;
-      const q = (t, ids) => ids.length ? get(t, "select=id,paid_at,cancelled_at&id=in.(" + ids.join(",") + ")").catch(() => []) : Promise.resolve([]);
+      const q = (t, ids) => ids.length ? get(t, "select=id,paid_at,cancelled_at,payment_method&id=in.(" + ids.join(",") + ")").catch(() => []) : Promise.resolve([]);
       Promise.all([q("marathon_registrations", mr.filter(r => r.kind === "marathon").map(r => r.ref_id)), q("enrollments", mr.filter(r => r.kind === "registration").map(r => r.ref_id))]).then(([a, b]) => {
-        const pd = (x) => x.paid_at && !x.cancelled_at, paid = new Set(a.filter(pd).map(x => "marathon:" + x.id).concat(b.filter(pd).map(x => "registration:" + x.id)));
+        const pd = (x) => x.paid_at && !x.cancelled_at && x.payment_method !== "אשראי באתר", paid = new Set(a.filter(pd).map(x => "marathon:" + x.id).concat(b.filter(pd).map(x => "registration:" + x.id)));
         const fix = mr.filter(r => paid.has(r.kind + ":" + r.ref_id)); if (!fix.length) return;
         fix.forEach(r => { r.status = "handled"; r.note = "טופל – שולם"; r.handled_by = r.handled_by || "אוטומטי"; });
         patch("form_inbox", "id=in.(" + fix.map(r => r.id).join(",") + ")", { status: "handled", handled_at: new Date().toISOString(), handled_by: "אוטומטי", note: "טופל – שולם" }).catch(() => {});
@@ -13150,7 +13151,10 @@ async function renderAll(b){
   const kids = [], byK = {};
   list.forEach(d => { const k = d.student_id ? "s" + d.student_id : "n" + d.name + "|" + d.phone; let g = byK[k];
     if (!g) { g = byK[k] = { deals: [], student_id: d.student_id, name: d.name, leadId: d.leadId, parent: d.parent, phone: d.phone, date: d.date, todo: "" }; kids.push(g); }
+    const du = [d.date, d.plan && d.plan.created_at].concat(d.pays.map(r => r.date)).filter(Boolean).map(String).sort().pop() || "";   // 5.21.90 (נועה 10.11): הוראת קבע / תשלום חדשים – הילד/ה עולה למעלה
+    if (du > String(g.upd || "")) g.upd = du;
     g.deals.push(d); if (String(d.date) > String(g.date)) g.date = d.date; if (!g.todo && d.todo) g.todo = d.todo; if (!g.parent && d.parent) g.parent = d.parent; if (!g.phone && d.phone) g.phone = d.phone; });
+  kids.sort((a, c) => String(c.upd || c.date || "").localeCompare(String(a.upd || a.date || "")));
   const inRng = (r) => { const x = String(r.date || "").slice(0, 10); return x >= qf && x <= qt; };
   const okP = list.flatMap(d => d.pays).filter(r => r.status === "אושר" && inRng(r)), sum = okP.reduce((a, r) => a + Number(r.amount || 0), 0);
   const nTodo = deals.filter(d => (S.pk === "all" || (S.pk === "plan" ? !!d.plan || d.group === "plan" : d.group === S.pk)) && d.todo).length;
@@ -13205,6 +13209,9 @@ async function renderAll(b){
   // נועה 6.11: הטופס החתום – בשורה של הילד/ה (שורה לכל קורס), לא בתשלום
   b.querySelectorAll("[data-dfrm]").forEach(x => x.onclick = async (e) => { e.stopPropagation(); x.disabled = true; try { await txPdf(dealForm(list[Number(x.dataset.dfrm)])); } catch(er) { toast("לא ניתן להוריד: " + er.message); } x.disabled = false; });
   if (S.kid) b.querySelectorAll("tr.deal-r").forEach(tgl);
+  // 5.21.90 (נועה 10.11): אחרי רענון / שינוי בהוראת קבע – נשארים באותה שורה (פתוחה), לא חוזרים לראש המסך
+  if (S.reopen != null && !S.kid) { const rk = S.reopen; S.reopen = null; const i = kids.findIndex(g => String(g.student_id || "n" + g.name) === String(rk)), tr = i >= 0 && b.querySelector(`tr.deal-r[data-dr="${i}"]`);
+    if (tr) { tgl(tr); setTimeout(() => tr.scrollIntoView({ block: "center" }), 60); } }
   if (S.focus === "plan") { setTimeout(() => { S.focus = ""; }, 5000); const i = kids.findIndex(g => g.deals.some(d => !!d.plan)), tr = i >= 0 && b.querySelector(`tr.deal-r[data-dr="${i}"]`);
     if (tr) { tr.classList.add("dr-focus"); if (tr.nextElementSibling) tr.nextElementSibling.classList.add("dr-focus"); setTimeout(() => tr.scrollIntoView({ block: "center", behavior: "smooth" }), 60); } }
   // 5.19.154 (נועה): כפתור אחד – פתיחת / סגירת כל השורות (לפי המצב)
@@ -13322,12 +13329,12 @@ function wireExpand(box, d, reload){
     box.querySelector("[data-dxpaid]").onclick = async () => { if (await markPaid(x)) reload(); }; }
   box.querySelectorAll("[data-dxcx]").forEach(b => b.onclick = async () => { b.disabled = true;   // 5.19.68: סימון "בוטלה"
     const ok = b.dataset.dxcx === "sync" ? (b.textContent = "מרענן…", await planSyncNow(p)) : b.dataset.dxcx === "mark" ? await planMarkCancel(p, p.student_name || d.name) : await planUnmarkCancel(p);
-    if (ok) { PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e) {} reload(); } else b.disabled = false; });   // 5.21.84 (נועה 9.11): אחרי רענון – הסטטוס החדש (מושהית) גם במסך התשלומים
+    if (ok) { PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e) {} S.reopen = d.student_id || "n" + d.name; reload(); } else b.disabled = false; });   // 5.21.84 (נועה 9.11): אחרי רענון – הסטטוס החדש (מושהית) גם במסך התשלומים
   box.querySelectorAll("[data-dxst]").forEach(btn => btn.onclick = async () => { const st = btn.dataset.dxst;
     if (st === "cancelled" && !await uiConfirm(`לבטל את הוראת הקבע של ${p.student_name || d.name}? החיובים הבאים לא יתבצעו. (אי אפשר לבטל את הביטול - צריך הוראה חדשה)`)) return;
     if (st === "paused" && !await uiConfirm("להשהות? לא יהיו חיובים עד שמחדשים.")) return;
     btn.disabled = true;
-    try { await call("recurring_plan_set_status", { p_id: p.id, p_status: st }); toast(st === "cancelled" ? "ההוראה בוטלה" : st === "paused" ? "ההוראה הושהתה" : "ההוראה חודשה"); reload(); }
+    try { await call("recurring_plan_set_status", { p_id: p.id, p_status: st }); toast(st === "cancelled" ? "ההוראה בוטלה" : st === "paused" ? "ההוראה הושהתה" : "ההוראה חודשה"); S.reopen = d.student_id || "n" + d.name; reload(); }
     catch(e) { toast("לא נשמר: " + e.message); btn.disabled = false; } });
 }
 async function dealDetails(d){
