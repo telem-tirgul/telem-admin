@@ -9362,11 +9362,13 @@ function ibIssDedup(list, r){ const out = [], byC = {};
   const lf = (sid) => (L.leads || []).find(l => Number(l.student_id || (l.student && l.student.id)) === Number(sid));
   const neu = r && lf(r.student_id), dig = (v) => String(v || "").replace(/\D/g, "");
   Object.keys(byC).forEach(k => { const old = lf(k); if (!old || !neu || !old.student || !neu.student) return; const a = old.student, b = neu.student, fa = a.family || {}, fb = b.family || {};
-    const F = [["שם הורה", [fa.parent1_first, fa.parent1_last].filter(Boolean).join(" "), [fb.parent1_first, fb.parent1_last].filter(Boolean).join(" ")],
-      ["טלפון הורה", fa.parent1_phone, fb.parent1_phone, 1], ["טלפון הורה 2", fa.parent2_phone, fb.parent2_phone, 1], ["נייד תלמיד/ה", a.phone, b.phone, 1],
-      ["בית ספר", a.school, b.school], ["כיתה", [a.grade, a.class_num].filter(Boolean).join(" "), [b.grade, b.class_num].filter(Boolean).join(" ")], ["עיר", fa.city, fb.city]];
-    const rows = F.filter(z => z[1] || z[2]).map(z => { const same = z[3] ? dig(z[1]) === dig(z[2]) : String(z[1] || "").trim() === String(z[2] || "").trim();
-      return { field: "dup_cmp", label: z[0], ours: z[1] || "—", form: z[2] || "—", note: same ? "זהה" : "שונה" }; });
+    // [שם, אצלנו, בטופס, טלפון?, מה לעדכן בכרטיס הקיים: [טבלה, id, {עמודה: ערך}]]   – נועה 10.11: רק מה ששונה, וכפתור "עדכון לפי הטופס"
+    const F = [["שם הורה", [fa.parent1_first, fa.parent1_last].filter(Boolean).join(" "), [fb.parent1_first, fb.parent1_last].filter(Boolean).join(" "), 0, ["families", fa.id, { parent1_first: fb.parent1_first || null, parent1_last: fb.parent1_last || null }]],
+      ["טלפון הורה", fa.parent1_phone, fb.parent1_phone, 1, ["families", fa.id, { parent1_phone: fb.parent1_phone || null }]], ["טלפון הורה 2", fa.parent2_phone, fb.parent2_phone, 1, ["families", fa.id, { parent2_phone: fb.parent2_phone || null }]],
+      ["נייד תלמיד/ה", a.phone, b.phone, 1, ["students", a.id, { phone: b.phone || null }]], ["בית ספר", a.school, b.school, 0, ["students", a.id, { school: b.school || null, school_id: b.school_id || null }]],
+      ["כיתה", [a.grade, a.class_num].filter(Boolean).join(" "), [b.grade, b.class_num].filter(Boolean).join(" "), 0, ["students", a.id, { grade: b.grade || null, class_num: b.class_num || null }]], ["עיר", fa.city, fb.city, 0, ["families", fa.id, { city: fb.city || null }]]];
+    const rows = F.filter(z => z[2] && (z[3] ? dig(z[1]) !== dig(z[2]) : String(z[1] || "").trim() !== String(z[2] || "").trim()))
+      .map(z => ({ field: "dup_cmp", label: z[0], ours: z[1] || "—", form: z[2], dupUpd: z[4][1] ? z[4] : null }));
     const i = out.indexOf(byC[k]); byC[k].form = ""; byC[k].note = "אולי כפול – לבדוק אם לאחד"; out.splice(i + 1, 0, ...rows); });
   return out; }
 function ibDupGone(r){ const iss = (r.issues || []).filter(x => IB_DUPF.includes(x.field)); if (!iss.length || !(L.leads || []).length) return false;
@@ -9668,7 +9670,7 @@ async function renderInbox(reload){
         // 5.20.49 (נועה 3.11: "נקרא בהגדרה אומר שזה טופל"): רק "✓ טופל" – עובר ל"טופלו"
         return (act ? (r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל</button>` : "")
           : r.status !== "handled" ? `<button type="button" class="btn small" data-ibs="handled:${ids}" title="ההודעה תעבור ל&quot;טופלו&quot;">✓ טופל</button>` : ""); })()}${r.status === "handled" ? `<span class="muted">טופל${r.handled_by ? " · " + esc(r.handled_by) : ""}</span>` : r.status === "seen" && !w ? `<span class="muted">נקרא</span>` : ""}</span>
-      ${iss.length ? `<div class="ib-diff" id="ibd${r.id}"${(IB.openD || new Set()).has(r.id) ? "" : " hidden"}><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${ibOurs(x.ours)}</td><td class="nw">${esc(x.form ?? "")}${x.note ? (x.field === "dup_cmp" ? ` <span class="${x.note === "שונה" ? "ib-diffw" : "muted"}">(${esc(x.note)})</span>` : ` <span class="muted">(${esc(x.note)})</span>`) : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : ""}</td></tr>`).join("")}</table></div>` : ""}
+      ${iss.length ? `<div class="ib-diff" id="ibd${r.id}"${(IB.openD || new Set()).has(r.id) ? "" : " hidden"}><table><tr><th>שדה</th><th>אצלנו</th><th>בטופס</th><th></th></tr>${iss.map((x, i) => `<tr><td class="f">${esc(x.label || x.field || "")}</td><td>${ibOurs(x.ours)}</td><td class="nw">${esc(x.form ?? "")}${x.note ? ` <span class="muted">(${esc(x.note)})</span>` : ""}</td><td>${x.table && x.column && x.row_id && x.form != null && !x.applied ? `<button type="button" class="btn small" data-ibu="${r.id}:${i}">עדכון לפי הטופס</button>` : x.dupUpd && !x.applied ? `<button type="button" class="btn small" data-ibdu="${r.id}:${i}" title="מעדכן את הכרטיס הקיים לפי הטופס (אחר כך – השוואה ואיחוד)">עדכון לפי הטופס</button>` : x.applied ? `<span class="muted">✓ עודכן</span>` : ""}</td></tr>`).join("")}</table></div>` : ""}
     </div>`; }).join("") + `</div>` + more;
   if (ibY && Math.abs(window.scrollY - ibY) > 2) window.scrollTo(0, ibY);   // 5.21.95: נשארים באותו מקום
   if ($("ibMore")) $("ibMore").onclick = async () => { $("ibMore").disabled = true; await ibLoadDone(false); renderInbox(false); };
@@ -9730,6 +9732,10 @@ async function renderInbox(reload){
     tsAccount(r.student_id, true, (r.data || {}).phone, ibName(r), async () => { try { await patch("form_inbox", "id=eq." + r.id, { status: "handled", handled_at: new Date().toISOString(), handled_by: ME.full_name || "", note: "נשלח קוד חדש" }); } catch(e) {} r.status = "handled"; r.note = "נשלח קוד חדש"; renderInbox(false); }); });
   box.querySelectorAll("[data-ibx]").forEach(b => b.onclick = () => { const d = $("ibd" + b.dataset.ibx); if (!d) return; d.hidden = !d.hidden;   // 5.21.94 (נועה 10.11): נשאר פתוח גם כשהרשימה מתרעננת
     IB.openD = IB.openD || new Set(); const id = Number(b.dataset.ibx); if (d.hidden) IB.openD.delete(id); else IB.openD.add(id); });
+  box.querySelectorAll("[data-ibdu]").forEach(b => b.onclick = async () => { const [id, i] = b.dataset.ibdu.split(":").map(Number), r = IB.rows.find(x => x.id === id); if (!r) return;
+    const x = ibIssDedup((r.issues || []).filter(z => !(ibMerged(r) && IB_DUPF.includes(z.field))), r)[i]; if (!x || !x.dupUpd) return;
+    if (!await uiConfirm(`לעדכן בכרטיס הקיים: ${x.label} – "${x.form}" (במקום "${x.ours}")?`)) return; b.disabled = true;
+    try { await patch(x.dupUpd[0], "id=eq." + x.dupUpd[1], x.dupUpd[2]); toast("עודכן בכרטיס הקיים"); await loadLeadsDelta().catch(() => {}); renderInbox(false); } catch(e) { b.disabled = false; toast("לא נשמר: " + e.message); } });
   box.querySelectorAll("[data-ibours]").forEach(a => a.onclick = (e) => { e.preventDefault(); e.stopPropagation(); openLead(Number(a.dataset.ibours)); });
   box.querySelectorAll("[data-ibm]").forEach(b => b.onclick = async () => {
     // 5.19.117: כפילות מקובץ 101 – ישר להשוואה בין שני הכרטיסים; אחרי איחוד ההתראה מסומנת "טופל"
