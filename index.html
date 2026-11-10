@@ -331,7 +331,7 @@
   /* 5.21.86 (נועה 10.11): נייד – פחות מקום ריק: תזכורת ו"פרטים נוספים" בשורה אחת, ריווחים קטנים, כותרת הקורסים והכפתורים בשורה אחת */
   @media (max-width:760px){
     #view-lead.lc-view .lead-quick{ padding:8px 12px !important; gap:4px !important; margin-top:6px !important; } .lead-quick .lq-r1{ gap:4px 10px !important; } .lead-quick .lq-row{ gap:4px 6px !important; }
-    #view-lead.lc-view .lead-cols{ gap:8px !important; }
+    #view-lead.lc-view .lead-cols{ gap:8px !important; } .lead-quick .lq-id{ margin-inline-start:auto; font-size:12.5px; }   /* 5.21.86 (נועה 10.11): מספר הליד גם בנייד */
     #view-lead.lc-view .lead-cols > .lead-main > .lead-top{ display:flex !important; flex-direction:row; align-items:center; gap:8px; flex-wrap:nowrap; }
     #view-lead.lc-view .lead-top > #studentBox{ flex:1 1 auto; min-width:0; order:1; } #view-lead.lc-view .lead-top > .toggles{ order:2; flex:0 0 auto; width:auto !important; margin:0 !important; }
     #view-lead.lc-view .lead-top .toggles .tg-mng{ width:auto !important; } #view-lead.lc-view .lead-top .tg-mng .tg-f label{ font-size:12px; }
@@ -6442,7 +6442,7 @@ function leadQuick(st, cur){
   const l = (L.leads || []).find(x => x.student && x.student.id === st.id), f = st.family || {}, ph = (v) => v ? `<button type="button" class="lq-ph ph-m" dir="ltr" data-phm="${esc(digits(v))}">${esc(String(v).replace(/^(05\d|0[2-9])(\d{7})$/, "$1-$2"))}</button>` : "";
   const city = l ? leadCity(l) : (f.city || "");
   // 5.21.86 (נועה 10.11: "המון מקום הולך על כלום"): שורה אחת – בית ספר · כיתה · עיר (והסטטוס, אם יש)
-  const sum = `<div class="lq-sum"><div class="lq-row lq-r1">${sch ? `<span class="school-chip ${scCls(sch)}">${esc(sch)}</span>` : "<span class='muted'>בית ספר לא ידוע</span>"}${st.grade ? `<b>${esc(classLabel(st.grade, st.class_num))}</b>` : ""}${city ? `<span class="muted">${esc(city)}</span>` : ""}${(() => { const t = stuSt(l); return t.label ? `<span class="lq-st"${t.color ? ` style="background:${t.color}; color:${txtOn(t.color)};"` : ""}>${esc(t.label)}</span>` : ""; })()}</div>
+  const sum = `<div class="lq-sum"><div class="lq-row lq-r1">${sch ? `<span class="school-chip ${scCls(sch)}">${esc(sch)}</span>` : "<span class='muted'>בית ספר לא ידוע</span>"}${st.grade ? `<b>${esc(classLabel(st.grade, st.class_num))}</b>` : ""}${city ? `<span class="muted">${esc(city)}</span>` : ""}${(() => { const t = stuSt(l); return t.label ? `<span class="lq-st"${t.color ? ` style="background:${t.color}; color:${txtOn(t.color)};"` : ""}>${esc(t.label)}</span>` : ""; })()}${l ? `<span class="lq-id muted" title="מספר ליד">#${l.id}</span>` : ""}</div>
     ${f.parent1_phone || f.parent1_first ? `<div class="lq-row"><span class="lq-k">הורה</span>${esc(fullName(f.parent1_first, f.parent1_last))} ${ph(f.parent1_phone)}${/^0\d{8,9}$/.test(f.parent1_phone || "") ? ` <a class="lq-wa" target="_blank" rel="noopener" href="https://wa.me/972${esc(String(f.parent1_phone).slice(1))}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a>` : ""}</div>` : ""}
     ${f.parent2_phone ? `<div class="lq-row"><span class="lq-k">הורה 2</span>${esc(fullName(f.parent2_first, f.parent2_last))} ${ph(f.parent2_phone)}</div>` : ""}
     ${st.phone ? `<div class="lq-row"><span class="lq-k">תלמיד/ה</span>${ph(st.phone)}</div>` : ""}</div>`;
