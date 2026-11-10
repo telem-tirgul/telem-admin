@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.95">
+<meta name="app-version" content="5.21.96">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2187,6 +2187,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 #view-lead .lead-paywrap .lc-nocrs .nc-h{ border-bottom:0; padding:2px 2px 2px; } #view-lead .lead-paywrap .lc-nocrs .nc-h b{ font-size:13.5px; color:#5E554D; }
 #view-lead .lead-paywrap #leadPayments > .lp-box{ border:0 !important; box-shadow:none !important; margin:6px 0 0 !important; padding:0 2px !important; background:none !important; } #view-lead .lead-paywrap .lp-rest-h{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:6px 2px 4px; } #view-lead .lead-paywrap .lp-rest-h b{ font-size:13.5px; color:#5E554D; } .lc-nocrs .nc-h{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 2px 8px; border-bottom:1px solid var(--border); margin-bottom:2px; } .lc-nocrs .nc-h b{ font-size:15px; }
 .lc-nocrs .nc-row{ display:grid; grid-template-columns:minmax(0,1fr) auto auto auto; align-items:center; gap:6px 12px; padding:8px 2px; border-bottom:1px dashed var(--border); font-size:13.5px; } .lc-nocrs .nc-row:last-child{ border-bottom:0; }
+.cd-st-fix{ background:#EFEBE6 !important; color:#8A8078 !important; border-style:dashed !important; }
 .cd-how{ grid-column:1 / -1; display:flex; flex-direction:column; gap:6px; padding:8px 10px; border:1px dashed #E2D8CC; border-radius:10px; background:#FDFBF8; font-size:14px; } .cd-how label{ display:inline-flex; align-items:center; gap:6px; margin:0; font-weight:600; } .cd-how .cd-trial{ display:flex; flex-wrap:wrap; gap:6px 18px; padding-inline-start:24px; } .cd-how .cd-trial[hidden], .cd-how .cd-td[hidden]{ display:none; } .cd-how input[type=date]{ width:auto; }
 .lg-rl{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; margin-top:10px; padding:8px 12px; border:1px solid #EAE1D4; border-radius:10px; background:#fff; font-size:13.5px; }
 .lg-rl .lg-rl-w{ font-weight:700; } .lg-rl .nc-b{ display:flex; gap:6px; margin-inline-start:auto; } .lg-rl .nc-b .btn{ text-decoration:none; } .lg-rl .lk2-cell, .lc-nocrs .lk2-cell{ display:inline-flex; gap:6px; align-items:center; }
@@ -4507,9 +4508,12 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
       <div class="cd-reg"><label class="lbl">מסלול</label><select id="cdTr"></select></div>
       <div class="cd-st"><label class="lbl">מקצוע</label><select id="cdSu">${opt([["", "—"], ["מתמטיקה", "מתמטיקה"], ["אנגלית", "אנגלית"], ["מתמטיקה ואנגלית", "מתמטיקה ואנגלית"]])}</select></div>
       ${mem && CRS.hasSrc ? `<div class="cd-st"><label class="lbl">מקור</label><select id="cdSrc">${opt([["", "—"]].concat((L.sources || []).filter(x => x.is_active).map(x => [x.id, x.name])))}</select></div>` : ""}
-      <div class="cd-st"><label class="lbl">מצב</label><select id="cdSt">${opt(crsStList().map(x => x.name).filter(x => x !== "בוטל").map(x => [x, crsStOf(x).label, x === "רשום"]))}</select></div>
-    ${inlEx && ME.role === "admin" ? `<div class="cd-how cd-reg"><label><input type="checkbox" id="cdForm"> 📝 שליחת טופס הרשמה להורה <span class="muted">(חתימה על התנאים ותשלום; מה שידוע – ממולא, וההורה יכול לשנות)</span></label>
-      <span class="cd-trial" hidden><label><input type="checkbox" id="cdTrial"> 🎁 חודש ניסיון</label><label class="cd-td" hidden>מתאריך <input type="date" id="cdTrialD"></label></span></div>` : ""}
+      <div class="cd-st"><label class="lbl">סטטוס</label><select id="cdSt">${opt(crsStList().map(x => x.name).filter(x => x !== "בוטל").map(x => [x, crsStOf(x).label, x === "רשום"]))}</select></div>
+    ${inlEx && ME.role === "admin" ? `<div class="cd-how cd-reg">   <!-- 5.21.96 (נועה 10.11, אפשרות ב): מה עושים – הסטטוס נקבע לפי הבחירה (אפור), חוץ מ"רק הוספה" -->
+      <label><input type="radio" name="cdMode" value="form" checked> 📝 שליחת טופס הרשמה להורה <span class="muted">→ סטטוס: מתעניין (ההורה ממלא/ת, חותם/ת ומשלם/ת)</span></label>
+      <span class="cd-trial"><label><input type="checkbox" id="cdTrial"> 🎁 חודש ניסיון</label><label class="cd-td" hidden>מתאריך <input type="date" id="cdTrialD"></label></span>
+      <label><input type="radio" name="cdMode" value="phone"> ✍ שולם טלפונית – קישור לחתימה <span class="muted">→ סטטוס: רשום</span></label>
+      <label><input type="radio" name="cdMode" value="man"> ➕ רק הוספה, בלי קישור <span class="muted">→ בוחרים סטטוס</span></label></div>` : ""}
     ${inlEx ? `<div class="crs-inl-b"><button type="button" class="btn" data-no>ביטול</button><button type="button" class="btn primary" data-ok>שמירה</button></div>` : ""}</div>${inline ? "" : `<div class="ui-dlg-b"><button type="button" class="btn primary" data-ok>שמירה</button><button type="button" class="btn" data-no>ביטול</button></div>`}</div>`;
   if (!inline) document.body.appendChild(bg);
   const q = (id) => bg.querySelector("#" + id);
@@ -4524,14 +4528,15 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
     [...u.options].forEach(o => { o.disabled = !!t.value && !!o.value && (dbl ? o.value !== "מתמטיקה ואנגלית" : o.value === "מתמטיקה ואנגלית"); });
     if (dbl) u.value = "מתמטיקה ואנגלית"; else if (t.value && u.value === "מתמטיקה ואנגלית") u.value = ""; };
   if (q("cdTr")) q("cdTr").addEventListener("change", suFit); suFit();
-  // מנ-381 (נועה 10.11): הפרטים (לא חובה כששולחים טופס – "מצב" ריק = בלי הוספה עכשיו) + מתחת ☐ שליחת טופס הרשמה (☐ חודש ניסיון)
-  const howForm = () => { const c = q("cdForm"); return !!c && c.checked && !bg.querySelector(".cd-how").hidden && crsCat(Number(q("cdCa").value)).kind === "regular"; };
-  const manNow = () => !howForm() || !!(q("cdSt") && q("cdSt").value) || !!((q("cdTr") || {}).value && q("cdSc").value);   // 5.21.93: נבחר מסלול – נשמר בקורס (מתעניין)
-  { const hw = bg.querySelector(".cd-how"); if (hw) { let stTouched = false; const sto = q("cdSt"); if (sto) { sto.insertAdjacentHTML("afterbegin", `<option value="">— בלי הוספה עכשיו</option>`); sto.querySelector("option").hidden = true; sto.addEventListener("change", () => { stTouched = true; upd(); }); }
-      const upd = () => { const f = howForm(); hw.querySelector(".cd-trial").hidden = !f; hw.querySelector(".cd-td").hidden = !f || !q("cdTrial").checked;
-        if (sto) sto.querySelector("option").hidden = !f; const ok = bg.querySelector("[data-ok]"); if (ok) ok.textContent = !f ? "שמירה" : manNow() ? "הוספה ושליחת טופס" : "יצירת הקישור"; };
+  // 5.21.96 (נועה 10.11, אפשרות ב): טופס הרשמה → מתעניין · שולם טלפונית → רשום + קישור לחתימה · רק הוספה → בוחרים סטטוס. הסטטוס אפור כשנקבע לבד
+  const MODE_ST = { form: "מתעניין", phone: "רשום" };
+  const howMode = () => { const hw = bg.querySelector(".cd-how"); if (!hw || hw.hidden || crsCat(Number(q("cdCa").value)).kind !== "regular") return "man"; const r = bg.querySelector("input[name=cdMode]:checked"); return r ? r.value : "man"; };
+  const howForm = () => howMode() === "form";
+  { const hw = bg.querySelector(".cd-how"); if (hw) { const sto = q("cdSt");
+      const upd = () => { const md = howMode(); hw.querySelector(".cd-trial").hidden = md !== "form"; hw.querySelector(".cd-td").hidden = md !== "form" || !q("cdTrial").checked;
+        if (sto) { const fix = MODE_ST[md]; if (fix && [...sto.options].some(o => o.value === fix)) sto.value = fix; sto.disabled = !!fix; sto.classList.toggle("cd-st-fix", !!fix); sto.title = fix ? "נקבע לפי הבחירה למטה" : ""; }
+        const ok = bg.querySelector("[data-ok]"); if (ok) ok.textContent = md === "form" ? "שמירה ויצירת הקישור" : md === "phone" ? "שמירה וקישור לחתימה" : "שמירה"; };
       if (q("cdTrialD")) q("cdTrialD").value = todayIL();
-      q("cdForm").addEventListener("change", () => { if (sto && !stTouched) sto.value = q("cdForm").checked ? "" : "רשום"; if (sto && !q("cdForm").checked && !sto.value) sto.value = "רשום"; upd(); });
       bg.addEventListener("change", upd); q("cdCa").addEventListener("change", () => { hw.hidden = crsCat(Number(q("cdCa").value)).kind !== "regular"; upd(); }); hw.hidden = crsCat(Number(q("cdCa").value)).kind !== "regular"; upd(); } }
   if (!mem) { bg.querySelectorAll(".cd-st").forEach(x => x.remove()); if (CRS.hasTrk) { const t = q("cdTr"); if (t) t.closest("div").remove(); } [...q("cdCa").options].forEach(o => { if (crsCat(Number(o.value)).kind === "event") o.remove(); }); paint(); }
   const close = () => bg.remove();
@@ -4565,17 +4570,19 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
     if (ca.kind === "event" && !q("cdMa").value) return "אין מרתון במחזור הזה – בוחרים מחזור / קטגוריה אחרים";
     if (ca.kind !== "event" && !q("cdSc").value) return "בוחרים בית ספר לקורס";
     if (ca.kind === "regular" && q("cdSu") && !q("cdSu").value && !q("cdSu").closest("[hidden]")) return "בוחרים מקצוע";
-    { const t = (q("cdTr") || {}).value, u = (q("cdSu") || {}).value; if (t && u && ((t === "double") !== (u === "מתמטיקה ואנגלית"))) return t === "double" ? "בשני מקצועות – המקצוע \"מתמטיקה ואנגלית\"" : "במקצוע אחד – מתמטיקה או אנגלית"; }   /* של-149 */ if (q("cdSt") && !q("cdSt").value) return "בוחרים מצב"; return ""; };
+    { const t = (q("cdTr") || {}).value, u = (q("cdSu") || {}).value; if (t && u && ((t === "double") !== (u === "מתמטיקה ואנגלית"))) return t === "double" ? "בשני מקצועות – המקצוע \"מתמטיקה ואנגלית\"" : "במקצוע אחד – מתמטיקה או אנגלית"; }   /* של-149 */ if (q("cdSt") && !q("cdSt").value) return "בוחרים סטטוס"; return ""; };
   if (inlEx) { const sid = st.id;
     bg.querySelector("[data-no]").onclick = () => bg.remove();
-    bg.querySelector("[data-ok]").onclick = async (e) => { const f = howForm(), okb = e.currentTarget;   // מנ-381
+    bg.querySelector("[data-ok]").onclick = async (e) => { const md = howMode(), f = md === "form", okb = e.currentTarget;   // 5.21.96
       const pre = { track: (q("cdTr") || {}).value || "", subject: (q("cdSu") || {}).value || "" }, trial = f && q("cdTrial").checked, tD = (q("cdTrialD") || {}).value || null;
-      // 5.21.93 (נועה 10.11: "המסלול שבחרתי נעלם"): נבחר מסלול ושולחים רק טופס – נשמר בקורס כ"מתעניין" (המסלול נשאר בכרטיס, ובשליחה חוזרת של הקישור)
-      if (f && !q("cdSt").value && pre.track && q("cdSc").value) q("cdSt").value = [...q("cdSt").options].some(o => o.value === "מתעניין") ? "מתעניין" : "ממתין לתשלום";
-      if (f && !manNow()) { okb.disabled = true; if (await regLinkSend(sid, trial, tD, pre)) bg.remove(); else okb.disabled = false; return; }
-      const tu = (q("cdTr") || {}).value, uu = (q("cdSu") || {}).value, mis = tu && uu && ((tu === "double") !== (uu === "מתמטיקה ואנגלית")) ? (tu === "double" ? "בשני מקצועות – המקצוע \"מתמטיקה ואנגלית\"" : "במקצוע אחד – מתמטיקה או אנגלית") : "";
-      const er = f ? (mis || (!q("cdSc").value ? "בוחרים בית ספר לקורס (או \"מצב\" ריק – רק טופס)" : "")) : check(); if (er) { toast(er); return; } okb.disabled = true;   /* 5.21.14: אחרי await – e.currentTarget כבר null (ההודעה על שגיאה לא הופיעה) */
-      try { if (await save(st)) { bg.remove(); toast("נוסף/ה לקורס"); await crsLoad(true, true); CRS.loadedSt.delete(sid); if (editing && editing.student && editing.student.id === sid) await loadLeadGroups(sid); if (currentView === "leads") renderLeads(); if (f) await regLinkSend(sid, trial, tD, pre); } else okb.disabled = false; }
+      if (MODE_ST[md] && [...q("cdSt").options].some(o => o.value === MODE_ST[md])) q("cdSt").value = MODE_ST[md];
+      // טופס הרשמה בלי בית ספר – רק הקישור (אין קורס לשמור בו)
+      if (f && !q("cdSc").value) { okb.disabled = true; if (await regLinkSend(sid, trial, tD, pre)) bg.remove(); else okb.disabled = false; return; }
+      const er = f ? (((tu, uu) => tu && uu && ((tu === "double") !== (uu === "מתמטיקה ואנגלית")) ? (tu === "double" ? "בשני מקצועות – המקצוע \"מתמטיקה ואנגלית\"" : "במקצוע אחד – מתמטיקה או אנגלית") : "")(pre.track, pre.subject)) : check(); if (er) { toast(er); return; } okb.disabled = true;   /* 5.21.14: אחרי await – e.currentTarget כבר null (ההודעה על שגיאה לא הופיעה) */
+      try { if (await save(st)) { bg.remove(); toast("נוסף/ה לקורס"); await crsLoad(true, true); CRS.loadedSt.delete(sid); if (editing && editing.student && editing.student.id === sid) await loadLeadGroups(sid); if (currentView === "leads") renderLeads();
+          if (f) await regLinkSend(sid, trial, tD, pre);
+          else if (md === "phone") { const mm = crsOfStudent(sid).filter(x => x.status === "רשום" && !x.signed).sort((a, b) => b.id - a.id)[0], sb = mm && document.querySelector(`#leadGroups [data-sgn="${mm.id}"]`);   // הקישור לחתימה של הקורס (כמו "✍ קישור לחתימה")
+            if (sb) { sb.scrollIntoView({ block: "center", behavior: "smooth" }); sb.click(); } else toast("נשמר – את הקישור לחתימה יוצרים בקורס (✍ קישור לחתימה)"); } } else okb.disabled = false; }
       catch(err) { okb.disabled = false; toast(/duplicate|23505/.test(err.message) ? "כבר בקורס הזה – אפשר לשנות את המצב בקורס" : "לא נשמר: " + err.message); } };
     bg.scrollIntoView({ behavior: "smooth", block: "nearest" }); return; }
   if (inline) { const sc = $("sSchool"); if (sc) sc.addEventListener("change", () => { if (q("cdSc") && sc.value) q("cdSc").value = sc.value; }); return { save, check }; }
