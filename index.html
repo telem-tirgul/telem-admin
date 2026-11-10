@@ -339,7 +339,11 @@
     #view-lead .lead-crs{ padding:10px 10px !important; } #view-lead .lead-crs > .side-hr{ flex-wrap:nowrap !important; align-items:center; margin-bottom:6px !important; } #view-lead .lead-crs > .side-hr .side-h{ font-size:16px !important; }
     #lcAddSlot{ gap:4px !important; flex-wrap:nowrap !important; } #lcAddSlot .btn{ padding:4px 7px !important; font-size:12.5px !important; min-height:0 !important; white-space:nowrap; }
     #view-lead .lead-crs > .side-hr .side-h{ white-space:nowrap; flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; }
-    #view-lead.lc-view .lead-top .tg-mng input{ width:132px !important; max-width:132px; } #view-lead.lc-view .lead-top > #studentBox > summary{ white-space:nowrap; display:flex !important; flex-direction:row !important; align-items:center; gap:8px; font-size:15px; } #view-lead.lc-view .lead-top > #studentBox{ padding:0 !important; }
+    #view-lead.lc-view .lead-top .tg-mng .tg-f:has(#lfRemind){ position:relative; display:inline-flex; align-items:center; gap:4px; height:34px; min-width:34px; padding:0 8px; border:1px solid var(--border); border-radius:999px; background:var(--paper); }
+    #view-lead.lc-view .lead-top .tg-mng .tg-f:has(#lfRemind) label{ font-size:0 !important; } #view-lead.lc-view .lead-top .tg-mng .tg-f:has(#lfRemind) label::before{ content:"⏰"; font-size:17px; }
+    #view-lead.lc-view .lead-top .tg-mng .tg-f:has(#lfRemind)::after{ content:attr(data-v); font-size:12px; font-weight:700; color:var(--accent); } #view-lead.lc-view .lead-top .tg-mng .tg-f[data-v=""]::after{ display:none; }
+    #view-lead.lc-view .lead-top .tg-mng #lfRemind{ position:absolute !important; inset:0 !important; width:100% !important; max-width:none !important; height:100% !important; opacity:0 !important; cursor:pointer; }
+    #view-lead.lc-view .lead-top .tg-mng #clearRemind{ display:none !important; } #view-lead.lc-view .lead-top > #studentBox > summary{ white-space:nowrap; display:flex !important; flex-direction:row !important; align-items:center; gap:8px; font-size:15px; } #view-lead.lc-view .lead-top > #studentBox{ padding:0 !important; }
     #leadGroups .lg-crs-box{ padding:8px 10px !important; margin-top:8px !important; }
     #view-lead .lead-side{ padding:0 10px 4px !important; } #view-lead .lead-side .la-row > summary{ padding:8px 0 !important; }
   }
@@ -5693,6 +5697,9 @@ let SIB_FAM = null;   // 5.19.155 (נועה): ליד חדש שהוא אח/ות �
 function setSwitch(id, on){ const b = $(id); b.classList.toggle("on", !!on); b.setAttribute("aria-pressed", !!on); }
 ["lfActive","lfMailing","lfCustomer"].forEach(id => $(id).addEventListener("click", () => setSwitch(id, !$(id).classList.contains("on"))));
 $("lfStar").addEventListener("click", () => { const on = !$("lfStar").classList.contains("on"); $("lfStar").classList.toggle("on", on); $("lfStar").setAttribute("aria-pressed", on); });
+// 5.21.86 (נועה 10.11): בנייד – התזכורת אייקון ⏰ קטן (עם התאריך אם נקבע); לוחצים – נפתח בוחר התאריך
+function remBadge(){ const v = $("lfRemind").value, f = $("lfRemind").closest(".tg-f"); if (f) f.dataset.v = v ? fmtDM(v.slice(0, 10)) + " " + v.slice(11, 16) : ""; }
+$("lfRemind").addEventListener("change", remBadge);
 $("clearRemind").addEventListener("click", () => { $("lfRemind").value = ""; $("lfRemind").dispatchEvent(new Event("change", { bubbles: true })); });
 // 5.19.72 (נועה): מנהל - ליד התזכורת; בצפייה (נייד) נשמר מיד
 $("lfManager").addEventListener("change", async () => {
@@ -5765,7 +5772,7 @@ function openLead(id){
   $("lfSource").value = (l && l.source_id) || "";
   $("lfManager").value = (l && l.manager_id) || "";
   $("lfFilledBy").value = (l && l.filled_by) || "הורה";
-  $("lfRemind").value = toLocalInput(l && l.remind_at); $("clearRemind").hidden = !$("lfRemind").value;
+  $("lfRemind").value = toLocalInput(l && l.remind_at); $("clearRemind").hidden = !$("lfRemind").value; remBadge();
   $("lfMessage").value = (l && l.message) || "";
   const vals = { sFirst: s.first_name, sLast: s.last_name, sPhone: s.phone, sEmail: s.email, sSchool: s.school_id, sGrade: s.grade, sClass: s.class_num,
     sEng: s.english_level, sMath: s.math_level, sTrack: s.track, p1First: f.parent1_first, p1Last: f.parent1_last, p1Phone: f.parent1_phone, p1Email: f.parent1_email,
