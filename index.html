@@ -9346,6 +9346,12 @@ const ibIssTxt = (iss) => !iss.length ? "לא תואם" : iss.slice(0, 2).map(ib
 const ibMerged = (r) => !!((r.data || {}).merged_at) || ibDupGone(r);
 // 5.21.95 (נועה 10.11: "איחדתי ועדיין מציג כאילו לא אוחד"): גם כשאוחד מחוץ להתראה – הכרטיס הכפול ("כרטיס N" ב"אצלנו") כבר לא קיים, או שהוא הכרטיס של ההתראה עצמה
 const IB_DUPF = ["duplicate", "same_name", "same_name_new_phone"];
+// 5.21.95 (נועה 10.11: "למה יש שתי שורות?"): כמה שורות כפילות על אותו כרטיס קיים – שורה אחת
+function ibIssDedup(list){ const out = [], byC = {};
+  list.forEach(x => { const m = IB_DUPF.includes(x.field) && String(x.ours ?? "").match(/^כרטיס (\d+)/); if (!m) { out.push(x); return; }
+    const k = m[1]; if (!byC[k]) { byC[k] = Object.assign({}, x, { label: "ילד/ה באותו שם – נפתח כרטיס חדש", ours: "כרטיס " + k, note: "אולי כפול – לבדוק אם לאחד" }); out.push(byC[k]); return; }
+    const f = String(x.form || ""), ph = f.match(/נייד [\d-]+/); if (ph && !String(byC[k].form || "").includes(ph[0])) byC[k].form = (byC[k].form ? byC[k].form + " · " : "") + ph[0]; });
+  return out; }
 function ibDupGone(r){ const iss = (r.issues || []).filter(x => IB_DUPF.includes(x.field)); if (!iss.length || !(L.leads || []).length) return false;
   return iss.every(x => { const m = String(x.ours ?? "").match(/^כרטיס (\d+)/); if (!m) return false; const id = Number(m[1]);
     return id === Number(r.student_id) || !(L.leads || []).some(l => Number(l.student_id || (l.student && l.student.id)) === id); }); }   // 5.20.10: אוחד – בלי "כפילות אפשרית"
@@ -9621,7 +9627,7 @@ async function renderInbox(reload){
   const gdSeen = new Set();
   box.innerHTML = `<div class="ib-list">` + rows.map(r => { if (r.kind === "group_diff") { const g = r.student_id ? gdBy[r.student_id] : null;
       if (!g) return ibGdCard(r, when);   // 5.19.122: גם אירוע אחד – אותו כרטיס (שבוע, נוכחות בקבוצה הקבועה, לאן הגיע/ה)
-      if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = ibKindOf(r), w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = (r.issues || []).filter(x => !(ibMerged(r) && IB_DUPF.includes(x.field)));
+      if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = ibKindOf(r), w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = ibIssDedup((r.issues || []).filter(x => !(ibMerged(r) && IB_DUPF.includes(x.field))));
     const pr = IB.pair && IB.pair[r.id], pi = IB.pairInt && IB.pairInt[r.id], dd = (IB.dups && IB.dups[r.id]) || [];
     const ids = [r.id].concat(pr ? [pr.id] : [], pi ? [pi.id] : [], dd.map(x => x.id), dd.map(x => IB.pair[x.id]).filter(Boolean).map(x => x.id)).join(",");
     // 5.19.150 (נועה 28.10): בשורת הרשמה / תשלום – הסטטוס של הכרטיס בצבע שלו (במקום "תשלום טלפוני ממתין")
