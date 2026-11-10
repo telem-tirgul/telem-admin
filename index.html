@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.84">
+<meta name="app-version" content="5.21.85">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -327,7 +327,15 @@
     #view-lead .lead-cols > .lead-crs{ order:2; } #view-lead .lead-cols > .lead-main > #leadErr{ order:4; } #view-lead .lead-cols > .lead-main > .lead-foot{ order:5; } #view-lead .lead-side{ order:3; background:var(--paper); border:1px solid var(--border); border-radius:12px; padding:4px 12px 12px; }
     #view-lead.lc-view .lead-top:not(:has(.toggles .tg-mng input:not([type=hidden]))){ }
   }
-  .ls-notes{ border:1px solid var(--border) !important; border-radius:12px; background:#fff; padding:2px 12px; margin:10px 0 0; }
+  .ls-notes{ border:0 !important; border-bottom:1px solid var(--border) !important; border-radius:0; background:none; padding:2px 2px; margin:4px 0 0; }   /* 5.21.85 (נועה 10.11): ההערות – שורה כמו שאר השורות בעמודה */
+  /* 5.21.85 (נועה 10.11: "לא נראה טוב בנייד"): בצפייה בנייד – תזכורת + פרטים נוספים מיד מתחת לפרטים העיקריים, לכל הרוחב, בלי מסגרת נפרדת */
+  @media (max-width:960px){
+    #view-lead.lc-view .lead-cols > .lead-main > .lead-top{ order:-3 !important; width:auto !important; max-width:none !important; margin:0 !important; align-self:stretch !important; background:none !important; border:0 !important; padding:0 2px !important; box-shadow:none !important; }
+    #view-lead.lc-view .lead-cols > .lead-crs{ order:-2 !important; } #view-lead.lc-view .lead-cols > .lead-paywrap{ order:-1 !important; }
+    #view-lead.lc-view .lead-top > #studentBox{ margin:0 !important; border-radius:12px; }
+    #view-lead.lc-view .lead-top .tg-rem{ display:inline-flex; }
+    #view-lead .lead-side{ padding:2px 12px 8px !important; }
+  }
   .la-row.ls-notes > .la-body{ padding-inline:0; }   /* 5.21.3 (נועה): ההערות ברוחב הכרטיס, כמו שאר השדות */
   .ls-notes > summary b{ font-family:var(--font-display); color:var(--accent); font-size:15px; }
   /* בתוך הקורס: מעקב, "שיבוצים", ושורה תחתונה – חתימה וביטול */
