@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.94">
+<meta name="app-version" content="5.21.95">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9399,7 +9399,9 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
   if (d.blocked && d.payload && (r.kind === "marathon" || r.kind === "registration")) { const p = d.payload;   // 5.19.153 (תש-26): ניסיון שנחסם
     return [r.kind === "marathon" ? (p.marathon_code ? "מרתון (קוד " + p.marathon_code + ")" : "מרתון") : [p.track, p.subject].filter(Boolean).join(" · "), p.pay_by_phone ? "תשלום טלפוני" : "אשראי", p.parent && p.parent.phone].filter(Boolean).map(String).join(" · "); }
   const bits = r.kind === "marathon" ? [m ? m.name : "", d.status, amt(d.amount)]
-    : r.kind === "registration" ? [d.city, d.subject, d.track ? (typeof TRACK_T === "function" ? TRACK_T(d.track) : d.track) : "", amt(d.first_charge_amount)]
+    : r.kind === "registration" ? (() => { const e = (IB.enr || {})[String(r.ref_id)] || d, tk = (IB.trk || {})[e.track_id];   // 5.21.95 (נועה 10.11): הפרטים מההזמנה עצמה (גם חודש ניסיון) – מסלול, מקצוע, חודש ניסיון, הסכום ששולם
+        const TN = { single: "מקצוע אחד", "unlimited-single": "מקצוע אחד ללא הגבלה", double: "שני מקצועות" };
+        return [d.city, tk ? TN[tk] || tk : d.track ? (typeof TRACK_T === "function" ? TRACK_T(d.track) : d.track) : "", e.subject, e.trial_start ? "🎁 חודש ניסיון מ-" + fmtIso(e.trial_start) : "", amt(e.first_charge_amount), e.payment_method === "טלפוני" ? "תשלום טלפוני" : ""]; })()
     : r.kind === "cancel" ? [d.school, d.subject, d.reason ? "סיבה: " + d.reason : ""]
     : r.kind === "pay_link" ? [d.description, amt(d.one_time_amount)]
     : r.kind === "sign" ? [d.course || d.description, d.pay_link ? amt(d.amount) : "", d.trial && d.trial.result === "plan" ? "חיוב ראשון ב-" + fmtIso(d.trial.first_date) + (d.trial.first_amount ? " – " + amt(d.trial.first_amount) : "") : "", (d.changes || []).length ? "עודכן: " + d.changes.map(c => c.field + " " + (c.old ? c.old + " ← " : "") + c.new).join(" · ") : "בלי שינוי בפרטים"]   // 5.20.1 (קובץ 140)
@@ -9545,8 +9547,13 @@ function ibOurs(v){ const t = String(v ?? ""), m = t.match(/^כרטיס (\d+)(.*
   const ld = (L.leads || []).find(x => Number(x.student_id || (x.student && x.student.id)) === Number(m[1])), st = ld && ld.student, fam = st && st.family; if (!st) return esc(t);
   const nm = ((st.first_name || "") + " " + (st.last_name || "")).trim(), par = fam ? [fam.parent1_first, fam.parent1_last].filter(Boolean).join(" ") : "", ph = (fam && fam.parent1_phone) || "";
   return `<a href="#" class="name-link" data-ibours="${ld.id}" title="פתיחת הכרטיס הקיים">${esc(nm || "כרטיס קיים")}</a>${par ? " · הורה " + esc(par) : ""}${ph ? ` · <span dir="ltr">${esc(ph)}</span>` : ""}${st.phone ? ` · נייד <span dir="ltr">${esc(st.phone)}</span>` : ""}`; }
+// 5.21.95: ההזמנות של שורות "הרשמה לתרגולים" (הנתונים בהתראה נשמרים לפני חודש הניסיון) + שמות המסלולים
+function ibEnrLoad(){ const ids = (IB.rows || []).concat(IB.done || []).filter(r => r.kind === "registration" && r.ref_table === "enrollments" && /^\d+$/.test(String(r.ref_id || "")) && !(IB.enr || {})[String(r.ref_id)] && !(IB.enrT || (IB.enrT = new Set())).has(String(r.ref_id))).map(r => r.ref_id);
+  const need = []; if (!IB.trk && !IB.trkL) { IB.trkL = true; need.push(get("tracks", "select=id,track_type").then(t => { IB.trk = {}; (t || []).forEach(x => IB.trk[x.id] = x.track_type); }).catch(() => { IB.trk = {}; })); }
+  if (ids.length && !IB.enrL) { IB.enrL = true; ids.forEach(i => IB.enrT.add(String(i))); need.push(get("enrollments", "select=id,track_id,subject,first_charge_amount,trial_start,payment_method&id=in.(" + [...new Set(ids)].slice(0, 200).join(",") + ")").then(a => { IB.enr = IB.enr || {}; (a || []).forEach(x => IB.enr[String(x.id)] = x); }).catch(() => {}).finally(() => { IB.enrL = false; })); }
+  if (need.length) Promise.all(need).then(() => { if (currentView === "inbox") renderInbox(false); }); }
 async function renderInbox(reload){
-  const box = $("ibList");
+  const box = $("ibList"); setTimeout(ibEnrLoad, 0);
   document.querySelectorAll("[data-ibf]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.ibf === IB.f)));
   // 5.19.142 (נועה 25.10): כמו תיבת דואר – נטען רק מה שלא טופל (+ ההיסטוריה של "מול הקבוצה" לאותם ילדים); "טופלו" – בעמודים, לפי סוג
   if (IB.f === "done" && (reload || !IB.done.length) && !IB.doneEnd) await ibLoadDone(true);
