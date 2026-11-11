@@ -6882,6 +6882,7 @@ async function loadLeadGroups(studentId){
     if (stale()) return;
     try { const pm = await get("marathon_registrations", "select=id,session:sessions(time_label,start_time),marathon:marathons(id,name,school,cancelled_at)&student_id=eq." + studentId + "&paid_at=is.null&cancelled_at=is.null");
       pm.filter(x => x.marathon && !x.marathon.cancelled_at).forEach(x => { const hd = $("leadGroups").querySelector(`[data-crsmar="${x.marathon.id}"] .lg-crs-g`);
+        if (CRS.ok && crsOfStudent(studentId).some(m => !m.history_at && (CRS.byId[m.course_id] || {}).marathon_id === x.marathon.id)) return;   // 5.21.112 (נועה 12.11): המרתון כבר בקורסים (עם הסטטוס) – בלי מסגרת כפולה
         if (hd) { if (x.session && x.session.time_label) hd.textContent = " · " + x.session.time_label; return; }
         $("leadGroups").insertAdjacentHTML("beforeend",
         `<div class="lg-pend">🏁 <b>${esc(x.marathon.name)}</b>${x.session && x.session.time_label ? " · " + esc(x.session.time_label) : ""}<span class="lg-pend-t">⏳ ממתין לתשלום – ישובץ/תשובץ אחרי "שולם"</span></div>`); }); } catch(e) {}
