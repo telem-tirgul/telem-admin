@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.100">
+<meta name="app-version" content="5.21.101">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2395,9 +2395,11 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 /* 5.21.98 (נועה 11.11: "עמודות, כל ההודעות באותו מבנה"): עמודות קבועות – שם · סוג · פרטים · סטטוס וסימונים · מתי · פעולות; גם שורת "מול הקבוצה" */
 .ib-head{ font-size:12px !important; font-weight:700; color:var(--ink-soft); background:#FBF8F4; border-top:0 !important; padding-block:5px !important; } @media (max-width:900px){ .ib-head{ display:none !important; } }
 @media (min-width:901px){ .ib-tags{ flex-wrap:wrap; white-space:normal !important; min-width:0; } .ib-acts{ flex-wrap:wrap; }
-  .gdg .gdg-h{ display:grid !important; grid-template-columns:28px minmax(110px, 170px) 130px minmax(0, 1fr) 190px 88px 300px; gap:4px 12px; align-items:center; }
+  .gdg .gdg-h{ display:grid !important; grid-template-columns:28px minmax(110px, 170px) 130px minmax(0, 1fr) 190px 88px auto; gap:4px 12px; align-items:center; }
   .gdg .gdg-h .gdg-a{ margin:0; display:flex; justify-content:flex-end; } .gdg .gdg-h .ib-ic{ display:inline-flex; align-items:center; gap:3px; } .gdg-k{ white-space:nowrap; } }
-.ib-row{ display:grid; grid-template-columns:28px minmax(110px, 170px) 130px minmax(0, 1fr) 190px 88px 300px; gap:4px 12px; align-items:center; padding:7px 12px; border-top:1px solid var(--border); border-inline-start:3px solid transparent; font-size:14px; }
+/* 5.21.101 (נועה 11.11: "למה זה נראה ככה?"): במסך בינוני הפרטים נעלמו (עמודת הפעולות 300px קבועה) – הפעולות לפי התוכן, ועד 1300px בלי עמודת "סוג" (האייקון אומר את זה) */
+@media (min-width:901px) and (max-width:1300px){ .ib-row, .gdg .gdg-h{ grid-template-columns:28px minmax(100px, 150px) minmax(160px, 1fr) minmax(0, 170px) 80px auto !important; } .ib-row > .ib-k, .ib-head > span:nth-child(3), .gdg .gdg-h > .ib-k, .gdg .gdg-h > .gdg-k{ display:none !important; } }
+.ib-row{ display:grid; grid-template-columns:28px minmax(110px, 170px) 130px minmax(0, 1fr) 190px 88px auto; gap:4px 12px; align-items:center; padding:7px 12px; border-top:1px solid var(--border); border-inline-start:3px solid transparent; font-size:14px; }
 #ibKind{ min-width:170px; } #ibKind > button{ font-size:13.5px; padding:5px 10px; } #ibKind .pop{ min-width:230px; } .ib-more{ text-align:center; padding:10px; }
 .ib-row:first-child{ border-top:0; } .ib-row.new{ border-inline-start-color:var(--accent); }
 /* 5.19.145 (של-87): כמו תיבת דואר – חדשה (שלא נפתחה) בבולד, שנקראה – רגיל */
