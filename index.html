@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.107">
+<meta name="app-version" content="5.21.108">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -7845,6 +7845,7 @@ async function loadGroups(){
       get("session_instructors", "select=session_id,staff(full_name,role)").then(r => { G.insRole = true; return r; }, () => { G.insRole = false; return get("session_instructors", "select=session_id,staff(full_name)"); }).catch(() => []),
       get("marathons", "select=*&order=id.desc").catch(() => [])
     ]);
+    if (liveSame("groups", [s, a, l, ins, mar]) && G.loaded) return;   // 5.21.108: בלי שינוי – לא מציירים
     G.marathons = mar; G.hasKind = s.length === 0 || "kind" in s[0];
     await Promise.all([loadHol(), loadExams(true),
       get("scheduling_seasons", "select=year_end&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).then(r => { G.yearEnd = (r[0] && r[0].year_end) || G.yearEnd; }).catch(() => {})]);
@@ -10429,6 +10430,7 @@ async function loadAttWeek(){
     if (MODE !== "g" && ME.role !== "instructor") { try { await ensureG(); lists = lists.map((l, i) => (l || []).concat(attGroupsFromG(dates[i]).filter(x => !(l || []).some(y => y.session_id === x.session_id)).map(x => Object.assign(x, { empty: true }))   /* 5.19.114 (נועה): גם קבוצות מרתון ריקות */)); } catch(e2) {} } }
   catch(e) { $("attCal").innerHTML = "<div class='card err'>לא ניתן לטעון את הקבוצות" + (e.status === 404 ? " (צריך להריץ את קובץ 16)." : ".") + "</div>"; return; }
   if (weekStart(A.date) !== wk) return;
+  if (liveSame("attwk:" + wk + ":" + MODE, lists) && $("attCal").children.length) return;   // 5.21.108
   const hm = (t) => String(t || "").slice(0, 5), mins = (t) => { const [h, m] = hm(t).split(":").map(Number); return h * 60 + (m || 0); };
   renderAttIns(lists.flatMap(l => (l || []).filter(attCityOk))); renderAttLoc(lists.flatMap(l => (l || []).filter(attCityOk)));
   const fillOk = (g) => MODE !== "g" || g.kind === "מרתון" || A.fill === "all" || (A.fill === "empty" ? !g.kids : g.kids > 0);
@@ -10898,6 +10900,7 @@ async function loadSchools(){
       get("session_summary", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)).catch(() => []),
       get("session_instructors", "select=session_id,staff(full_name)").catch(() => [])
     ]);
+    if (liveSame("schools", [list, groups, ins]) && SC.loaded) return;   // 5.21.108
     await loadExams();
     SC.list = list; SC.groups = groups; SC.ins = {}; SC.loaded = true;
     ins.forEach(r => { if (r.staff && r.staff.full_name) (SC.ins[r.session_id] = SC.ins[r.session_id] || []).push(r.staff.full_name); });
@@ -11835,6 +11838,7 @@ async function loadReports(){
       get("session_summary", "select=*&school_year=eq." + encodeURIComponent(CONFIG.schoolYear)),
       get("session_instructors", "select=session_id,staff(id,full_name)").catch(() => [])
     ]);
+    if (liveSame("reports", [s, ins]) && R.sessions) return;   // 5.21.108
     R.sessions = s; R.ins = {}; ins.forEach(x => { if (x.staff) (R.ins[x.session_id] = R.ins[x.session_id] || []).push(x.staff); });
     if (!L.asg) await loadLeads();
     await L.histP;
@@ -12993,6 +12997,9 @@ function leadsKeepRow(fn){
     if (b) { window.scrollBy(0, b.getBoundingClientRect().top - top); return; }
   }
 }
+// 5.21.108 (נועה 11.11: "בכל המערכת עניינים של ריפרש" – כלל ב-CLAUDE.md): ברענון השקט – מציירים רק כשהנתונים באמת השתנו
+const LIVE_SIG = {};
+const liveSame = (k, data) => { let sig; try { sig = JSON.stringify(data); } catch(e) { return false; } const same = LIVE_QUIET && LIVE_SIG[k] === sig; LIVE_SIG[k] = sig; return same; };
 async function liveRefresh(minGap){
   if (!LIVE_ON || LIVE_BUSY || !auth || $("appView").hidden || document.visibilityState !== "visible" || !DATA_READY) return;
   if (Date.now() - LIVE_LAST < (minGap == null ? LIVE_MS : minGap)) return;
@@ -13020,7 +13027,7 @@ async function liveRefresh(minGap){
     else if (v === "schools") await loadSchools();
     else if (v === "home" || v === "lead") { await loadLeadsDelta(); }   // ברקע - שהרשימה תהיה עדכנית כשחוזרים אליה
     else if (v === "pay") { if ($("payPnl").hidden && typeof PAY !== "undefined") await PAY.refresh(); }   // 5.19.57: גם מסכי התשלומים
-    else if (v === "reg") { await loadRegData(); if (currentView === "reg" && updSafe()) await renderReg(); }   // 5.19.57: גם הרשמה (קישורים, ביטולים, ממתינים)
+    else if (v === "reg") { await loadRegData(); if (currentView === "reg" && updSafe() && !liveSame("reg", [RG.pay, RG.can])) await renderReg(); }   // 5.21.108: רק כשהשתנה   // 5.19.57: גם הרשמה (קישורים, ביטולים, ממתינים)
     if (ME && ME.role !== "instructor") { callCount(); if (v !== "pay" && typeof PAY !== "undefined") PAY.refresh(true); }   // המונים בתפריט
     if (currentView === v && v !== "leads" && !moved && window.scrollY !== y) window.scrollTo(0, y);
     if (!moved) inner.forEach(([id, t, l, old]) => { const e = document.getElementById(id); if (e && e !== old) { e.scrollTop = t; e.scrollLeft = l; } });
