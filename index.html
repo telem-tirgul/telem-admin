@@ -2158,16 +2158,40 @@ tr.dx-row > td{ background:#FAF2F2 !important; border-color:var(--accent) !impor
 .kid-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:6px; } .kid-head h2{ margin:0; }
 .kid-h{ margin:16px 0 8px; font-size:1.05em; color:var(--maroon,#5A1216); }
 .pl-seg{ margin:0 0 12px; }
-/* 5.21.110 (נועה 11.11, 23:17: "נראה נורא עם האדום הזה, המסגרות ממש לא יפות"): השורה הפתוחה – בלי אדום; מסגרת אחת עדינה סביב השורה והפירוט */
-tr.deal-r.dx-open > td{ background:#EFE7DC !important; border-top:1.5px solid #BFAE9A !important; border-bottom:0 !important; }
-tr.deal-r.dx-open > td:first-child{ border-inline-start:1.5px solid #BFAE9A !important; box-shadow:none !important; } tr.deal-r.dx-open > td:last-child{ border-inline-end:1.5px solid #BFAE9A !important; }
-tr.dx-row > td{ background:#FFFFFF !important; border:1.5px solid #BFAE9A !important; border-top:0 !important; padding:8px 12px 10px !important; }
-tr.dx-row + tr.deal-r > td{ border-top:12px solid var(--bg, #F6F2EC) !important; }
-.kd-crs{ border:1px solid #EAE2D8 !important; background:#FFFFFF !important; border-radius:10px !important; box-shadow:none !important; }
-.kd-crs-h{ background:none !important; border-bottom:1px solid #F0EAE3 !important; }
-.kd-deal{ border:0 !important; background:none !important; box-shadow:none !important; } .kd-deal + .kd-deal{ border-top:1px dashed #E6DDD3 !important; }
-.kd-deal-h2{ background:#FBF8F4 !important; border:0 !important; border-radius:8px !important; }
-.kd-deal .dx-pay, .kd-deal .dx-planrow{ border:1px solid #EFE7DE !important; background:#FFFFFF !important; box-shadow:none !important; }
+/* 5.21.110 (נועה 11.11, 23:17–23:19): בלי אדום; כל ילד/ה פתוח/ה = כרטיס אחד עם מסגרת ברורה (השורה + הפירוט) ורווח לפניו ואחריו;
+   השורות בפירוט – באותן עמודות של הטבלה; הפעולות – בתפריט ⋯ */
+#payBody tr.deal-r.dx-open > td{ background:#EFE7DC !important; border-top:16px solid var(--bg, #F6F2EC) !important; box-shadow:inset 0 2px 0 #9C8A74 !important; }
+#payBody tr.deal-r.dx-open > td:first-child{ box-shadow:inset 0 2px 0 #9C8A74, inset -2px 0 0 #9C8A74 !important; border-inline-start:0 !important; }
+#payBody tr.deal-r.dx-open > td:last-child{ box-shadow:inset 0 2px 0 #9C8A74, inset 2px 0 0 #9C8A74 !important; border-inline-end:0 !important; }
+#payBody tr.deal-r.dx-open > td:only-child{ box-shadow:inset 0 2px 0 #9C8A74, inset -2px 0 0 #9C8A74, inset 2px 0 0 #9C8A74 !important; }
+#payBody tr.dx-row > td{ background:#FFFDFA !important; border:0 !important; padding:2px 2px 10px !important; box-shadow:inset -2px 0 0 #9C8A74, inset 2px 0 0 #9C8A74, inset 0 -2px 0 #9C8A74 !important; }
+#payBody tr.dx-row + tr.deal-r > td{ border-top:16px solid var(--bg, #F6F2EC) !important; }
+@media (min-width:761px){
+  #payBody .dx{ gap:0; } #payBody .dx-info:not(.only-m-blk){ padding:6px 10px; }
+  #payBody .dx > .dx-pay, #payBody .dx-sub{ display:grid !important; grid-template-columns:var(--dxc, 40px 120px 1fr 1fr 150px 1fr 110px 170px) !important; gap:0 !important; border:0 !important; border-radius:0 !important; background:none !important; box-shadow:none !important; padding:7px 0 !important; min-height:0; position:relative; }
+  #payBody .dx > .dx-pay{ border-top:1px solid #EFE7DE !important; } #payBody .dx > .dx-pay.bad{ background:#FFFAF0 !important; }
+  #payBody .dx-pay > span, #payBody .dx-sub > span{ padding:0 10px; min-width:0; }
+  #payBody .dx-pay > .dx-d{ grid-column:2; grid-row:1; } #payBody .dx-pay > .dx-m{ grid-column:3 / span 2; grid-row:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #payBody .dx-pay > .dx-k{ grid-column:5; grid-row:1; } #payBody .dx-pay > .dx-doc{ grid-column:6; grid-row:1; } #payBody .dx-pay > .dx-a{ grid-column:7; grid-row:1; }
+  #payBody .dx-pay > .dx-s{ grid-column:8; grid-row:1; padding-inline-end:46px; } #payBody .dx-pay > .dx-more{ grid-column:8; grid-row:1; justify-self:end; margin-inline-end:8px; }
+  #payBody .dx-pay > .dx-acts:not(.dx-menu), #payBody .dx-pay > .dx-acts:empty{ display:none; }
+  #payBody .dx-sub{ grid-column:1 / -1; grid-template-columns:var(--dxc) !important; padding:2px 0 0 !important; border-top:0 !important; } #payBody .dx-sub > *{ grid-column:2 / -1 !important; }
+  #payBody .dx-sub > .dx-d:empty{ display:none; } #payBody .dx-sub:has(> .dx-a){ border-top:1px dashed #EFE7DE !important; padding-top:5px !important; } #payBody .dx-sub:has(> .dx-a) > *{ grid-column:auto !important; }
+  #payBody .dx-sub:has(> .dx-a) > .dx-d{ grid-column:2 !important; grid-row:1; } #payBody .dx-sub:has(> .dx-a) > .dx-m{ grid-column:3 / span 2 !important; grid-row:1; } #payBody .dx-sub:has(> .dx-a) > .dx-k{ grid-column:5 !important; grid-row:1; } #payBody .dx-sub:has(> .dx-a) > .dx-doc{ grid-column:6 !important; grid-row:1; } #payBody .dx-sub:has(> .dx-a) > .dx-a{ grid-column:7 !important; grid-row:1; } #payBody .dx-sub:has(> .dx-a) > .dx-s{ grid-column:8 !important; grid-row:1; padding-inline-end:46px; } #payBody .dx-sub:has(> .dx-a) > .dx-more{ grid-column:8 !important; grid-row:1; justify-self:end; margin-inline-end:8px; }
+  #payBody .kd-crs-l{ gap:0; padding-top:0; } #payBody .kd-crs{ border:0 !important; border-radius:0 !important; background:none !important; padding:0 !important; box-shadow:none !important; }
+  #payBody .kd-crs + .kd-crs{ border-top:2px solid #E2D6C8 !important; margin-top:4px; }
+  #payBody .kd-crs-h{ padding:8px 12px 2px; margin:0 !important; background:none !important; border:0 !important; font-size:13px; }
+  #payBody .kd-deal{ border:0 !important; background:none !important; margin:0 !important; padding:0 !important; } #payBody .kd-deal + .kd-deal{ border-top:0 !important; margin-top:4px !important; }
+  #payBody .kd-deal-h2{ grid-template-columns:var(--dxc) !important; gap:0 !important; background:none !important; border:0 !important; border-radius:0 !important; margin:4px 0 0 !important; padding:4px 0 !important; }
+  #payBody .kd-deal-h2 > *{ padding:0 10px; } #payBody .kd-deal-h2 > .kd-d{ grid-column:2; } #payBody .kd-deal-h2 > .kd-w{ grid-column:3 / -1; } #payBody .kd-deal-h2 > .kd-b{ display:none; }
+  #payBody .kd-deal-h2 .kd-w b{ font-size:13.5px; }
+  #payBody .dx-plan{ padding:4px 10px; }
+}
+@media (min-width:761px){ #payBody .dx-pay > .dx-a, #payBody .dx-sub > .dx-a{ text-align:center; white-space:nowrap; } }
+#payBody .dx-more{ min-width:34px; padding:2px 8px !important; font-size:16px; line-height:1; letter-spacing:1px; } #payBody .dx-more.hot{ background:#FFF3D6; border-color:#E2C376; }
+#payBody .dx-menu{ display:none !important; } #payBody .dx-menu.open{ display:flex !important; flex-direction:column; align-items:stretch; gap:2px; position:fixed; z-index:60; background:#fff; border:1px solid #DDD3C8; border-radius:10px; box-shadow:0 8px 22px rgba(43,36,32,.16); padding:5px; min-width:210px; grid-column:auto !important; }
+#payBody .dx-menu.open .btn{ border:0 !important; background:none !important; box-shadow:none !important; text-align:start; justify-content:flex-start; padding:7px 10px !important; border-radius:7px; font-weight:600; color:#2B2420 !important; width:100%; } #payBody .dx-menu.open .btn:hover{ background:#F4EEE6 !important; } #payBody .dx-menu.open .btn.danger{ color:#A33A35 !important; } #payBody .dx-menu.open .btn.primary{ font-weight:800; }
+#payBody .dx-foot{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; padding:8px 10px 0; margin-top:4px; border-top:1px solid #EFE7DE; font-size:12.5px; } #payBody .dx-foot > .dx-kidacts{ display:flex; gap:6px; margin-inline-start:auto; }
 .tr-todo td{ background:#FFF8EC !important; } .tr-todo td:first-child{ box-shadow:inset -4px 0 0 #D9A441 !important; } .todo-ic, .todo-txt{ color:#8A6D1F !important; }
 tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2px solid #E0A63A; outline-offset:-2px; }
 .deals td.c-frm, .deals th.c-frm, .kd-deal [data-dfrm2]{ display:none !important; }   /* 5.21.91 (נועה 10.11): טופס חתום – רק בכרטיס */ .dx-form{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 6px; } .dx-form .muted{ font-size:13px; }
@@ -13342,7 +13366,7 @@ async function renderAll(b){
   const tgl = (tr) => { const i = Number(tr.dataset.dr), g = kids[i], d = g.deals[0], nx = tr.nextElementSibling, btn = tr.querySelector(".dx-tg");
     if (nx && nx.classList.contains("dx-row")) { nx.remove(); tr.classList.remove("dx-open"); btn.setAttribute("aria-expanded", "false"); dxPaint(); return; }
     const x = document.createElement("tr"); x.className = "dx-row";
-    if (g.deals.length === 1) { x.innerHTML = `<td colspan="${tr.cells.length}">${dealExpand(d)}</td>`; tr.after(x); wireExpand(x, d, () => again()); }
+    if (g.deals.length === 1) { x.innerHTML = `<td colspan="${tr.cells.length}">${dealExpand(d)}</td>`; tr.after(x); wireExpand(x, d, () => again()); dxMenus(x); dxCols(b); }
     else { const crs = [], byC = {};   // קורס: התרגול השוטף (תשלום ראשון / הוראת קבע) – אחד; כל מרתון – לפי השם; קישורים אישיים – יחד
       g.deals.slice().sort((a1, a2) => String(a1.date).localeCompare(String(a2.date))).forEach(dd => { const k = dd.group === "mar" ? "mar:" + dd.desc : dd.group === "pay" ? "pay" : "reg";
         (byC[k] = byC[k] || (crs.push(byC[k] = { k, deals: [] }), byC[k])).deals.push(dd); });
@@ -13351,6 +13375,7 @@ async function renderAll(b){
           ${c.deals.map(dd => `<div class="kd-deal" data-kd="${list.indexOf(dd)}"><div class="kd-deal-h2"><span class="kd-d">${dmy(dd.date)}</span><span class="kd-w"><b>${esc(dd.desc || dd.kindTxt || "")}</b>${dd.kindHtml.match(/k-sub">([\s\S]*?)<\/div>/) ? `<small class="muted">${esc(dd.kindHtml.match(/k-sub">([\s\S]*?)<\/div>/)[1].replace(/<[^>]+>/g, ""))}</small>` : ""}</span><span class="kd-b">${dealForm(dd) ? `<button type="button" class="btn small" data-dfrm2="${list.indexOf(dd)}" title="הטופס החתום (PDF)">📄 טופס חתום</button>` : ""}</span></div>${dealExpand(dd)}</div>`).join("")}</div>`; }).join("")}</div></td>`;
       tr.after(x); x.querySelectorAll("[data-kd]").forEach(bx => wireExpand(bx, list[Number(bx.dataset.kd)], () => again()));
       x.querySelectorAll("[data-dfrm2]").forEach(y => y.onclick = async (e) => { e.stopPropagation(); y.disabled = true; try { await txPdf(dealForm(list[Number(y.dataset.dfrm2)])); } catch(er) { toast("לא ניתן להוריד: " + er.message); } y.disabled = false; }); }
+    if (g.deals.length > 1) { dxMenus(x); dxCols(b); }
     tr.classList.add("dx-open"); btn.setAttribute("aria-expanded", "true"); dxPaint(); };
   if ($("kidX")) $("kidX").onclick = () => { setKid(null); again(); };
   b.querySelectorAll("tr.deal-r").forEach(tr => tr.onclick = (e) => { if (e.target.closest("a, .name-link, [data-lead]") && !e.target.closest(".dx-tg")) return; tgl(tr); });
@@ -13452,7 +13477,7 @@ function dealExpand(d){
   // נועה 8.11: עמודות קבועות בכל השורות (תאריך · סוג · סכום · סטטוס · פרטים · חשבונית · פעולות) – כדי שיהיה ברור מה איפה
   const cell = (c, h) => `<span class="${c}">${h || ""}</span>`;
   const planLine = (pp) => { const rem = Math.max(0, (pp.total_count || 0) - (pp.charged_count || 0)), lv = ["active", "paused", "failed"].includes(pp.status);
-    return `<div class="dx-pay dx-planrow">${cell("dx-d", pp.next_charge_date && lv && rem ? "הבא " + dmy(pp.next_charge_date) : pp.created_at ? dmy(pp.created_at) : "")}${cell("dx-k", "הוראת קבע")}${cell("dx-a", `<b>${money(pp.monthly_amount)}</b><small class="muted"> × ${pp.total_count || "?"}</small>`)}${cell("dx-s", stChip(pp.status))}${cell("dx-m muted", `${pp.charged_count || 0} מתוך ${pp.total_count || "?"} חיובים${pp.last_amount ? " · יוני " + money(pp.last_amount) : ""}${pp.card_last4 ? " · " + card4(pp.card_last4, pp.card_exp) : ""}`)}${cell("dx-doc", "")}${cell("dx-acts", planMarkBtns(pp, "dxcx") + (lv && ME.role === "admin" ? `<button type="button" class="btn small" data-dxed="${pp.id}">✎ שינוי</button>${pp.status === "paused" ? `<button type="button" class="btn small" data-dxst="active">▶ הפעלה</button>` : `<button type="button" class="btn small" data-dxst="paused">⏸ השהיה</button>`}<button type="button" class="btn small danger" data-dxst="cancelled">⊘ ביטול</button>` : ""))}${pp.pending_update ? `<div class="dx-sub">${cell("dx-d", "")}<span class="pend">⏳ נשלח לאיקרדיט – מתעדכן תוך דקה</span></div>` : ""}${pp.update_error ? `<div class="dx-sub">${cell("dx-d", "")}<span class="dx-why">⚠ לא עודכן באיקרדיט: ${esc(pp.update_error)}</span></div>` : ""}
+    return `<div class="dx-pay dx-planrow">${cell("dx-d", pp.next_charge_date && lv && rem ? "הבא " + dmy(pp.next_charge_date) : pp.created_at ? dmy(pp.created_at) : "")}${cell("dx-k", "הוראת קבע")}${cell("dx-a", `<b>${money(pp.monthly_amount)}</b><small class="muted"> × ${pp.total_count || "?"}</small>`)}${cell("dx-s", stChip(pp.status))}${cell("dx-m muted", `${pp.charged_count || 0} מתוך ${pp.total_count || "?"} חיובים${pp.last_amount ? " · יוני " + money(pp.last_amount) : ""}${pp.card_last4 ? " · " + card4(pp.card_last4, pp.card_exp) : ""}`)}${cell("dx-doc", "")}${cell("dx-acts", planMarkBtns(pp, "dxcx") + (lv && ME.role === "admin" ? `<button type="button" class="btn small" data-dxed="${pp.id}">✎ שינוי</button>${rem > 1 && pp.status === "active" && pp.next_charge_date ? `<button type="button" class="btn small" data-dxskip="${pp.id}">⏭ דילוג על החיוב הבא</button>` : ""}${pp.status === "paused" ? `<button type="button" class="btn small" data-dxst="active">▶ הפעלה</button>` : `<button type="button" class="btn small" data-dxst="paused">⏸ השהיה</button>`}<button type="button" class="btn small danger" data-dxst="cancelled">⊘ ביטול</button>` : ""))}${pp.pending_update ? `<div class="dx-sub">${cell("dx-d", "")}<span class="pend">⏳ נשלח לאיקרדיט – מתעדכן תוך דקה</span></div>` : ""}${pp.update_error ? `<div class="dx-sub">${cell("dx-d", "")}<span class="dx-why">⚠ לא עודכן באיקרדיט: ${esc(pp.update_error)}</span></div>` : ""}
       ${planMarked(pp) ? `<div class="dx-sub">${cell("dx-d", "")}${cell("dx-k muted", planMarkInfo(pp))}</div>` : ""}</div>`; };
   const pdfB = "";   // 5.21.91 (נועה 10.11): הטופס החתום – רק בכרטיס התלמיד, לא במסך התשלומים
   const refRows = (r) => (r.refunds || []).map(f => `<div class="dx-sub${f.cancelled_at ? " cx" : ""}">${cell("dx-d", dmy(f.at))}${cell("dx-k", "↩ זיכוי")}${cell("dx-a", `<b>${money(f.amount)}</b>`)}${cell("dx-s", f.cancelled_at ? `<span class="muted">(בוטל)</span>` : `<span class="chip st-refund">סומן</span>`)}${cell("dx-m muted", `${f.by ? "סימנ/ה: " + esc(f.by) : ""}${f.note ? (f.by ? " · " : "") + esc(f.note) : ""}`)}${cell("dx-doc muted", f.document_number ? "🧾 זיכוי " + esc(f.document_number) : "")}${cell("dx-acts", f.cancelled_at ? "" : `<button type="button" class="btn small" data-refx="${f.id}">ביטול הסימון</button>`)}</div>`).join("");
@@ -13461,21 +13486,37 @@ function dealExpand(d){
     const left = Number(r.amount) - Number(r.refunded_amount || 0);
     return `<div class="dx-pay${r.status === "אושר" ? "" : " bad"}">${cell("dx-d", dmy(r.date) + tm)}${cell("dx-k", r.kind === "הקמת הוראת קבע" ? "🔁 הוראת קבע הוקמה" : r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב " + esc(r.charge_no || "") : esc(r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : r.kind || ""))}${cell("dx-a", r.kind === "הקמת הוראת קבע" ? `<span class="muted">בלי חיוב</span>` : `<b>${money(r.amount)}</b>`)}${cell("dx-s", r.kind === "הקמת הוראת קבע" ? "" : stPay(r))}
       ${cell("dx-m muted", [r.card_last4 ? card4(r.card_last4) : "", r.approval ? `אישור <span dir="ltr">${esc(r.approval)}</span>` : ""].filter(Boolean).join(" · "))}${cell("dx-doc", docA(r))}
-      ${cell("dx-acts", `${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" && left > 0 && !r.manual ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי</button>` : ""}${r.manual ? `<button type="button" class="btn small kd-undo" data-dxunp="${esc(r.id)}" title="לסימון שנעשה בטעות – חוזר ל&quot;ממתין לתשלום&quot;">↩ ביטול "שולם"</button>` : ""}${!r.manual && r.status === "אושר" && r.purpose === "pay_link" && !r.enrollment_id && !r.marathon_registration_id && r.student_id ? `<button type="button" class="btn small" data-dxatt="${r.id}" data-sid="${r.student_id}">🔗 חיבור לקורס</button>` : ""}`)}
+      ${cell("dx-acts", `${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" && !r.manual && !r.refund_status && !r.refund_pending && !Number(r.refunded_amount || 0) && Number(r.amount) > 0 ? `<button type="button" class="btn small danger" data-dxrefi="${r.id}" data-amt="${Number(r.amount)}">↩ זיכוי מלא באיקרדיט</button>` : ""}${r.status === "אושר" && left > 0 && !r.manual && !r.refund_pending ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי חלקי (ידני)</button>` : ""}${r.manual ? `<button type="button" class="btn small kd-undo" data-dxunp="${esc(r.id)}" title="לסימון שנעשה בטעות – חוזר ל&quot;ממתין לתשלום&quot;">↩ ביטול "שולם"</button>` : ""}${!r.manual && r.status === "אושר" && r.purpose === "pay_link" && !r.enrollment_id && !r.marathon_registration_id && r.student_id ? `<button type="button" class="btn small" data-dxatt="${r.id}" data-sid="${r.student_id}">🔗 חיבור לקורס</button>` : ""}`)}
+      ${r.refund_pending ? `<div class="dx-sub"><span class="pend">⏳ זיכוי נשלח לאיקרדיט – מתעדכן תוך דקה</span></div>` : ""}${r.refund_error ? `<div class="dx-sub"><span class="dx-why">⚠ הזיכוי לא בוצע באיקרדיט: ${esc(r.refund_error)}</span></div>` : ""}
       ${td || r.reason ? `<div class="dx-sub">${cell("dx-d", "")}<span class="dx-why">⚠ ${esc(td || "")}${td && r.reason ? " · " : ""}${esc(r.reason || "")}</span></div>` : ""}
       ${refRows(r)}</div>`; };
   return `<div class="dx">
     ${pdfB ? `<div class="dx-form only-m-blk"><span class="muted">${esc(d.kindTxt || "")}${d.desc ? " · " + esc(d.desc) : ""}</span>${pdfB}</div>` : ""}
     ${info.filter(Boolean).length ? `<div class="dx-info${info.filter(x => x && !/only-m/.test(x)).length ? "" : " only-m-blk"}">${info.filter(Boolean).map(x => /^<span/.test(x) ? x : `<span>${x}</span>`).join("")}</div>` : ""}
-    ${d.pending ? `<div class="dx-pay bad">${cell("dx-d", d.pending.created_at ? dmy(d.pending.created_at) : "")}${cell("dx-k", "תשלום טלפוני")}${cell("dx-a", `<b>${money(d.pending.amount)}</b>${d.pending.monthly_amount ? `<small class="muted"> + ${money(d.pending.monthly_amount)} לחודש</small>` : ""}`)}${cell("dx-s", `<span class="chip st-phone">📞 ממתין</span>`)}${cell("dx-m muted", esc(d.pending.what || ""))}${cell("dx-doc", "")}${cell("dx-acts", "")}
-      <div class="dx-sub">${cell("dx-d", "")}<span class="dx-acts wide"><button type="button" class="btn small primary" data-dxnow="1">⌨️ הזנת כרטיס עכשיו</button><button type="button" class="btn small" data-dxlink="1">🔗 העתקת קישור להורה</button><button type="button" class="btn small" data-dxpaid="1">✔ שולם (גביתי בריווחית)</button></span></div></div>` : ""}
+    ${d.pending ? `<div class="dx-pay bad">${cell("dx-d", d.pending.created_at ? dmy(d.pending.created_at) : "")}${cell("dx-k", "תשלום טלפוני")}${cell("dx-a", `<b>${money(d.pending.amount)}</b>${d.pending.monthly_amount ? `<small class="muted"> + ${money(d.pending.monthly_amount)} לחודש</small>` : ""}`)}${cell("dx-s", `<span class="chip st-phone">📞 ממתין</span>`)}${cell("dx-m muted", esc(d.pending.what || ""))}${cell("dx-doc", "")}${cell("dx-acts", `<button type="button" class="btn small primary" data-dxnow="1">⌨️ הזנת כרטיס עכשיו</button><button type="button" class="btn small" data-dxlink="1">🔗 העתקת קישור להורה</button><button type="button" class="btn small" data-dxpaid="1">✔ שולם (גביתי בריווחית)</button>`)}</div>` : ""}
     ${pays.filter(r => r.kind !== "חיוב חודשי").map(line).join("")}
     ${p ? planLine(p) : ""}
     ${pays.filter(r => r.kind === "חיוב חודשי").map(line).join("")}
-    ${live ? `<div class="dx-plan muted">שינוי, השהיה וביטול – נשלחים מכאן לאיקרדיט. החלפת כרטיס – בריווחית.</div>` : ""}
-    ${d.student_id && ME.role === "admin" ? `<div class="dx-sub dx-kidacts"><span class="dx-acts wide"><button type="button" class="btn small" data-dxnew="${d.student_id}">+ 💳 קישור תשלום</button><button type="button" class="btn small" data-dxrec="${d.student_id}">🔁 הוראת קבע בלבד</button></span></div>` : ""}
+    ${live || (d.student_id && ME.role === "admin") ? `<div class="dx-foot">${live ? `<span class="muted">שינוי, השהיה וביטול – נשלחים מכאן לאיקרדיט. החלפת כרטיס – בריווחית.</span>` : ""}${d.student_id && ME.role === "admin" ? `<span class="dx-kidacts"><button type="button" class="btn small" data-dxnew="${d.student_id}">+ 💳 קישור תשלום</button><button type="button" class="btn small" data-dxrec="${d.student_id}">🔁 הוראת קבע בלבד</button></span>` : ""}</div>` : ""}
   </div>`;
 }
+// 5.21.110 (נועה 11.11, 23:19: "כשפותחים את השורה פתאום העמודות משתנות... ויש לי תמיד שורה נוספת של כפתורים"):
+// השורות בפירוט – באותן עמודות של הטבלה (מודדים את רוחב העמודות), והפעולות של כל שורה – בתפריט "⋯" אחד בסוף השורה
+function dxCols(b){ const t = b && b.querySelector("table.deals"); if (!t) return;
+  const ths = [...t.querySelectorAll("thead th")].filter(h => h.offsetWidth > 0); if (ths.length < 6) return;
+  t.style.setProperty("--dxc", ths.map(h => h.getBoundingClientRect().width.toFixed(1) + "px").join(" ")); }
+window.addEventListener("resize", () => { clearTimeout(window.__dxcT); window.__dxcT = setTimeout(() => dxCols($("payBody")), 120); });
+function dxMenus(x){
+  x.querySelectorAll(".dx-pay > .dx-acts, .dx-sub > .dx-acts").forEach(a => { if (!a.querySelector("button") || a.previousElementSibling && a.previousElementSibling.classList.contains("dx-more")) return;
+    const m = document.createElement("button"); m.type = "button"; m.className = "btn small dx-more" + (a.querySelector(".primary") ? " hot" : ""); m.textContent = "⋯"; m.title = "פעולות"; m.setAttribute("aria-label", "פעולות");
+    a.classList.add("dx-menu"); a.before(m);
+    m.onclick = (e) => { e.stopPropagation(); const op = !a.classList.contains("open"); document.querySelectorAll(".dx-menu.open").forEach(o => o.classList.remove("open"));
+      if (!op) return; a.classList.add("open"); const r = m.getBoundingClientRect(); a.style.top = Math.round(r.bottom + 4) + "px"; a.style.left = Math.round(Math.max(8, r.left)) + "px";
+      const mr = a.getBoundingClientRect(); if (mr.bottom > innerHeight - 8) a.style.top = Math.round(r.top - mr.height - 4) + "px"; };
+    a.addEventListener("click", () => setTimeout(() => a.classList.remove("open"), 0)); });
+}
+document.addEventListener("click", (e) => { if (!e.target.closest(".dx-menu, .dx-more")) document.querySelectorAll(".dx-menu.open").forEach(o => o.classList.remove("open")); });
+document.addEventListener("scroll", () => document.querySelectorAll(".dx-menu.open").forEach(o => o.classList.remove("open")), true);
 function wireExpand(box, d, reload){
   { const r0 = reload; reload = () => { S.reopen = d.student_id || "n" + d.name; r0(); }; }   // 5.21.91 (נועה 10.11): אחרי כל פעולה בשורה (זיכוי, רענון, שולם…) – נשארים בשורה
   const p = d.plan, pays = (d.first && !d.pays.includes(d.first) ? [d.first] : []).concat(d.pays);
@@ -13501,7 +13542,7 @@ function wireExpand(box, d, reload){
     try { const res = await rpc("payment_attach_course", { p_payment: Number(b.dataset.dxatt), p_course_member: v }); toast("חובר לקורס" + (res && res.order_kind ? " · ההזמנה סומנה כשולמה" : "")); reload(); }
     catch(e) { const t = String(e.message || ""); toast(/already has an order/.test(t) ? "התשלום כבר מחובר להזמנה" : "לא חובר: " + t); b.disabled = false; } });
   box.querySelectorAll("[data-dxnew]").forEach(b => b.onclick = () => newFromCard(Number(b.dataset.dxnew), "reg"));
-  setTimeout(() => { const seen = {}; [...document.querySelectorAll("#payBody .dx-kidacts")].reverse().forEach(x => { const k = (x.querySelector("[data-dxnew]") || {}).dataset; const id = k && k.dxnew; if (!id) return; if (seen[id]) x.remove(); else seen[id] = 1; }); }, 0);   // פעם אחת לכל ילד/ה
+  setTimeout(() => { const seen = {}; [...document.querySelectorAll("#payBody .dx-kidacts")].reverse().forEach(x => { const k = (x.querySelector("[data-dxnew]") || {}).dataset; const id = k && k.dxnew; if (!id) return; if (seen[id]) { const f = x.parentNode; x.remove(); if (f && !f.textContent.trim()) f.remove(); } else seen[id] = 1; }); }, 0);   // פעם אחת לכל ילד/ה
   box.querySelectorAll("[data-dxrec]").forEach(b => b.onclick = async () => { const sid = Number(b.dataset.dxrec); try { await crsLoad(); await crsEnsureStudent(sid); } catch(e) {}
     const cms = crsOfStudent(sid).filter(m => !m.history_at && !(CRS.byId[m.course_id] || {}).marathon_id); if (!cms.length) { toast("הוראת קבע – רק על קורס. אין תרגול שוטף בכרטיס."); return; }
     const v = cms.length === 1 ? cms[0].id : await uiChoose("על איזה קורס?", cms.map(m => ({ t: crsLabel(CRS.byId[m.course_id] || {}, m), v: m.id }))); if (v) newFromCard(sid, "rec", v); });
@@ -13515,6 +13556,18 @@ function wireExpand(box, d, reload){
       if (nd && /^\d{4}-\d{2}-\d{2}$/.test(nd) && nd !== String(pp.next_charge_date || "").slice(0, 10)) await call("recurring_plan_set_next_date", { p_id: pp.id, p_date: nd, p_all: true });
       toast("נשמר – נשלח לאיקרדיט"); PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e) {} reload(); }
     catch(e) { toast("לא נשמר: " + e.message); b.disabled = false; } });
+  // תש-92 (icredit-70): דילוג על החיוב הבא · זיכוי מלא באיקרדיט
+  box.querySelectorAll("[data-dxskip]").forEach(b => b.onclick = async () => { const pp = p && String(p.id) === b.dataset.dxskip ? p : S.plans.find(x => String(x.id) === b.dataset.dxskip); if (!pp) return;
+    const rem = Math.max(0, (pp.total_count || 0) - (pp.charged_count || 0)), nd = new Date(String(pp.next_charge_date).slice(0, 10) + "T12:00:00"); nd.setMonth(nd.getMonth() + 1);
+    if (!await uiConfirm(`לדלג על החיוב של ${dmy(pp.next_charge_date)}?\nיישארו ${rem - 1} חיובים, הבא ב-${dmy(nd.toISOString().slice(0, 10))}.`, { ok: "דילוג" })) return;
+    b.disabled = true;
+    try { const res = await call("recurring_plan_skip", { p_id: pp.id }); toast("דולג – הבא ב-" + dmy((res && res.next_date) || nd.toISOString().slice(0, 10)) + " · נשלח לאיקרדיט"); PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e) {} reload(); }
+    catch(e) { const t = String(e.message || ""); toast(/last charge/.test(t) ? "נשאר חיוב אחד – אפשר רק לבטל את ההוראה" : /pending/.test(t) ? "שינוי קודם עוד נשלח לאיקרדיט – לנסות שוב בעוד דקה" : /no next/.test(t) ? "אין חיוב הבא" : "לא נשמר: " + t); b.disabled = false; } });
+  box.querySelectorAll("[data-dxrefi]").forEach(b => b.onclick = async () => {
+    if (!await uiConfirm(`לבטל את העסקה ולהחזיר ${money(Number(b.dataset.amt))} לכרטיס?\nהמסמך באיקרדיט יבוטל. אי אפשר לבטל את הפעולה.`, { ok: "זיכוי מלא", danger: true })) return;
+    b.disabled = true;
+    try { await call("payment_refund_icredit", { p_payment: Number(b.dataset.dxrefi) }); toast("הזיכוי נשלח לאיקרדיט"); reload(); }
+    catch(e) { const t = String(e.message || ""); toast(/already refunded/.test(t) ? "כבר זוכה" : /already requested/.test(t) ? "זיכוי כבר נשלח" : /not an iCredit/.test(t) ? "זה לא תשלום באיקרדיט – לסמן זיכוי ידני" : /not paid/.test(t) ? "התשלום לא אושר" : "לא בוצע: " + t); b.disabled = false; } });
   box.querySelectorAll("[data-dxst]").forEach(btn => btn.onclick = async () => { const st = btn.dataset.dxst;
     if (st === "cancelled" && !await uiConfirm(`לבטל את הוראת הקבע של ${p.student_name || d.name}? החיובים הבאים לא יתבצעו. (אי אפשר לבטל את הביטול - צריך הוראה חדשה)`)) return;
     if (st === "paused" && !await uiConfirm("להשהות? לא יהיו חיובים עד שמחדשים.")) return;
