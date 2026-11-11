@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.101">
+<meta name="app-version" content="5.21.102">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6236,8 +6236,8 @@ async function loadLeadPayments(l){
   // 5.19.64 (נועה): אותה שורה כמו בעסקאות (תאריך · סוג · סכום · סטטוס · כרטיס · 🧾 · טופס חתום)
   const lpRow = (r, i) => { const okr = r.status === "אושר";
     const doc = /^https:\/\//.test(r.document_url || "") ? `<a class="doc-a" href="${esc(r.document_url)}" target="_blank" rel="noopener">🧾 חשבונית${r.document_number ? " " + esc(r.document_number) : ""} ↗</a>` : (r.document_number ? `<span class="muted">🧾 ${esc(r.document_number)}</span>` : "");
-    const lbl = r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב" + (r.charge_no ? " " + r.charge_no : " חודשי") : r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : (r.kind || "תשלום");
-    return `<div class="dx-pay${okr ? "" : " bad"}"><span class="dx-d">${esc(dm(r.date))}</span><span class="dx-k">${esc(lbl)}</span><b>${fmtMoney(r.amount)}</b><span class="lp-st ${okr ? "ok" : "no"}">${okr ? "✓ שולם" : "לא התקבל"}</span>${r.refund_status ? `<span class="lp-st ref">↩ ${esc(r.refund_status)}${r.refund_status !== "זוכה" && Number(r.refunded_amount) ? " " + fmtMoney(r.refunded_amount) : ""}</span>` : ""}
+    const lbl = r.kind === "הקמת הוראת קבע" ? "🔁 הוראת קבע הוקמה" : r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב" + (r.charge_no ? " " + r.charge_no : " חודשי") : r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : (r.kind || "תשלום");
+    return `<div class="dx-pay${okr ? "" : " bad"}"><span class="dx-d">${esc(dm(r.date))}</span><span class="dx-k">${esc(lbl)}</span>${r.kind === "הקמת הוראת קבע" ? "" : `<b>${fmtMoney(r.amount)}</b><span class="lp-st ${okr ? "ok" : "no"}">${okr ? "✓ שולם" : "לא התקבל"}</span>`}${r.refund_status ? `<span class="lp-st ref">↩ ${esc(r.refund_status)}${r.refund_status !== "זוכה" && Number(r.refunded_amount) ? " " + fmtMoney(r.refunded_amount) : ""}</span>` : ""}
       ${r.card_last4 ? `<span class="muted" dir="ltr">•••• ${esc(r.card_last4)}</span>` : ""}${doc}${r.description ? `<span class="muted">${esc(r.description)}</span>` : ""}
 ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.issue)}</span>` : ""}</div>`; };
   const regHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">הרשמות שסומנו כשולמו</div>${ix.map(i => [paidRegs[i], i]).map(([x, i]) => `<div class="lp-reg"><span>${esc(x.what)}${x.at ? ` <span class="muted">· ${esc(dm(x.at))}</span>` : ""}</span><button type="button" class="btn small" data-unpaid="${i}" title="לסימון שנעשה בטעות - חוזר ל&quot;ממתין לתשלום&quot;">↩ ביטול "שולם"</button></div>`).join("")}</div>` : "";
@@ -13355,7 +13355,7 @@ function buildDeals(rows, qf, qt, ibOpen){
       kindTxt: "תרגול שוטף", kindHtml: kindH("plan", "הוראת קבע"), amountHtml: `<b>${money(p.monthly_amount)}</b><div class="muted">לחודש</div>`, statusHtml: planHtml(p) + (p.status !== "failed" && ch.some(r => r.status === "נכשל") ? `<div class="st2"><span class="chip st-failed">חיוב לא התקבל</span></div>` : "") }); };
   plans.filter(p => !used.has(p.id) && (live(p) || (byPlan[p.id] || []).length || (d10(p.created_at) >= qf && d10(p.created_at) <= qt))).forEach(p => { used.add(p.id); planRow(p); });
   rows.filter(r => r.kind !== "הרשמה - תשלום ראשון" && !(r.plan_id && used.has(r.plan_id))).forEach(r => {
-    mk({ group: r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" ? "plan" : "first", date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, pays: [r], desc: r.description || "",
+    mk({ group: r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" || r.kind === "הקמת הוראת קבע" ? "plan" : "first",   /* תש-85: הקמת הוראת קבע (₪0) – עם ההוראה, לא תשלום */ date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, pays: [r], desc: r.description || "",
       kindTxt: (GK[r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" ? "plan" : "first"])[1], kindHtml: kindH(r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" ? "plan" : "first", r.kind === "חיוב חודשי" ? "חיוב " + (r.charge_no || "") : ""), amountHtml: `<b>${money(r.amount)}</b>`, statusHtml: stPay(r) }); });
   // הרשמות בתשלום טלפוני שעוד לא שולמו ("להתקשר לתשלום")
   (S.callList || []).forEach(x => { const g = x.kind === "marathon" ? "mar" : "first";
@@ -13396,7 +13396,7 @@ function dealExpand(d){
   const line = (r) => { const fail = S.failed.find(f => f.id === r.id), iss = S.issues.find(f => f.id === r.id), td = payTodo(r, {});
     const tm = String(r.date || "").length > 10 ? " " + new Date(r.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }) : "";
     const left = Number(r.amount) - Number(r.refunded_amount || 0);
-    return `<div class="dx-pay${r.status === "אושר" ? "" : " bad"}">${cell("dx-d", dmy(r.date) + tm)}${cell("dx-k", r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב " + esc(r.charge_no || "") : esc(r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : r.kind || ""))}${cell("dx-a", `<b>${money(r.amount)}</b>`)}${cell("dx-s", stPay(r))}
+    return `<div class="dx-pay${r.status === "אושר" ? "" : " bad"}">${cell("dx-d", dmy(r.date) + tm)}${cell("dx-k", r.kind === "הקמת הוראת קבע" ? "🔁 הוראת קבע הוקמה" : r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב " + esc(r.charge_no || "") : esc(r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : r.kind || ""))}${cell("dx-a", r.kind === "הקמת הוראת קבע" ? `<span class="muted">בלי חיוב</span>` : `<b>${money(r.amount)}</b>`)}${cell("dx-s", r.kind === "הקמת הוראת קבע" ? "" : stPay(r))}
       ${cell("dx-m muted", [r.card_last4 ? card4(r.card_last4) : "", r.approval ? `אישור <span dir="ltr">${esc(r.approval)}</span>` : ""].filter(Boolean).join(" · "))}${cell("dx-doc", docA(r))}
       ${cell("dx-acts", `${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" && left > 0 ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי</button>` : ""}`)}
       ${td || r.reason ? `<div class="dx-sub">${cell("dx-d", "")}<span class="dx-why">⚠ ${esc(td || "")}${td && r.reason ? " · " : ""}${esc(r.reason || "")}</span></div>` : ""}
