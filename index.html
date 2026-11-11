@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.99">
+<meta name="app-version" content="5.21.100">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4360,7 +4360,7 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
   const chip = (st) => { const c = NC_ST[st] || [st, "st-off"]; return `<span class="nc-st ${c[1]}">${esc(c[0])}</span>`; };
   const rows = pl.filter(x => x.status !== "cancelled").slice(0, 8).map(x => `<div class="nc-row">
       <div class="nc-what"><b>${esc(x.description || "קישור אישי")}</b><span class="muted">קישור תשלום · נוצר ${dm(x.created_at)}${x.status === "paid" && x.paid_at ? ` · שולם ${dm(x.paid_at)}` : ""}</span></div>
-      <div class="nc-amt">${money0(x.one_time_amount)}${x.monthly_amount ? `<span class="muted"> + ${money0(x.monthly_amount)} × ${x.monthly_count}</span>` : ""}</div>
+      <div class="nc-amt">${x.recurring_only ? `🔁 ${money0(x.monthly_amount)} × ${x.monthly_count}` : money0(x.one_time_amount)}${!x.recurring_only && x.monthly_amount ? `<span class="muted"> + ${money0(x.monthly_amount)} × ${x.monthly_count}</span>` : ""}</div>
       ${x.status === "cancelled" ? chip(x.status) : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["submitted", "מולא"], ["paid", "שולם"]], x.status)}
       <div class="nc-b">${["sent", "opened", "submitted"].includes(x.status) ? share(x.url, "קישור התשלום") : ""}<button type="button" class="btn small" data-pldet="${esc(x.code)}">פרטים</button></div></div>`)
     .concat([].map(x => `<div class="nc-row">
@@ -13748,7 +13748,7 @@ async function renderLinks(b){
         return `<tr class="${done ? "pl-done" : ""}"><td class="nw">${dmy(l.created_at)}<div class="muted pl-by">${esc(l.created_by_name || "")}</div></td>
         <td>${l.student_name ? stuCell(l.student_name, l.student_id) : `<span class="muted">תלמיד/ה חדש/ה</span>`}${l.student_id ? ` <span class="pl-lk" title="מחובר לכרטיס התלמיד/ה">🔗</span>` : ""}<div class="muted">${esc(l.parent_name || "")}</div><div class="muted show-m">${esc(l.description || "")}</div></td>
         <td class="hide-m">${esc(l.description)}${isTr(l) ? ` <span class="chip pl-tr">ניסיון</span>` : ""}${l.expires_at && live(l) ? `<div class="muted pl-by">בתוקף עד ${dmy(l.expires_at)}</div>` : ""}</td>
-        <td class="num nw">${money(l.one_time_amount)}${l.monthly_amount ? `<div class="muted">+ ${money(l.monthly_amount)} × ${l.monthly_count}</div>` : ""}</td>
+        <td class="num nw">${l.recurring_only ? `<span class="muted">בלי חיוב עכשיו</span>` : money(l.one_time_amount)}${l.monthly_amount ? `<div class="muted">+ ${money(l.monthly_amount)} × ${l.monthly_count}</div>` : ""}</td>
         <td>${plStp(l, exp)}</td>
         <td><div class="pl-acts">${lv && !isTr(l) ? `<button class="btn small" data-ledit="${li}" type="button" title="עריכה">✎<span class="bt"> עריכה</span></button>` : ""}${lv ? `<span class="lk2-cell" data-u="${esc(l.url)}" data-msg="${esc("שלום, קישור לתשלום בתלם: ")}"${ph ? ` data-ph="${esc(ph)}"` : ""}><button type="button" class="btn small" ${ME.role === "admin" ? "data-scopy" : `data-copy="${esc(l.url)}"`} title="העתקת הקישור">העתקה</button><a class="btn small" ${ph ? "" : "data-wa "}target="_blank" rel="noopener" href="${esc(ph ? waLink(ph, "שלום, קישור לתשלום בתלם: " + l.url) : "https://wa.me/?text=" + encodeURIComponent("שלום, קישור לתשלום בתלם: " + l.url))}" title="${ph ? "וואטסאפ להורה" : "וואטסאפ"}" aria-label="וואטסאפ">${WA_IC}</a></span>` : ""}
           ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button" title="טופס חתום">📄<span class="bt"> טופס</span></button>` : ""}<button class="btn small" data-ldup="${li}" type="button" title="שכפול – קישור חדש עם אותם פרטים">⧉<span class="bt"> שכפול</span></button><button class="btn small" data-ldet="${li}" type="button">פרטים</button></div></td></tr>`; }).join("")}</tbody></table>`
@@ -13776,7 +13776,7 @@ function linkDet(l, all, b){ const live = (x) => ["sent", "opened"].includes(x.s
     const lab = Object.fromEntries(FIELDS), fs = Object.entries(l.fields || {}).filter(([, v]) => v && (v.value || v.required));
     pnlOpen(`<header><div><h2>${esc(l.description || "תשלום אישי")}</h2><div class="muted">${esc(l.parent_name || "")}${l.student_name ? " · " + esc(l.student_name) : ""}</div></div><button class="btn small x" type="button">✕</button></header>
       <div class="body"><div class="sec"><h3>התשלום</h3><dl class="kv"><dt>סטטוס</dt><dd><span class="chip st-${esc(l.status)}">${esc(LINK_ST[l.status] || l.status)}</span></dd>
-        <dt>תשלום עכשיו</dt><dd>${money(l.one_time_amount)}</dd>${l.monthly_amount ? `<dt>הוראת קבע</dt><dd>${money(l.monthly_amount)} בחודש · ${l.monthly_count} תשלומים</dd>` : ""}
+        <dt>תשלום עכשיו</dt><dd>${l.recurring_only ? "בלי חיוב – הוראת קבע בלבד" : money(l.one_time_amount)}</dd>${l.monthly_amount ? `<dt>הוראת קבע</dt><dd>${money(l.monthly_amount)} בחודש · ${l.monthly_count} תשלומים</dd>` : ""}
         <dt>נוצר</dt><dd>${dmy(l.created_at)}${l.created_by_name ? " · " + esc(l.created_by_name) : ""}</dd>${l.submitted_at ? `<dt>ההורה מילא/ה</dt><dd>${dmy(l.submitted_at)}</dd>` : ""}${l.paid_at ? `<dt>שולם</dt><dd>${dmy(l.paid_at)}</dd>` : ""}
         ${l.student_id ? `<dt>כרטיס</dt><dd>🔗 ${stuCell(l.student_name, l.student_id)}</dd>` : ""}
         <dt>קישור</dt><dd dir="ltr" style="word-break:break-all">${esc(l.url || "")}</dd></dl></div>
@@ -13797,11 +13797,11 @@ function newLink(src, mode, opt){
   const ed = mode === "edit" && src, F = (src && src.fields) || {};
   let SID = opt.sid ? Number(opt.sid) : src && src.student_id ? Number(src.student_id) : null;
   // נועה 6.11 (תש-46): סוג הקישור – תשלום רגיל / שיעור בודד (118 ₪) / חודש ניסיון (trial_link_create)
-  let TY = opt.type || (src && /^חודש ניסיון/.test(src.description || "") ? "trial" : src && /^שיעור בודד/.test(src.description || "") ? "single" : "reg");
+  let TY = opt.type || (src && src.recurring_only ? "rec" : src && /^חודש ניסיון/.test(src.description || "") ? "trial" : src && /^שיעור בודד/.test(src.description || "") ? "single" : "reg");
   const reqDef = (k) => F[k] ? !!F[k].required : true;
   const showDef = (k) => F[k] ? !F[k].hide : !["track", "subject"].includes(k);   // 5.21.88 (נועה 10.11): "להצגה" – מה ההורה רואה; מסלול / מקצוע – כבוי כברירת מחדל   // נועה 6.11: כמו בטופס ההרשמה – הכול חובה (אפשר לבטל)
   pnlOpen(`<header><div><h2>${ed ? "עריכת קישור אישי" : mode === "dup" ? "קישור חדש – שכפול" : "קישור אישי חדש"}</h2><div class="muted">${ed ? "אותו קישור – ההורה יראה את השינויים כשיפתח אותו." : "נשלח להורה כקישור. מה שממלאים כאן – נעול עבור ההורה."}</div></div><button class="btn small x" type="button">✕</button></header>
-    <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${[["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"]].map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
+    <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${[["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"], ["rec", "🔁 הוראת קבע בלבד"]].map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
       <div style="grid-column:1/-1"><label class="lbl" for="nNote">תיאור <span class="muted" style="font-weight:400">(מופיע להורה בטופס; לא חובה)</span></label><textarea id="nNote" rows="3" maxlength="1000" placeholder="למשל: 3 מפגשים של שעה וחצי בימי שלישי, כולל דפי תרגול"></textarea></div>
       <div style="grid-column:1/-1" hidden><label class="lbl" for="nDesc">תיאור (יופיע להורה)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
       <div style="grid-column:1/-1" id="nProdW"><label class="lbl" for="nProd">מוצר בחשבונית <span class="muted" style="font-weight:400">(כמו בקטלוג בריווחית)</span></label><select id="nProd"><option value="">בחירת מוצר</option>${["שיעורי מתמטיקה", "שיעורי אנגלית", "שיעורי מתמטיקה ואנגלית", "דמי שיבוץ והרשמה", "שירות עבור חומרי תרגול דיגיטליים"].map(x => `<option>${x}</option>`).join("")}</select></div><!-- תש-56 (נועה 8.11) -->
@@ -13811,6 +13811,7 @@ function newLink(src, mode, opt){
       <div class="nl-trial nl-trcity" hidden><label class="lbl" for="nTrCity">עיר</label><select id="nTrCity"><option value="">בחירת עיר</option>${CONFIG.cities.map(c => `<option>${esc(c)}</option>`).join("")}</select></div>
       <div class="nl-trial muted nl-hint" style="grid-column:1/-1" hidden>תשלום חד-פעמי על חודש אחד, לפי מחיר המסלול בעיר. בלי הוראת קבע. אם ממשיכים – שולחים קישור הרשמה מהכרטיס.</div>
       <div class="nl-pay"><label class="lbl" for="nOnce">תשלום עכשיו (₪)</label><input type="number" id="nOnce" min="1" max="20000"></div><div class="nl-pay"></div>
+      <div class="nl-rec muted nl-hint" style="grid-column:1/-1" hidden>🔁 בלי חיוב עכשיו – רק הוראת קבע.</div>
       <div class="nl-pay nl-recchk" style="grid-column:1/-1"><label class="chk nl-chk"><input type="checkbox" id="nRec"><span>וגם הוראת קבע חודשית לאחר התשלום</span></label></div>
       <div class="nrec" hidden><label class="lbl" for="nMAmt">סכום חודשי (₪)</label><input type="number" id="nMAmt" min="1" max="5000"></div>
       <div class="nrec" hidden><label class="lbl" for="nMCnt">מספר חיובים חודשיים</label><input type="number" id="nMCnt" min="1" max="24"></div>
@@ -13823,7 +13824,7 @@ function newLink(src, mode, opt){
       ${FIELD_SECS.map(([h, fs]) => `<div class="nl-sec"><div class="nl-h">${h}</div><div class="nl-grid">${fs.map(([k, t, ty, ph]) => `<div class="nl-f" data-k="${k}"><div class="nl-lr"><label class="lbl" for="nf_${k}">${t}</label><label class="nl-req" title="ההורה חייב/ת למלא את השדה &quot;${t}&quot;"><input type="checkbox" id="nr_${k}" ${reqDef(k) ? "checked" : ""}><span>חובה</span></label><label class="nl-req nl-show" title="להציג להורה את השדה &quot;${t}&quot; (כבוי – נשמר, אבל ההורה לא רואה)"><input type="checkbox" id="ns_${k}" ${showDef(k) ? "checked" : ""}><span>להצגה</span></label><span class="nl-lock" hidden>🔒 נעול</span></div>
         ${ty === "sel" ? `<select id="nf_${k}"></select>` : ty === "name2" ? `<input type="text" id="nf_${k}_f"><input type="hidden" id="nf_${k}">` : `<input type="${ty === "email" ? "email" : ty === "tel" ? "tel" : "text"}" id="nf_${k}"${ty === "tel" || ty === "email" ? ' dir="ltr"' : ""}${ph ? ` placeholder="${ph}"` : ""}>`}</div>${ty === "name2" ? `<div class="nl-f2"><div class="nl-lr"><label class="lbl" for="nf_${k}_l">שם משפחה הורה</label></div><input type="text" id="nf_${k}_l"></div>` : ""}`).join("")}</div></div>`).join("")}</div>
     <div class="err" id="nErr"></div><div class="acts-row lg-btns"><button class="btn primary" id="nSave" type="button">${ed ? "שמירה" : "יצירת קישור"}</button><button class="btn" id="nCancel" type="button">ביטול</button></div></div>`);
-  $("nRec").onchange = () => document.querySelectorAll(".nrec").forEach(x => x.hidden = !$("nRec").checked || TY !== "reg");
+  $("nRec").onchange = () => document.querySelectorAll(".nrec").forEach(x => x.hidden = TY !== "rec" && (!$("nRec").checked || TY !== "reg"));   // 5.21.100 (נועה 11.11): "הוראת קבע בלבד" – תמיד
   $("nCancel").onclick = pnlClose;
   // רשימות בחירה כמו בטופס ההרשמה (ריק = ההורה יבחר)
   const so = (id, arr) => { $(id).innerHTML = `<option value="">— ההורה יבחר —</option>` + arr.map(v => `<option>${esc(v)}</option>`).join(""); };
@@ -13862,7 +13863,8 @@ function newLink(src, mode, opt){
   const tyPaint = (set) => {
     document.querySelectorAll("#payPnl [data-nty]").forEach(b => b.setAttribute("aria-pressed", b.dataset.nty === TY));
     document.querySelectorAll("#payPnl .nl-trial").forEach(x => x.hidden = TY !== "trial");
-    document.querySelectorAll("#payPnl .nl-pay").forEach(x => x.hidden = TY === "trial");
+    document.querySelectorAll("#payPnl .nl-pay").forEach(x => x.hidden = TY === "trial" || TY === "rec");
+    document.querySelectorAll("#payPnl .nl-rec").forEach(x => x.hidden = TY !== "rec");
     document.querySelectorAll("#payPnl .nl-recchk").forEach(x => x.hidden = TY !== "reg"); $("nRec").onchange();
     $("nTrSub").parentNode.hidden = TY !== "trial" || $("nTrTrack").value === "double";
     $("payPnl").querySelector(".nl-trcity").hidden = TY !== "trial" || !!SID;
@@ -13870,7 +13872,7 @@ function newLink(src, mode, opt){
     ["track", "subject"].forEach(k => { const f = $("payPnl").querySelector(`.nl-f[data-k="${k}"]`); if (f) f.hidden = TY === "trial"; });   // בניסיון – המסלול והמקצוע נקבעים למעלה   // בניסיון בלי כרטיס – העיר נקבעת למעלה (נעולה להורה)
     if ($("nProdW")) $("nProdW").hidden = TY === "trial";   // תש-56: בניסיון – השרת קובע (3 שורות בחיוב הראשון)
     $("nDesc").placeholder = TY === "trial" ? "ריק – חודש ניסיון + שם המסלול" : TY === "single" ? "שיעור בודד" : "למשל: שיעור פרטי – 3 מפגשים";
-    $("nSave").textContent = ed ? "שמירה" : TY === "trial" ? "יצירת קישור לחודש ניסיון" : "יצירת קישור";
+    $("nSave").textContent = ed ? "שמירה" : TY === "trial" ? "יצירת קישור לחודש ניסיון" : TY === "rec" ? "יצירת קישור להוראת קבע" : "יצירת קישור";
     if (set === "single") { if (!$("nDesc").value.trim() || /^חודש ניסיון/.test($("nDesc").value)) $("nDesc").value = "שיעור בודד"; if ($("nProd") && !$("nProd").value) $("nProd").value = "שיעורי מתמטיקה"; $("nOnce").value = 118; $("nRec").checked = false; $("nRec").onchange(); }
     if (set === "trial" && /^שיעור בודד$/.test($("nDesc").value.trim())) $("nDesc").value = "";
     if (set === "reg" && /^שיעור בודד$/.test($("nDesc").value.trim())) { $("nDesc").value = ""; $("nOnce").value = ""; }
@@ -13909,11 +13911,13 @@ function newLink(src, mode, opt){
     const once = Number($("nOnce").value), err = $("nErr"); err.textContent = "";
     if ($("nProd") && !$("nProd").value) { err.textContent = "יש לבחור מוצר בחשבונית."; return; }
     $("nDesc").value = $("nProd").value;   // תש-56 (נועה 8.11): מה שההורה רואה ומה שבחשבונית – המוצר
-    if (!(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
-    const p = Object.assign($("nProd") && $("nProd").value ? { product: $("nProd").value } : {}, { description: $("nDesc").value.trim(), one_time_amount: once, fields: {}, note: $("nNote").value.trim() });   // תש-56: המוצר בחשבונית (ריק – השרת מנחש)
+    const REC = TY === "rec";   // 5.21.100 (נועה 11.11): הוראת קבע בלבד – בלי חיוב עכשיו (השרת: recurring_only, מנ-414)
+    if (!REC && !(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
+    const p = Object.assign($("nProd") && $("nProd").value ? { product: $("nProd").value } : {}, { description: $("nDesc").value.trim(), one_time_amount: REC ? 0 : once, fields: {}, note: $("nNote").value.trim() }, REC ? { recurring_only: true } : {});   // תש-56: המוצר בחשבונית (ריק – השרת מנחש)
     if (SID) p.student_id = SID;
     if (ed && src.order_kind) p.order = { kind: src.order_kind, id: src.order_id };
-    if ($("nRec").checked) { const a = Number($("nMAmt").value), c = Number($("nMCnt").value); if (!(a > 0) || !(c >= 1 && c <= 24)) { err.textContent = "בהוראת קבע: סכום חודשי ומספר חיובים (1-24)."; return; } p.monthly = { amount: a, count: c, first_date: $("nMFirst").value || "" }; }
+    if (REC && !$("nMFirst").value) { err.textContent = "יש לבחור את תאריך החיוב הראשון."; return; }
+    if (REC || $("nRec").checked) { const a = Number($("nMAmt").value), c = Number($("nMCnt").value); if (!(a > 0) || !(c >= 1 && c <= 24)) { err.textContent = "בהוראת קבע: סכום חודשי ומספר חיובים (1-24)."; return; } p.monthly = { amount: a, count: c, first_date: $("nMFirst").value || "" }; }
     FIELDS.forEach(([k]) => { const v = $("nf_" + k).value.trim(); p.fields[k] = Object.assign({ value: v, required: !v && $("nr_" + k).checked && (!$("ns_" + k) || $("ns_" + k).checked) }, $("ns_" + k) && !$("ns_" + k).checked ? { hide: true } : {}); });
     $("nSave").disabled = true;
     try { if (ed) { await call("pay_link_update", { p_code: src.code, p }); pnlClose(); toast("נשמר"); render(); }
