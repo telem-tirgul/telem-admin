@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.111">
+<meta name="app-version" content="5.21.112">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2187,7 +2187,18 @@ tr.dx-row > td{ background:#FAF2F2 !important; border-color:var(--accent) !impor
   #payBody .kd-deal-h2 .kd-w b{ font-size:13.5px; }
   #payBody .dx-plan{ padding:4px 10px; }
 }
-@media (min-width:761px){ #payBody .dx-pay > .dx-a, #payBody .dx-sub > .dx-a{ text-align:center; white-space:nowrap; } }
+@media (min-width:761px){ #payBody .dx-pay > .dx-a, #payBody .dx-sub > .dx-a{ text-align:center; white-space:nowrap; } #payBody .dx-pay > .dx-k, #payBody .dx-pay > .dx-d{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } }
+/* 5.21.112 (נועה 11.11, 23:44: "את הפעולות... לסמן בצבע באמת, אולי בורדו"): כפתורי פעולה בתשלומים – בורדו */
+#payBody .dx-more, #payBody .btn.act, #payBody .dx-foot .btn, #view-lead #leadPayments button[data-lpatt]{ color:#6B1A1F !important; border-color:#C99BA0 !important; background:#FBF3F3 !important; font-weight:700; }
+#payBody .dx-more:hover, #payBody .btn.act:hover, #payBody .dx-foot .btn:hover, #view-lead #leadPayments button[data-lpatt]:hover{ background:#6B1A1F !important; color:#fff !important; border-color:#6B1A1F !important; }
+#payBody .dx-more.hot{ background:#6B1A1F !important; color:#fff !important; border-color:#6B1A1F !important; }
+#payBody .dx-menu.open .btn{ color:#6B1A1F !important; } #payBody .dx-menu.open .btn:hover{ background:#F6E9EA !important; }
+#payBody .dx-sched{ margin:2px 10px 6px; border:1px solid #E6DDD3; border-radius:10px; background:#fff; }
+#payBody .dx-sched > summary{ cursor:pointer; padding:6px 10px; font-weight:700; font-size:13px; color:#4a423b; list-style:none; } #payBody .dx-sched > summary::-webkit-details-marker{ display:none; }
+#payBody .dx-sched > summary::after{ content:" ▾"; color:#8A8078; } #payBody .dx-sched[open] > summary::after{ content:" ▴"; } #payBody .dx-sched[open] > summary{ border-bottom:1px solid #EFE7DE; }
+#payBody .sch-t{ width:100%; border-collapse:collapse; font-size:13px; } #payBody .sch-t th{ text-align:start; font-size:12px; color:#6B625A; font-weight:700; padding:5px 10px; background:#FBF8F4; }
+#payBody .sch-t td{ padding:4px 10px; border-top:1px solid #F3EEE8 !important; background:none !important; } #payBody .sch-t tr:hover td{ background:#FCF8F3 !important; } #payBody .sch-t tr.sch-pend td{ background:#FFFAF0 !important; }
+#payBody .sch-t td.sch-b{ text-align:end; white-space:nowrap; } #payBody .sch-t td.sch-b .btn{ margin-inline-start:4px; padding:2px 9px !important; } #payBody .sch-n{ font-size:12px; padding:4px 10px 6px; }
 #payBody .dx-more{ min-width:34px; padding:2px 8px !important; font-size:16px; line-height:1; letter-spacing:1px; } #payBody .dx-more.hot{ background:#FFF3D6; border-color:#E2C376; }
 #payBody .dx-menu{ display:none !important; } #payBody .dx-menu.open{ display:flex !important; flex-direction:column; align-items:stretch; gap:2px; position:fixed; z-index:60; background:#fff; border:1px solid #DDD3C8; border-radius:10px; box-shadow:0 8px 22px rgba(43,36,32,.16); padding:5px; min-width:210px; grid-column:auto !important; }
 #payBody .dx-menu.open .btn{ border:0 !important; background:none !important; box-shadow:none !important; text-align:start; justify-content:flex-start; padding:7px 10px !important; border-radius:7px; font-weight:600; color:#2B2420 !important; width:100%; } #payBody .dx-menu.open .btn:hover{ background:#F4EEE6 !important; } #payBody .dx-menu.open .btn.danger{ color:#A33A35 !important; } #payBody .dx-menu.open .btn.primary{ font-weight:800; }
@@ -2239,6 +2250,11 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 #view-lead .lg-pay-slot button:not(.lp-tgl):not([data-lptg]), #view-lead #leadPayments button, #view-lead #lcRegLinks .nc-row button, #view-lead #lcRegLinks [data-plall], #pwAddPay, #view-lead .stp-s[data-stk="pay"] .stp-a{ display:none !important; }
 #view-lead .lp-dx .dx-pay > .muted, #view-lead .lp-dx .doc-a, #view-lead .lp-dx .dx-why, #view-lead .lp-regs .lp-reg .muted{ display:none !important; }
 #view-lead .lc-nocrs .pl-stp{ display:none !important; }
+/* 5.21.112 (נועה 11.11, 23:44: "כרטיס תלמיד... נראה שם לא משהו עדיין"): ללא קורס – רק טבלה קצרה: התשלומים (תאריך · מה · סכום · מצב) וקישורים שעוד לא שולמו; בלי טלפוני / "סומנו כשולמו" / טפסים (הם בקורסים ובמסך התשלומים) */
+#view-lead .lead-paywrap .lp-rest .lp-regs{ display:none !important; } #view-lead .lead-paywrap .lp-rest-h .lp-st.no{ display:none; }
+#view-lead .lead-paywrap .lp-rest .lp-dx .dx-pay{ display:grid !important; grid-template-columns:70px minmax(0,1fr) 80px 70px auto; align-items:center; gap:6px 10px !important; border:0 !important; border-bottom:1px solid #F0EAE3 !important; border-radius:0 !important; background:none !important; padding:6px 2px !important; }
+#view-lead .lead-paywrap .lp-rest .lp-dx .dx-pay > b{ white-space:nowrap; } #view-lead .lead-paywrap .lp-rest .lp-dx{ gap:0 !important; }
+#view-lead .lc-nocrs .nc-row{ grid-template-columns:minmax(0,1fr) auto auto !important; } #view-lead .lc-nocrs .nc-h b{ font-size:13px !important; }
 #view-lead #leadPayments button[data-lpatt]{ display:inline-flex !important; margin-inline-start:auto; }   /* 5.21.111 (נועה 11.11, 23:32): "🔗 חיבור לקורס" – בכרטיס התלמיד, בתשלום ללא קורס (היחיד מכפתורי התשלום בכרטיס) */
 .lc-nocrs .nc-row{ display:grid; grid-template-columns:minmax(0,1fr) auto auto auto; align-items:center; gap:6px 12px; padding:8px 2px; border-bottom:1px dashed var(--border); font-size:13.5px; } .lc-nocrs .nc-row:last-child{ border-bottom:0; }
 .cd-st-fix{ background:#EFEBE6 !important; color:#8A8078 !important; border-style:dashed !important; }
@@ -4409,10 +4425,10 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
       + (/^0\d{8,9}$/.test(pd) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : "")
       + `<a class="btn small" target="_blank" rel="noopener" href="${esc(url)}" title="פתיחת הטופס – כמו שההורה רואה">👁<span class="bt-l"> פתיחה</span></a></span>`; };
   const chip = (st) => { const c = NC_ST[st] || [st, "st-off"]; return `<span class="nc-st ${c[1]}">${esc(c[0])}</span>`; };
-  const rows = pl.filter(x => x.status !== "cancelled").slice(0, 8).map(x => `<div class="nc-row">
+  const rows = pl.filter(x => !["cancelled", "paid"].includes(x.status)).slice(0, 8).map(x => `<div class="nc-row">
       <div class="nc-what"><b>${esc(x.description || "קישור אישי")}</b><span class="muted">קישור תשלום · נוצר ${dm(x.created_at)}${x.status === "paid" && x.paid_at ? ` · שולם ${dm(x.paid_at)}` : ""}</span></div>
       <div class="nc-amt">${x.recurring_only ? `🔁 ${money0(x.monthly_amount)} × ${x.monthly_count}` : money0(x.one_time_amount)}${!x.recurring_only && x.monthly_amount ? `<span class="muted"> + ${money0(x.monthly_amount)} × ${x.monthly_count}</span>` : ""}</div>
-      ${x.status === "cancelled" ? chip(x.status) : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["submitted", "מולא"], ["paid", "שולם"]], x.status)}
+      ${chip(x.status)}${x.status === "cancelled" ? "" : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["submitted", "מולא"], ["paid", "שולם"]], x.status)}
       <div class="nc-b">${["sent", "opened", "submitted"].includes(x.status) ? share(x.url, "קישור התשלום") : ""}<button type="button" class="btn small" data-pldet="${esc(x.code)}">פרטים</button></div></div>`)
     .concat([].map(x => `<div class="nc-row">
       <div class="nc-what"><b>${x.trial ? "🎁 חודש ניסיון – טופס הרשמה אישי" : "טופס הרשמה אישי"}</b><span class="muted">${esc(x.city || "")}${x.city ? " · " : ""}${x.trial && x.trial_start ? "מתחיל " + dm(x.trial_start) + " · " : ""}נשלח ${dm(x.created_at)} – כשההורה ממלא/ה, נכנס/ת לקורס</span></div>
@@ -4423,7 +4439,7 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
   L.rlPend = { sid, html: ls.filter(x => !["registered", "expired"].includes(x.status)).slice(0, 3).map(x => `<div class="lg-rl"><span class="lg-rl-w">${x.trial ? "🎁 חודש ניסיון" : "📝 טופס הרשמה"}${x.trial && x.trial_start ? " מ-" + dm(x.trial_start) : ""}<small class="muted"> · נשלח ${dm(x.created_at)}</small></span>${ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}<span class="nc-b">${share(rlUrl(x.url, sid), x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה")}</span></div>`).join("") };
   rlPlace();   // 5.21.88: מחכה למשהו – פתוח
   box.hidden = !rows; { const ps = $("pwSum"); if (ps) { ps.dataset.l = pl.filter(x => x.status !== "cancelled").length || 0; pwSumPaint(); } }
-  box.innerHTML = rows ? `<div class="nc-h"><b>קישורי תשלום שנשלחו</b><button type="button" class="btn small" data-plall>💳 תשלומים</button></div>${rows}` : "";
+  box.innerHTML = rows ? `<div class="nc-h"><b>קישורי תשלום שעוד לא שולמו</b><button type="button" class="btn small" data-plall>💳 תשלומים</button></div>${rows}` : "";
   box.querySelectorAll("[data-copy]").forEach(c => c.onclick = () => copyText(c.dataset.copy));
   box.querySelectorAll("[data-pldet]").forEach(c => c.onclick = () => PAY.link(c.dataset.pldet, sid));
   box.querySelectorAll("[data-plall]").forEach(c => c.onclick = () => { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.kidAll(sid, nm); }); }
@@ -13479,8 +13495,15 @@ function dealExpand(d){
   // נועה 8.11: עמודות קבועות בכל השורות (תאריך · סוג · סכום · סטטוס · פרטים · חשבונית · פעולות) – כדי שיהיה ברור מה איפה
   const cell = (c, h) => `<span class="${c}">${h || ""}</span>`;
   const planLine = (pp) => { const rem = Math.max(0, (pp.total_count || 0) - (pp.charged_count || 0)), lv = ["active", "paused", "failed"].includes(pp.status);
-    return `<div class="dx-pay dx-planrow">${cell("dx-d", pp.next_charge_date && lv && rem ? "הבא " + dmy(pp.next_charge_date) : pp.created_at ? dmy(pp.created_at) : "")}${cell("dx-k", "הוראת קבע")}${cell("dx-a", `<b>${money(pp.monthly_amount)}</b><small class="muted"> × ${pp.total_count || "?"}</small>`)}${cell("dx-s", stChip(pp.status))}${cell("dx-m muted", `${pp.charged_count || 0} מתוך ${pp.total_count || "?"} חיובים${pp.last_amount ? " · יוני " + money(pp.last_amount) : ""}${pp.card_last4 ? " · " + card4(pp.card_last4, pp.card_exp) : ""}`)}${cell("dx-doc", "")}${cell("dx-acts", planMarkBtns(pp, "dxcx") + (lv && ME.role === "admin" ? `<button type="button" class="btn small" data-dxed="${pp.id}">✎ שינוי</button>${rem > 1 && pp.status === "active" && pp.next_charge_date ? `<button type="button" class="btn small" data-dxskip="${pp.id}">⏭ דילוג על החיוב הבא</button>` : ""}${pp.status === "paused" ? `<button type="button" class="btn small" data-dxst="active">▶ הפעלה</button>` : `<button type="button" class="btn small" data-dxst="paused">⏸ השהיה</button>`}<button type="button" class="btn small danger" data-dxst="cancelled">⊘ ביטול</button>` : ""))}${pp.pending_update ? `<div class="dx-sub">${cell("dx-d", "")}<span class="pend">⏳ נשלח לאיקרדיט – מתעדכן תוך דקה</span></div>` : ""}${pp.update_error ? `<div class="dx-sub">${cell("dx-d", "")}<span class="dx-why">⚠ לא עודכן באיקרדיט: ${esc(pp.update_error)}</span></div>` : ""}
-      ${planMarked(pp) ? `<div class="dx-sub">${cell("dx-d", "")}${cell("dx-k muted", planMarkInfo(pp))}</div>` : ""}</div>`; };
+    return `<div class="dx-pay dx-planrow">${cell("dx-d", pp.next_charge_date && lv && rem ? "הבא " + dmy(pp.next_charge_date) : pp.created_at ? dmy(pp.created_at) : "")}${cell("dx-k", "הוראת קבע")}${cell("dx-a", `<b>${money(pp.monthly_amount)}</b><small class="muted"> × ${pp.total_count || "?"}</small>`)}${cell("dx-s", stChip(pp.status))}${cell("dx-m muted", `${pp.charged_count || 0} מתוך ${pp.total_count || "?"} חיובים${pp.last_amount ? " · יוני " + money(pp.last_amount) : ""}${pp.card_last4 ? " · " + card4(pp.card_last4, pp.card_exp) : ""}`)}${cell("dx-doc", "")}${cell("dx-acts", planMarkBtns(pp, "dxcx") + (lv && ME.role === "admin" ? `<button type="button" class="btn small" data-dxed="${pp.id}">✎ שינוי כל החודשים</button>${rem > 1 && pp.status === "active" && pp.next_charge_date ? `<button type="button" class="btn small" data-dxskip="${pp.id}">⏭ דילוג על החיוב הבא</button>` : ""}${pp.status === "paused" ? `<button type="button" class="btn small" data-dxst="active">▶ הפעלה</button>` : `<button type="button" class="btn small" data-dxst="paused">⏸ השהיה</button>`}<button type="button" class="btn small danger" data-dxst="cancelled">⊘ ביטול</button>` : ""))}${pp.pending_update ? `<div class="dx-sub">${cell("dx-d", "")}<span class="pend">⏳ נשלח לאיקרדיט – מתעדכן תוך דקה</span></div>` : ""}${pp.update_error ? `<div class="dx-sub">${cell("dx-d", "")}<span class="dx-why">⚠ לא עודכן באיקרדיט: ${esc(pp.update_error)}</span></div>` : ""}
+      ${planMarked(pp) ? `<div class="dx-sub">${cell("dx-d", "")}${cell("dx-k muted", planMarkInfo(pp))}</div>` : ""}</div>${schedHtml(pp, lv)}`; };
+  // 5.21.112 (תש-93 / icredit-71; נועה 11.11, 23:44: "חיובים הבאים זו טבלה, שצריך לתת לערוך בה כל שורה וסכום. ולדלג גם על תשלום"):
+  // החיובים שנשארו – מהשרת (schedule), כמו שיישלחו לאיקרדיט. ✎ לכל שורה (סכום; בשורה הראשונה גם תאריך) · ⏭ דילוג
+  const schedHtml = (pp, lv) => { const sc = Array.isArray(pp.schedule) ? pp.schedule : []; if (!sc.length) return "";
+    const ed = lv && ME.role === "admin", op = (S.schedOpen || {})[pp.id];
+    return `<details class="dx-sched" data-sched="${pp.id}"${op ? " open" : ""}><summary>📅 החיובים הבאים <span class="muted">· ${sc.length} · סה"כ ${money(sc.reduce((a, x) => a + Number(x.amount || 0), 0))}</span></summary>
+      <table class="sch-t"><thead><tr><th>#</th><th>תאריך</th><th>סכום</th><th>הערה</th>${ed ? "<th></th>" : ""}</tr></thead><tbody>${sc.map((x, i) => `<tr${x.note && /⏳/.test(x.note) ? ' class="sch-pend"' : ""}><td class="muted">${(pp.charged_count || 0) + i + 1}</td><td class="nowrap">${dmy(x.date)}</td><td class="nowrap"><b>${money(x.amount)}</b></td><td class="muted">${esc(x.note || "")}</td>${ed ? `<td class="sch-b"><button type="button" class="btn small act" data-sched-ed="${i}">✎ שינוי</button>${sc.length > 1 && pp.status === "active" ? `<button type="button" class="btn small act" data-sched-skip="${i}">⏭ דילוג</button>` : ""}</td>` : ""}</tr>`).join("")}</tbody></table>
+      ${ed ? `<div class="muted sch-n">✎ בשורה – רק החודש הזה. כל החודשים יחד – "⋯" ← "✎ שינוי כל החודשים".</div>` : ""}</details>`; };
   const pdfB = "";   // 5.21.91 (נועה 10.11): הטופס החתום – רק בכרטיס התלמיד, לא במסך התשלומים
   const refRows = (r) => (r.refunds || []).map(f => `<div class="dx-sub${f.cancelled_at ? " cx" : ""}">${cell("dx-d", dmy(f.at))}${cell("dx-k", "↩ זיכוי")}${cell("dx-a", `<b>${money(f.amount)}</b>`)}${cell("dx-s", f.cancelled_at ? `<span class="muted">(בוטל)</span>` : `<span class="chip st-refund">סומן</span>`)}${cell("dx-m muted", `${f.by ? "סימנ/ה: " + esc(f.by) : ""}${f.note ? (f.by ? " · " : "") + esc(f.note) : ""}`)}${cell("dx-doc muted", f.document_number ? "🧾 זיכוי " + esc(f.document_number) : "")}${cell("dx-acts", f.cancelled_at ? "" : `<button type="button" class="btn small" data-refx="${f.id}">ביטול הסימון</button>`)}</div>`).join("");
   const line = (r) => { const fail = S.failed.find(f => f.id === r.id), iss = S.issues.find(f => f.id === r.id), td = payTodo(r, {});
@@ -13559,6 +13582,27 @@ function wireExpand(box, d, reload){
       if (nd && /^\d{4}-\d{2}-\d{2}$/.test(nd) && nd !== String(pp.next_charge_date || "").slice(0, 10)) await call("recurring_plan_set_next_date", { p_id: pp.id, p_date: nd, p_all: true });
       toast("נשמר – נשלח לאיקרדיט"); PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e) {} reload(); }
     catch(e) { toast("לא נשמר: " + e.message); b.disabled = false; } });
+  // 5.21.112: טבלת החיובים הבאים – שינוי / דילוג לשורה
+  box.querySelectorAll("details.dx-sched").forEach(dt => { dt.ontoggle = () => { S.schedOpen = S.schedOpen || {}; S.schedOpen[dt.dataset.sched] = dt.open; }; dt.onclick = (e) => e.stopPropagation(); });
+  const schPlan = (el) => { const id = el.closest("[data-sched]").dataset.sched; return (p && String(p.id) === id ? p : S.plans.find(x => String(x.id) === id)) || null; };
+  const ovr = async (pp, x, body) => { try { return await call("recurring_plan_charge_override", Object.assign({ p_plan: pp.id, p_date: String(x.date).slice(0, 10) }, { p: body })); }
+    catch(e) { if (/charge_override|PGRST202|does not exist|Could not find/i.test(String(e.message))) { toast("שינוי חודש בודד – עוד אין בשרת (ביקשתי משיחת התשלומים, מנ-438). בינתיים: \"✎ שינוי כל החודשים\"."); return null; } throw e; } };
+  box.querySelectorAll("[data-sched-ed]").forEach(b => b.onclick = async (e) => { e.stopPropagation(); const pp = schPlan(b); if (!pp) return; const i = Number(b.dataset.schedEd), x = pp.schedule[i];
+    const amt = await uiPrompt(`הסכום לחיוב של ${dmy(x.date)} (₪) – רק החודש הזה:`, String(x.amount ?? ""), { multi: false }); if (amt == null) return;
+    const nd = i === 0 ? await uiPrompt("התאריך של החיוב הבא (למשל 2026-12-01; יום 1–28). שימי לב: באיקרדיט זה מזיז גם את כל החיובים שאחריו:", String(x.date).slice(0, 10), { multi: false }) : null; if (i === 0 && nd == null) return;
+    const a = Number(amt); if (!(a >= 0) || String(amt).trim() === "") { toast("סכום לא תקין (0 ומעלה)"); return; }
+    b.disabled = true;
+    try { let done = false;
+      if (i === 0 && nd && /^\d{4}-\d{2}-\d{2}$/.test(nd) && nd !== String(x.date).slice(0, 10)) { await call("recurring_plan_set_next_date", { p_id: pp.id, p_date: nd, p_all: true }); done = true; }
+      if (a !== Number(x.amount)) { const r = await ovr(pp, x, { amount: a }); if (r) done = true; }
+      if (done) { toast("נשמר – נשלח לאיקרדיט"); PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e2) {} reload(); } else b.disabled = false; }
+    catch(e2) { toast("לא נשמר: " + e2.message); b.disabled = false; } });
+  box.querySelectorAll("[data-sched-skip]").forEach(b => b.onclick = async (e) => { e.stopPropagation(); const pp = schPlan(b); if (!pp) return; const i = Number(b.dataset.schedSkip), x = pp.schedule[i];
+    if (!await uiConfirm(`לדלג על החיוב של ${dmy(x.date)} (${money(x.amount)})?\nיישארו ${pp.schedule.length - 1} חיובים${i === 0 ? ", הבא ב-" + dmy(pp.schedule[1].date) : ""}. הסיום לא זז.`, { ok: "דילוג" })) return;
+    b.disabled = true;
+    try { const r = i === 0 ? await call("recurring_plan_skip", { p_id: pp.id }) : await ovr(pp, x, { skip: true });
+      if (r === null) { b.disabled = false; return; } toast("דולג – נשלח לאיקרדיט"); PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e2) {} reload(); }
+    catch(e2) { const t = String(e2.message || ""); toast(/last charge/.test(t) ? "נשאר חיוב אחד – אפשר רק לבטל את ההוראה" : /pending/.test(t) ? "שינוי קודם עוד נשלח לאיקרדיט – לנסות שוב בעוד דקה" : "לא נשמר: " + t); b.disabled = false; } });
   // תש-92 (icredit-70): דילוג על החיוב הבא · זיכוי מלא באיקרדיט
   box.querySelectorAll("[data-dxskip]").forEach(b => b.onclick = async () => { const pp = p && String(p.id) === b.dataset.dxskip ? p : S.plans.find(x => String(x.id) === b.dataset.dxskip); if (!pp) return;
     const rem = Math.max(0, (pp.total_count || 0) - (pp.charged_count || 0)), nd = new Date(String(pp.next_charge_date).slice(0, 10) + "T12:00:00"); nd.setMonth(nd.getMonth() + 1);
