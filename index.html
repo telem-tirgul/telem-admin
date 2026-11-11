@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.110">
+<meta name="app-version" content="5.21.111">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13366,7 +13366,7 @@ async function renderAll(b){
   const tgl = (tr) => { const i = Number(tr.dataset.dr), g = kids[i], d = g.deals[0], nx = tr.nextElementSibling, btn = tr.querySelector(".dx-tg");
     if (nx && nx.classList.contains("dx-row")) { nx.remove(); tr.classList.remove("dx-open"); btn.setAttribute("aria-expanded", "false"); dxPaint(); return; }
     const x = document.createElement("tr"); x.className = "dx-row";
-    if (g.deals.length === 1) { x.innerHTML = `<td colspan="${tr.cells.length}">${dealExpand(d)}</td>`; tr.after(x); wireExpand(x, d, () => again()); dxMenus(x); dxCols(b); }
+    if (g.deals.length === 1) { x.innerHTML = `<td colspan="${tr.cells.length}">${dealExpand(d)}</td>`; tr.after(x); wireExpand(x, d, () => again()); dxMenus(x); dxColsSoon(b); }
     else { const crs = [], byC = {};   // קורס: התרגול השוטף (תשלום ראשון / הוראת קבע) – אחד; כל מרתון – לפי השם; קישורים אישיים – יחד
       g.deals.slice().sort((a1, a2) => String(a1.date).localeCompare(String(a2.date))).forEach(dd => { const k = dd.group === "mar" ? "mar:" + dd.desc : dd.group === "pay" ? "pay" : "reg";
         (byC[k] = byC[k] || (crs.push(byC[k] = { k, deals: [] }), byC[k])).deals.push(dd); });
@@ -13375,7 +13375,7 @@ async function renderAll(b){
           ${c.deals.map(dd => `<div class="kd-deal" data-kd="${list.indexOf(dd)}"><div class="kd-deal-h2"><span class="kd-d">${dmy(dd.date)}</span><span class="kd-w"><b>${esc(dd.desc || dd.kindTxt || "")}</b>${dd.kindHtml.match(/k-sub">([\s\S]*?)<\/div>/) ? `<small class="muted">${esc(dd.kindHtml.match(/k-sub">([\s\S]*?)<\/div>/)[1].replace(/<[^>]+>/g, ""))}</small>` : ""}</span><span class="kd-b">${dealForm(dd) ? `<button type="button" class="btn small" data-dfrm2="${list.indexOf(dd)}" title="הטופס החתום (PDF)">📄 טופס חתום</button>` : ""}</span></div>${dealExpand(dd)}</div>`).join("")}</div>`; }).join("")}</div></td>`;
       tr.after(x); x.querySelectorAll("[data-kd]").forEach(bx => wireExpand(bx, list[Number(bx.dataset.kd)], () => again()));
       x.querySelectorAll("[data-dfrm2]").forEach(y => y.onclick = async (e) => { e.stopPropagation(); y.disabled = true; try { await txPdf(dealForm(list[Number(y.dataset.dfrm2)])); } catch(er) { toast("לא ניתן להוריד: " + er.message); } y.disabled = false; }); }
-    if (g.deals.length > 1) { dxMenus(x); dxCols(b); }
+    if (g.deals.length > 1) { dxMenus(x); dxColsSoon(b); }
     tr.classList.add("dx-open"); btn.setAttribute("aria-expanded", "true"); dxPaint(); };
   if ($("kidX")) $("kidX").onclick = () => { setKid(null); again(); };
   b.querySelectorAll("tr.deal-r").forEach(tr => tr.onclick = (e) => { if (e.target.closest("a, .name-link, [data-lead]") && !e.target.closest(".dx-tg")) return; tgl(tr); });
@@ -13506,6 +13506,7 @@ function dxCols(b){ const t = b && b.querySelector("table.deals"); if (!t) retur
   const ths = [...t.querySelectorAll("thead th")].filter(h => h.offsetWidth > 0); if (ths.length < 6) return;
   t.style.setProperty("--dxc", ths.map(h => h.getBoundingClientRect().width.toFixed(1) + "px").join(" ")); }
 window.addEventListener("resize", () => { clearTimeout(window.__dxcT); window.__dxcT = setTimeout(() => dxCols($("payBody")), 120); });
+function dxColsSoon(b){ if (dxColsSoon.f) return; dxColsSoon.f = requestAnimationFrame(() => { dxColsSoon.f = 0; dxCols(b); }); }   // פעם אחת לכל פתיחה (גם "פתיחת כל השורות")
 function dxMenus(x){
   x.querySelectorAll(".dx-pay > .dx-acts, .dx-sub > .dx-acts").forEach(a => { if (!a.querySelector("button") || a.previousElementSibling && a.previousElementSibling.classList.contains("dx-more")) return;
     const m = document.createElement("button"); m.type = "button"; m.className = "btn small dx-more" + (a.querySelector(".primary") ? " hot" : ""); m.textContent = "⋯"; m.title = "פעולות"; m.setAttribute("aria-label", "פעולות");
