@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.109">
+<meta name="app-version" content="5.21.110">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9679,6 +9679,11 @@ async function renderInbox(reload){
   IB.rows.forEach(p => { if (p.kind !== "payment" || p.ref_table !== "phone_pending" || p.status === "handled") return;
     const [k, oid] = String(p.ref_id || "").split(":"), f = IB.rows.find(x => x.status !== "handled" && String(x.ref_id) === oid && x.kind === (k === "marathon" ? "marathon" : "registration"));
     if (f) { IB.pair[f.id] = p; payHide.add(p.id); } });
+  // 5.21.110 (נועה 11.11, 23:11: "ההתראה במסך היתה לפני שהיתה הזדמנות ללקוח להכניס אשראי"): הרשמה באשראי באתר שעוד לא שולמה –
+  //   לא מופיעה בהתראות 30 דקות (ההורה בדף התשלום). שולם – מופיעה כרגיל; לא שולם אחרי 30 דקות – מופיעה ("ממתין לתשלום")
+  IB.rows.forEach(r => { if (!["marathon", "registration"].includes(r.kind) || r.status === "handled") return; const d = r.data || {};
+    if (String(d.payment_method || (d.payload || {}).payment_method || "") !== "אשראי באתר" || d.paid_at || ["שולם", "פעיל"].includes(String(d.status || ""))) return;
+    if (Date.now() - new Date(r.created_at).getTime() < 30 * 60 * 1000) payHide.add(r.id); });
   // 5.19.151 (נועה 28.10): אותה הרשמה שנשלחה כמה פעמים (אותו ילד/ה, אותו מרתון / מסלול) – שורה אחת (האחרונה), עם "נשלח N פעמים"
   IB.dups = {};
   { const grp = {}; IB.rows.forEach(r => { if (r.status === "handled" || !r.student_id || (r.kind !== "marathon" && r.kind !== "registration") || /_blocked$/.test(r.ref_table || "") || (r.flags || []).includes("status_mismatch")) return;
