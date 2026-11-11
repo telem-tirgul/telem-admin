@@ -2149,6 +2149,12 @@ tr.dx-row > td{ background:#FAF2F2 !important; border-color:var(--accent) !impor
 .pay-kid .pk-ic{ position:absolute; inset-inline-start:12px; top:50%; transform:translateY(-50%); opacity:.6; pointer-events:none; }
 .pk-sug{ position:absolute; z-index:60; top:calc(100% + 4px); inset-inline:0; margin:0; padding:4px 0; list-style:none; background:#fff; border:1px solid var(--border); border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,.12); max-height:320px; overflow:auto; }
 .pk-sug button{ display:block; width:100%; text-align:start; background:none; border:0; padding:8px 14px; font:inherit; cursor:pointer; } .pk-sug button:hover{ background:#F6F0E6; }
+/* 5.21.108: דף התשלומים של ילד/ה */ .kd-head{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:10px; } .kd-head h2{ margin:0; font-size:20px; color:var(--burgundy-dark,#5A1216); } .kd-head .sp, .kd-row .sp, .kd-todo .sp, .kd-h .sp{ margin-inline-start:auto; }
+.kd-info{ display:flex; gap:6px 20px; flex-wrap:wrap; padding:10px 14px !important; margin-bottom:10px; } .kd-todo{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; background:#FFF8EC; border:1px solid #EBD9A8; border-radius:10px; padding:8px 12px; margin-bottom:10px; }
+.kd-h{ font-weight:800; color:#4a423b; margin-bottom:6px; display:flex; align-items:center; gap:8px; } .kd-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:7px 0; border-bottom:1px solid #F3EEE8; } .kd-row:last-child{ border-bottom:0; }
+.kd-menu{ position:relative; } .kd-menu > summary{ list-style:none; cursor:pointer; } .kd-menu > summary::-webkit-details-marker{ display:none; } .kd-mi{ position:absolute; inset-inline-end:0; top:calc(100% + 4px); z-index:20; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.14); padding:4px; min-width:250px; display:flex; flex-direction:column; }
+.kd-mi button{ text-align:start; background:none; border:0; padding:7px 10px; border-radius:7px; font:inherit; cursor:pointer; } .kd-mi button:hover{ background:#F4EEE6; } .kd-mi .kd-danger{ color:#A33A35; }
+.kd-tbl td{ vertical-align:top; } .kd-tbl tr.kd-fut td{ color:#6B625A; } .chip.kd-ok{ background:#E3F1E6; color:#2F6B3E; } .chip.kd-bad{ background:#FBE3E1; color:#A33A35; } .chip.kd-up{ background:#EEE8E1; color:#6B625A; } .chip.kd-ed{ background:#FFF3D6; color:#8A6D1F; }
 .kid-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:6px; } .kid-head h2{ margin:0; }
 .kid-h{ margin:16px 0 8px; font-size:1.05em; color:var(--maroon,#5A1216); }
 .pl-seg{ margin:0 0 12px; }
@@ -6794,7 +6800,8 @@ async function loadLeadGroups(studentId){
         `<div class="lg-pend">🏁 <b>${esc(x.marathon.name)}</b>${x.session && x.session.time_label ? " · " + esc(x.session.time_label) : ""}<span class="lg-pend-t">⏳ ממתין לתשלום – ישובץ/תשובץ אחרי "שולם"</span></div>`); }); } catch(e) {}
     // 5.19.173 (נועה): "+ הוספה לקורס" – מעל הקורסים; "+ הוספה לקבוצה" – בתוך הקורס של התרגול השוטף (אין – למטה)
     if ($("lcAddSlot")) $("lcAddSlot").innerHTML = (CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd" title="הוספה לקורס – ידנית, או שליחת טופס הרשמה להורה (גם חודש ניסיון)">+ <span class="bt-l">הוספה ל</span>קורס</button>` : "")
-      "";   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
+      + (ME.role === "admin" ? `<button type="button" class="btn small" id="lcPayNav" title="דף התשלומים של התלמיד/ה – כל הפעולות על כסף">💳 תשלומים</button>` : "");   // 5.21.108 (נועה 11.11): ניווט אחיד   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
+    if ($("lcPayNav")) $("lcPayNav").onclick = () => { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } const st = editing && editing.student; if (st) PAY.kidAll(st.id, ((st.first_name || "") + " " + (st.last_name || "")).trim()); };
     if ($("pwAddPay")) { $("pwAddPay").hidden = ME.role !== "admin"; } if ($("pwAddPay")) $("pwAddPay").onclick = (e) => { e.preventDefault(); e.stopPropagation(); const sid = editing && editing.student && editing.student.id; if (sid && ME.role === "admin") PAY.newLink(sid); };   // 5.21.88
     $("lcAddSlot").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = async () => { const sid = editing && editing.student && editing.student.id; if (!sid) return;
       if (b.dataset.cardlk === "pay") { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.newLink(sid); return; }
@@ -13139,7 +13146,7 @@ async function render(silent){
   document.querySelectorAll("#view-pay .page-head #pXls").forEach(x => x.remove());   // 5.19.88: האקסל בכותרת שייך רק לעסקאות
   const b = $("payBody"); if (!silent) b.innerHTML = "<div class='muted'>טוען...</div>";   // 5.19.57: ברענון אוטומטי - בלי "טוען..." (לא מהבהב)
   try {
-    if (S.kid) { S.tab = "tx-all"; PT = "tx-all"; store("telem_pay_tab", PT); S.pk = "all"; await renderAll(b); return; }   // 5.19.63: "כל התשלומים של..." = מסך העסקאות מסונן לילד/ה
+    if (S.kid) { S.tab = "tx-all"; PT = "tx-all"; store("telem_pay_tab", PT); await renderKid(b); return; }   // 5.21.108 (נועה 11.11): דף התשלומים של הילד/ה   // 5.19.63: "כל התשלומים של..." = מסך העסקאות מסונן לילד/ה
     if (S.tab === "home") await renderHome(b);
     else if (PT_TODO[S.tab]) { S.ps = "todo"; S.tab = "tx-all"; PT = "tx-all"; store("telem_pay_tab", PT); renderPayView(); return; }
     else if (/^tx-/.test(S.tab)) { if (S.tab !== "tx-all") { S.pk = S.tab.slice(3); S.tab = "tx-all"; PT = "tx-all"; store("telem_pay_tab", PT); } else if (!S.pk) S.pk = "all"; await renderAll(b); }
@@ -14138,24 +14145,65 @@ function txDetails(r, ibFlags){
 // ---------- 5.19.58: כל התשלומים של ילד/ה אחד/ת ----------
 function setKid(k){ S.kid = k && k.id ? k : null; }
 async function renderKid(b){
-  const k = S.kid, ld = leadOfSid(k.id);
-  const name = k.name || (ld && ld.student ? (ld.student.first_name || "") + " " + (ld.student.last_name || "") : "");
-  let pays = []; try { pays = await call("student_payments", { p_student: k.id }) || []; } catch(e) {}
-  pays.sort((a, c) => String(c.date).localeCompare(String(a.date)));
-  const plans = S.plans.filter(p => Number(p.student_id) === k.id);
-  let pend = []; try { pend = await get("pending_phone_payments", "select=*&student_id=eq." + k.id); } catch(e) {}
+  // 5.21.108 (נועה 11.11 – החלטות-תלם: "דף התשלומים של ילד/ה"): המקום היחיד לפעולות על כסף. מלמעלה: פרטים · ⚠ לטיפול · קורסים (פעולות ▾) · הוראות קבע · טבלת חודשים
+  const k = S.kid, ld = leadOfSid(k.id), st = ld && ld.student, fam = st && st.family;
+  const name = k.name || (st ? (st.first_name || "") + " " + (st.last_name || "") : "");
+  const [pays0, pend] = await Promise.all([call("student_payments", { p_student: k.id }).then(r => r || [], () => []), get("pending_phone_payments", "select=*&student_id=eq." + k.id).catch(() => []),
+    (typeof crsEnsureStudent === "function" ? crsLoad().then(ok => ok && crsEnsureStudent(k.id)).catch(() => {}) : null)]);
+  const pays = pays0.slice().sort((a, c) => String(a.date).localeCompare(String(c.date)));
+  const plans = S.plans.filter(p => Number(p.student_id) === k.id), live = (p) => ["active", "paused", "failed"].includes(p.status);
   const ok = pays.filter(r => r.status === "אושר" && r.kind !== "הקמת הוראת קבע"), sum = ok.reduce((a, r) => a + Number(r.amount || 0), 0);
-  b.innerHTML = `<div class="kid-head"><div><h2>💳 ${esc(name)}</h2><div class="muted">${ok.length} תשלומים · סה"כ ${money(sum) || "₪0"}${plans.length ? " · " + plans.length + " הוראות קבע" : ""}</div></div>
-      <div class="acts-row">${ld ? `<button type="button" class="btn small" data-lead2="${ld.id}">👤 כרטיס תלמיד</button>` : ""}<button type="button" class="btn small" id="kidX">✕ סגירה</button></div></div>
-    ${pend.length ? `<div class="card note" style="margin:10px 0"><b>📞 תשלום טלפוני:</b> ${pend.map(x => esc(x.what || "") + (x.amount ? " · " + money(x.amount) : "")).join(" · ")}</div>` : ""}
-    <h3 class="kid-h">הוראות קבע</h3>
-    ${plans.length ? `<table class="tbl"><thead><tr><th>על מה</th><th>חודשי</th><th>חיובים</th><th>החיוב הבא</th><th>כרטיס</th><th>סטטוס</th><th></th></tr></thead><tbody>${plans.map(p => `<tr><td class="muted">${esc(p.description || "")}</td><td class="num">${money(p.monthly_amount)}</td><td>${prog(p.charged_count || 0, p.total_count)}</td><td>${p.next_charge_date ? dmy(p.next_charge_date) : "—"}</td><td>${card4(p.card_last4, p.card_exp)}</td><td>${stChip(p.status)}</td><td><button type="button" class="btn small" data-p="${esc(p.id)}">פרטים · השהיה / ביטול</button></td></tr>`).join("")}</tbody></table>` : `<div class="muted">אין הוראות קבע.</div>`}
-    <h3 class="kid-h">תשלומים</h3>
-    ${pays.length ? `<table class="tbl pay-all"><thead><tr><th>תאריך</th><th>סוג</th><th class="hide-m">על מה</th><th>סכום</th><th>חשבונית</th><th>סטטוס</th><th></th></tr></thead><tbody>${pays.map((r, i) => `<tr><td>${dmy(r.date)}</td><td>${kChip(r.kind)}${r.charge_no ? `<div class="muted">חיוב ${esc(r.charge_no)}</div>` : ""}</td><td class="hide-m muted">${esc(r.description || "")}</td><td class="num"><b>${money(r.amount)}</b></td><td>${invLink(r)}</td><td>${stPay(r)}</td><td><button type="button" class="btn small" data-tx="${i}">פרטים</button></td></tr>`).join("")}</tbody></table>` : `<div class="muted">אין תשלומים.</div>`}`;
+  const nextP = plans.filter(p => live(p) && p.next_charge_date).sort((a, c) => String(a.next_charge_date).localeCompare(String(c.next_charge_date)))[0];
+  const card = (pays.slice().reverse().find(r => r.card_last4) || {}).card_last4 || (plans.find(p => p.card_last4) || {}).card_last4;
+  const tel = fam && fam.parent1_phone ? String(fam.parent1_phone) : "", par = fam ? [fam.parent1_first, fam.parent1_last].filter(Boolean).join(" ") : "";
+  const fails = (S.failed || []).filter(f => Number(f.student_id) === k.id);
+  // קורסים פעילים (לא בהיסטוריה)
+  const cms = (typeof crsOfStudent === "function" ? crsOfStudent(k.id) : []).filter(m => !m.history_at && m.status !== "בוטל");
+  const cLbl = (m) => { const c = CRS.byId[m.course_id] || {}; return (c.marathon_id ? "מרתון · " : (crsCatN(c.category_id) || "") + " · ") + crsLabel(c, m); };
+  const stL = (m) => (crsStOf(m.status) || {}).label || m.status;
+  // טבלת חודשים: שורה לכל חודש, עמודה לכל סוג (שוטף / מרתון / אחר); עתידי – לפי ההוראות הפעילות
+  const G = (r) => r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "oth" : "reg", GN = { reg: "תרגול שוטף", mar: "מרתון", oth: "תשלום אישי" };
+  const M = {}, cell = (ym, g) => ((M[ym] = M[ym] || { d: new Set(), doc: [], reg: [], mar: [], oth: [] })[g]);
+  pays.filter(r => r.kind !== "הקמת הוראת קבע").forEach(r => { const ym = String(r.date || "").slice(0, 7); if (!ym) return; cell(ym, G(r)).push({ a: r.amount, ok: r.status === "אושר", st: r.status }); M[ym].d.add(fmtDM(String(r.date).slice(0, 10))); if (r.document_number) M[ym].doc.push(r.document_number); });
+  const addM = (d, n) => { const x = new Date(d + "T12:00:00"); x.setMonth(x.getMonth() + n); return x.toISOString().slice(0, 10); };
+  plans.filter(p => live(p) && p.next_charge_date).forEach(p => { const rem = Math.max(0, (p.total_count || 0) - (p.charged_count || 0)); for (let i = 0; i < Math.min(rem, 24); i++) { const d = addM(String(p.next_charge_date).slice(0, 10), i), ym = d.slice(0, 7);
+    cell(ym, "reg").push({ a: p.monthly_amount, fut: true, next: i === 0 && p === nextP, paused: p.status === "paused" }); M[ym].d.add(fmtDM(d)); } });
+  const cols = ["reg", "mar", "oth"].filter(g => Object.values(M).some(x => x[g].length));
+  const HEB = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
+  const cellH = (xs) => xs.map(x => `${money(x.a)} ${x.fut ? (x.next ? `<span class="chip kd-up">הבא</span>` : x.paused ? `<span class="chip kd-ed">מושהה</span>` : "") : x.ok ? `<span class="chip kd-ok">✓</span>` : `<span class="chip kd-bad">${esc(x.st === "נכשל" ? "לא התקבל" : x.st || "")}</span>`}`).join("<br>");
+  const months = Object.keys(M).sort();
+  const tbl = months.length ? `<table class="tbl kd-tbl"><thead><tr><th>חודש</th><th>תאריך</th>${cols.map(g => `<th>${GN[g]}</th>`).join("")}<th>חשבונית</th></tr></thead><tbody>${months.map(ym => { const m = M[ym], fut = cols.every(g => m[g].every(x => x.fut));
+      return `<tr class="${fut ? "kd-fut" : ""}"><td>${HEB[Number(ym.slice(5, 7)) - 1]}${ym.slice(0, 4) !== todayIL().slice(0, 4) ? " " + ym.slice(2, 4) : ""}</td><td>${[...m.d].join(" · ")}</td>${cols.map(g => `<td>${cellH(m[g])}</td>`).join("")}<td class="muted">${m.doc.map(esc).join(" · ")}</td></tr>`; }).join("")}</tbody></table>` : `<div class="muted">אין תשלומים.</div>`;
+  const todo = pend.map((x, i) => `<div class="kd-todo">⚠ <b>${esc(x.what || "")}${x.amount ? " – " + money(x.amount) : ""} – 📞 תשלום טלפוני</b><span class="muted">${x.created_at ? "נרשם/ה " + fmtDM(String(x.created_at).slice(0, 10)) : ""}</span><span class="sp"></span><button type="button" class="btn small primary" data-kdnow="${i}">⌨️ הזנת כרטיס</button><button type="button" class="btn small" data-kdpaid="${i}">✔ שולם</button></div>`).join("")
+    + fails.map(f => `<div class="kd-todo">⚠ <b>${esc(f.description || "חיוב")} – ${money(f.amount)} לא התקבל</b><span class="muted">${f.date ? fmtDM(String(f.date).slice(0, 10)) : ""}${f.reason ? " · " + esc(f.reason) : ""}</span></div>`).join("");
+  const menu = (items) => `<details class="kd-menu"><summary class="btn small">פעולות ▾</summary><div class="kd-mi">${items.join("")}</div></details>`;
+  const crsH = cms.length ? cms.map(m => `<div class="kd-row"><b>${esc(cLbl(m))}</b><span class="chip">${esc(stL(m))}</span><span class="sp"></span>${menu([
+      `<button type="button" data-kdcard="${m.id}">⌨️ הזנת כרטיס – תשלום עכשיו</button>`,
+      (CRS.byId[m.course_id] || {}).marathon_id ? "" : `<button type="button" data-kdrec="${m.id}">🔁 הזנת כרטיס – הוראת קבע בלבד</button>`])}</div>`).join("") : `<div class="muted">אין קורסים פעילים.</div>`;
+  const plH = plans.filter(live).map(p => `<div class="kd-row"><b>🔁 ${esc(p.description || "הוראת קבע")}</b><span class="muted">${money(p.monthly_amount)} × ${p.total_count || "?"} · ${p.charged_count || 0} בוצעו${p.next_charge_date ? " · הבא " + fmtDM(String(p.next_charge_date).slice(0, 10)) : ""}</span>${stChip(p.status)}<span class="sp"></span>${menu([
+      `<button type="button" data-kdpl="${p.id}">✎ שינוי</button>`, p.status === "paused" ? `<button type="button" data-kdst="${p.id}:active">▶ הפעלה</button>` : `<button type="button" data-kdst="${p.id}:paused">⏸ השהיה</button>`,
+      `<button type="button" class="kd-danger" data-kdst="${p.id}:cancelled">⊘ ביטול ההוראה</button>`])}</div>`).join("");
+  b.innerHTML = `<div class="kd-head"><button type="button" class="btn small" id="kidX">→ חזרה</button><h2>${esc(name)} – תשלומים</h2><span class="muted">${par ? "הורה: " + esc(par) : ""}${tel ? ` · <a class="tel-a" dir="ltr" href="tel:${esc(tel.replace(/[^\d+]/g, ""))}">${esc(tel)}</a>` : ""}</span><span class="sp"></span>${ld ? `<button type="button" class="btn small" data-lead2="${ld.id}">👤 כרטיס תלמיד</button>` : ""}</div>
+    <div class="card kd-info"><span>שולם השנה <b>${money(sum) || "₪0"}</b></span>${nextP ? `<span>החיוב הבא <b>${money(nextP.monthly_amount)} · ${fmtDM(String(nextP.next_charge_date).slice(0, 10))}</b></span>` : ""}${card ? `<span>כרטיס <b dir="ltr">•••• ${esc(card)}</b></span>` : ""}</div>
+    ${todo}
+    <div class="card"><div class="kd-h">קורסים</div>${crsH}${plH ? `<div class="kd-h" style="margin-top:10px">הוראות קבע</div>${plH}` : ""}</div>
+    <div class="card"><div class="kd-h">כל התשלומים<span class="sp"></span><button type="button" class="btn small" id="kdOther">+ תשלום ללא קורס</button></div>${tbl}</div>`;
   $("kidX").onclick = () => { setKid(null); render(); };
   b.querySelectorAll("[data-lead2]").forEach(x => x.onclick = () => openLead(Number(x.dataset.lead2)));
-  b.querySelectorAll("[data-p]").forEach(x => x.onclick = () => openPlan(x.dataset.p));
-  b.querySelectorAll("[data-tx]").forEach(x => x.onclick = () => { const r = pays[Number(x.dataset.tx)]; if (r.kind === "חיוב חודשי" && r.plan_id && S.plans.some(p => String(p.id) === String(r.plan_id))) openPlan(r.plan_id); else txDetails(r); });   // 5.19.63: חיוב חודשי - ישר להוראת הקבע
+  b.querySelectorAll("[data-kdpl]").forEach(x => x.onclick = () => openPlan(x.dataset.kdpl));
+  b.querySelectorAll("details.kd-menu").forEach(d => d.addEventListener("toggle", () => { if (d.open) b.querySelectorAll("details.kd-menu").forEach(o => { if (o !== d) o.open = false; }); }));
+  b.querySelectorAll("[data-kdst]").forEach(x => x.onclick = async () => { const [id, stt] = x.dataset.kdst.split(":"); const p = plans.find(q => String(q.id) === id); if (!p) return;
+    if (!await uiConfirm(stt === "cancelled" ? "לבטל את הוראת הקבע? אין חיובים נוספים." : stt === "paused" ? "להשהות את הוראת הקבע?" : "להפעיל שוב את הוראת הקבע?", { danger: stt === "cancelled" })) return;
+    x.disabled = true; try { await call("recurring_plan_set_status", { p_id: p.id, p_status: stt }); toast(stt === "cancelled" ? "ההוראה בוטלה" : stt === "paused" ? "ההוראה הושהתה" : "ההוראה הופעלה"); try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e) {} render(); }
+    catch(e) { toast("לא בוצע: " + e.message); x.disabled = false; } });
+  const pendFor = (m) => pend.find(x => { const c = CRS.byId[m.course_id] || {}; return c.marathon_id ? x.kind === "marathon" : x.kind !== "marathon"; });
+  const nowPend = (x, btn) => { let lk = null; payNowOpen(btn, async () => lk || (lk = await call("pay_link_create", { p: { order: { kind: x.kind, id: x.order_id }, description: x.what } }))); };
+  b.querySelectorAll("[data-kdnow]").forEach(x => x.onclick = () => nowPend(pend[Number(x.dataset.kdnow)], x));
+  b.querySelectorAll("[data-kdpaid]").forEach(x => x.onclick = async () => { x.disabled = true; if (await markPaid(pend[Number(x.dataset.kdpaid)])) setTimeout(() => render(), 1200); else x.disabled = false; });
+  b.querySelectorAll("[data-kdcard]").forEach(x => x.onclick = () => { const m = cms.find(c => c.id === Number(x.dataset.kdcard)), pp = m && pendFor(m); x.closest("details").open = false;
+    if (pp) return nowPend(pp, x); newFromCard(k.id, "reg"); });
+  b.querySelectorAll("[data-kdrec]").forEach(x => x.onclick = () => { x.closest("details").open = false; newFromCard(k.id, "rec", Number(x.dataset.kdrec)); });
+  $("kdOther").onclick = () => newFromCard(k.id, "reg");
 }
 // הוראות קבע: שלוש תצוגות באותה לשונית
 function plansSeg(b){
