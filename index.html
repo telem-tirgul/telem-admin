@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.102">
+<meta name="app-version" content="5.21.103">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6244,7 +6244,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
   const PST = { creating: "בהקמה", active: "פעילה", paused: "מושהית", failed: "חיוב לא התקבל", done: "הסתיימה", cancelled: "בוטלה", error: "לא הוקמה" };
   const planHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">הוראות קבע <span class="muted" style="font-weight:400">· שינויים, השהיה וביטול – בריווחית</span></div>${ix.map(i => plans[i]).map(p => { const rem = Math.max(0, (p.total_count || 0) - (p.charged_count || 0));
       return `<div class="lp-reg lp-plan" data-pli="${plans.indexOf(p)}"><span><b>${fmtMoney(p.monthly_amount)}</b> לחודש · ${p.charged_count || 0}/${p.total_count || "?"} חיובים${["active", "paused", "failed"].includes(p.status) && p.next_charge_date && rem ? ` · הבא ${esc(dm(p.next_charge_date))} · נשארו ${rem}` : ""}${p.card_last4 ? ` · <span dir="ltr">•••• ${esc(p.card_last4)}</span>` : ""}${p.description ? `<div class="muted">${esc(p.description)}</div>` : ""}${planMarked(p) ? `<div class="muted">${planMarkInfo(p)}</div>` : ""}</span><span class="lp-plan-e"><span class="lp-st ${["active", "done"].includes(p.status) ? "ok" : p.status === "paused" ? "pz" : "no"}">${esc(PST[p.status] || p.status)}</span>${ME.role === "admin" && !["error", "creating"].includes(p.status) ? `<button type="button" class="btn small" data-lpsync title="רענון ההוראה מאיקרדיט עכשיו">🔄</button>` : ""}${planMarkBtns(p, "lpcx")}</span></div>`; }).join("")}</div>` : "";
-  const pendHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">📞 ממתין לתשלום טלפוני</div>${ix.map(i => [pend[i], i]).map(([x, i]) => `<div class="lp-reg"><span>${pendWhat(x, l.student.id)}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">+ ${fmtMoney(x.monthly_amount)} לחודש</span>` : ""}</span><button type="button" class="btn small primary" data-lppaid="${i}">שולם</button></div>`).join("")}</div>` : "";
+  const pendHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">📞 תשלום טלפוני</div>${ix.map(i => [pend[i], i]).map(([x, i]) => `<div class="lp-reg"><span>${pendWhat(x, l.student.id)}${x.amount ? " · <b>" + fmtMoney(x.amount) + "</b>" : ""}${x.monthly_amount ? ` <span class="muted">+ ${fmtMoney(x.monthly_amount)} לחודש</span>` : ""}</span><button type="button" class="btn small primary" data-lppaid="${i}">שולם</button></div>`).join("")}</div>` : "";
   // 5.20.18 (נועה, הכרטיס החדש – שלב 2): התשלומים – בתוך הקורס שלהם; מה שלא שייך לקורס פעיל – בקופסה הכללית למטה
   const cms = CRS.ok ? crsOfStudent(sid).filter(m => !crsGone(m) && CRS.byId[m.course_id] && crsActiveSeasons().has(CRS.byId[m.course_id].season_id)) : [];
   const marCm = (CRS.ok ? crsOfStudent(sid).filter(m => m.status !== "בוטל" && CRS.byId[m.course_id] && CRS.byId[m.course_id].marathon_id) : []), regCm = cms.find(m => !CRS.byId[m.course_id].marathon_id && !crsIsLead(CRS.byId[m.course_id]) && !crsIsPay(CRS.byId[m.course_id]) && crsCat(CRS.byId[m.course_id].category_id).kind !== "event" && !/summer/.test(mTrk(m) || ""));
@@ -6264,7 +6264,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
   paidRegs.forEach((x, i) => put(cms.find(m => x.kind === "marathon" ? m.marathon_registration_id === x.id : m.enrollment_id === x.id) || (x.kind === "marathon" ? marOf(x.what) : regCm), "regs", i));
   plans.forEach((p, i) => put(regCm, "plans", i));
   const sumOf = (b) => { const ok2 = b.rows.filter(i => rows[i].status === "אושר"), bad2 = b.rows.length - ok2.length;
-    return `<span class="lp-sum">${ok2.length} שולמו · סה"כ <b>${fmtMoney(ok2.reduce((s2, i) => s2 + Number(rows[i].amount || 0), 0))}</b></span>${bad2 ? ` <span class="lp-st no">${bad2} לא התקבל</span>` : ""}${b.pend.length ? ` <span class="lp-st no">📞 ממתין לתשלום</span>` : ""}`; };
+    return `<span class="lp-sum">${ok2.length} שולמו · סה"כ <b>${fmtMoney(ok2.reduce((s2, i) => s2 + Number(rows[i].amount || 0), 0))}</b></span>${bad2 ? ` <span class="lp-st no">${bad2} לא התקבל</span>` : ""}${b.pend.length ? ` <span class="lp-st no">📞 תשלום טלפוני</span>` : ""}`; };
   // נועה 6.11: הטופס החתום – שורה נפרדת, לא בתוך התשלומים
   const formsHtml = (b) => { const ix = b.rows.filter(i => rows[i].status === "אושר" && rows[i].kind !== "חיוב חודשי"); return ix.length ? `<div class="lp-regs lp-forms"><div class="lp-regs-h">טופס הרשמה חתום</div>${ix.map(i => `<div class="lp-reg"><span>📄 ${esc(rows[i].kind === "מרתון" ? "טופס הרשמה למרתון" : rows[i].kind === "תשלום אישי" ? "טופס תשלום" : "טופס הרשמה")} · ${esc(dm(rows[i].date))}</span>${txPdfBtn(i)}</div>`).join("")}</div>` : ""; };
   const bodyOf = (b, inCrs) => `${inCrs ? "" : pendHtml(b.pend)}${b.rows.length ? `<div class="dx lp-dx">${b.rows.map(i => lpRow(rows[i], i)).join("")}</div>` : ""}${planHtml(b.plans)}${regHtml(b.regs)}`;
@@ -6567,6 +6567,7 @@ const crsCanSpan = (m) => ME.role === "instructor" ? "" : `<span class="lg-can" 
 function crsStepper(m){
   if (ME.role === "instructor" || !["רשום", "ממתין לתשלום"].includes(m.status)) return "";
   const reg = m.status === "רשום", sig = m.signed === true, c = CRS.byId[m.course_id] || {}, d = (x) => x ? fmtDM(String(x).slice(0, 10)) : "";
+  const recQ = c.marathon_id ? "" : `<button type="button" class="btn small" data-recq="${m.id}" title="הקמת הוראת קבע לקורס הזה – מקלידים את הכרטיס עכשיו, בלי חיוב מיידי">🔁 הוראת קבע</button>`;   // 5.21.103 (נועה 11.11): הוראת קבע בלבד – רק על קורס
   const st = (k, cls, n, t, meta, act) => `<div class="stp-s ${cls}" data-stk="${k}" data-stm="${m.id}"><span class="stp-d" aria-hidden="true">${cls === "ok" ? "✓" : n}</span><div class="stp-t">${t}</div><div class="stp-m">${meta || ""}</div><div class="stp-a">${act || ""}</div></div>`;
   const s3 = sig ? st("sig", "ok", 3, "חתימה", esc(SIG_VIA_S[m.signed_via] || "סומן"), crsSignRow(m))
     : st("sig", reg ? "cur" : "", 3, "חתימה", `<span class="lc-sign-meta"></span>`, crsSignRow(m));
@@ -6580,9 +6581,12 @@ function crsStepper(m){
   const done = reg && sig, sum = done ? "✓ נרשם · שולם · נחתם" : [reg ? "✓ שולם" : "⏳ לקחת אשראי", sig ? "✓ נחתם" : "✍︎ חסרה חתימה"].join(" · ");
   return `<details class="lp-box lg-pay stp-box"${done ? "" : " open"}><summary><b><span class="lp-ic" aria-hidden="true">📋</span> מצב ההרשמה</b> <span class="${done ? "ok-txt" : "muted"} stp-sum">${sum}</span></summary><div class="stp-hd">${crsCanSpan(m)}</div><div class="stp">`
     + st("reg", "ok", 1, "הרשמה", d(m.created_at), "")
-    + (reg ? st("pay", "ok", 2, "שולם", "", "") : st("pay", "cur", 2, "לקחת אשראי", "", ""))
+    + (reg ? st("pay", "ok", 2, "שולם", "", recQ) : st("pay", "cur", 2, "לקחת אשראי", "", recQ))
     + s3 + s4 + `</div></details>`;
 }
+document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-recq]"); if (!b) return;   // 5.21.103: הוראת קבע בלבד מהקורס
+  const m = (typeof editing === "object" && editing && editing.student) ? crsOfStudent(editing.student.id).find(x => x.id === Number(b.dataset.recq)) : null;
+  if (m && typeof PAY !== "undefined") PAY.newLink(m.student_id, "rec", m.id); });
 const SIG_VIA_S = { form: "בטופס ההרשמה", sign_link: "בקישור לחתימה", manual: "התקבל מחוץ למערכת", legacy: "לפני המערכת" };
 const crsFoot = (m) => { const sp = crsStepper(m); return `<div class="lg-att-slot" data-am="${m.id}"></div><div class="lg-pay-slot" data-pm="${m.id}"></div>${sp ? sp + `<div class="lg-sig-slot" data-sgcm="${m.id}" data-stp="1"></div>` : `<div class="lg-foot">${crsCanSpan(m)}</div><div class="lg-sig-slot" data-sgcm="${m.id}"></div>`}<div class="lg-can-panel" data-cpm="${m.id}" hidden></div>`; };
 // 5.20.23 (נועה): מעקב לכל קורס (קובץ 155) – בתרגול השוטף המעקב של הכרטיס (מסונכרן), בשאר הקורסים – course_members.tracking
@@ -13360,7 +13364,7 @@ function buildDeals(rows, qf, qt, ibOpen){
   // הרשמות בתשלום טלפוני שעוד לא שולמו ("להתקשר לתשלום")
   (S.callList || []).forEach(x => { const g = x.kind === "marathon" ? "mar" : "first";
     mk({ group: g, date: x.created_at, student_id: x.student_id, name: [x.first_name, x.last_name].filter(Boolean).join(" "), parent: x.parent_first || "", phone: x.parent_phone || "", pending: x, pays: [], desc: x.what || "",
-      kindTxt: GK[g][1], kindHtml: kindH(g, "תשלום טלפוני"), amountHtml: `<b>${money(x.amount)}</b>${x.monthly_amount ? `<div class="muted">+ ${money(x.monthly_amount)} לחודש</div>` : ""}`, statusHtml: `<span class="chip st-phone">📞 ממתין לתשלום</span>` });
+      kindTxt: GK[g][1], kindHtml: kindH(g, "תשלום טלפוני"), amountHtml: `<b>${money(x.amount)}</b>${x.monthly_amount ? `<div class="muted">+ ${money(x.monthly_amount)} לחודש</div>` : ""}`, statusHtml: `<span class="chip st-phone">📞 תשלום טלפוני</span>` });
     deals[deals.length - 1].todo = "להתקשר לתשלום (בחרו תשלום טלפוני)"; });
   return deals.sort((a, c) => String(c.date).localeCompare(String(a.date)));
 }
@@ -13803,7 +13807,7 @@ function newLink(src, mode, opt){
   const reqDef = (k) => F[k] ? !!F[k].required : true;
   const showDef = (k) => F[k] ? !F[k].hide : !["track", "subject"].includes(k);   // 5.21.88 (נועה 10.11): "להצגה" – מה ההורה רואה; מסלול / מקצוע – כבוי כברירת מחדל   // נועה 6.11: כמו בטופס ההרשמה – הכול חובה (אפשר לבטל)
   pnlOpen(`<header><div><h2>${ed ? "עריכת קישור אישי" : mode === "dup" ? "קישור חדש – שכפול" : "קישור אישי חדש"}</h2><div class="muted">${ed ? "אותו קישור – ההורה יראה את השינויים כשיפתח אותו." : "נשלח להורה כקישור. מה שממלאים כאן – נעול עבור ההורה."}</div></div><button class="btn small x" type="button">✕</button></header>
-    <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${[["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"], ["rec", "🔁 הוראת קבע בלבד"]].map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
+    <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${(opt.cm ? [["rec", "🔁 הוראת קבע בלבד"]] : [["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"]]).map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
       <div style="grid-column:1/-1"><label class="lbl" for="nNote">תיאור <span class="muted" style="font-weight:400">(מופיע להורה בטופס; לא חובה)</span></label><textarea id="nNote" rows="3" maxlength="1000" placeholder="למשל: 3 מפגשים של שעה וחצי בימי שלישי, כולל דפי תרגול"></textarea></div>
       <div style="grid-column:1/-1" hidden><label class="lbl" for="nDesc">תיאור (יופיע להורה)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
       <div style="grid-column:1/-1" id="nProdW"><label class="lbl" for="nProd">מוצר בחשבונית <span class="muted" style="font-weight:400">(כמו בקטלוג בריווחית)</span></label><select id="nProd"><option value="">בחירת מוצר</option>${["שיעורי מתמטיקה", "שיעורי אנגלית", "שיעורי מתמטיקה ואנגלית", "דמי שיבוץ והרשמה", "שירות עבור חומרי תרגול דיגיטליים"].map(x => `<option>${x}</option>`).join("")}</select></div><!-- תש-56 (נועה 8.11) -->
@@ -13874,7 +13878,7 @@ function newLink(src, mode, opt){
     ["track", "subject"].forEach(k => { const f = $("payPnl").querySelector(`.nl-f[data-k="${k}"]`); if (f) f.hidden = TY === "trial"; });   // בניסיון – המסלול והמקצוע נקבעים למעלה   // בניסיון בלי כרטיס – העיר נקבעת למעלה (נעולה להורה)
     if ($("nProdW")) $("nProdW").hidden = TY === "trial";   // תש-56: בניסיון – השרת קובע (3 שורות בחיוב הראשון)
     $("nDesc").placeholder = TY === "trial" ? "ריק – חודש ניסיון + שם המסלול" : TY === "single" ? "שיעור בודד" : "למשל: שיעור פרטי – 3 מפגשים";
-    $("nSave").textContent = ed ? "שמירה" : TY === "trial" ? "יצירת קישור לחודש ניסיון" : TY === "rec" ? "יצירת קישור להוראת קבע" : "יצירת קישור";
+    $("nSave").textContent = ed ? "שמירה" : TY === "trial" ? "יצירת קישור לחודש ניסיון" : TY === "rec" ? "⌨️ הזנת כרטיס עכשיו" : "יצירת קישור";
     if (set === "single") { if (!$("nDesc").value.trim() || /^חודש ניסיון/.test($("nDesc").value)) $("nDesc").value = "שיעור בודד"; if ($("nProd") && !$("nProd").value) $("nProd").value = "שיעורי מתמטיקה"; $("nOnce").value = 118; $("nRec").checked = false; $("nRec").onchange(); }
     if (set === "trial" && /^שיעור בודד$/.test($("nDesc").value.trim())) $("nDesc").value = "";
     if (set === "reg" && /^שיעור בודד$/.test($("nDesc").value.trim())) { $("nDesc").value = ""; $("nOnce").value = ""; }
@@ -13915,13 +13919,17 @@ function newLink(src, mode, opt){
     $("nDesc").value = $("nProd").value;   // תש-56 (נועה 8.11): מה שההורה רואה ומה שבחשבונית – המוצר
     const REC = TY === "rec";   // 5.21.100 (נועה 11.11): הוראת קבע בלבד – בלי חיוב עכשיו (השרת: recurring_only, מנ-414)
     if (!REC && !(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
-    const p = Object.assign($("nProd") && $("nProd").value ? { product: $("nProd").value } : {}, { description: $("nDesc").value.trim(), one_time_amount: REC ? 0 : once, fields: {}, note: $("nNote").value.trim() }, REC ? { recurring_only: true } : {});   // תש-56: המוצר בחשבונית (ריק – השרת מנחש)
+    const p = Object.assign($("nProd") && $("nProd").value ? { product: $("nProd").value } : {}, { description: $("nDesc").value.trim(), one_time_amount: REC ? 0 : once, fields: {}, note: $("nNote").value.trim() }, REC ? { recurring_only: true, course_member_id: opt.cm } : {});   // מנ-418: על הקורס   // תש-56: המוצר בחשבונית (ריק – השרת מנחש)
     if (SID) p.student_id = SID;
     if (ed && src.order_kind) p.order = { kind: src.order_kind, id: src.order_id };
     if (REC && !$("nMFirst").value) { err.textContent = "יש לבחור את תאריך החיוב הראשון."; return; }
     if (REC || $("nRec").checked) { const a = Number($("nMAmt").value), c = Number($("nMCnt").value); if (!(a > 0) || !(c >= 1 && c <= 24)) { err.textContent = "בהוראת קבע: סכום חודשי ומספר חיובים (1-24)."; return; } p.monthly = { amount: a, count: c, first_date: $("nMFirst").value || "" }; }
     FIELDS.forEach(([k]) => { const v = $("nf_" + k).value.trim(); p.fields[k] = Object.assign({ value: v, required: !v && $("nr_" + k).checked && (!$("ns_" + k) || $("ns_" + k).checked) }, $("ns_" + k) && !$("ns_" + k).checked ? { hide: true } : {}); });
     $("nSave").disabled = true;
+    if (REC && !ed) {   // 5.21.103: ישר לדף האשראי (נועה מקלידה בטלפון), בלי לשלוח להורה
+      $("nSave").disabled = false; let made = null;
+      await payNowOpen($("nSave"), async () => made || (made = await call("pay_link_create", { p })));
+      if (made) { pnlClose(); render(); } return; }
     try { if (ed) { await call("pay_link_update", { p_code: src.code, p }); pnlClose(); toast("נשמר"); render(); }
       else { const r = await call("pay_link_create", { p }); pnlClose(); await copy(r.url); render(); } }
     catch(e) { err.textContent = (ed ? "לא נשמר: " : "לא נוצר: ") + (/cannot edit/.test(e.message) ? "ההורה כבר מילא/ה את הטופס – אי אפשר לערוך. אפשר לבטל ולשכפל." : e.message); $("nSave").disabled = false; }
@@ -14080,7 +14088,7 @@ async function renderKid(b){
   const ok = pays.filter(r => r.status === "אושר"), sum = ok.reduce((a, r) => a + Number(r.amount || 0), 0);
   b.innerHTML = `<div class="kid-head"><div><h2>💳 ${esc(name)}</h2><div class="muted">${ok.length} תשלומים · סה"כ ${money(sum) || "₪0"}${plans.length ? " · " + plans.length + " הוראות קבע" : ""}</div></div>
       <div class="acts-row">${ld ? `<button type="button" class="btn small" data-lead2="${ld.id}">לכרטיס התלמיד/ה</button>` : ""}<button type="button" class="btn small" id="kidX">✕ סגירה</button></div></div>
-    ${pend.length ? `<div class="card note" style="margin:10px 0"><b>📞 ממתין לתשלום טלפוני:</b> ${pend.map(x => esc(x.what || "") + (x.amount ? " · " + money(x.amount) : "")).join(" · ")}</div>` : ""}
+    ${pend.length ? `<div class="card note" style="margin:10px 0"><b>📞 תשלום טלפוני:</b> ${pend.map(x => esc(x.what || "") + (x.amount ? " · " + money(x.amount) : "")).join(" · ")}</div>` : ""}
     <h3 class="kid-h">הוראות קבע</h3>
     ${plans.length ? `<table class="tbl"><thead><tr><th>על מה</th><th>חודשי</th><th>חיובים</th><th>החיוב הבא</th><th>כרטיס</th><th>סטטוס</th><th></th></tr></thead><tbody>${plans.map(p => `<tr><td class="muted">${esc(p.description || "")}</td><td class="num">${money(p.monthly_amount)}</td><td>${prog(p.charged_count || 0, p.total_count)}</td><td>${p.next_charge_date ? dmy(p.next_charge_date) : "—"}</td><td>${card4(p.card_last4, p.card_exp)}</td><td>${stChip(p.status)}</td><td><button type="button" class="btn small" data-p="${esc(p.id)}">פרטים · השהיה / ביטול</button></td></tr>`).join("")}</tbody></table>` : `<div class="muted">אין הוראות קבע.</div>`}
     <h3 class="kid-h">תשלומים</h3>
@@ -14123,7 +14131,7 @@ async function liveRefreshPay(onlyCounts){
   }
 }
 // נועה 6.11: "קישור חודש ניסיון" מכרטיס התלמיד/ה – פותח את חלון הקישור החדש (דפי תשלום → קישורים אישיים), ממולא
-async function newFromCard(sid, type){ pnlCard(sid); newLink(null, null, { sid, type }); }   // תש-69: נפתח מעל הכרטיס
+async function newFromCard(sid, type, cm){ pnlCard(sid); newLink(null, null, { sid, type, cm }); }   // תש-69: נפתח מעל הכרטיס
 async function linkFromCard(code, sid){ let all = []; try { all = (await call("pay_links_list")) || []; } catch(e) { toast("לא נטען: " + e.message); return; }
   const l = all.find(x => x.code === code); if (!l) { toast("הקישור לא נמצא"); return; } pnlCard(sid); linkDet(l, all, null); }
 async function kidPlan(sid, name){ setKid({ id: sid, name: name || "" }); S.focus = "plan"; PT = "tx-all"; store("telem_pay_tab", PT); go("pay"); await show("tx-all"); }
