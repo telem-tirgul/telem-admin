@@ -2164,7 +2164,7 @@ tr.dx-row > td{ background:#FAF2F2 !important; border-color:var(--accent) !impor
 #payBody tr.deal-r.dx-open > td:first-child{ box-shadow:inset 0 2px 0 #9C8A74, inset -2px 0 0 #9C8A74 !important; border-inline-start:0 !important; }
 #payBody tr.deal-r.dx-open > td:last-child{ box-shadow:inset 0 2px 0 #9C8A74, inset 2px 0 0 #9C8A74 !important; border-inline-end:0 !important; }
 #payBody tr.deal-r.dx-open > td:only-child{ box-shadow:inset 0 2px 0 #9C8A74, inset -2px 0 0 #9C8A74, inset 2px 0 0 #9C8A74 !important; }
-#payBody tr.dx-row > td{ background:#FFFDFA !important; border:0 !important; padding:2px 2px 10px !important; box-shadow:inset -2px 0 0 #9C8A74, inset 2px 0 0 #9C8A74, inset 0 -2px 0 #9C8A74 !important; }
+#payBody tr.dx-row > td{ background:#FFFDFA !important; border:0 !important; padding:2px 0 10px !important; max-width:0; box-shadow:inset -2px 0 0 #9C8A74, inset 2px 0 0 #9C8A74, inset 0 -2px 0 #9C8A74 !important; }
 #payBody tr.dx-row + tr.deal-r > td{ border-top:16px solid var(--bg, #F6F2EC) !important; }
 @media (min-width:761px){
   #payBody .dx{ gap:0; } #payBody .dx-info:not(.only-m-blk){ padding:6px 10px; }
@@ -13506,7 +13506,7 @@ function dealExpand(d){
 // השורות בפירוט – באותן עמודות של הטבלה (מודדים את רוחב העמודות), והפעולות של כל שורה – בתפריט "⋯" אחד בסוף השורה
 function dxCols(b){ const t = b && b.querySelector("table.deals"); if (!t) return;
   const ths = [...t.querySelectorAll("thead th")].filter(h => h.offsetWidth > 0); if (ths.length < 6) return;
-  t.style.setProperty("--dxc", ths.map(h => h.getBoundingClientRect().width.toFixed(1) + "px").join(" ")); }
+  t.style.setProperty("--dxc", ths.map(h => "minmax(0," + h.getBoundingClientRect().width.toFixed(1) + "fr)").join(" ")); }   // 5.21.111: יחסי (fr) – הפירוט לעולם לא מרחיב את הטבלה (נועה 23:34: "הטבלה נחתכת")
 window.addEventListener("resize", () => { clearTimeout(window.__dxcT); window.__dxcT = setTimeout(() => dxCols($("payBody")), 120); });
 function dxColsSoon(b){ if (dxColsSoon.f) return; dxColsSoon.f = requestAnimationFrame(() => { dxColsSoon.f = 0; dxCols(b); }); }   // פעם אחת לכל פתיחה (גם "פתיחת כל השורות")
 function dxMenus(x){
