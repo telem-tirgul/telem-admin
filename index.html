@@ -13346,7 +13346,7 @@ async function renderAll(b){
     <!-- 5.19.65 (נועה): בלי שורת הסיכומים - יש בתמונת המצב -->
     <div class="dx-bar"><span class="muted">${(S.kid || q.length >= 2) && qf !== S.pf ? `החיפוש מתחילת שנת הלימודים (${dmy(qf)} עד ${dmy(qt)}).` : `${dmy(qf)} עד ${dmy(qt)}`} · הוראות קבע פעילות מוצגות תמיד.</span><span class="dx-bar-b"><span class="muted">${kids.length === list.length ? `${list.length} ${list.length === 1 ? "עסקה" : "עסקאות"}` : `${kids.length} ${kids.length === 1 ? "ילד/ה" : "ילדים"} · ${list.length} עסקאות`}</span><button type="button" class="clear-f" id="pClear"${S.pk === "all" && !S.ps && !q && S.pr === "month" ? " disabled" : ""}>✕ ניקוי סינון</button>${list.length ? `<button type="button" class="btn small" id="dxAll">▾ פתיחת כל השורות</button><button type="button" class="btn small" id="pXls" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>` : ""}</span></div>${list.length ? `<table class="tbl pay-all deals"><thead><tr><th class="c-todo" aria-label="פתיחה / לטיפול"></th><th>תאריך</th><th>תלמיד/ה</th><th class="hide-m">הורה</th><th>סוג</th><th class="hide-m c-desc">פירוט</th><th class="c-amt">סכום</th><th>סטטוס</th><th class="hide-m c-frm">טופס</th></tr></thead><tbody>
       ${kids.map((g, i) => { const one = g.deals.length === 1 ? g.deals[0] : null, ln = (h) => `<div class="kd-l">${h}</div>`;
-        return `<tr class="deal-r${g.todo ? " tr-todo" : ""}${one ? "" : " kd-multi"}" data-dr="${i}"><td class="c-todo"><button type="button" class="dx-tg" aria-expanded="false" aria-label="פירוט"></button></td>
+        return `<tr class="deal-r${g.todo ? " tr-todo" : ""}${one ? "" : " kd-multi"}" data-dr="${i}" data-kk="${esc(String(g.student_id || "n" + g.name))}"><td class="c-todo"><button type="button" class="dx-tg" aria-expanded="false" aria-label="פירוט"></button></td>
         <td class="nowrap">${one ? dmy(g.date) : g.deals.map(d => ln(dmy(d.date))).join("")}${one && String(g.date || "").length > 10 ? `<div class="muted">${esc(new Date(g.date).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit" }))}</div>` : ""}</td>
         <td>${g.leadId ? `<button type="button" class="name-link" data-lead="${g.leadId}">${esc(g.name)}</button>` : `<b>${esc(g.name)}</b>`}${g.todo ? `<div class="todo-txt" title="${esc(g.todo)}">⚠ ${esc(String(g.todo).replace(/\s*\(.*?\)\s*/g, " ").trim())}</div>` : ""}</td>
         <td class="hide-m nowrap">${esc(g.parent || "")}${g.phone ? `${g.parent ? " · " : ""}<a class="call-ph" href="tel:${esc(String(g.phone).replace(/[^\d+]/g, ""))}" dir="ltr">${esc(g.phone)}</a>` : ""}</td>
@@ -14333,11 +14333,17 @@ async function liveRefreshPay(onlyCounts){
   // (שורות פתוחות, מה שמוקלד, הפוקוס והגלילה נשארים). מציירים מחדש רק כשבאמת השתנה משהו.
   const b = $("payBody"), tab = S.tab, kid = S.kid && S.kid.id, old = [...b.childNodes], act = document.activeElement, inB = act && b.contains(act),
         sel = inB && "selectionStart" in act ? [act.selectionStart, act.selectionEnd] : null, prev = S.liveHtml;
+  // 5.21.111 (נועה 11.11, 23:33: "שוב נסגרת לי השורה בתשלומים מדי פעם"): גם כשמשהו השתנה – השורות שהיו פתוחות נפתחות שוב, והגלילה נשארת
+  const openK = [...b.querySelectorAll("tr.deal-r.dx-open")].map(t => t.dataset.kk).filter(Boolean), sy = window.scrollY, bsx = b.scrollLeft;
+  if (document.querySelector(".dx-menu.open") || document.querySelector(".ui-dlg, dialog[open]")) return;   // תפריט / חלון פתוח – לא נוגעים
   await render(true);
   const now = b.innerHTML;
   if (prev && now === prev && S.tab === tab && (S.kid && S.kid.id) === kid && currentView === "pay") {
     b.replaceChildren(...old);
     if (inB && b.contains(act)) { try { act.focus({ preventScroll: true }); if (sel) act.setSelectionRange(sel[0], sel[1]); } catch(e) {} }
+  } else if (S.tab === tab && (S.kid && S.kid.id) === kid && currentView === "pay") {
+    openK.forEach(k => { const t = b.querySelector(`tr.deal-r[data-kk="${CSS.escape(k)}"]`); if (t && !t.classList.contains("dx-open")) t.click(); });
+    window.scrollTo(0, sy); b.scrollLeft = bsx;
   }
 }
 // נועה 6.11: "קישור חודש ניסיון" מכרטיס התלמיד/ה – פותח את חלון הקישור החדש (דפי תשלום → קישורים אישיים), ממולא
