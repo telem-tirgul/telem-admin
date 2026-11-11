@@ -13124,6 +13124,7 @@ async function render(silent){
     else if (S.tab === "links") await renderLinks(b);
     else if (S.tab === "rules") await renderRules(b);
   } catch(e) { b.innerHTML = `<div class="card err">לא ניתן לטעון: ${esc(e.message)}</div>`; }
+  finally { S.liveHtml = b.innerHTML; }   // 5.21.99: לרענון האוטומטי – לדעת אם השתנה משהו
 }
 async function refresh(){ await loadCounts(); paintTabs(); await render(); }
 const stChip = (s) => `<span class="chip st-${esc(s)}">${s === "cancelled" ? `<span class="ic-x">⊘</span> ` : ""}${esc(PLAN_ST[s] || s)}</span>`;   /* נועה 8.11: אייקון קטן כמו "↩ זוכה" */
@@ -14104,7 +14105,16 @@ async function counts(){ if (started) return; try { await loadCounts(); started 
 async function liveRefreshPay(onlyCounts){
   try { await loadCounts(); started = true; paintTabs(); } catch(e) { return; }
   if (onlyCounts || currentView !== "pay" || !updSafe() || ["rules"].includes(S.tab)) return;
+  // 5.21.99 (נועה 11.11: "שוב המסך מתרפרש" בתשלומים): אם אחרי הרענון יוצא בדיוק אותו מסך – מחזירים את המסך הקודם כמו שהוא
+  // (שורות פתוחות, מה שמוקלד, הפוקוס והגלילה נשארים). מציירים מחדש רק כשבאמת השתנה משהו.
+  const b = $("payBody"), tab = S.tab, kid = S.kid && S.kid.id, old = [...b.childNodes], act = document.activeElement, inB = act && b.contains(act),
+        sel = inB && "selectionStart" in act ? [act.selectionStart, act.selectionEnd] : null, prev = S.liveHtml;
   await render(true);
+  const now = b.innerHTML;
+  if (prev && now === prev && S.tab === tab && (S.kid && S.kid.id) === kid && currentView === "pay") {
+    b.replaceChildren(...old);
+    if (inB && b.contains(act)) { try { act.focus({ preventScroll: true }); if (sel) act.setSelectionRange(sel[0], sel[1]); } catch(e) {} }
+  }
 }
 // נועה 6.11: "קישור חודש ניסיון" מכרטיס התלמיד/ה – פותח את חלון הקישור החדש (דפי תשלום → קישורים אישיים), ממולא
 async function newFromCard(sid, type){ pnlCard(sid); newLink(null, null, { sid, type }); }   // תש-69: נפתח מעל הכרטיס
