@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.112">
+<meta name="app-version" content="5.21.113">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -5525,7 +5525,7 @@ function histInfoHtml(h){
     ["טלפון הילד/ה", tl(h.student_phone)], ["טלפון בבית", tl(h.home_phone)], ["אימייל", h.email ? `<a href="mailto:${esc(h.email)}" dir="ltr">${esc(h.email)}</a>` : ""],
     ["מקור", esc(h.source || "")], ["הודעה", esc(h.message || "")], ["הערות", esc(h.notes || "")]].filter(x => x[1]);
   return `<div class="pop-info"><div class="pop-title">${esc((h.first_name || "") + " " + (h.last_name || ""))} – שנים קודמות</div>${f.map(x => `<div><b>${x[0]}:</b> ${x[1]}</div>`).join("")}
-    ${lead ? `<div style="margin-top:8px"><button type="button" class="btn small primary" data-pop="lead" data-lead="${lead.id}">לכרטיס של השנה</button></div>` : ""}</div>`;
+    ${lead ? `<div style="margin-top:8px"><button type="button" class="btn small nav-b" data-pop="lead" data-lead="${lead.id}">👤 כרטיס תלמיד</button></div>` : ""}</div>`;
 }
 
 // כיתה = שכבה + מספר (למשל ח'1). אם מספר הכיתה כבר כולל אות (ח1) - מוצג כמו שהוא
@@ -10339,7 +10339,7 @@ async function loadPanelSplits(se){
   const sets = {}; cur.forEach(s => (sets[spSetKey(s)] = sets[spSetKey(s)] || []).push(s));
   const html = `<li class="sp-panel"><div class="row-top"><span><b>תת-קבוצות</b>${sp !== null && !Object.keys(sets).length ? ` <span class="muted">· הקבוצה לא מפוצלת</span>` : ""}</span>${sp === null ? "" : `<button type="button" class="btn small" id="spNew">✂ פיצול</button>`}</div>
     ${sp === null ? "<div class='meta'>צריך להריץ את קובץ 40.</div>" : Object.keys(sets).length ? Object.values(sets).map(g => `<div class="meta" style="margin-top:4px;"><b>${esc(spWhen(g[0]))}:</b> ${g.map(s => `${esc(s.name)} - ${s.members.length} ילדים${s.room ? ", " + esc(s.room) : ""}${s.staff ? ", " + esc(s.staff.full_name) : ""}`).join(" · ")}
-      <button type="button" class="btn small" data-spedit="${esc(spSetKey(g[0]))}">✎ עריכה</button> <button type="button" class="btn small" data-spend="${esc(spSetKey(g[0]))}">${g[0].date_from > t ? "מחיקה" : "סיום הפיצול"}</button></div>`).join("") : ""}</li>`;
+      <button type="button" class="btn small" data-spedit="${esc(spSetKey(g[0]))}">✎ עריכה</button> <button type="button" class="btn small${g[0].date_from > t ? " danger" : ""}" data-spend="${esc(spSetKey(g[0]))}">${g[0].date_from > t ? "מחיקה" : "סיום הפיצול"}</button></div>`).join("") : ""}</li>`;
   $("roster").insertAdjacentHTML("afterbegin", html);
   // ילד/ה בתת-קבוצה היום - תגית ליד השם
   const today = cur.filter(s => s.date_from <= t);
