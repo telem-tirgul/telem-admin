@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.106">
+<meta name="app-version" content="5.21.107">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2193,6 +2193,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 #view-lead .lead-paywrap .lp-rest-h{ border-bottom:1px solid var(--border); padding-bottom:6px !important; margin-top:8px; } #view-lead .lead-paywrap .lp-regs{ border-top:0; margin-top:6px; padding-top:0; }
 @media (max-width:760px){ #view-lead .lead-paywrap .pw-sum{ display:none; } #view-lead .lead-paywrap > summary b{ white-space:nowrap; } #view-lead .lead-paywrap > summary{ gap:8px; }
   #view-lead .lc-nocrs .nc-row{ grid-template-columns:minmax(0,1fr) auto auto; } #view-lead .lc-nocrs .pl-stp{ grid-column:1 / -1; grid-row:2; } }
+/* 5.21.107: כמה מוצרים בקישור */ .nl-it{ display:grid; grid-template-columns:minmax(0,1fr) 120px 30px; gap:8px; margin-top:6px; align-items:center; } .nl-padd{ margin-top:6px; }
 .lc-nocrs .nc-row{ display:grid; grid-template-columns:minmax(0,1fr) auto auto auto; align-items:center; gap:6px 12px; padding:8px 2px; border-bottom:1px dashed var(--border); font-size:13.5px; } .lc-nocrs .nc-row:last-child{ border-bottom:0; }
 .cd-st-fix{ background:#EFEBE6 !important; color:#8A8078 !important; border-style:dashed !important; }
 .cd-how{ grid-column:1 / -1; display:flex; flex-direction:column; gap:6px; padding:8px 10px; border:1px dashed #E2D8CC; border-radius:10px; background:#FDFBF8; font-size:14px; } .cd-how label{ display:inline-flex; align-items:center; gap:6px; margin:0; font-weight:600; } .cd-how .cd-trial{ display:flex; flex-wrap:wrap; gap:6px 18px; padding-inline-start:24px; } .cd-how .cd-trial[hidden], .cd-how .cd-td[hidden]{ display:none; } .cd-how input[type=date]{ width:auto; }
@@ -6241,7 +6242,7 @@ async function loadLeadPayments(l){
     return `<div class="dx-pay${okr ? "" : " bad"}" data-lpi="${i}"><span class="dx-d">${esc(dm(r.date))}</span><span class="dx-k">${esc(lbl)}</span>${r.kind === "הקמת הוראת קבע" ? "" : `<b>${fmtMoney(r.amount)}</b><span class="lp-st ${okr ? "ok" : "no"}">${okr ? "✓ שולם" : "לא התקבל"}</span>`}${r.refund_status ? `<span class="lp-st ref">↩ ${esc(r.refund_status)}${r.refund_status !== "זוכה" && Number(r.refunded_amount) ? " " + fmtMoney(r.refunded_amount) : ""}</span>` : ""}
       ${r.card_last4 ? `<span class="muted" dir="ltr">•••• ${esc(r.card_last4)}</span>` : ""}${doc}${r.description ? `<span class="muted">${esc(r.description)}</span>` : ""}
 ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.issue)}</span>` : ""}</div>`; };
-  const regHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">הרשמות שסומנו כשולמו</div>${ix.map(i => [paidRegs[i], i]).map(([x, i]) => `<div class="lp-reg"><span>${esc(x.what)}${x.at ? ` <span class="muted">· ${esc(dm(x.at))}</span>` : ""}</span><button type="button" class="btn small" data-unpaid="${i}" title="לסימון שנעשה בטעות - חוזר ל&quot;ממתין לתשלום&quot;">↩ ביטול "שולם"</button></div>`).join("")}</div>` : "";
+  const regHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">הרשמות שסומנו כשולמו</div>${ix.map(i => [paidRegs[i], i]).map(([x, i]) => `<div class="lp-reg"><span>${esc(x.what)}${x.at ? ` <span class="muted">· ${esc(dm(x.at))}</span>` : ""}</span><button type="button" class="btn small" data-unpaid="${i}" style="border-color:#C9A25A;background:#FFF8EC;color:#6B4A12;font-weight:800" title="לסימון שנעשה בטעות - חוזר ל&quot;ממתין לתשלום&quot;">↩ ביטול "שולם"</button></div>`).join("")}</div>` : "";
   const PST = { creating: "בהקמה", active: "פעילה", paused: "מושהית", failed: "חיוב לא התקבל", done: "הסתיימה", cancelled: "בוטלה", error: "לא הוקמה" };
   const planHtml = (ix) => ix.length ? `<div class="lp-regs"><div class="lp-regs-h">הוראות קבע <span class="muted" style="font-weight:400">· שינויים, השהיה וביטול – בריווחית</span></div>${ix.map(i => plans[i]).map(p => { const rem = Math.max(0, (p.total_count || 0) - (p.charged_count || 0));
       return `<div class="lp-reg lp-plan" data-pli="${plans.indexOf(p)}"><span><b>${fmtMoney(p.monthly_amount)}</b> לחודש · ${p.charged_count || 0}/${p.total_count || "?"} חיובים${["active", "paused", "failed"].includes(p.status) && p.next_charge_date && rem ? ` · הבא ${esc(dm(p.next_charge_date))} · נשארו ${rem}` : ""}${p.card_last4 ? ` · <span dir="ltr">•••• ${esc(p.card_last4)}</span>` : ""}${p.description ? `<div class="muted">${esc(p.description)}</div>` : ""}${planMarked(p) ? `<div class="muted">${planMarkInfo(p)}</div>` : ""}</span><span class="lp-plan-e"><span class="lp-st ${["active", "done"].includes(p.status) ? "ok" : p.status === "paused" ? "pz" : "no"}">${esc(PST[p.status] || p.status)}</span>${ME.role === "admin" && !["error", "creating"].includes(p.status) ? `<button type="button" class="btn small" data-lpsync title="רענון ההוראה מאיקרדיט עכשיו">🔄</button>` : ""}${planMarkBtns(p, "lpcx")}</span></div>`; }).join("")}</div>` : "";
@@ -13835,7 +13836,9 @@ function newLink(src, mode, opt){
     <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${(opt.cm ? [["rec", "🔁 הוראת קבע בלבד"]] : [["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"]]).map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
       <div style="grid-column:1/-1"><label class="lbl" for="nNote">תיאור <span class="muted" style="font-weight:400">(מופיע להורה בטופס; לא חובה)</span></label><textarea id="nNote" rows="3" maxlength="1000" placeholder="למשל: 3 מפגשים של שעה וחצי בימי שלישי, כולל דפי תרגול"></textarea></div>
       <div style="grid-column:1/-1" hidden><label class="lbl" for="nDesc">תיאור (יופיע להורה)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
-      <div style="grid-column:1/-1" id="nProdW"><label class="lbl" for="nProd">מוצר בחשבונית <span class="muted" style="font-weight:400">(כמו בקטלוג בריווחית)</span></label><select id="nProd"><option value="">בחירת מוצר</option>${["שיעורי מתמטיקה", "שיעורי אנגלית", "שיעורי מתמטיקה ואנגלית", "דמי שיבוץ והרשמה", "שירות עבור חומרי תרגול דיגיטליים"].map(x => `<option>${x}</option>`).join("")}</select></div><!-- תש-56 (נועה 8.11) -->
+      <div style="grid-column:1/-1" id="nProdW"><label class="lbl" for="nProd">מוצר בחשבונית <span class="muted" style="font-weight:400">(כמו בקטלוג בריווחית)</span></label><select id="nProd"><option value="">בחירת מוצר</option>${["שיעורי מתמטיקה", "שיעורי אנגלית", "שיעורי מתמטיקה ואנגלית", "דמי שיבוץ והרשמה", "שירות עבור חומרי תרגול דיגיטליים"].map(x => `<option>${x}</option>`).join("")}</select>
+        <!-- 5.21.107 (נועה 11.11, תש-89): כמה מוצרים – שורה לכל מוצר בחשבונית -->
+        <div class="nl-items" id="nItems"></div><button type="button" class="btn small nl-padd" id="nPAdd">+ עוד מוצר</button></div><!-- תש-56 (נועה 8.11) -->
       <div class="nl-trial" hidden><label class="lbl" for="nTrTrack">מסלול</label><select id="nTrTrack"><option value="">בחירת מסלול</option>${LK.tracks.map(x => `<option value="${x.v}">${esc(x.t)}</option>`).join("")}</select></div>
       <div class="nl-trial nl-trsub" hidden><label class="lbl" for="nTrSub">מקצוע</label><select id="nTrSub"><option value="">בחירת מקצוע</option><option>מתמטיקה</option><option>אנגלית</option></select></div>
       <div class="nl-trial" hidden><label class="lbl" for="nTrStart">תאריך התחלה</label><input type="date" id="nTrStart"></div>
@@ -13904,6 +13907,7 @@ function newLink(src, mode, opt){
     if ($("nProdW")) $("nProdW").hidden = TY === "trial";   // תש-56: בניסיון – השרת קובע (3 שורות בחיוב הראשון)
     $("nDesc").placeholder = TY === "trial" ? "ריק – חודש ניסיון + שם המסלול" : TY === "single" ? "שיעור בודד" : "למשל: שיעור פרטי – 3 מפגשים";
     if ($("nNow")) $("nNow").hidden = TY === "rec" || TY === "trial";
+    if ($("nPAdd")) { $("nPAdd").hidden = TY === "rec" || TY === "trial"; if (TY === "rec" || TY === "trial") { $("nItems").innerHTML = ""; itPaint(); } }
     $("nSave").textContent = ed ? "שמירה" : TY === "trial" ? "יצירת קישור לחודש ניסיון" : TY === "rec" ? "⌨️ הזנת כרטיס עכשיו" : "יצירת קישור";
     if (set === "single") { if (!$("nDesc").value.trim() || /^חודש ניסיון/.test($("nDesc").value)) $("nDesc").value = "שיעור בודד"; if ($("nProd") && !$("nProd").value) $("nProd").value = "שיעורי מתמטיקה"; $("nOnce").value = 118; $("nRec").checked = false; $("nRec").onchange(); }
     if (set === "trial" && /^שיעור בודד$/.test($("nDesc").value.trim())) $("nDesc").value = "";
@@ -13938,6 +13942,21 @@ function newLink(src, mode, opt){
     try { const r = await call("pay_link_create", { p }); pnlClose(); await copy(r.url); toast(`נוצר קישור לחודש ניסיון – ${money(((r.trial || {}).first_amount) || r.one_time_amount || amt)}. הקישור הועתק.`); render(); }
     catch(e) { const m = String(e.message || ""); err.textContent = "לא נוצר: " + (/already registered/.test(m) ? "לתלמיד/ה כבר יש הרשמה לתרגול השוטף." : /subject required/.test(m) ? "יש לבחור מקצוע." : /no prices? for/.test(m) ? "אין מחיר למסלול הזה בעיר הזו." : /invalid start date/.test(m) ? "תאריך ההתחלה – עד שבועיים אחורה או חודשיים קדימה." : /student or city/.test(m) ? "יש לבחור עיר או תלמיד/ה." : m); $("nSave").disabled = false; }
   };
+  // 5.21.107 (תש-89): כמה מוצרים. עם שורה נוספת – לכל מוצר סכום, ו"תשלום עכשיו" = הסיכום
+  const PRODS = ["שיעורי מתמטיקה", "שיעורי אנגלית", "שיעורי מתמטיקה ואנגלית", "דמי שיבוץ והרשמה", "שירות עבור חומרי תרגול דיגיטליים"];
+  const itemsOn = () => !!document.querySelector("#nItems .nl-it");
+  const itSum = () => [...document.querySelectorAll("#nItems .nl-it input, #nProdAmt")].reduce((a, x) => a + (Number(x.value) || 0), 0);
+  const itPaint = () => { const on = itemsOn(); let a0 = $("nProdAmt");
+    if (on && !a0) { const w = document.createElement("div"); w.className = "nl-it nl-first"; $("nProd").before(w); w.appendChild($("nProd"));
+      w.insertAdjacentHTML("beforeend", `<input type="number" id="nProdAmt" min="1" placeholder="סכום (₪)"><span></span>`); a0 = $("nProdAmt"); a0.value = $("nOnce").value || ""; a0.oninput = itPaint; }
+    if (!on && a0) { $("nOnce").value = a0.value || $("nOnce").value; const w = a0.closest(".nl-first"); w.before($("nProd")); w.remove(); }
+    $("nOnce").readOnly = on; if (on) $("nOnce").value = itSum() || ""; $("nProdW").classList.toggle("nl-multi", on); };
+  const itAdd = (prod, amt) => { const w = document.createElement("div"); w.className = "nl-it";
+    w.innerHTML = `<select><option value="">בחירת מוצר</option>${PRODS.map(x => `<option>${x}</option>`).join("")}</select><input type="number" min="1" placeholder="סכום (₪)"><button type="button" class="btn small" title="הסרת המוצר">✕</button>`;
+    w.querySelector("select").value = prod || ""; w.querySelector("input").value = amt || ""; w.querySelector("input").oninput = itPaint;
+    w.querySelector("button").onclick = () => { w.remove(); itPaint(); }; $("nItems").appendChild(w); itPaint(); };
+  $("nPAdd").onclick = () => itAdd();
+  if (src && Array.isArray(src.items) && src.items.length > 1) { $("nProd").value = src.items[0].product || ""; src.items.slice(1).forEach(x => itAdd(x.product, x.amount)); if ($("nProdAmt")) $("nProdAmt").value = src.items[0].amount || ""; itPaint(); }
   let NOW = false;   // 5.21.106 (תש-86): "⌨️ הזנת כרטיס עכשיו" – יוצר את הקישור ופותח ישר את דף האשראי
   if ($("nNow")) $("nNow").onclick = () => { NOW = true; $("nSave").onclick(); };
   $("nSave").onclick = async () => { const NOW1 = NOW; NOW = false;
@@ -13946,8 +13965,13 @@ function newLink(src, mode, opt){
     if ($("nProd") && !$("nProd").value) { err.textContent = "יש לבחור מוצר בחשבונית."; return; }
     $("nDesc").value = $("nProd").value;   // תש-56 (נועה 8.11): מה שההורה רואה ומה שבחשבונית – המוצר
     const REC = TY === "rec";   // 5.21.100 (נועה 11.11): הוראת קבע בלבד – בלי חיוב עכשיו (השרת: recurring_only, מנ-414)
-    if (!REC && !(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
-    const p = Object.assign($("nProd") && $("nProd").value ? { product: $("nProd").value } : {}, { description: $("nDesc").value.trim(), one_time_amount: REC ? 0 : once, fields: {}, note: $("nNote").value.trim() }, REC ? { recurring_only: true, course_member_id: opt.cm } : {});   // מנ-418: על הקורס   // תש-56: המוצר בחשבונית (ריק – השרת מנחש)
+    let ITEMS = null;
+    if (!REC && itemsOn()) { ITEMS = [{ product: $("nProd").value, amount: Number($("nProdAmt").value) }].concat([...document.querySelectorAll("#nItems .nl-it")].map(w => ({ product: w.querySelector("select").value, amount: Number(w.querySelector("input").value) })));
+      if (ITEMS.some(x => !x.product)) { err.textContent = "יש לבחור מוצר בכל שורה."; return; }
+      if (ITEMS.some(x => !(x.amount > 0))) { err.textContent = "חסר סכום לאחד המוצרים."; return; } }
+    if (!REC && !ITEMS && !(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
+    const p = Object.assign($("nProd") && $("nProd").value ? { product: $("nProd").value } : {}, { description: ITEMS ? ITEMS.map(x => x.product).join(" + ") : $("nDesc").value.trim(), one_time_amount: REC ? 0 : ITEMS ? ITEMS.reduce((a, x) => a + x.amount, 0) : once, fields: {}, note: $("nNote").value.trim() }, REC ? { recurring_only: true, course_member_id: opt.cm } : {});   // מנ-418: על הקורס   // תש-56: המוצר בחשבונית (ריק – השרת מנחש)
+    if (ITEMS) p.items = ITEMS;   // 5.21.107 (תש-89): שורה לכל מוצר בחשבונית
     if (SID) p.student_id = SID;
     if (ed && src.order_kind) p.order = { kind: src.order_kind, id: src.order_id };
     if (REC && !$("nMFirst").value) { err.textContent = "יש לבחור את תאריך החיוב הראשון."; return; }
