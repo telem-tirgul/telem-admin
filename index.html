@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.108">
+<meta name="app-version" content="5.21.109">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2200,6 +2200,10 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 @media (max-width:760px){ #view-lead .lead-paywrap .pw-sum{ display:none; } #view-lead .lead-paywrap > summary b{ white-space:nowrap; } #view-lead .lead-paywrap > summary{ gap:8px; }
   #view-lead .lc-nocrs .nc-row{ grid-template-columns:minmax(0,1fr) auto auto; } #view-lead .lc-nocrs .pl-stp{ grid-column:1 / -1; grid-row:2; } }
 /* 5.21.107: כמה מוצרים בקישור */ .nl-it{ display:grid; grid-template-columns:minmax(0,1fr) 120px 30px; gap:8px; margin-top:6px; align-items:center; } .nl-padd{ margin-top:6px; }
+/* 5.21.109 (נועה 11.11, 22:12): בכרטיס התלמיד – התשלומים רק לסיכום, בלי פעולות ובלי פרטים (הכול במסך התשלומים, "💳 תשלומים") */
+#view-lead .lg-pay-slot button:not(.lp-tgl):not([data-lptg]), #view-lead #leadPayments button, #view-lead #lcRegLinks .nc-row button, #view-lead #lcRegLinks [data-plall], #pwAddPay, #view-lead .stp-s[data-stk="pay"] .stp-a{ display:none !important; }
+#view-lead .lp-dx .dx-pay > .muted, #view-lead .lp-dx .doc-a, #view-lead .lp-dx .dx-why, #view-lead .lp-regs .lp-reg .muted{ display:none !important; }
+#view-lead .lc-nocrs .pl-stp{ display:none !important; }
 .lc-nocrs .nc-row{ display:grid; grid-template-columns:minmax(0,1fr) auto auto auto; align-items:center; gap:6px 12px; padding:8px 2px; border-bottom:1px dashed var(--border); font-size:13.5px; } .lc-nocrs .nc-row:last-child{ border-bottom:0; }
 .cd-st-fix{ background:#EFEBE6 !important; color:#8A8078 !important; border-style:dashed !important; }
 .cd-how{ grid-column:1 / -1; display:flex; flex-direction:column; gap:6px; padding:8px 10px; border:1px dashed #E2D8CC; border-radius:10px; background:#FDFBF8; font-size:14px; } .cd-how label{ display:inline-flex; align-items:center; gap:6px; margin:0; font-weight:600; } .cd-how .cd-trial{ display:flex; flex-wrap:wrap; gap:6px 18px; padding-inline-start:24px; } .cd-how .cd-trial[hidden], .cd-how .cd-td[hidden]{ display:none; } .cd-how input[type=date]{ width:auto; }
@@ -13432,7 +13436,7 @@ function dealExpand(d){
   // נועה 8.11: עמודות קבועות בכל השורות (תאריך · סוג · סכום · סטטוס · פרטים · חשבונית · פעולות) – כדי שיהיה ברור מה איפה
   const cell = (c, h) => `<span class="${c}">${h || ""}</span>`;
   const planLine = (pp) => { const rem = Math.max(0, (pp.total_count || 0) - (pp.charged_count || 0)), lv = ["active", "paused", "failed"].includes(pp.status);
-    return `<div class="dx-pay dx-planrow">${cell("dx-d", pp.next_charge_date && lv && rem ? "הבא " + dmy(pp.next_charge_date) : pp.created_at ? dmy(pp.created_at) : "")}${cell("dx-k", "הוראת קבע")}${cell("dx-a", `<b>${money(pp.monthly_amount)}</b><small class="muted"> × ${pp.total_count || "?"}</small>`)}${cell("dx-s", stChip(pp.status))}${cell("dx-m muted", `${pp.charged_count || 0} מתוך ${pp.total_count || "?"} חיובים${pp.last_amount ? " · יוני " + money(pp.last_amount) : ""}${pp.card_last4 ? " · " + card4(pp.card_last4, pp.card_exp) : ""}`)}${cell("dx-doc", "")}${cell("dx-acts", planMarkBtns(pp, "dxcx"))}
+    return `<div class="dx-pay dx-planrow">${cell("dx-d", pp.next_charge_date && lv && rem ? "הבא " + dmy(pp.next_charge_date) : pp.created_at ? dmy(pp.created_at) : "")}${cell("dx-k", "הוראת קבע")}${cell("dx-a", `<b>${money(pp.monthly_amount)}</b><small class="muted"> × ${pp.total_count || "?"}</small>`)}${cell("dx-s", stChip(pp.status))}${cell("dx-m muted", `${pp.charged_count || 0} מתוך ${pp.total_count || "?"} חיובים${pp.last_amount ? " · יוני " + money(pp.last_amount) : ""}${pp.card_last4 ? " · " + card4(pp.card_last4, pp.card_exp) : ""}`)}${cell("dx-doc", "")}${cell("dx-acts", planMarkBtns(pp, "dxcx") + (lv && ME.role === "admin" ? `<button type="button" class="btn small" data-dxed="${pp.id}">✎ שינוי</button>${pp.status === "paused" ? `<button type="button" class="btn small" data-dxst="active">▶ הפעלה</button>` : `<button type="button" class="btn small" data-dxst="paused">⏸ השהיה</button>`}<button type="button" class="btn small danger" data-dxst="cancelled">⊘ ביטול</button>` : ""))}${pp.pending_update ? `<div class="dx-sub">${cell("dx-d", "")}<span class="pend">⏳ נשלח לאיקרדיט – מתעדכן תוך דקה</span></div>` : ""}${pp.update_error ? `<div class="dx-sub">${cell("dx-d", "")}<span class="dx-why">⚠ לא עודכן באיקרדיט: ${esc(pp.update_error)}</span></div>` : ""}
       ${planMarked(pp) ? `<div class="dx-sub">${cell("dx-d", "")}${cell("dx-k muted", planMarkInfo(pp))}</div>` : ""}</div>`; };
   const pdfB = "";   // 5.21.91 (נועה 10.11): הטופס החתום – רק בכרטיס התלמיד, לא במסך התשלומים
   const refRows = (r) => (r.refunds || []).map(f => `<div class="dx-sub${f.cancelled_at ? " cx" : ""}">${cell("dx-d", dmy(f.at))}${cell("dx-k", "↩ זיכוי")}${cell("dx-a", `<b>${money(f.amount)}</b>`)}${cell("dx-s", f.cancelled_at ? `<span class="muted">(בוטל)</span>` : `<span class="chip st-refund">סומן</span>`)}${cell("dx-m muted", `${f.by ? "סימנ/ה: " + esc(f.by) : ""}${f.note ? (f.by ? " · " : "") + esc(f.note) : ""}`)}${cell("dx-doc muted", f.document_number ? "🧾 זיכוי " + esc(f.document_number) : "")}${cell("dx-acts", f.cancelled_at ? "" : `<button type="button" class="btn small" data-refx="${f.id}">ביטול הסימון</button>`)}</div>`).join("");
@@ -13441,7 +13445,7 @@ function dealExpand(d){
     const left = Number(r.amount) - Number(r.refunded_amount || 0);
     return `<div class="dx-pay${r.status === "אושר" ? "" : " bad"}">${cell("dx-d", dmy(r.date) + tm)}${cell("dx-k", r.kind === "הקמת הוראת קבע" ? "🔁 הוראת קבע הוקמה" : r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב " + esc(r.charge_no || "") : esc(r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : r.kind || ""))}${cell("dx-a", r.kind === "הקמת הוראת קבע" ? `<span class="muted">בלי חיוב</span>` : `<b>${money(r.amount)}</b>`)}${cell("dx-s", r.kind === "הקמת הוראת קבע" ? "" : stPay(r))}
       ${cell("dx-m muted", [r.card_last4 ? card4(r.card_last4) : "", r.approval ? `אישור <span dir="ltr">${esc(r.approval)}</span>` : ""].filter(Boolean).join(" · "))}${cell("dx-doc", docA(r))}
-      ${cell("dx-acts", `${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" && left > 0 ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי</button>` : ""}`)}
+      ${cell("dx-acts", `${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" && left > 0 && !r.manual ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי</button>` : ""}${r.manual ? `<button type="button" class="btn small kd-undo" data-dxunp="${esc(r.id)}" title="לסימון שנעשה בטעות – חוזר ל&quot;ממתין לתשלום&quot;">↩ ביטול "שולם"</button>` : ""}${!r.manual && r.status === "אושר" && r.purpose === "pay_link" && !r.enrollment_id && !r.marathon_registration_id && r.student_id ? `<button type="button" class="btn small" data-dxatt="${r.id}" data-sid="${r.student_id}">🔗 חיבור לקורס</button>` : ""}`)}
       ${td || r.reason ? `<div class="dx-sub">${cell("dx-d", "")}<span class="dx-why">⚠ ${esc(td || "")}${td && r.reason ? " · " : ""}${esc(r.reason || "")}</span></div>` : ""}
       ${refRows(r)}</div>`; };
   return `<div class="dx">
@@ -13452,7 +13456,8 @@ function dealExpand(d){
     ${pays.filter(r => r.kind !== "חיוב חודשי").map(line).join("")}
     ${p ? planLine(p) : ""}
     ${pays.filter(r => r.kind === "חיוב חודשי").map(line).join("")}
-    ${live ? `<div class="dx-plan muted">שינויים בהוראת הקבע (סכום, יום חיוב, כרטיס, השהיה, ביטול) – בריווחית. מתעדכן כאן כל בוקר.</div>` : ""}
+    ${live ? `<div class="dx-plan muted">שינוי, השהיה וביטול – נשלחים מכאן לאיקרדיט. החלפת כרטיס – בריווחית.</div>` : ""}
+    ${d.student_id && ME.role === "admin" ? `<div class="dx-sub dx-kidacts"><span class="dx-acts wide"><button type="button" class="btn small" data-dxnew="${d.student_id}">+ 💳 קישור תשלום</button><button type="button" class="btn small" data-dxrec="${d.student_id}">🔁 הוראת קבע בלבד</button></span></div>` : ""}
   </div>`;
 }
 function wireExpand(box, d, reload){
@@ -13468,6 +13473,32 @@ function wireExpand(box, d, reload){
   box.querySelectorAll("[data-dxcx]").forEach(b => b.onclick = async () => { b.disabled = true;   // 5.19.68: סימון "בוטלה"
     const ok = b.dataset.dxcx === "sync" ? (b.textContent = "מרענן…", await planSyncNow(p)) : b.dataset.dxcx === "mark" ? await planMarkCancel(p, p.student_name || d.name) : await planUnmarkCancel(p);
     if (ok) { PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e) {} S.reopen = d.student_id || "n" + d.name; reload(); } else b.disabled = false; });   // 5.21.84 (נועה 9.11): אחרי רענון – הסטטוס החדש (מושהית) גם במסך התשלומים
+  // 5.21.109 (נועה 11.11: "כל הפעולות שקשורות בתשלומים יהיו בתשלומים"): ביטול "שולם", חיבור לקורס, שינוי הוראה, קישור / הוראת קבע בלבד
+  box.querySelectorAll("[data-dxunp]").forEach(b => b.onclick = async () => { const m = String(b.dataset.dxunp).match(/^man-([em])(\d+)$/); if (!m) return;
+    if (!await uiConfirm('לבטל את הסימון "שולם"? ההרשמה תחזור ל"ממתין לתשלום".', { danger: true })) return; b.disabled = true;
+    try { await rpc("mark_unpaid", { p_kind: m[1] === "m" ? "marathon" : "registration", p_order: Number(m[2]) }); toast('הסימון "שולם" בוטל'); reload(); }
+    catch(e) { const t = String(e.message || ""); toast(/has real payment/.test(t) ? "יש תשלום אמיתי מאיקרדיט – אי אפשר לבטל. להחזר – זיכוי בריווחית." : /has recurring plan/.test(t) ? "יש הוראת קבע פעילה – קודם לבטל אותה." : "לא בוטל: " + t); b.disabled = false; } });
+  box.querySelectorAll("[data-dxatt]").forEach(b => b.onclick = async () => { const sid = Number(b.dataset.sid); try { await crsLoad(); await crsEnsureStudent(sid); } catch(e) {}
+    const cms = crsOfStudent(sid).filter(m => !m.history_at); if (!cms.length) { toast("אין קורסים בכרטיס"); return; }
+    const v = await uiChoose("לאיזה קורס לחבר את התשלום?", cms.map(m => { const c = CRS.byId[m.course_id] || {}; return { t: (c.marathon_id ? "מרתון · " : (crsCatN(c.category_id) || "") + " · ") + crsLabel(c, m) + " · " + ((crsStOf(m.status) || {}).label || m.status), v: m.id }; }));
+    if (!v) return; b.disabled = true;
+    try { const res = await rpc("payment_attach_course", { p_payment: Number(b.dataset.dxatt), p_course_member: v }); toast("חובר לקורס" + (res && res.order_kind ? " · ההזמנה סומנה כשולמה" : "")); reload(); }
+    catch(e) { const t = String(e.message || ""); toast(/already has an order/.test(t) ? "התשלום כבר מחובר להזמנה" : "לא חובר: " + t); b.disabled = false; } });
+  box.querySelectorAll("[data-dxnew]").forEach(b => b.onclick = () => newFromCard(Number(b.dataset.dxnew), "reg"));
+  setTimeout(() => { const seen = {}; [...document.querySelectorAll("#payBody .dx-kidacts")].reverse().forEach(x => { const k = (x.querySelector("[data-dxnew]") || {}).dataset; const id = k && k.dxnew; if (!id) return; if (seen[id]) x.remove(); else seen[id] = 1; }); }, 0);   // פעם אחת לכל ילד/ה
+  box.querySelectorAll("[data-dxrec]").forEach(b => b.onclick = async () => { const sid = Number(b.dataset.dxrec); try { await crsLoad(); await crsEnsureStudent(sid); } catch(e) {}
+    const cms = crsOfStudent(sid).filter(m => !m.history_at && !(CRS.byId[m.course_id] || {}).marathon_id); if (!cms.length) { toast("הוראת קבע – רק על קורס. אין תרגול שוטף בכרטיס."); return; }
+    const v = cms.length === 1 ? cms[0].id : await uiChoose("על איזה קורס?", cms.map(m => ({ t: crsLabel(CRS.byId[m.course_id] || {}, m), v: m.id }))); if (v) newFromCard(sid, "rec", v); });
+  box.querySelectorAll("[data-dxed]").forEach(b => b.onclick = async () => { const pp = p && String(p.id) === b.dataset.dxed ? p : S.plans.find(x => String(x.id) === b.dataset.dxed); if (!pp) return;
+    const amt = await uiPrompt("סכום חודשי (₪):", String(pp.monthly_amount || ""), { multi: false }); if (amt == null) return;
+    const cnt = await uiPrompt("מספר חיובים (סה\"כ, כולל מה שבוצע):", String(pp.total_count || ""), { multi: false }); if (cnt == null) return;
+    const nd = await uiPrompt("החיוב הבא בתאריך (יום 1–28, למשל 2026-12-01) – ריק = בלי שינוי:", String(pp.next_charge_date || "").slice(0, 10), { multi: false }); if (nd == null) return;
+    const pa = {}; if (Number(amt) > 0 && Number(amt) !== Number(pp.monthly_amount)) pa.monthly_amount = Number(amt); if (Number(cnt) >= 1 && Number(cnt) !== Number(pp.total_count)) pa.total_count = Number(cnt);
+    b.disabled = true;
+    try { if (Object.keys(pa).length) await call("recurring_plan_update", { p_id: pp.id, p: pa });
+      if (nd && /^\d{4}-\d{2}-\d{2}$/.test(nd) && nd !== String(pp.next_charge_date || "").slice(0, 10)) await call("recurring_plan_set_next_date", { p_id: pp.id, p_date: nd, p_all: true });
+      toast("נשמר – נשלח לאיקרדיט"); PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e) {} reload(); }
+    catch(e) { toast("לא נשמר: " + e.message); b.disabled = false; } });
   box.querySelectorAll("[data-dxst]").forEach(btn => btn.onclick = async () => { const st = btn.dataset.dxst;
     if (st === "cancelled" && !await uiConfirm(`לבטל את הוראת הקבע של ${p.student_name || d.name}? החיובים הבאים לא יתבצעו. (אי אפשר לבטל את הביטול - צריך הוראה חדשה)`)) return;
     if (st === "paused" && !await uiConfirm("להשהות? לא יהיו חיובים עד שמחדשים.")) return;
