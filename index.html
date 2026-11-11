@@ -6292,7 +6292,9 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
     b.disabled = true;
     try { const r = await rpc("mark_unpaid", { p_kind: x.kind, p_order: x.id });
       toast('הסימון "שולם" בוטל' + (r && r.lead_check ? " · לבדוק את הסטטוס של התלמיד/ה (הודעה בתיבת 📥)" : r && r.lead_updated === false ? " · את הסטטוס של התלמיד/ה צריך לעדכן ידנית" : r && r.lead_status ? " · הסטטוס חזר ל" + r.lead_status : "")); callCount();
-      loadLeads().then(() => { if (editing && editing.id === l.id) loadLeadPayments(l); }).catch(() => {}); }
+      // 5.21.106 (נועה 11.11: "אחרי ביטול שולם התשלומים לא מתעדכן לבד"): מיד – הסטטוס בקורס, שלבי ההרשמה והתשלומים; רשימת התלמידים ברקע
+      const sid2 = l.student.id; crsLoadMembers("student_id=eq." + sid2).catch(() => {}).then(() => { if (editing && editing.id === l.id) { LP_CACHE = null; loadLeadPayments(l); loadLeadGroups(sid2); } });
+      loadLeads().catch(() => {}); }
     catch(e) { const m = String(e.message || "");
       toast(/has real payment/.test(m) ? "יש תשלום אמיתי מאיקרדיט להרשמה הזו - אי אפשר לבטל. להחזר כסף - זיכוי בריווחית." : /has recurring plan/.test(m) ? "יש הוראת קבע פעילה להרשמה - קודם מבטלים את הוראת הקבע." : (e.status === 404 || /PGRST202|mark_unpaid/.test(m)) ? "צריך להריץ קודם את icredit-18 (שיחת התשלומים)." : "לא בוטל: " + m);
       b.disabled = false; } });
