@@ -13146,7 +13146,7 @@ async function render(silent){
   document.querySelectorAll("#view-pay .page-head #pXls").forEach(x => x.remove());   // 5.19.88: האקסל בכותרת שייך רק לעסקאות
   const b = $("payBody"); if (!silent) b.innerHTML = "<div class='muted'>טוען...</div>";   // 5.19.57: ברענון אוטומטי - בלי "טוען..." (לא מהבהב)
   try {
-    if (S.kid) { S.tab = "tx-all"; PT = "tx-all"; store("telem_pay_tab", PT); await renderKid(b); return; }   // 5.21.108 (נועה 11.11): דף התשלומים של הילד/ה   // 5.19.63: "כל התשלומים של..." = מסך העסקאות מסונן לילד/ה
+    if (S.kid) { S.tab = "tx-all"; PT = "tx-all"; store("telem_pay_tab", PT); S.pk = "all"; await renderAll(b); return; }   // 5.19.63: "💳 תשלומים" = מסך העסקאות מסונן לילד/ה (נועה 11.11, 22:05: בלי דף נפרד – "כל התשלומים של ילד מרוכזים בשורה / מסגרת במסך התשלומים")   // 5.19.63: "כל התשלומים של..." = מסך העסקאות מסונן לילד/ה
     if (S.tab === "home") await renderHome(b);
     else if (PT_TODO[S.tab]) { S.ps = "todo"; S.tab = "tx-all"; PT = "tx-all"; store("telem_pay_tab", PT); renderPayView(); return; }
     else if (/^tx-/.test(S.tab)) { if (S.tab !== "tx-all") { S.pk = S.tab.slice(3); S.tab = "tx-all"; PT = "tx-all"; store("telem_pay_tab", PT); } else if (!S.pk) S.pk = "all"; await renderAll(b); }
