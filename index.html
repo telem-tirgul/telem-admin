@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.97">
+<meta name="app-version" content="5.21.98">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2386,7 +2386,12 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 .ib-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
 .ib-seg{ display:inline-flex; gap:4px; background:var(--paper); border:1px solid var(--border); border-radius:999px; padding:3px; } .ib-seg button{ border:0; background:none; font:inherit; font-size:13.5px; font-weight:700; padding:5px 12px; border-radius:999px; cursor:pointer; color:var(--ink-soft); } .ib-seg button[aria-pressed="true"]{ background:var(--accent); color:#fff; }
 .ib-list{ background:var(--paper); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-.ib-row{ display:grid; grid-template-columns:28px minmax(110px, 170px) 120px minmax(0, 1fr) auto 92px auto; gap:4px 12px; align-items:center; padding:7px 12px; border-top:1px solid var(--border); border-inline-start:3px solid transparent; font-size:14px; }
+/* 5.21.98 (נועה 11.11: "עמודות, כל ההודעות באותו מבנה"): עמודות קבועות – שם · סוג · פרטים · סטטוס וסימונים · מתי · פעולות; גם שורת "מול הקבוצה" */
+.ib-head{ font-size:12px !important; font-weight:700; color:var(--ink-soft); background:#FBF8F4; border-top:0 !important; padding-block:5px !important; } @media (max-width:900px){ .ib-head{ display:none !important; } }
+@media (min-width:901px){ .ib-tags{ flex-wrap:wrap; white-space:normal !important; min-width:0; } .ib-acts{ flex-wrap:wrap; }
+  .gdg .gdg-h{ display:grid !important; grid-template-columns:28px minmax(110px, 170px) 130px minmax(0, 1fr) 190px 88px 300px; gap:4px 12px; align-items:center; }
+  .gdg .gdg-h .gdg-a{ margin:0; display:flex; justify-content:flex-end; } .gdg .gdg-h .ib-ic{ display:inline-flex; align-items:center; gap:3px; } .gdg-k{ white-space:nowrap; } }
+.ib-row{ display:grid; grid-template-columns:28px minmax(110px, 170px) 130px minmax(0, 1fr) 190px 88px 300px; gap:4px 12px; align-items:center; padding:7px 12px; border-top:1px solid var(--border); border-inline-start:3px solid transparent; font-size:14px; }
 #ibKind{ min-width:170px; } #ibKind > button{ font-size:13.5px; padding:5px 10px; } #ibKind .pop{ min-width:230px; } .ib-more{ text-align:center; padding:10px; }
 .ib-row:first-child{ border-top:0; } .ib-row.new{ border-inline-start-color:var(--accent); }
 /* 5.19.145 (של-87): כמו תיבת דואר – חדשה (שלא נפתחה) בבולד, שנקראה – רגיל */
@@ -9342,7 +9347,7 @@ setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && M
 // ===== 5.19.56: תיבת הודעות מהטפסים (קובץ 71) =====
 // כל טופס שנשלח (הרשמה, מרתון, התעניינות, בקשת שיבוץ, ביטול חתום, תשלום אישי) = שורה. פרטים שלא תואמים (issues) - משיחת התשלומים
 const IB = { rows: null, f: "open", k: "", ks: new Set(), done: [], doneEnd: false, ok: true, lastMax: Number(store("telem_ib_max") || 0), names: {}, mars: {} };
-const IB_KIND = { material: ["📄", "חומר שלא שויך"], sign: ["✍️", "אישור תנאי התקשרות"], registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🔀", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"], deleted: ["🗑", "כרטיס נמחק"] };   // 5.21.80 (188)   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
+const IB_KIND = { material: ["📄", "חומר שלא שויך"], sign: ["✍️", "אישור תנאי התקשרות"], registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🗓️", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"], deleted: ["🗑", "כרטיס נמחק"] };   // 5.21.80 (188)   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
 const IB_FLAG = { blocked_already: ["t-warn", "ניסה/תה לשלוח שוב – נחסם (כבר רשום/ה)"], blocked_review: ["t-warn", "נעצר לבדיקה – אותו שם, בלי טלפון מוכר, וכבר רשום/ה (לא נשמר, לא שולם)"], status_mismatch: ["t-warn", "הסטטוס לא תואם לתשלום"], plan_withdrawn: ["t-warn", "לבטל בריווחית"], phone_pending: ["t-warn", "תשלום טלפוני ממתין"], system_issue: ["t-warn", "תקלה טכנית"], added: ["t-new", "נוסף/ה לקבוצה"],   // 5.19.127 (תש-16, icredit-24) removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], track_changed: ["t-old", "המסלול שונה"], track_change: ["t-warn", "בקשה לשינוי מסלול"],   /* תש-65 */ plan_paused: ["t-old", "הוראת קבע הושהתה"],
   plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"],
@@ -9438,7 +9443,10 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
   const bits = r.kind === "marathon" ? [m ? m.name : "", d.status, amt(d.amount)]
     : r.kind === "registration" ? (() => { const e = (IB.enr || {})[String(r.ref_id)] || d, tk = (IB.trk || {})[e.track_id];   // 5.21.95 (נועה 10.11): הפרטים מההזמנה עצמה (גם חודש ניסיון) – מסלול, מקצוע, חודש ניסיון, הסכום ששולם
         const TN = { single: "מקצוע אחד", "unlimited-single": "מקצוע אחד ללא הגבלה", double: "שני מקצועות" };
-        return [d.city, tk ? TN[tk] || tk : d.track ? (typeof TRACK_T === "function" ? TRACK_T(d.track) : d.track) : "", e.subject, e.trial_start ? "🎁 חודש ניסיון מ-" + fmtIso(e.trial_start) : "", amt(e.first_charge_amount), e.payment_method === "טלפוני" ? "תשלום טלפוני" : ""]; })()
+        // 5.21.98 (נועה 11.11): כל ההתראות על הרשמה לתרגולים – אותם נתונים ובאותו סדר (ישנות וחדשות): מסלול · מקצוע · עיר · בית ספר · חודש ניסיון · סכום · אמצעי תשלום (רק כשלא אשראי באתר)
+        const TT = { single: "single", "unlimited-single": "unlimited-single", double: "double" }, trk0 = tk || TT[d.track] || "", ld = (L.leads || []).find(l => Number(l.student_id || (l.student && l.student.id)) === Number(r.student_id)), stu = (ld && ld.student) || {}, fam = stu.family || {};
+        const pm = e.payment_method || d.payment_method || "";
+        return [trk0 ? TN[trk0] || trk0 : d.track ? (typeof TRACK_T === "function" ? TRACK_T(d.track) : d.track) : "", e.subject || d.subject, fam.city || d.city, stu.school || d.school, e.trial_start ? "🎁 חודש ניסיון מ-" + fmtIso(e.trial_start) : "", amt(e.first_charge_amount != null ? e.first_charge_amount : d.first_charge_amount), pm && pm !== "אשראי באתר" ? (pm === "טלפוני" ? "תשלום טלפוני" : pm) : ""]; })()
     : r.kind === "cancel" ? [d.school, d.subject, d.reason ? "סיבה: " + d.reason : ""]
     : r.kind === "pay_link" ? [d.description, amt(d.one_time_amount)]
     : r.kind === "sign" ? [d.course || d.description, d.pay_link ? amt(d.amount) : "", d.trial && d.trial.result === "plan" ? "חיוב ראשון ב-" + fmtIso(d.trial.first_date) + (d.trial.first_amount ? " – " + amt(d.trial.first_amount) : "") : "", (d.changes || []).length ? "עודכן: " + d.changes.map(c => c.field + " " + (c.old ? c.old + " ← " : "") + c.new).join(" · ") : "בלי שינוי בפרטים"]   // 5.20.1 (קובץ 140)
@@ -9449,7 +9457,7 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
     : r.kind === "material" ? [d.school, d.grade ? "שכבה " + d.grade : "", d.kind, d.reason, d.topics ? String(d.topics).slice(0, 70) + (String(d.topics).length > 70 ? "…" : "") : "", d.file]   // או-10
     : r.kind === "unassigned" ? [d.status, d.city, d.school, d.days != null ? (d.days === 0 ? "נרשם/ה היום" : d.days === 1 ? "נרשם/ה אתמול" : `נרשם/ה לפני ${d.days} ימים`) : "", d.pending ? "יש רק שיבוץ ממתין" : "בלי שיבוץ בקבוצה שוטפת"]
     : r.kind === "duplicate" ? [d.dup_name ? "מול: " + d.dup_name : "", d.why, d.year ? "פנייה מ-" + d.year : "", d.legacy_new ? "ליד ב-CRM " + d.legacy_new : "", d.legacy_old ? "(הקיים: " + d.legacy_old + ")" : ""]
-    : r.kind === "interest" ? (() => { const p = d.payload || {}; return [(p.courses || []).join(", "), p.notes ? String(p.notes).slice(0, 90) : "", p.parent && p.parent.phone || d.phone]; })()   // 5.19.152: על מה התעניינו
+    : r.kind === "interest" ? (() => { const p = d.payload || {}; return [(p.courses || []).map(c => String(c).replace(/\s*\([^)]*\)\s*$/, "").replace(/^מרתון:\s*/, "").trim()).filter(Boolean).join(", "), p.notes ? String(p.notes).slice(0, 90) : ""]; })()   // 5.21.98 (נועה 11.11): רק שם הקורס / המרתון (בלי התאריכים והשעות), כמו בהרשמה   // 5.19.152: על מה התעניינו
     : r.kind === "group_diff" ? [[d.location, d.day ? "יום " + d.day : "", d.time_label].filter(Boolean).join(" "), d.lesson_date ? fmtIso(d.lesson_date) : "", "קבוע: " + (d.fixed || "אין")]
     : [d.city, d.school, d.grade, d.parent_phone || d.phone];
   return bits.filter(Boolean).map(String).join(" · "); }
@@ -9481,7 +9489,7 @@ function ibGdCard(r, when){
   }
   // 5.19.97 (נועה): כל אירוע בשורה אחת – ילד/ה | מה קרה | שיבוצים קבועים | פעולות (בנייד – זה מתחת לזה)
   return `<div class="ib-gd ${ibCls(r.status)}" data-ib="${r.id}">
-    <div class="ib-gd-c1"><span class="ib-ic">🔀</span><span><b class="ib-gd-n">${ibNameLink(r, lead)}</b><small class="ib-time">${esc(when(r.created_at))}</small></span></div>
+    <div class="ib-gd-c1"><span class="ib-ic" title="נוכחות מול הקבוצה">🗓️</span><span><b class="ib-gd-n">${ibNameLink(r, lead)}</b><small class="ib-time">${esc(when(r.created_at))}</small></span></div>
     <div class="ib-gd-c2"><span class="ib-gd-k">מה קרה</span><span class="ib-gd-v">${tag}${lesson}${what}</span></div>
     <div class="ib-gd-c3"><span class="ib-gd-k">שיבוצים קבועים</span><span class="ib-gd-v">${fxH}</span></div>
     <div class="ib-gd-a">${done ? `<span class="muted">✓ טופל${r.note ? " · " + esc(r.note) : ""}</span>` : acts}</div></div>`;
@@ -9542,7 +9550,7 @@ function ibGdGroup(g, when){
   const streak = maxRun > 2 ? `<span class="gdg-streak">⚠ החסיר/ה ${maxRun} פעמים ברצף – לבדיקה</span>` : "";
   const sum2 = [streak, ms.length ? `<span class="gdg-no">✗ ${ms.length === 1 ? "פעם אחת" : ms.length + " פעמים"} לא בקבוצה הקבועה</span>` : "", ad.length ? `<span class="gdg-ok">✓ ${ad.length === 1 ? "פעם אחת" : ad.length + " פעמים"} בקבוצה אחרת</span>` : "", pat.length ? `<span>⟳ אולי שיבוץ קבוע אחר</span>` : ""].filter(Boolean).join(" · ");
   return `<div class="ib-gd gdg ${done ? "handled" : g.some(r => r.status === "new") ? "new" : "seen"}${gOpen ? " gd-open" : ""}" data-ib="${r0.id}">
-    <div class="gdg-h" data-gdtg="${r0.student_id}" role="button" tabindex="0" aria-expanded="${gOpen}" title="לחיצה – הפרטים לפי שבועות"><span class="gdg-car" aria-hidden="true"></span><span class="ib-ic">🔀</span><b class="ib-gd-n">${ibNameLink(r0, lead)}</b>
+    <div class="gdg-h" data-gdtg="${r0.student_id}" role="button" tabindex="0" aria-expanded="${gOpen}" title="לחיצה – הפרטים לפי שבועות"><span class="ib-ic" title="נוכחות מול הקבוצה"><span class="gdg-car" aria-hidden="true"></span>🗓️</span><b class="ib-gd-n">${ibNameLink(r0, lead)}</b><span class="ib-k gdg-k">מול הקבוצה הקבועה</span>
       <span class="gdg-sum">${head}</span><span class="gdg-sum2">${sum2}</span><small class="ib-time">${esc(when(g[g.length - 1].created_at))}</small>
       <span class="gdg-a">${done ? `<span class="muted">✓ טופל</span>` : ids ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל (${ids.split(",").length})</button>` : ""}</span></div>
     <div class="gdg-body"${gOpen ? "" : " hidden"}>${fx.length ? "" : `<div class="gdg-fx"><span class="gdg-l">שיבוצים קבועים:</span> ${fxH}</div>`}
@@ -9657,7 +9665,7 @@ async function renderInbox(reload){
   const gdBy = {}; (IB.rows || []).forEach(r => { if (r.kind === "group_diff" && r.student_id) (gdBy[r.student_id] = gdBy[r.student_id] || []).push(r); });
   const gdSeen = new Set();
   const ibY = window.scrollY;   // 5.21.95: המקום במסך נשמר
-  box.innerHTML = `<div class="ib-list">` + rows.map(r => { if (r.kind === "group_diff") { const g = r.student_id ? gdBy[r.student_id] : null;
+  box.innerHTML = `<div class="ib-list"><div class="ib-row ib-head" aria-hidden="true"><span></span><span>שם</span><span>סוג</span><span>פרטים</span><span>סטטוס וסימונים</span><span>מתי</span><span></span></div>` + rows.map(r => { if (r.kind === "group_diff") { const g = r.student_id ? gdBy[r.student_id] : null;
       if (!g) return ibGdCard(r, when);   // 5.19.122: גם אירוע אחד – אותו כרטיס (שבוע, נוכחות בקבוצה הקבועה, לאן הגיע/ה)
       if (gdSeen.has(r.student_id)) return ""; gdSeen.add(r.student_id); return ibGdGroup(g, when); } const k = ibKindOf(r), w = ibWarn(r), lead = r.student_id ? (L.leads || []).find(l => l.student_id === r.student_id) : null, iss = ibIssDedup((r.issues || []).filter(x => !(ibMerged(r) && IB_DUPF.includes(x.field))), r);
     const pr = IB.pair && IB.pair[r.id], pi = IB.pairInt && IB.pairInt[r.id], dd = (IB.dups && IB.dups[r.id]) || [];
@@ -10904,9 +10912,10 @@ function renderSchools(){
       <div class="sc-main">
         <div class="sc-col">
         <div class="card"><h3>הקבוצות שלנו כאן</h3><div class="sc-room">📍 הכיתה שלנו: ${x.rooms ? `<b>${bidiRooms(x.rooms)}</b>` : `<span class="muted">לא נכתבה</span>`} <span class="muted">· קבוצה חדשה כאן מקבלת את הכיתה הזו</span></div>${"wa_group_url" in x ? `<div class="sc-room">💬 קבוצת העדכונים: ${x.wa_group_url ? `<a href="${esc(x.wa_group_url)}" target="_blank" rel="noopener">פתיחה</a> · <button type="button" class="linkish" data-copy="${esc(x.wa_group_url)}">העתקת הקישור</button>` : `<span class="muted">אין קישור (✎ עריכה)</span>`}</div>` : ""}${groupsHtml}</div>
-        <div class="card sc-det"><div class="sc-det-s"><h3>הקבצות</h3>${(x.hakbatsa_options || []).length ? `<ul class="sc-hak-l">${x.hakbatsa_options.map(h => `<li>${esc(h)}</li>`).join("")}</ul><div class="sc-hak-c">${x.hakbatsa_options.map(esc).join(", ")}</div>` : `<span class='muted'>לא הוגדר – בטפסים מופיעה רשימת ברירת המחדל</span>`}</div>
-          <div class="sc-det-s"><h3>לוח צלצולים</h3>${bellsH}</div>
-          <div class="sc-det-s"><h3>אנשי קשר</h3>${contH}</div>
+        <!-- 5.21.98 (נועה 11.11): הקבצות ולוח צלצולים – כל אחד במסגרת משלו -->
+        <div class="card sc-det"><div class="sc-det-s"><h3>הקבצות</h3>${(x.hakbatsa_options || []).length ? `<ul class="sc-hak-l">${x.hakbatsa_options.map(h => `<li>${esc(h)}</li>`).join("")}</ul><div class="sc-hak-c">${x.hakbatsa_options.map(esc).join(", ")}</div>` : `<span class='muted'>לא הוגדר – בטפסים מופיעה רשימת ברירת המחדל</span>`}</div></div>
+        <div class="card sc-det"><div class="sc-det-s"><h3>לוח צלצולים</h3>${bellsH}</div></div>
+        <div class="card sc-det"><div class="sc-det-s"><h3>אנשי קשר</h3>${contH}</div>
           <div class="meta-line">עודכן: ${esc(fmtDate(x.updated_at))}</div></div>
         </div>
         ${scExamsHtml(x)}
@@ -10924,10 +10933,10 @@ function renderSchools(){
       <div class="card"><h3>פרטים</h3>
         <label class="lbl">טלפון בית הספר</label><input id="scPhone" value="${esc(x.phone || "")}">
         ${"wa_group_url" in x ? `<label class="lbl" style="margin-top:8px;">קישור לקבוצת העדכונים (וואטסאפ)</label><input id="scWa" dir="ltr" value="${esc(x.wa_group_url || "")}" placeholder="https://chat.whatsapp.com/..."><div class="muted fhint">מופיע בכרטיס התלמיד ובדף התודה אחרי הרשמה.</div>` : ""}<label class="lbl" style="margin-top:8px;">הכיתה שלנו (מקום התרגולים)</label><input id="scRooms" value="${esc(x.rooms || "")}" placeholder="למשל: ז2, ז6"><div class="muted fhint">קבוצה חדשה בבית הספר מקבלת את הכיתה הזו (אפשר לשנות בקבוצה).</div>
-        <label class="lbl" style="margin-top:8px;" for="scHak">הקבצות <span class="muted" style="font-weight:400">(אחת בכל שורה · לטופס ההתעניינות ולמרתון)</span></label>
-        <textarea id="scHak" rows="5" placeholder="${esc(SCHOOL_HAK_DEFAULT.join("\n"))}">${esc((x.hakbatsa_options || []).join("\n"))}</textarea>
-        <div class="muted" style="font-size:12.5px;">ריק = רשימת ברירת המחדל (${esc(SCHOOL_HAK_DEFAULT.join(", "))}). בטופס ההתעניינות נוסף תמיד גם "אחר".</div>
         <div class="muted" style="margin-top:8px;font-size:13px;">הקבוצות מתעדכנות לבד מלוח הקבוצות.</div></div>
+      <div class="card"><h3>הקבצות</h3><label class="lbl" for="scHak" style="font-weight:400"><span class="muted">אחת בכל שורה · לטופס ההתעניינות ולמרתון</span></label>
+        <textarea id="scHak" rows="5" placeholder="${esc(SCHOOL_HAK_DEFAULT.join("\n"))}">${esc((x.hakbatsa_options || []).join("\n"))}</textarea>
+        <div class="muted" style="font-size:12.5px;">ריק = רשימת ברירת המחדל (${esc(SCHOOL_HAK_DEFAULT.join(", "))}). בטופס ההתעניינות נוסף תמיד גם "אחר".</div></div>
       <div class="card"><h3>לוח צלצולים</h3><table class="sc-tbl" id="scBells"><tbody>${bells.map(b => row("", inp("label", b.label) + inp("start", b.start, "70px") + inp("end", b.end, "70px"))).join("")}</tbody></table>
         <button type="button" class="btn small" id="scAddBell" style="margin-top:6px;">+ שורה</button></div>
       <div class="card"><h3>אנשי קשר</h3><table class="sc-tbl" id="scContacts"><tbody>${contacts.map(c => row("", inp("role", c.role) + inp("name", c.name) + inp("phone", c.phone))).join("")}</tbody></table>
