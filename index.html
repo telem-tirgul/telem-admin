@@ -13816,7 +13816,7 @@ function newLink(src, mode, opt){
   const reqDef = (k) => F[k] ? !!F[k].required : true;
   const showDef = (k) => F[k] ? !F[k].hide : !["track", "subject"].includes(k);   // 5.21.88 (נועה 10.11): "להצגה" – מה ההורה רואה; מסלול / מקצוע – כבוי כברירת מחדל   // נועה 6.11: כמו בטופס ההרשמה – הכול חובה (אפשר לבטל)
   pnlOpen(`<header><div><h2>${ed ? "עריכת קישור אישי" : mode === "dup" ? "קישור חדש – שכפול" : "קישור אישי חדש"}</h2><div class="muted">${ed ? "אותו קישור – ההורה יראה את השינויים כשיפתח אותו." : "נשלח להורה כקישור. מה שממלאים כאן – נעול עבור ההורה."}</div></div><button class="btn small x" type="button">✕</button></header>
-    <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${(opt.cm ? [["rec", "🔁 הוראת קבע בלבד"]] : [["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"]]).map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
+    <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${(opt.cm ? [["rec", "🔁 הוראת קבע בלבד"]] : [["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"], ["rec", "🔁 הוראת קבע בלבד"]]).map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
       <div style="grid-column:1/-1"><label class="lbl" for="nNote">תיאור <span class="muted" style="font-weight:400">(מופיע להורה בטופס; לא חובה)</span></label><textarea id="nNote" rows="3" maxlength="1000" placeholder="למשל: 3 מפגשים של שעה וחצי בימי שלישי, כולל דפי תרגול"></textarea></div>
       <div style="grid-column:1/-1" hidden><label class="lbl" for="nDesc">תיאור (יופיע להורה)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
       <div style="grid-column:1/-1" id="nProdW"><label class="lbl" for="nProd">מוצר בחשבונית <span class="muted" style="font-weight:400">(כמו בקטלוג בריווחית)</span></label><select id="nProd"><option value="">בחירת מוצר</option>${["שיעורי מתמטיקה", "שיעורי אנגלית", "שיעורי מתמטיקה ואנגלית", "דמי שיבוץ והרשמה", "שירות עבור חומרי תרגול דיגיטליים"].map(x => `<option>${x}</option>`).join("")}</select></div><!-- תש-56 (נועה 8.11) -->
@@ -13938,7 +13938,7 @@ function newLink(src, mode, opt){
     if (REC && !ed) {   // 5.21.103: ישר לדף האשראי (נועה מקלידה בטלפון), בלי לשלוח להורה
       $("nSave").disabled = false; let made = null;
       await payNowOpen($("nSave"), async () => made || (made = await call("pay_link_create", { p })));
-      if (made) { pnlClose(); render(); } return; }
+      if (made) { pnlClose(); render(); } return; }   // (בלי קורס – עד מנ-418: אותו דבר, השרת מתעלם מ-course_member_id)
     try { if (ed) { await call("pay_link_update", { p_code: src.code, p }); pnlClose(); toast("נשמר"); render(); }
       else { const r = await call("pay_link_create", { p }); pnlClose(); await copy(r.url); render(); } }
     catch(e) { err.textContent = (ed ? "לא נשמר: " : "לא נוצר: ") + (/cannot edit/.test(e.message) ? "ההורה כבר מילא/ה את הטופס – אי אפשר לערוך. אפשר לבטל ולשכפל." : e.message); $("nSave").disabled = false; }
