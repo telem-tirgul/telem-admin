@@ -4325,6 +4325,7 @@ const crsSubj = (x) => x ? x.replace("מתמטיקה ואנגלית", "מת.+א�
 // עמודת "קורסים" (נועה 30.10): שורה לכל קורס במחזור הפעיל – אייקון · קורס · מקצוע · מצב במילה; לחיצה – שינוי מצב
 // תוכן קצר (נועה 30.10): מרתון – 🏁 תאריך + מקום; שוטף – המסלול בצבע שלו + מקצוע; הכנה לשנה"ל – ☀️ + רגיל/מורחב + מקצוע
 const CRS_TRK_S = { single: "פעמיים בשבוע", "unlimited-single": "ללא הגבלה", double: "מת.+אנג.", summer: "רגיל", "summer-ext": "מורחב" };
+const crsLabelTxt = (c, m) => { const t = document.createElement("div"); t.innerHTML = crsLabel(c, m); return t.textContent.replace(/\s+/g, " ").trim(); };   // 5.21.111: לחלונות בחירה (טקסט, לא HTML)
 function crsLabel(c, m){
   if (crsIsPay(c)) return `<span class="ci">💳</span><b>${esc(crsCat(c.category_id).name || "תשלום")}</b>${m && m.note ? ` <span class="muted">· ${esc(m.note)}</span>` : ""}`;
   if (crsIsLead(c)) return `<span class="ci">💬</span><b>פנייה</b>${m && m.note ? ` <span class="muted">· ${esc(m.note)}</span>` : m && m.source ? ` <span class="muted">· ${esc(m.source === "כיתה" ? "מהכיתה" : m.source)}</span>` : ""}`;
@@ -6323,7 +6324,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
     el.insertAdjacentHTML("beforeend", `<button type="button" class="btn small" data-lpatt="${i}" title="לחבר את התשלום לקורס של התלמיד/ה (אם יש הזמנה שלא שולמה – היא תסומן כשולמה)">🔗 חיבור לקורס</button>`);
     el.querySelector("[data-lpatt]").onclick = async (e) => { const bt = e.currentTarget, cms = crsOfStudent(l.student.id).filter(m => !m.history_at);
       if (!cms.length) { toast("אין קורסים בכרטיס"); return; }
-      const v = await uiChoose(`לאיזה קורס לחבר את התשלום (${fmtMoney(r.amount)})?`, cms.map(m => { const c = CRS.byId[m.course_id] || {}; return { t: (c.marathon_id ? "מרתון · " : (crsCatN(c.category_id) || "") + " · ") + crsLabel(c, m) + " · " + (m.status || ""), v: m.id }; }));
+      const v = await uiChoose(`לאיזה קורס לחבר את התשלום (${fmtMoney(r.amount)})?`, cms.map(m => { const c = CRS.byId[m.course_id] || {}; return { t: (c.marathon_id ? "מרתון · " : (crsCatN(c.category_id) || "") + " · ") + crsLabelTxt(c, m) + " · " + (m.status || ""), v: m.id }; }));
       if (!v) return; bt.disabled = true;
       try { const res = await rpc("payment_attach_course", { p_payment: r.id, p_course_member: v });
         toast("חובר לקורס" + (res && res.order_kind ? " · ההזמנה סומנה כשולמה" : "") + (res && res.price != null && Number(res.price) !== Number(res.amount) ? ` · הפרש ${fmtMoney(Number(res.price) - Number(res.amount))}` : ""));
@@ -13538,7 +13539,7 @@ function wireExpand(box, d, reload){
     catch(e) { const t = String(e.message || ""); toast(/has real payment/.test(t) ? "יש תשלום אמיתי מאיקרדיט – אי אפשר לבטל. להחזר – זיכוי בריווחית." : /has recurring plan/.test(t) ? "יש הוראת קבע פעילה – קודם לבטל אותה." : "לא בוטל: " + t); b.disabled = false; } });
   box.querySelectorAll("[data-dxatt]").forEach(b => b.onclick = async () => { const sid = Number(b.dataset.sid); try { await crsLoad(); await crsEnsureStudent(sid); } catch(e) {}
     const cms = crsOfStudent(sid).filter(m => !m.history_at); if (!cms.length) { toast("אין קורסים בכרטיס"); return; }
-    const v = await uiChoose("לאיזה קורס לחבר את התשלום?", cms.map(m => { const c = CRS.byId[m.course_id] || {}; return { t: (c.marathon_id ? "מרתון · " : (crsCatN(c.category_id) || "") + " · ") + crsLabel(c, m) + " · " + ((crsStOf(m.status) || {}).label || m.status), v: m.id }; }));
+    const v = await uiChoose("לאיזה קורס לחבר את התשלום?", cms.map(m => { const c = CRS.byId[m.course_id] || {}; return { t: (c.marathon_id ? "מרתון · " : (crsCatN(c.category_id) || "") + " · ") + crsLabelTxt(c, m) + " · " + ((crsStOf(m.status) || {}).label || m.status), v: m.id }; }));
     if (!v) return; b.disabled = true;
     try { const res = await rpc("payment_attach_course", { p_payment: Number(b.dataset.dxatt), p_course_member: v }); toast("חובר לקורס" + (res && res.order_kind ? " · ההזמנה סומנה כשולמה" : "")); reload(); }
     catch(e) { const t = String(e.message || ""); toast(/already has an order/.test(t) ? "התשלום כבר מחובר להזמנה" : "לא חובר: " + t); b.disabled = false; } });
@@ -13546,7 +13547,7 @@ function wireExpand(box, d, reload){
   setTimeout(() => { const seen = {}; [...document.querySelectorAll("#payBody .dx-kidacts")].reverse().forEach(x => { const k = (x.querySelector("[data-dxnew]") || {}).dataset; const id = k && k.dxnew; if (!id) return; if (seen[id]) { const f = x.parentNode; x.remove(); if (f && !f.textContent.trim()) f.remove(); } else seen[id] = 1; }); }, 0);   // פעם אחת לכל ילד/ה
   box.querySelectorAll("[data-dxrec]").forEach(b => b.onclick = async () => { const sid = Number(b.dataset.dxrec); try { await crsLoad(); await crsEnsureStudent(sid); } catch(e) {}
     const cms = crsOfStudent(sid).filter(m => !m.history_at && !(CRS.byId[m.course_id] || {}).marathon_id); if (!cms.length) { toast("הוראת קבע – רק על קורס. אין תרגול שוטף בכרטיס."); return; }
-    const v = cms.length === 1 ? cms[0].id : await uiChoose("על איזה קורס?", cms.map(m => ({ t: crsLabel(CRS.byId[m.course_id] || {}, m), v: m.id }))); if (v) newFromCard(sid, "rec", v); });
+    const v = cms.length === 1 ? cms[0].id : await uiChoose("על איזה קורס?", cms.map(m => ({ t: crsLabelTxt(CRS.byId[m.course_id] || {}, m), v: m.id }))); if (v) newFromCard(sid, "rec", v); });
   box.querySelectorAll("[data-dxed]").forEach(b => b.onclick = async () => { const pp = p && String(p.id) === b.dataset.dxed ? p : S.plans.find(x => String(x.id) === b.dataset.dxed); if (!pp) return;
     const amt = await uiPrompt("סכום חודשי (₪):", String(pp.monthly_amount || ""), { multi: false }); if (amt == null) return;
     const cnt = await uiPrompt("מספר חיובים (סה\"כ, כולל מה שבוצע):", String(pp.total_count || ""), { multi: false }); if (cnt == null) return;
