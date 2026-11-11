@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.103">
+<meta name="app-version" content="5.21.104">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13171,7 +13171,7 @@ async function renderCall(b){
 async function renderHome(b){   // 5.19.44: תמונת מצב מעוצבת - לטיפול למעלה, התקבל החודש עם פילוח, הוראות קבע, תשלומים אחרונים
   const t = todayIL(), m0 = t.slice(0, 8) + "01";
   const [pays, up, call] = await Promise.all([call0("payments_list", { p_from: m0, p_to: t }), call0("recurring_upcoming", { p_until: addDays(t, 7) }), loadCall().catch(() => [])]);
-  const ok = (pays || []).filter(r => r.status === "אושר"), sumF = (f) => ok.filter(f).reduce((s, r) => s + Number(r.amount || 0), 0);
+  const ok = (pays || []).filter(r => r.status === "אושר" && r.kind !== "הקמת הוראת קבע"), sumF = (f) => ok.filter(f).reduce((s, r) => s + Number(r.amount || 0), 0);
   const act = S.plans.filter(p => p.status === "active"), actSum = act.reduce((s, p) => s + Number(p.monthly_amount || 0), 0);
   const parts = [["תרגולים שוטפים", "#1C5A66", "tx-reg", sumF(r => r.kind === "הרשמה - תשלום ראשון" || r.kind === "חיוב חודשי")], ["מרתונים", "#3E4651", "tx-mar", sumF(r => r.kind === "מרתון")], ["קישורים אישיים", "#9A9184", "tx-pay", sumF(r => r.kind === "תשלום אישי")]];
   const total = parts.reduce((s, x) => s + x[3], 0), mName = new Date(t + "T12:00:00").toLocaleDateString("he-IL", { month: "long" });
@@ -13347,18 +13347,27 @@ function buildDeals(rows, qf, qt, ibOpen){
   const GK = { first: ["k-reg", "תרגול שוטף"], plan: ["k-reg", "תרגול שוטף"], mar: ["k-mar", "מרתון"], pay: ["k-pay", "קישור אישי"] };   // נועה 7.11: "קישור אישי" – תשלום שהגיע מדף תשלום
   const kindH = (g, sub) => `<span class="chip kchip ${GK[g][0]}">${GK[g][1]}</span>${sub ? `<div class="muted k-sub">${sub}</div>` : ""}`;
   // 5.19.61 (הלקוחה): תשלום ראשון והוראת הקבע - שתי שורות נפרדות (בפרטים רואים את שתיהן יחד)
-  const firstOf = {};
+  const firstOf = {}, tookR = new Set();
   // נועה 6.11 (תש-51): עסקה אחת לתרגול השוטף – בשורה הראשית "תרגול שוטף"; בפירוט: תשלום ראשון (עם החשבונית) בשורה אחת והוראת הקבע בשורה שנייה
   rows.filter(r => r.kind === "הרשמה - תשלום ראשון").forEach(r => { const p = planFor(r); if (p) { used.add(p.id); firstOf[p.id] = r; }
     const ch = p ? (byPlan[p.id] || []).filter(x => x !== r && x.kind !== "הרשמה - תשלום ראשון") : [];
     mk({ group: "first", date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, plan: p, pays: [r].concat(ch), desc: r.description || (p && p.description) || "",
       kindTxt: "תרגול שוטף", kindHtml: kindH("first", p ? "תשלום ראשון + הוראת קבע" : "תשלום ראשון"), amountHtml: `<b>${money(r.amount)}</b>${p ? `<div class="muted">+ ${money(p.monthly_amount)} × ${p.total_count || "?"}</div>` : ""}`,
       statusHtml: stPay(r) + (p ? `<div class="st2">${planHtml(p)}</div>` : "") }); });
+  // 5.21.104 (נועה 11.11: "כשזה סגור אני לא רואה את התשלום המיידי שבוצע יחד עם הוראת הקבע"): קישור אישי עם תשלום מיידי + הוראה –
+  // כמו הרשמה: בשורה הסגורה הסכום ששולם עכשיו + "ואז ₪X × N", והסטטוס של שניהם. גם "הקמת הוראת קבע" (₪0).
+  rows.filter(r => (r.kind === "תשלום אישי" || r.kind === "הקמת הוראת קבע")).forEach(r => { const p = plans.find(x => !used.has(x.id) && ((r.plan_id && x.id === r.plan_id) || (x.source_payment_id && x.source_payment_id === r.id))); if (!p) return;
+    used.add(p.id); firstOf[p.id] = r; tookR.add(r.id); const zero = r.kind === "הקמת הוראת קבע";
+    const ch = (byPlan[p.id] || []).filter(x => x !== r);
+    mk({ group: "pay", date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, plan: p, pays: [r].concat(ch), desc: r.description || p.description || "",
+      kindTxt: "קישור אישי", kindHtml: kindH("pay", zero ? "הוראת קבע בלבד" : "תשלום עכשיו + הוראת קבע"),
+      amountHtml: (zero ? `<span class="muted">בלי חיוב עכשיו</span>` : `<b>${money(r.amount)}</b>`) + `<div class="muted">${zero ? "" : "+ "}${money(p.monthly_amount)} × ${p.total_count || "?"}</div>`,
+      statusHtml: (zero ? "" : stPay(r)) + `<div class="st2">${planHtml(p)}</div>` }); });
   const planRow = (p) => { const ch = byPlan[p.id] || [];
     mk({ group: "plan", date: p.created_at || (ch[0] && ch[0].date), student_id: p.student_id, name: p.student_name, parent: p.parent_name, phone: p.parent_phone, plan: p, first: firstOf[p.id] || null, pays: ch, desc: p.description || "",
       kindTxt: "תרגול שוטף", kindHtml: kindH("plan", "הוראת קבע"), amountHtml: `<b>${money(p.monthly_amount)}</b><div class="muted">לחודש</div>`, statusHtml: planHtml(p) + (p.status !== "failed" && ch.some(r => r.status === "נכשל") ? `<div class="st2"><span class="chip st-failed">חיוב לא התקבל</span></div>` : "") }); };
   plans.filter(p => !used.has(p.id) && (live(p) || (byPlan[p.id] || []).length || (d10(p.created_at) >= qf && d10(p.created_at) <= qt))).forEach(p => { used.add(p.id); planRow(p); });
-  rows.filter(r => r.kind !== "הרשמה - תשלום ראשון" && !(r.plan_id && used.has(r.plan_id))).forEach(r => {
+  rows.filter(r => r.kind !== "הרשמה - תשלום ראשון" && !tookR.has(r.id) && !(r.plan_id && used.has(r.plan_id))).forEach(r => {
     mk({ group: r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" || r.kind === "הקמת הוראת קבע" ? "plan" : "first",   /* תש-85: הקמת הוראת קבע (₪0) – עם ההוראה, לא תשלום */ date: r.date, student_id: r.student_id, name: r.student_name, parent: r.parent_name, phone: r.parent_phone, first: r, pays: [r], desc: r.description || "",
       kindTxt: (GK[r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" ? "plan" : "first"])[1], kindHtml: kindH(r.kind === "מרתון" ? "mar" : r.kind === "תשלום אישי" ? "pay" : r.kind === "חיוב חודשי" ? "plan" : "first", r.kind === "חיוב חודשי" ? "חיוב " + (r.charge_no || "") : ""), amountHtml: `<b>${money(r.amount)}</b>`, statusHtml: stPay(r) }); });
   // הרשמות בתשלום טלפוני שעוד לא שולמו ("להתקשר לתשלום")
@@ -14085,7 +14094,7 @@ async function renderKid(b){
   pays.sort((a, c) => String(c.date).localeCompare(String(a.date)));
   const plans = S.plans.filter(p => Number(p.student_id) === k.id);
   let pend = []; try { pend = await get("pending_phone_payments", "select=*&student_id=eq." + k.id); } catch(e) {}
-  const ok = pays.filter(r => r.status === "אושר"), sum = ok.reduce((a, r) => a + Number(r.amount || 0), 0);
+  const ok = pays.filter(r => r.status === "אושר" && r.kind !== "הקמת הוראת קבע"), sum = ok.reduce((a, r) => a + Number(r.amount || 0), 0);
   b.innerHTML = `<div class="kid-head"><div><h2>💳 ${esc(name)}</h2><div class="muted">${ok.length} תשלומים · סה"כ ${money(sum) || "₪0"}${plans.length ? " · " + plans.length + " הוראות קבע" : ""}</div></div>
       <div class="acts-row">${ld ? `<button type="button" class="btn small" data-lead2="${ld.id}">לכרטיס התלמיד/ה</button>` : ""}<button type="button" class="btn small" id="kidX">✕ סגירה</button></div></div>
     ${pend.length ? `<div class="card note" style="margin:10px 0"><b>📞 תשלום טלפוני:</b> ${pend.map(x => esc(x.what || "") + (x.amount ? " · " + money(x.amount) : "")).join(" · ")}</div>` : ""}
