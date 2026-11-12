@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.113">
+<meta name="app-version" content="5.21.114">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2242,7 +2242,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
   #view-lead .lc-nocrs .nc-row{ grid-template-columns:minmax(0,1fr) auto auto; } #view-lead .lc-nocrs .pl-stp{ grid-column:1 / -1; grid-row:2; } }
 /* 5.21.107: כמה מוצרים בקישור */ .nl-it{ display:grid; grid-template-columns:minmax(0,1fr) 120px 30px; gap:8px; margin-top:6px; align-items:center; } .nl-padd{ margin-top:6px; }
 /* 5.21.109 (נועה 11.11, 22:12): בכרטיס התלמיד – התשלומים רק לסיכום, בלי פעולות ובלי פרטים (הכול במסך התשלומים, "💳 תשלומים") */
-#view-lead .lg-pay-slot button:not(.lp-tgl):not([data-lptg]), #view-lead #leadPayments button, #view-lead #lcRegLinks .nc-row button, #view-lead #lcRegLinks [data-plall], #pwAddPay, #view-lead .stp-s[data-stk="pay"] .stp-a{ display:none !important; }
+/* 5.21.114 (נועה 12.11, 08:51: "את הכפתור של יצירת קישורים צריך להחזיר לכרטיס תלמיד... בשלב ראשון תחזיר לי את הכפתור כדי שאני אוכל עכשיו לעבוד"): כפתורי התשלום בכרטיס חזרו (קישור תשלום, הזנת כרטיס, העתקת קישור) – עד שנסדר את עץ ההחלטות */
 #view-lead .lp-dx .dx-pay > .muted, #view-lead .lp-dx .doc-a, #view-lead .lp-dx .dx-why, #view-lead .lp-regs .lp-reg .muted{ display:none !important; }
 #view-lead .lc-nocrs .pl-stp{ display:none !important; }
 /* 5.21.112 (נועה 11.11, 23:44: "כרטיס תלמיד... נראה שם לא משהו עדיין"): ללא קורס – רק טבלה קצרה: התשלומים (תאריך · מה · סכום · מצב) וקישורים שעוד לא שולמו; בלי טלפוני / "סומנו כשולמו" / טפסים (הם בקורסים ובמסך התשלומים) */
@@ -4445,7 +4445,7 @@ function pwSumPaint0(){ const ps = $("pwSum"); if (!ps) return;
   // 5.21.112 (נועה 12.11 – כרטיס בלי כפילויות): הספירה = מה שבאמת מוצג ב"ללא קורס"; כשאין כלום – בלי המסגרת בכלל
   const n = document.querySelectorAll("#leadPayments .lp-rest .dx-pay").length, lb = $("lcRegLinks"), k = lb && !lb.hidden ? lb.querySelectorAll(".nc-row").length : 0;
   ps.textContent = [n ? n + (n === 1 ? " תשלום" : " תשלומים") : "", k ? k + (k === 1 ? " קישור שלא שולם" : " קישורים שלא שולמו") : ""].filter(Boolean).join(" · ");
-  const pw = ps.closest("details, .lead-paywrap"); if (pw) pw.hidden = !n && !k; }
+  }   // 5.21.114: המסגרת תמיד מוצגת – בה "+ 💳 קישור תשלום"
 async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !sid || ME.role !== "admin") return; let box = $("lcRegLinks");
   // 5.21.81 (נועה 9.11): מסגרת משלה – "תשלומים ללא קורס", מתחת לקורסים (לא בצד מעליהם)
   if (!box) { const pw = document.querySelector("#view-lead .lead-paywrap"); if (pw) pw.querySelector("summary").insertAdjacentHTML("afterend", '<div id="lcRegLinks" class="lc-nocrs" hidden></div>'); else $("leadGroups").insertAdjacentHTML("afterend", '<div id="lcRegLinks" class="lc-nocrs" hidden></div>'); box = $("lcRegLinks"); }   // 5.21.83: בתוך המסגרת "תשלומים ללא קורס"
