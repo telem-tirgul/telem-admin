@@ -1955,7 +1955,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .stp-s.cur .stp-d{ border-color:#2b4aa3; color:#2b4aa3; box-shadow:0 0 0 4px rgba(43,74,163,.14); }
 .stp-t{ font-weight:800; color:#333; margin-top:6px; } .stp-s.ok .stp-t{ color:#3d7f0a; } .stp-s.cur .stp-t{ color:#2b4aa3; }
 .stp-m{ font-size:12px; color:#777; margin-top:2px; min-height:16px; overflow-wrap:anywhere; }
-.stp-a{ margin-top:6px; display:flex; justify-content:center; } .stp-a:empty{ display:none; }
+.stp-a{ margin-top:6px; display:flex; flex-direction:column; align-items:center; gap:4px; } .stp-a:empty{ display:none; } .stp-s{ min-width:0; } .stp-a > .btn{ max-width:100%; }   /* 5.21.115: כמה כפתורים בשלב – אחד מתחת לשני, בלי לעלות על השלב הבא */
 .stp-a .lc-sign{ justify-content:center; margin:0; gap:6px; } .stp-a .lc-sign-st{ gap:6px; } .stp-a .lc-sign-st:empty{ display:none; }
 /* 5.21.95 (נועה 10.11: "לוקח המון מקום") – פס השלבים קומפקטי: נקודות קטנות, הכפתורים בשורה אחת, "טופס ביטול" בשורת הכותרת */
 .stp-box{ position:relative; } .stp-box[open] > .stp-hd{ position:absolute; top:2px; left:44px; margin:0 !important; } .stp-box .stp-hd .btn{ padding:3px 9px; font-size:12.5px; }
@@ -6686,7 +6686,7 @@ function crsStepper(m){
   const reg = m.status === "רשום", sig = m.signed === true, c = CRS.byId[m.course_id] || {}, d = (x) => x ? fmtDM(String(x).slice(0, 10)) : "";
   // 5.21.115 (נועה 12.11 – עץ החלטות): התעניינות → תשלום ∥ חתימה (מקבילים) → נרשם; מכל שלב – רק הכפתורים שמתאימים לו. כל ההרשמה – בכרטיס
   const intr = m.status === "מתעניין", adm = ME.role === "admin";
-  const recQ = c.marathon_id ? "" : `<button type="button" class="btn small" data-recq="${m.id}" title="הקמת הוראת קבע לקורס הזה – מקלידים את הכרטיס עכשיו, בלי חיוב מיידי">🔁 הוראת קבע</button>`;   // 5.21.103 (נועה 11.11): הוראת קבע בלבד – רק על קורס
+  const recQ = "", recQ0 = c.marathon_id ? "" : `<button type="button" class="btn small" data-recq="${m.id}" title="הקמת הוראת קבע לקורס הזה – מקלידים את הכרטיס עכשיו, בלי חיוב מיידי">🔁 הוראת קבע</button>`;   // 5.21.103 (נועה 11.11): הוראת קבע בלבד – רק על קורס
   const st = (k, cls, n, t, meta, act) => `<div class="stp-s ${cls}" data-stk="${k}" data-stm="${m.id}"><span class="stp-d" aria-hidden="true">${cls === "ok" ? "✓" : n}</span><div class="stp-t">${t}</div><div class="stp-m">${meta || ""}</div><div class="stp-a">${act || ""}</div></div>`;
   if (intr) { const mo = c.marathon_id ? (CRS.mar || {})[c.marathon_id] || {} : null;
     const act = !adm ? "" : mo ? (mo.code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`;
