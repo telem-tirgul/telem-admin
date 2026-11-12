@@ -2246,6 +2246,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 #view-lead .lead-paywrap .lp-rest-h{ border-bottom:1px solid var(--border); padding-bottom:6px !important; margin-top:8px; } #view-lead .lead-paywrap .lp-regs{ border-top:0; margin-top:6px; padding-top:0; }
 @media (max-width:760px){ #view-lead .lead-paywrap .pw-sum{ display:none; } #view-lead .lead-paywrap > summary b{ white-space:nowrap; } #view-lead .lead-paywrap > summary{ gap:8px; }
   #view-lead .lc-nocrs .nc-row{ grid-template-columns:minmax(0,1fr) auto auto; } #view-lead .lc-nocrs .pl-stp{ grid-column:1 / -1; grid-row:2; } }
+/* 5.21.120 */ .nl-tot{ border-top:2px solid var(--accent); padding-top:6px; margin-top:8px; font-weight:700; color:var(--accent); } .nl-tot b{ text-align:start; padding-inline-start:12px; font-size:15px; } #nProdW.nl-multi .nl-padd{ margin-top:8px; }
 /* 5.21.107: כמה מוצרים בקישור */ .nl-it{ display:grid; grid-template-columns:minmax(0,1fr) 120px 30px; gap:8px; margin-top:6px; align-items:center; } .nl-padd{ margin-top:6px; }
 /* 5.21.109 (נועה 11.11, 22:12): בכרטיס התלמיד – התשלומים רק לסיכום, בלי פעולות ובלי פרטים (הכול במסך התשלומים, "💳 תשלומים") */
 /* 5.21.114 (נועה 12.11, 08:51: "את הכפתור של יצירת קישורים צריך להחזיר לכרטיס תלמיד... בשלב ראשון תחזיר לי את הכפתור כדי שאני אוכל עכשיו לעבוד"): כפתורי התשלום בכרטיס חזרו (קישור תשלום, הזנת כרטיס, העתקת קישור) – עד שנסדר את עץ ההחלטות */
@@ -2339,7 +2340,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 @media (max-width:760px){ #view-lead .lc-nocrs .pl-stp{ min-width:0; grid-column:1 / -1; } }
 #payWrap .pl-s b{ font-weight:700; } #payWrap .pl-s.ok b{ color:#3d7f0a; } #payWrap .pl-s.cur b{ color:#2b4aa3; }
 #payWrap .pl-off{ background:#EEE; color:#777; }
-#payWrap .pl-acts{ display:flex; align-items:center; gap:4px; justify-content:flex-end; flex-wrap:nowrap; } #payWrap .pl-acts .lk2-cell > .btn:not(a){ background:var(--card,#fff) !important; color:inherit !important; border-color:var(--border) !important; } #payWrap .pl-acts a:has(> .wa-svg){ background:#25D366 !important; color:#fff !important; border-color:#25D366 !important; }
+#payWrap .pl-acts{ display:flex; align-items:center; gap:4px; justify-content:flex-end; flex-wrap:nowrap; } /* 5.21.120 (נועה 12.11): העתקה / וואטסאפ – כמו בטבלת הטפסים (בלי צבעים מיוחדים כאן) */
 #payWrap .pl-flt .pl-q{ min-width:240px; } #payWrap .pl-tbl td.nw{ white-space:nowrap; } #payWrap .pl-tbl .pl-by{ font-size:12px; } #payWrap .pl-tbl .show-m{ display:none; } #payWrap .pl-acts{ gap:6px; flex-wrap:nowrap; justify-content:flex-end; } #payWrap .pl-lk{ font-size:12px; }
 @media (max-width:760px){ #payWrap .pl-tbl{ min-width:0; } #payWrap .pl-tbl thead{ display:none; } #payWrap .pl-tbl tr{ display:grid; grid-template-columns:1fr auto auto; gap:2px 10px; align-items:start; padding:8px 4px; border-bottom:1px solid var(--border); }
   #payWrap .pl-tbl td{ border:0 !important; padding:0 !important; } #payWrap .pl-tbl td:nth-child(1){ grid-column:1/-1; grid-row:3; font-size:12px; color:var(--ink-soft); } #payWrap .pl-tbl td:nth-child(1) .pl-by{ display:inline; } #payWrap .pl-tbl td:nth-child(1) .pl-by::before{ content:" · "; }
@@ -2999,6 +3000,14 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
 :is([id^="view-"], #payPnl) .btn:not(.primary):not(.danger):not(.nav-b):not(:disabled):not(:is(.page-head, .filters, .dx-bar, .gseg, .tabs, .pay-tabs, .crs-tabs, .ui-dlg) .btn):hover{ background:#F8EEEF; }
 .btn.nav-b{ background:#6B1A1F !important; color:#fff !important; border-color:#6B1A1F !important; border-radius:999px !important; padding-inline:12px !important; }
 .btn.nav-b:hover{ background:#4E1216 !important; }
+.disc-dlg .disc-pct{ display:flex; align-items:center; gap:8px; font-weight:600; margin:6px 0 10px; }
+.disc-dlg .disc-pct input{ width:80px; }
+.disc-dlg .disc-l{ font-weight:600; margin:4px 0; }
+.disc-dlg .chk{ display:flex; align-items:center; gap:8px; margin:4px 0; }
+.disc-dlg .disc-rd{ margin-top:10px; color:var(--muted, #6b6259); }
+.disc-dlg .err{ color:#b3261e; min-height:1.2em; font-size:13px; }
+.ro-leads.ro-sec{ margin-top:12px; }
+li.ro-lead{ opacity:.75; border-style:dashed !important; }
 </style>
 </head>
 <body>
@@ -4052,6 +4061,28 @@ function uiDialog(msg, o){ o = o || {};
   });
 }
 const uiConfirm = (msg, o) => uiDialog(msg, o);
+// 5.21.120 (נועה 12.11, icredit-72/73): הנחה בטופס ההרשמה האישי – אחוז, על אילו מוצרים, עיגול. מחזיר {pct, items, round} או null
+function uiDiscount(){ return new Promise((resolve) => {
+  const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
+  bg.innerHTML = `<div class="ui-dlg disc-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t">🏷️ הנחה בטופס ההרשמה</div>
+    <label class="disc-pct">אחוז הנחה <input type="number" min="1" max="100" step="1" data-pct value="10"> %</label>
+    <div class="disc-l">על מה ההנחה</div>
+    <label class="chk"><input type="checkbox" data-it="lessons" checked> שיעורים (חודשי – כולל הוראת הקבע)</label>
+    <label class="chk"><input type="checkbox" data-it="reg_fee" checked> דמי שיבוץ והרשמה</label>
+    <label class="chk"><input type="checkbox" data-it="materials" checked> חומרי תרגול</label>
+    <label class="chk disc-rd"><input type="checkbox" data-rd checked> לעגל לשקל שלם</label>
+    <div class="err" data-er></div>
+    <div class="ui-dlg-b"><button type="button" class="btn primary" data-ok>יצירת הקישור</button><button type="button" class="btn" data-no>ביטול</button></div></div>`;
+  const done = (v) => { document.removeEventListener("keydown", key, true); bg.remove(); resolve(v); };
+  const ok = () => { const pct = Number(bg.querySelector("[data-pct]").value), items = [...bg.querySelectorAll("[data-it]:checked")].map(x => x.dataset.it), er = bg.querySelector("[data-er]");
+    if (!(pct >= 1 && pct <= 100) || Math.round(pct) !== pct) { er.textContent = "אחוז בין 1 ל-100 (מספר שלם)"; return; }
+    if (!items.length) { er.textContent = "צריך לסמן לפחות מוצר אחד"; return; }
+    done({ pct, items, round: bg.querySelector("[data-rd]").checked }); };
+  const key = (ev) => { if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); done(null); } else if (ev.key === "Enter") { ev.preventDefault(); ev.stopPropagation(); ok(); } };
+  document.addEventListener("keydown", key, true);
+  bg.querySelector("[data-ok]").onclick = ok; bg.querySelector("[data-no]").onclick = () => done(null);
+  bg.addEventListener("click", (ev) => { if (ev.target === bg) done(null); });
+  document.body.appendChild(bg); setTimeout(() => { const i = bg.querySelector("[data-pct]"); i.focus(); i.select(); }, 30); }); }
 // 5.19.97: חלון בחירה – כפתור לכל אפשרות (opts: [{v, t}]), מחזיר את v או null
 function uiChoose(msg, opts){
   return new Promise((resolve) => {
@@ -4480,7 +4511,7 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
       <div class="nc-b">${x.status !== "registered" && x.status !== "expired" ? share(rlUrl(x.url, sid), x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה") : ""}</div></div>`)).join("");
   { const pw = document.querySelector("#view-lead .lead-paywrap"), wait = pl.some(x => ["sent", "opened", "submitted"].includes(x.status)); if (pw && wait) pw.open = true; }
   // 5.21.88 (נועה 10.11): טופס הרשמה אישי / חודש ניסיון – לא ב"ללא קורס", אלא שורה עם אייקון בתוך התרגול השוטף של השנה
-  L.rlPend = { sid, html: ls.filter(x => !["registered", "expired"].includes(x.status)).slice(0, 3).map(x => `<div class="lg-rl"><span class="lg-rl-w">${x.trial ? "🎁 חודש ניסיון" : "📝 טופס הרשמה"}${x.trial && x.trial_start ? " מ-" + dm(x.trial_start) : ""}<small class="muted"> · נשלח ${dm(x.created_at)}</small></span>${ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}<span class="nc-b">${share(rlUrl(x.url, sid), x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה")}</span></div>`).join("") };
+  L.rlPend = { sid, html: ls.filter(x => !["registered", "expired"].includes(x.status)).slice(0, 3).map(x => `<div class="lg-rl"><span class="lg-rl-w">${x.trial ? "🎁 חודש ניסיון" : "📝 טופס הרשמה"}${x.trial && x.trial_start ? " מ-" + dm(x.trial_start) : ""}${x.discount && x.discount.pct ? " · 🏷️ " + x.discount.pct + "% הנחה" : ""}<small class="muted"> · נשלח ${dm(x.created_at)}</small></span>${ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}<span class="nc-b">${share(rlUrl(x.url, sid), x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה")}</span></div>`).join("") };
   rlPlace();   // 5.21.88: מחכה למשהו – פתוח
   box.hidden = !rows; { const ps = $("pwSum"); if (ps) { ps.dataset.l = pl.filter(x => x.status !== "cancelled").length || 0; pwSumPaint(); } }
   box.innerHTML = rows ? `<div class="nc-h"><b>קישורי תשלום שעוד לא שולמו</b><button type="button" class="btn small nav-b" data-plall>💳 תשלומים</button></div>${rows}` : "";
@@ -6953,17 +6984,18 @@ async function loadLeadGroups(studentId){
       const city = ((editing.student.family || {}).city || "").trim(); if (!city) { toast("בכרטיס אין עיר מגורים – יש להשלים אותה"); return; }
       // תש-59 (icredit-47): טופס הרשמה אישי – ממולא מהכרטיס, לאותו כרטיס, עם מעקב (נשלח / נפתח / נרשם), 7 ימים
       // תש-70 (icredit-55, נועה 9.11): טופס הרשמה רגיל או חודש ניסיון (מתאריך)
-      const kind = await uiChoose("טופס הרשמה אישי ל" + ((editing.student.first_name || "") + " " + (editing.student.last_name || "")).trim() + ":", [{ v: "reg", t: "📝 הרשמה רגילה" }, { v: "trial", t: "🎁 חודש ניסיון – מהיום" }, { v: "trial-d", t: "🎁 חודש ניסיון – מתאריך אחר…" }]);
+      const kind = await uiChoose("טופס הרשמה אישי ל" + ((editing.student.first_name || "") + " " + (editing.student.last_name || "")).trim() + ":", [{ v: "reg", t: "📝 הרשמה רגילה" }, { v: "trial", t: "🎁 חודש ניסיון – מהיום" }, { v: "trial-d", t: "🎁 חודש ניסיון – מתאריך אחר…" }, { v: "disc", t: "🏷️ הרשמה עם הנחה…" }]);
       if (!kind) return;
+      let disc = null; if (kind === "disc") { disc = await uiDiscount(); if (!disc) return; }   // 5.21.120 (icredit-72/73): השרת מחשב את המחיר המוזל
       let tStart = null;
       if (kind === "trial-d") { const v = await uiDialog("חודש הניסיון מתחיל ב- (יום.חודש, למשל 15.11):", { input: true, value: fmtDM(todayIL()) }); if (v === null) return;
         const m = String(v).trim().match(/^(\d{1,2})[./](\d{1,2})(?:[./](\d{2,4}))?$/); if (!m) { toast("תאריך לא תקין"); return; }
         const y0 = Number(todayIL().slice(0, 4)), mo = Number(m[2]), y = m[3] ? (m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3])) : (mo < Number(todayIL().slice(5, 7)) - 2 ? y0 + 1 : y0);
         tStart = `${y}-${String(mo).padStart(2, "0")}-${String(Number(m[1])).padStart(2, "0")}`; }
-      const prm = Object.assign({ p_student: sid, p_city: city }, kind !== "reg" ? { p_trial: true } : {}, tStart ? { p_trial_start: tStart } : {});
+      const prm = Object.assign({ p_student: sid, p_city: city }, kind === "trial" || kind === "trial-d" ? { p_trial: true } : {}, tStart ? { p_trial_start: tStart } : {}, disc ? { p_discount: disc } : {});
       b.disabled = true; let r; try { r = await rpc("reg_link_create", prm); } catch(e) { b.disabled = false; toast("לא נוצר: " + (e.message || "")); return; }
       b.disabled = false; let u = r.url; try { u = await makeShort(r.url); } catch(e) {}
-      copyText(u, (kind === "reg" ? "טופס ההרשמה האישי" : "טופס חודש הניסיון") + " (" + city + ") נוצר והועתק – למטה ב\"תשלומים ללא קורס\": 💬 שליחה, 👁 פתיחה"); await regLinksPaint(sid);
+      copyText(u, (kind === "reg" ? "טופס ההרשמה האישי" : disc ? "טופס ההרשמה עם " + disc.pct + "% הנחה" : "טופס חודש הניסיון") + " (" + city + ") נוצר והועתק – למטה ב\"תשלומים ללא קורס\": 💬 שליחה, 👁 פתיחה"); await regLinksPaint(sid);
       { const r0 = document.querySelector("#lcRegLinks .nc-row:last-of-type"); const rr = [...document.querySelectorAll("#lcRegLinks .nc-row")].find(x => /טופס הרשמה/.test(x.textContent)) || r0; if (rr) { rr.scrollIntoView({ block: "center", behavior: "smooth" }); rr.classList.add("nc-new"); setTimeout(() => rr.classList.remove("nc-new"), 2500); } } };
     $("lcAddSlot").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = () => cardLk(b)); $("leadGroups").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = () => cardLk(b));   // 5.21.115: גם מ"התעניינות" בקורס
     regLinksPaint(editing && editing.student && editing.student.id);
@@ -7206,6 +7238,14 @@ $("filtersToggle").addEventListener("click", () => { const c = document.querySel
 let G_LOADING = null;
 async function ensureG(force){ if (force || !G.loaded || Date.now() - (G.loadedAt || 0) > 60000) { G_LOADING = G_LOADING || loadGroups().then(() => { G.loaded = true; }).finally(() => { G_LOADING = null; }); await G_LOADING; } }
 // 5.19.31: נפתח ישר במצב עריכה (בלי ללחוץ שוב "עריכת קבוצה")
+// 5.21.120 (נועה 12.11, icredit-72): בקבוצת מרתון – "מתעניינים" שבחרו את הקבוצה בטופס (course_members.lead_session_id). בלי שיבוץ, לא נספרים ולא תופסים מקום
+async function marLeadsPaint(sid, kids){ let rows = []; try { rows = await get("course_members", "select=id,student_id,status,created_at&lead_session_id=eq." + sid + "&order=created_at.asc"); } catch(e) { return; }
+  const inG = new Set((kids || []).map(k => k.student_id)), ls = (rows || []).filter(m => !inG.has(m.student_id) && (crsIsInt(m) || m.status === "ממתין לתשלום"));
+  const ro = $("roster"); if (!ro || !ls.length || marLeadsPaint.cur !== sid) return; ro.querySelectorAll(".ro-leads").forEach(x => x.remove());
+  const nm = (m) => { const l = L.leads.find(x => x.student_id === m.student_id), st = l && l.student || {}; return { l, t: ((st.first_name || "") + " " + (st.last_name || "")).trim() || "#" + m.student_id }; };
+  ro.insertAdjacentHTML("beforeend", `<li class="ro-sec ro-leads"><span>👀 מתעניינים (${ls.length}) <small class="muted">– בחרו את הקבוצה בטופס, עוד לא נרשמו; לא נספרים בקבוצה</small></span></li>` + ls.map(m => { const x = nm(m);
+    return `<li class="ro-k ro-lead ro-leads"><div class="ro-main"><div class="row-top"><span>${x.l ? `<button type="button" class="name-link" data-lead="${x.l.id}">${esc(x.t)}</button>` : esc(x.t)} <span class="chip">${esc(m.status === "ממתין לתשלום" ? "ממתין לתשלום" : "מתעניין/ת")}</span> <small class="muted">${fmtDM(String(m.created_at || "").slice(0, 10))}</small></span></div></div></li>`; }).join(""));
+  ro.querySelectorAll(".ro-leads [data-lead]").forEach(b => b.onclick = () => { closePanel(); openLead(Number(b.dataset.lead)); }); }
 async function grpEdit(sid){ await ensureG(); if (G.sessions.some(x => x.session_id === sid)) { G.autoEdit = false; openPanel(sid); } else toast("הקבוצה לא נמצאה"); }   // 5.19.81 (נועה): נפתח בתצוגה - פרטי הקבוצה לקריאה; עורכים רק ב"✎ עריכה"
 function openGroupOnBoard(sessionId, city){ grpEdit(sessionId); }
 $("addLeadBtn").addEventListener("click", () => openLead(null));
@@ -9038,6 +9078,7 @@ function openPanel(id){
       <div class="prop-chk"><label><input type="checkbox" data-pn="${k.id}" ${n.notified_at ? "checked" : ""}> קיבל/ה הודעה</label><label><input type="checkbox" data-pc="${k.id}"> אישר/ה – עובר/ת למשובצים</label></div></li>`; }).join(""));
   kids.forEach(k => { const c = payPendChip(k.student_id, id, !!mOf), sp = c && $("roster").querySelector(`li[data-aid="${k.id}"] .row-top > span`); if (sp) sp.insertAdjacentHTML("beforeend", c); });   // 5.19.41
   if (mOf) { $("roster").insertAdjacentHTML("afterbegin", marBoxHtml(mOf)); wireMarBox($("roster"), mOf); marHakChips(id, kids); }
+  marLeadsPaint.cur = id; if (mOf && ME.role !== "instructor") marLeadsPaint(id, kids);   // 5.21.120 (נועה 12.11, icredit-72): מתעניינים שבחרו את הקבוצה – לא נספרים
   else kids.forEach(k => { const f = marFlag(k.student_id), sp = f && $("roster").querySelector(`li[data-aid="${k.id}"] .row-top > span`); if (sp) sp.insertAdjacentHTML("beforeend", f); });   // 5.19.35
   wireProp(se);
   $("roster").querySelectorAll("[data-move]").forEach(b => b.onclick = () => openMove(se, b.dataset.move));
@@ -13209,7 +13250,7 @@ if (AUTH_LINK) { showLogin(); authLinkConfirm(); } else boot();
 // 5.19.34: תשלומים והוראות קבע (איקרדיט) - לשוניות בתוך "הרשמה ותשלומים" (לשעבר payments.html)
 // ======================================================================
 const PAY = (() => {
-const money = (n) => n == null || n === "" ? "" : "₪" + Number(n).toLocaleString("he-IL", { maximumFractionDigits: 2 });
+const money = (n) => n == null || n === "" ? "" : "₪" + Number(n).toLocaleString("he-IL", { minimumFractionDigits: Number(n) % 1 ? 2 : 0, maximumFractionDigits: 2 });   // 5.21.120: ₪2.10
 const dmy = (iso) => { if (!iso) return ""; const s = String(iso).slice(0, 10).split("-"); return s.length === 3 ? `${s[2]}.${s[1]}.${s[0].slice(2)}` : iso; };
 const waLink = (phone, text) => { const d = String(phone || "").replace(/\D/g, ""); return /^0\d{8,9}$/.test(d) ? `https://wa.me/972${d.slice(1)}?text=${encodeURIComponent(text)}` : ""; };
 async function copy(t){ try { await navigator.clipboard.writeText(t); toast("הקישור הועתק"); } catch(e) { uiCopyBox(t); } }
@@ -14210,7 +14251,11 @@ function newLink(src, mode, opt){
     if (on && !a0) { const w = document.createElement("div"); w.className = "nl-it nl-first"; $("nProd").before(w); w.appendChild($("nProd"));
       w.insertAdjacentHTML("beforeend", `<input type="number" id="nProdAmt" min="1" placeholder="סכום (₪)"><span></span>`); a0 = $("nProdAmt"); a0.value = $("nOnce").value || ""; a0.oninput = itPaint; }
     if (!on && a0) { $("nOnce").value = a0.value || $("nOnce").value; const w = a0.closest(".nl-first"); w.before($("nProd")); w.remove(); }
-    $("nOnce").readOnly = on; if (on) $("nOnce").value = itSum() || ""; $("nProdW").classList.toggle("nl-multi", on); };
+    $("nOnce").readOnly = on; if (on) $("nOnce").value = itSum() || ""; $("nProdW").classList.toggle("nl-multi", on);
+    // 5.21.120 (נועה 12.11: "לא ברור שהסכום הוא הסה"כ של המוצרים"): כמה מוצרים – שורת סה"כ מתחת לסכומים (באותה עמודה), בלי שדה "תשלום עכשיו" נפרד
+    let tot = $("nItTot"); if (on && !tot) { $("nPAdd").insertAdjacentHTML("beforebegin", `<div class="nl-it nl-tot" id="nItTot"><span>סה"כ לתשלום עכשיו</span><b></b><span></span></div>`); tot = $("nItTot"); }
+    if (!on && tot) tot.remove(); if (on) tot.querySelector("b").textContent = money(Number(itSum()) || 0);
+    const ow = $("nOnce").closest(".nl-pay"); if (ow && TY !== "rec" && TY !== "trial") ow.hidden = on; };
   const itAdd = (prod, amt) => { const w = document.createElement("div"); w.className = "nl-it";
     w.innerHTML = `<select><option value="">בחירת מוצר</option>${PRODS.map(x => `<option>${x}</option>`).join("")}</select><input type="number" min="1" placeholder="סכום (₪)"><button type="button" class="btn small" title="הסרת המוצר">✕</button>`;
     w.querySelector("select").value = prod || ""; w.querySelector("input").value = amt || ""; w.querySelector("input").oninput = itPaint;
