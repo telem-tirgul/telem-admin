@@ -2231,7 +2231,7 @@ tr.dr-focus > td{ background:#FFF6E5 !important; } tr.deal-r.dr-focus{ outline:2
 .lc-nocrs{ margin-top:4px !important; }
 /* 5.21.83 (נועה 9.11): מסגרת אחת "💳 תשלומים ללא קורס" – קישורים / טפסים שנשלחו + תשלומים שלא שויכו לקורס; מתחת לקורסים */
 #view-lead .lead-paywrap{ border:1px solid var(--border); border-radius:12px; background:var(--paper); padding:10px 14px; }
-#view-lead .lead-paywrap .pw-add{ margin-inline-start:auto; } #view-lead .lead-paywrap > summary::after{ margin-inline-start:8px !important; }   /* 5.21.88: "+ קישור תשלום" – בתוך המסגרת; המסגרת תמיד מוצגת */
+#view-lead .lead-paywrap .pw-add{ margin-inline-start:auto; } #view-lead .lead-paywrap #pwNav[hidden] + #pwAddPay{ margin-inline-start:auto; } #view-lead .lead-paywrap > summary::after{ margin-inline-start:8px !important; }   /* 5.21.88: "+ קישור תשלום" – בתוך המסגרת; המסגרת תמיד מוצגת */
 
 #view-lead .lead-paywrap > summary{ cursor:pointer; list-style:none; display:flex; align-items:center; gap:10px; padding:2px 2px; } #view-lead .lead-paywrap > summary::-webkit-details-marker{ display:none; }
 #view-lead .lead-paywrap > summary b{ font-family:var(--font-display); color:var(--accent); font-size:15px; } #view-lead .lead-paywrap > summary::after{ content:"▾"; margin-inline-start:auto; color:var(--accent); } #view-lead .lead-paywrap[open] > summary::after{ content:"▴"; } #view-lead .lead-paywrap[open] > summary{ border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:6px; } #view-lead .lead-paywrap .pw-sum{ font-size:13px; }
@@ -3021,6 +3021,8 @@ li.ro-lead{ opacity:.75; border-style:dashed !important; }
 /* 5.21.121 (נועה 12.11: "למה החץ מצביע למעלה ומצד שמאל? לא קונסיסטנטי"): תשלומים ללא קורס – אותו חץ כמו בכל המסגרות (עיגול מימין) */
 #view-lead .lead-paywrap > summary::after{ content:none !important; display:none !important; }
 .can-old > summary{ list-style:none; display:flex; align-items:center; gap:8px; } .can-old > summary::-webkit-details-marker{ display:none; } .can-old > summary::before{ width:18px !important; height:18px !important; background-size:12px !important; }
+.tf-pop{ position:absolute; z-index:9999; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.14); max-height:300px; overflow:auto; padding:4px 0; font-size:14px; direction:rtl; }
+.tf-pop .tf-q{ padding:4px 12px 6px; font-weight:700; color:var(--accent); border-bottom:1px solid var(--border); } .tf-pop .tf-it{ padding:5px 12px; cursor:pointer; white-space:nowrap; } .tf-pop .tf-it.on, .tf-pop .tf-it:hover{ background:color-mix(in srgb, var(--accent) 10%, #fff); } .tf-pop .tf-none{ padding:6px 12px; }
 </style>
 </head>
 <body>
@@ -3238,7 +3240,7 @@ li.ro-lead{ opacity:.75; border-style:dashed !important; }
             <div id="leadGroups"></div>
                       </div>
           <!-- 5.21.83 (נועה 9.11): "תשלומים ללא קורס" – מסגרת משלה מתחת לקורסים, מתכווצת -->
-          <details class="lead-paywrap card"><summary><b>💳 תשלומים ללא קורס</b><span class="pw-sum muted" id="pwSum"></span><button type="button" class="btn small pw-add" id="pwAddPay" title="קישור תשלום אישי – ממולא מהכרטיס ומחובר אליו (שיעור פרטי, חומרים…)">+ 💳 קישור תשלום</button></summary><div id="leadPay" class="lead-pay"></div><div id="leadPayments"></div></details>
+          <details class="lead-paywrap card"><summary><b>💳 תשלומים ללא קורס</b><span class="pw-sum muted" id="pwSum"></span><button type="button" class="btn small nav-b pw-add" id="pwNav" hidden>💳 תשלומים</button><button type="button" class="btn small" id="pwAddPay" title="קישור תשלום אישי – ממולא מהכרטיס ומחובר אליו (שיעור פרטי, חומרים…)">+ 💳 קישור תשלום</button></summary><div id="leadPay" class="lead-pay"></div><div id="leadPayments"></div></details>
         </div>
       </form>
     </section>
@@ -4531,7 +4533,7 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
   L.rlPend = { sid, html: ls.filter(x => !["registered", "expired"].includes(x.status)).slice(0, 3).map(x => `<div class="lg-rl"><span class="lg-rl-w">${x.trial ? "🎁 חודש ניסיון" : "📝 טופס הרשמה"}${x.trial && x.trial_start ? " מ-" + dm(x.trial_start) : ""}${x.discount && x.discount.pct ? " · 🏷️ " + x.discount.pct + "% הנחה" : ""}<small class="muted"> · נשלח ${dm(x.created_at)}</small></span>${ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}<span class="nc-b">${share(rlUrl(x.url, sid), x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה")}</span></div>`).join("") };
   rlPlace();   // 5.21.88: מחכה למשהו – פתוח
   box.hidden = !rows; { const ps = $("pwSum"); if (ps) { ps.dataset.l = pl.filter(x => x.status !== "cancelled").length || 0; pwSumPaint(); } }
-  box.innerHTML = rows ? `<div class="nc-h"><b>קישורי תשלום שעוד לא שולמו</b><button type="button" class="btn small nav-b" data-plall>💳 תשלומים</button></div>${rows}` : "";
+  box.innerHTML = rows || "";   // 5.21.121 (נועה 12.11: "למה הניווט בתוך המסגרת? ואז לא צריך את השורה הראשונה") – "💳 תשלומים" בשורת הכותרת
   box.querySelectorAll("[data-copy]").forEach(c => c.onclick = () => copyText(c.dataset.copy));
   box.querySelectorAll("[data-pldet]").forEach(c => c.onclick = () => PAY.link(c.dataset.pldet, sid));
   box.querySelectorAll("[data-plall]").forEach(c => c.onclick = () => { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.kidAll(sid, nm); }); }
@@ -6998,7 +7000,7 @@ async function loadLeadGroups(studentId){
     if ($("lcAddSlot")) $("lcAddSlot").innerHTML = (CRS.ok && ME.role !== "instructor" ? `<button type="button" class="btn small" id="lcAdd" title="הוספה לקורס – ידנית, או שליחת טופס הרשמה להורה (גם חודש ניסיון)">+ <span class="bt-l">הוספה ל</span>קורס</button>` : "")
       + (ME.role === "admin" ? `<button type="button" class="btn small nav-b" id="lcPayNav" title="דף התשלומים של התלמיד/ה – כל הפעולות על כסף">💳 תשלומים</button>` : "");   // 5.21.108 (נועה 11.11): ניווט אחיד   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
     if ($("lcPayNav")) $("lcPayNav").onclick = () => { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } const st = editing && editing.student; if (st) PAY.kidAll(st.id, ((st.first_name || "") + " " + (st.last_name || "")).trim()); };
-    if ($("pwAddPay")) { $("pwAddPay").hidden = ME.role !== "admin"; } if ($("pwAddPay")) $("pwAddPay").onclick = (e) => { e.preventDefault(); e.stopPropagation(); const sid = editing && editing.student && editing.student.id; if (sid && ME.role === "admin") PAY.newLink(sid); };   // 5.21.88
+    if ($("pwAddPay")) { $("pwAddPay").hidden = ME.role !== "admin"; } if ($("pwNav")) { $("pwNav").hidden = ME.role !== "admin"; $("pwNav").onclick = (e) => { e.preventDefault(); e.stopPropagation(); const st = editing && editing.student; if (!st) return; if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.kidAll(st.id, ((st.first_name || "") + " " + (st.last_name || "")).trim()); }; }   // 5.21.121 (נועה 12.11): הניווט בשורת הכותרת if ($("pwAddPay")) $("pwAddPay").onclick = (e) => { e.preventDefault(); e.stopPropagation(); const sid = editing && editing.student && editing.student.id; if (sid && ME.role === "admin") PAY.newLink(sid); };   // 5.21.88
     const cardLk = async (b) => { const sid = editing && editing.student && editing.student.id; if (!sid) return;
       if (b.dataset.cardlk === "pay") { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.newLink(sid); return; }
       const city = ((editing.student.family || {}).city || "").trim(); if (!city) { toast("בכרטיס אין עיר מגורים – יש להשלים אותה"); return; }
@@ -9668,6 +9670,28 @@ async function ibNames(rows){
   if (mids.length) { try { (await get("marathons", "select=id,name,school&id=in.(" + mids.join(",") + ")")).forEach(m => IB.mars[m.id] = m); } catch(e) {} }
 }
 // 5.19.124 (נועה): השם בהתראה תמיד לחיץ – גם אם הכרטיס עוד לא נטען (לא פעיל / הרשימה עוד נטענת): מחכים לו ואז פותחים
+// 5.21.121 (נועה 12.11: "בסינונים – להקליד אות ולצמצם לכל המילים שמתחילות בה"): בשדות הבחירה של הסינון – מקלידים, ונפתחת רשימה מצומצמת (כל מילה שמתחילה במה שהוקלד). חצים / Enter לבחירה, Esc לסגירה
+function selTypeFilter(sel){ if (!sel || sel.dataset.tf) return; sel.dataset.tf = "1"; let q = "", pop = null, hi = 0, list = [];
+  const close = () => { q = ""; if (pop) { pop.remove(); pop = null; } };
+  const match = (t) => { const n = q.trim(); if (!n) return true; const tt = String(t).split(" · ")[0].replace(/["'״׳]/g, "");   /* בלי העיר שאחרי "·" */ return tt.startsWith(n) || tt.split(/[\s\-–·,()\/]+/).some(w => w.startsWith(n)); };
+  const pick = (o) => { if (!o) return; sel.value = o.value; sel.dispatchEvent(new Event("change", { bubbles: true })); close(); };
+  const paint = () => { list = [...sel.options].filter(o => !o.disabled && (o.value !== "" || !q) && match(o.text)); if (!q) hi = Math.max(0, list.findIndex(o => o.value === sel.value)); hi = Math.min(hi, Math.max(0, list.length - 1));
+    if (!pop) { pop = document.createElement("div"); pop.className = "tf-pop"; document.body.appendChild(pop);
+      pop.addEventListener("mousedown", (e) => { const it = e.target.closest("[data-i]"); e.preventDefault(); if (it) pick(list[Number(it.dataset.i)]); }); }
+    const r = sel.getBoundingClientRect(); pop.style.top = (r.bottom + window.scrollY + 2) + "px"; pop.style.left = (r.left + window.scrollX) + "px"; pop.style.minWidth = r.width + "px";
+    pop.innerHTML = `<div class="tf-q">${q ? `🔍 ${esc(q)} <span class="muted">(${list.length})</span>` : `<span class="muted">מקלידים כדי לצמצם…</span>`}</div>` + (list.length ? list.slice(0, 60).map((o, i) => `<div class="tf-it${i === hi ? " on" : ""}" data-i="${i}">${esc(o.text)}</div>`).join("") : `<div class="muted tf-none">אין התאמה</div>`);
+    const on = pop.querySelector(".tf-it.on"); if (on) on.scrollIntoView({ block: "nearest" }); };
+  sel.addEventListener("keydown", (e) => { if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === "Escape") { if (pop) { e.preventDefault(); close(); } return; }
+    if (pop && (e.key === "ArrowDown" || e.key === "ArrowUp")) { e.preventDefault(); hi = Math.max(0, Math.min(list.length - 1, hi + (e.key === "ArrowDown" ? 1 : -1))); paint(); return; }
+    if (pop && (e.key === "Enter" || e.key === "Tab")) { if (list[hi]) { e.preventDefault(); pick(list[hi]); } else close(); return; }
+    if (e.key === "Backspace") { if (pop) { e.preventDefault(); q = q.slice(0, -1); if (!q) close(); else paint(); } return; }
+    if (e.key.length === 1 && !(e.key === " " && !q)) { e.preventDefault(); q += e.key; hi = 0; paint(); } });
+  sel.addEventListener("blur", () => setTimeout(close, 120));
+  // לחיצה – הרשימה שלנו (במקום של הדפדפן), כדי שאפשר יהיה להקליד בה; בנייד – הרשימה של הטלפון
+  sel.addEventListener("mousedown", (e) => { if (matchMedia("(pointer: coarse)").matches) return; e.preventDefault(); sel.focus(); if (pop) close(); else { q = ""; paint(); } }); }
+["fCity", "fSchool", "fCourse", "fManager", "fCrsTrk"].forEach(id => selTypeFilter(document.getElementById(id)));
+
 // 5.21.121 (נועה 12.11: "לכתוב את בית הספר של הילד בצבע המתאים ליד השם – כדי שנדע מאיפה הוא")
 const ibSch = (r, lead) => { const d = r.data || {}, p = d.payload || {}, sc = String((lead && lead.student && lead.student.school) || d.school || p.school || "").trim(); return sc ? ` <span class="school-chip ib-sch ${scCls(sc)}" title="בית ספר">${esc(sc)}</span>` : ""; };
 const ibNameLink = (r, lead) => lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : r.student_id ? `<a class="name-link" data-ibsid="${r.student_id}">${esc(ibName(r))}</a>` : esc(ibName(r));
