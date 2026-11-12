@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.119">
+<meta name="app-version" content="5.21.120">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6694,12 +6694,12 @@ function crsStepper(m){
   const recQ = "", recQ0 = c.marathon_id ? "" : `<button type="button" class="btn small" data-recq="${m.id}" title="הקמת הוראת קבע לקורס הזה – מקלידים את הכרטיס עכשיו, בלי חיוב מיידי">🔁 הוראת קבע</button>`;   // 5.21.103 (נועה 11.11): הוראת קבע בלבד – רק על קורס
   const st = (k, cls, n, t, meta, act) => `<div class="stp-s ${cls}" data-stk="${k}" data-stm="${m.id}"><span class="stp-d" aria-hidden="true">${cls === "ok" ? "✓" : n}</span><div class="stp-t">${t}</div><div class="stp-m">${meta || ""}</div><div class="stp-a">${act || ""}</div></div>`;
   if (intr) { const mo = c.marathon_id ? (CRS.mar || {})[c.marathon_id] || {} : null;
-    const act = !adm ? "" : mo ? (mo.code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`;
+    const act = !adm ? "" : mo ? (mo.code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}" data-stmm="${m.id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`;
     return `<details class="lp-box lg-pay stp-box" open><summary><b><span class="lp-ic" aria-hidden="true">📋</span> מצב ההרשמה</b> <span class="muted stp-sum">התעניינות – עוד לא נשלח טופס</span></summary><div class="stp">`
       + st("int", "cur", 1, "התעניינות", d(m.created_at), act) + st("pay", "", 2, "תשלום", "", "") + st("sig", "par", 2, "חתימה", "במקביל לתשלום", "") + st("conf", "", 3, "נרשם", "", "") + `</div></details>`; }
   const ord = m.marathon_registration_id ? { kind: "marathon", id: m.marathon_registration_id } : m.enrollment_id ? { kind: "registration", id: m.enrollment_id } : null;
   // 5.21.118: "ממתין לתשלום" בלי הזמנה (נוסף ידנית לקורס) – אין על מה לגבות; שולחים טופס הרשמה (תנאים + חתימה + תשלום) / קישור לטופס המרתון
-  const noOrd = !reg && !ord && adm ? (c.marathon_id ? (((CRS.mar || {})[c.marathon_id] || {}).code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`) : "";
+  const noOrd = !reg && !ord && adm ? (c.marathon_id ? (((CRS.mar || {})[c.marathon_id] || {}).code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}" data-stmm="${m.id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`) : "";
   const payActs = noOrd || !reg && ord && adm ? noOrd || `<button type="button" class="btn small primary" data-stnow="${m.id}">⌨️ הזנת כרטיס</button><button type="button" class="btn small" data-stlk="${m.id}">🔗 קישור תשלום</button><button type="button" class="btn small" data-stpd="${m.id}">✔ סימון שולם</button>` : "";
   const s3 = sig ? st("sig", "ok par", 2, "חתימה", esc(SIG_VIA_S[m.signed_via] || "סומן"), crsSignRow(m))
     : st("sig", "cur par", 2, "חתימה", `<span class="lc-sign-meta">במקביל לתשלום</span>`, crsSignRow(m));
@@ -6727,7 +6727,12 @@ const stOrdX = (m) => { const st = (editing && editing.student) || {}, c = CRS.b
 const stReload = () => { const l = editing; if (!l || !l.student) return; const sid = l.student.id; crsLoadMembers("student_id=eq." + sid).catch(() => {}).then(() => { if (editing && editing.id === l.id) { LP_CACHE = null; loadLeadPayments(l); loadLeadGroups(sid); } }); loadLeads().catch(() => {}); };
 document.addEventListener("click", async (e) => { const b = e.target.closest && e.target.closest("[data-stnow], [data-stlk], [data-stpd], [data-stmar]"); if (!b || !editing || !editing.student) return;
   if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; }
-  if (b.dataset.stmar) { const o = (CRS.mar || {})[b.dataset.stmar] || {}; if (!o.code) return; let u = lkMarCode(o.code); try { u = await makeShort(u); } catch(er) {} copyText(u, "הקישור לטופס " + (o.name || "המרתון") + " הועתק"); return; }
+  if (b.dataset.stmar) { const o = (CRS.mar || {})[b.dataset.stmar] || {}; if (!o.code) return; let u = lkMarCode(o.code);
+    // 5.21.120 (נועה 12.11): קישור אישי – הטופס הרגיל עם הפרטים מהכרטיס (אפשר לשנות), בחירת מועד ותשלום כרגיל (&f=1). נכשל – הקישור הכללי
+    const mm = crsOfStudent(editing.student.id).find(x => x.id === Number(b.dataset.stmm)), cc = mm && CRS.byId[mm.course_id];
+    if (mm && cc) try { const r = await api("POST", "/rest/v1/sign_links", { student_id: editing.student.id, course_member_id: mm.id, course_label: [crsCatN(cc.category_id), crsSeason(cc.season_id).name].filter(Boolean).join(" · "), expires_at: new Date(Date.now() + 14 * 864e5).toISOString() }, { "Prefer": "return=representation" });
+      const row = Array.isArray(r) ? r[0] : r; if (row && row.code) u += "&c=" + row.code + "&f=1"; } catch(er) { console.warn("sign link", er); }
+    try { u = await makeShort(u); } catch(er) {} copyText(u, "הקישור לטופס " + (o.name || "המרתון") + " הועתק"); return; }
   const m = crsOfStudent(editing.student.id).find(x => x.id === Number(b.dataset.stnow || b.dataset.stlk || b.dataset.stpd)); if (!m) return; const x = stOrdX(m); if (!x.order_id) return;
   let lk = null; const getLk = async () => lk || (lk = await call("pay_link_create", { p: { order: { kind: x.kind, id: x.order_id }, description: x.what } }));
   if (b.dataset.stnow) { payNowOpen(b, getLk); return; }
@@ -7213,7 +7218,7 @@ const FTX_FORMS = [
   ["interest", "טופס התעניינות", "תרגולים שוטפים", "הקישור לפי עיר / בית ספר – באתר ובטבלת התרגולים השוטפים"],
   ["class", "טופס כיתה", "תרגולים שוטפים", "טופס התעניינות לכיתה (QR) – בלשונית 📣 טופס כיתה"],
   ["marathon", "טופס הרשמה", "מרתון", "הקישור של כל מרתון – ב\"מרתונים\""],
-  ["pay", "דף תשלום", "נשלח להורה", "נוצר במסך התשלומים ← דפי תשלום (תשלום רגיל / שיעור בודד / חודש ניסיון) – לא מכרטיס התלמיד"],   // נועה 7.11: שם ברור
+  ["pay", "דף תשלום", "נשלח להורה", "נוצר במסך התשלומים ← דפי תשלום (דף תשלום – מוצרים, סכומים, הוראת קבע) – לא מכרטיס התלמיד"],   // נועה 7.11: שם ברור
   ["cancel", "טופס ביטול", "נשלח להורה", "כשהורה מבקש לבטל הרשמה"],
   ["shibutz", "טופס שיבוץ", "נשלח להורה", "בחירת מועדים מועדפים לשיבוץ"],
   ["sign", "טופס חתימה", "נשלח להורה", "קישור אישי מהכרטיס – ✍ קישור לחתימה (פרטים, תנאים וחתימה)"],   // נועה 7.11: כל הטפסים בנוסחי הטפסים
@@ -14077,10 +14082,11 @@ function newLink(src, mode, opt){
   let SID = opt.sid ? Number(opt.sid) : src && src.student_id ? Number(src.student_id) : null;
   // נועה 6.11 (תש-46): סוג הקישור – תשלום רגיל / שיעור בודד (118 ₪) / חודש ניסיון (trial_link_create)
   let TY = opt.type || (src && src.recurring_only ? "rec" : src && /^חודש ניסיון/.test(src.description || "") ? "trial" : src && /^שיעור בודד/.test(src.description || "") ? "single" : "reg");
+  if (!ed && (TY === "single" || TY === "trial")) TY = "reg";   // 5.21.120 (נועה 12.11): דף תשלום אחד – בלי "שיעור בודד" / "חודש ניסיון" (חודש ניסיון – מהכרטיס); שכפול – דף תשלום עם אותם פרטים
   const reqDef = (k) => F[k] ? !!F[k].required : true;
   const showDef = (k) => F[k] ? !F[k].hide : !["track", "subject"].includes(k);   // 5.21.88 (נועה 10.11): "להצגה" – מה ההורה רואה; מסלול / מקצוע – כבוי כברירת מחדל   // נועה 6.11: כמו בטופס ההרשמה – הכול חובה (אפשר לבטל)
-  pnlOpen(`<header><div><h2>${ed ? "עריכת קישור אישי" : mode === "dup" ? "קישור חדש – שכפול" : "קישור אישי חדש"}</h2><div class="muted">${ed ? "אותו קישור – ההורה יראה את השינויים כשיפתח אותו." : "נשלח להורה כקישור. מה שממלאים כאן – נעול עבור ההורה."}</div></div><button class="btn small x" type="button">✕</button></header>
-    <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed ? "" : `<div class="gseg nl-type">${(opt.cm ? [["rec", "🔁 הוראת קבע בלבד"]] : [["reg", "תשלום רגיל"], ["single", "שיעור בודד"], ["trial", "חודש ניסיון"]]).map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
+  pnlOpen(`<header><div><h2>${ed ? "עריכת דף תשלום" : mode === "dup" ? "דף תשלום חדש – שכפול" : "דף תשלום חדש"}</h2><div class="muted">${ed ? "אותו קישור – ההורה יראה את השינויים כשיפתח אותו." : "נשלח להורה כקישור. מה שממלאים כאן – נעול עבור ההורה."}</div></div><button class="btn small x" type="button">✕</button></header>
+    <div class="body"><div class="sec"><h3>מה משלמים</h3>${ed || !opt.cm ? "" : `<div class="gseg nl-type">${[["rec", "🔁 הוראת קבע בלבד"]].map(([k, t]) => `<button type="button" data-nty="${k}">${t}</button>`).join("")}</div>`}<div class="grid2">
       <div style="grid-column:1/-1"><label class="lbl" for="nNote">תיאור <span class="muted" style="font-weight:400">(מופיע להורה בטופס; לא חובה)</span></label><textarea id="nNote" rows="3" maxlength="1000" placeholder="למשל: 3 מפגשים של שעה וחצי בימי שלישי, כולל דפי תרגול"></textarea></div>
       <div style="grid-column:1/-1" hidden><label class="lbl" for="nDesc">תיאור (יופיע להורה)</label><input type="text" id="nDesc" placeholder="למשל: שיעור פרטי – 3 מפגשים"></div>
       <div style="grid-column:1/-1" id="nProdW"><label class="lbl" for="nProd">מוצר בחשבונית <span class="muted" style="font-weight:400">(כמו בקטלוג בריווחית)</span></label><select id="nProd"><option value="">בחירת מוצר</option>${["שיעורי מתמטיקה", "שיעורי אנגלית", "שיעורי מתמטיקה ואנגלית", "דמי שיבוץ והרשמה", "שירות עבור חומרי תרגול דיגיטליים"].map(x => `<option>${x}</option>`).join("")}</select>
