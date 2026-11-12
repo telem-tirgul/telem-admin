@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.117">
+<meta name="app-version" content="5.21.118">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1957,7 +1957,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .stp-m{ font-size:12px; color:#777; margin-top:2px; min-height:16px; overflow-wrap:anywhere; }
 .stp-a{ display:none !important; } .stp-s{ min-width:0; }
 .stp-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin-top:8px; padding-top:8px; border-top:1px solid #EFE7DE; }
-.stp-g{ display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; } .stp-gl{ font-size:12.5px; color:#6B625A; font-weight:700; }
+.stp-g{ display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; } .stp-gl{ font-size:12.5px; color:#6B625A; font-weight:700; } .stp-bar > .stp-can{ margin-inline-start:auto; display:inline-flex; align-items:center; gap:6px; }
 .stp-g .lc-sign, .stp-g .lc-sign-st{ display:inline-flex !important; flex-wrap:wrap; align-items:center; gap:6px; margin:0 !important; } .stp-g .lc-sign-st:empty{ display:none !important; }   /* 5.21.115: כמה כפתורים בשלב – אחד מתחת לשני, בלי לעלות על השלב הבא */
 .stp-a .lc-sign{ justify-content:center; margin:0; gap:6px; } .stp-a .lc-sign-st{ gap:6px; } .stp-a .lc-sign-st:empty{ display:none; }
 /* 5.21.95 (נועה 10.11: "לוקח המון מקום") – פס השלבים קומפקטי: נקודות קטנות, הכפתורים בשורה אחת, "טופס ביטול" בשורת הכותרת */
@@ -6696,7 +6696,9 @@ function crsStepper(m){
     return `<details class="lp-box lg-pay stp-box" open><summary><b><span class="lp-ic" aria-hidden="true">📋</span> מצב ההרשמה</b> <span class="muted stp-sum">התעניינות – עוד לא נשלח טופס</span></summary><div class="stp">`
       + st("int", "cur", 1, "התעניינות", d(m.created_at), act) + st("pay", "", 2, "תשלום", "", "") + st("sig", "par", 2, "חתימה", "במקביל לתשלום", "") + st("conf", "", 3, "נרשם", "", "") + `</div></details>`; }
   const ord = m.marathon_registration_id ? { kind: "marathon", id: m.marathon_registration_id } : m.enrollment_id ? { kind: "registration", id: m.enrollment_id } : null;
-  const payActs = !reg && ord && adm ? `<button type="button" class="btn small primary" data-stnow="${m.id}">⌨️ הזנת כרטיס</button><button type="button" class="btn small" data-stlk="${m.id}">🔗 קישור תשלום</button><button type="button" class="btn small" data-stpd="${m.id}">✔ סימון שולם</button>` : "";
+  // 5.21.118: "ממתין לתשלום" בלי הזמנה (נוסף ידנית לקורס) – אין על מה לגבות; שולחים טופס הרשמה (תנאים + חתימה + תשלום) / קישור לטופס המרתון
+  const noOrd = !reg && !ord && adm ? (c.marathon_id ? (((CRS.mar || {})[c.marathon_id] || {}).code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`) : "";
+  const payActs = noOrd || !reg && ord && adm ? noOrd || `<button type="button" class="btn small primary" data-stnow="${m.id}">⌨️ הזנת כרטיס</button><button type="button" class="btn small" data-stlk="${m.id}">🔗 קישור תשלום</button><button type="button" class="btn small" data-stpd="${m.id}">✔ סימון שולם</button>` : "";
   const s3 = sig ? st("sig", "ok par", 2, "חתימה", esc(SIG_VIA_S[m.signed_via] || "סומן"), crsSignRow(m))
     : st("sig", "cur par", 2, "חתימה", `<span class="lc-sign-meta">במקביל לתשלום</span>`, crsSignRow(m));
   let s4 = st("conf", reg ? "ok" : "", 3, "נרשם", reg && !sig ? "✍︎ חסרה חתימה" : "", "");
@@ -6729,12 +6731,14 @@ document.addEventListener("click", async (e) => { const b = e.target.closest && 
   if (b.dataset.stpd) { b.disabled = true; if (await markPaid(x)) setTimeout(stReload, 1200); else b.disabled = false; } });
 // 5.21.117 (נועה 10:02: "במצב הרשמה יש יותר מדי כפתורים מפוזרים, תסדר אותם יפה"): הכפתורים של כל השלבים – בשורה אחת מתחת לפס, בקבוצות לפי השלב ("לקחת אשראי: … · חתימה: …")
 function stpBar(root){ if (!root) return;
-  root.querySelectorAll(".stp").forEach(stp => { const acts = [...stp.querySelectorAll(".stp-s > .stp-a")].filter(a => a.childElementCount); if (!acts.length) return;
+  root.querySelectorAll(".stp").forEach(stp => { const acts = [...stp.querySelectorAll(".stp-s > .stp-a")].filter(a => a.childElementCount), can = (stp.closest(".stp-box") || stp).querySelector(".stp-hd > .lg-can");
+    if (!acts.length && !can) return;
     let bar = stp.nextElementSibling; if (!bar || !bar.classList.contains("stp-bar")) { bar = document.createElement("div"); bar.className = "stp-bar"; stp.after(bar); }
     [...stp.querySelectorAll(".stp-s")].forEach(ss => { const a = ss.querySelector(":scope > .stp-a"), k = ss.dataset.stk; let g = bar.querySelector(`.stp-g[data-g="${k}"]`);
       if (a && a.childElementCount) { if (!g) { g = document.createElement("span"); g.className = "stp-g"; g.dataset.g = k; g.innerHTML = `<b class="stp-gl">${esc((ss.querySelector(".stp-t") || {}).textContent || "")}:</b>`; }
         while (a.firstChild) g.appendChild(a.firstChild); }
-      if (g) bar.appendChild(g); }); }); }
+      if (g) bar.appendChild(g); });
+    if (can) { can.classList.add("stp-can"); bar.appendChild(can); } }); }   // 5.21.118 (נועה 12.11: "טופס ביטול מופיע למעלה מעל הציר.. מוזר"): בסוף שורת הכפתורים, משמאל
 setTimeout(() => { const lg = $("leadGroups"); if (!lg) return; let f = 0; new MutationObserver(() => { if (!f) f = requestAnimationFrame(() => { f = 0; stpBar(lg); }); }).observe(lg, { childList: true, subtree: true }); }, 0);
 const SIG_VIA_S = { form: "בטופס ההרשמה", sign_link: "בקישור לחתימה", manual: "התקבל מחוץ למערכת", legacy: "לפני המערכת" };
 const crsFoot = (m) => { const sp = crsStepper(m); return `<div class="lg-att-slot" data-am="${m.id}"></div><div class="lg-pay-slot" data-pm="${m.id}"></div>${sp ? sp + `<div class="lg-sig-slot" data-sgcm="${m.id}" data-stp="1"></div>` : `<div class="lg-foot">${crsCanSpan(m)}</div><div class="lg-sig-slot" data-sgcm="${m.id}"></div>`}<div class="lg-can-panel" data-cpm="${m.id}" hidden></div>`; };
@@ -10752,7 +10756,7 @@ async function loadAttTable(){
     if (W.length) h += `<tr class="at-wait"><td colspan="7"><b>⚠ נרשמו ועוד לא שובצו (${W.length})</b> ${W.map(({ m, c }) => { const x = nm(m.student_id); return `<button type="button" class="at-w" data-alead="${x.l ? x.l.id : ""}" title="${m.subject ? esc(m.subject) : ""}">${esc(x.t)}${x.g ? ` <span class="muted">${esc(x.g)}</span>` : ""}${crsSch(c) ? ` <span class="muted">· ${esc(crsSch(c))}</span>` : ""}</button>`; }).join("")}</td></tr>`;
   });
   const allOpen = KEYS.length && KEYS.every(k => A.atOpen.has(k)), fOn = !!A.loc;
-  const bar = `<div class="dx-bar"><span></span><span class="dx-bar-b"><span class="muted">${KEYS.length} בתי ספר</span><button type="button" class="clear-f" id="atClr"${fOn ? "" : " disabled"}>✕ ניקוי סינון</button><button type="button" class="btn small" id="atAll">${allOpen ? "▴ סגירת כל השורות" : "▾ פתיחת כל השורות"}</button><button type="button" class="btn small" id="atXls"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span></div>`;
+  const bar = `<div class="dx-bar"><span></span><span class="dx-bar-b"><span class="muted">${KEYS.length === 1 ? "בית ספר אחד" : KEYS.length + " בתי ספר"}</span><button type="button" class="clear-f" id="atClr"${fOn ? "" : " disabled"}>✕ ניקוי סינון</button><button type="button" class="btn small" id="atAll">${allOpen ? "▴ סגירת כל השורות" : "▾ פתיחת כל השורות"}</button><button type="button" class="btn small" id="atXls"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button></span></div>`;
   box.innerHTML = any ? bar + h + `</tbody></table></div>` : `<div class="card muted">אין קבוצות להצגה.</div>`;
   $("attSum").innerHTML = "";
   if ($("atAll")) $("atAll").onclick = () => { if (allOpen) KEYS.forEach(k => A.atOpen.delete(k)); else KEYS.forEach(k => A.atOpen.add(k)); loadAttTable(); };
