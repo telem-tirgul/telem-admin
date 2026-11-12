@@ -6755,13 +6755,13 @@ function crsStepper(m){
   const recQ = "", recQ0 = c.marathon_id ? "" : `<button type="button" class="btn small" data-recq="${m.id}" title="הקמת הוראת קבע לקורס הזה – מקלידים את הכרטיס עכשיו, בלי חיוב מיידי">🔁 הוראת קבע</button>`;   // 5.21.103 (נועה 11.11): הוראת קבע בלבד – רק על קורס
   const st = (k, cls, n, t, meta, act) => `<div class="stp-s ${cls}" data-stk="${k}" data-stm="${m.id}"><span class="stp-d" aria-hidden="true">${cls === "ok" ? "✓" : n}</span><div class="stp-t">${t}</div><div class="stp-m">${meta || ""}</div><div class="stp-a">${act || ""}</div></div>`;
   if (intr) { const mo = c.marathon_id ? (CRS.mar || {})[c.marathon_id] || {} : null;
-    const act = !adm ? "" : (mo ? (mo.code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}" data-stmm="${m.id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`) + `<button type="button" class="btn small" data-mreg="${m.id}" disabled title="בקרוב – מחכה לעדכון בשרת (מנ-458)">🧾 יצירת הרשמה ידנית</button>`;   // 5.21.121 (נועה 12.11, 20:15): יצירת הרשמה ידנית – ליד טופס ההרשמה (בקרוב)
+    const act = !adm ? "" : (mo ? (mo.code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}" data-stmm="${m.id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`) + `<button type="button" class="btn small" data-stmreg="${m.id}" title="הרשמה בלי טופס – אחר כך ⌨️ הזנת כרטיס / 🔗 קישור תשלום / ✔ סימון שולם, וקישור לחתימה">🧾 יצירת הרשמה ידנית</button>`;   // 5.21.121 (נועה 12.11, 20:15): יצירת הרשמה ידנית – ליד טופס ההרשמה (בקרוב)
     return `<details class="lp-box lg-pay stp-box" open><summary><b><span class="lp-ic" aria-hidden="true">📋</span> מצב ההרשמה</b> <span class="muted stp-sum">התעניינות – עוד לא נשלח טופס</span></summary><div class="stp">`
       + st("int", "cur", 1, "התעניינות", d(m.created_at), act) + st("pay", "", 2, "תשלום", "", "") + st("sig", "par", 2, "חתימה", "במקביל לתשלום", "") + st("conf", "", 3, "נרשם", "", "") + `</div></details>`; }
   const ord = m.marathon_registration_id ? { kind: "marathon", id: m.marathon_registration_id } : m.enrollment_id ? { kind: "registration", id: m.enrollment_id } : null;
   // 5.21.118: "ממתין לתשלום" בלי הזמנה (נוסף ידנית לקורס) – אין על מה לגבות; שולחים טופס הרשמה (תנאים + חתימה + תשלום) / קישור לטופס המרתון
-  const noOrd = !reg && !ord && adm ? (c.marathon_id ? (((CRS.mar || {})[c.marathon_id] || {}).code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}" data-stmm="${m.id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`) + `<button type="button" class="btn small" data-mreg="${m.id}" disabled title="בקרוב – מחכה לעדכון בשרת (מנ-458)">🧾 יצירת הרשמה ידנית</button>` : "";
-  const payActs = noOrd || !reg && ord && adm ? noOrd || `<button type="button" class="btn small primary" data-stnow="${m.id}">⌨️ הזנת כרטיס</button><button type="button" class="btn small" data-stlk="${m.id}">🔗 קישור תשלום</button><button type="button" class="btn small" data-stpd="${m.id}">✔ סימון שולם</button>` : "";
+  const noOrd = !reg && !ord && adm ? (c.marathon_id ? (((CRS.mar || {})[c.marathon_id] || {}).code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}" data-stmm="${m.id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`) + `<button type="button" class="btn small" data-stmreg="${m.id}" title="הרשמה בלי טופס – אחר כך ⌨️ הזנת כרטיס / 🔗 קישור תשלום / ✔ סימון שולם, וקישור לחתימה">🧾 יצירת הרשמה ידנית</button>` : "";
+  const payActs = noOrd || !reg && ord && adm ? noOrd || `<button type="button" class="btn small primary" data-stnow="${m.id}">⌨️ הזנת כרטיס</button><button type="button" class="btn small" data-stlk="${m.id}">🔗 קישור תשלום</button><button type="button" class="btn small" data-stpd="${m.id}">✔ סימון שולם</button><button type="button" class="btn small" data-stmreg="${m.id}" data-ed="1" title="שינוי ההרשמה (לפני תשלום)">✎ שינוי</button><button type="button" class="btn small danger" data-stmcx="${m.id}" title="ביטול הרשמה שלא שולמה">✕ ביטול ההרשמה</button>` : "";
   const s3 = sig ? st("sig", "ok par", 2, "חתימה", esc(SIG_VIA_S[m.signed_via] || "סומן"), crsSignRow(m))
     : st("sig", "cur par", 2, "חתימה", `<span class="lc-sign-meta">במקביל לתשלום</span>`, crsSignRow(m));
   let s4 = st("conf", reg ? "ok" : "", 3, "נרשם", reg && !sig ? "✍︎ חסרה חתימה" : "", "");
@@ -6782,6 +6782,44 @@ document.addEventListener("click", (e) => { const b = e.target.closest && e.targ
   if (m && typeof PAY !== "undefined") PAY.newLink(m.student_id, "rec", m.id); });
 document.addEventListener("click", (e) => { if (e.target.closest && e.target.closest("#payNewLink") && typeof PAY !== "undefined") PAY.newBlank(); });   // 5.21.119
 setInterval(() => { const b = $("payNewLink"); if (b) b.hidden = !(typeof ME !== "undefined" && ME && ME.role === "admin"); }, 2000);
+
+// 5.21.122 (icredit-75, תש-98; נועה 12.11): יצירת הרשמה ידנית מהכרטיס (בלי טופס), שינוי וביטול של הרשמה שלא שולמה
+function mregDlg(c, m, ed){ return new Promise(async (resolve) => {
+  const mar = !!c.marathon_id; let ss = [];
+  if (mar) { try { ss = await get("sessions", "select=id,day,time_label,meeting_dates&marathon_id=eq." + c.marathon_id + "&order=id"); } catch(e) { ss = []; } }
+  const trks = (crsCat(c.category_id).tracks || ["single", "unlimited-single", "double"]).filter(t => !/summer/.test(t) || /summer/.test(mTrk(m) || ""));
+  const opt = (v, t, sel) => `<option value="${esc(v)}"${sel ? " selected" : ""}>${esc(t)}</option>`;
+  const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
+  bg.innerHTML = `<div class="ui-dlg mreg-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t">${ed ? "✎ שינוי ההרשמה" : "🧾 יצירת הרשמה ידנית"} · ${esc(crsShort(c, true))}</div>
+    ${mar ? `<label class="lbl">קבוצה במרתון</label><select data-k="session_id">${ss.length ? ss.map(x => opt(x.id, [x.time_label, x.day ? "יום " + x.day : "", (x.meeting_dates || []).map(d => fmtDM(String(d).slice(0, 10))).join(", ")].filter(Boolean).join(" · "))).join("") : opt("", "אין קבוצות במרתון")}</select>`
+      : `<label class="lbl">מסלול</label><select data-k="track">${trks.map(t => opt(t, (trkOf(t) || {}).t || CRS_TRACKS[t] || t, t === (mTrk(m) || "single"))).join("")}</select>
+         <label class="lbl">מקצוע</label><select data-k="subject">${SUBJECTS.map(x => opt(x, x, x === (m.subject || "מתמטיקה"))).join("")}</select>`}
+    ${ed ? "" : `<label class="chk"><input type="checkbox" data-disc> 🏷️ עם הנחה</label>`}
+    <div class="muted" style="font-size:12.5px;margin-top:6px">${ed ? "הסכום מחושב מחדש (רק לפני תשלום)." : "הסכום והוראת הקבע – כמו בטופס. אחר כך: ⌨️ הזנת כרטיס / 🔗 קישור תשלום / ✔ סימון שולם, וקישור לחתימה."}</div>
+    <div class="err" data-er style="color:#b3261e;min-height:1.2em;font-size:13px"></div>
+    <div class="ui-dlg-b"><button type="button" class="btn primary" data-ok>${ed ? "שמירה" : "יצירת ההרשמה"}</button><button type="button" class="btn" data-no>ביטול</button></div></div>`;
+  const tr = bg.querySelector('[data-k="track"]'), su = bg.querySelector('[data-k="subject"]');
+  const sync = () => { if (!tr || !su) return; if (tr.value === "double") { su.value = "מתמטיקה ואנגלית"; su.disabled = true; } else { su.disabled = false; if (su.value === "מתמטיקה ואנגלית") su.value = "מתמטיקה"; } };
+  if (tr) { tr.onchange = sync; sync(); }
+  const done = (v) => { bg.remove(); resolve(v); };
+  bg.querySelector("[data-no]").onclick = () => done(null); bg.addEventListener("click", (e) => { if (e.target === bg) done(null); });
+  bg.querySelector("[data-ok]").onclick = async () => { const p = {}; bg.querySelectorAll("[data-k]").forEach(x => { if (x.value) p[x.dataset.k] = x.dataset.k === "session_id" ? Number(x.value) : x.value; });
+    if (mar && !p.session_id) { bg.querySelector("[data-er]").textContent = "בוחרים קבוצה"; return; }
+    const dc = bg.querySelector("[data-disc]"); if (dc && dc.checked) { bg.hidden = true; const d = await uiDiscount(); bg.hidden = false; if (!d) return; p.discount = d; }
+    done(p); };
+  document.body.appendChild(bg); }); }
+const MREG_ERR = { "already registered": "כבר רשום/ה לקורס הזה", "session required": "בוחרים קבוצה", "unknown track": "מסלול לא מוכר", "subject required for this track": "בוחרים מקצוע", "not a registration course": "זה לא קורס של הרשמה", "only unpaid registration": "אפשר רק הרשמה שעוד לא שולמה" };
+const mregErr = (e) => { const t = String(e && e.message || e); const k = Object.keys(MREG_ERR).find(x => t.includes(x)); return k ? MREG_ERR[k] : "לא נשמר: " + t; };
+document.addEventListener("click", async (e) => { const b = e.target.closest && e.target.closest("[data-stmreg], [data-stmcx]"); if (!b || !editing || !editing.student) return; e.preventDefault(); e.stopPropagation();
+  if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; }
+  const m = crsOfStudent(editing.student.id).find(x => x.id === Number(b.dataset.stmreg || b.dataset.stmcx)), c = m && CRS.byId[m.course_id]; if (!m || !c) return;
+  if (b.dataset.stmcx) { const o = stOrdX(m); if (!o.order_id) return;
+    if (!(await uiConfirm(`לבטל את ההרשמה של ${editing.student.first_name || ""} ל${o.what}?\n(רק הרשמה שעוד לא שולמה)`, { ok: "ביטול ההרשמה", danger: true }))) return;
+    try { await rpc("staff_registration_cancel", { p_kind: o.kind, p_order: o.order_id }); toast("ההרשמה בוטלה"); stReload(); } catch(er) { toast(mregErr(er)); } return; }
+  const ed = !!b.dataset.ed, p = await mregDlg(c, m, ed); if (!p) return;
+  try { if (ed) { const o = stOrdX(m); const r = await rpc("staff_registration_update", { p_kind: o.kind, p_order: o.order_id, p }); toast("ההרשמה עודכנה" + (r && r.amount != null ? " · " + money0(r.amount) : "")); }
+    else { const r = await rpc("staff_registration_create", { p_course_member: m.id, p }); toast("נוצרה הרשמה" + (r && r.amount != null ? " · " + money0(r.amount) : "") + " – עכשיו ⌨️ הזנת כרטיס / 🔗 קישור תשלום / ✔ סימון שולם"); }
+    stReload(); } catch(er) { toast(mregErr(er)); } });
 // 5.21.115: פעולות שלב התשלום והתעניינות בכרטיס (במקום במסך התשלומים)
 const stOrdX = (m) => { const st = (editing && editing.student) || {}, c = CRS.byId[m.course_id] || {};
   return { kind: m.marathon_registration_id ? "marathon" : "registration", order_id: m.marathon_registration_id || m.enrollment_id, what: c.marathon_id ? "מרתון" : [crsCatN(c.category_id), CRS_TRK_S[mTrk(m)]].filter(Boolean).join(" – "), first_name: st.first_name || "", last_name: st.last_name || "" }; };
