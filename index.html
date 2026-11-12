@@ -4517,11 +4517,8 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
   const ncStp = (ST, st) => { const cur = Math.max(0, ST.findIndex(y => y[0] === st)); return `<div class="pl-stp" title="${esc((ST[cur] || [])[1] || st)}">${ST.map(([k, t], i) => `<span class="pl-s ${i <= cur ? "ok" : ""}"><i></i><b>${t}</b></span>`).join("")}</div>`; };   // 5.21.84: פס ההתקדמות
   // 5.21.88 (נועה 10.11: "רוצה שיהיה לי את הקישור כדי שאוכל לשלוח אותו שוב"): לכל קישור פתוח – 💬 וואטסאפ להורה, 👁 פתיחה, 🔗 העתקה
   const fam = editing.student.family || {}, pd = String(fam.parent1_phone || "").replace(/\D/g, "");
-  const share = (url, what) => { if (!url) return ""; const msg = `שלום${fam.parent1_first ? " " + fam.parent1_first : ""}, ${what} של ${editing.student.first_name || ""}: ${url} – תלם`;
-    // נועה 10.11: הסדר כמו במסכי הקישורים – העתקה (ראשון מימין), וואטסאפ, פתיחה
-    return `<span class="lk2-cell"><button type="button" class="btn small" data-copy="${esc(url)}" title="העתקת הקישור">העתקה</button>`
-      + (/^0\d{8,9}$/.test(pd) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : "")
-      + `<a class="btn small" target="_blank" rel="noopener" href="${esc(url)}" title="פתיחת הטופס – כמו שההורה רואה">👁<span class="bt-l"> פתיחה</span></a></span>`; };
+  // 5.21.122 (נועה 12.11: "תמיד אותו סט כפתורים – נראים אותו דבר ועושים אותו דבר"): כמו בטבלאות הקישורים – העתקה (קצר) · קישור מלא · וואטסאפ להורה · 👁
+  const share = (url, what) => url ? lk2Btns("", url, `שלום${fam.parent1_first ? " " + fam.parent1_first : ""}, ${what} של ${editing.student.first_name || ""}: `, "", pd) : "";
   const chip = (st) => { const c = NC_ST[st] || [st, "st-off"]; return `<span class="nc-st ${c[1]}">${esc(c[0])}</span>`; };
   // 5.21.121 (נועה 12.11: "לא צריך כל כך הרבה שורות"): שורה אחת לכל קישור; כמה קישורים זהים (אותו תיאור וסכום) – רק האחרון, השאר מקופלים
   const plOpen = pl.filter(x => !["cancelled", "paid"].includes(x.status)).sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || ""))), plSeen = new Set(), plMain = [], plOld = [];
@@ -4542,7 +4539,7 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
   rlPlace();   // 5.21.88: מחכה למשהו – פתוח
   box.hidden = !rows; { const ps = $("pwSum"); if (ps) { ps.dataset.l = pl.filter(x => x.status !== "cancelled").length || 0; pwSumPaint(); } }
   box.innerHTML = rows || "";   // 5.21.121 (נועה 12.11: "למה הניווט בתוך המסגרת? ואז לא צריך את השורה הראשונה") – "💳 תשלומים" בשורת הכותרת
-  box.querySelectorAll("[data-copy]").forEach(c => c.onclick = () => copyText(c.dataset.copy));
+  wireLk(box);   // 5.21.122: העתקה (קצר) / קישור מלא
   box.querySelectorAll("[data-pldet]").forEach(c => c.onclick = () => PAY.link(c.dataset.pldet, sid));
   box.querySelectorAll("[data-plall]").forEach(c => c.onclick = () => { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.kidAll(sid, nm); }); }
 const money0 = (x) => "₪" + Number(x || 0).toLocaleString("he-IL");
@@ -4566,7 +4563,7 @@ function rlPlace(){ const g = $("leadGroups"), P = L.rlPend; if (!g || !P || !ed
     return c && !c.marathon_id && crsCat(c.category_id).kind !== "event" && crsSeason(c.season_id).is_active; })
     || [...g.querySelectorAll(".lg-crs-box.lg-reg[data-cbm]")][0];
   if (box) { const hd = box.querySelector(":scope > .lg-crs"); if (hd) hd.insertAdjacentHTML("afterend", P.html); else box.insertAdjacentHTML("beforeend", P.html); } else g.insertAdjacentHTML("afterbegin", `<div class="lg-crs-box lg-rl-only"><div class="lg-crs"><span class="lg-crs-l"><b>תרגול שוטף</b> <span class="muted">– עוד לא נרשם/ה</span></span></div>${P.html}</div>`);
-  g.querySelectorAll(".lg-rl [data-copy]").forEach(c => c.onclick = () => copyText(c.dataset.copy)); }
+  g.querySelectorAll(".lg-rl").forEach(x => wireLk(x)); }   // 5.21.122
 // תש-62 (icredit-50): רענון הוראה אחת מאיקרדיט עכשיו (סטטוס, החיוב הבא, חיובים) – ואחרי ~5 שניות טעינה מחדש
 async function planSyncNow(p){ try { await rpc("icredit_sync_now", { p_plan: p.id }); } catch(e) { toast(/not created/.test(e.message || "") ? "ההוראה לא הוקמה באיקרדיט" : "לא רוענן: " + (e.message || "")); return false; }
   await new Promise(r => setTimeout(r, 5000)); PLANS_C = null; toast("רוענן מאיקרדיט"); return true; }   // 5.21.84: בלי מטמון ישן
@@ -4688,7 +4685,7 @@ async function crsAddDlg(l, inline, inlEx){   // 5.21.5 (נועה): inlEx – "+
       <div class="cd-reg"><label class="lbl">מסלול</label><select id="cdTr"></select></div>
       <div class="cd-st"><label class="lbl">מקצוע</label><select id="cdSu">${opt([["", "—"], ["מתמטיקה", "מתמטיקה"], ["אנגלית", "אנגלית"], ["מתמטיקה ואנגלית", "מתמטיקה ואנגלית"]])}</select></div>
       ${mem && CRS.hasSrc ? `<div class="cd-st"><label class="lbl">מקור</label><select id="cdSrc">${opt([["", "—"]].concat((L.sources || []).filter(x => x.is_active).map(x => [x.id, x.name])))}</select></div>` : ""}
-      <div class="cd-st"><label class="lbl">סטטוס</label><select id="cdSt">${opt(crsStList().map(x => x.name).filter(x => x !== "בוטל").map(x => [x, crsStOf(x).label, x === "רשום"]))}</select></div>
+      <div class="cd-st"><label class="lbl">סטטוס</label><select id="cdSt">${opt(crsStList().map(x => x.name).filter(x => x !== "בוטל").map(x => [x, crsStOf(x).label, x === "מתעניין"]))   /* 5.21.122 (נועה 12.11): ברירת מחדל – מתעניין (לא רשום) */}</select></div>
     ${false /* 5.21.121 (נועה 12.11, 20:15): "הוספה לקורס זה פשוט הוספה" – טופס הרשמה / יצירת הרשמה ידנית – בכפתורים בשלב ההתעניינות בקורס */ ? `<div class="cd-how cd-reg">   <!-- 5.21.96 (נועה 10.11, אפשרות ב): מה עושים – הסטטוס נקבע לפי הבחירה (אפור), חוץ מ"רק הוספה" -->
       <label><input type="radio" name="cdMode" value="form" checked> 📝 שליחת טופס הרשמה להורה <span class="muted">(ההורה ממלא/ת, חותם/ת ומשלם/ת)</span></label>
       <span class="cd-trial"><label><input type="checkbox" id="cdTrial"> 🎁 חודש ניסיון</label><label class="cd-td" hidden>מתאריך <input type="date" id="cdTrialD"></label></span>
@@ -6569,12 +6566,12 @@ async function loadLeadCancel(l){
   // 5.21.121 (נועה 12.11: "למה זה כתוב כל כך גדול והרבה פעמים?") – שורה אחת לכל טופס; כמה קישורים שנשלחו לאותו קורס ועוד לא נחתמו – רק האחרון, השאר מקופלים
   const canRow = (r) => `<div class="can-row" data-cm="${r.course_member_id || ""}"><span class="can-t"><b>${esc(CAN_ST[r.status] || r.status)}</b> · ${esc([canCrs(r), r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · "))} <small class="muted">${esc(fmtDate(r.created_at))}${r.reason ? " · סיבה: " + esc(r.reason) : ""}</small></span><span class="can-a">`
       + (r.status === "נחתם" ? `<button type="button" class="btn small" data-cpdf="${r.id}">📄 הטופס החתום</button><button type="button" class="btn small primary" data-capprove="${r.id}">אישור ביטול</button>` : "")
-      + (r.status === "נשלח" ? `<button type="button" class="btn small" data-copy="${esc(lkCancel(r.token))}">העתקה</button>${/^0\d{8,9}$/.test(ph) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${ph.slice(1)}?text=${encodeURIComponent("שלום, מצורף טופס הביטול של " + l.student.first_name + " לחתימה: " + lkCancel(r.token))}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}` : "") + `</span></div>`;
+      + (r.status === "נשלח" ? lk2Btns("", lkCancel(r.token), "שלום, מצורף טופס הביטול של " + (l.student.first_name || "") + " לחתימה: ", "", ph) : "") + `</span></div>`;
   const seen = new Set(), main = [], old = [];
   rows.forEach(r => { const k = r.status === "נשלח" ? "s|" + (r.course_member_id || [r.school, r.track, r.subject].join("|")) : null; if (k && seen.has(k)) old.push(r); else { if (k) seen.add(k); main.push(r); } });
   box.innerHTML = main.map(canRow).join("") + (old.length ? `<details class="can-old"><summary class="muted">עוד ${old.length === 1 ? "קישור ישן אחד" : old.length + " קישורים ישנים"} שלא נחתמו</summary>${old.map(canRow).join("")}</details>` : "")
     + `<button type="button" class="btn small" id="canNew" style="margin-top:6px;">+ טופס ביטול</button><div id="canForm"></div>`;
-  box.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
+  wireLk(box);   // 5.21.122: אותו סט כפתורים
   box.querySelectorAll("[data-cpdf]").forEach(b => b.onclick = async () => {
     try { const r = (await get("cancellation_requests", "select=pdf&id=eq." + b.dataset.cpdf))[0];
           if (!r || !r.pdf) { toast("אין PDF לבקשה הזאת"); return; }
@@ -12655,13 +12652,13 @@ const lkRow = (name, u, msg, extra) => `<div class="lk-row"><span class="lk-name
 // 5.19.132 (נועה 25.10): קישור קצר ב-TinyURL (פונקציה short-link + טבלה short_links, קובץ 111). קישור שכבר קוצר – "העתקה" ו"וואטסאפ" משתמשים בקצר.
 let SHORT = null, SHORT_P = null;
 const shortOf = (u) => (SHORT && SHORT[u]) || "";
-const lk2Btns = (label, u, msg, sw) => { const sh = shortOf(u), uu = sh || u, canS = ME.role === "admin";
+const lk2Btns = (label, u, msg, sw, ph) => { const sh = shortOf(u), uu = sh || u, canS = ME.role === "admin", wp = /^0\d{8,9}$/.test(String(ph || "")) ? "972" + String(ph).slice(1) : "";   // 5.21.122: ph – וואטסאפ ישר להורה
   // 5.19.133 (נועה 25.10): "העתקה" (הכי בימין) = הקישור הקצר (נוצר בלחיצה הראשונה); "קישור מלא" = הכתובת הרגילה; אחר כך וואטסאפ ו-👁
-  return `<span class="lk2-cell${sw ? " has-sw" : ""}" data-u="${esc(u)}" data-msg="${esc(msg)}"><span class="lk2-l">${label}</span><button type="button" class="btn small" ${canS ? "data-scopy" : `data-copy="${esc(uu)}"`} title="${esc(sh || (canS ? "העתקת קישור קצר (TinyURL)" : u))}">העתקה</button><button type="button" class="btn small" data-copy="${esc(u)}" title="${esc(u)}">קישור מלא</button><a class="btn small" data-wa target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg + uu)}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a>${sw || ""}</span>`; };
+  return `<span class="lk2-cell${sw ? " has-sw" : ""}" data-u="${esc(u)}" data-msg="${esc(msg)}"${wp ? ` data-wp="${wp}"` : ""}><span class="lk2-l">${label}</span><button type="button" class="btn small" ${canS ? "data-scopy" : `data-copy="${esc(uu)}"`} title="${esc(sh || (canS ? "העתקת קישור קצר (TinyURL)" : u))}">העתקה</button><button type="button" class="btn small" data-copy="${esc(u)}" title="${esc(u)}">קישור מלא</button><a class="btn small" data-wa target="_blank" rel="noopener" href="https://wa.me/${wp}?text=${encodeURIComponent(msg + uu)}" title="וואטסאפ" aria-label="וואטסאפ">${WA_IC}</a><a class="btn small" target="_blank" rel="noopener" href="${esc(lkPreview(u))}" title="תצוגה מקדימה">👁</a>${sw || ""}</span>`; };
 function lkApplyShort(root){
   root.querySelectorAll(".lk2-cell[data-u]").forEach(c => { const sh = shortOf(c.dataset.u); if (!sh) return;
     const cp = c.querySelector("[data-scopy]"); if (cp) cp.title = sh;
-    const wa = c.querySelector("a[data-wa]"); if (wa) wa.href = "https://wa.me/?text=" + encodeURIComponent((c.dataset.msg || "") + sh); });
+    const wa = c.querySelector("a[data-wa]"); if (wa) wa.href = "https://wa.me/" + (c.dataset.wp || "") + "?text=" + encodeURIComponent((c.dataset.msg || "") + sh); });
 }
 async function makeShort(u){
   const t = await token();
