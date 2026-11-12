@@ -3008,6 +3008,14 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
 .disc-dlg .err{ color:#b3261e; min-height:1.2em; font-size:13px; }
 .ro-leads.ro-sec{ margin-top:12px; }
 li.ro-lead{ opacity:.75; border-style:dashed !important; }
+#leadCan .can-row, .can-row{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:4px 10px; padding:5px 0; border-bottom:1px solid var(--border); font-size:13px; }
+.can-row .can-a{ display:flex; gap:6px; flex-wrap:wrap; margin-inline-start:auto; }
+.can-old > summary{ cursor:pointer; font-size:12.5px; padding:4px 0; }
+#view-lead .lc-nocrs .pl-stp{ display:none !important; }   /* 5.21.121: בכרטיס – רק הסטטוס, בלי פס השלבים */
+#view-lead .lc-nocrs .nc-row{ padding:5px 2px; font-size:13px; }
+#view-lead .lc-nocrs .nc-what{ display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 8px; } #view-lead .lc-nocrs .nc-what .muted{ font-size:12px; }
+.ib-n .ib-sch{ font-size:11.5px; padding:0 8px; margin-inline-start:4px; vertical-align:1px; }
+.gdg-mv{ color:#8A5A00; font-weight:700; }
 </style>
 </head>
 <body>
@@ -4500,11 +4508,15 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
       + (/^0\d{8,9}$/.test(pd) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : "")
       + `<a class="btn small" target="_blank" rel="noopener" href="${esc(url)}" title="פתיחת הטופס – כמו שההורה רואה">👁<span class="bt-l"> פתיחה</span></a></span>`; };
   const chip = (st) => { const c = NC_ST[st] || [st, "st-off"]; return `<span class="nc-st ${c[1]}">${esc(c[0])}</span>`; };
-  const rows = pl.filter(x => !["cancelled", "paid"].includes(x.status)).slice(0, 8).map(x => `<div class="nc-row">
+  // 5.21.121 (נועה 12.11: "לא צריך כל כך הרבה שורות"): שורה אחת לכל קישור; כמה קישורים זהים (אותו תיאור וסכום) – רק האחרון, השאר מקופלים
+  const plOpen = pl.filter(x => !["cancelled", "paid"].includes(x.status)).sort((a, b) => String(b.created_at || "").localeCompare(String(a.created_at || ""))), plSeen = new Set(), plMain = [], plOld = [];
+  plOpen.forEach(x => { const k = [x.description, x.one_time_amount, x.monthly_amount, x.monthly_count, x.recurring_only].join("|"); if (plSeen.has(k)) plOld.push(x); else { plSeen.add(k); plMain.push(x); } });
+  const plRow = (x) => `<div class="nc-row">
       <div class="nc-what"><b>${esc(x.description || "קישור אישי")}</b><span class="muted">קישור תשלום · נוצר ${dm(x.created_at)}${x.status === "paid" && x.paid_at ? ` · שולם ${dm(x.paid_at)}` : ""}</span></div>
       <div class="nc-amt">${x.recurring_only ? `🔁 ${money0(x.monthly_amount)} × ${x.monthly_count}` : money0(x.one_time_amount)}${!x.recurring_only && x.monthly_amount ? `<span class="muted"> + ${money0(x.monthly_amount)} × ${x.monthly_count}</span>` : ""}</div>
       ${chip(x.status)}${x.status === "cancelled" ? "" : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["submitted", "מולא"], ["paid", "שולם"]], x.status)}
-      <div class="nc-b">${["sent", "opened", "submitted"].includes(x.status) ? share(x.url, "קישור התשלום") : ""}<button type="button" class="btn small" data-pldet="${esc(x.code)}">פרטים</button></div></div>`)
+      <div class="nc-b">${["sent", "opened", "submitted"].includes(x.status) ? share(x.url, "קישור התשלום") : ""}<button type="button" class="btn small" data-pldet="${esc(x.code)}">פרטים</button></div></div>`;
+  const rows = plMain.map(plRow).concat(plOld.length ? [`<details class="can-old"><summary class="muted">עוד ${plOld.length === 1 ? "קישור זהה אחד" : plOld.length + " קישורים זהים"} שלא שולמו</summary>${plOld.map(plRow).join("")}</details>`] : [])
     .concat([].map(x => `<div class="nc-row">
       <div class="nc-what"><b>${x.trial ? "🎁 חודש ניסיון – טופס הרשמה אישי" : "טופס הרשמה אישי"}</b><span class="muted">${esc(x.city || "")}${x.city ? " · " : ""}${x.trial && x.trial_start ? "מתחיל " + dm(x.trial_start) + " · " : ""}נשלח ${dm(x.created_at)} – כשההורה ממלא/ה, נכנס/ת לקורס</span></div>
       <div class="nc-amt"></div>${x.status === "expired" ? chip(x.status) : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}
@@ -6539,10 +6551,13 @@ async function loadLeadCancel(l){
   CAN_ROWS[l.student.id] = rows; canPaint(l.student.id);
   const f = l.student.family || {}, ph = digits(f.parent1_phone || "");
   { const rest = rows.filter(r => !r.course_member_id); box.dataset.sum = rest.length ? `${rest.length === 1 ? "טופס ביטול אחד" : rest.length + " טפסי ביטול"} · האחרון: ${CAN_ST[rest[0].status] || rest[0].status}` : ""; }   // 5.19.41: תקציר קצר; נועה 8.11: רק מה שלא בתוך קורס
-  box.innerHTML = rows.map(r => `<div class="can-row" data-cm="${r.course_member_id || ""}" style="border-bottom:1px solid var(--border); padding:6px 0;"><b>${esc(CAN_ST[r.status] || r.status)}</b> · ${esc([canCrs(r), r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · "))}
-      <div class="muted">${esc(fmtDate(r.created_at))}${r.reason ? " · סיבה: " + esc(r.reason) : ""}</div>
-      ${r.status === "נחתם" ? `<div style="display:flex; gap:6px; margin-top:4px;"><button type="button" class="btn small" data-cpdf="${r.id}">הטופס החתום (PDF)</button><button type="button" class="btn small primary" data-capprove="${r.id}">אישור ביטול</button></div>` : ""}
-      ${r.status === "נשלח" ? `<div style="display:flex; gap:6px; margin-top:4px;"><button type="button" class="btn small" data-copy="${esc(lkCancel(r.token))}">העתקת הקישור</button>${/^0\d{8,9}$/.test(ph) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${ph.slice(1)}?text=${encodeURIComponent("שלום, מצורף טופס הביטול של " + l.student.first_name + " לחתימה: " + lkCancel(r.token))}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}</div>` : ""}</div>`).join("")
+  // 5.21.121 (נועה 12.11: "למה זה כתוב כל כך גדול והרבה פעמים?") – שורה אחת לכל טופס; כמה קישורים שנשלחו לאותו קורס ועוד לא נחתמו – רק האחרון, השאר מקופלים
+  const canRow = (r) => `<div class="can-row" data-cm="${r.course_member_id || ""}"><span class="can-t"><b>${esc(CAN_ST[r.status] || r.status)}</b> · ${esc([canCrs(r), r.school, TRACK_T(r.track), r.subject].filter(Boolean).join(" · "))} <small class="muted">${esc(fmtDate(r.created_at))}${r.reason ? " · סיבה: " + esc(r.reason) : ""}</small></span><span class="can-a">`
+      + (r.status === "נחתם" ? `<button type="button" class="btn small" data-cpdf="${r.id}">📄 הטופס החתום</button><button type="button" class="btn small primary" data-capprove="${r.id}">אישור ביטול</button>` : "")
+      + (r.status === "נשלח" ? `<button type="button" class="btn small" data-copy="${esc(lkCancel(r.token))}">העתקה</button>${/^0\d{8,9}$/.test(ph) ? `<a class="btn small" target="_blank" rel="noopener" href="https://wa.me/972${ph.slice(1)}?text=${encodeURIComponent("שלום, מצורף טופס הביטול של " + l.student.first_name + " לחתימה: " + lkCancel(r.token))}" title="וואטסאפ להורה" aria-label="וואטסאפ להורה">${WA_IC}</a>` : ""}` : "") + `</span></div>`;
+  const seen = new Set(), main = [], old = [];
+  rows.forEach(r => { const k = r.status === "נשלח" ? "s|" + (r.course_member_id || [r.school, r.track, r.subject].join("|")) : null; if (k && seen.has(k)) old.push(r); else { if (k) seen.add(k); main.push(r); } });
+  box.innerHTML = main.map(canRow).join("") + (old.length ? `<details class="can-old"><summary class="muted">עוד ${old.length === 1 ? "קישור ישן אחד" : old.length + " קישורים ישנים"} שלא נחתמו</summary>${old.map(canRow).join("")}</details>` : "")
     + `<button type="button" class="btn small" id="canNew" style="margin-top:6px;">+ טופס ביטול</button><div id="canForm"></div>`;
   box.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
   box.querySelectorAll("[data-cpdf]").forEach(b => b.onclick = async () => {
@@ -6947,7 +6962,7 @@ async function loadLeadGroups(studentId){
         <div class="lg-edit" data-ed="${a.id}" hidden></div></div>`;
     };
     { LG_OLD = ""; const h = await crsGroupsHtml(studentId, cur, lgCard); if (stale()) return; parkTrack(); $("leadGroups").innerHTML = h; $("leadLoading").hidden = true; rlPlace();
-      { const ob = $("leadOldCrs"); if (ob) { ob.innerHTML = LG_OLD || "<span class='muted'>אין קורסים קודמים.</span>"; { const n = ob.querySelectorAll(".lc-old-r").length; ob.dataset.sum = LG_OLD ? (n === 1 ? "קורס אחד" : n + " קורסים") : "אין"; } }   // 5.21.121 (נועה 12.11: "למה כתוב שאין?" – התקציר מהקורסים הקודמים, לא מה-CRM הישן) }
+      { const ob = $("leadOldCrs"); if (ob) { ob.innerHTML = LG_OLD || "<span class='muted'>אין קורסים קודמים.</span>"; { const n = ob.querySelectorAll(".lc-old-r").length; ob.dataset.sum = LG_OLD ? (n === 1 ? "קורס אחד" : n + " קורסים") : "אין"; } } }   // 5.21.121 (נועה 12.11: "למה כתוב שאין?" – התקציר מהקורסים הקודמים, לא מה-CRM הישן)
       sigSlotsPaint(); lgFold(studentId);
       { const ab = $("leadGroups").querySelector("[data-lgaddcrs]"); if (ab) ab.onclick = () => { const b = $("lcAdd"); if (b) b.click(); }; }
       const rb = $("leadGroups").querySelector("[data-crsretry]"); if (rb) rb.onclick = () => loadLeadGroups(studentId); }   // 5.19.162: פרטי הקורס מעל השיבוצים
@@ -9648,6 +9663,8 @@ async function ibNames(rows){
   if (mids.length) { try { (await get("marathons", "select=id,name,school&id=in.(" + mids.join(",") + ")")).forEach(m => IB.mars[m.id] = m); } catch(e) {} }
 }
 // 5.19.124 (נועה): השם בהתראה תמיד לחיץ – גם אם הכרטיס עוד לא נטען (לא פעיל / הרשימה עוד נטענת): מחכים לו ואז פותחים
+// 5.21.121 (נועה 12.11: "לכתוב את בית הספר של הילד בצבע המתאים ליד השם – כדי שנדע מאיפה הוא")
+const ibSch = (r, lead) => { const d = r.data || {}, p = d.payload || {}, sc = String((lead && lead.student && lead.student.school) || d.school || p.school || "").trim(); return sc ? ` <span class="school-chip ib-sch ${scCls(sc)}" title="בית ספר">${esc(sc)}</span>` : ""; };
 const ibNameLink = (r, lead) => lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : r.student_id ? `<a class="name-link" data-ibsid="${r.student_id}">${esc(ibName(r))}</a>` : esc(ibName(r));
 async function ibOpenStudent(sid, el){
   const find = () => (L.leads || []).find(l => Number(l.student_id) === Number(sid));
@@ -9772,8 +9789,10 @@ function ibGdGroup(g, when){
     if (TL.has(k) || [...TL.keys()].some(x => x.startsWith(d + "|"))) return; TL.set(k, 0); });   // אותו יום כבר נספר (נוכחות או התראה אחרת)
   const tl = [...TL.entries()].map(([k, v]) => [k, v]);
   let run = 0, maxRun = 0; tl.sort((a, b) => a[0].localeCompare(b[0])).forEach(([, v]) => { run = v ? 0 : run + 1; if (run > maxRun) maxRun = run; });
-  const streak = maxRun > 2 ? `<span class="gdg-streak">⚠ החסיר/ה ${maxRun} פעמים ברצף – לבדיקה</span>` : "";
-  const sum2 = [streak, ms.length ? `<span class="gdg-no">✗ ${ms.length === 1 ? "פעם אחת" : ms.length + " פעמים"} לא בקבוצה הקבועה</span>` : "", ad.length ? `<span class="gdg-ok">✓ ${ad.length === 1 ? "פעם אחת" : ad.length + " פעמים"} בקבוצה אחרת</span>` : "", pat.length ? `<span>⟳ אולי שיבוץ קבוע אחר</span>` : ""].filter(Boolean).join(" · ");
+  // 5.21.121 (נועה 12.11: "אפשר לקצר? רק שתי התראות"): (1) החסיר/ה X פעמים ברצף; (2) הגיע/ה לקבוצה אחרת במקום לקבוצה שלו/ה יותר מפעמיים ברצף (שבועות) – כדאי להעביר קבוצה קבועה
+  const streak = maxRun > 2 ? `<span class="gdg-streak">⚠ החסיר/ה ${maxRun} פעמים ברצף</span>` : "";
+  let swR = 0, swMax = 0; [...W.entries()].sort(([a], [b]) => a.localeCompare(b)).forEach(([, x]) => { swR = x.came.length && x.miss.length ? swR + 1 : 0; if (swR > swMax) swMax = swR; });
+  const sum2 = [streak, swMax > 2 ? `<span class="gdg-mv">⟳ כדאי להעביר קבוצה קבועה <small class="muted">(${swMax} פעמים ברצף בקבוצה אחרת)</small></span>` : ""].filter(Boolean).join(" · ");
   return `<div class="ib-gd gdg ${done ? "handled" : g.some(r => r.status === "new") ? "new" : "seen"}${gOpen ? " gd-open" : ""}" data-ib="${r0.id}">
     <div class="gdg-h" data-gdtg="${r0.student_id}" role="button" tabindex="0" aria-expanded="${gOpen}" title="לחיצה – הפרטים לפי שבועות"><span class="ib-ic" title="נוכחות מול הקבוצה"><span class="gdg-car" aria-hidden="true"></span>🗓️</span><b class="ib-gd-n">${ibNameLink(r0, lead)}</b><span class="ib-k gdg-k">מול הקבוצה הקבועה</span>
       <span class="gdg-sum">${head}</span><span class="gdg-sum2">${sum2}</span><small class="ib-time">${esc(when(g[g.length - 1].created_at))}</small>
@@ -9912,7 +9931,7 @@ async function renderInbox(reload){
       + (iss.length || (r.flags || []).includes("mismatch") ? `<button type="button" class="ib-tag t-warn" data-ibx="${r.id}" title="לחיצה – מה כתוב אצלנו ומה בטופס">⚠ ${esc(ibIssTxt(iss))} ▾</button>` : "");
     return `<div class="ib-row ${ibCls(r.status)}${w ? " warn" : ""}" data-ib="${r.id}">
       <span class="ib-ic" title="${esc(k[1])}">${k[0]}</span><span class="ib-k">${esc(k[1])}</span>
-      <span class="ib-n">${ibNameLink(r, lead)}</span>
+      <span class="ib-n">${ibNameLink(r, lead)}${ibSch(r, lead)}</span>
       <span class="ib-w" title="${esc(ibWhat(r))}">${esc(ibWhat(r))}</span><span class="ib-tags">${tags}</span>
       <span class="ib-time">${esc(when(r.created_at))}</span>
       <span class="ib-acts">${(r.flags || []).includes("track_change") && r.status !== "handled" && ME.role === "admin" && (r.data || {}).existing_id ? `<button type="button" class="btn small primary" data-ibtrk="${r.id}" title="לשנות את המסלול / המקצוע בהרשמה הקיימת (בלי הרשמה חדשה)">⇄ שינוי מסלול</button>` : ""}${r.kind === "deleted" ? `<button type="button" class="btn small" data-ibdel="${r.id}" title="כל מה שהיה בכרטיס">📄 כל הפרטים</button>` : ""}${r.kind === "material" && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibmat="${r.id}" title="לצרף את החומר למבחן מלוח המבחנים">לשייך למבחן</button>` : ""}${r.kind === "payment" && ((r.flags || []).includes("plan_withdrawn") || r.ref_table === "plan_mismatch") && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary nav-b" data-ibplan="${r.student_id}" title="מסך התשלומים – השורה של הוראת הקבע (הביטול עצמו – בריווחית)">💳 תשלומים</button>` : ""}${r.kind === "payment" && (r.flags || []).includes("phone_pending") && r.status !== "handled" && (r.data || {}).order_id ? `${r.student_id ? `<button type="button" class="btn small nav-b" data-ibsid="${r.student_id}">👤 כרטיס תלמיד</button>` : ""}<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${r.kind === "unassigned" && r.student_id && r.status !== "handled" ? `<button type="button" class="btn small primary nav-b" data-ibsid="${r.student_id}">👤 כרטיס תלמיד</button>` : ""}${r.kind === "portal_code" && r.student_id && r.status !== "handled" && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibts="${r.id}">🔑 קוד חדש</button>` : ""}${ibPlan(r) ? (planMarked(ibPlan(r)) ? `<span class="muted ib-cx">✓ סומנה "בוטלה"</span>` : planMarkBtns(ibPlan(r), "ibcx").replace('data-ibcx="mark"', `data-ibcx="${esc(r.ref_id)}"`)) : ""}${r.student_id && ((r.flags || []).includes("possible_duplicate") || (r.issues || []).some(x => IB_DUPF.includes(x.field))) ? (ibMerged(r) ? `<span class="ib-tag t-new" title="${esc((r.data || {}).merged_at ? fmtDate((r.data || {}).merged_at) : "הכרטיס הכפול כבר לא קיים")}">✓ בוצע איחוד</span>` : ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibm="${r.student_id}">🔀 השוואה ואיחוד</button>` : "") : ""}${pr && ME.role === "admin" ? `<button type="button" class="btn small primary" data-ibpaid="${pr.id}">✔ שולם</button>` : !pr && ME.role === "admin" && (r.kind === "marathon" || r.kind === "registration") && (r.flags || []).includes("phone_pending") && r.status !== "handled" ? `<button type="button" class="btn small primary" data-ibpaid="${r.id}">✔ שולם</button>` : ""}${dd.length && ME.role === "admin" && r.status !== "handled" ? `<button type="button" class="btn small" data-ibdupx="${r.id}" title="ההרשמות הקודמות יסומנו &quot;בוטל&quot; – נשארת האחרונה">ביטול הכפולה</button>` : ""}${(() => { const act = w || pr || pi || r.kind === "marathon" || r.kind === "registration" || (r.flags || []).includes("blocked_already") || (r.flags || []).includes("blocked_review") || (r.flags || []).includes("status_mismatch");
