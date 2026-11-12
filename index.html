@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.114">
+<meta name="app-version" content="5.21.115">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1949,6 +1949,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .stp-s{ position:relative; padding:22px 4px 4px; text-align:center; font-size:13px; color:#888; min-width:0; }
 .stp-s::before{ content:""; position:absolute; top:11px; left:50%; right:-50%; height:3px; background:#E4DCD3; } .stp-s:first-child::before{ display:none; }
 .stp-s.ok::before, .stp-s.cur::before{ background:var(--ok,#4ea30c); }
+.stp-s.par::before{ background:repeating-linear-gradient(90deg, #C9BBAA 0 5px, transparent 5px 9px) !important; }   /* 5.21.115: חתימה – במקביל לתשלום (קו מקווקו) */
 .stp-d{ position:absolute; top:1px; right:calc(50% - 12px); width:24px; height:24px; box-sizing:border-box; border-radius:50%; background:#fff; border:2px solid #D5CBC0; display:grid; place-items:center; font-size:12px; font-weight:800; color:#999; z-index:1; }
 .stp-s.ok .stp-d{ background:var(--ok,#4ea30c); border-color:var(--ok,#4ea30c); color:#fff; }
 .stp-s.cur .stp-d{ border-color:#2b4aa3; color:#2b4aa3; box-shadow:0 0 0 4px rgba(43,74,163,.14); }
@@ -6420,9 +6421,8 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
           tEl.textContent = x.paid_before ? "לוודא תשלום" : "לקחת אשראי";
           if (x.paid_before) { const cb = g.querySelector(`[data-cbm="${ps.dataset.stm}"]`); if (cb) [...cb.querySelectorAll("span,b,button")].filter(e => !e.children.length && e.textContent.trim() === "לקחת אשראי" && !e.closest(".stp")).forEach(e => { e.textContent = "לוודא תשלום"; }); }
           mEl.innerHTML = (x.paid_before ? "ההורה סימן \"שולם טלפונית\"" + (x.amount ? " · " : "") : "") + (x.amount ? fmtMoney(x.amount) : "") + (x.monthly_amount ? " + " + fmtMoney(x.monthly_amount) + " לחודש" : "");
-          aEl.innerHTML = `<button type="button" class="btn small primary" data-stpaid="${i}">✔ שולם</button>`;
-          aEl.querySelector("[data-stpaid]").onclick = async (e) => { const bt = e.currentTarget; bt.disabled = true;
-            if (await markPaid(x)) { setTimeout(() => { if (editing && editing.id === l.id) { loadLeadPayments(l); loadLeadGroups(l.student.id); const nl = L.leads.find(y => y.id === l.id); if (nl) { } } }, 1500); } else bt.disabled = false; }; }
+          /* 5.21.115: הכפתורים (⌨️ / 🔗 / ✔) כבר בשלב – מ-crsStepper */ }
+        if (ps.classList.contains("ok") && b.regs.length && ME.role === "admin" && !aEl.querySelector("[data-unpaid]")) { aEl.insertAdjacentHTML("beforeend", `<button type="button" class="btn small" data-unpaid="${b.regs[0]}">↩ ביטול "שולם"</button>`); wire(ps); }   // 5.21.115 (נועה 09:32): ביטול "שולם" – בכרטיס, ליד השלב
         else if (ps.classList.contains("ok")) { const rg = b.regs.length ? paidRegs[b.regs[0]] : null, r1 = b.rows.map(i => rows[i]).filter(r => r.status === "אושר" && r.kind !== "חיוב חודשי").pop();
           mEl.textContent = rg ? "סומן ידנית · " + dm(rg.at) : r1 ? "אשראי · " + dm(r1.date) : ""; } });
     } };
@@ -6682,28 +6682,48 @@ function crsHead(m){ const c = CRS.byId[m.course_id] || {};
 const crsCanSpan = (m) => ME.role === "instructor" ? "" : `<span class="lg-can" data-cnm="${m.id}"><span class="lg-can-st"></span><button type="button" class="btn small" data-cnew="${m.id}" title="טופס ביטול לקורס הזה – ההורה רק חותם/ת">✕ טופס ביטול</button></span>`;
 /* 5.21.9 (נועה 4.11): פס שלבים לכל קורס – הרשמה ← תשלום ← חתימה ← אישור להורה. השלב הנוכחי בכחול, והכפתור שלו רק מתחתיו (לא זז). כמו שופיפיי: סטטוס לכל שלב + הפעולה הבאה */
 function crsStepper(m){
-  if (ME.role === "instructor" || !["רשום", "ממתין לתשלום"].includes(m.status)) return "";
+  if (ME.role === "instructor" || !["רשום", "ממתין לתשלום", "מתעניין"].includes(m.status)) return "";
   const reg = m.status === "רשום", sig = m.signed === true, c = CRS.byId[m.course_id] || {}, d = (x) => x ? fmtDM(String(x).slice(0, 10)) : "";
+  // 5.21.115 (נועה 12.11 – עץ החלטות): התעניינות → תשלום ∥ חתימה (מקבילים) → נרשם; מכל שלב – רק הכפתורים שמתאימים לו. כל ההרשמה – בכרטיס
+  const intr = m.status === "מתעניין", adm = ME.role === "admin";
   const recQ = c.marathon_id ? "" : `<button type="button" class="btn small" data-recq="${m.id}" title="הקמת הוראת קבע לקורס הזה – מקלידים את הכרטיס עכשיו, בלי חיוב מיידי">🔁 הוראת קבע</button>`;   // 5.21.103 (נועה 11.11): הוראת קבע בלבד – רק על קורס
   const st = (k, cls, n, t, meta, act) => `<div class="stp-s ${cls}" data-stk="${k}" data-stm="${m.id}"><span class="stp-d" aria-hidden="true">${cls === "ok" ? "✓" : n}</span><div class="stp-t">${t}</div><div class="stp-m">${meta || ""}</div><div class="stp-a">${act || ""}</div></div>`;
-  const s3 = sig ? st("sig", "ok", 3, "חתימה", esc(SIG_VIA_S[m.signed_via] || "סומן"), crsSignRow(m))
-    : st("sig", reg ? "cur" : "", 3, "חתימה", `<span class="lc-sign-meta"></span>`, crsSignRow(m));
-  let s4 = st("conf", "", 4, "אישור להורה", "", "");
+  if (intr) { const mo = c.marathon_id ? (CRS.mar || {})[c.marathon_id] || {} : null;
+    const act = !adm ? "" : mo ? (mo.code ? `<button type="button" class="btn small primary" data-stmar="${c.marathon_id}">🏁 קישור לטופס המרתון</button>` : "") : `<button type="button" class="btn small primary" data-cardlk="reg">📝 טופס הרשמה</button>`;
+    return `<details class="lp-box lg-pay stp-box" open><summary><b><span class="lp-ic" aria-hidden="true">📋</span> מצב ההרשמה</b> <span class="muted stp-sum">התעניינות – עוד לא נשלח טופס</span></summary><div class="stp">`
+      + st("int", "cur", 1, "התעניינות", d(m.created_at), act) + st("pay", "", 2, "תשלום", "", "") + st("sig", "par", 2, "חתימה", "במקביל לתשלום", "") + st("conf", "", 3, "נרשם", "", "") + `</div></details>`; }
+  const ord = m.marathon_registration_id ? { kind: "marathon", id: m.marathon_registration_id } : m.enrollment_id ? { kind: "registration", id: m.enrollment_id } : null;
+  const payActs = !reg && ord && adm ? `<button type="button" class="btn small primary" data-stnow="${m.id}">⌨️ הזנת כרטיס</button><button type="button" class="btn small" data-stlk="${m.id}">🔗 קישור תשלום להורה</button><button type="button" class="btn small" data-stpd="${m.id}">✔ שולם</button>` : "";
+  const s3 = sig ? st("sig", "ok par", 2, "חתימה", esc(SIG_VIA_S[m.signed_via] || "סומן"), crsSignRow(m))
+    : st("sig", "cur par", 2, "חתימה", `<span class="lc-sign-meta">במקביל לתשלום</span>`, crsSignRow(m));
+  let s4 = st("conf", reg ? "ok" : "", 3, "נרשם", reg && !sig ? "✍︎ חסרה חתימה" : "", "");
   if (reg && sig) { const l0 = L.leads.find(x => x.student && x.student.id === m.student_id), s0 = (l0 && l0.student) || {}, f = s0.family || {};
     const lab = c.marathon_id ? crsCatN(c.category_id) : [crsCatN(c.category_id), CRS_TRK_S[mTrk(m)]].filter(Boolean).join(" – ");
     const msg = `שלום${f.parent1_first ? " " + f.parent1_first : ""}, ההרשמה של ${s0.first_name || ""} ל${lab} אושרה ✓ התשלום התקבל והטופס נחתם. נתראה! תלם`;
     const pd = String(f.parent1_phone || "").replace(/\D/g, ""), wa = /^0\d{8,9}$/.test(pd) ? `https://wa.me/972${pd.slice(1)}?text=${encodeURIComponent(msg)}` : "";
-    s4 = st("conf", "cur", 4, "אישור להורה", "הסטטוס: נרשם", wa ? `<a class="btn small stp-wa" target="_blank" rel="noopener" href="${esc(wa)}">💬 שליחת אישור</a>` : `<button type="button" class="btn small" data-copy="${esc(msg)}">⧉ העתקת האישור</button>`); }
+    s4 = st("conf", "ok", 3, "נרשם", "אישור להורה:", wa ? `<a class="btn small stp-wa" target="_blank" rel="noopener" href="${esc(wa)}">💬 שליחת אישור</a>` : `<button type="button" class="btn small" data-copy="${esc(msg)}">⧉ העתקת האישור</button>`); }
   // נועה 7.11: מסגרת מכווצת, כמו התשלומים – בשורה המקופלת תקציר; פתוחה כשעוד חסר משהו (תשלום / חתימה)
   const done = reg && sig, sum = done ? "✓ נרשם · שולם · נחתם" : [reg ? "✓ שולם" : "⏳ לקחת אשראי", sig ? "✓ נחתם" : "✍︎ חסרה חתימה"].join(" · ");
   return `<details class="lp-box lg-pay stp-box"${done ? "" : " open"}><summary><b><span class="lp-ic" aria-hidden="true">📋</span> מצב ההרשמה</b> <span class="${done ? "ok-txt" : "muted"} stp-sum">${sum}</span></summary><div class="stp-hd">${crsCanSpan(m)}</div><div class="stp">`
     + st("reg", "ok", 1, "הרשמה", d(m.created_at), "")
-    + (reg ? st("pay", "ok", 2, "שולם", "", recQ) : st("pay", "cur", 2, "לקחת אשראי", "", recQ))
+    + (reg ? st("pay", "ok", 2, "שולם", "", recQ) : st("pay", "cur", 2, "לקחת אשראי", "", payActs + recQ))
     + s3 + s4 + `</div></details>`;
 }
 document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-recq]"); if (!b) return;   // 5.21.103: הוראת קבע בלבד מהקורס
   const m = (typeof editing === "object" && editing && editing.student) ? crsOfStudent(editing.student.id).find(x => x.id === Number(b.dataset.recq)) : null;
   if (m && typeof PAY !== "undefined") PAY.newLink(m.student_id, "rec", m.id); });
+// 5.21.115: פעולות שלב התשלום והתעניינות בכרטיס (במקום במסך התשלומים)
+const stOrdX = (m) => { const st = (editing && editing.student) || {}, c = CRS.byId[m.course_id] || {};
+  return { kind: m.marathon_registration_id ? "marathon" : "registration", order_id: m.marathon_registration_id || m.enrollment_id, what: c.marathon_id ? "מרתון" : [crsCatN(c.category_id), CRS_TRK_S[mTrk(m)]].filter(Boolean).join(" – "), first_name: st.first_name || "", last_name: st.last_name || "" }; };
+const stReload = () => { const l = editing; if (!l || !l.student) return; const sid = l.student.id; crsLoadMembers("student_id=eq." + sid).catch(() => {}).then(() => { if (editing && editing.id === l.id) { LP_CACHE = null; loadLeadPayments(l); loadLeadGroups(sid); } }); loadLeads().catch(() => {}); };
+document.addEventListener("click", async (e) => { const b = e.target.closest && e.target.closest("[data-stnow], [data-stlk], [data-stpd], [data-stmar]"); if (!b || !editing || !editing.student) return;
+  if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; }
+  if (b.dataset.stmar) { const o = (CRS.mar || {})[b.dataset.stmar] || {}; if (!o.code) return; let u = lkMarCode(o.code); try { u = await makeShort(u); } catch(er) {} copyText(u, "הקישור לטופס " + (o.name || "המרתון") + " הועתק"); return; }
+  const m = crsOfStudent(editing.student.id).find(x => x.id === Number(b.dataset.stnow || b.dataset.stlk || b.dataset.stpd)); if (!m) return; const x = stOrdX(m); if (!x.order_id) return;
+  let lk = null; const getLk = async () => lk || (lk = await call("pay_link_create", { p: { order: { kind: x.kind, id: x.order_id }, description: x.what } }));
+  if (b.dataset.stnow) { payNowOpen(b, getLk); return; }
+  if (b.dataset.stlk) { b.disabled = true; try { const r = await getLk(); let u = r.url; try { u = await makeShort(u); } catch(er) {} copyText(u, "קישור התשלום הועתק – אפשר לשלוח להורה"); } catch(er) { toast("לא נוצר: " + er.message); } b.disabled = false; return; }
+  if (b.dataset.stpd) { b.disabled = true; if (await markPaid(x)) setTimeout(stReload, 1200); else b.disabled = false; } });
 const SIG_VIA_S = { form: "בטופס ההרשמה", sign_link: "בקישור לחתימה", manual: "התקבל מחוץ למערכת", legacy: "לפני המערכת" };
 const crsFoot = (m) => { const sp = crsStepper(m); return `<div class="lg-att-slot" data-am="${m.id}"></div><div class="lg-pay-slot" data-pm="${m.id}"></div>${sp ? sp + `<div class="lg-sig-slot" data-sgcm="${m.id}" data-stp="1"></div>` : `<div class="lg-foot">${crsCanSpan(m)}</div><div class="lg-sig-slot" data-sgcm="${m.id}"></div>`}<div class="lg-can-panel" data-cpm="${m.id}" hidden></div>`; };
 // 5.20.23 (נועה): מעקב לכל קורס (קובץ 155) – בתרגול השוטף המעקב של הכרטיס (מסונכרן), בשאר הקורסים – course_members.tracking
@@ -6899,7 +6919,7 @@ async function loadLeadGroups(studentId){
       + (ME.role === "admin" ? `<button type="button" class="btn small nav-b" id="lcPayNav" title="דף התשלומים של התלמיד/ה – כל הפעולות על כסף">💳 תשלומים</button>` : "");   // 5.21.108 (נועה 11.11): ניווט אחיד   // 5.19.174: בשורת הכותרת; נועה 8.11: שליחת קישורים מהכרטיס
     if ($("lcPayNav")) $("lcPayNav").onclick = () => { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } const st = editing && editing.student; if (st) PAY.kidAll(st.id, ((st.first_name || "") + " " + (st.last_name || "")).trim()); };
     if ($("pwAddPay")) { $("pwAddPay").hidden = ME.role !== "admin"; } if ($("pwAddPay")) $("pwAddPay").onclick = (e) => { e.preventDefault(); e.stopPropagation(); const sid = editing && editing.student && editing.student.id; if (sid && ME.role === "admin") PAY.newLink(sid); };   // 5.21.88
-    $("lcAddSlot").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = async () => { const sid = editing && editing.student && editing.student.id; if (!sid) return;
+    const cardLk = async (b) => { const sid = editing && editing.student && editing.student.id; if (!sid) return;
       if (b.dataset.cardlk === "pay") { if (LEAD_DIRTY) { toast("יש שינויים שלא נשמרו בכרטיס – קודם שמירה"); return; } PAY.newLink(sid); return; }
       const city = ((editing.student.family || {}).city || "").trim(); if (!city) { toast("בכרטיס אין עיר מגורים – יש להשלים אותה"); return; }
       // תש-59 (icredit-47): טופס הרשמה אישי – ממולא מהכרטיס, לאותו כרטיס, עם מעקב (נשלח / נפתח / נרשם), 7 ימים
@@ -6915,7 +6935,8 @@ async function loadLeadGroups(studentId){
       b.disabled = true; let r; try { r = await rpc("reg_link_create", prm); } catch(e) { b.disabled = false; toast("לא נוצר: " + (e.message || "")); return; }
       b.disabled = false; let u = r.url; try { u = await makeShort(r.url); } catch(e) {}
       copyText(u, (kind === "reg" ? "טופס ההרשמה האישי" : "טופס חודש הניסיון") + " (" + city + ") נוצר והועתק – למטה ב\"תשלומים ללא קורס\": 💬 שליחה, 👁 פתיחה"); await regLinksPaint(sid);
-      { const r0 = document.querySelector("#lcRegLinks .nc-row:last-of-type"); const rr = [...document.querySelectorAll("#lcRegLinks .nc-row")].find(x => /טופס הרשמה/.test(x.textContent)) || r0; if (rr) { rr.scrollIntoView({ block: "center", behavior: "smooth" }); rr.classList.add("nc-new"); setTimeout(() => rr.classList.remove("nc-new"), 2500); } } });
+      { const r0 = document.querySelector("#lcRegLinks .nc-row:last-of-type"); const rr = [...document.querySelectorAll("#lcRegLinks .nc-row")].find(x => /טופס הרשמה/.test(x.textContent)) || r0; if (rr) { rr.scrollIntoView({ block: "center", behavior: "smooth" }); rr.classList.add("nc-new"); setTimeout(() => rr.classList.remove("nc-new"), 2500); } } };
+    $("lcAddSlot").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = () => cardLk(b)); $("leadGroups").querySelectorAll("[data-cardlk]").forEach(b => b.onclick = () => cardLk(b));   // 5.21.115: גם מ"התעניינות" בקורס
     regLinksPaint(editing && editing.student && editing.student.id);
     { const gb = $("leadGroups").querySelector(".lg-crs-box.lg-reg"), html = `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></div><div class="lg-edit lg-card" data-ed="new" hidden></div>`;
       const gs = gb && gb.querySelector(".lg-add-slot"); if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
@@ -10063,11 +10084,12 @@ function openMarathonEditor(m, inPanel, pre){
   // 5.19.109 (נועה): ההקבצות – מההגדרות של בית הספר (מסך "בתי ספר"), אם יש ואם במרתון עוד לא נקבעו. החלפת בית ספר – מתעדכן (כל עוד לא שינית ידנית)
   let hakAuto = null;
   const hakFromSchool = async () => { const ta = g("hak"), hint = g("hakhint"); if (!ta) return;
-    if (ta.value.trim() && ta.value !== hakAuto) return;   // נקבע ידנית / שמור במרתון – לא נוגעים
     let list = []; try { if (!SC.list || !SC.list.length) SC.list = await get("site_info", "select=*&order=city,name"); } catch(e) {}
     const c = g("city").value, sc = g("school").value, x = (SC.list || []).find(y => y.city === c && y.name === sc);
     list = x && Array.isArray(x.hakbatsa_options) ? x.hakbatsa_options : [];
-    if (ta.value.trim() && ta.value !== hakAuto) return;
+    // 5.21.115 (נועה 12.11: "למה בתצוגה של המרתון לא רואים את כל הרשימה של ההקבצות? עדכנתי אותה אחרי יצירת הקישור"): רשימה שמורה במרתון ששונה מזו של בית הספר – אפשר לחזור לרשימה של בית הספר
+    if (ta.value.trim() && ta.value !== hakAuto) { if (list.length && ta.value.trim() !== list.join("\n")) { hint.hidden = false; hint.innerHTML = `במרתון שמורה רשימה ישנה. ב${esc(sc)} (מסך בתי ספר) יש עכשיו: ${esc(list.join(" · "))} <button type="button" class="btn small" data-m="hakschool">🔄 לפי בית הספר</button>`;
+        hint.querySelector("[data-m=hakschool]").onclick = () => { ta.value = hakAuto = list.join("\n"); hint.textContent = "יישמר בלי רשימה משלו – הטופס יציג תמיד את ההקבצות של בית הספר."; }; } return; }   // נקבע ידנית – לא נוגעים
     ta.value = hakAuto = list.join("\n");
     hint.hidden = !list.length; hint.textContent = list.length ? "ההקבצות נלקחו מההגדרות של " + sc + " (מסך בתי ספר). אפשר לשנות כאן." : ""; };
   if (g("hak")) { g("hak").addEventListener("input", () => { hakAuto = null; if (g("hakhint")) g("hakhint").hidden = true; }); g("school").addEventListener("change", hakFromSchool); hakFromSchool(); }
@@ -10149,7 +10171,7 @@ function openMarathonEditor(m, inPanel, pre){
       price_first: Number(g("p1").value), price_repeat: Number(g("p1").value), is_open: g("open").checked, notes: nn(g("notes").value) };
     if (g("grade")) body.grade = g("grade").value || null;   // 5.19.35
     if (g("site")) body.show_on_site = g("site").checked;   // 5.19.105 (את-17)
-    if (g("hak")) { const hk = [...new Set(g("hak").value.split("\n").map(x => x.trim()).filter(Boolean))]; body.hakbatsa_options = hk.length ? hk : null; }   // 5.19.35
+    if (g("hak")) { const hk = [...new Set(g("hak").value.split("\n").map(x => x.trim()).filter(Boolean))]; body.hakbatsa_options = hk.length && g("hak").value !== hakAuto ? hk : null; }   // 5.19.35; 5.21.115: כמו בית הספר – לא שומרים עותק (הטופס קורא את הרשימה של בית הספר, גם אחרי שהיא משתנה)
     // מחיר אחד = זה מחיר המרתון (נשמר גם כמחיר המוזל, ובטופס לא שואלים אם השתתף כבר)
     if (!body.name || !body.school || !(body.price_first > 0) || !(body.price_repeat > 0)) { g("err").textContent = "צריך שם, בית ספר ומחיר."; return; }
     if (!GRPS) { g("err").textContent = "הקבוצות עוד נטענות - נסו שוב בעוד רגע."; return; }
@@ -13550,18 +13572,18 @@ function dealExpand(d){
     const left = Number(r.amount) - Number(r.refunded_amount || 0);
     return `<div class="dx-pay${r.status === "אושר" ? "" : " bad"}">${cell("dx-d", dmy(r.date) + tm)}${cell("dx-k", r.kind === "הקמת הוראת קבע" ? "🔁 הוראת קבע הוקמה" : r.kind === "חיוב חודשי" ? "הוראת קבע · חיוב " + esc(r.charge_no || "") : esc(r.kind === "הרשמה - תשלום ראשון" ? "תשלום ראשון" : r.kind || ""))}${cell("dx-a", r.kind === "הקמת הוראת קבע" ? `<span class="muted">בלי חיוב</span>` : `<b>${money(r.amount)}</b>`)}${cell("dx-s", r.kind === "הקמת הוראת קבע" ? "" : stPay(r))}
       ${cell("dx-m muted", [r.card_last4 ? card4(r.card_last4) : "", r.approval ? `אישור <span dir="ltr">${esc(r.approval)}</span>` : ""].filter(Boolean).join(" · "))}${cell("dx-doc", docA(r))}
-      ${cell("dx-acts", `${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" && !r.manual && !r.refund_status && !r.refund_pending && !Number(r.refunded_amount || 0) && Number(r.amount) > 0 ? `<button type="button" class="btn small danger" data-dxrefi="${r.id}" data-amt="${Number(r.amount)}">↩ זיכוי מלא באיקרדיט</button>` : ""}${r.status === "אושר" && left > 0 && !r.manual && !r.refund_pending ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי חלקי (ידני)</button>` : ""}${r.manual ? `<button type="button" class="btn small kd-undo" data-dxunp="${esc(r.id)}" title="לסימון שנעשה בטעות – חוזר ל&quot;ממתין לתשלום&quot;">↩ ביטול "שולם"</button>` : ""}${!r.manual && r.status === "אושר" && r.purpose === "pay_link" && !r.enrollment_id && !r.marathon_registration_id && r.student_id ? `<button type="button" class="btn small" data-dxatt="${r.id}" data-sid="${r.student_id}">🔗 חיבור לקורס</button>` : ""}`)}
+      ${cell("dx-acts", `${fail ? `<button type="button" class="btn small primary" data-miss="${r.id}">🔗 קישור תשלום להורה</button>` : ""}${fail || iss ? `<button type="button" class="btn small" data-hand="${r.id}">✓ טופל</button>` : ""}${r.status === "אושר" && !r.manual && !r.refund_status && !r.refund_pending && !Number(r.refunded_amount || 0) && Number(r.amount) > 0 ? `<button type="button" class="btn small danger" data-dxrefi="${r.id}" data-amt="${Number(r.amount)}">↩ זיכוי מלא באיקרדיט</button>` : ""}${r.status === "אושר" && left > 0 && !r.manual && !r.refund_pending ? `<button type="button" class="btn small" data-refopen="${r.id}">↩ סימון זיכוי חלקי (ידני)</button>` : ""}${(r.manual || (!r.manual && r.status === "אושר" && r.purpose === "pay_link" && !r.enrollment_id && !r.marathon_registration_id)) && leadOfSid(r.student_id || d.student_id) ? `<button type="button" class="btn small nav-b" data-lead="${leadOfSid(r.student_id || d.student_id).id}" title="${r.manual ? "ביטול &quot;שולם&quot; – בכרטיס, בשלב התשלום" : "חיבור לקורס – בכרטיס, ב&quot;תשלומים ללא קורס&quot;"}">👤 כרטיס תלמיד</button>` : ""}`)}
       ${r.refund_pending ? `<div class="dx-sub"><span class="pend">⏳ זיכוי נשלח לאיקרדיט – מתעדכן תוך דקה</span></div>` : ""}${r.refund_error ? `<div class="dx-sub"><span class="dx-why">⚠ הזיכוי לא בוצע באיקרדיט: ${esc(r.refund_error)}</span></div>` : ""}
       ${td || r.reason ? `<div class="dx-sub">${cell("dx-d", "")}<span class="dx-why">⚠ ${esc(td || "")}${td && r.reason ? " · " : ""}${esc(r.reason || "")}</span></div>` : ""}
       ${refRows(r)}</div>`; };
   return `<div class="dx">
     ${pdfB ? `<div class="dx-form only-m-blk"><span class="muted">${esc(d.kindTxt || "")}${d.desc ? " · " + esc(d.desc) : ""}</span>${pdfB}</div>` : ""}
     ${info.filter(Boolean).length ? `<div class="dx-info${info.filter(x => x && !/only-m/.test(x)).length ? "" : " only-m-blk"}">${info.filter(Boolean).map(x => /^<span/.test(x) ? x : `<span>${x}</span>`).join("")}</div>` : ""}
-    ${d.pending ? `<div class="dx-pay bad">${cell("dx-d", d.pending.created_at ? dmy(d.pending.created_at) : "")}${cell("dx-k", "תשלום טלפוני")}${cell("dx-a", `<b>${money(d.pending.amount)}</b>${d.pending.monthly_amount ? `<small class="muted"> + ${money(d.pending.monthly_amount)} לחודש</small>` : ""}`)}${cell("dx-s", `<span class="chip st-phone">📞 ממתין</span>`)}${cell("dx-m muted", esc(d.pending.what || ""))}${cell("dx-doc", "")}${cell("dx-acts", `<button type="button" class="btn small primary" data-dxnow="1">⌨️ הזנת כרטיס עכשיו</button><button type="button" class="btn small" data-dxlink="1">🔗 העתקת קישור להורה</button><button type="button" class="btn small" data-dxpaid="1">✔ שולם (גביתי בריווחית)</button>`)}</div>` : ""}
+    ${d.pending ? `<div class="dx-pay bad">${cell("dx-d", d.pending.created_at ? dmy(d.pending.created_at) : "")}${cell("dx-k", "תשלום טלפוני")}${cell("dx-a", `<b>${money(d.pending.amount)}</b>${d.pending.monthly_amount ? `<small class="muted"> + ${money(d.pending.monthly_amount)} לחודש</small>` : ""}`)}${cell("dx-s", `<span class="chip st-phone">📞 ממתין</span>`)}${cell("dx-m muted", esc(d.pending.what || ""))}${cell("dx-doc", "")}${cell("dx-acts", leadOfSid(d.student_id) ? `<button type="button" class="btn small nav-b" data-lead="${leadOfSid(d.student_id).id}" title="ההרשמה מטופלת בכרטיס: ⌨️ הזנת כרטיס · 🔗 קישור להורה · ✔ שולם">👤 כרטיס תלמיד</button>` : "")}</div>` : ""}
     ${pays.filter(r => r.kind !== "חיוב חודשי").map(line).join("")}
     ${p ? planLine(p) : ""}
     ${pays.filter(r => r.kind === "חיוב חודשי").map(line).join("")}
-    ${live || (d.student_id && ME.role === "admin") ? `<div class="dx-foot">${live ? `<span class="muted">שינוי, השהיה וביטול – נשלחים מכאן לאיקרדיט. החלפת כרטיס – בריווחית.</span>` : ""}${d.student_id && ME.role === "admin" ? `<span class="dx-kidacts"><button type="button" class="btn small" data-dxnew="${d.student_id}">+ 💳 קישור תשלום</button><button type="button" class="btn small" data-dxrec="${d.student_id}">🔁 הוראת קבע בלבד</button></span>` : ""}</div>` : ""}
+    ${live || (d.student_id && ME.role === "admin") ? `<div class="dx-foot">${live ? `<span class="muted">שינוי, השהיה וביטול – נשלחים מכאן לאיקרדיט. החלפת כרטיס – בריווחית.</span>` : ""}${d.student_id && ME.role === "admin" ? `<span class="dx-kidacts"><button type="button" class="btn small" data-dxrec="${d.student_id}">🔁 הוראת קבע בלבד</button></span>` : ""}</div>` : ""}
   </div>`;
 }
 // 5.21.110 (נועה 11.11, 23:19: "כשפותחים את השורה פתאום העמודות משתנות... ויש לי תמיד שורה נוספת של כפתורים"):
@@ -13589,9 +13611,8 @@ function wireExpand(box, d, reload){
   wireRowActs(box, pays, reload);
   const pdf = box.querySelector("[data-dxpdf]"); if (pdf) pdf.onclick = async (e) => { e.target.disabled = true; try { await txPdf(docR); } catch(er) { toast("לא ניתן להוריד: " + er.message); } e.target.disabled = false; };
   if (d.pending) { const x = d.pending; let lk = null; const getLk = async () => lk || (lk = await call("pay_link_create", { p: { order: { kind: x.kind, id: x.order_id }, description: x.what } }));
-    box.querySelector("[data-dxnow]").onclick = (e) => payNowOpen(e.currentTarget, getLk);
-    box.querySelector("[data-dxlink]").onclick = async (e) => { const t = e.currentTarget; t.disabled = true; try { await copy((await getLk()).url); toast("הקישור הועתק"); } catch(er) { toast("לא נוצר: " + er.message); } t.disabled = false; };
-    box.querySelector("[data-dxpaid]").onclick = async () => { if (await markPaid(x)) reload(); }; }
+    void getLk; }
+  box.querySelectorAll("[data-lead]").forEach(b => b.onclick = (e) => { e.stopPropagation(); openLead(Number(b.dataset.lead)); });   // 5.21.115
   box.querySelectorAll("[data-dxcx]").forEach(b => b.onclick = async () => { b.disabled = true;   // 5.19.68: סימון "בוטלה"
     const ok = b.dataset.dxcx === "sync" ? (b.textContent = "מרענן…", await planSyncNow(p)) : b.dataset.dxcx === "mark" ? await planMarkCancel(p, p.student_name || d.name) : await planUnmarkCancel(p);
     if (ok) { PLANS_C = null; try { S.plans = await call("recurring_plans_list") || S.plans; } catch(e) {} S.reopen = d.student_id || "n" + d.name; reload(); } else b.disabled = false; });   // 5.21.84 (נועה 9.11): אחרי רענון – הסטטוס החדש (מושהית) גם במסך התשלומים
