@@ -1957,7 +1957,8 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .stp-m{ font-size:12px; color:#777; margin-top:2px; min-height:16px; overflow-wrap:anywhere; }
 .stp-a{ display:none !important; } .stp-s{ min-width:0; }
 .stp-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin-top:8px; padding-top:8px; border-top:1px solid #EFE7DE; }
-.stp-g{ display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; } .stp-gl{ font-size:12.5px; color:#6B625A; font-weight:700; } .stp-bar > .stp-can{ margin-inline-start:auto; display:inline-flex; align-items:center; gap:6px; }
+.stp-g{ display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; } #payPnl .nl-sec:has(.nl-f[data-k="track"]){ display:none; }   /* 5.21.118 (נועה): בלי מסלול / מקצוע בקישור תשלום – הקורס נבחר למעלה */
+.stp-gl{ font-size:12.5px; color:#6B625A; font-weight:700; } .stp-bar > .stp-can{ margin-inline-start:auto; display:inline-flex; align-items:center; gap:6px; }
 .stp-g .lc-sign, .stp-g .lc-sign-st{ display:inline-flex !important; flex-wrap:wrap; align-items:center; gap:6px; margin:0 !important; } .stp-g .lc-sign-st:empty{ display:none !important; }   /* 5.21.115: כמה כפתורים בשלב – אחד מתחת לשני, בלי לעלות על השלב הבא */
 .stp-a .lc-sign{ justify-content:center; margin:0; gap:6px; } .stp-a .lc-sign-st{ gap:6px; } .stp-a .lc-sign-st:empty{ display:none; }
 /* 5.21.95 (נועה 10.11: "לוקח המון מקום") – פס השלבים קומפקטי: נקודות קטנות, הכפתורים בשורה אחת, "טופס ביטול" בשורת הכותרת */
@@ -6685,10 +6686,10 @@ function crsHead(m){ const c = CRS.byId[m.course_id] || {};
 const crsCanSpan = (m) => ME.role === "instructor" ? "" : `<span class="lg-can" data-cnm="${m.id}"><span class="lg-can-st"></span><button type="button" class="btn small" data-cnew="${m.id}" title="טופס ביטול לקורס הזה – ההורה רק חותם/ת">✕ טופס ביטול</button></span>`;
 /* 5.21.9 (נועה 4.11): פס שלבים לכל קורס – הרשמה ← תשלום ← חתימה ← אישור להורה. השלב הנוכחי בכחול, והכפתור שלו רק מתחתיו (לא זז). כמו שופיפיי: סטטוס לכל שלב + הפעולה הבאה */
 function crsStepper(m){
-  if (ME.role === "instructor" || !["רשום", "ממתין לתשלום", "מתעניין"].includes(m.status)) return "";
+  if (ME.role === "instructor" || !(["רשום", "ממתין לתשלום"].includes(m.status) || crsIsInt(m))) return "";   // 5.21.118 (נועה 10:40): כל סטטוס של התעניינות ("חדש", "מעוניין"…) – לא רק "מתעניין"
   const reg = m.status === "רשום", sig = m.signed === true, c = CRS.byId[m.course_id] || {}, d = (x) => x ? fmtDM(String(x).slice(0, 10)) : "";
   // 5.21.115 (נועה 12.11 – עץ החלטות): התעניינות → תשלום ∥ חתימה (מקבילים) → נרשם; מכל שלב – רק הכפתורים שמתאימים לו. כל ההרשמה – בכרטיס
-  const intr = m.status === "מתעניין", adm = ME.role === "admin";
+  const intr = !["רשום", "ממתין לתשלום"].includes(m.status), adm = ME.role === "admin";
   const recQ = "", recQ0 = c.marathon_id ? "" : `<button type="button" class="btn small" data-recq="${m.id}" title="הקמת הוראת קבע לקורס הזה – מקלידים את הכרטיס עכשיו, בלי חיוב מיידי">🔁 הוראת קבע</button>`;   // 5.21.103 (נועה 11.11): הוראת קבע בלבד – רק על קורס
   const st = (k, cls, n, t, meta, act) => `<div class="stp-s ${cls}" data-stk="${k}" data-stm="${m.id}"><span class="stp-d" aria-hidden="true">${cls === "ok" ? "✓" : n}</span><div class="stp-t">${t}</div><div class="stp-m">${meta || ""}</div><div class="stp-a">${act || ""}</div></div>`;
   if (intr) { const mo = c.marathon_id ? (CRS.mar || {})[c.marathon_id] || {} : null;
@@ -6842,7 +6843,7 @@ async function crsGroupsHtml(sid, cur, card){
     h += crsFoot(m) + `</div>`; });
   const td0 = todayIL(), fin = (c) => { if (c.is_active === false) return true; const o = (CRS.mar || {})[c.marathon_id] || {}, d = [...(o.dates || []), o.first].filter(Boolean).sort().pop(); return d && d < td0; };
   ms.filter(m => CRS.byId[m.course_id].marathon_id && !fin(CRS.byId[m.course_id])).forEach(m => { const c = CRS.byId[m.course_id]; h += `<div class="lg-crs-box" data-cbm="${m.id}">` + crsHead(m) + crsTrackHtml(m);
-    const rs = cur.filter(a => !used.has(a.id) && a.session.marathon_id === c.marathon_id); rs.forEach(a => used.add(a.id)); h += asgBox(crsCards(rs, card, true) + (!rs.length && m.status === "רשום" && ME.role !== "instructor" ? `<div class="lg-none lg-need">⚠ נרשם/ה למרתון ועוד לא בקבוצה <button type="button" class="btn small" data-margrp="${c.marathon_id}">+ שיבוץ לקבוצת המרתון</button></div>` : ""), rs.length, !rs.length && m.status === "רשום") + crsFoot(m) + `</div>`; });
+    const rs = cur.filter(a => !used.has(a.id) && a.session.marathon_id === c.marathon_id); rs.forEach(a => used.add(a.id)); h += (!rs.length && m.status !== "רשום" ? "" : asgBox(crsCards(rs, card, true) + (!rs.length && m.status === "רשום" && ME.role !== "instructor" ? `<div class="lg-none lg-need">⚠ נרשם/ה למרתון ועוד לא בקבוצה <button type="button" class="btn small" data-margrp="${c.marathon_id}">+ שיבוץ לקבוצת המרתון</button></div>` : ""), rs.length, !rs.length && m.status === "רשום")) + crsFoot(m) + `</div>`; });
   h += hPay;   // 184: קורסים מסוג תשלום – אחרי התרגול והמרתונים
   /* 5.21.20 (נועה 6.11): שיבוץ למרתון שהסתיים – לא במסך הראשי (המרתון עצמו – ב"קורסים קודמים") */
   cur.forEach(a => { if (used.has(a.id) || !isMar(a)) return; const o = (CRS.mar || {})[a.session.marathon_id] || {};
@@ -14087,6 +14088,7 @@ function newLink(src, mode, opt){
       <div class="nl-trial" hidden><label class="lbl" for="nTrStart">תאריך התחלה</label><input type="date" id="nTrStart"></div>
       <div class="nl-trial nl-trcity" hidden><label class="lbl" for="nTrCity">עיר</label><select id="nTrCity"><option value="">בחירת עיר</option>${CONFIG.cities.map(c => `<option>${esc(c)}</option>`).join("")}</select></div>
       <div class="nl-trial muted nl-hint" style="grid-column:1/-1" hidden>תשלום חד-פעמי על חודש אחד, לפי מחיר המסלול בעיר. בלי הוראת קבע. אם ממשיכים – שולחים קישור הרשמה מהכרטיס.</div>
+      <div class="nl-crs" style="grid-column:1/-1" hidden><label class="lbl" for="nCrs">על איזה קורס <span class="muted" style="font-weight:400">(התשלום ייכנס לקורס הזה)</span></label><select id="nCrs"><option value="">ללא קורס</option></select></div>
       <div class="nl-pay"><label class="lbl" for="nOnce">תשלום עכשיו (₪)</label><input type="number" id="nOnce" min="1" max="20000"></div><div class="nl-pay"></div>
       <div class="nl-rec muted nl-hint" style="grid-column:1/-1" hidden>🔁 בלי חיוב עכשיו – רק הוראת קבע.</div>
       <div class="nl-pay nl-recchk" style="grid-column:1/-1"><label class="chk nl-chk"><input type="checkbox" id="nRec"><span>וגם הוראת קבע חודשית לאחר התשלום</span></label></div>
@@ -14118,7 +14120,13 @@ function newLink(src, mode, opt){
   document.querySelectorAll("#payPnl .nl-f input, #payPnl .nl-f select").forEach(e => { if (!e.onchange) e.addEventListener("change", lockPaint); e.addEventListener("input", lockPaint); });
   // תלמיד/ה קיים/ת: הפרטים מהכרטיס נכנסים לטופס (נעולים), והתשלום נרשם בכרטיס – לא נפתח כרטיס חדש
   const stuOf = (ld) => { const s = ld.student || {}, f = s.family || {}; return { student_first: s.first_name, student_last: s.last_name, student_phone: s.phone, parent_name: fullName(f.parent1_first, f.parent1_last), parent_phone: f.parent1_phone, parent_email: f.parent1_email, city: f.city, school: s.school, grade: s.grade, class_num: s.class_num }; };
-  let stuPaint = () => { const ld = SID && leadOfSid(SID), s = ld && ld.student;
+  // 5.21.118 (נועה 12.11, 10:42: "לתת לנו להגדיר איזה קורס זה. או שאולי בכלל אין קורס"): הקורסים של הילד/ה
+  const crsPaint = async () => { const w = document.querySelector("#payPnl .nl-crs"), sel = $("nCrs"); if (!w || !sel) return; w.hidden = !SID || TY === "trial" || TY === "rec" || !!ed;
+    if (w.hidden) return; try { await crsLoad(); await crsEnsureStudent(SID); } catch(e) {}
+    const ms = (typeof crsOfStudent === "function" ? crsOfStudent(SID) : []).filter(m => !m.history_at && !["בוטל"].includes(m.status) && CRS.byId[m.course_id]);
+    const cur = sel.value || (opt.cm ? String(opt.cm) : "");
+    sel.innerHTML = `<option value="">ללא קורס</option>` + ms.map(m => `<option value="${m.id}">${esc(crsLabelTxt(CRS.byId[m.course_id], m))}</option>`).join(""); sel.value = [...sel.options].some(o => o.value === cur) ? cur : ""; };
+  let stuPaint = () => { const ld = SID && leadOfSid(SID), s = ld && ld.student; crsPaint();
     $("nStuOn").hidden = !SID; $("nStuOff").hidden = !!SID;
     if (SID) $("nStuOn").innerHTML = `<span>🔗 מחובר לכרטיס: <b>${esc(s ? fullName(s.first_name, s.last_name) : (src && src.student_name) || "")}</b>${s && s.family && s.family.parent1_first ? ` <span class="muted">· ${esc(fullName(s.family.parent1_first, s.family.parent1_last))}</span>` : ""}</span><button type="button" class="btn small" id="nStuX">✕ ביטול החיבור</button>`;
     if (SID) $("nStuX").onclick = () => { SID = null; stuPaint(); }; };
@@ -14156,7 +14164,7 @@ function newLink(src, mode, opt){
     if (set === "trial" && /^שיעור בודד$/.test($("nDesc").value.trim())) $("nDesc").value = "";
     if (set === "reg" && /^שיעור בודד$/.test($("nDesc").value.trim())) { $("nDesc").value = ""; $("nOnce").value = ""; }
   };
-  document.querySelectorAll("#payPnl [data-nty]").forEach(b => b.onclick = () => { TY = b.dataset.nty; tyPaint(TY); });
+  document.querySelectorAll("#payPnl [data-nty]").forEach(b => b.onclick = () => { TY = b.dataset.nty; tyPaint(TY); crsPaint(); });
   $("nTrTrack").onchange = () => tyPaint();
   { const n = new Date(); $("nTrStart").value = new Date(n - n.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
   if (!src && TY === "single") tyPaint("single");
@@ -14213,7 +14221,7 @@ function newLink(src, mode, opt){
       if (ITEMS.some(x => !x.product)) { err.textContent = "יש לבחור מוצר בכל שורה."; return; }
       if (ITEMS.some(x => !(x.amount > 0))) { err.textContent = "חסר סכום לאחד המוצרים."; return; } }
     if (!REC && !ITEMS && !(once > 0)) { err.textContent = "חסר סכום לתשלום עכשיו."; return; }
-    const p = Object.assign($("nProd") && $("nProd").value ? { product: $("nProd").value } : {}, { description: ITEMS ? ITEMS.map(x => x.product).join(" + ") : $("nDesc").value.trim(), one_time_amount: REC ? 0 : ITEMS ? ITEMS.reduce((a, x) => a + x.amount, 0) : once, fields: {}, note: $("nNote").value.trim() }, REC ? { recurring_only: true, course_member_id: opt.cm } : {});   // מנ-418: על הקורס   // תש-56: המוצר בחשבונית (ריק – השרת מנחש)
+    const p = Object.assign($("nProd") && $("nProd").value ? { product: $("nProd").value } : {}, { description: ITEMS ? ITEMS.map(x => x.product).join(" + ") : $("nDesc").value.trim(), one_time_amount: REC ? 0 : ITEMS ? ITEMS.reduce((a, x) => a + x.amount, 0) : once, fields: {}, note: $("nNote").value.trim() }, REC ? { recurring_only: true, course_member_id: opt.cm } : $("nCrs") && $("nCrs").value ? { course_member_id: Number($("nCrs").value) } : {});   // מנ-418: על הקורס; 5.21.118 – גם תשלום רגיל (icredit-67)   // תש-56: המוצר בחשבונית (ריק – השרת מנחש)
     if (ITEMS) p.items = ITEMS;   // 5.21.107 (תש-89): שורה לכל מוצר בחשבונית
     if (SID) p.student_id = SID;
     if (ed && src.order_kind) p.order = { kind: src.order_kind, id: src.order_id };
