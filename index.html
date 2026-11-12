@@ -6965,7 +6965,7 @@ async function loadLeadGroups(studentId){
     { const gb = $("leadGroups").querySelector(".lg-crs-box.lg-reg"), html = `<div class="lg-add-row"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></div><div class="lg-edit lg-card" data-ed="new" hidden></div>`;
       const gs = gb && gb.querySelector(".lg-add-slot"), asg = gs && gs.closest(".lg-asg");
       if (gs && asg && gs.closest("summary")) { gs.outerHTML = `<span class="lg-add-row lg-add-sum"><button type="button" class="btn small" id="lgAddBtn">+ הוספה לקבוצה</button></span>`; asg.insertAdjacentHTML("beforeend", `<div class="lg-edit lg-card" data-ed="new" hidden></div>`); }   // 5.21.117 (נועה 10:02): מול המילה "שיבוצים"
-      else if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); else $("leadGroups").insertAdjacentHTML("beforeend", html); }
+      else if (gs) gs.outerHTML = html; else if (gb) gb.insertAdjacentHTML("beforeend", html); }   // 5.21.119 (נועה 11:11): בלי תרגול שוטף – אין "+ הוספה לקבוצה" (מרתון – הקבוצה נקבעת בטופס המרתון; שיבוץ – רק "נרשם" בקורס)
     if ($("lcAdd")) $("lcAdd").onclick = () => { const sid = editing && editing.student && editing.student.id; if (sid !== studentId) { toast("הכרטיס התחלף – פותחים שוב"); return; } const l0 = L.leads.find(x => x.student && x.student.id === sid); if (!l0) return;
       let bx = $("leadGroups").querySelector(".crs-inl-host"); if (bx) { bx.remove(); return; }   // לחיצה שנייה – סוגר
       bx = document.createElement("div"); bx.className = "crs-inl-host"; $("leadGroups").prepend(bx); crsAddDlg(l0, bx, true); };   // 5.21.4: תמיד התלמיד/ה שבכרטיס הפתוח
@@ -6988,7 +6988,7 @@ async function loadLeadGroups(studentId){
       ed.querySelector("[data-pts]").onclick = () => save(pf.value || null, pt.value || null);
       if (ed.querySelector("[data-ptx]")) ed.querySelector("[data-ptx]").onclick = () => save(null, null);
       ed.querySelector("[data-ptc]").onclick = () => { ed.hidden = true; ed.innerHTML = ""; }; });
-    $("lgAddBtn").onclick = () => openAsgEditor(studentId, null, cur);
+    if ($("lgAddBtn")) $("lgAddBtn").onclick = () => openAsgEditor(studentId, null, cur);
   } catch(e) { console.error("loadLeadGroups", e); if (tok === LG_TOK) { $("leadLoading").hidden = true; parkTrack(); $("leadGroups").innerHTML = `<div class="card err">הקורסים והשיבוצים לא נטענו (${esc(e && e.message || String(e))}). <button type="button" class="btn small" data-lgretry>לנסות שוב</button></div>`; const rb = $("leadGroups").querySelector("[data-lgretry]"); if (rb) rb.onclick = () => loadLeadGroups(studentId); } }
   try {
     const AT_SEL = "select=lesson_date,present,did_math,did_english,session:sessions(day,time_label,%K%location:locations(name))&student_id=eq." + studentId + "&order=lesson_date.desc&limit=60";
