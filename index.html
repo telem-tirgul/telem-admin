@@ -12619,6 +12619,11 @@ const wireLk = (root) => { root.querySelectorAll("[data-copy]").forEach(b => b.o
     const msg = "";   // 5.19.144 (נועה 26.10): "העתקה" – רק הקישור הקצר (כדי שאפשר יהיה לפתוח אותו ישר); השורה עם השם – רק ב"וואטסאפ"
     if (shortOf(u)) { copyText(shortOf(u), "הקישור הקצר הועתק: " + shortOf(u).replace(/^https?:\/\//, "")); return; }
     b.disabled = true; b.textContent = "…";
+    // 5.21.120 (נועה 12.11: "מופיע חלון"): הקישור הקצר נוצר אחרי הלחיצה – הדפדפן כבר לא מרשה להעתיק. ClipboardItem עם הבטחה – ההעתקה נרשמת בזמן הלחיצה
+    if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+      const pr = makeShort(u).catch(() => u);
+      try { await navigator.clipboard.write([new ClipboardItem({ "text/plain": pr.then(t => new Blob([t], { type: "text/plain" })) })]); const sh = await pr; lkApplyShort(document); toast(sh !== u ? "הקישור הקצר הועתק: " + sh.replace(/^https?:\/\//, "") : "לא נוצר קישור קצר – הועתק הקישור המלא"); b.disabled = false; b.textContent = "העתקה"; return; }
+      catch(e) { console.warn("clipboard item", e); } }
     try { const sh = await makeShort(u); lkApplyShort(document); copyText(sh, "הקישור הקצר הועתק: " + sh.replace(/^https?:\/\//, "")); }
     catch(e) { copyText(u, "לא נוצר קישור קצר – הועתק הקישור המלא"); console.warn("short-link", e); }
     finally { b.disabled = false; b.textContent = "העתקה"; } });
