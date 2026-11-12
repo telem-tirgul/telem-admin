@@ -4496,7 +4496,7 @@ async function crsAfterStatus(m, od){
   if (!m || m.status === od) return;
   const l = (L.leads || []).find(x => x.student_id === m.student_id); if (!l) return;
   const nm = [l.student.first_name, l.student.last_name].filter(Boolean).join(" ");
-  try { await regHowAsk(l.id, m, od); await withdrawAsk(m, nm, od); await planWarnCrs(m, nm, od); } catch(e) {}
+  try { await regHowAsk(l.id, m, od); const u = await withdrawAsk(m, nm, od); await planWarnCrs(m, nm, od, u); } catch(e) {}
 }
 // נועה 8.11: פרש / בוטל בתרגול השוטף ויש הוראת קבע פעילה – להזכיר (הביטול עצמו – בריווחית / באיקרדיט)
 // תש-59: הסטטוס של טפסי ההרשמה האישיים בכרטיס (מתחת לכפתורים)
@@ -4568,13 +4568,13 @@ function rlPlace(){ const g = $("leadGroups"), P = L.rlPend; if (!g || !P || !ed
 // תש-62 (icredit-50): רענון הוראה אחת מאיקרדיט עכשיו (סטטוס, החיוב הבא, חיובים) – ואחרי ~5 שניות טעינה מחדש
 async function planSyncNow(p){ try { await rpc("icredit_sync_now", { p_plan: p.id }); } catch(e) { toast(/not created/.test(e.message || "") ? "ההוראה לא הוקמה באיקרדיט" : "לא רוענן: " + (e.message || "")); return false; }
   await new Promise(r => setTimeout(r, 5000)); PLANS_C = null; toast("רוענן מאיקרדיט"); return true; }   // 5.21.84: בלי מטמון ישן
-async function planWarnCrs(m, nm, od){
+async function planWarnCrs(m, nm, od, until){
   const c = CRS.byId[m.course_id] || {}, gone = (x) => ["פרש", "בוטל"].includes(x);
   if (ME.role !== "admin" || c.marathon_id || !gone(m.status) || gone(od)) return;
   let ps = []; try { PLANS_C = null; ps = ((await plansCached()) || []).filter(p => Number(p.student_id) === Number(m.student_id) && ["active", "creating", "paused"].includes(p.status)); } catch(e) { return; }
-  if (!ps.length) return;
+  if (!ps.length) { toast(`${nm || "התלמיד/ה"} – אין הוראת קבע פעילה, אין מה לעצור בתשלומים`); return; }   // 5.21.122 (נועה 12.11): תמיד להגיד מה עם התשלומים
   const p = ps[0], rem = Math.max(0, (p.total_count || 0) - (p.charged_count || 0));
-  const v = await uiChoose(`ל${nm} יש הוראת קבע פעילה: ₪${Number(p.monthly_amount || 0).toLocaleString("he-IL")} בחודש${rem ? `, עוד ${rem} חיובים` : ""}${p.next_charge_date ? ` (הבא ב-${fmtIso(p.next_charge_date)})` : ""}.\nאם לא ממשיכים – לבטל אותה בריווחית; כאן זה מתעדכן כל בוקר.`, [{ v: "go", t: "לפתיחת ההוראה במסך התשלומים" }]);
+  const v = await uiChoose(`ל${nm} יש הוראת קבע פעילה: ₪${Number(p.monthly_amount || 0).toLocaleString("he-IL")} בחודש${rem ? `, עוד ${rem} חיובים` : ""}${p.next_charge_date ? ` (הבא ב-${fmtIso(p.next_charge_date)})` : ""}.\n${until ? `מגיע/ה עד ${fmtIso(until)} – לגבות עד החודש הזה (כולל), ולעצור את החיובים שאחריו.` : "אם לא ממשיכים – לעצור את החיובים שאחרי החודש האחרון שמגיע/ה."}`, [{ v: "go", t: "💳 לפתיחת ההוראה במסך התשלומים" }]);
   if (v === "go") PAY.kidPlan(m.student_id, nm);
 }
 // נקודת המסלול – לחיצה: בחירת מסלול
@@ -5818,24 +5818,26 @@ async function withdrawAsk(m, name, od){
   if (!sid || ME.role === "instructor" || nw !== "פרש" || od === nw) return;
   let rows = [];
   try { rows = await get("assignments", "select=id,status,ends_on,session:sessions!inner(id,day,start_time,kind,school_year,location:locations(name))&student_id=eq." + sid + "&session.kind=eq." + encodeURIComponent("שוטף") + "&session.school_year=eq." + encodeURIComponent(CONFIG.schoolYear)); } catch(e) { return; }
-  if (!rows.length) { toast(`${name || "התלמיד/ה"} פרש/ה – לא משובץ/ת בקבוצות שוטפות, אין מה להוציא מהשיבוץ`); return; }   // 5.21.122 (נועה 12.11: "איך פתאום לא מציג חלונית?" – בלי שיבוצים לא היה כלום)
+  // 5.21.122 (נועה 12.11: "גם אם לא משובץ – יכול להגיע עד סוף החודש / הבא, כל פעם למקום אחר"): החלון תמיד; לפי התנאים – הודעה עד ה-10 → סוף החודש, אחרי ה-10 → סוף החודש הבא (מסומן)
   const t = todayIL(), [y, mo] = t.split("-").map(Number), eom = (yy, mm) => new Date(Date.UTC(yy, mm, 0)).toISOString().slice(0, 10);
-  const e1 = eom(y, mo), e2 = eom(mo === 12 ? y + 1 : y, mo === 12 ? 1 : mo + 1);
-  const pr = uiChoose(`${name || "התלמיד/ה"} פרש/ה – עד מתי מגיע/ה? (${rows.length} שיבוצים: ${rows.map(a => `${a.session.day}' ${String(a.session.start_time || "").slice(0, 5)}`).join(", ")})`, [
+  const e1 = eom(y, mo), e2 = eom(mo === 12 ? y + 1 : y, mo === 12 ? 1 : mo + 1), byRule = Number(t.slice(8, 10)) <= 10 ? e1 : e2;
+  const pr = uiChoose(`${name || "התלמיד/ה"} פרש/ה – עד מתי מגיע/ה?\nלפי התנאים (הודעה ב-${fmtIso(t)}): עד ${fmtIso(byRule)}.\n${rows.length ? `${rows.length} שיבוצים: ${rows.map(a => `${a.session.day}' ${String(a.session.start_time || "").slice(0, 5)}`).join(", ")}` : "לא משובץ/ת קבוע – יכול/ה להגיע לקבוצות אחרות עד התאריך"}`, [
     { v: "now", t: "מסירים עכשיו – קבוצות שוטפות + תלם שלי" },
-    { v: e1, t: `עד סוף החודש (${fmtIso(e1)})` },
-    { v: e2, t: `עד סוף החודש הבא (${fmtIso(e2)})` }]);
+    { v: e1, t: `עד סוף החודש (${fmtIso(e1)})${byRule === e1 ? " – לפי התנאים" : ""}`, style: byRule === e1 ? "outline:2px solid var(--accent); outline-offset:2px; font-weight:800" : "" },
+    { v: e2, t: `עד סוף החודש הבא (${fmtIso(e2)})${byRule === e2 ? " – לפי התנאים" : ""}`, style: byRule === e2 ? "outline:2px solid var(--accent); outline-offset:2px; font-weight:800" : "" }]);
   { const bgs = document.querySelectorAll(".ui-dlg-bg"), nb = bgs.length && bgs[bgs.length - 1].querySelector("[data-no]"); if (nb) nb.textContent = "להשאיר כמו שזה"; }
   const ch = await pr;
-  if (!ch) return;
+  if (!ch) return null;
   try {
     const ids = rows.map(a => a.id).join(",");
-    if (ch === "now") { await del("assignments", "id=in.(" + ids + ")"); toast("הוסר/ה מהקבוצות"); }
+    if (!rows.length) toast(ch === "now" ? "סומן – לא מגיע/ה יותר" : "סומן – מגיע/ה עד " + fmtIso(ch));
+    else if (ch === "now") { await del("assignments", "id=in.(" + ids + ")"); toast("הוסר/ה מהקבוצות"); }
     else { await patch("assignments", "id=in.(" + ids + ")", { ends_on: ch }); toast("נשאר/ת בקבוצות עד " + fmtIso(ch)); }
     { const u = ch === "now" ? t : ch; try { await patch("course_members", "id=eq." + m.id, { until_on: u }); m.until_on = u; } catch(e) {} }   // של-150: "מגיע עד" בשורה של הקורס
     L.asg = null; if (typeof G !== "undefined") G.loadedAt = 0;
     try { setAsg(await ASG_Q()); } catch(e) {}
   } catch(e) { toast(/ends_on/.test(e.message) ? "צריך להריץ קודם את קובץ 116" : "לא נשמר: " + e.message); }
+  return ch === "now" ? t : ch;
 }
 // 5.19.137 (נועה 25.10): מעבר ידני לסטטוס "נרשם…" – חלון קטן "איך נרשם/ה?" (נשמר כהערה בכרטיס). אפשר לדלג.
 // 174: לפי הקורס – עבר/ה ל"רשום" בקורס (שוטף או מרתון)
@@ -6896,7 +6898,7 @@ async function crsGroupsHtml(sid, cur, card){
   const act = crsActiveSeasons(), isMar = (a) => a.session.kind === "מרתון" || a.session.marathon_id;
   // נועה 7.11: "פרש" – הקורס נשאר בכרטיס כל עוד השיבוץ שלו נמשך (עד התאריך שנבחר); אחר כך – לקורסים קודמים, יחד עם השיבוץ
   const runs = (m) => { const c = CRS.byId[m.course_id]; return cur.some(a => c.marathon_id ? a.session.marathon_id === c.marathon_id : !isMar(a)); };
-  const ms = crsOfStudent(sid).filter(m => m.status !== "בוטל" && (m.status !== "פרש" || runs(m)) && !m.history_at && CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id));
+  const ms = crsOfStudent(sid).filter(m => m.status !== "בוטל" && !(m.status === "חדש" && CRS.byId[m.course_id] && crsCat(CRS.byId[m.course_id].category_id).kind === "regular") /* 5.21.122 (נועה 12.11): תרגול שוטף "חדש" (מהכיתה) – בנק כרטיסים, רק ב"קורסים קודמים" ("פנייה · מהכיתה" – כמו קודם) */ && (m.status !== "פרש" || runs(m)) && !m.history_at && CRS.byId[m.course_id] && act.has(CRS.byId[m.course_id].season_id));
   const used = new Set(); let h = "", first = true;
   // 5.19.166 (נועה): השיבוצים בתוך המסגרת של הקורס – בתרגול השוטף הקבוצות, במרתון הקבוצה של המרתון
   ms.filter(m => crsIsLead(CRS.byId[m.course_id])).forEach(m => { h += `<div class="lg-crs-box lg-lead" data-cbm="${m.id}"><div class="lg-crs"><span class="lg-crs-l">${crsLabel(CRS.byId[m.course_id], m)}</span><span class="lg-crs-r">${crsSrcBtn(m)}${crsStWord(m)}</span></div></div>`; });   // 181
@@ -7232,7 +7234,10 @@ async function openAsgEditor(studentId, a, cur, opts){
       if (g && !(await weekLoadOk(studentId, [{ id: a ? a.id : undefined, status: st, session: Object.assign({ id: sid, school_year: CONFIG.schoolYear }, g), arrival_time: from, personal_end: to }]))) { f("save").disabled = false; return; } }
     try {
       if (a) await patch("assignments", "id=eq." + a.id, body);
-      else { const st = (box.querySelector("input[name=lgSt]:checked") || {}).value || "משובץ"; await insert("assignments", Object.assign({ student_id: studentId, status: st }, body)); }
+      else { const st = (box.querySelector("input[name=lgSt]:checked") || {}).value || "משובץ";
+        // 5.21.122: פרש/ה עם "מגיע/ה עד" – השיבוץ עד אותו תאריך
+        const wd = (CRS.ok ? crsOfStudent(studentId) : []).find(m => m.status === "פרש" && m.until_on && m.until_on >= todayIL() && CRS.byId[m.course_id] && !CRS.byId[m.course_id].marathon_id && !(crsOfStudent(studentId).some(x => x.status === "רשום" && !crsGone(x))));
+        await insert("assignments", Object.assign({ student_id: studentId, status: st }, body, wd ? { ends_on: wd.until_on } : {})); if (wd) toast("שובץ/ה עד " + fmtIso(wd.until_on) + " (פרש/ה)"); }
       await done(a ? "השיבוץ עודכן" : "נוסף שיבוץ");
     } catch(e) { f("err").textContent = e.code === "23505" ? "הילד/ה כבר משובץ/ת לקבוצה הזאת." : "השמירה נכשלה: " + e.message; f("save").disabled = false; }
   };
@@ -9128,7 +9133,8 @@ function openPanel(id){
 }
 // 5.20.29 (נועה): לקבוצה (שוטף ומרתון) – רק מי שבסטטוס "נרשם" בקורס: מרתון – בקורס של המרתון; שוטף – בתרגול של המחזור הפעיל
 async function asgRegOk(studentId, se){ try { if (!(await crsLoad())) return true; await crsEnsureStudent(studentId); } catch(e) { return true; }
-  const mar = se && (se.marathon_id || se.kind === "מרתון"), ms = crsOfStudent(studentId).filter(m => !crsGone(m) && m.status === "רשום" && CRS.byId[m.course_id]);
+  // 5.21.122 (נועה 12.11: "פרש – לאפשר לשבץ ידנית עד תאריך מסוים"): פרש/ה עם "מגיע/ה עד" שעוד לא עבר – כמו נרשם, והשיבוץ נשמר עד התאריך
+  const mar = se && (se.marathon_id || se.kind === "מרתון"), ms = crsOfStudent(studentId).filter(m => !crsGone(m) && (m.status === "רשום" || (m.status === "פרש" && m.until_on && m.until_on >= todayIL())) && CRS.byId[m.course_id]);
   const ok = mar ? ms.some(m => CRS.byId[m.course_id].marathon_id === se.marathon_id)
     : ms.some(m => { const c = CRS.byId[m.course_id]; return !c.marathon_id && crsActiveSeasons().has(c.season_id) && crsCat(c.category_id).kind === "regular"; });   // 181: "פנייה" היא לא קורס – לא מאפשרת שיבוץ
   if (!ok) await uiAlert(mar ? "אפשר לשבץ לקבוצה במרתון רק ילד/ה בסטטוס \"נרשם\" במרתון.\nקודם מסמנים שולם / משנים את הסטטוס בקורס של המרתון (בכרטיס)." : "אפשר לשבץ לקבוצה רק ילד/ה בסטטוס \"נרשם\" בתרגול השוטף.\nקודם משנים את הסטטוס בקורס (בכרטיס).");
