@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.118">
+<meta name="app-version" content="5.21.119">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1958,6 +1958,7 @@ div.crs-chip{ gap:4px !important; flex-wrap:wrap; } #leadsTbl div.crs-chip{ flex
 .stp-a{ display:none !important; } .stp-s{ min-width:0; }
 .stp-bar{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin-top:8px; padding-top:8px; border-top:1px solid #EFE7DE; }
 .stp-g{ display:inline-flex; flex-wrap:wrap; align-items:center; gap:6px; } #payPnl .nl-sec:has(.nl-f[data-k="track"]){ display:none; }   /* 5.21.118 (נועה): בלי מסלול / מקצוע בקישור תשלום – הקורס נבחר למעלה */
+#view-pay .pay-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; } #view-pay .pay-new{ margin-inline-start:auto; }
 .stp-gl{ font-size:12.5px; color:#6B625A; font-weight:700; } .stp-bar > .stp-can{ margin-inline-start:auto; display:inline-flex; align-items:center; gap:6px; }
 .stp-g .lc-sign, .stp-g .lc-sign-st{ display:inline-flex !important; flex-wrap:wrap; align-items:center; gap:6px; margin:0 !important; } .stp-g .lc-sign-st:empty{ display:none !important; }   /* 5.21.115: כמה כפתורים בשלב – אחד מתחת לשני, בלי לעלות על השלב הבא */
 .stp-a .lc-sign{ justify-content:center; margin:0; gap:6px; } .stp-a .lc-sign-st{ gap:6px; } .stp-a .lc-sign-st:empty{ display:none; }
@@ -3337,7 +3338,7 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
 
     <!-- ===== תשלומים (5.19.35: מסך נפרד מההרשמה) ===== -->
     <section id="view-pay" hidden>
-      <div class="page-head pay-head"><h1>תשלומים</h1><div class="gseg subnav reg-tabs pay-tabs" role="tablist" aria-label="תשלומים" id="payTop"></div><!-- 5.21 (נועה 3.11): הלשוניות בשורת הכותרת, כמו בשאר המסכים -->
+      <div class="page-head pay-head"><h1>תשלומים</h1><div class="gseg subnav reg-tabs pay-tabs" role="tablist" aria-label="תשלומים" id="payTop"></div><!-- 5.21 (נועה 3.11): הלשוניות בשורת הכותרת, כמו בשאר המסכים --><button class="btn primary pay-new" id="payNewLink" type="button" title="קישור תשלום אישי – גם למי שעוד אין לו/ה כרטיס" hidden>+ קישור תשלום</button><!-- 5.21.119 (נועה 12.11): בכותרת המסך, משמאל – גלוי מכל הלשוניות -->
 </div><div class="pg-tabs pay-sub2" role="tablist" id="paySub2"></div>
       <div id="payWrap">
         <div id="payDemo" class="demo" hidden>תצוגה לדוגמה - הנתונים כאן מדומים (שמות ומספרים לא אמיתיים). המסך יציג נתונים אמיתיים אחרי התקנת חבילת איקרדיט (קובץ 62.2).</div>
@@ -6718,6 +6719,8 @@ function crsStepper(m){
 document.addEventListener("click", (e) => { const b = e.target.closest && e.target.closest("[data-recq]"); if (!b) return;   // 5.21.103: הוראת קבע בלבד מהקורס
   const m = (typeof editing === "object" && editing && editing.student) ? crsOfStudent(editing.student.id).find(x => x.id === Number(b.dataset.recq)) : null;
   if (m && typeof PAY !== "undefined") PAY.newLink(m.student_id, "rec", m.id); });
+document.addEventListener("click", (e) => { if (e.target.closest && e.target.closest("#payNewLink") && typeof PAY !== "undefined") PAY.newBlank(); });   // 5.21.119
+setInterval(() => { const b = $("payNewLink"); if (b) b.hidden = !(typeof ME !== "undefined" && ME && ME.role === "admin"); }, 2000);
 // 5.21.115: פעולות שלב התשלום והתעניינות בכרטיס (במקום במסך התשלומים)
 const stOrdX = (m) => { const st = (editing && editing.student) || {}, c = CRS.byId[m.course_id] || {};
   return { kind: m.marathon_registration_id ? "marathon" : "registration", order_id: m.marathon_registration_id || m.enrollment_id, what: c.marathon_id ? "מרתון" : [crsCatN(c.category_id), CRS_TRK_S[mTrk(m)]].filter(Boolean).join(" – "), first_name: st.first_name || "", last_name: st.last_name || "" }; };
@@ -14015,7 +14018,7 @@ async function renderLinks(b){
   if (S.lq === undefined) { S.lq = ""; S.lst = ""; }
   const q = S.lq.trim(), list = all.filter(l => (!S.lst || l.status === S.lst) && (!q || [l.parent_name, l.student_name, l.description, l.fields && l.fields.parent_phone && l.fields.parent_phone.value].join(" ").includes(q)));
   const dirty = !!(q || S.lst), live = (l) => ["sent", "opened"].includes(l.status), isTr = (l) => !!l.trial || /^חודש ניסיון/.test(l.description || "");
-  b.innerHTML = `<div class="page-head pl-head"><span class="muted">קישור אישי להורה: תשלום חד-פעמי, ואם צריך – גם הוראת קבע. ההורה ממלא/ת, חותם/ת ומשלם/ת.</span><button class="btn small primary" id="lNew" type="button">+ קישור חדש</button></div>
+  b.innerHTML = `<div class="page-head pl-head"><span class="muted">קישור אישי להורה: תשלום חד-פעמי, ואם צריך – גם הוראת קבע. ההורה ממלא/ת, חותם/ת ומשלם/ת.</span></div>
     <div class="filters pl-flt"><div class="pl-q"><label class="lbl" for="lq">חיפוש</label><input id="lq" type="search" placeholder="הורה, תלמיד/ה, טלפון, על מה..." value="${esc(S.lq)}"></div>
       <div><label class="lbl" for="lst">סטטוס</label><select id="lst"><option value="">הכול</option>${Object.entries(LINK_ST).map(([k, t]) => `<option value="${k}" ${S.lst === k ? "selected" : ""}>${t}</option>`).join("")}</select></div></div>
     <div class="dx-bar"><span></span><span class="dx-bar-b"><span class="muted">${list.length} ${list.length === 1 ? "קישור" : "קישורים"}</span><button type="button" class="clear-f" id="lClr"${dirty ? "" : " disabled"}>✕ ניקוי סינון</button>${list.length ? `<button type="button" class="btn small" id="lXls" title="הורדה לאקסל"><span class="ic">⬇</span><span class="bt"> הורדה לאקסל</span></button>` : ""}</span></div>
@@ -14030,7 +14033,7 @@ async function renderLinks(b){
           ${l.has_pdf ? `<button class="btn small" data-pdf="${esc(l.code)}" type="button" title="טופס חתום">📄<span class="bt"> טופס</span></button>` : ""}<button class="btn small" data-ldup="${li}" type="button" title="שכפול – קישור חדש עם אותם פרטים">⧉<span class="bt"> שכפול</span></button><button class="btn small" data-ldet="${li}" type="button">פרטים</button></div></td></tr>`; }).join("")}</tbody></table>`
       : `<div class="card empty">${all.length ? "אין קישורים שמתאימים לסינון." : "עוד אין קישורים אישיים."}</div>`}`;
   wireCommon(b); wireLk(b);
-  $("lNew").onclick = () => newLink();
+  if ($("lNew")) $("lNew").onclick = () => newLink();
   $("lq").oninput = (e) => { S.lq = e.target.value; const pos = e.target.selectionStart; renderLinks(b).then(() => { const i = $("lq"); i.focus(); i.setSelectionRange(pos, pos); }); };
   $("lst").onchange = (e) => { S.lst = e.target.value; renderLinks(b); };
   $("lClr").onclick = () => { S.lq = ""; S.lst = ""; renderLinks(b); };
@@ -14486,7 +14489,7 @@ async function linkFromCard(code, sid){ let all = []; try { all = (await call("p
   const l = all.find(x => x.code === code); if (!l) { toast("הקישור לא נמצא"); return; } pnlCard(sid); linkDet(l, all, null); }
 async function kidPlan(sid, name){ setKid({ id: sid, name: name || "" }); S.focus = "plan"; PT = "tx-all"; store("telem_pay_tab", PT); go("pay"); await show("tx-all"); }
 async function kidAll(sid, name){ setKid({ id: sid, name: name || "" }); PT = "tx-all"; store("telem_pay_tab", PT); go("pay"); await show("tx-all"); }
-return { show, counts, refresh: liveRefreshPay, kid: setKid, kidPlan, kidAll, newLink: newFromCard, link: linkFromCard, rules: (el) => renderRules(el) };
+return { show, counts, refresh: liveRefreshPay, kid: setKid, kidPlan, kidAll, newLink: newFromCard, newBlank: () => newLink(), link: linkFromCard, rules: (el) => renderRules(el) };
 })();
 
 })();
