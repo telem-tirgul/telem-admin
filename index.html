@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.121">
+<meta name="app-version" content="5.21.122">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3023,6 +3023,14 @@ li.ro-lead{ opacity:.75; border-style:dashed !important; }
 .can-old > summary{ list-style:none; display:flex; align-items:center; gap:8px; } .can-old > summary::-webkit-details-marker{ display:none; } .can-old > summary::before{ width:18px !important; height:18px !important; background-size:12px !important; }
 .tf-pop{ position:absolute; z-index:9999; background:#fff; border:1px solid var(--border); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.14); max-height:300px; overflow:auto; padding:4px 0; font-size:14px; direction:rtl; }
 .tf-pop .tf-q{ padding:4px 12px 6px; font-weight:700; color:var(--accent); border-bottom:1px solid var(--border); } .tf-pop .tf-it{ padding:5px 12px; cursor:pointer; white-space:nowrap; } .tf-pop .tf-it.on, .tf-pop .tf-it:hover{ background:color-mix(in srgb, var(--accent) 10%, #fff); } .tf-pop .tf-none{ padding:6px 12px; }
+/* 5.21.122 (נועה 12.11: "גם כאן לצמצם – הכפתורים הכי משמאל, הסטטוס של כל השורות בעמודה אחת"): קישורים ותשלומים ללא קורס – אותן עמודות */
+@media (min-width:761px){
+#view-lead .lead-paywrap .lc-nocrs .nc-row, #view-lead .lead-paywrap .lp-rest .lp-dx .dx-pay{ display:grid !important; grid-template-columns:70px minmax(0,1fr) 90px 120px 300px !important; align-items:center; gap:4px 10px !important; padding:5px 2px !important; }
+#view-lead .lead-paywrap .lc-nocrs .nc-row > .nc-what{ grid-column:1 / 3; flex-direction:row !important; flex-wrap:wrap; align-items:baseline; gap:2px 8px; }
+#view-lead .lead-paywrap .lc-nocrs .nc-row > .nc-amt{ grid-column:3; } #view-lead .lead-paywrap .lc-nocrs .nc-row > .nc-st{ grid-column:4; justify-self:start; }
+#view-lead .lead-paywrap .lc-nocrs .nc-row > .nc-b{ grid-column:5; justify-self:end; display:flex; gap:6px; flex-wrap:nowrap; }
+#view-lead .lead-paywrap .lp-rest .lp-dx .dx-pay > :last-child{ justify-self:end; }
+}
 </style>
 </head>
 <body>
@@ -9594,8 +9602,8 @@ setInterval(() => { if (!document.hidden && typeof ME !== "undefined" && ME && M
 // ===== 5.19.56: תיבת הודעות מהטפסים (קובץ 71) =====
 // כל טופס שנשלח (הרשמה, מרתון, התעניינות, בקשת שיבוץ, ביטול חתום, תשלום אישי) = שורה. פרטים שלא תואמים (issues) - משיחת התשלומים
 const IB = { rows: null, f: "open", k: "", ks: new Set(), done: [], doneEnd: false, ok: true, lastMax: Number(store("telem_ib_max") || 0), names: {}, mars: {} };
-const IB_KIND = { material: ["📄", "חומר שלא שויך"], sign: ["✍️", "אישור תנאי התקשרות"], registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🗓️", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"], deleted: ["🗑", "כרטיס נמחק"] };   // 5.21.80 (188)   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
-const IB_FLAG = { blocked_already: ["t-warn", "ניסה/תה לשלוח שוב – נחסם (כבר רשום/ה)"], blocked_review: ["t-warn", "נעצר לבדיקה – אותו שם, בלי טלפון מוכר, וכבר רשום/ה (לא נשמר, לא שולם)"], status_mismatch: ["t-warn", "הסטטוס לא תואם לתשלום"], plan_withdrawn: ["t-warn", "לבטל בריווחית"], phone_pending: ["t-warn", "תשלום טלפוני ממתין"], system_issue: ["t-warn", "תקלה טכנית"], added: ["t-new", "נוסף/ה לקבוצה"],   // 5.19.127 (תש-16, icredit-24) removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
+const IB_KIND = { withdrawn: ["🚪", "פרש/ה מקורס"], material: ["📄", "חומר שלא שויך"], sign: ["✍️", "אישור תנאי התקשרות"], registration: ["📝", "הרשמה לתרגולים"], marathon: ["🏁", "הרשמה למרתון"], interest: ["💬", "התעניינות"], scheduling: ["🗓", "בקשת שיבוץ"], cancel: ["✍️", "ביטול חתום"], pay_link: ["💳", "תשלום אישי"], payment: ["💰", "תשלום"], group_diff: ["🗓️", "מול הקבוצה הקבועה"], contact: ["✉️", "פנייה מהאתר"], portal_code: ["🔑", "תלם שלי – ביקש/ה קוד"], duplicate: ["🔀", "כפילות אפשרית"], unassigned: ["🧩", "לא משובץ/ת"], deleted: ["🗑", "כרטיס נמחק"] };   // 5.21.80 (188)   // 5.19.123 (קובץ 106)   // 5.19.117 (קובץ 101): כפילויות מקובץ 89   // 5.19.97 (את-09, קובץ 85)   // 5.19.88 (קובץ 81): בדיקה יומית בשרת   // 5.19.58: payment - אירועי תשלום (icredit-18)
+const IB_FLAG = { withdrawn: ["t-warn", "להחליט מתי להוציא מהשיבוץ"], blocked_already: ["t-warn", "ניסה/תה לשלוח שוב – נחסם (כבר רשום/ה)"], blocked_review: ["t-warn", "נעצר לבדיקה – אותו שם, בלי טלפון מוכר, וכבר רשום/ה (לא נשמר, לא שולם)"], status_mismatch: ["t-warn", "הסטטוס לא תואם לתשלום"], plan_withdrawn: ["t-warn", "לבטל בריווחית"], phone_pending: ["t-warn", "תשלום טלפוני ממתין"], system_issue: ["t-warn", "תקלה טכנית"], added: ["t-new", "נוסף/ה לקבוצה"],   // 5.19.127 (תש-16, icredit-24) removed: ["t-warn", "הוסר/ה מהקבוצה"], absent: ["t-old", "חסר/ה בקבוצה הקבועה"], new_student: ["t-new", "חדש/ה"], existing_student: ["t-old", "קיים/ת אצלנו"], parent2_added: ["t-p2", "הורה 2 נוסף"], from_history: ["t-old", "מההיסטוריה"], reactivated: ["t-new", "כרטיס הופעל מחדש"],   /* 5.19.97 (קובץ 86) */
   possible_duplicate: ["t-warn", "כפילות אפשרית"], missed_charge: ["t-warn", "חיוב לא התקבל"], alert: ["t-warn", "דורש טיפול"], track_changed: ["t-old", "המסלול שונה"], track_change: ["t-warn", "בקשה לשינוי מסלול"],   /* תש-65 */ plan_paused: ["t-old", "הוראת קבע הושהתה"],
   plan_cancelled: ["t-warn", "הוראת קבע בוטלה"], plan_error: ["t-warn", "הוראת קבע לא הוקמה"], plan_changed: ["t-old", "הוראת קבע שונתה בריווחית"], plan_last_check: ["t-warn", "לבדוק את סכום יוני"], plan_reactivated: ["t-warn", "הוראה שסומנה \"בוטלה\" חודשה בריווחית"], lead_status_check: ["t-warn", "לבדוק סטטוס"],
   // נועה 6.11 (icredit-37/38): קישורים אישיים וחודש ניסיון
@@ -9603,7 +9611,7 @@ const IB_FLAG = { blocked_already: ["t-warn", "ניסה/תה לשלוח שוב �
   unpaid: ["t-warn", "עוד לא שולם"], trial: ["t-new", "חודש ניסיון"], trial_ending: ["t-warn", "חודש ניסיון מסתיים – לשלוח קישור הרשמה"], trial_plan: ["t-new", "ממשיך/ה לאחר הניסיון – הוראת קבע נקבעה"],
   trial_ended: ["t-warn", "נחתם לאחר סוף הניסיון – לשלוח קישור תשלום"], plan_same_month: ["t-warn", "שני חיובים באותו חודש"] };
 const ibKindOf = (r) => r.kind === "sign" && (r.ref_table === "pay_links" || (r.data || {}).pay_link) ? ["💳", "טופס תשלום אישי"] : IB_KIND[r.kind] || ["📥", r.kind];
-const IB_WARN_F = ["blocked_review", "plan_withdrawn", "mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check", "plan_last_check", "plan_reactivated"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
+const IB_WARN_F = ["blocked_review", "plan_withdrawn", "withdrawn", "mismatch", "possible_duplicate", "missed_charge", "alert", "plan_error", "plan_cancelled", "lead_status_check", "plan_last_check", "plan_reactivated"];   // 5.19.58: גם אירועי תשלום שדורשים טיפול
 // 5.19.134 (נועה 25.10): "שם פרטי לא תואם", "שם משפחה הורה לא תואם", "טלפון הורה לא תואם"… – בפירוש על התגית (מה היה ומה בטופס – בלחיצה)
 const IB_ISS_NM = { first_name: "שם פרטי", last_name: "שם משפחה", phone: "נייד תלמיד/ה" };
 const IB_ISS_SHORT = { phone_fixed: "נייד תלמיד/ה עודכן", phone_parent: "נייד בטופס – של הורה", parent2_added: "נוסף הורה 2", same_name: "אותו שם – כרטיס חדש", same_name_new_phone: "אותו שם, בלי טלפון מוכר – אולי כפול", duplicate: "ייתכן כפילות", grade_hist: "שכבה לפי שנים קודמות" };   // 114
@@ -9718,6 +9726,7 @@ function ibWhat(r){ const d = r.data || {}, m = IB.mars[d.marathon_id], amt = (x
         const TT = { single: "single", "unlimited-single": "unlimited-single", double: "double" }, trk0 = tk || TT[d.track] || "", ld = (L.leads || []).find(l => Number(l.student_id || (l.student && l.student.id)) === Number(r.student_id)), stu = (ld && ld.student) || {}, fam = stu.family || {};
         const pm = e.payment_method || d.payment_method || "";
         return [trk0 ? TN[trk0] || trk0 : d.track ? (typeof TRACK_T === "function" ? TRACK_T(d.track) : d.track) : "", e.subject || d.subject, fam.city || d.city, stu.school || d.school, e.trial_start ? "🎁 חודש ניסיון מ-" + fmtIso(e.trial_start) : "", amt(e.first_charge_amount != null ? e.first_charge_amount : d.first_charge_amount), pm && pm !== "אשראי באתר" ? (pm === "טלפוני" ? "תשלום טלפוני" : pm) : ""]; })()
+    : r.kind === "withdrawn" ? [d.course, d.text]   // 5.21.122 (SQL 200): פרש/ה מקורס – עד מתי לפי התנאים + השיבוצים
     : r.kind === "cancel" ? [d.school, d.subject, d.reason ? "סיבה: " + d.reason : ""]
     : r.kind === "pay_link" ? [d.description, amt(d.one_time_amount)]
     : r.kind === "sign" ? [d.course || d.description, d.pay_link ? amt(d.amount) : "", d.trial && d.trial.result === "plan" ? "חיוב ראשון ב-" + fmtIso(d.trial.first_date) + (d.trial.first_amount ? " – " + amt(d.trial.first_amount) : "") : "", (d.changes || []).length ? "עודכן: " + d.changes.map(c => c.field + " " + (c.old ? c.old + " ← " : "") + c.new).join(" · ") : "בלי שינוי בפרטים"]   // 5.20.1 (קובץ 140)
