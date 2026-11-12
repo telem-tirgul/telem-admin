@@ -3031,6 +3031,7 @@ li.ro-lead{ opacity:.75; border-style:dashed !important; }
 #view-lead .lead-paywrap .lc-nocrs .nc-row > .nc-b{ grid-column:5; justify-self:end; display:flex; gap:6px; flex-wrap:nowrap; }
 #view-lead .lead-paywrap .lp-rest .lp-dx .dx-pay > :last-child{ justify-self:end; }
 }
+.ui-dlg-ch .btn.ch-st{ border:0 !important; font-weight:800; border-radius:999px !important; } .ui-dlg-ch .btn.ch-st.ch-cur{ outline:2px solid var(--accent); outline-offset:2px; }
 </style>
 </head>
 <body>
@@ -4111,7 +4112,7 @@ function uiChoose(msg, opts){
   return new Promise((resolve) => {
     const bg = document.createElement("div"); bg.className = "ui-dlg-bg";
     bg.innerHTML = `<div class="ui-dlg" role="dialog" aria-modal="true"><div class="ui-dlg-t"></div><div class="ui-dlg-ch">${opts.map((o, i) => `<button type="button" class="btn${o.cls ? " ch-sc " + o.cls : ""}" data-ch="${i}"></button>`).join("")}</div><div class="ui-dlg-b"><button type="button" class="btn" data-no>ביטול</button></div></div>`;
-    bg.querySelector(".ui-dlg-t").textContent = msg; opts.forEach((o, i) => bg.querySelector(`[data-ch="${i}"]`).textContent = o.t);
+    bg.querySelector(".ui-dlg-t").textContent = msg; opts.forEach((o, i) => { const e = bg.querySelector(`[data-ch="${i}"]`); e.textContent = o.t; if (o.style) e.setAttribute("style", o.style); });
     const done = (v) => { document.removeEventListener("keydown", key, true); bg.remove(); resolve(v); };
     const key = (ev) => { if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); done(null); } };
     document.addEventListener("keydown", key, true);
@@ -4642,7 +4643,7 @@ document.addEventListener("change", async (ev) => { const el = ev.target; if (!e
   catch(e) { toast("לא נשמר: " + e.message); } finally { el.disabled = false; } });
 document.addEventListener("click", async (ev) => { const b = ev.target.closest && ev.target.closest("button[data-crsm]"); if (!b) return; ev.preventDefault(); ev.stopPropagation();
   const m = Object.values(CRS.cm).flat().find(x => x.id === Number(b.dataset.crsm)); if (!m) return; const c = CRS.byId[m.course_id] || {};
-  const v = await uiChoose(crsShort(c, true) + "\nמצב בקורס:", crsStList().filter(x => (x.kinds ? x.kinds.includes(c.marathon_id || crsCat(c.category_id).kind === "event" ? "event" : crsCat(c.category_id).kind || "regular") : (!crsIsLead(c) || x.for_lead !== false)) || x.name === m.status).map(x => x.name).map(x => ({ v: x, t: (CRS_IC[x] || "") + " " + crsStOf(x).label + (x === m.status ? " (עכשיו)" : "") }))); if (!v || v === m.status) return;
+  const v = await uiChoose(crsShort(c, true) + "\nמצב בקורס:", crsStList().filter(x => (x.kinds ? x.kinds.includes(c.marathon_id || crsCat(c.category_id).kind === "event" ? "event" : crsCat(c.category_id).kind || "regular") : (!crsIsLead(c) || x.for_lead !== false)) || x.name === m.status).map(x => x.name).map(x => ({ v: x, t: crsStOf(x).label + (x === m.status ? " ✓ (עכשיו)" : ""), style: stSoft(crsStOf(x).color || "#888"), cls: "ch-st" + (x === m.status ? " ch-cur" : "") }))); if (!v || v === m.status) return;   // 5.21.122 (נועה 12.11): בצבעים של הסטטוסים, בלי "–" / "?" לפני
   if (m.history_at && crsOfStudent(m.student_id).some(x => x.id !== m.id && x.course_id === m.course_id && !x.history_at)) { await uiAlert("יש כבר הרשמה חדשה לקורס הזה, אז את ההרשמה הקודמת אי אפשר להחזיר.\nמשנים את המצב בשורה הנוכחית של הקורס."); return; }   // תש-64 (נועה 8.11)
   if (!(await marLeaveOk(m, v))) return;   // נועה 7.11 (#2986)
   try { await patch("course_members", "id=eq." + m.id, { status: v, updated_at: new Date().toISOString() }); const st0 = m.status; m.status = v; toast("נשמר"); crsAfterStatus(m, st0).then(() => marAskGroup(m)); if (b.closest("#leadsTbl")) renderLeads(); else if (b.closest("#rgMain") || b.closest(".crs-drawer")) { renderCrsCourses(); crsDrawerRe(); } else if (editing) { loadLeadGroups(editing.student.id); if (typeof updSafe === "function") setTimeout(() => { if (currentView === "leads") renderLeads(); }, 0); } } catch(e) { toast("לא נשמר: " + e.message); } }, true);
