@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.120">
+<meta name="app-version" content="5.21.121">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3204,7 +3204,7 @@ li.ro-lead{ opacity:.75; border-style:dashed !important; }
           <details class="la-row"><summary><b>נוכחות אחרונה</b><span class="la-sum" data-of="leadAtt"></span></summary><div class="la-body"><div id="leadAtt" class="muted" style="font-size:13.5px;"></div></div></details><!-- נועה 7.11: הקורסים הקודמים – כאן למטה, עם השיבוצים, הנוכחות, התשלומים והחתימות שלהם; בלי "כל הטפסים החתומים" בנפרד -->
           <details class="la-row" hidden><summary><b>טפסי ביטול ישנים</b><span class="la-sum" data-of="leadCancel2"></span></summary><div class="la-body" id="canHome"><div id="leadCancel2" style="font-size:13.5px;"></div></div></details>
           <details class="la-row" id="leadTsRow" data-admin><summary><b>📱 תלם שלי</b><span class="la-sum" data-of="leadTs"></span></summary><div class="la-body"><div id="leadTs" style="font-size:13.5px;"></div></div></details><!-- 5.19.97 (של-21/32): ניהול החשבון עבר לכאן -->
-          <details class="la-row" id="leadOldRow"><summary><b>קודם</b><span class="la-sum" data-of="leadHist"></span></summary><div class="la-body"><!-- 5.21.83 (נועה 9.11): קורסים קודמים + שנים קודמות (מה-CRM) + טפסי ביטול ישנים – במקום אחד --><div class="old-h">קורסים קודמים</div><div id="leadOldCrs" style="font-size:13.5px;"></div><div class="lo-sig-h" id="leadSigH" hidden>טפסים חתומים שלא שייכים לקורס</div><div id="leadSig" class="muted" style="font-size:13.5px;"></div><div class="old-h">שנים קודמות (מה-CRM הישן)</div><div id="leadHist" class="muted" style="font-size:13.5px;"></div><div id="leadHistCan"></div></div></details>
+          <details class="la-row" id="leadOldRow"><summary><b>קורסים קודמים</b><span class="la-sum" data-of="leadOldCrs"></span></summary><div class="la-body"><!-- 5.21.83 (נועה 9.11): קורסים קודמים + שנים קודמות (מה-CRM) + טפסי ביטול ישנים – במקום אחד --><div class="old-h">קורסים קודמים</div><div id="leadOldCrs" style="font-size:13.5px;"></div><div class="lo-sig-h" id="leadSigH" hidden>טפסים חתומים שלא שייכים לקורס</div><div id="leadSig" class="muted" style="font-size:13.5px;"></div><div class="old-h">שנים קודמות (מה-CRM הישן)</div><div id="leadHist" class="muted" style="font-size:13.5px;"></div><div id="leadHistCan"></div></div></details>
           <details class="la-row"><summary><b>היסטוריית שינויים</b><span class="la-sum" data-of="leadLog"></span></summary><div class="la-body"><div id="leadLog" class="lead-log"></div></div></details>
         </div>
             </div>
@@ -6947,7 +6947,7 @@ async function loadLeadGroups(studentId){
         <div class="lg-edit" data-ed="${a.id}" hidden></div></div>`;
     };
     { LG_OLD = ""; const h = await crsGroupsHtml(studentId, cur, lgCard); if (stale()) return; parkTrack(); $("leadGroups").innerHTML = h; $("leadLoading").hidden = true; rlPlace();
-      { const ob = $("leadOldCrs"); if (ob) { ob.innerHTML = LG_OLD || "<span class='muted'>אין קורסים קודמים.</span>"; ob.dataset.sum = LG_OLD ? (ob.querySelectorAll(".lc-old-r").length + " קורסים") : "אין"; } }
+      { const ob = $("leadOldCrs"); if (ob) { ob.innerHTML = LG_OLD || "<span class='muted'>אין קורסים קודמים.</span>"; { const n = ob.querySelectorAll(".lc-old-r").length; ob.dataset.sum = LG_OLD ? (n === 1 ? "קורס אחד" : n + " קורסים") : "אין"; } }   // 5.21.121 (נועה 12.11: "למה כתוב שאין?" – התקציר מהקורסים הקודמים, לא מה-CRM הישן) }
       sigSlotsPaint(); lgFold(studentId);
       { const ab = $("leadGroups").querySelector("[data-lgaddcrs]"); if (ab) ab.onclick = () => { const b = $("lcAdd"); if (b) b.click(); }; }
       const rb = $("leadGroups").querySelector("[data-crsretry]"); if (rb) rb.onclick = () => loadLeadGroups(studentId); }   // 5.19.162: פרטי הקורס מעל השיבוצים
