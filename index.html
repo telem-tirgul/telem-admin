@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.125">
+<meta name="app-version" content="5.21.126">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -10336,7 +10336,7 @@ function openMarathonEditor(m, inPanel, pre){
         b.querySelectorAll("[data-rmdate]").forEach(r => r.onclick = () => r.closest(".d").remove()); };
       const rm = b.querySelector("[data-grm]"); if (rm) rm.onclick = () => { readGroups(); GRPS.splice(Number(b.dataset.gi), 1); paintGroups(); };
     });
-    w.querySelector("[data-gnew]").onclick = () => { readGroups(); const f = GRPS[0] || { meets: [], cap: 15 };
+    w.querySelector("[data-gnew]").onclick = () => { readGroups(); const f = GRPS[0] || { meets: [], cap: 30 };
       // קבוצה נוספת: אותם תאריכים, השעות מתחילות בסוף הקבוצה הקודמת (אפשר לשנות)
       const prev = GRPS[GRPS.length - 1] || f;
       GRPS.push({ label: "קבוצה " + GL.charAt(GRPS.length) + "'", cap: f.cap, room: "", kids: 0,
@@ -10349,7 +10349,7 @@ function openMarathonEditor(m, inPanel, pre){
       x.label = b.querySelector("[data-gl]").value.trim(); x.cap = b.querySelector("[data-gc]").value === "" ? null : Number(b.querySelector("[data-gc]").value); 
       x.meets = [...b.querySelectorAll(".d")].map(meetRead)
         .filter(z => z.date || z.start || z.end).sort((a, c) => a.date.localeCompare(c.date)); }); };
-  if (!m) { GRPS = [{ label: "קבוצה א'", cap: 15, room: "", kids: 0, meets: pre.meets && pre.meets.length ? pre.meets : [{ date: pre.date || "" }, {}] }]; paintGroups(); }
+  if (!m) { GRPS = [{ label: "קבוצה א'", cap: 30, room: "", kids: 0, meets: pre.meets && pre.meets.length ? pre.meets : [{ date: pre.date || "" }, {}] }]; paintGroups(); }
   else (async () => {
     let ss = [], kc = {};
     try { ss = await get("sessions", "select=id,meeting_dates,meetings,start_time,end_time,time_label,capacity,room,location_id&marathon_id=eq." + m.id + "&kind=eq." + encodeURIComponent("מרתון") + "&order=id"); }
@@ -10472,7 +10472,7 @@ async function openMarGroupEditor(m, se){
     <div class="full"><label class="lbl">המפגשים</label><div class="mar-dates" data-g="dates"><div class="dh"><span>תאריך</span><span>שעת התחלה</span><span>שעת סיום</span><span>כיתה</span><span></span></div>${meets.map(m => meetRow(m)).join("")}</div>
       <button type="button" class="btn small" data-g="adddate" style="margin-top:6px;">+ מפגש</button></div>
     <div class="full"><label class="lbl">מתרגלים בקבוצה</label>${insPicker(se ? curIns : STAFF_ALL.filter(x => x.role === "admin").map(x => x.id))}</div>
-    <div><label class="lbl">מקסימום נרשמים</label><input type="number" min="1" data-g="cap" value="${se && se.capacity != null ? se.capacity : 15}"></div>
+    <div><label class="lbl">מקסימום נרשמים</label><input type="number" min="1" data-g="cap" value="${se && se.capacity != null ? se.capacity : 30}"></div>
     <label class="chk g-chk"><input type="checkbox" data-g="open" ${!se || se.is_open !== false ? "checked" : ""}> פתוחה להרשמה</label>
     <div class="g-btn-cell"></div>
     </div></details>
