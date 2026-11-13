@@ -3032,6 +3032,16 @@ li.ro-lead{ opacity:.75; border-style:dashed !important; }
 #view-lead .lead-paywrap .lp-rest .lp-dx .dx-pay > :last-child{ justify-self:end; }
 }
 .ui-dlg-ch .btn.ch-st{ border:0 !important; font-weight:800; border-radius:999px !important; } .ui-dlg-ch .btn.ch-st.ch-cur{ outline:2px solid var(--accent); outline-offset:2px; }
+/* 5.21.122 (נועה 13.11: "המרחקים בין השורות לא בסטנדרט"): ב"פרטים נוספים" – אותו מרווח בין השורות כמו בפרטים העיקריים */
+#view-lead #studentBox .form-grid{ row-gap:12px !important; } #view-lead #studentBox .sd-more{ margin-top:12px !important; }
+/* 5.21.122 (נועה 13.11 – כלל השדות, CLAUDE.md): שם השדה 13px מודגש, 4px עד השדה, שדה 40px – גם בהוספה לקורס ובחלון דף התשלום */
+.crs-inl-ex label.lbl, #payPnl .nl-f > label, #payPnl label.lbl{ font-size:13px !important; font-weight:700 !important; margin:0 0 4px !important; padding:0 !important; line-height:1.3 !important; display:block; }
+.crs-inl-ex .form-grid select, .crs-inl-ex .form-grid input:not([type=checkbox]):not([type=radio]), #payPnl .nl-f select, #payPnl .nl-f input:not([type=checkbox]):not([type=radio]){ height:40px !important; min-height:40px !important; box-sizing:border-box; }
+#payPnl .nl-f > .nl-lr{ display:flex !important; align-items:center !important; justify-content:space-between; gap:6px; margin:0 0 4px !important; min-height:0 !important; padding:0 !important; } #payPnl .nl-lr > label.lbl{ margin:0 !important; } #payPnl .nl-lr .nl-req{ padding:0 !important; margin:0 !important; line-height:1.3 !important; min-height:0 !important; }
+/* 5.21.122 (נועה 13.11): כלל השדות – בכל טופס במערכת (.form-grid) */
+.form-grid label.lbl, .g-edit label.lbl, .st-form label.lbl{ font-size:13px !important; font-weight:700 !important; margin:0 0 4px !important; line-height:1.3; }
+.st-form > div > select, .st-form > div > input:not([type=checkbox]):not([type=radio]){ height:40px !important; box-sizing:border-box; }
+.form-grid > div > select, .form-grid > div > input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]), .form-grid > .field > input:not([type=checkbox]):not([type=radio]){ height:40px !important; min-height:40px; box-sizing:border-box; }
 </style>
 </head>
 <body>
@@ -6063,7 +6073,7 @@ function openLead(id){
   $("leadGroups").textContent = "";
   setLeadEdit(!(l && LEAD_MOB())); setLeadDirty(false);   // 5.19.23: בנייד נפתח לצפייה; "✎ עריכה" פותח את הטופס
   go("lead");
-  $("studentBox").open = !isMobile() || !l; setTimeout(studentSumPaint, 0);   // 5.21.83 (נועה 9.11): פתוח תמיד – מתחת לפרטים העיקריים
+  $("studentBox").open = !l;   /* 5.21.122 (נועה 13.11): "פרטים נוספים" מקופל בדיפולט (גם במחשב; בכרטיס חדש – פתוח) */ setTimeout(studentSumPaint, 0);   // 5.21.83 (נועה 9.11): פתוח תמיד – מתחת לפרטים העיקריים
   parkTrack(); renderTrack(l); $("leadPay").innerHTML = ""; $("leadPayments").innerHTML = ""; $("leadCancel2").innerHTML = "";
   leadQuick(l ? l.student : null, null);
   $("leadLoading").hidden = !l;   // 5.21.4 (נועה): "טוען…" עד שהקורסים והשיבוצים עולים
