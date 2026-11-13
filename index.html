@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.122">
+<meta name="app-version" content="5.21.123">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -4545,7 +4545,7 @@ async function regLinksPaint(sid){ const slot = $("lcAddSlot"); if (!slot || !si
       <div class="nc-what"><b>${x.trial ? "🎁 חודש ניסיון – טופס הרשמה אישי" : "טופס הרשמה אישי"}</b><span class="muted">${esc(x.city || "")}${x.city ? " · " : ""}${x.trial && x.trial_start ? "מתחיל " + dm(x.trial_start) + " · " : ""}נשלח ${dm(x.created_at)} – כשההורה ממלא/ה, נכנס/ת לקורס</span></div>
       <div class="nc-amt"></div>${x.status === "expired" ? chip(x.status) : ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}
       <div class="nc-b">${x.status !== "registered" && x.status !== "expired" ? share(rlUrl(x.url, sid), x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה") : ""}</div></div>`)).join("");
-  { const pw = document.querySelector("#view-lead .lead-paywrap"), wait = pl.some(x => ["sent", "opened", "submitted"].includes(x.status)); if (pw && wait) pw.open = true; }
+  { const pw = document.querySelector("#view-lead .lead-paywrap"), wait = pl.some(x => ["sent", "opened", "submitted"].includes(x.status)); /* 5.21.123 (נועה 13.11): "תשלומים ללא קורס" – מקופל בדיפולט, לא נפתח לבד */ }
   // 5.21.88 (נועה 10.11): טופס הרשמה אישי / חודש ניסיון – לא ב"ללא קורס", אלא שורה עם אייקון בתוך התרגול השוטף של השנה
   L.rlPend = { sid, html: ls.filter(x => !["registered", "expired"].includes(x.status)).slice(0, 3).map(x => `<div class="lg-rl"><span class="lg-rl-w">${x.trial ? "🎁 חודש ניסיון" : "📝 טופס הרשמה"}${x.trial && x.trial_start ? " מ-" + dm(x.trial_start) : ""}${x.discount && x.discount.pct ? " · 🏷️ " + x.discount.pct + "% הנחה" : ""}<small class="muted"> · נשלח ${dm(x.created_at)}</small></span>${ncStp([["sent", "נשלח"], ["opened", "נפתח"], ["registered", "נרשם"]], x.status)}<span class="nc-b">${share(rlUrl(x.url, sid), x.trial ? "טופס ההרשמה לחודש הניסיון" : "טופס ההרשמה")}</span></div>`).join("") };
   rlPlace();   // 5.21.88: מחכה למשהו – פתוח
@@ -6074,7 +6074,7 @@ function openLead(id){
   $("leadGroups").textContent = "";
   setLeadEdit(!(l && LEAD_MOB())); setLeadDirty(false);   // 5.19.23: בנייד נפתח לצפייה; "✎ עריכה" פותח את הטופס
   go("lead");
-  $("studentBox").open = !l;   /* 5.21.122 (נועה 13.11): "פרטים נוספים" מקופל בדיפולט (גם במחשב; בכרטיס חדש – פתוח) */ setTimeout(studentSumPaint, 0);   // 5.21.83 (נועה 9.11): פתוח תמיד – מתחת לפרטים העיקריים
+  $("studentBox").open = !l; { const pw = document.querySelector("#view-lead .lead-paywrap"); if (pw) pw.open = false; }   /* 5.21.123: תשלומים ללא קורס – מקופל בכל פתיחת כרטיס */   /* 5.21.122 (נועה 13.11): "פרטים נוספים" מקופל בדיפולט (גם במחשב; בכרטיס חדש – פתוח) */ setTimeout(studentSumPaint, 0);   // 5.21.83 (נועה 9.11): פתוח תמיד – מתחת לפרטים העיקריים
   parkTrack(); renderTrack(l); $("leadPay").innerHTML = ""; $("leadPayments").innerHTML = ""; $("leadCancel2").innerHTML = "";
   leadQuick(l ? l.student : null, null);
   $("leadLoading").hidden = !l;   // 5.21.4 (נועה): "טוען…" עד שהקורסים והשיבוצים עולים
@@ -6460,7 +6460,7 @@ ${!okr && (r.reason || r.issue) ? `<span class="dx-why">⚠ ${esc(r.reason || r.
         toast("חובר לקורס" + (res && res.order_kind ? " · ההזמנה סומנה כשולמה" : "") + (res && res.price != null && Number(res.price) !== Number(res.amount) ? ` · הפרש ${fmtMoney(Number(res.price) - Number(res.amount))}` : ""));
         LP_CACHE = null; loadLeadPayments(l); loadLeadGroups(l.student.id); }
       catch(err) { const m = String(err.message || ""); toast(/already has an order/.test(m) ? "התשלום כבר מחובר להזמנה" : /not approved/.test(m) ? "התשלום לא אושר" : /does not match/.test(m) ? "הקורס לא של התלמיד/ה הזה/ו" : "לא חובר: " + m); bt.disabled = false; } }; });   // 5.21.83: בתוך המסגרת המתכווצת "תשלומים ללא קורס"
-  { const pw = document.querySelector("#view-lead .lead-paywrap"), ps = $("pwSum"); if (ps) { ps.dataset.n = rest ? rest.rows.length + rest.pend.length + rest.plans.length + rest.regs.length : 0; pwSumPaint(); } if (pw && (open0 || (rest && rest.pend.length))) pw.open = true; }
+  { const pw = document.querySelector("#view-lead .lead-paywrap"), ps = $("pwSum"); if (ps) { ps.dataset.n = rest ? rest.rows.length + rest.pend.length + rest.plans.length + rest.regs.length : 0; pwSumPaint(); } if (pw && open0) pw.open = true; }   /* 5.21.123: רק אם היה פתוח (רענון) – לא נפתח לבד */
   const wire = (root) => {
   root.querySelectorAll("[data-lppaid]").forEach(b => b.onclick = async () => { b.disabled = true;
     if (await markPaid(pend[Number(b.dataset.lppaid)])) { setTimeout(() => { if (editing && editing.id === l.id) { loadLeadPayments(l); loadLeadGroups(l.student.id); const nl = L.leads.find(x => x.id === l.id); if (nl) { } } }, 1500); } else b.disabled = false; });
