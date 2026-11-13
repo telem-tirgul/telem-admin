@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.126">
+<meta name="app-version" content="5.21.127">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -2996,10 +2996,10 @@ body[data-view="att"][data-amode]:not([data-amode="a"]) .att-stick{ background:v
    שני גדלים: כותרת מסך (.page-head) – הגודל הרגיל; כל השאר בתוך המסך – 28px, טקסט 12.5.
    ארבעה סוגים: ניווט (.nav-b) – בורדו מלא, גלולה · פעולה ראשית (.primary) – בורדו מלא · פעולה רגילה – לבן, טקסט ומסגרת בורדו · ביטול / מחיקה (.danger) – אדום */
 :is([id^="view-"], #payPnl) .btn:not(:is(.page-head, .filters, .dx-bar, .gseg, .tabs, .pay-tabs, .crs-tabs) .btn){ min-height:28px; padding:4px 10px; font-size:12.5px; line-height:18px; box-sizing:border-box; }
-:is([id^="view-"], #payPnl) .btn:not(.primary):not(.danger):not(.nav-b):not(:disabled):not(:is(.page-head, .filters, .dx-bar, .gseg, .tabs, .pay-tabs, .crs-tabs, .ui-dlg) .btn){ background:#fff; color:#6B1A1F; border:1px solid #B97A80; }
-:is([id^="view-"], #payPnl) .btn:not(.primary):not(.danger):not(.nav-b):not(:disabled):not(:is(.page-head, .filters, .dx-bar, .gseg, .tabs, .pay-tabs, .crs-tabs, .ui-dlg) .btn):hover{ background:#F8EEEF; }
-.btn.nav-b{ background:#6B1A1F !important; color:#fff !important; border-color:#6B1A1F !important; border-radius:999px !important; padding-inline:12px !important; }
-.btn.nav-b:hover{ background:#4E1216 !important; }
+:is([id^="view-"], #payPnl) .btn:not(.primary):not(.danger):not(.nav-b):not(:disabled):not(:is(.page-head, .filters, .gseg, .tabs, .pay-tabs, .crs-tabs, .ui-dlg) .btn){ background:var(--paper); color:var(--accent); border:1px solid var(--accent); }
+:is([id^="view-"], #payPnl) .btn:not(.primary):not(.danger):not(.nav-b):not(:disabled):not(:is(.page-head, .filters, .gseg, .tabs, .pay-tabs, .crs-tabs, .ui-dlg) .btn):hover{ background:color-mix(in srgb, var(--accent) 8%, var(--paper)); }
+.btn.nav-b{ background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; border-radius:999px !important; padding-inline:12px !important; }
+.btn.nav-b:hover{ background:color-mix(in srgb, var(--accent) 85%, #000) !important; }
 .disc-dlg .disc-pct{ display:flex; align-items:center; gap:8px; font-weight:600; margin:6px 0 10px; }
 .disc-dlg .disc-pct input{ width:80px; }
 .disc-dlg .disc-l{ font-weight:600; margin:4px 0; }
@@ -3046,6 +3046,17 @@ li.ro-lead{ opacity:.75; border-style:dashed !important; }
 .ib-gd-c1 > span{ display:flex; flex-wrap:wrap; align-items:center; column-gap:4px; } .ib-gd-c1 > span > .ib-time{ flex-basis:100%; } .ib-gd-c1 .ib-sch{ margin-inline-start:0; }
 .ib-gd-n .ib-sch{ font-weight:700; }
 .g-grad{ color:#6B5B2E; font-weight:700; white-space:nowrap; }
+/* ===== 5.21.127 (נועה 13.11 – בדיקה מול קונספט-עיצוב.md): מה שעוד לא היה לפי הכללים =====
+   כפתור בתוך המסך – 28px, טקסט 12.5 (גם בשורה מעל הטבלה, בלוח המבחנים, בניווט בין ימים ובחלונות הבחירה); שם שדה 13px, 4px עד השדה, שדה 40px */
+:is([id^="view-"], #payPnl) .btn:not(:is(.page-head, .filters, .gseg, .tabs, .pay-tabs, .crs-tabs, .pay-flt) .btn):not(.home-tile),
+.ui-dlg .ui-dlg-b .btn, .ui-dlg .ui-dlg-ch .btn{ height:28px !important; min-height:28px !important; padding-block:0 !important; font-size:12.5px !important; line-height:26px !important; box-sizing:border-box; }
+.ui-dlg .ui-dlg-ch .btn{ height:auto !important; min-height:28px !important; line-height:18px !important; padding-block:4px !important; }
+#view-pay .pay-flt .pf-tog{ font-size:12.5px !important; }
+.ui-dlg .ui-dlg-b .btn:not(.primary):not(.danger):not(:disabled){ background:var(--paper) !important; color:var(--accent) !important; border:1px solid var(--accent) !important; }
+#view-exams .ex-pal > button{ height:28px !important; min-height:28px !important; font-size:12.5px !important; padding-block:0 !important; }
+:is([id^="view-"] .filters, #view-pay .pay-flt) :is(label.lbl, .lbl){ font-size:13px !important; font-weight:700 !important; line-height:16px !important; margin:0 0 4px !important; display:block; }
+#payPnl .nl-f2 .nl-lr{ min-height:0 !important; margin:0 0 4px !important; }
+@media (max-width:760px){ #view-lead #studentBox :is(input, select){ height:40px !important; min-height:40px !important; } }
 </style>
 </head>
 <body>
