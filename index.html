@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.124">
+<meta name="app-version" content="5.21.125">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -9887,7 +9887,7 @@ function ibGdGroup(g, when){
   const TL = new Map(), tk = (d, sid) => String(d).slice(0, 10) + "|" + (sid ? Number(sid) : "");
   att.forEach(x => { const k = tk(x.lesson_date, x.session_id); TL.set(k, Math.max(TL.get(k) || 0, x.present ? 1 : 0)); });
   ms.forEach(r => { const d = String(dd(r)).slice(0, 10), sid = (r.data || {}).session_id, k = tk(d, sid);
-    if (TL.has(k) || [...TL.keys()].some(x => x.startsWith(d + "|"))) return; TL.set(k, 0); });   // אותו יום כבר נספר (נוכחות או התראה אחרת)
+    if (TL.has(k) || (!sid && [...TL.keys()].some(x => x.startsWith(d + "|")))) return; TL.set(k, 0); });   // אותו שיעור כבר נספר; 5.21.125 (נועה 13.11): שתי קבוצות באותו יום (כפול) – שני שיעורים
   const tl = [...TL.entries()].map(([k, v]) => [k, v]);
   let run = 0, maxRun = 0; tl.sort((a, b) => a[0].localeCompare(b[0])).forEach(([, v]) => { run = v ? 0 : run + 1; if (run > maxRun) maxRun = run; });
   // 5.21.121 (נועה 12.11: "אפשר לקצר? רק שתי התראות"): (1) החסיר/ה X פעמים ברצף; (2) הגיע/ה לקבוצה אחרת במקום לקבוצה שלו/ה יותר מפעמיים ברצף (שבועות) – כדאי להעביר קבוצה קבועה
@@ -9895,8 +9895,9 @@ function ibGdGroup(g, when){
   let swR = 0, swMax = 0; [...W.entries()].sort(([a], [b]) => a.localeCompare(b)).forEach(([, x]) => { swR = x.came.length && x.miss.length ? swR + 1 : 0; if (swR > swMax) swMax = swR; });
   let sum2 = [streak, swMax > 2 ? `<span class="gdg-mv">⟳ כדאי להעביר קבוצה קבועה <small class="muted">(${swMax} פעמים ברצף בקבוצה אחרת)</small></span>` : ""].filter(Boolean).join(" · ");
   // 5.21.123 (נועה 13.11: "בחלק מההתראות אין לי מידע בשורה"): בלי אחת משתי ההתראות – מה קרה, בקצרה ובאפור (לא דורש טיפול)
-  if (!sum2) { const ws = [...W.values()], nMiss = ws.filter(x => x.miss.length && !x.came.length).length, nSw = ws.filter(x => x.came.length && x.miss.length).length;
-    sum2 = `<span class="muted">${[nMiss ? `חסר/ה ${nMiss === 1 ? "פעם אחת" : nMiss + " פעמים"} (לא ברצף)` : "", nSw ? `${nSw === 1 ? "פעם אחת" : nSw + " פעמים"} בקבוצה אחרת` : ""].filter(Boolean).join(" · ") || "אין חריגה"} – לא דורש טיפול</span>`; }
+  // 5.21.125 (נועה 13.11: "כן חסר פעמיים ברצף"): הספירה לפי שיעורים (לא שבועות), ו"ברצף" – כשבאמת ברצף
+  if (!sum2) { const ws = [...W.values()], nMiss = tl.filter(([, v]) => !v).length, nSw = ws.filter(x => x.came.length && x.miss.length).length, tms = (n) => n === 1 ? "פעם אחת" : n === 2 ? "פעמיים" : n + " פעמים";
+    sum2 = `<span class="muted">${[nMiss ? `חסר/ה ${tms(nMiss)}${maxRun >= 2 ? (maxRun === nMiss ? " ברצף" : ` (${tms(maxRun)} ברצף)`) : nMiss > 1 ? " (לא ברצף)" : ""}` : "", nSw ? `${tms(nSw)} בקבוצה אחרת` : ""].filter(Boolean).join(" · ") || "אין חריגה"} – עוד לא התראה (מ-3 ברצף)</span>`; }
   return `<div class="ib-gd gdg ${done ? "handled" : g.some(r => r.status === "new") ? "new" : "seen"}${gOpen ? " gd-open" : ""}" data-ib="${r0.id}">
     <div class="gdg-h" data-gdtg="${r0.student_id}" role="button" tabindex="0" aria-expanded="${gOpen}" title="לחיצה – הפרטים לפי שבועות"><span class="ib-ic" title="נוכחות מול הקבוצה"><span class="gdg-car" aria-hidden="true"></span>🗓️</span><b class="ib-gd-n">${ibNameLink(r0, lead)}${ibSch(r0, lead)}</b><span class="ib-k gdg-k">מול הקבוצה הקבועה</span>
       <span class="gdg-sum">${head}</span><span class="gdg-sum2">${sum2}</span><small class="ib-time">${esc(when(g[g.length - 1].created_at))}</small>
