@@ -3043,6 +3043,7 @@ li.ro-lead{ opacity:.75; border-style:dashed !important; }
 .st-form > div > select, .st-form > div > input:not([type=checkbox]):not([type=radio]){ height:40px !important; box-sizing:border-box; }
 .form-grid > div > select, .form-grid > div > input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]), .form-grid > .field > input:not([type=checkbox]):not([type=radio]){ height:40px !important; min-height:40px; box-sizing:border-box; }
 .lc-old-can .hist-can{ font-size:12.5px; padding:2px 0; } #leadHistCan .lc-old-list{ margin-top:0; }
+.ib-gd-c1 > span{ display:flex; flex-wrap:wrap; align-items:center; column-gap:4px; } .ib-gd-c1 > span > .ib-time{ flex-basis:100%; } .ib-gd-c1 .ib-sch{ margin-inline-start:0; }
 </style>
 </head>
 <body>
@@ -9763,7 +9764,7 @@ function selTypeFilter(sel){ if (!sel || sel.dataset.tf) return; sel.dataset.tf 
 ["fCity", "fSchool", "fCourse", "fManager", "fCrsTrk"].forEach(id => selTypeFilter(document.getElementById(id)));
 
 // 5.21.121 (נועה 12.11: "לכתוב את בית הספר של הילד בצבע המתאים ליד השם – כדי שנדע מאיפה הוא")
-const ibSch = (r, lead) => { const d = r.data || {}, p = d.payload || {}, sc = String((lead && lead.student && lead.student.school) || d.school || p.school || "").trim(); return sc ? ` <span class="school-chip ib-sch ${scCls(sc)}" title="בית ספר">${esc(sc)}</span>` : ""; };
+const ibSch = (r, lead) => { const d = r.data || {}, p = d.payload || {}, st = (lead && lead.student) || {}, scId = st.school_id || d.school_id, scN = scId && (L.schools || []).find(x => x.id === scId), sc = String((typeof st.school === "string" && st.school) || (scN && scN.name) || d.school || p.school || "").trim();   /* 5.21.123: גם לפי school_id (בכל סוגי ההתראות) */ return sc ? ` <span class="school-chip ib-sch ${scCls(sc)}" title="בית ספר">${esc(sc)}</span>` : ""; };
 const ibNameLink = (r, lead) => lead ? `<a class="name-link" data-ibl="${lead.id}">${esc(ibName(r))}</a>` : r.student_id ? `<a class="name-link" data-ibsid="${r.student_id}">${esc(ibName(r))}</a>` : esc(ibName(r));
 async function ibOpenStudent(sid, el){
   const find = () => (L.leads || []).find(l => Number(l.student_id) === Number(sid));
@@ -9830,7 +9831,7 @@ function ibGdCard(r, when){
   }
   // 5.19.97 (נועה): כל אירוע בשורה אחת – ילד/ה | מה קרה | שיבוצים קבועים | פעולות (בנייד – זה מתחת לזה)
   return `<div class="ib-gd ${ibCls(r.status)}" data-ib="${r.id}">
-    <div class="ib-gd-c1"><span class="ib-ic" title="נוכחות מול הקבוצה">🗓️</span><span><b class="ib-gd-n">${ibNameLink(r, lead)}</b><small class="ib-time">${esc(when(r.created_at))}</small></span></div>
+    <div class="ib-gd-c1"><span class="ib-ic" title="נוכחות מול הקבוצה">🗓️</span><span><b class="ib-gd-n">${ibNameLink(r, lead)}</b>${ibSch(r, lead)}<small class="ib-time">${esc(when(r.created_at))}</small></span></div>
     <div class="ib-gd-c2"><span class="ib-gd-k">מה קרה</span><span class="ib-gd-v">${tag}${lesson}${what}</span></div>
     <div class="ib-gd-c3"><span class="ib-gd-k">שיבוצים קבועים</span><span class="ib-gd-v">${fxH}</span></div>
     <div class="ib-gd-a">${done ? `<span class="muted">✓ טופל${r.note ? " · " + esc(r.note) : ""}</span>` : acts}</div></div>`;
@@ -9893,7 +9894,7 @@ function ibGdGroup(g, when){
   let swR = 0, swMax = 0; [...W.entries()].sort(([a], [b]) => a.localeCompare(b)).forEach(([, x]) => { swR = x.came.length && x.miss.length ? swR + 1 : 0; if (swR > swMax) swMax = swR; });
   const sum2 = [streak, swMax > 2 ? `<span class="gdg-mv">⟳ כדאי להעביר קבוצה קבועה <small class="muted">(${swMax} פעמים ברצף בקבוצה אחרת)</small></span>` : ""].filter(Boolean).join(" · ");
   return `<div class="ib-gd gdg ${done ? "handled" : g.some(r => r.status === "new") ? "new" : "seen"}${gOpen ? " gd-open" : ""}" data-ib="${r0.id}">
-    <div class="gdg-h" data-gdtg="${r0.student_id}" role="button" tabindex="0" aria-expanded="${gOpen}" title="לחיצה – הפרטים לפי שבועות"><span class="ib-ic" title="נוכחות מול הקבוצה"><span class="gdg-car" aria-hidden="true"></span>🗓️</span><b class="ib-gd-n">${ibNameLink(r0, lead)}</b><span class="ib-k gdg-k">מול הקבוצה הקבועה</span>
+    <div class="gdg-h" data-gdtg="${r0.student_id}" role="button" tabindex="0" aria-expanded="${gOpen}" title="לחיצה – הפרטים לפי שבועות"><span class="ib-ic" title="נוכחות מול הקבוצה"><span class="gdg-car" aria-hidden="true"></span>🗓️</span><b class="ib-gd-n">${ibNameLink(r0, lead)}</b>${ibSch(r0, lead)}<span class="ib-k gdg-k">מול הקבוצה הקבועה</span>
       <span class="gdg-sum">${head}</span><span class="gdg-sum2">${sum2}</span><small class="ib-time">${esc(when(g[g.length - 1].created_at))}</small>
       <span class="gdg-a">${done ? `<span class="muted">✓ טופל</span>` : ids ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל (${ids.split(",").length})</button>` : ""}</span></div>
     <div class="gdg-body"${gOpen ? "" : " hidden"}>${fx.length ? "" : `<div class="gdg-fx"><span class="gdg-l">שיבוצים קבועים:</span> ${fxH}</div>`}
