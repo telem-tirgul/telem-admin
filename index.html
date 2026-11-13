@@ -7,7 +7,7 @@
 <script>/* אייפון: בלי הגדלה אוטומטית כשנוגעים בשדה (אפשר עדיין להגדיל עם שתי אצבעות) */ if (/iPhone|iPad|iPod/.test(navigator.userAgent)) document.querySelector('meta[name=viewport]').setAttribute("content", "width=device-width, initial-scale=1.0, maximum-scale=1.0");</script>
 <meta name="robots" content="noindex, nofollow">
 <title>תלם - מערכת ניהול</title>
-<meta name="app-version" content="5.21.123">
+<meta name="app-version" content="5.21.124">
 <link rel="icon" type="image/png" href="favicon.png?v=3">
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -3044,6 +3044,7 @@ li.ro-lead{ opacity:.75; border-style:dashed !important; }
 .form-grid > div > select, .form-grid > div > input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]), .form-grid > .field > input:not([type=checkbox]):not([type=radio]){ height:40px !important; min-height:40px; box-sizing:border-box; }
 .lc-old-can .hist-can{ font-size:12.5px; padding:2px 0; } #leadHistCan .lc-old-list{ margin-top:0; }
 .ib-gd-c1 > span{ display:flex; flex-wrap:wrap; align-items:center; column-gap:4px; } .ib-gd-c1 > span > .ib-time{ flex-basis:100%; } .ib-gd-c1 .ib-sch{ margin-inline-start:0; }
+.ib-gd-n .ib-sch{ font-weight:700; }
 </style>
 </head>
 <body>
@@ -9897,7 +9898,7 @@ function ibGdGroup(g, when){
   if (!sum2) { const ws = [...W.values()], nMiss = ws.filter(x => x.miss.length && !x.came.length).length, nSw = ws.filter(x => x.came.length && x.miss.length).length;
     sum2 = `<span class="muted">${[nMiss ? `חסר/ה ${nMiss === 1 ? "פעם אחת" : nMiss + " פעמים"} (לא ברצף)` : "", nSw ? `${nSw === 1 ? "פעם אחת" : nSw + " פעמים"} בקבוצה אחרת` : ""].filter(Boolean).join(" · ") || "אין חריגה"} – לא דורש טיפול</span>`; }
   return `<div class="ib-gd gdg ${done ? "handled" : g.some(r => r.status === "new") ? "new" : "seen"}${gOpen ? " gd-open" : ""}" data-ib="${r0.id}">
-    <div class="gdg-h" data-gdtg="${r0.student_id}" role="button" tabindex="0" aria-expanded="${gOpen}" title="לחיצה – הפרטים לפי שבועות"><span class="ib-ic" title="נוכחות מול הקבוצה"><span class="gdg-car" aria-hidden="true"></span>🗓️</span><b class="ib-gd-n">${ibNameLink(r0, lead)}</b>${ibSch(r0, lead)}<span class="ib-k gdg-k">מול הקבוצה הקבועה</span>
+    <div class="gdg-h" data-gdtg="${r0.student_id}" role="button" tabindex="0" aria-expanded="${gOpen}" title="לחיצה – הפרטים לפי שבועות"><span class="ib-ic" title="נוכחות מול הקבוצה"><span class="gdg-car" aria-hidden="true"></span>🗓️</span><b class="ib-gd-n">${ibNameLink(r0, lead)}${ibSch(r0, lead)}</b><span class="ib-k gdg-k">מול הקבוצה הקבועה</span>
       <span class="gdg-sum">${head}</span><span class="gdg-sum2">${sum2}</span><small class="ib-time">${esc(when(g[g.length - 1].created_at))}</small>
       <span class="gdg-a">${done ? `<span class="muted">✓ טופל</span>` : ids ? `<button type="button" class="btn small" data-ibs="handled:${ids}">✓ טופל (${ids.split(",").length})</button>` : ""}</span></div>
     <div class="gdg-body"${gOpen ? "" : " hidden"}>${fx.length ? "" : `<div class="gdg-fx"><span class="gdg-l">שיבוצים קבועים:</span> ${fxH}</div>`}
