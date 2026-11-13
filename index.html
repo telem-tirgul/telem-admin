@@ -3045,6 +3045,7 @@ li.ro-lead{ opacity:.75; border-style:dashed !important; }
 .lc-old-can .hist-can{ font-size:12.5px; padding:2px 0; } #leadHistCan .lc-old-list{ margin-top:0; }
 .ib-gd-c1 > span{ display:flex; flex-wrap:wrap; align-items:center; column-gap:4px; } .ib-gd-c1 > span > .ib-time{ flex-basis:100%; } .ib-gd-c1 .ib-sch{ margin-inline-start:0; }
 .ib-gd-n .ib-sch{ font-weight:700; }
+.g-grad{ color:#6B5B2E; font-weight:700; white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -5200,10 +5201,11 @@ async function loadLeads(){
   ]);
   callCount(); inboxPoll(true);
   function startHistP(){ if (!L.histP) L.histP = (async () => {   // 5.21.81: השנים הקודמות – נשמרות בדפדפן ליום
-      if (ME.role !== "instructor") { const c = await lcGet("hist"); if (c && Array.isArray(c.rows) && Date.now() - c.at < 864e5) return c.rows; }
-      const rows = await getAll("student_history", "select=student_id,school_year,year_start,status&student_id=not.is.null&order=year_start");
-      if (ME.role !== "instructor") lcPut("hist", { at: Date.now(), rows }); return rows; })().catch(() => [])
+      if (ME.role !== "instructor") { const c = await lcGet("hist2"); if (c && Array.isArray(c.rows) && Date.now() - c.at < 864e5) return c.rows; }
+      const rows = await getAll("student_history", "select=student_id,school_year,year_start,status,grade&student_id=not.is.null&order=year_start");
+      if (ME.role !== "instructor") lcPut("hist2", { at: Date.now(), rows }); return rows; })().catch(() => [])
     .then(hist => { L.hist = {}; hist.forEach(h => (L.hist[h.student_id] = L.hist[h.student_id] || []).push(h)); L.histReady = true;
+      try { if (currentView === "lead") updateLeadHead(); } catch(e) {}
       // הרשימה כבר מוצגת - מוסיפים את סימני "בעבר" (אם לא עורכים משהו בטבלה באותו רגע)
       if (currentView === "leads" && !$("view-leads").hidden && !(document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-leads select, #view-leads input"))) renderLeads();
       return L.hist; }); }   // נועה 9.11: אחרי הלא פעילים (לא במקביל – מאט את הכול)
@@ -5383,7 +5385,7 @@ function fillSelect(el, items, emptyLabel){
 function setupFilters(){
   fillSelect($("fCity"), CONFIG.cities.map(c => ({v:c, t:c})), "הכול");
   fillSelect($("fSchool"), L.schools.map(s => ({v:s.id, t:s.name + " · " + s.city})), "הכול");
-  fillSelect($("fGrade"), GRADES.map(g => ({v:g, t:g})), "הכול");
+  fillSelect($("fGrade"), GRADES.map(g => ({v:g, t:g})).concat([{ v: "__grad", t: "🎓 בוגרים" }]), "הכול");
   fillSelect($("fManager"), [{v:"none", t:"ללא מנהל"}].concat(L.staff.map(s => ({v:s.id, t:s.full_name}))), "הכול");
   // 5.19.70 (נועה): מקור ליד - תיבות סימון, כמו בסטטוס
   multiBox($("fSource"), L.sources.filter(s => s.is_active).map(s => ({ id: s.id, t: s.name })), F.sources, "כל המקורות");
@@ -5432,7 +5434,7 @@ function filtered(){
     // נועה 7.11: הסינון לפי הסטטוס הישן ירד (מוסתר מ-5.20.5; סינון שנשמר מפעם – לא מסנן יותר)
     if (city && leadCity(l) !== city) return false;
     if (school && String(s.school_id) !== school) return false;
-    if (grade && s.grade !== grade) return false;
+    if (grade && (grade === "__grad" ? !((stuGradeNow(s) || {}).grad) : (s.grade || (stuGradeNow(s) || {}).g) !== grade)) return false;   // 5.21.126: בוגרים / שכבה לפי שנים קודמות
     const na = asgOf(l).length, fa = $("fAsg").value;
     if (fa === "yes" && !na) return false; if (fa === "no" && na) return false;
     if (fa === "no" && typeof CRS !== "undefined" && CRS.ok && !crsOfStudent(s.id).some(m => !crsGone(m) && ["רשום", "ממתין לתשלום"].includes(m.status) && CRS.byId[m.course_id] && !CRS.byId[m.course_id].marathon_id && crsCat(CRS.byId[m.course_id].category_id).kind !== "event" && crsActiveSeasons().has(CRS.byId[m.course_id].season_id))) return false;   /* 5.21.17 (נועה 5.11): "לא משובצים" – רק מי שרשום / ממתין לתרגול שוטף השנה (לא ילדי מרתון) */ if (fa === "one" && na !== 1) return false;
@@ -5490,6 +5492,11 @@ async function hidLookup(n){
 // בחירת תאריכים (עודכן מ- / עד) שנוגעים בשנים קודמות → גם הילדים מ"שנים קודמות" של אותן שנים, עם עמודת שנה.
 // חיפוש שם / טלפון → גם ילדים מתאימים משנים קודמות (שאין להם כרטיס ברשימה). בלי תאריכים ובלי חיפוש – כמו קודם.
 const HIST_YS = () => { const d = todayIL(); return Number(d.slice(0, 4)) - (Number(d.slice(5, 7)) < 8 ? 1 : 0); };   // שנת הלימודים הנוכחית (ספטמבר)
+// 5.21.126 (נועה 13.11): שכבה היום לכרטיס בלי שכבה – לפי "שנים קודמות" (השנה האחרונה שיש בה שכבה). סיים/ה י"ב – "בוגר/ת"
+const stuGradeNow = (st) => { if (!st || st.grade) return null; const hs = ((L.hist || {})[st.id] || []).filter(h => h.grade && h.year_start).sort((a, b) => b.year_start - a.year_start); if (!hs.length) return null;
+  const h = hs[0], i = GRADES.findIndex(x => gradeKey(x) === gradeKey(h.grade)); if (i < 0) return null; const j = i + (HIST_YS() - h.year_start);
+  if (j >= GRADES.length) return { grad: true, year: h.year_start + (GRADES.length - 1 - i) + 1 }; return j < 0 ? null : { g: GRADES[j] }; };
+const stuGradeNowTxt = (st) => { const x = stuGradeNow(st); return !x ? "" : x.grad ? `🎓 בוגר/ת` : x.g; };
 const histGradeNow = (g, ys) => { const i = GRADES.findIndex(x => gradeKey(x) === gradeKey(g)); if (i < 0 || !ys) return ""; const j = i + (HIST_YS() - ys); return j >= GRADES.length ? "סיים/ה" : j < 0 ? "" : GRADES[j]; };
 // שנה עברית לשנת לימודים (2025 → תשפ"ו)
 const hebYear = (ys) => { const n = (Number(ys) + 3761) % 1000, h = Math.floor(n / 100), tn = Math.floor((n % 100) / 10), u = n % 10;
@@ -5706,7 +5713,7 @@ function renderLeads(){
     <td class="c-csrc">${crsChipsRow(s.id, "src")}</td>
     <td class="c-crs">${crsChipsRow(s.id)}${(() => { const w = crsMismatch(l); return w ? `<span class="crs-mis" title="בדיקה: הסטטוס מול הקורסים">⚠ ${esc(w)}</span>` : ""; })()}</td>
     <td class="c-school">${sch.name ? scChip(sch.name) : ""}${sch.city ? ` <span class="muted">${esc(sch.city)}</span>` : ""}</td>
-    <td class="c-grade">${gradeTbl(s.grade, s.class_num)}</td>
+    <td class="c-grade">${s.grade ? gradeTbl(s.grade, s.class_num) : (() => { const x = stuGradeNow(s); return !x ? "" : x.grad ? `<span class="g-grad" title="סיים/ה י״ב ב-${x.year} (לפי שנים קודמות)">🎓 בוגר/ת</span>` : `<span class="muted" title="לפי שנים קודמות">${esc(x.g)}~</span>`; })()}</td>
     <td class="c-asg" data-act="asg" title="לחיצה - שיבוץ לקבוצה / שינוי">${(() => { const a = asgOf(l), pr = propOf(l);
         const pills = a.length ? `<span class="asg-pill ${a.length === 1 && !pr.length ? "one" : ""}" title="${esc(a.map(asgText).join("\n"))}">${a.map(x => `<span class="${scCls(x.location && x.location.name)}"><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))}${x.location && x.location.name ? `<em class="asg-loc"> · ${esc(x.location.name)}</em>` : ""}${x.ends_on ? `<em class="asg-end" title="פרש/ה – השיבוץ יורד לבד אחרי התאריך"> · עד ${esc(fmtIso(x.ends_on).slice(0, 5))}</em>` : ""}</span>`).join("")}</span>` : "";
         const props = pr.length ? `<span class="asg-pill prop" title="${esc("מוצע: " + pr.map(asgText).join(", "))}">${pr.map(x => `<span><i></i>${esc(x.day)}' ${esc(String(x.start_time || "").slice(0, 5))} · מוצע</span>`).join("")}</span> <span class="prop-st ${propStage(s.id)}">${PROP_ST[propStage(s.id)]}</span>` : "";
@@ -6098,7 +6105,9 @@ function updateLeadHead(){
   const schObj = L.schools.find(x => String(x.id) === $("sSchool").value);
   { const tk = $("sTrack") && $("sTrack").value, to = tk && trkOf(tk);   // 5.19.157: המסלול בכותרת, בצבע שלו
     if ($("sTrack")) { $("sTrack").closest(".trk-f").hidden = true; } }   // 5.20.12 (נועה): המסלול רק בקורס
-  if (schObj || v("sGrade")) parts.push([schObj ? scChip(schObj.name) + ` <span class="muted">${esc(schObj.city || "")}</span>` : "", v("sGrade") ? esc("כיתה " + classLabel(v("sGrade"), v("sClass"))) : ""].filter(Boolean).join(" · "));
+  { const gx = !v("sGrade") && editing && editing.student ? stuGradeNow(editing.student) : null;   /* 5.21.126: שכבה מחושבת / בוגר/ת */
+    const gTxt = v("sGrade") ? esc("כיתה " + classLabel(v("sGrade"), v("sClass"))) : !gx ? "" : gx.grad ? `<span class="g-grad" title="לפי שנים קודמות">🎓 סיים/ה בית ספר (${gx.year})</span>` : `<span class="muted" title="לפי שנים קודמות">כיתה ${esc(gx.g)} (לפי שנים קודמות)</span>`;
+    if (schObj || gTxt) parts.push([schObj ? scChip(schObj.name) + ` <span class="muted">${esc(schObj.city || "")}</span>` : "", gTxt].filter(Boolean).join(" · ")); }
   // 5.20.43 (כל-22): קבוצת העדכונים (וואטסאפ) של בית הספר – פתיחה ושליחה להורה
   if ($("lcWaGrp")) $("lcWaGrp").hidden = true;
   { const wu = schObj ? schWaUrl(schObj.name, schObj.city) : ""; if (wu) { const wl = /^0\d{8,9}$/.test(ph) ? "https://wa.me/972" + ph.slice(1) + "?text=" + encodeURIComponent(`שלום${v("p1First") ? " " + v("p1First") : ""}, זו קבוצת העדכונים של תלם ב${schObj.name} (קבוצה שקטה – רק הודעות מאיתנו). להצטרפות:\n${wu}`) : "";
